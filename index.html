@@ -1,0 +1,3586 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Palantis – Krallık Yönetimi</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --race-color:#f1c40f;
+  --dark-bg:#0b0b0b;
+  --card-bg:#161616;
+  --sidebar-bg:#111111;
+  --hud-bg:#0d0d0d;
+  --sidebar-w:260px;
+  --theme-glow: rgba(241,196,15,0.08);
+}
+
+/* ===== TEMALAR: AYDINLIK ===== */
+body.theme-insan   { --dark-bg:#0d0b00; --card-bg:#181500; --sidebar-bg:#130f00; --hud-bg:#0f0c00; --race-color:#f1c40f; --theme-glow:rgba(241,196,15,0.10); }
+body.theme-elf     { --dark-bg:#001008; --card-bg:#001a0d; --sidebar-bg:#001208; --hud-bg:#000e06; --race-color:#2ecc71; --theme-glow:rgba(46,204,113,0.10); }
+body.theme-cuce    { --dark-bg:#080a0d; --card-bg:#10141a; --sidebar-bg:#0b0e12; --hud-bg:#08090d; --race-color:#95a5a6; --theme-glow:rgba(149,165,166,0.10); }
+body.theme-bucukluk{ --dark-bg:#0a0010; --card-bg:#160020; --sidebar-bg:#0e0018; --hud-bg:#0a0012; --race-color:#9b59b6; --theme-glow:rgba(155,89,182,0.10); }
+
+/* ===== TEMALAR: KARANLIK ===== */
+body.theme-kara_elf { --dark-bg:#0a0010; --card-bg:#140020; --sidebar-bg:#0d0018; --hud-bg:#090010; --race-color:#8e44ad; --theme-glow:rgba(142,68,173,0.12); }
+body.theme-ork      { --dark-bg:#030d03; --card-bg:#081408; --sidebar-bg:#060f06; --hud-bg:#040a04; --race-color:#27ae60; --theme-glow:rgba(39,174,96,0.12); }
+body.theme-ogre_irk { --dark-bg:#0d0500; --card-bg:#1a0c00; --sidebar-bg:#130800; --hud-bg:#0e0600; --race-color:#e67e22; --theme-glow:rgba(230,126,34,0.12); }
+body.theme-undead   { --dark-bg:#080808; --card-bg:#111111; --sidebar-bg:#0d0d0d; --hud-bg:#090909; --race-color:#7f8c8d; --theme-glow:rgba(127,140,141,0.12); }
+
+/* ===== GENEL ===== */
+body{
+  margin:0;
+  font-family:'Segoe UI',sans-serif;
+  background:var(--dark-bg);
+  color:#f5f0e8;
+  text-shadow:0 0 8px rgba(245,240,232,0.08);
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+/* ===== ANA LAYOUT ===== */
+.layout{
+  flex:1;
+  display:flex;
+  overflow:hidden;
+}
+
+/* ===== SOL MENÜ ===== */
+.sidebar{
+  width:var(--sidebar-w);
+  background:var(--sidebar-bg, #111);
+  border-right:1px solid #333;
+  display:flex;
+  flex-direction:column;
+}
+.sidebar-header{
+  padding:25px 10px;
+  text-align:center;
+  font-size:24px;
+  font-weight:bold;
+  color:var(--race-color);
+  border-bottom:2px solid var(--race-color);
+}
+.menu-item{
+  padding:15px 25px;
+  cursor:pointer;
+  border-bottom:1px solid #1a1a1a;
+  color:#e8e0d0;
+  transition:.25s;
+}
+.menu-item:hover{
+  background:#222;
+  color:var(--race-color);
+  padding-left:35px;
+}
+
+/* ===== ORTA ALAN ===== */
+.main-content{
+  flex:1;
+  padding:30px;
+  overflow-y:auto;
+}
+
+/* ===== SAYFA PANELLERİ ===== */
+.page-panel{display:none}
+.active-panel{display:block}
+
+/* ===== KART ===== */
+.card{
+  background:var(--card-bg);
+  padding:25px;
+  border-radius:12px;
+  border:1px solid #333;
+  border-left:4px solid var(--race-color);
+  margin-bottom:25px;
+}
+
+/* ===== GENEL BUTON ===== */
+.btn-action{
+  width:100%;
+  padding:12px;
+  background:var(--race-color);
+  border:none;
+  border-radius:6px;
+  font-weight:bold;
+  cursor:pointer;
+  color:#000;
+}
+
+/* ===== İŞÇİ SATIRI ===== */
+.worker-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:10px 0;
+  font-size:14px;
+  white-space:nowrap;
+  padding:8px 12px;
+  background:#0d0d0d;
+  border:1px solid #1e1e1e;
+  border-radius:10px;
+  transition:.2s;
+}
+.worker-row:hover{
+  border-color:#2a2a2a;
+  background:#111;
+}
+.worker-row button{
+  min-width:30px;
+  height:30px;
+  padding:0 8px;
+  background:linear-gradient(180deg,#1e1e1e,#161616);
+  color:var(--race-color);
+  border:1px solid #333;
+  cursor:pointer;
+  border-radius:6px;
+  font-size:13px;
+  font-weight:700;
+  font-family:'Cinzel',serif;
+  letter-spacing:.5px;
+  transition:.15s;
+  box-shadow:0 1px 4px rgba(0,0,0,.4);
+}
+.worker-row button:hover{
+  background:var(--race-color);
+  color:#000;
+  border-color:var(--race-color);
+  box-shadow:0 2px 8px rgba(241,196,15,.25);
+  transform:translateY(-1px);
+}
+.worker-row button:active{
+  transform:translateY(0);
+}
+.worker-row b{
+  min-width:36px;
+  text-align:center;
+  font-size:16px;
+  color:#f5f0e8;
+  font-family:'Cinzel',serif;
+  background:#0a0a0a;
+  border:1px solid #222;
+  border-radius:6px;
+  padding:3px 8px;
+}
+.worker-row .info{
+  color:#2ecc71;
+  font-size:12px;
+  margin-left:auto;
+  background:#0a1a0a;
+  border:1px solid #1a3020;
+  border-radius:5px;
+  padding:3px 8px;
+  font-family:'Cinzel',serif;
+}
+
+/* ===== ARAZİ TEKLİFLERİ ===== */
+.land-offer{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:14px 16px;
+  border:1px solid #333;
+  border-radius:10px;
+  background:#141414;
+  margin-top:12px;
+}
+.land-left{ font-size:15px; }
+.land-right{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.land-offer .btn-action{
+  width:auto;
+  margin-top:0;
+  padding:10px 14px;
+}
+.land-offer.disabled{
+  opacity:.55;
+  filter:grayscale(0.4);
+}
+.land-offer.sold{
+  border-left:4px solid var(--race-color);
+}
+
+/* =========================
+   HUDBAR (Excel benzeri 3 satır)  ✅ (ÜST ŞERİT)
+========================= */
+.hudbar{
+  background:#000;
+  border-bottom:2px solid var(--race-color);
+  padding:10px 12px;
+}
+
+.hud-row{
+  display:grid;
+  grid-template-columns: 90px repeat(6, 1fr);
+  gap:8px;
+  margin-bottom:8px;
+}
+.hud-row:last-child{ margin-bottom:0; }
+
+/* HUD satır başlığı: HAM / İŞLENMİŞ / GENEL */
+.hud-row-title{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:800;
+  font-size:12px;
+  color:var(--race-color);
+  background:#0d0d0d;
+  border:1px solid #222;
+  border-radius:10px;
+  padding:10px 6px;
+}
+
+.hud-cell{
+  position:relative;
+  background:#0f0f0f;
+  border:1px solid #222;
+  border-radius:10px;
+  padding:10px 10px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  font-size:13px;
+  white-space:nowrap;
+}
+.hud-cell b{ font-size:14px; color:#f5f0e8; }
+.hud-cell .gain{ color:#2ecc71; font-size:11px; margin-left:6px; }
+.hud-spacer{ background:transparent; border:none; }
+
+/* Tooltip (hover açıklama) */
+.hud-cell[data-tip]::after{
+  content: attr(data-tip);
+  position:absolute;
+  left:50%;
+  top:calc(100% + 8px);
+  transform:translateX(-50%);
+  background:#111;
+  border:1px solid #333;
+  color:#ddd;
+  padding:7px 10px;
+  border-radius:10px;
+  opacity:0;
+  pointer-events:none;
+  z-index:999;
+  font-size:12px;
+  white-space:nowrap;
+  box-shadow:0 10px 22px rgba(0,0,0,.35);
+}
+.hud-cell[data-tip]:hover::after{ opacity:1; }
+
+/* Dar ekranda taşmasın */
+@media (max-width: 1200px){
+  .hud-row{ grid-template-columns: 80px repeat(6, 1fr); }
+  .hud-cell{ font-size:12px; padding:9px 9px; }
+}
+
+
+/* ═══ ŞEHİR & BİNALAR ═══ */
+.city-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.cstat{background:#111;border:1px solid #1e1e1e;border-radius:10px;padding:14px;text-align:center;}
+.cstat .snum{font-family:'Cinzel',serif;font-size:26px;font-weight:700;color:var(--race-color);display:block;}
+.cstat .slbl{font-size:11px;color:#666;margin-top:3px;display:block;letter-spacing:.5px;}
+
+.q-item{display:flex;align-items:center;gap:12px;padding:11px 14px;background:#0d0d0d;border:1px solid #1e1e1e;border-left:3px solid #2ecc71;border-radius:8px;margin-bottom:8px;}
+.q-icon{font-size:20px;}
+.q-info{flex:1;}
+.q-name{font-family:'Cinzel',serif;font-size:12px;color:#ddd;margin-bottom:5px;}
+.q-bar{height:3px;background:#1a1a1a;border-radius:2px;overflow:hidden;}
+.q-fill{height:100%;background:#2ecc71;border-radius:2px;transition:width 1s linear;}
+.q-time{font-size:11px;color:#2ecc71;font-family:'Cinzel',serif;white-space:nowrap;}
+
+.filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px;}
+.fbtn{padding:7px 14px;background:#111;border:1px solid #222;border-radius:16px;color:#888;cursor:pointer;font-size:12px;transition:.18s;}
+.fbtn:hover,.fbtn.on{background:var(--race-color);color:#000;border-color:var(--race-color);font-weight:700;}
+
+.bg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px;}
+
+.bcard{background:#111;border:1px solid #1e1e1e;border-radius:12px;overflow:hidden;transition:.22s;position:relative;}
+.bcard:hover{border-color:#333;transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.5);}
+.bcard.building{border-color:#1a3010;}
+.bcard.locked{opacity:.45;}
+.bhead{padding:14px 16px 11px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #181818;}
+.bico{width:44px;height:44px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.bname{font-family:'Cinzel',serif;font-size:13px;color:#eee;margin:0 0 3px;font-weight:600;}
+.bdesc{font-size:11px;color:#666;margin:0;line-height:1.4;}
+.blevel{padding:10px 16px;border-bottom:1px solid #181818;}
+.blevel-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.blv-lbl{font-size:10px;color:#555;font-family:'Cinzel',serif;letter-spacing:.5px;}
+.blv-val{font-size:12px;font-weight:700;color:var(--race-color);font-family:'Cinzel',serif;}
+.bbar{height:5px;background:#1a1a1a;border-radius:3px;overflow:hidden;}
+.bbar-fill{height:100%;border-radius:3px;transition:width .4s;}
+.beffects{padding:9px 16px;display:flex;flex-wrap:wrap;gap:5px;border-bottom:1px solid #181818;}
+.etag{padding:2px 7px;border-radius:3px;font-size:10px;border:1px solid;}
+.etag.pos{color:#2ecc71;border-color:#1a3020;background:#0a1a10;}
+.etag.neg{color:#e74c3c;border-color:#301a1a;background:#1a0a0a;}
+.bcost{padding:9px 16px;border-bottom:1px solid #181818;}
+.cost-lbl{font-size:9px;color:#555;font-family:'Cinzel',serif;letter-spacing:.5px;margin-bottom:6px;}
+.cost-row{display:flex;flex-wrap:wrap;gap:5px;}
+.citem{display:flex;align-items:center;gap:3px;font-size:11px;padding:3px 7px;background:#0d0d0d;border-radius:3px;border:1px solid #1e1e1e;}
+.citem.ok{color:#ccc;} .citem.no{color:#e74c3c;}
+.bactions{padding:11px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.btime{font-size:10px;color:#555;margin-left:auto;}
+.bprog{padding:9px 16px;background:#080f05;border-top:1px solid #132008;}
+.bprog-top{display:flex;justify-content:space-between;font-size:10px;color:#2ecc71;font-family:'Cinzel',serif;letter-spacing:.4px;margin-bottom:5px;}
+.bprog-track{height:3px;background:#1a2a10;border-radius:2px;overflow:hidden;}
+.bprog-fill{height:100%;background:#2ecc71;border-radius:2px;transition:width 1s linear;}
+.maxbadge{display:inline-flex;align-items:center;gap:3px;background:#1a1500;border:1px solid var(--race-color);color:var(--race-color);border-radius:4px;padding:3px 8px;font-size:10px;font-family:'Cinzel',serif;}
+.lockbadge{position:absolute;top:10px;right:10px;background:#111;border:1px solid #2a2a2a;border-radius:4px;padding:2px 7px;font-size:9px;color:#666;font-family:'Cinzel',serif;}
+.btn-sm{padding:9px 16px;background:var(--race-color);border:none;border-radius:6px;font-family:'Cinzel',serif;font-weight:700;cursor:pointer;color:#000;font-size:12px;letter-spacing:.5px;transition:.18s;}
+.btn-sm:hover{opacity:.85;transform:translateY(-1px);}
+.btn-sm:disabled{opacity:.3;cursor:not-allowed;transform:none;}
+.btn-ghost{background:transparent;color:#888;border:1px solid #333;}
+.btn-ghost:hover{background:#1a1a1a;color:#fff;}
+
+/* ── Genel .btn stili ── */
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  padding: 9px 18px;
+  background: var(--race-color);
+  color: #000;
+  border: none;
+  border-radius: 7px;
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: .4px;
+  cursor: pointer;
+  transition: opacity .18s, transform .15s, box-shadow .18s;
+  box-shadow: 0 2px 8px rgba(0,0,0,.4);
+}
+.btn:hover { opacity: .88; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,.5); }
+.btn:active { transform: translateY(0); opacity:1; }
+.btn:disabled { opacity: .3; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.btn.ghost {
+  background: transparent;
+  color: var(--race-color);
+  border: 1.5px solid var(--race-color);
+  box-shadow: none;
+}
+.btn.ghost:hover { background: var(--theme-glow, rgba(241,196,15,0.08)); box-shadow: none; }
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:1000;align-items:center;justify-content:center;}
+.modal-bg.open{display:flex;}
+.modal-box{background:#111;border:1px solid #2a2a2a;border-top:3px solid var(--race-color);border-radius:14px;width:min(500px,92vw);max-height:88vh;overflow-y:auto;padding:26px;}
+.modal-box h2{font-family:'Cinzel',serif;font-size:18px;color:var(--race-color);margin:0 0 4px;letter-spacing:1px;}
+.modal-box .msub{color:#666;font-size:13px;margin:0 0 20px;}
+.modal-close{float:right;background:none;border:none;color:#555;font-size:20px;cursor:pointer;padding:0;margin-top:-2px;}
+.modal-close:hover{color:#fff;}
+.modal-sec{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #1a1a1a;}
+.modal-sec:last-child{border-bottom:none;margin-bottom:0;}
+.modal-sec h4{font-family:'Cinzel',serif;font-size:10px;color:#555;letter-spacing:1px;margin:0 0 10px;text-transform:uppercase;}
+.lvc{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;}
+.lvc-col{background:#0d0d0d;border:1px solid #1e1e1e;border-radius:7px;padding:10px 12px;}
+.lvc-col.next{border-color:#2ecc71;}
+.lvc-col .lt{font-size:9px;color:#555;font-family:'Cinzel',serif;letter-spacing:.5px;margin-bottom:6px;}
+.lvc-col .lv{font-size:13px;color:#ccc;margin-bottom:2px;}
+.lvc-col.next .lv{color:#2ecc71;}
+.lvc-arr{font-size:18px;color:var(--race-color);text-align:center;}
+
+#toast{position:fixed;bottom:22px;right:22px;z-index:9999;background:#111;border:1px solid #2a2a2a;border-left:3px solid var(--race-color);color:#fff;padding:11px 18px;border-radius:8px;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.6);opacity:0;transition:opacity .3s;pointer-events:none;}
+
+
+/* ═══ ORDU SİSTEMİ ═══ */
+.army-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.atab{padding:9px 18px;background:#111;border:1px solid #222;border-radius:20px;color:#888;cursor:pointer;font-size:13px;font-family:'Cinzel',serif;letter-spacing:.5px;transition:.18s;}
+.atab:hover,.atab.on{background:var(--race-color);color:#000;border-color:var(--race-color);font-weight:700;}
+
+.unit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+
+/* Ünite kartı */
+.ucard{
+  background:#111;border:1px solid #1e1e1e;border-radius:12px;
+  overflow:hidden;transition:.22s;cursor:grab;
+  position:relative;
+}
+.ucard:hover{border-color:#333;transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.5);}
+.ucard.light-unit{border-left:3px solid #f1c40f;}
+.ucard.dark-unit{border-left:3px solid #9b59b6;}
+.ucard.dragging{opacity:.5;transform:scale(.97);}
+
+/* Ünite başlık */
+.uhead{padding:13px 15px 10px;display:flex;align-items:center;gap:11px;border-bottom:1px solid #181818;}
+.uico{width:42px;height:42px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0;}
+.uname{font-family:'Cinzel',serif;font-size:13px;color:#eee;margin:0 0 3px;font-weight:600;}
+.urole{font-size:10px;color:#666;margin:0;letter-spacing:.5px;}
+.utier{position:absolute;top:10px;right:10px;font-size:9px;padding:2px 7px;border-radius:3px;font-family:'Cinzel',serif;letter-spacing:.5px;}
+.tier1{background:#0d1a0d;color:#2ecc71;border:1px solid #1a3020;}
+.tier2{background:#1a1500;color:#f1c40f;border:1px solid #2a2000;}
+.tier3{background:#1a0010;color:#e74c3c;border:1px solid #2a0020;}
+
+/* Stat bar */
+.ustat-row{display:flex;gap:6px;padding:8px 15px;border-bottom:1px solid #181818;}
+.ustat{flex:1;background:#0d0d0d;border-radius:5px;padding:6px 8px;}
+.ustat-lbl{font-size:9px;color:#555;font-family:'Cinzel',serif;letter-spacing:.5px;margin-bottom:4px;}
+.ustat-val{font-size:14px;font-weight:700;color:#f5f0e8;}
+.ustat-val.atk{color:#e74c3c;}
+.ustat-val.def{color:#3498db;}
+.ustat-val.spd{color:#2ecc71;}
+
+/* Özellikler */
+.utraits{padding:8px 15px;display:flex;flex-wrap:wrap;gap:4px;border-bottom:1px solid #181818;}
+.utrait{font-size:10px;padding:2px 6px;border-radius:3px;border:1px solid;background:#0d0d0d;}
+.utrait.atk{color:#e74c3c;border-color:#2a1010;}
+.utrait.def{color:#3498db;border-color:#10102a;}
+.utrait.spd{color:#2ecc71;border-color:#102a10;}
+.utrait.mag{color:#9b59b6;border-color:#1a1030;}
+.utrait.neu{color:#888;border-color:#222;}
+
+/* Adet kontrol */
+.ucount-bar{padding:10px 15px;display:flex;align-items:center;gap:8px;}
+.ucount-btn{width:30px;height:30px;background:#1a1a1a;color:#f5f0e8;border:1px solid #333;cursor:pointer;border-radius:6px;font-size:16px;line-height:1;transition:.15s;}
+.ucount-btn:hover{background:var(--race-color);color:#000;}
+.ucount-inp{width:60px;text-align:center;background:#0d0d0d;border:1px solid #222;color:#f5f0e8;padding:5px;border-radius:5px;font-size:14px;font-family:'Cinzel',serif;}
+.ucount-max{font-size:10px;color:#555;margin-left:auto;}
+.utrain-btn{padding:7px 12px;background:var(--race-color);border:none;border-radius:5px;font-family:'Cinzel',serif;font-weight:700;cursor:pointer;color:#000;font-size:11px;margin-left:auto;}
+.utrain-btn:hover{opacity:.85;}
+.utrain-btn:disabled{opacity:.3;cursor:not-allowed;}
+
+/* Maliyet mini */
+.ucost{padding:0 15px 10px;display:flex;flex-wrap:wrap;gap:4px;}
+.ucost-i{font-size:10px;padding:2px 6px;background:#0d0d0d;border:1px solid #1e1e1e;border-radius:3px;}
+.ucost-i.ok{color:#ccc;} .ucost-i.no{color:#e74c3c;}
+
+/* SAF DİZİLİMİ (4 saf: 3-3-5-3) */
+.saf-row{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:12px;}
+.saf-row.locked{opacity:0.4;pointer-events:none;}
+.saf-label{color:#888;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.saf-slot{width:80px;height:80px;border:2px dashed #333;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#555;font-size:11px;cursor:pointer;transition:.2s;}
+.saf-slot:hover{border-color:var(--race-color);color:var(--race-color);}
+.saf-slot.filled{border-style:solid;border-color:var(--race-color);background:rgba(241,196,15,0.05);}
+.saf-slot.filled .slot-unit{text-align:center;}
+.formation-unit-chip{background:#222;border:1px solid #444;padding:6px 12px;border-radius:6px;cursor:pointer;color:#f5f0e8;font-size:12px;transition:.2s;}
+.formation-unit-chip:hover{border-color:var(--race-color);background:#2a2a2a;}
+
+
+
+
+
+
+
+/* ═══════════════════════════════════════
+   ONBOARDING OVERLAY
+═══════════════════════════════════════ */
+#ob-overlay {
+  position:fixed;inset:0;z-index:9999;
+  background:#080608;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Crimson Pro',Georgia,serif;
+  overflow:hidden;
+}
+#ob-overlay.ob-hidden { display:none; }
+
+/* Parçacık arka plan */
+#ob-overlay::before {
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 70% 50% at 20% 30%, rgba(120,60,180,.12), transparent),
+    radial-gradient(ellipse 50% 70% at 80% 70%, rgba(200,140,40,.08), transparent),
+    radial-gradient(ellipse 40% 40% at 50% 50%, rgba(60,40,100,.15), transparent);
+  pointer-events:none;
+}
+/* Grid desen */
+#ob-overlay::after {
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(200,168,75,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(200,168,75,.025) 1px, transparent 1px);
+  background-size:48px 48px;
+  pointer-events:none;
+}
+
+.ob-box {
+  position:relative;z-index:2;
+  width:min(480px,92vw);
+}
+
+/* Logo / Başlık */
+.ob-logo {
+  text-align:center;
+  margin-bottom:36px;
+}
+.ob-rune {
+  font-size:14px;letter-spacing:14px;color:#3a2f50;
+  margin-bottom:10px;
+}
+.ob-title {
+  font-family:'Cinzel Decorative',serif;
+  font-size:clamp(1.8rem,5vw,2.6rem);
+  font-weight:900;
+  color:#d4aa50;
+  text-shadow:0 0 40px rgba(212,170,80,.3), 0 0 80px rgba(212,170,80,.1);
+  letter-spacing:4px;
+  margin-bottom:6px;
+}
+.ob-sub {
+  font-family:'Cinzel',serif;
+  font-size:.72rem;letter-spacing:3px;color:#3d3450;
+}
+
+/* Adım kartı */
+.ob-card {
+  background:linear-gradient(160deg, #0f0d16, #13101c);
+  border:1px solid #2a2240;
+  border-radius:18px;
+  padding:32px;
+  position:relative;
+  overflow:hidden;
+}
+.ob-card::before {
+  content:'';position:absolute;top:0;left:15%;right:15%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(212,170,80,.4),transparent);
+}
+
+/* Adım başlığı */
+.ob-step-label {
+  font-family:'Cinzel',serif;font-size:.65rem;
+  letter-spacing:3px;color:#3d3450;
+  text-align:center;margin-bottom:6px;
+}
+.ob-step-title {
+  font-family:'Cinzel',serif;font-size:1.05rem;
+  color:#d4aa50;text-align:center;
+  margin-bottom:24px;letter-spacing:1px;
+}
+
+/* Adım indikatörü */
+.ob-steps {
+  display:flex;align-items:center;justify-content:center;
+  gap:8px;margin-bottom:28px;
+}
+.ob-dot {
+  width:8px;height:8px;border-radius:50%;
+  background:#1e1a2a;border:1px solid #2a2240;
+  transition:.3s;
+}
+.ob-dot.ob-dot-on {
+  background:#d4aa50;border-color:#d4aa50;
+  box-shadow:0 0 10px rgba(212,170,80,.5);
+}
+.ob-dot.ob-dot-done {
+  background:#5a4a20;border-color:#7a6a30;
+}
+.ob-line { width:32px;height:1px;background:#2a2240; }
+
+/* Input */
+.ob-field { margin-bottom:16px; }
+.ob-label {
+  font-family:'Cinzel',serif;font-size:.62rem;
+  letter-spacing:2px;color:#4a4060;
+  display:block;margin-bottom:7px;
+}
+.ob-input {
+  width:100%;background:rgba(0,0,0,.4);
+  border:1px solid #2a2240;border-radius:10px;
+  color:#d4c9b8;padding:12px 16px;
+  font-family:'Crimson Pro',serif;font-size:1rem;
+  outline:none;transition:.2s;
+  box-sizing:border-box;
+}
+.ob-input:focus {
+  border-color:#d4aa50;
+  box-shadow:0 0 0 3px rgba(212,170,80,.12);
+}
+
+/* Google butonu */
+.ob-google {
+  width:100%;padding:13px;
+  background:rgba(255,255,255,.04);
+  border:1px solid #2a2240;border-radius:10px;
+  color:#9a90b0;cursor:pointer;
+  font-family:'Cinzel',serif;font-size:.75rem;
+  letter-spacing:1px;transition:.2s;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  margin-bottom:14px;
+}
+.ob-google:hover { border-color:#4a4060;color:#d4c9b8; }
+
+/* Ayraç */
+.ob-divider {
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:18px;
+}
+.ob-divider::before,.ob-divider::after {
+  content:'';flex:1;height:1px;background:#1e1a2a;
+}
+.ob-divider span {
+  font-size:.7rem;color:#2a2240;
+  font-family:'Cinzel',serif;letter-spacing:1px;
+}
+
+/* Ana buton */
+.ob-btn {
+  width:100%;padding:14px;
+  background:linear-gradient(135deg,#3d2a0a,#5a3f12);
+  border:1px solid #d4aa50;border-radius:10px;
+  color:#d4aa50;
+  font-family:'Cinzel',serif;font-weight:700;
+  font-size:.85rem;letter-spacing:2px;cursor:pointer;
+  transition:.2s;margin-top:8px;
+  position:relative;overflow:hidden;
+}
+.ob-btn::before {
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,transparent 40%,rgba(212,170,80,.08));
+}
+.ob-btn:hover:not(:disabled) {
+  box-shadow:0 0 24px rgba(212,170,80,.25);
+  transform:translateY(-1px);
+}
+.ob-btn:disabled { opacity:.3;cursor:not-allowed;transform:none; }
+
+/* Geri butonu */
+.ob-back {
+  background:transparent;border:none;
+  color:#3d3450;font-family:'Cinzel',serif;
+  font-size:.65rem;letter-spacing:1px;cursor:pointer;
+  display:block;margin:12px auto 0;transition:.2s;
+  padding:4px 12px;
+}
+.ob-back:hover { color:#7a6a80; }
+
+/* ── TARAF SEÇİMİ ── */
+.ob-side-grid {
+  display:grid;grid-template-columns:1fr 1fr;gap:14px;
+  margin-bottom:6px;
+}
+.ob-side-card {
+  padding:22px 16px;
+  border-radius:14px;border:1px solid #2a2240;
+  cursor:pointer;text-align:center;
+  transition:.25s;background:rgba(0,0,0,.3);
+  position:relative;overflow:hidden;
+}
+.ob-side-card::before {
+  content:'';position:absolute;inset:0;opacity:0;transition:.3s;
+}
+.ob-side-card.light::before {
+  background:radial-gradient(circle at 50% 0%, rgba(255,220,80,.08), transparent 70%);
+}
+.ob-side-card.dark::before {
+  background:radial-gradient(circle at 50% 0%, rgba(120,60,200,.1), transparent 70%);
+}
+.ob-side-card:hover::before,.ob-side-card.ob-on::before { opacity:1; }
+.ob-side-card:hover,.ob-side-card.ob-on {
+  border-color:#d4aa50;
+}
+.ob-side-card.ob-on.light { border-color:#f0d070;box-shadow:0 0 20px rgba(240,208,80,.15); }
+.ob-side-card.ob-on.dark { border-color:#9b6bdf;box-shadow:0 0 20px rgba(155,107,223,.15); }
+.ob-side-icon { font-size:38px;margin-bottom:10px;display:block; }
+.ob-side-name {
+  font-family:'Cinzel',serif;font-size:.85rem;
+  font-weight:700;margin-bottom:6px;
+  letter-spacing:1px;
+}
+.ob-side-card.light .ob-side-name { color:#f0d070; }
+.ob-side-card.dark .ob-side-name { color:#9b6bdf; }
+.ob-side-desc { font-size:.8rem;color:#4a4060;line-height:1.5; }
+
+/* ── IRK SEÇİMİ ── */
+.ob-irk-grid {
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+  margin-bottom:6px;
+}
+.ob-irk-card {
+  padding:14px 12px;
+  border-radius:12px;border:1px solid #2a2240;
+  cursor:pointer;transition:.2s;background:rgba(0,0,0,.3);
+}
+.ob-irk-card:hover { border-color:#4a4060; }
+.ob-irk-card.ob-on { box-shadow:0 0 16px rgba(212,170,80,.15); }
+.ob-irk-head {
+  display:flex;align-items:center;gap:9px;margin-bottom:7px;
+}
+.ob-irk-icon { font-size:20px; }
+.ob-irk-name {
+  font-family:'Cinzel',serif;font-size:.8rem;
+  font-weight:700;
+}
+.ob-irk-bonus {
+  font-size:.7rem;color:#3d3a30;line-height:1.7;
+}
+.ob-irk-bonus span { color:#6a9a6a; }
+
+/* Seçim animasyonu */
+@keyframes ob-slide-in {
+  from { opacity:0;transform:translateY(20px); }
+  to   { opacity:1;transform:translateY(0); }
+}
+.ob-card { animation:ob-slide-in .35s ease; }
+
+/* Hata mesajı */
+.ob-error {
+  background:rgba(200,60,60,.1);border:1px solid rgba(200,60,60,.3);
+  border-radius:8px;padding:10px 14px;
+  color:#e88;font-size:.85rem;text-align:center;
+  margin-bottom:14px;display:none;
+}
+.ob-error.ob-show { display:block; }
+
+/* Kayıtlı kullanıcı welcome */
+.ob-welcome {
+  text-align:center;padding:8px 0 20px;
+}
+.ob-welcome-name {
+  font-family:'Cinzel',serif;font-size:1rem;
+  color:#d4c9b8;margin-bottom:4px;
+}
+.ob-welcome-irk {
+  font-size:.8rem;color:#4a4060;
+}
+
+</style>
+
+
+<body>
+
+  <!-- ═══════════════════════════════
+       ONBOARDING OVERLAY
+  ═══════════════════════════════ -->
+  <div id="ob-overlay">
+    <div class="ob-box">
+
+      <!-- Logo -->
+      <div class="ob-logo">
+        <div class="ob-rune">ᚦ ᚨ ᛚ ᚨ ᚾ ᛏ ᛁ ᛊ</div>
+        <div class="ob-title">PALANTIS</div>
+        <div class="ob-sub">KARANLIK ÇAĞLARIN STRATEJİ DÜNYASI</div>
+      </div>
+
+      <!-- ── ADIM 1: GİRİŞ ── -->
+      <div id="ob-step-login" class="ob-card">
+        <div class="ob-step-label">ADIM 1 / 3</div>
+        <div class="ob-step-title">Krallığına Giriş Yap</div>
+        <div class="ob-steps">
+          <div class="ob-dot ob-dot-on"></div>
+          <div class="ob-line"></div>
+          <div class="ob-dot"></div>
+          <div class="ob-line"></div>
+          <div class="ob-dot"></div>
+        </div>
+
+        <div class="ob-error" id="ob-login-err">Kullanıcı adı veya şifre hatalı.</div>
+
+        <button class="ob-google" onclick="obGoogleLogin()">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285f4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34a853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#fbbc05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#ea4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Google ile Giriş Yap
+        </button>
+
+        <div class="ob-divider"><span>VEYA</span></div>
+
+        <!-- Sadece kayıt modunda görünür: e-mail -->
+        <div class="ob-field" id="ob-email-wrap" style="display:none">
+          <label class="ob-label">E-MAİL ADRESİ</label>
+          <input class="ob-input" id="ob-email" type="email" placeholder="ornek@mail.com" autocomplete="email">
+        </div>
+
+        <div class="ob-field">
+          <label class="ob-label">KULLANICI ADI</label>
+          <input class="ob-input" id="ob-username" type="text" placeholder="Kral adınız..." autocomplete="username">
+        </div>
+        <div class="ob-field">
+          <label class="ob-label">ŞİFRE</label>
+          <input class="ob-input" id="ob-password" type="password" placeholder="••••••••" autocomplete="current-password">
+        </div>
+
+        <!-- Sadece kayıt modunda görünür: şifre tekrar -->
+        <div class="ob-field" id="ob-pass2-wrap" style="display:none">
+          <label class="ob-label">ŞİFRE (TEKRAR)</label>
+          <input class="ob-input" id="ob-password2" type="password" placeholder="Şifreyi tekrar gir...">
+        </div>
+
+        <button class="ob-btn" id="ob-main-btn" onclick="obLogin()">⚔️ GİRİŞ YAP</button>
+        <button class="ob-back" onclick="obToggleRegister()">
+          <span id="ob-toggle-txt">Hesabın yok mu? <u>Kayıt ol</u></span>
+        </button>
+      </div>
+
+      <!-- ── ADIM 2: TARAF ── -->
+      <div id="ob-step-side" class="ob-card" style="display:none">
+        <div class="ob-step-label">ADIM 2 / 3</div>
+        <div class="ob-step-title">Tarafını Seç</div>
+        <div class="ob-steps">
+          <div class="ob-dot ob-dot-done"></div>
+          <div class="ob-line"></div>
+          <div class="ob-dot ob-dot-on"></div>
+          <div class="ob-line"></div>
+          <div class="ob-dot"></div>
+        </div>
+
+        <!-- Canlı istatistikler -->
+        <div id="ob-side-stats" style="display:flex;justify-content:center;gap:24px;margin-bottom:16px;font-size:13px;color:#666;">
+          <span>☀️ Aydınlık: <b id="stat-iyi" style="color:#f0d070">—</b> oyuncu</span>
+          <span>🌑 Karanlık: <b id="stat-kotu" style="color:#9b6bdf">—</b> oyuncu</span>
+        </div>
+
+        <div class="ob-side-grid">
+          <div class="ob-side-card light" id="ob-side-light" onclick="obSelectSide('iyi',this)">
+            <span class="ob-side-icon">☀️</span>
+            <div class="ob-side-name">AYDINLIK</div>
+            <div class="ob-side-desc">İnsan, Elf, Cüce, Buçukluk — ışığın yolunda savaşanlar</div>
+          </div>
+          <div class="ob-side-card dark" id="ob-side-dark" onclick="obSelectSide('kotu',this)">
+            <span class="ob-side-icon">🌑</span>
+            <div class="ob-side-name">KARANLIK</div>
+            <div class="ob-side-desc">Kara Elf, Ork, Ogre, Undead — gölgenin efendileri</div>
+          </div>
+        </div>
+
+        <button class="ob-btn" id="ob-side-btn" onclick="obGoToIrk()" disabled>DEVAM ET →</button>
+        <button class="ob-back" onclick="obGoTo('login')">← Geri</button>
+      </div>
+
+      <!-- ── ADIM 3: IRK ── -->
+      <div id="ob-step-irk" class="ob-card" style="display:none">
+        <div class="ob-step-label">ADIM 3 / 3</div>
+        <div class="ob-step-title">Irkını Seç</div>
+        <div class="ob-steps">
+          <div class="ob-dot ob-dot-done"></div>
+          <div class="ob-line"></div>
+          <div class="ob-dot ob-dot-done"></div>
+          <div class="ob-line"></div>
+          <div class="ob-dot ob-dot-on"></div>
+        </div>
+
+        <div class="ob-irk-grid" id="ob-irk-grid"></div>
+
+        <button class="ob-btn" id="ob-irk-btn" onclick="obFinish()" disabled>⚔️ KRALLIMI KUR</button>
+        <button class="ob-back" onclick="obGoTo('side')">← Geri</button>
+      </div>
+
+      <!-- ── KAYITLI KULLANICI KARŞILAMA ── -->
+      <div id="ob-step-welcome" class="ob-card" style="display:none">
+        <div class="ob-step-title" style="margin-bottom:20px">Tekrar Hoş Geldin!</div>
+        <div class="ob-welcome">
+          <div class="ob-welcome-name" id="ob-welcome-name">—</div>
+          <div class="ob-welcome-irk" id="ob-welcome-irk">—</div>
+        </div>
+        <button class="ob-btn" onclick="obEnterGame()">⚔️ OYUNA GİR</button>
+      </div>
+
+    </div>
+  </div>
+  <!-- /ONBOARDING -->
+
+
+  <!-- ===== ÜST HUD (SENİN EXCEL BAR) ===== -->
+  <div class="top-bar hudbar">
+    <!-- SATIR 1: HAM -->
+    <div class="hud-row">
+     <div class="hud-row-title">HAM</div>
+
+      <div class="hud-cell" data-tip="Odun (ham)">
+        🌳 Odun <b id="hud-w">0</b> <span class="gain">(+<span id="hud-wg">0</span>)</span>
+      </div>
+
+      <div class="hud-cell" data-tip="Metal/Demir (ham)">
+        ⛓️ Metal <b id="hud-m">0</b> <span class="gain">(+<span id="hud-mg">0</span>)</span>
+      </div>
+
+      <div class="hud-cell" data-tip="Buğday (ham)">
+        🌾 Buğday <b id="hud-bu">0</b> <span class="gain">(+<span id="hud-bug">0</span>)</span>
+      </div>
+
+      <div class="hud-cell" data-tip="Balık (ham)">
+        🎣 Balık <b id="hud-ba">0</b> <span class="gain">(+<span id="hud-bag">0</span>)</span>
+      </div>
+
+      <div class="hud-cell" data-tip="Taş (ham)">
+        🪨 Taş <b id="hud-t">0</b> <span class="gain">(+<span id="hud-tg">0</span>)</span>
+      </div>
+
+      <div class="hud-cell" data-tip="Altın">
+        💰 Altın <b id="hud-g">0</b> <span class="gain">(+<span id="hud-gg">0</span>)</span>
+      </div>
+    </div>
+
+    <!-- SATIR 2: İŞLENMİŞ -->
+    <div class="hud-row">
+     <div class="hud-row-title">İŞLENMİŞ</div>
+
+      <div class="hud-cell" data-tip="Kereste (Odun → Kereste)">
+        🪵 Kereste <b id="hud-k">0</b> <span class="gain">(+<span id="hud-kg">0</span>)</span>
+      </div>
+
+      <div class="hud-cell" data-tip="İşlenmiş Metal (Metal → İşlenmiş)">
+        🔩 İşlenmiş <b id="hud-im">0</b> <span class="gain">(+<span id="hud-img">0</span>)</span>
+      </div>
+
+      <div class="hud-cell" data-tip="Ekmek (Buğday → Ekmek)">
+        🍞 Ekmek <b id="hud-e">0</b> <span class="gain">(+<span id="hud-eg">0</span>)</span>
+      </div>
+
+      <div class="hud-cell" data-tip="Pişmiş Balık (Balık → Pişmiş)">
+        🍳 Pişmiş <b id="hud-pb">0</b> <span class="gain">(+<span id="hud-pbg">0</span>)</span>
+      </div>
+
+      <div class="hud-spacer"></div>
+      <div class="hud-spacer"></div>
+    </div>
+
+    <!-- SATIR 3: GENEL + SAAT -->
+    <div class="hud-row">
+     <div class="hud-row-title">GENEL</div>
+
+      <div class="hud-cell" data-tip="Moral seviyesi">
+        😊 Moral <b id="hud-moral">70%</b>
+      </div>
+
+      <div class="hud-cell" data-tip="Açlık seviyesi">
+        🍞 Açlık <b id="hud-hunger">10%</b>
+      </div>
+
+      <div class="hud-cell" data-tip="Alan: Kullanılan / Mevcut">
+        📐 Alan <b><span id="hud-used">0</span>/<span id="hud-land">100</span></b>
+      </div>
+
+      <div class="hud-cell" data-tip="Çağa göre alan limiti">
+        🧱 Limit <b id="hud-limit">300</b>
+      </div>
+
+      <div class="hud-cell" data-tip="Şu anki saat">
+        ⏰ Saat <b id="c-now">00:00:00</b>
+      </div>
+
+      <div class="hud-cell" data-tip="Bir sonraki saat başına kalan süre">
+        ⏳ Hasat <b id="c-next">00:00</b>
+      </div>
+    </div>
+  </div>
+  <!-- ===== /ÜST HUD ===== -->
+
+
+  <!-- ===== ALT LAYOUT ===== -->
+  <div class="layout">
+
+    <!-- SOL MENÜ -->
+    <div class="sidebar">
+      <div class="sidebar-header">PALANTIS</div>
+      <div style="padding:10px 14px;border-bottom:1px solid #1a1a1a;line-height:1.8">
+        <div id="sidebar-kral" style="color:#ccc;font-family:'Cinzel',serif;font-size:12px">— Kral —</div>
+        <div id="sidebar-irk" style="font-size:10px;color:#444">Irk seçilmedi</div>
+        <div id="sidebar-cag" style="font-size:10px;color:#444">I. Çağ</div>
+      </div>
+
+      <div class="menu-item" onclick="showPage('home')">🏠 Ana Ekran</div>
+      <div class="menu-item" onclick="showPage('population')">👥 Nüfus & İşçiler</div>
+      <div class="menu-item" onclick="showPage('city');setFilter('all',null);toggleSubMenu('submenu-city',this)">🏙️ Şehrim</div>
+      <div id="submenu-city" style="display:none;background:#0a0a0a;border-left:2px solid #2a2a2a;margin:0">
+        <div class="menu-item sub-item" onclick="showPage('city');setFilter('all',this)" style="padding:6px 6px 6px 28px;font-size:12px" data-filter="all">🏛️ Tümü</div>
+        <div class="menu-item sub-item" onclick="showPage('city');setFilter('uretim',this)" style="padding:6px 6px 6px 28px;font-size:12px" data-filter="uretim">⚒️ Üretim</div>
+        <div class="menu-item sub-item" onclick="showPage('city');setFilter('askeri',this)" style="padding:6px 6px 6px 28px;font-size:12px" data-filter="askeri">⚔️ Askeri</div>
+        <div class="menu-item sub-item" onclick="showPage('city');setFilter('gelisim',this)" style="padding:6px 6px 6px 28px;font-size:12px" data-filter="gelisim">📚 Gelişim</div>
+        <div class="menu-item sub-item" onclick="showPage('city');setFilter('sosyal',this)" style="padding:6px 6px 6px 28px;font-size:12px" data-filter="sosyal">🏛️ Sosyal</div>
+        <div class="menu-item sub-item" onclick="showPage('city');setFilter('sehir',this)" style="padding:6px 6px 6px 28px;font-size:12px" data-filter="sehir">🏙️ Şehir</div>
+        <div class="menu-item sub-item" onclick="showPage('city');setFilter('ozel',this)" style="padding:6px 6px 6px 28px;font-size:12px" data-filter="ozel">✨ Özel</div>
+      </div>
+      <div class="menu-item" onclick="showPage('land')">🧭 Arazi</div>
+      <div class="menu-item" onclick="showPage('army');armyTab('units',null);toggleSubMenu('submenu-army',this)">⚔️ Ordu & Savaş</div>
+      <div id="submenu-army" style="display:none;background:#0a0a0a;border-left:2px solid #2a2a2a;margin:0">
+        <div class="menu-item sub-item army-sub on" data-atab="units" onclick="showPage('army');armyTab('units',this)" style="padding:6px 6px 6px 28px;font-size:12px">🗡️ Asker Eğitimi</div>
+        <div class="menu-item sub-item army-sub" data-atab="soldier" onclick="showPage('army');armyTab('soldier',this)" style="padding:6px 6px 6px 28px;font-size:12px">🪖 Asker Yönetimi</div>
+        <div class="menu-item sub-item army-sub" data-atab="armies" onclick="showPage('army');armyTab('armies',this)" style="padding:6px 6px 6px 28px;font-size:12px">🏕️ Ordu Yönetimi</div>
+        <div class="menu-item sub-item army-sub" data-atab="formation" onclick="showPage('army');armyTab('formation',this)" style="padding:6px 6px 6px 28px;font-size:12px">⚔️ Saf Dizilimi</div>
+        <div class="menu-item sub-item army-sub" data-atab="upgrades" onclick="showPage('army');armyTab('upgrades',this)" style="padding:6px 6px 6px 28px;font-size:12px">📈 Geliştirmeler</div>
+      </div>
+      <div class="menu-item" onclick="showPage('magic')">🧙 Büyüler</div>
+      <div class="menu-item" onclick="showPage('guild')">🏰 Guild</div>
+      <div class="menu-item" onclick="showPage('reports')">📜 Raporlar</div>
+    </div>
+
+    <!-- ORTA ALAN -->
+    <div class="main-content">
+
+      <div id="home" class="page-panel active-panel">
+
+        <!-- Kral Bilgi Kartı -->
+        <div class="city-stats" style="margin-bottom:20px">
+          <div class="cstat"><span class="snum" id="home-kral">—</span><span class="slbl">KRAL</span></div>
+          <div class="cstat"><span class="snum" id="home-sehir">—</span><span class="slbl">ŞEHİR</span></div>
+          <div class="cstat"><span class="snum" id="home-irk">—</span><span class="slbl">IRK</span></div>
+          <div class="cstat"><span class="snum" id="home-cag">I. Çağ</span><span class="slbl">ÇAĞ</span></div>
+        </div>
+
+        <!-- Eğer ırk seçilmemişse setup göster -->
+
+        <!-- Kurulduktan sonra ana ekran -->
+        <div id="main-home">
+          <div class="card" style="padding:20px;margin-bottom:16px">
+            <h2 id="main-welcome">Hoş geldin, Kral!</h2>
+            <p style="color:#666;margin-top:8px;font-size:14px">Krallığın büyüyor. Sol menüden istediğin bölüme git.</p>
+          </div>
+
+          <!-- 1. Çağ uyarısı -->
+          <div id="cag1-uyari" class="card" style="padding:16px;border-left:3px solid #e67e22;margin-bottom:16px">
+            <h3 style="color:#e67e22;margin-bottom:8px">⚠️ I. Çağ Kısıtlamaları</h3>
+            <p style="font-size:13px;color:#888;line-height:1.7">
+              • Diğer oyuncularla savaşamazsın<br>
+              • Guild'lere katılamazsın<br>
+              • Pazar alanını 30 reel gün boyunca özgürce kullanabilirsin<br>
+              • II. Çağa geçince tüm özellikler açılır
+            </p>
+          </div>
+
+          <!-- Haber paneli (savaş raporları örneği) -->
+          <div class="card" style="padding:20px">
+            <h3 style="margin-bottom:14px">📜 Şehir Haberleri</h3>
+            <div id="haberler" style="font-size:13px;color:#666;line-height:2">
+              <div>• Krallığın kuruldu. İlk binaları inşa etmeye başla.</div>
+              <div>• Balıkçılar her ayın 4-8-12-16-20-24. günlerinde limana uğrar.</div>
+              <div>• Hasat ayları: Haziran, Ağustos, Ekim — kaynak üretimi artar.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="population" class="page-panel">
+
+        <!-- Nüfus özet bar -->
+        <div class="city-stats" style="margin-bottom:20px">
+          <div class="cstat"><span class="snum" id="pop-total">10</span><span class="slbl">TOPLAM</span></div>
+          <div class="cstat"><span class="snum" id="pop-free">10</span><span class="slbl">BOŞTA</span></div>
+          <div class="cstat"><span class="snum" id="pop-max">1500</span><span class="slbl">MAKSİMUM</span></div>
+          <div class="cstat"><span class="snum" id="pop-mutlu">70%</span><span class="slbl">MUTLULUK</span></div>
+        </div>
+
+        <!-- İşçi dağılımı -->
+        <div class="card" style="padding:20px;margin-bottom:16px">
+          <h2>👥 İşçi Dağılımı</h2>
+          <p style="color:#555;font-size:13px;margin-bottom:18px">Maksimum işçi sayısı <b style="color:#ccc">1500</b>'dür. Çağ atladıkça artar.</p>
+
+          <div class="worker-row">
+            🌳 Oduncu: <button type="button" onclick="assignWorker('wood',-10)">−10</button>
+            <button type="button" onclick="assignWorker('wood',-1)">−</button>
+            <b id="w-wood">0</b>
+            <button type="button" onclick="assignWorker('wood',1)">+</button>
+            <button type="button" onclick="assignWorker('wood',10)">+10</button>
+            <span class="info">(+<span id="p-wood">0</span> odun/gün)</span>
+          </div>
+
+          <div class="worker-row">
+            🪨 Taşçı: <button type="button" onclick="assignWorker('stone',-10)">−10</button>
+            <button type="button" onclick="assignWorker('stone',-1)">−</button>
+            <b id="w-stone">0</b>
+            <button type="button" onclick="assignWorker('stone',1)">+</button>
+            <button type="button" onclick="assignWorker('stone',10)">+10</button>
+            <span class="info">(+<span id="p-stone">0</span> taş/gün)</span>
+          </div>
+
+          <div class="worker-row">
+            ⛓️ Madenci: <button type="button" onclick="assignWorker('iron',-10)">−10</button>
+            <button type="button" onclick="assignWorker('iron',-1)">−</button>
+            <b id="w-iron">0</b>
+            <button type="button" onclick="assignWorker('iron',1)">+</button>
+            <button type="button" onclick="assignWorker('iron',10)">+10</button>
+            <span class="info">(+<span id="p-iron">0</span> metal/gün)</span>
+          </div>
+
+          <div class="worker-row">
+            🌾 Çiftçi: <button type="button" onclick="assignWorker('farm',-10)">−10</button>
+            <button type="button" onclick="assignWorker('farm',-1)">−</button>
+            <b id="w-farm">0</b>
+            <button type="button" onclick="assignWorker('farm',1)">+</button>
+            <button type="button" onclick="assignWorker('farm',10)">+10</button>
+            <span class="info">(+<span id="p-farm">0</span> buğday/gün)</span>
+          </div>
+
+          <div class="worker-row">
+            🎣 Balıkçı: <button type="button" onclick="assignWorker('fish',-10)">−10</button>
+            <button type="button" onclick="assignWorker('fish',-1)">−</button>
+            <b id="w-fish">0</b>
+            <button type="button" onclick="assignWorker('fish',1)">+</button>
+            <button type="button" onclick="assignWorker('fish',10)">+10</button>
+            <span class="info">(+<span id="p-fish">0</span> balık/gün)</span>
+          </div>
+
+          <div class="worker-row">
+            💰 Tüccar: <button type="button" onclick="assignWorker('merchant',-10)">−10</button>
+            <button type="button" onclick="assignWorker('merchant',-1)">−</button>
+            <b id="w-merchant">0</b>
+            <button type="button" onclick="assignWorker('merchant',1)">+</button>
+            <button type="button" onclick="assignWorker('merchant',10)">+10</button>
+            <span class="info">(+<span id="p-merchant">0</span> altın/gün)</span>
+          </div>
+
+          <button class="btn" type="button" onclick="saveWorkers()" style="margin-top:14px;width:100%">💾 Dağılımı Kaydet</button>
+        </div>
+
+        <!-- Mutluluk & Nüfus etkileri -->
+        <div class="card" style="padding:18px">
+          <h3 style="margin-bottom:12px">📊 Hammadde Bonus Etkileri</h3>
+          <p style="font-size:13px;color:#555;line-height:1.9">
+            Hammadde üretimine etki eden faktörler:<br>
+            <span style="color:#888">🏹 Irk etkisi &nbsp;·&nbsp; 🌟 Çağ etkisi &nbsp;·&nbsp; 😊 Mutluluk etkisi</span><br>
+            <span style="color:#888">👥 Popülasyon etkisi &nbsp;·&nbsp; 🔮 Büyü etkisi &nbsp;·&nbsp; 💎 Premium etkisi</span><br>
+            <span style="color:#e67e22;font-size:12px">⚠ Popülasyon arttıkça hammadde geliri düşer.</span>
+          </p>
+        </div>
+
+      </div>
+
+      <div id="city" class="page-panel">
+
+        <!-- Özet -->
+        <div class="city-stats">
+          <div class="cstat"><span class="snum" id="cs-active">—</span><span class="slbl">AKTİF BİNA</span></div>
+          <div class="cstat"><span class="snum" id="cs-constr">0</span><span class="slbl">İNŞAAT</span></div>
+          <div class="cstat"><span class="snum" id="cs-age">I. Çağ</span><span class="slbl">ÇAĞ</span></div>
+          <div class="cstat"><span class="snum" id="cs-pop">340</span><span class="slbl">NÜFUS</span></div>
+        </div>
+
+        <!-- Kuyruk -->
+        <div id="queue-wrap" style="display:none;margin-bottom:20px">
+          <div class="card" style="padding:18px">
+            <h3>🔨 İnşaat Kuyruğu</h3>
+            <div id="queue-list"></div>
+          </div>
+        </div>
+
+        <!-- Filtreler -->
+        <div class="filters">
+          <!-- Filtre butonları sol menüye taşındı -->
+        </div>
+
+        <!-- Bina Grid -->
+        <div class="bg-grid" id="bg-grid"></div>
+      </div>
+
+      <div id="land" class="page-panel">
+        <div class="card">
+          <h2>🧭 Arazi Borsası</h2>
+          <p>⏳ Yeni arazilere kalan süre: <b id="land-timer">00:00:00</b></p>
+          <p>📐 Mevcut Alan: <b id="land-current">100</b><br>🏛️ Çağ Limiti: <b id="land-limit">300</b></p>
+        </div>
+
+        <div class="card">
+          <h3>📜 Mevcut Teklifler</h3>
+          <div id="land-offers"></div>
+        </div>
+      </div>
+
+      <div id="army" class="page-panel">
+
+      <!-- Özet bar -->
+      <div class="city-stats" id="army-stats-bar">
+        <div class="cstat"><span class="snum" id="as-atk">0</span><span class="slbl">TOPLAM ATK</span></div>
+        <div class="cstat"><span class="snum" id="as-def">0</span><span class="slbl">TOPLAM DEF</span></div>
+        <div class="cstat"><span class="snum" id="as-units">0</span><span class="slbl">BİRİM SAYISI</span></div>
+        <div class="cstat"><span class="snum" id="as-maas">0</span><span class="slbl">MAAŞ/GÜN 💰</span></div>
+      </div>
+
+      <!-- Sekmeler -->
+      <div class="army-tabs" style="display:none">
+        <button class="atab on" id="atab-btn-units" onclick="armyTab('units',this)">⚔️ Asker Eğitimi</button>
+        <button class="atab" id="atab-btn-soldier" onclick="armyTab('soldier',this)">🪖 Asker Yönetimi</button>
+        <button class="atab" id="atab-btn-armies" onclick="armyTab('armies',this)">🏕️ Ordu Yönetimi</button>
+        <button class="atab" id="atab-btn-formation" onclick="armyTab('formation',this)">⚔️ Saf Dizilimi</button>
+        <button class="atab" id="atab-btn-upgrades" onclick="armyTab('upgrades',this)">📈 Geliştirmeler</button>
+      </div>
+
+      <!-- Asker Eğitimi: otomatik oyuncunun tarafına göre -->
+      <div id="atab-units" class="army-section">
+        <div class="unit-grid" id="ugrid-player"></div>
+      </div>
+
+      <!-- Asker Yönetimi: köylü → asker dönüşümü -->
+      <div id="atab-soldier" class="army-section" style="display:none">
+        <div class="card">
+          <h2>🪖 Asker Yönetimi</h2>
+          <p style="color:#777;margin-bottom:18px;font-size:14px">Boştaki köylüleri askere dönüştür. Her asker 1 köylü kullanır.</p>
+          <div class="city-stats" style="margin-bottom:20px">
+            <div class="cstat"><span class="snum" id="sm-koylu">0</span><span class="slbl">BOŞ KÖYLÜ</span></div>
+            <div class="cstat"><span class="snum" id="sm-asker">0</span><span class="slbl">TOPLAM ASKER</span></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+            <label style="color:#aaa;font-size:14px">Dönüştürülecek köylü sayısı:</label>
+            <div style="display:flex;align-items:center;gap:6px">
+              <button class="btn ghost" style="padding:4px 12px;font-size:16px" onclick="smAdjust(-10)">−10</button>
+              <button class="btn ghost" style="padding:4px 10px;font-size:16px" onclick="smAdjust(-1)">−</button>
+              <span id="sm-miktar" style="min-width:48px;text-align:center;font-size:18px;font-weight:bold;color:#d4af37">0</span>
+              <button class="btn ghost" style="padding:4px 10px;font-size:16px" onclick="smAdjust(1)">+</button>
+              <button class="btn ghost" style="padding:4px 12px;font-size:16px" onclick="smAdjust(10)">+10</button>
+            </div>
+            <button class="btn" onclick="smConvert()" style="min-width:140px">⚔️ Askere Çevir</button>
+            <button class="btn ghost" onclick="smRelease()" style="min-width:140px">🏠 Köylüye Çevir</button>
+          </div>
+          <div id="sm-msg" style="color:#888;font-size:13px;min-height:20px"></div>
+        </div>
+      </div>
+
+      <!-- Ordu Yönetimi: max 5 ordu -->
+      <div id="atab-armies" class="army-section" style="display:none">
+        <div class="card" style="margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+            <div>
+              <h2 style="margin:0">🏕️ Ordu Yönetimi</h2>
+              <p style="color:#777;font-size:13px;margin:4px 0 0">Maksimum 5 ordu kurabilirsin. Her orduda max 500 asker.</p>
+            </div>
+            <button class="btn" id="ordu-yeni-btn" onclick="orduYeniAc()">➕ Yeni Ordu Kur</button>
+          </div>
+        </div>
+        <!-- Yeni ordu formu -->
+        <div id="ordu-form" class="card" style="display:none;margin-bottom:16px;border:1px solid #d4af3744">
+          <h3 style="margin:0 0 12px">Yeni Ordu Kur</h3>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+            <input id="ordu-isim" type="text" placeholder="Ordu adı (ör: Kuzey Lejyonu)" maxlength="30"
+              style="flex:1;min-width:200px;background:#1a1a1a;border:1px solid #444;color:#eee;padding:8px 12px;border-radius:6px;font-size:14px">
+            <div style="display:flex;align-items:center;gap:6px">
+              <label style="color:#aaa;font-size:13px">Asker:</label>
+              <button class="btn ghost" style="padding:3px 10px" onclick="orduAdjust(-10)">−10</button>
+              <button class="btn ghost" style="padding:3px 8px" onclick="orduAdjust(-1)">−</button>
+              <span id="ordu-miktar" style="min-width:44px;text-align:center;font-size:16px;font-weight:bold;color:#d4af37">1</span>
+              <button class="btn ghost" style="padding:3px 8px" onclick="orduAdjust(1)">+</button>
+              <button class="btn ghost" style="padding:3px 10px" onclick="orduAdjust(10)">+10</button>
+            </div>
+            <button class="btn" onclick="orduKur()">✅ Kur</button>
+            <button class="btn ghost" onclick="document.getElementById('ordu-form').style.display='none'">İptal</button>
+          </div>
+          <div id="ordu-form-msg" style="color:#888;font-size:12px"></div>
+        </div>
+        <!-- Kurulu ordular listesi -->
+        <div id="ordu-liste"></div>
+      </div>
+
+      <div class="army-section" id="atab-formation" style="display:none">
+        <div class="card">
+          <h2>⚔️ Saf Dizilimi</h2>
+          <p style="color:#888;margin-bottom:16px">Birliklerini 4 safa yerleştir. Bir saf dolmadan sonraki safa geçilemez.</p>
+
+          <div id="formation-select" style="margin-bottom:16px">
+            <label style="color:#aaa">Ordu seç: </label>
+            <select id="formation-army-select" onchange="loadFormationForArmy()" style="background:#1a1a1a;color:#f5f0e8;border:1px solid #333;padding:6px 12px;border-radius:6px">
+              <option value="">-- Ordu Seç --</option>
+            </select>
+          </div>
+
+          <div id="formation-grid" style="display:flex;flex-direction:column;gap:12px">
+            <div class="saf-row" data-saf="1">
+              <div class="saf-label">1. SAF (3 birim)</div>
+              <div class="saf-slots" id="saf-1" style="display:flex;gap:8px"></div>
+            </div>
+            <div class="saf-row" data-saf="2">
+              <div class="saf-label">2. SAF (3 birim)</div>
+              <div class="saf-slots" id="saf-2" style="display:flex;gap:8px"></div>
+            </div>
+            <div class="saf-row" data-saf="3">
+              <div class="saf-label">3. SAF (5 birim)</div>
+              <div class="saf-slots" id="saf-3" style="display:flex;gap:8px"></div>
+            </div>
+            <div class="saf-row" data-saf="4">
+              <div class="saf-label">4. SAF (3 birim)</div>
+              <div class="saf-slots" id="saf-4" style="display:flex;gap:8px"></div>
+            </div>
+          </div>
+
+          <div id="formation-available" style="margin-top:20px">
+            <h3 style="color:var(--race-color)">Kullanılabilir Üniteler</h3>
+            <div id="formation-units-pool" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
+          </div>
+
+          <div style="margin-top:20px;display:flex;gap:12px">
+            <button class="btn" onclick="saveFormation()" style="flex:1">💾 Dizilimi Kaydet</button>
+            <button class="btn ghost" onclick="resetFormation()">🔄 Sıfırla</button>
+          </div>
+          <div id="formation-msg" style="margin-top:8px"></div>
+        </div>
+      </div>
+
+      <!-- GELİŞTİRMELER PANELİ -->
+      <div class="army-section" id="atab-upgrades" style="display:none">
+        <div class="card" style="padding:15px">
+          <!-- renderUpgrades() ile doldurulacak -->
+        </div>
+      </div>
+
+      </div>
+
+      <div id="magic" class="page-panel">
+        <div class="city-stats" style="margin-bottom:20px">
+          <div class="cstat"><span class="snum" id="worshipper-count">0</span><span class="slbl">WORSHIPPER</span></div>
+          <div class="cstat"><span class="snum">2000</span><span class="slbl">MAKSİMUM</span></div>
+          <div class="cstat"><span class="snum" id="worshipper-mana">0</span><span class="slbl">MANA/SAAT</span></div>
+          <div class="cstat"><span class="snum">—</span><span class="slbl">TANRI</span></div>
+        </div>
+        <div class="card" style="padding:20px;margin-bottom:16px">
+          <h2>🙏 Worshipper Sistemi</h2>
+          <p style="color:#555;font-size:13px;margin-bottom:16px">Büyü savaşı için Worshipper üretirsin. Maksimum <b style="color:#ccc">2000</b> adet. Bedavaya çalışır, mana üretir.</p>
+          <div class="worker-row" style="gap:12px">
+            🙏 Worshipper:
+            <button type="button" onclick="setWorshippers(WORSHIPPERS.count-100)">−100</button>
+            <button type="button" onclick="setWorshippers(WORSHIPPERS.count-1)">−</button>
+            <b id="worshipper-count">0</b>
+            <button type="button" onclick="setWorshippers(WORSHIPPERS.count+1)">+</button>
+            <button type="button" onclick="setWorshippers(WORSHIPPERS.count+100)">+100</button>
+            <span class="info">(+<span id="worshipper-mana">0</span> mana/gün)</span>
+          </div>
+        </div>
+        <div class="card" style="padding:20px">
+          <h2>🔮 Büyü Slotları</h2>
+          <p style="color:#444;font-size:13px">Büyücü Kulesi inşa edilince büyü slotları açılır.</p>
+          <div style="margin-top:14px;padding:16px;background:#080808;border-radius:8px;border:1px solid #1a1a1a">
+            <div style="color:#333;font-size:13px;text-align:center">[ Büyücü Kulesi gerekli ]</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="guild" class="page-panel">
+        <div class="card">
+          <h2>🏰 Guild</h2>
+          <p>Guild kurma, üyeler, bonuslar ve duyurular burada olacak.</p>
+        </div>
+      </div>
+
+
+      
+
+          <div class="city-stats" style="margin-bottom:20px">
+          <div id="reports" class="page-panel">
+        <div class="card">
+          <h2>📜 Raporlar</h2>
+          <p>Savaş raporları, casus raporları ve şehir olayları burada listelenecek.</p>
+        </div>
+      </div>
+
+    </div><!-- /main-content -->
+  </div><!-- /layout -->
+
+
+  <!-- ===== TOAST ===== -->
+  <div id="toast"></div>
+
+  <!-- ===== BİNA MODAL ===== -->
+  <div id="building-modal" class="modal-bg" onclick="closeModalOut(event)">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <h2 id="mtitle">—</h2>
+      <p class="msub" id="msub">—</p>
+      <div class="modal-sec">
+        <h4>Adet Durumu</h4>
+        <div class="lvc" id="mlvc"></div>
+      </div>
+      <div class="modal-sec">
+        <h4>İnşaat Maliyeti</h4>
+        <div class="cost-row" id="mcost"></div>
+        <div style="margin-top:10px;color:#666;font-size:13px" id="mtime"></div>
+      </div>
+      <div class="modal-sec" style="border-bottom:none">
+        <button class="btn" id="mbtn" style="width:100%" onclick="confirmBuild()">🏗️ İnşa Et</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SCRIPT EN ALTTA TEK BLOK ===== -->
+
+
+
+<script>
+function setText(id, value){
+  const el = document.getElementById(id);
+  if(!el) return; // yoksa sessiz geç
+  el.innerText = value;
+}
+
+const LAND_PRICE_PER_TILE = 28;
+/* =====================================================
+   KÜÇÜK UTIL
+===================================================== */
+function pad2(n){ return String(n).padStart(2,'0'); }
+function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+/* =====================================================
+   SAYFA DEĞİŞTİRME
+===================================================== */
+
+
+/* =====================================================
+   ÜST ŞERİT TIMERLAR (SAAT + HASAT)
+===================================================== */
+function updateTopTimers(){
+  const now = new Date();
+
+  // Saat
+  const cNow = document.getElementById('c-now');
+  if(cNow) cNow.innerText = now.toLocaleTimeString('tr-TR');
+
+  // Hasada kalan (bir sonraki saat başı)
+  const nextHour = new Date(now);
+  nextHour.setMinutes(0,0,0);
+  nextHour.setHours(now.getHours() + 1);
+
+  const diff = nextHour - now;
+  const m = Math.floor(diff/60000);
+  const s = Math.floor((diff%60000)/1000);
+
+  const cNext = document.getElementById('c-next');
+  if(cNext) cNext.innerText = `${pad2(m)}:${pad2(s)}`;
+}
+setInterval(updateTopTimers, 1000);
+updateTopTimers();
+
+/* =====================================================
+   İŞÇİ SİSTEMİ (FRONT TEST)
+===================================================== */
+/* ── OYUNCU PROFİLİ ── */
+const IRKLAR = {
+  iyi: [
+    { id:"insan", name:"İnsan", icon:"👑", color:"#f1c40f",
+      bonuslar:["Altın +%2","Odun +%2","ATK +%2","DEF +%2"],
+      desc:"Dengeli ırk. Her alanda hafif bonus." },
+    { id:"elf", name:"Elf", icon:"🌿", color:"#2ecc71",
+      bonuslar:["Odun +%5","Mana +%5","ATK +%5","Büyü Başarı +%5"],
+      desc:"Doğa ve büyü ustası. Orman kaynaklarında güçlü." },
+    { id:"cuce", name:"Cüce", icon:"⚒️", color:"#95a5a6",
+      bonuslar:["Metal +%5","İşlenmiş Metal +%2","DEF +%5","Bina Fiyatları -%10"],
+      desc:"Madenci ve zanaatkar ırkı. Savunmada güçlü." },
+    { id:"bucukluk", name:"Buçukluk", icon:"🎭", color:"#9b59b6",
+      bonuslar:["Altın +%7","Gizlilik +%5","İşçi Fiyatları -%5","Casus Başarı +%5"],
+      desc:"Kurnaz tüccarlar. Casusluk ve ekonomide üstün." }
+  ],
+  kotu: [
+    { id:"kara_elf", name:"Kara Elf", icon:"🖤", color:"#8e44ad",
+      bonuslar:["Gizlilik +%8","Zehir ATK +%10","Mana +%5","Casus Başarı +%8"],
+      desc:"Karanlık büyü ve zehir uzmanı." },
+    { id:"ork", name:"Ork", icon:"💪", color:"#27ae60",
+      bonuslar:["ATK +%8","Metal +%5","Bina Savunma +%5","Savaş Kızgınlığı +%5"],
+      desc:"Ham güç ve savaş gücünde üstün." },
+    { id:"ogre_irk", name:"Ogre", icon:"👹", color:"#e67e22",
+      bonuslar:["ATK +%10","DEF +%5","Bina Yıkım +%15","Alan Kapasitesi +%5"],
+      desc:"Dev güçlü, yavaş ama yıkıcı." },
+    { id:"undead", name:"Undead", icon:"💀", color:"#7f8c8d",
+      bonuslar:["İskelet Eğitim -%20","Orduyu Yenile +%5","Metal +%3","Savunma +%5"],
+      desc:"Ölümsüzler ordusu. Sonsuz asker kaynağı." }
+  ]
+};
+
+let OYUNCU = {
+  kral: null, sehir: null, irk: null, taraf: null, cag: 1
+};
+let selectedSide = 'iyi';
+let selectedIrk = null;
+
+function selectSide(side, el) {
+  selectedSide = side;
+  selectedIrk = null;
+  document.querySelectorAll('.side-btn').forEach(b => {
+    b.style.background = '#0d0d0d';
+    b.style.borderColor = '#2a2a2a';
+    b.style.color = '#666';
+  });
+  el.style.background = 'rgba(241,196,15,.08)';
+  el.style.borderColor = 'var(--race-color)';
+  el.style.color = 'var(--race-color)';
+  renderIrkGrid();
+}
+
+function renderIrkGrid() {
+  const grid = document.getElementById('irk-grid');
+  if (!grid) return;
+  const irklar = IRKLAR[selectedSide] || [];
+  grid.innerHTML = '';
+  irklar.forEach(irk => {
+    const isOn = selectedIrk === irk.id;
+    const div = document.createElement('div');
+    div.style.cssText = 'background:#0d0d0d;border:1px solid ' + (isOn ? irk.color : '#2a2a2a') + ';border-radius:10px;padding:14px;cursor:pointer;transition:.2s;box-shadow:' + (isOn ? '0 0 14px ' + irk.color + '44' : 'none');
+    div.onclick = () => selectIrk(irk.id);
+    div.innerHTML = '<div style="font-size:22px;margin-bottom:6px">' + irk.icon + '</div>'
+      + '<div style="font-family:Cinzel,serif;font-size:12px;color:' + irk.color + ';font-weight:700;margin-bottom:4px">' + irk.name + '</div>'
+      + '<div style="font-size:11px;color:#555;margin-bottom:8px;line-height:1.5">' + irk.desc + '</div>'
+      + irk.bonuslar.map(b => '<div style="font-size:10px;color:#2ecc71;margin:1px 0">✦ ' + b + '</div>').join('');
+    grid.appendChild(div);
+  });
+}
+
+function selectIrk(id) {
+  selectedIrk = id;
+  renderIrkGrid();
+}
+
+function startGame() {
+  const kral = document.getElementById('inp-kral')?.value.trim();
+  const sehir = document.getElementById('inp-sehir')?.value.trim();
+  if (!kral) { toast('⚠️ Kral adı gir!'); return; }
+  if (!sehir) { toast('⚠️ Şehir adı gir!'); return; }
+  if (!selectedIrk) { toast('⚠️ Irk seç!'); return; }
+
+  const irkData = [...IRKLAR.iyi, ...IRKLAR.kotu].find(i => i.id === selectedIrk);
+  OYUNCU = { kral, sehir, irk: selectedIrk, irkData, taraf: selectedSide, cag: 1 };
+
+  // CSS rengi ırka göre güncelle
+  if (irkData) document.documentElement.style.setProperty('--race-color', irkData.color);
+
+  // UI güncelle
+  document.getElementById('setup-wrap').style.display = 'none';
+  document.getElementById('main-home').style.display = 'block';
+  document.getElementById('main-welcome').textContent = `Hoş geldin, ${kral}!`;
+  document.getElementById('home-kral').textContent = kral;
+  document.getElementById('home-sehir').textContent = sehir;
+  document.getElementById('home-irk').textContent = irkData ? irkData.icon + ' ' + irkData.name : selectedIrk;
+
+  // Sol menü'deki isim
+  const sidebarName = document.getElementById('sidebar-kral');
+  if (sidebarName) sidebarName.textContent = kral;
+
+  const sIrk = document.getElementById('sidebar-irk');
+  if (sIrk && irkData) sIrk.textContent = irkData.icon + ' ' + irkData.name;
+  toast(`✅ ${kral} krallığı kuruldu! ${irkData?.icon||''} ${irkData?.name||''} ırkısın.`);
+}
+
+/* ── NÜFUS ── */
+let population = {
+  total: 10, free: 10, max: 1500,
+  wood: 0, stone: 0, iron: 0,
+  farm: 0, fish: 0, merchant: 0
+};
+
+function assignWorker(type, delta){
+  const abs = Math.abs(delta);
+  if(delta > 0 && population.free < abs) { toast('⚠️ Yeterli boş işçi yok!'); return; }
+  if(delta < 0 && population[type] < abs) return;
+  population[type] = Math.max(0, population[type] + delta);
+  population.free -= delta;
+  updatePopulationUI();
+}
+
+function updatePopulationUI(){
+  const set = (id, v) => { const e=document.getElementById(id); if(e) e.innerText=v; };
+  set('pop-total', population.total);
+  set('pop-free', population.free);
+  // Boş köylü senkronu — ordu sayfasındaki sm-koylu aynı değeri göstersin
+  try { set('sm-koylu', Math.max(0, population.free - ASKER_SAYISI)); } catch(e) {}
+  set('pop-max', population.max);
+  set('w-wood', population.wood);
+  set('w-stone', population.stone);
+  set('w-iron', population.iron);
+  set('w-farm', population.farm||0);
+  set('w-fish', population.fish||0);
+  set('w-merchant', population.merchant||0);
+  // Saatlik üretim hesapla
+  set('p-wood', population.wood * 40);
+  set('p-stone', population.stone * 30);
+  set('p-iron', population.iron * 25);
+  set('p-farm', (population.farm||0) * 50);
+  set('p-fish', (population.fish||0) * 20);
+  set('p-merchant', (population.merchant||0) * 15);
+
+  const pw = document.getElementById('p-wood');
+  const ps = document.getElementById('p-stone');
+  const pi = document.getElementById('p-iron');
+  if(pw) pw.innerText = population.wood;
+  if(ps) ps.innerText = population.stone;
+  if(pi) pi.innerText = population.iron;
+}
+updatePopulationUI();
+
+// ŞİMDİLİK KAYDET (backend gelince fetch)
+function saveWorkers(){
+  alert(
+    `Kaydedildi (test)\nOduncu:${population.wood} Taşçı:${population.stone} Madenci:${population.iron}`
+  );
+}
+
+/* =====================================================
+   ARAZİ RANDOM TEKLİF MOTORU (2 SAATTE BİR)
+===================================================== */
+const landState = {
+  gold: 999,
+  land: 490,
+  age: 1,
+  landLimit: 500,  // ✅ 250 yerine 500
+  chosenThisCycle: false,
+  cycleKey: null,
+  offers: []
+};
+function ageLandLimit(age){
+  if(age === 1) return 300;
+  if(age === 2) return 600;
+  if(age === 3) return 1000;
+  if(age === 4) return 1500;
+  return Infinity; // 5. çağ sınırsız
+}
+
+// oyuna başlayınca 100 alan
+landState.land = 100;
+landState.age = 1;
+landState.landLimit = ageLandLimit(landState.age);
+
+function offerRange(age){
+  if(age===1) return {min:5,  max:35};
+  if(age===2) return {min:10, max:50};
+  if(age===3) return {min:15, max:65};
+  if(age===4) return {min:20, max:80};
+  return {min:25, max:95};
+}
+function applyLandCapRules(){
+  const remaining = landState.landLimit - landState.land;
+
+  // limit dolduysa: tüm teklifleri pasif/sold dışında disabled yap
+  if (remaining <= 0){
+    landState.offers = landState.offers.map(o => {
+      if (o.status === "sold") return o;
+      return { ...o, status: "disabled" };
+    });
+  } else {
+    // remaining'den büyük teklifleri disabled yap (aşım olmasın)
+    landState.offers = landState.offers.map(o => {
+      if (o.status !== "active") return o;
+      if (o.amount > remaining) return { ...o, status: "disabled" };
+      return o;
+    });
+  }
+}
+
+function getCycleKey(now){
+  const d = new Date(now);
+  d.setMinutes(0,0,0);
+  const h = now.getHours();
+  d.setHours(h%2===0 ? h : h-1); // 21:xx -> 20:00 döngüsü gibi
+  return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}T${pad2(d.getHours())}`;
+}
+
+function next2h(now){
+  const t = new Date(now);
+  t.setMinutes(0,0,0);
+  const h = now.getHours();
+  const nh = (h%2===0) ? h+2 : h+1;
+  t.setHours(nh);
+  return t;
+}
+
+function generateOffers(){
+  const r = offerRange(landState.age);
+
+  const remaining = landState.landLimit - landState.land;
+  if (remaining <= 0) return []; // limitteyse teklif üretme
+
+  const used = new Set();
+  const arr = [];
+
+  // 4 teklif üretmeye çalış, ama unique olsun ve remaining'i aşmasın
+  let guard = 0;
+  while (arr.length < 4 && guard < 200){
+    guard++;
+
+    // remaining'den büyük teklif mantıksız -> üst sınırı remaining yap
+    const maxAllowed = Math.min(r.max, remaining);
+    const minAllowed = Math.min(r.min, maxAllowed);
+    if (maxAllowed < 1) break;
+
+    const amount = randInt(minAllowed, maxAllowed);
+
+    if (used.has(amount)) continue; // ✅ aynı alan tekrar gelmesin
+    used.add(amount);
+
+    arr.push({
+      id: arr.length + 1,
+      amount,
+      price: amount * LAND_PRICE_PER_TILE, // ✅ alan * 28
+      status: "active"
+    });
+  }
+
+  return arr;
+}
+
+
+function refreshLandNumbers(){
+  // 🧭 Arazi Borsası paneli
+  setText('land-current', landState.land);
+  setText('land-limit',   landState.landLimit);
+
+  // 🟨 GENEL HUD (TEK GERÇEK: landState)
+  let usedAlan = 0;
+  try { usedAlan = Object.values(BLDGS).filter(b=>b.lv>0).length; } catch(e) {}
+  setText('hud-used', usedAlan);
+  setText('hud-land', landState.land);  // toplam alan
+  setText('hud-limit', landState.landLimit);
+
+  // 💰 Altın da burada senkron kalsın
+  setText('hud-g', landState.gold);
+}
+
+
+function renderOffers(){
+  const box = document.getElementById('land-offers');
+  if(!box) return;
+
+  box.innerHTML = '';
+
+  landState.offers.forEach(o=>{
+    const div = document.createElement('div');
+    div.className = `land-offer ${o.status==="sold"?"sold":""} ${o.status==="disabled"?"disabled":""}`;
+
+    const label = o.status==="sold" ? "ALINDI" : (o.status==="disabled" ? "PASİF" : "Satın Al");
+    const disabledAttr = o.status==="active" ? "" : "disabled";
+
+    div.innerHTML = `
+      <div class="land-left">🌱 <b>+${o.amount}</b> Alan</div>
+      <div class="land-right">
+        <span class="info">💰 ${o.price} Altın</span>
+        <button class="btn-action land-buy" ${disabledAttr}>${label}</button>
+      </div>
+    `;
+
+    div.querySelector('button.land-buy').addEventListener('click', ()=>buyOffer(o.id));
+    box.appendChild(div);
+  });
+}
+
+function buyOffer(id){
+  if(landState.chosenThisCycle){
+    alert("Bu döngüde zaten 1 arazi aldın.");
+    return;
+  }
+  const offer = landState.offers.find(x=>x.id===id);
+  if(!offer || offer.status!=="active") return;
+
+  if(landState.gold < offer.price){
+    alert("Yetersiz altın.");
+    return;
+  }
+  if(landState.land + offer.amount > landState.landLimit){
+    alert("Çağ limitini aşıyorsun.");
+    return;
+  }
+
+  landState.gold -= offer.price;
+  landState.land += offer.amount;
+  landState.chosenThisCycle = true;
+
+  landState.offers = landState.offers.map(o=>{
+    if(o.id===id) return {...o, status:"sold"};
+    return {...o, status:"disabled"};
+  });
+
+  refreshLandNumbers();
+  renderOffers();
+}
+
+function landTick(){
+  const now = new Date();
+
+  // döngü değiştiyse teklifleri yenile
+  const key = getCycleKey(now);
+  if(landState.cycleKey !== key){
+    landState.cycleKey = key;
+    landState.chosenThisCycle = false;
+landState.offers = generateOffers();
+applyLandCapRules();      // ✅ EKLE
+refreshLandNumbers();
+renderOffers();
+  }
+
+  // timer yaz
+  const target = next2h(now);
+  const diff = target - now;
+  const hh = Math.floor(diff/3600000);
+  const mm = Math.floor((diff%3600000)/60000);
+  const ss = Math.floor((diff%60000)/1000);
+
+  const tEl = document.getElementById('land-timer');
+  if(tEl) tEl.innerText = `${pad2(hh)}:${pad2(mm)}:${pad2(ss)}`;
+}
+
+setInterval(landTick, 1000);
+landTick();
+
+console.log("LAND JS ÇALIŞTI ✅");
+console.log("land-offers:", !!document.getElementById("land-offers"));
+// TEST: HUD'a örnek değer bas (r-* yok, hud-* var)
+setText('hud-bu', 12);   // buğday
+setText('hud-ba', 7);    // balık
+setText('hud-e', 4);     // ekmek
+setText('hud-pb', 2);    // pişmiş balık
+
+function setHUD(d){
+  // HAM
+setText('hud-w', d.ham.odun);
+ setText('hud-wg',d.ham.odun_g);
+
+setText('hud-m',d.ham.metal);
+  setText('hud-mg',d.ham.metal_g);
+
+  setText('hud-bu',d.ham.bugday);
+  setText('hud-bug',d.ham.bugday_g);
+
+  setText('hud-ba',d.ham.balik);
+  setText('hud-bag',d.ham.balik_g);
+
+  setText('hud-t',d.ham.tas);
+  setText('hud-tg',d.ham.tas_g);
+
+ setText('hud-g',d.ham.altin);
+  setText('hud-gg',d.ham.altin_g);
+
+  // İŞLENMİŞ
+  setText('hud-k',d.islenmis.kereste);
+  setText('hud-kg',d.islenmis.kereste_g);
+
+  setText('hud-im',d.islenmis.islenmis_metal);
+  setText('hud-img',d.islenmis.islenmis_metal_g);
+
+  setText('hud-e',d.islenmis.ekmek);
+  setText('hud-eg',d.islenmis.ekmek_g);
+
+  setText('hud-pb',d.islenmis.pismis_balik);
+  setText('hud-pbg',d.islenmis.pismis_balik_g);
+
+  // GENEL
+setText('hud-moral',  d.genel.moral + '%');
+setText('hud-hunger', d.genel.aclik + '%');
+
+setText('hud-used',  d.genel.kullanilan_alan);
+setText('hud-land',  d.genel.mevcut_alan);
+setText(
+  'hud-limit',
+  d.genel.cag_limiti === Infinity ? '∞' : d.genel.cag_limiti
+);
+
+}
+console.log("land:", document.querySelectorAll("#land").length);
+console.log("city:", document.querySelectorAll("#city").length);
+console.log("land-offers:", document.querySelectorAll("#land-offers").length);
+console.log("land:", document.querySelectorAll("#land").length);
+console.log("land-offers:", document.querySelectorAll("#land-offers").length);
+console.log("hud-bu:", !!document.getElementById("hud-bu"));
+
+/* ── BİNA DB ── */
+const BLDGS = {
+  oduncu:{id:'oduncu',cat:'uretim',icon:'🌳',name:'Oduncu Kampı',bg:'#0a160a',desc:"Günlük odun üretir.",maxLv:10,lv:3,fx:l=>[{t:'pos',s:`+${l*40} Odun/gün`}],cost:l=>({odun:l*200,tas:l*100,altin:l*50}),time:l=>l*180},
+  tas_ocagi:{id:'tas_ocagi',cat:'uretim',icon:'🪨',name:'Taş Ocağı',bg:'#16140a',desc:"Taş çıkarır.",maxLv:10,lv:2,fx:l=>[{t:'pos',s:`+${l*30} Taş/gün`}],cost:l=>({odun:l*150,altin:l*80}),time:l=>l*240},
+  demir_madeni:{id:'demir_madeni',cat:'uretim',icon:'⛓️',name:'Demir Madeni',bg:'#101018',desc:"Ham metal üretir.",maxLv:10,lv:2,fx:l=>[{t:'pos',s:`+${l*25} Metal/gün`}],cost:l=>({odun:l*200,tas:l*150,altin:l*100}),time:l=>l*300},
+  tarla:{id:'tarla',cat:'uretim',icon:'🌾',name:'Tarla',bg:'#161400',desc:"Buğday üretir.",maxLv:10,lv:5,fx:l=>[{t:'pos',s:`+${l*60} Buğday/gün`},{t:'pos',s:`Açlık -%${l*2}`}],cost:l=>({odun:l*100,altin:l*40}),time:l=>l*120},
+  balikci:{id:'balikci',cat:'uretim',icon:'🎣',name:'Balıkçı Limanı',bg:'#001616',desc:"Balık üretir. Hasat günü 2x.",maxLv:5,lv:1,fx:l=>[{t:'pos',s:`+${l*20} Balık/gün`},{t:'pos',s:'Hasat: 2x'}],cost:l=>({odun:l*300,tas:l*200,altin:l*120}),time:l=>l*360},
+  isleme:{id:'isleme',cat:'uretim',icon:'🔩',name:'İşleme Atölyesi',bg:'#141000',desc:"Ham → İşlenmiş ürün dönüştürür.",maxLv:8,lv:2,fx:l=>[{t:'pos',s:`İşleme +${l*10}%`},{t:'pos',s:`Kapasite ${l*500}`}],cost:l=>({odun:l*250,metal:l*150,altin:l*200}),time:l=>l*420},
+  kisla:{id:'kisla',cat:'askeri',icon:'⚔️',name:'Kışla',bg:'#180a0a',desc:"Piyade ve temel birimleri eğitir.",maxLv:10,lv:3,fx:l=>[{t:'pos',s:`${l} birim tipi`},{t:'pos',s:`Eğitim +${l*8}%`}],cost:l=>({odun:l*300,tas:l*200,metal:l*100,altin:l*150}),time:l=>l*480},
+  ahar:{id:'ahar',cat:'askeri',icon:'🐴',name:'Ahır',bg:'#161000',desc:"Süvari birliklerini eğitir.",maxLv:8,lv:0,fx:l=>[{t:'pos',s:`Süvari ATK +${l*5}%`},{t:'pos',s:`Hız +${l*3}%`}],cost:l=>({odun:l*400,metal:l*200,altin:l*200}),time:l=>l*600},
+  surlar:{id:'surlar',cat:'askeri',icon:'🛡️',name:'Surlar',bg:'#0a0a18',desc:"Şehir savunmasını güçlendirir.",maxLv:10,lv:4,fx:l=>[{t:'pos',s:`DEF +${l*12}%`},{t:'pos',s:`Hasar -%${l*3}`}],cost:l=>({tas:l*400,metal:l*200,altin:l*100}),time:l=>l*720},
+  okcu_kulesi:{id:'okcu_kulesi',cat:'askeri',icon:'🏹',name:'Okçu Kulesi',bg:'#180d00',desc:"Savaşlarda otomatik atış yapar.",maxLv:6,lv:0,fx:l=>[{t:'pos',s:`${l} Okçu/tur`},{t:'pos',s:`ATK ${l*50}`}],cost:l=>({odun:l*500,tas:l*500,metal:l*300,altin:l*300}),time:l=>l*900},
+  akademi:{id:'akademi',cat:'gelisim',icon:'📚',name:'Akademi',bg:'#0a0a18',desc:"Araştırma ve teknoloji merkezi.",maxLv:8,lv:2,fx:l=>[{t:'pos',s:`Araştırma +${l*10}%`},{t:'pos',s:`${l} teknoloji slotu`}],cost:l=>({odun:l*300,altin:l*300}),time:l=>l*540},
+  buyucu_kulesi:{id:'buyucu_kulesi',cat:'gelisim',icon:'🔮',name:'Büyücü Kulesi',bg:'#150015',desc:"Büyü slotları ve güç artışı.",maxLv:10,lv:1,fx:l=>[{t:'pos',s:`${l*2} büyü slotu`},{t:'pos',s:`Büyü +${l*5}%`}],cost:l=>({altin:l*500,metal:l*200}),time:l=>l*600},
+  kutuphane:{id:'kutuphane',cat:'gelisim',icon:'📖',name:'Kütüphane',bg:'#0a1200',desc:"Üretim verimliliği ve araştırma indirgesi.",maxLv:6,lv:0,fx:l=>[{t:'pos',s:`Verimlilik +${l*3}%`},{t:'pos',s:`Araştırma -%${l*5}%`}],cost:l=>({odun:l*400,altin:l*400}),time:l=>l*480},
+  sehir_meydani:{id:'sehir_meydani',cat:'sosyal',icon:'🏛️',name:'Şehir Meydanı',bg:'#141400',desc:"Moral ve mutluluk merkezi.",maxLv:5,lv:1,fx:l=>[{t:'pos',s:`Moral +${l*5}`},{t:'pos',s:'Etkinlik slotu'}],cost:l=>({odun:l*200,tas:l*200,altin:l*100}),time:l=>l*300},
+  pazar:{id:'pazar',cat:'sosyal',icon:'💰',name:'Pazar',bg:'#160e00',desc:"Oyuncularla kaynak ticareti.",maxLv:8,lv:2,fx:l=>[{t:'pos',s:`${l*2} ticaret slotu`},{t:'pos',s:`Altın +${l*15}/gün`}],cost:l=>({odun:l*250,altin:l*200}),time:l=>l*360},
+  guild_binasi:{id:'guild_binasi',cat:'sosyal',icon:'🏰',name:'Guild Binası',bg:'#100018',desc:"Guild kurma ve yönetim merkezi.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`${l*10} üye kapasitesi`},{t:'pos',s:`Guild bonus +${l*5}%`}],cost:l=>({odun:l*600,tas:l*400,altin:l*500}),time:l=>l*900},
+  hazine:{id:'hazine',cat:'ozel',icon:'🏦',name:'Hazine',bg:'#141000',desc:"Depolama kapasitesi ve yağma koruması.",maxLv:10,lv:3,fx:l=>[{t:'pos',s:`Depo ${l*5000}`},{t:'pos',s:`Koruma %${l*5}`}],cost:l=>({odun:l*300,tas:l*300,metal:l*100,altin:l*100}),time:l=>l*360},
+  istihbarat:{id:'istihbarat',cat:'ozel',icon:'🕵️',name:'İstihbarat',bg:'#001510',desc:"Casusluk başarısı ve slotlar.",maxLv:6,lv:0,fx:l=>[{t:'pos',s:`Casus +${l*10}%`},{t:'pos',s:`${l} casus slotu`}],cost:l=>({altin:l*700,metal:l*300}),time:l=>l*720},
+
+  /* ── ŞEHİR BİNALARI ── */
+  okul:{id:'okul',cat:'sehir',icon:'🏫',name:'Okul',bg:'#0a1200',desc:"Nüfus eğitimi ve kültür artışı.",maxLv:8,lv:0,fx:l=>[{t:'pos',s:`Eğitim +${l*5}%`},{t:'pos',s:`Nüfus sınırı +${l*50}`}],cost:l=>({odun:l*200,tas:l*100,altin:l*150}),time:l=>l*300},
+  asma_bahceler:{id:'asma_bahceler',cat:'sehir',icon:'🌺',name:'Asma Bahçeler',bg:'#0a1400',desc:"Mutluluk ve moral artışı.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`Mutluluk +${l*8}`},{t:'pos',s:`Moral +${l*4}`}],cost:l=>({odun:l*300,altin:l*200}),time:l=>l*240},
+  muze:{id:'muze',cat:'sehir',icon:'🏛️',name:'Müze',bg:'#140e00',desc:"Kültür puanı ve prestij artışı.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`Kültür +${l*10}%`},{t:'pos',s:`Prestij +${l*20}`}],cost:l=>({odun:l*400,tas:l*400,altin:l*500}),time:l=>l*600},
+  universite:{id:'universite',cat:'sehir',icon:'🎓',name:'Üniversite',bg:'#100a18',desc:"İleri araştırma ve teknoloji hızlanması.",maxLv:6,lv:0,fx:l=>[{t:'pos',s:`Araştırma +${l*15}%`},{t:'pos',s:`Bilim +${l*10}`}],cost:l=>({odun:l*500,tas:l*300,altin:l*600}),time:l=>l*900},
+  tiyatro:{id:'tiyatro',cat:'sehir',icon:'🎭',name:'Tiyatro',bg:'#14000e',desc:"Eğlence ve mutluluk merkezi.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`Mutluluk +${l*6}`},{t:'pos',s:`Eğlence +${l*10}%`}],cost:l=>({odun:l*350,altin:l*300}),time:l=>l*480},
+  arena:{id:'arena',cat:'sehir',icon:'⚔️',name:'Arena',bg:'#180a0a',desc:"Savaş eğitimi ve gladyatör dövüşleri.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`ATK eğitim +${l*5}%`},{t:'pos',s:`Moral +${l*5}`}],cost:l=>({odun:l*400,tas:l*400,metal:l*200,altin:l*400}),time:l=>l*720},
+  uras_tapinagi:{id:'uras_tapinagi',cat:'sehir',icon:'🏯',name:'Uras Tapınağı',bg:'#140014',desc:"Tanrı Uras\u2019a adanm\u0131\u015f. Büyü gücü artırır.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`Büyü +${l*10}%`},{t:'pos',s:`Mana regen +${l*2}`}],cost:l=>({odun:l*600,tas:l*500,altin:l*800}),time:l=>l*1200},
+  ejderha_heykeli:{id:'ejderha_heykeli',cat:'sehir',icon:'🐉',name:'Ejderha Heykeli',bg:'#180a00',desc:"Prestij ve korku aracı. Savunma bonusu.",maxLv:3,lv:0,fx:l=>[{t:'pos',s:`Prestij +${l*50}`},{t:'pos',s:`Savunma korkusu +${l*8}%`}],cost:l=>({odun:l*1000,tas:l*800,metal:l*500,altin:l*1500}),time:l=>l*2400},
+
+  /* ── ASKERİ TAPINAKLAR ── */
+  rathe_tapinagi:{id:'rathe_tapinagi',cat:'askeri',icon:'⚔️',name:'Rathe Tapınağı',bg:'#180000',desc:"Savaş tanrısı Rathe'ye adanmış. ATK artışı.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`ATK +${l*8}%`},{t:'pos',s:`Savaşçı eğitim -%${l*5}`}],cost:l=>({odun:l*500,metal:l*400,altin:l*600}),time:l=>l*1000},
+  xegony_tapinagi:{id:'xegony_tapinagi',cat:'askeri',icon:'💫',name:'Xegony Tapınağı',bg:'#000018',desc:"Büyü savaşı tapınağı. Büyücü gücü artırır.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`Büyü ATK +${l*10}%`},{t:'pos',s:`Mana +${l*20}`}],cost:l=>({metal:l*300,altin:l*800}),time:l=>l*1200},
+  fennin_tapinagi:{id:'fennin_tapinagi',cat:'askeri',icon:'🔥',name:'Fennin Ro Tapınağı',bg:'#180800',desc:"Ateş ve büyü tanrısına adanmış.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`Ateş büyüsü +${l*12}%`},{t:'pos',s:`Hasar +${l*6}%`}],cost:l=>({metal:l*400,altin:l*700}),time:l=>l*1100},
+  tunare_tapinagi:{id:'tunare_tapinagi',cat:'askeri',icon:'🌿',name:'Tunare Tapınağı',bg:'#001800',desc:"Doğa tanrıçasına adanmış. Savunma güçlendirir.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`DEF +${l*8}%`},{t:'pos',s:`İyileştirme +${l*5}%`}],cost:l=>({odun:l*600,altin:l*500}),time:l=>l*1000},
+  mizrak_kulesi:{id:'mizrak_kulesi',cat:'askeri',icon:'🗼',name:'Mızrak Kulesi',bg:'#120a00',desc:"Savunma burcu. Saldıranlara hasar verir.",maxLv:8,lv:0,fx:l=>[{t:'pos',s:`${l*3} Mızrakçı/tur`},{t:'pos',s:`DEF +${l*30}`}],cost:l=>({odun:l*400,tas:l*600,metal:l*200,altin:l*200}),time:l=>l*800},
+  rahip_tapinagi:{id:'rahip_tapinagi',cat:'askeri',icon:'⛪',name:'Rahip Tapınağı',bg:'#0a0a14',desc:"Worshipper üretim merkezi. Büyü savaşı için.",maxLv:8,lv:0,fx:l=>[{t:'pos',s:`Worshipper +${l*250} kapasite`},{t:'pos',s:`Mana regen +${l*5}`}],cost:l=>({odun:l*300,tas:l*200,altin:l*400}),time:l=>l*600},
+  balista_kulesi:{id:'balista_kulesi',cat:'askeri',icon:'🏹',name:'Balista Kulesi',bg:'#180800',desc:"Uzun menzilli savunma. Büyük hasar.",maxLv:6,lv:0,fx:l=>[{t:'pos',s:`${l} Balista/tur`},{t:'pos',s:`Menzil hasar +${l*80}`}],cost:l=>({odun:l*600,metal:l*500,altin:l*400}),time:l=>l*1200},
+  buyulu_tarlalar:{id:'buyulu_tarlalar',cat:'askeri',icon:'✨',name:'Büyülü Tarlalar',bg:'#0a0014',desc:"Büyü enerjisi toplar. Mana pasif üretir.",maxLv:6,lv:0,fx:l=>[{t:'pos',s:`+${l*10} Mana/gün`},{t:'pos',s:`Büyü gücü +${l*3}%`}],cost:l=>({odun:l*200,altin:l*500}),time:l=>l*480},
+  magara:{id:'magara',cat:'askeri',icon:'🕳️',name:'Mağara',bg:'#080808',desc:"Gizli depo ve casus barınağı.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`Gizlilik +${l*10}%`},{t:'pos',s:`Casus kapasite +${l*5}`}],cost:l=>({odun:l*100,tas:l*300,altin:l*200}),time:l=>l*400},
+
+  /* ── EĞLENCe ── */
+  palantis_hani:{id:'palantis_hani',cat:'sosyal',icon:'🍺',name:'Palantis Hanı',bg:'#160e00',desc:"Böcek dövüşleri ve eğlence. Moral artırır.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`Moral +${l*5}`},{t:'pos',s:`Gelir +${l*10} altın/gün`}],cost:l=>({odun:l*250,altin:l*200}),time:l=>l*300},
+  taverna:{id:'taverna',cat:'sosyal',icon:'🎪',name:'Taverna (RP)',bg:'#14000a',desc:"Role-play alanı. Oyuncu etkileşimi.",maxLv:3,lv:0,fx:l=>[{t:'pos',s:`Prestij +${l*10}`},{t:'pos',s:`Sosyal bonus +${l*5}%`}],cost:l=>({odun:l*200,altin:l*150}),time:l=>l*240},
+
+  /* ═══ YENİ ASKERİ BİNALAR ═══ */
+  ahir:{id:'ahir',cat:'askeri',icon:'🐴',name:'Ahır / Hara',bg:'#0d1200',desc:"At (Aydınlık) veya Kurt (Karanlık) üretir. Her bina saatte 5 adet üretir. At/Kurt buğday tüketir.",maxLv:10,lv:0,fx:l=>[{t:'pos',s:`${l*5} At-Kurt/saat`},{t:'neg',s:`Buğday tüketir`}],cost:l=>({odun:l*300,metal:l*100,altin:l*500}),time:l=>l*180},
+
+  lonca:{id:'lonca',cat:'askeri',icon:'🎯',name:'Lonca',bg:'#0a0014',desc:"Gizlilik Puanı üretir. Her lonca saatte 0.1 gizlilik üretir.",maxLv:10,lv:0,fx:l=>[{t:'pos',s:`${(l*0.1).toFixed(1)} Gizlilik/saat`}],cost:l=>({odun:l*200,metal:l*150,altin:l*400}),time:l=>l*240},
+
+  buyulu_tarla:{id:'buyulu_tarla',cat:'askeri',icon:'🥚',name:'Büyülü Tarla',bg:'#140014',desc:"Büyülü Yumurta üretir. Her tarla saatte 0.1 yumurta üretir.",maxLv:100,lv:0,fx:l=>[{t:'pos',s:`${(l*0.1).toFixed(1)} B.Yumurta/saat`}],cost:l=>({odun:l*100,altin:l*300}),time:l=>l*120},
+
+  magara:{id:'magara',cat:'askeri',icon:'🐲',name:'Mağara',bg:'#1a0000',desc:"Ejderha çıkma şansı verir. Her mağara %0.01 şans ekler. Mağara yoksa ejderha çıkamaz.",maxLv:10,lv:0,fx:l=>[{t:'pos',s:`Ejderha şansı %${(l*0.01).toFixed(2)}`}],cost:l=>({tas:l*500,metal:l*300,altin:l*1000}),time:l=>l*600},
+
+  demirci:{id:'demirci',cat:'uretim',icon:'🔨',name:'Demirci',bg:'#1a0a00',desc:"Metal'i İşlenmiş Metal'e dönüştürür.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`${l*2} İşl.Metal/saat`}],cost:l=>({odun:l*150,metal:l*200,altin:l*300}),time:l=>l*200},
+};
+
+const RES={odun:2400,metal:1850,bugday:3200,balik:640,tas:1100,altin:5840,kereste:820,islenmis:310,ekmek:920,pismis:180};
+const RICONS={odun:'🌳',metal:'⛓️',bugday:'🌾',balik:'🎣',tas:'🪨',altin:'💰',kereste:'🪵',islenmis:'🔩',ekmek:'🍞',pismis:'🍳',mana:'🔮',at:'🐴',kurt:'🐺',gizlilik:'🎯',buyulu_yumurta:'🥚',cig_et:'🥩'};
+const canAfford=cost=>Object.entries(cost).every(([r,a])=>(RES[r]||0)>=a);
+const spendCost=cost=>Object.entries(cost).forEach(([r,a])=>{RES[r]=(RES[r]||0)-a;});
+const fmtT=sec=>sec<60?`${sec}sn`:sec<3600?`${Math.floor(sec/60)}dk ${sec%60}sn`:`${Math.floor(sec/3600)}sa ${Math.floor((sec%3600)/60)}dk`;
+
+const QUEUE=[];
+let activeCat='all';
+let modalId=null;
+
+function renderGrid(){
+  const grid=document.getElementById('bg-grid');
+  if(!grid)return;
+  const inQ=new Set(QUEUE.map(q=>q.id));
+  const list=Object.values(BLDGS).filter(b=>activeCat==='all'||b.cat===activeCat);
+  grid.innerHTML='';
+  list.forEach(b=>{
+    const inC=inQ.has(b.id);
+    const isMax=b.lv>=b.maxLv;
+    // Her zaman sabit maliyet (1. seviye maliyeti) kullan — seviye yok, tekrar inşa var
+    const cost=b.cost(1);
+    const afford=canAfford(cost);
+    const pct=isMax?100:(b.lv/b.maxLv*100);
+    const barC=isMax?'#f1c40f':b.lv<4?'#e74c3c':b.lv<7?'#e67e22':'#2ecc71';
+    const fx=b.fx(b.lv>0?b.lv:1).map(e=>`<span class="etag ${e.t==='pos'?'pos':'neg'}">${e.s}</span>`).join('');
+    const costH=Object.entries(cost).map(([r,a])=>`<span class="citem ${(RES[r]||0)>=a?'ok':'no'}">${RICONS[r]||'📦'} ${a.toLocaleString()}</span>`).join('');
+    let action;
+    if(inC) action=`<span style="color:#2ecc71;font-size:12px;font-family:'Cinzel',serif">🔨 İnşa Ediliyor...</span>`;
+    else if(isMax) action=`<span class="maxbadge">⭐ MAKSİMUM</span>`;
+    else action=`<button class="btn-sm" ${afford?'':'disabled'} onclick="openModal('${b.id}')">🏗️ İNŞA ET</button>`;
+    const d=document.createElement('div');
+    d.className=`bcard${inC?' building':''}${b.lv===0&&!inC?' locked':''}`;
+    d.innerHTML=`
+      ${b.lv===0&&!inC?`<div class="lockbadge">🔒 İnşa Et</div>`:''}
+      <div class="bhead"><div class="bico" style="background:${b.bg}">${b.icon}</div><div><div class="bname">${b.name}</div><div class="bdesc">${b.desc}</div></div></div>
+      <div class="blevel"><div class="blevel-top"><span class="blv-lbl">ADET</span><span class="blv-val">${b.lv}/${b.maxLv}</span></div><div class="bbar"><div class="bbar-fill" style="width:${pct}%;background:${barC}"></div></div></div>
+      <div class="beffects">${fx}</div>
+      ${!isMax&&!inC?`<div class="bcost"><div class="cost-lbl">İNŞAAT MALİYETİ</div><div class="cost-row">${costH}</div></div>`:''}
+      <div class="bactions">${action}${!isMax&&!inC?`<span class="btime">⏱ ${fmtT(b.time(1))}</span>`:''}</div>
+      ${inC?`<div class="bprog"><div class="bprog-top"><span>${b.name} inşa ediliyor</span><span id="bpct-${b.id}">—</span></div><div class="bprog-track"><div class="bprog-fill" id="bfill-${b.id}" style="width:0%"></div></div></div>`:''}
+    `;
+    grid.appendChild(d);
+  });
+  updateBars();
+  updateCityStats();
+}
+
+function renderQueue(){
+  const wrap=document.getElementById('queue-wrap');
+  const list=document.getElementById('queue-list');
+  if(!wrap||!list)return;
+  if(QUEUE.length===0){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  list.innerHTML='';
+  QUEUE.forEach(q=>{
+    const b=BLDGS[q.id];if(!b)return;
+    const el=Date.now()-q.start;
+    const pct=Math.min(100,el/q.dur*100);
+    const rem=Math.max(0,Math.ceil((q.dur-el)/1000));
+    const d=document.createElement('div');d.className='q-item';
+    d.innerHTML=`<div class="q-icon">${b.icon}</div><div class="q-info"><div class="q-name">${b.name} inşa ediliyor</div><div class="q-bar"><div class="q-fill" id="qf-${b.id}" style="width:${pct}%"></div></div></div><div class="q-time" id="qt-${b.id}">${fmtT(rem)}</div>`;
+    list.appendChild(d);
+  });
+}
+
+function updateBars(){
+  [...QUEUE].forEach(q=>{
+    const el=Date.now()-q.start;
+    const pct=Math.min(100,el/q.dur*100);
+    const rem=Math.max(0,Math.ceil((q.dur-el)/1000));
+    const bf=document.getElementById(`bfill-${q.id}`);if(bf)bf.style.width=pct+'%';
+    const bp=document.getElementById(`bpct-${q.id}`);if(bp)bp.innerText=`%${Math.floor(pct)}`;
+    const qf=document.getElementById(`qf-${q.id}`);if(qf)qf.style.width=pct+'%';
+    const qt=document.getElementById(`qt-${q.id}`);if(qt)qt.innerText=fmtT(rem);
+    if(pct>=100)finishBuild(q);
+  });
+}
+
+function finishBuild(q){
+  const idx=QUEUE.indexOf(q);if(idx===-1)return;
+  const b=BLDGS[q.id];if(b)b.lv=q.targetLv;
+  QUEUE.splice(idx,1);
+
+  // Backend'de bina seviyesini güncelle
+  completeBuildingOnBackend(q.id, q.targetLv);
+
+  // Alan sayacını güncelle
+  const usedArea = Object.values(BLDGS).reduce((s,bl)=>s+bl.lv,0);
+  setText('hud-used', usedArea);
+  updateCityStats();
+
+  toast(`✅ ${b?.name} inşaatı tamamlandı!`);
+  renderGrid();renderQueue();
+}
+
+function updateCityStats(){
+  const active=Object.values(BLDGS).filter(b=>b.lv>0).length;
+  const e1=document.getElementById('cs-active');if(e1)e1.innerText=active;
+  const e2=document.getElementById('cs-constr');if(e2)e2.innerText=QUEUE.length;
+  // HUD alan göstergesini de senkronize et
+  setText('hud-used', active);
+}
+
+function setFilter(cat,el){
+  activeCat=cat;
+  document.querySelectorAll('#submenu-city .sub-item').forEach(b=>b.classList.remove('on'));
+  if(el && el.classList) el.classList.add('on');
+  // data-filter ile eşleşeni bul ve işaretle
+  document.querySelectorAll('#submenu-city .sub-item').forEach(b=>{
+    if(b.dataset.filter===cat) b.classList.add('on');
+  });
+  renderGrid();
+}
+
+function toggleSubMenu(id, el){
+  const allMenus = ['submenu-city', 'submenu-army'];
+  allMenus.forEach(menuId => {
+    if(menuId !== id) {
+      const m = document.getElementById(menuId);
+      if(m) m.style.display = 'none';
+    }
+  });
+  const sm = document.getElementById(id);
+  if(!sm) return;
+  sm.style.display = sm.style.display === 'none' ? 'block' : 'none';
+}
+
+function openModal(id){
+  const b=BLDGS[id];if(!b)return;
+  modalId=id;
+  const nLv=b.lv+1;
+  // Sabit maliyet — her zaman cost(1)
+  const cost=b.cost(1);
+  const afford=canAfford(cost);
+  document.getElementById('mtitle').innerText=`${b.icon} ${b.name}`;
+  document.getElementById('msub').innerText=b.desc;
+  const curFx=b.lv>0?b.fx(1).map(e=>`<div class="lv">${e.s}</div>`).join(''):'<div class="lv" style="color:#333">Henüz inşa edilmedi</div>';
+  const nxtFx=b.fx(1).map(e=>`<div class="lv">${e.s}</div>`).join('');
+  document.getElementById('mlvc').innerHTML=`<div class="lvc-col"><div class="lt">Mevcut Adet: ${b.lv}</div>${curFx}</div><div class="lvc-arr">➜</div><div class="lvc-col next"><div class="lt">Yeni Adet: ${nLv}</div>${nxtFx}</div>`;
+  document.getElementById('mcost').innerHTML=Object.entries(cost).map(([r,a])=>`<span class="citem ${(RES[r]||0)>=a?'ok':'no'}">${RICONS[r]||'📦'} ${a.toLocaleString()} <span style="color:#333;font-size:9px">(${(RES[r]||0).toLocaleString()} var)</span></span>`).join('');
+  document.getElementById('mtime').innerText=`⏱ ${fmtT(b.time(1))}`;
+  const btn=document.getElementById('mbtn');
+  btn.disabled=!afford;
+  btn.innerText=`🏗️ ${b.name} İnşa Et`;
+  document.getElementById('building-modal').classList.add('open');
+}
+
+function closeModal(){document.getElementById('building-modal').classList.remove('open');modalId=null;}
+function closeModalOut(e){if(e.target===document.getElementById('building-modal'))closeModal();}
+async function confirmBuild(){
+  if(!modalId)return;
+  const b=BLDGS[modalId];if(!b)return;
+  const nLv=b.lv+1;const cost=b.cost(1);
+  if(!canAfford(cost)){toast('❌ Yetersiz kaynak!');return;}
+
+  const token = getToken();
+  if(!token){toast('❌ Oturum bulunamadı!');return;}
+
+  // Backend'de kaynakları düş + bina kaydet
+  let backendSuccess = false;
+  try {
+    // 1. Kaynakları backend'de düş
+    const resResp = await fetch(API_BASE + '/api/game/resources/spend', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ cost })
+    });
+    if (resResp.ok) {
+      const resData = await resResp.json();
+      if (resData.resources) {
+        Object.entries(resData.resources).forEach(([k,v]) => { if(RES[k] !== undefined) RES[k] = parseInt(v)||0; });
+      }
+      backendSuccess = true;
+    } else {
+      const err = await resResp.json();
+      toast('❌ ' + (err.error || 'Yetersiz kaynak!'));
+      return;
+    }
+
+    // 2. Bina inşaatını backend'e kaydet
+    const sureSaniye = b.time(1);
+    await fetch(API_BASE + '/api/game/buildings/upgrade', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ binaId: b.id, hedefSeviye: nLv, sureSaniye })
+    });
+  } catch(e) {
+    // Backend'e ulaşılamazsa lokal düş
+    if(!backendSuccess) spendCost(cost);
+  }
+
+  // HUD kaynak güncelle
+  setText('hud-w', RES.odun); setText('hud-m', RES.metal); setText('hud-t', RES.tas);
+  setText('hud-g', RES.altin); setText('hud-bu', RES.bugday); setText('hud-ba', RES.balik);
+
+  QUEUE.push({id:b.id,targetLv:nLv,start:Date.now(),dur:b.time(1)*1000});
+
+  // Alan sayacını artır
+  const usedArea = Object.values(BLDGS).reduce((s,bl)=>s+bl.lv,0) + 1; // +1 çünkü henüz lv artmadı
+  setText('hud-used', usedArea);
+
+  closeModal();renderGrid();renderQueue();
+  toast(`🔨 ${b.name} inşaatı başladı!`);
+}
+
+let toastT;
+function toast(msg){const t=document.getElementById('toast');t.innerText=msg;t.style.opacity='1';clearTimeout(toastT);toastT=setTimeout(()=>t.style.opacity='0',3200);}
+
+/* showPage override - city için özel */
+const _origShowPage = typeof showPage === 'function' ? showPage : null;
+function showPage(id){
+  document.querySelectorAll('.page-panel').forEach(p=>p.classList.remove('active-panel'));
+  const panel=document.getElementById(id);
+  if(panel)panel.classList.add('active-panel');
+  if(id==='land'){applyLandCapRules();refreshLandNumbers();renderOffers();}
+  if(id==='city'){renderGrid();renderQueue();}
+}
+
+setInterval(()=>{
+  updateBars();
+  if(document.getElementById('city')?.classList.contains('active-panel'))renderQueue();
+},1000);
+
+/* İlk render */
+renderGrid();
+renderQueue();
+renderIrkGrid();
+
+/* ══════════ ORDU VERİTABANI ══════════ */
+/* Geliştirme seviyeleri (global) */
+let ASKERI_GEL_SEV = 0;  // max 5 - üretim altın maliyetini %1/sv azaltır
+let MAAS_GEL_SEV = 0;    // max 6 - maaşı %2/sv azaltır
+/* Üniteye özel geliştirmeler: UNIT_GEL[uniteId] = {atk: seviye, def: seviye} */
+let UNIT_GEL = {};
+
+/* Extra kaynaklar */
+let EXTRA_RES = { at: 0, kurt: 0, mana: 0, gizlilik: 0, buyulu_yumurta: 0, cig_et: 0 };
+
+/* Geliştirme maliyeti */
+const GEL_MALIYET = 1000; // her kademe 1000 altın
+
+/* Gerçek maliyet hesapla (askeri geliştirme indirimi) */
+function realCost(baseCost) {
+  const c = {...baseCost};
+  if (c.altin && ASKERI_GEL_SEV > 0) {
+    c.altin = Math.floor(c.altin * (1 - ASKERI_GEL_SEV * 0.01));
+  }
+  return c;
+}
+/* Gerçek maaş hesapla */
+function realMaas(baseMaas) {
+  return Math.floor(baseMaas * (1 - MAAS_GEL_SEV * 0.02));
+}
+/* Gerçek ATK/DEF hesapla */
+function realAtk(unitId) {
+  const u = UNITS[unitId]; if (!u) return 0;
+  const gel = UNIT_GEL[unitId] || {atk:0, def:0};
+  return u.baseAtk + (gel.atk * u.atkGelArtis);
+}
+function realDef(unitId) {
+  const u = UNITS[unitId]; if (!u) return 0;
+  const gel = UNIT_GEL[unitId] || {atk:0, def:0};
+  return u.baseDef + (gel.def * u.defGelArtis);
+}
+
+const UNITS = {
+  /* ═══════════ AYDINLIK ═══════════ */
+  piyade:{id:'piyade',side:'light',icon:'🗡️',name:'Piyade',role:'Hafif Piyade',tier:1,
+    baseAtk:2,baseDef:10,maas:20,
+    atkGelArtis:0.5,defGelArtis:0.5,atkGelMax:10,defGelMax:10,
+    saldiriCarpan:1, savasTurlari:[4,5,6],
+    cost:{altin:3000,odun:75,islenmis:50},
+    extraCost:{},
+    traits:['Ön saf uzmanı','Ucuz birim'],
+    trainTime:60,maxCount:99999,count:0,
+    desc:"Temel piyade. Ucuz, hızlı üretilir. 4-5-6. turlarda savaşır."},
+
+  baltaci:{id:'baltaci',side:'light',icon:'🪓',name:'Baltacı',role:'Hafif Saldırgan',tier:1,
+    baseAtk:2,baseDef:7,maas:15,
+    atkGelArtis:0.5,defGelArtis:0.5,atkGelMax:10,defGelMax:10,
+    saldiriCarpan:1, savasTurlari:[4,5,6],
+    cost:{altin:2000,odun:75,metal:50},
+    extraCost:{},
+    traits:['Ucuz saldırı','Hafif zırh'],
+    trainTime:90,maxCount:99999,count:0,
+    desc:"Ucuz saldırı birimi. 4-5-6. turlarda savaşır."},
+
+  okcu:{id:'okcu',side:'light',icon:'🏹',name:'Okçu',role:'Menzilli',tier:1,
+    baseAtk:5,baseDef:12,maas:28,
+    atkGelArtis:0.5,defGelArtis:0.5,atkGelMax:10,defGelMax:10,
+    saldiriCarpan:1, savasTurlari:[1,2,3],
+    cost:{altin:6000,odun:300,islenmis:50},
+    extraCost:{},
+    traits:['Menzilli','İlk 3 turda saldırır'],
+    trainTime:120,maxCount:99999,count:0,
+    desc:"Menzilli saldırı. 1-2-3. turlarda savaşır."},
+
+  savasci:{id:'savasci',side:'light',icon:'⚔️',name:'Savaşçı',role:'Ağır Piyade',tier:2,
+    baseAtk:6,baseDef:18,maas:32,
+    atkGelArtis:0.5,defGelArtis:1,atkGelMax:10,defGelMax:10,
+    saldiriCarpan:1, savasTurlari:[2,3,4,5,6],
+    cost:{altin:7500,odun:100,metal:50,islenmis:100},
+    extraCost:{},
+    traits:['Dengeli','5 turda savaşır'],
+    trainTime:180,maxCount:99999,count:0,
+    desc:"Dengeli saldırı ve savunma. 2-3-4-5-6. turlarda savaşır."},
+
+  sovalye:{id:'sovalye',side:'light',icon:'🛡️',name:'Şovalye',role:'Zırhlı Tank',tier:2,
+    baseAtk:6,baseDef:22,maas:35,
+    atkGelArtis:1,defGelArtis:1,atkGelMax:10,defGelMax:10,
+    saldiriCarpan:1, savasTurlari:[3,4,5,6],
+    cost:{altin:10000,metal:120,islenmis:80},
+    extraCost:{},
+    traits:['Çok yüksek DEF','Kalkan'],
+    trainTime:240,maxCount:99999,count:0,
+    desc:"Ağır zırhlı savunma birimi. 3-4-5-6. turlarda savaşır."},
+
+  suvari:{id:'suvari',side:'light',icon:'🐴',name:'Süvari',role:'Atlı Saldırı',tier:2,
+    baseAtk:8,baseDef:26,maas:40,
+    atkGelArtis:1,defGelArtis:1,atkGelMax:10,defGelMax:10,
+    saldiriCarpan:1, savasTurlari:[3,4,5,6],
+    cost:{altin:11500,metal:80,islenmis:120},
+    extraCost:{at:1},
+    traits:['At gerekli','Güçlü saldırı'],
+    trainTime:300,maxCount:99999,count:0,
+    desc:"Atlı saldırı birimi. 1 At gerektirir. 3-4-5-6. turlarda savaşır."},
+
+  paladin:{id:'paladin',side:'light',icon:'✨',name:'Paladin',role:'Kutsal Savaşçı',tier:3,
+    baseAtk:9,baseDef:33,maas:52,
+    atkGelArtis:1,defGelArtis:2,atkGelMax:10,defGelMax:10,
+    saldiriCarpan:1, savasTurlari:[3,4,5,6],
+    cost:{altin:16000,odun:150,metal:100,islenmis:150},
+    extraCost:{at:1},
+    traits:['At gerekli','Yüksek DEF','Kutsal zırh'],
+    trainTime:480,maxCount:99999,count:0,
+    desc:"Aydınlığın elit savaşçısı. 1 At gerektirir. 3-4-5-6. turlarda savaşır."},
+
+  kolcu:{id:'kolcu',side:'light',icon:'🎯',name:'Kolcu',role:'Gizli Elit',tier:2,
+    baseAtk:10,baseDef:30,maas:76,
+    atkGelArtis:1,defGelArtis:2,atkGelMax:10,defGelMax:10,
+    saldiriCarpan:2, savasTurlari:[2,3,4,5,6],
+    cost:{altin:32000,odun:120,metal:150,islenmis:200},
+    extraCost:{gizlilik:1},
+    traits:['x2 saldırı çarpanı','Gizlilik gerekli'],
+    trainTime:300,maxCount:99999,count:0,
+    desc:"Her saldırısı x2 ile çarpılır. 1 Gizlilik Puanı gerektirir. 2-3-4-5-6. turlarda."},
+
+  buyucu:{id:'buyucu',side:'light',icon:'🔮',name:'Büyücü',role:'Büyü Saldırısı',tier:3,
+    baseAtk:11,baseDef:18,maas:120,
+    atkGelArtis:1,defGelArtis:1,atkGelMax:10,defGelMax:10,
+    saldiriCarpan:2, savasTurlari:[1,2,3],
+    cost:{altin:25000},
+    extraCost:{mana:5},
+    traits:['x2 saldırı çarpanı','5 Mana gerekli'],
+    trainTime:600,maxCount:99999,count:0,
+    desc:"Büyü saldırısı. Her saldırı x2. 5 Mana gerektirir. 1-2-3. turlarda."},
+
+  isin_savasci:{id:'isin_savasci',side:'light',icon:'⚡',name:'Işığın Savaşçısı',role:'Efsanevi',tier:3,
+    baseAtk:40,baseDef:100,maas:250,
+    atkGelArtis:2,defGelArtis:2,atkGelMax:10,defGelMax:10,
+    saldiriCarpan:3, savasTurlari:[1,2,3,4,5],
+    cost:{altin:50000,odun:1000,metal:300,islenmis:500},
+    extraCost:{buyulu_yumurta:1},
+    traits:['x3 saldırı çarpanı','Büyülü Yumurta gerekli','Efsanevi'],
+    trainTime:1200,maxCount:99999,count:0,
+    desc:"Aydınlığın en güçlüsü. x3 çarpan. 1 Büyülü Yumurta gerekli. 1-2-3-4-5. turlarda."},
+
+  /* ─── AYDINLIK EJDERHALAR (üretilemez) ─── */
+  mavi_ejderha:{id:'mavi_ejderha',side:'light',icon:'🐲',name:'Mavi Ejderha',role:'Ejderha',tier:4,
+    baseAtk:750,baseDef:2500,maas:0,
+    atkGelArtis:0,defGelArtis:0,atkGelMax:0,defGelMax:0,
+    saldiriCarpan:1, savasTurlari:[1,2,3,4,5,6],
+    cost:{},extraCost:{},
+    traits:['Mağaradan çıkar','Maaş almaz','Üretilemez'],
+    trainTime:0,maxCount:99999,count:0,producible:false,
+    desc:"Mağaradan rastgele çıkar. Üretilemez. Her turda savaşır."},
+
+  altin_ejderha:{id:'altin_ejderha',side:'light',icon:'🐉',name:'Altın Ejderha',role:'Ejderha',tier:4,
+    baseAtk:1000,baseDef:5000,maas:0,
+    atkGelArtis:0,defGelArtis:0,atkGelMax:0,defGelMax:0,
+    saldiriCarpan:1, savasTurlari:[1,2,3,4,5,6],
+    cost:{},extraCost:{},
+    traits:['Mağaradan çıkar','Maaş almaz','Üretilemez','Efsanevi'],
+    trainTime:0,maxCount:99999,count:0,producible:false,
+    desc:"Mağaradan çok nadir çıkar. Üretilemez. Her turda savaşır."},
+
+  /* ═══════════ KARANLIK ═══════════ */
+  iskelet:{id:'iskelet',side:'dark',icon:'💀',name:'İskelet',role:'Hafif Piyade',tier:1,
+    baseAtk:1,baseDef:8,maas:15,
+    atkGelArtis:0.5,defGelArtis:0.5,atkGelMax:10,defGelMax:10,
+    saldiriCarpan:1, savasTurlari:[4,5,6],
+    cost:{altin:3000,odun:75,islenmis:50},
+    extraCost:{},
+    traits:['Ölümsüz','Ucuz birim'],
+    trainTime:60,maxCount:99999,count:0,
+    desc:"Ölümsüz piyade. Ucuz, hızlı üretilir. 4-5-6. turlarda savaşır."},
+
+  goblin:{id:'goblin',side:'dark',icon:'👺',name:'Goblin',role:'Hafif Saldırgan',tier:1,
+    baseAtk:3,baseDef:9,maas:20,
+    atkGelArtis:0.5,defGelArtis:0.5,atkGelMax:10,defGelMax:10,
+    saldiriCarpan:1, savasTurlari:[4,5,6],
+    cost:{altin:3000,odun:75,islenmis:50},
+    extraCost:{},
+    traits:['Hızlı','Sinsi'],
+    trainTime:90,maxCount:99999,count:0,
+    desc:"Hızlı ve sinsi saldırgan. 4-5-6. turlarda savaşır."},
+
+  iskelet_okcu:{id:'iskelet_okcu',side:'dark',icon:'🏹',name:'İskelet Okçu',role:'Menzilli',tier:1,
+    baseAtk:6,baseDef:11,maas:32,
+    atkGelArtis:0.5,defGelArtis:0.5,atkGelMax:10,defGelMax:10,
+    saldiriCarpan:1, savasTurlari:[1,2,3],
+    cost:{altin:6500,odun:300,islenmis:50},
+    extraCost:{},
+    traits:['Menzilli','Ölümsüz','İlk 3 turda saldırır'],
+    trainTime:120,maxCount:99999,count:0,
+    desc:"Ölümsüz menzilli. 1-2-3. turlarda savaşır."},
+
+  ogre:{id:'ogre',side:'dark',icon:'👹',name:'Ogre Savaşçı',role:'Ağır Piyade',tier:2,
+    baseAtk:5,baseDef:19,maas:28,
+    atkGelArtis:0.5,defGelArtis:1,atkGelMax:10,defGelMax:10,
+    saldiriCarpan:1, savasTurlari:[2,3,4,5,6],
+    cost:{altin:7000,odun:150,metal:50,islenmis:100},
+    extraCost:{},
+    traits:['Devasa güç','5 turda savaşır'],
+    trainTime:180,maxCount:99999,count:0,
+    desc:"Devasa saldırı gücü. 2-3-4-5-6. turlarda savaşır."},
+
+  troll:{id:'troll',side:'dark',icon:'🧌',name:'Troll',role:'Zırhlı Tank',tier:2,
+    baseAtk:7,baseDef:21,maas:35,
+    atkGelArtis:1,defGelArtis:1,atkGelMax:10,defGelMax:10,
+    saldiriCarpan:1, savasTurlari:[3,4,5,6],
+    cost:{altin:10500,metal:120,islenmis:80},
+    extraCost:{},
+    traits:['Çok yüksek DEF','Taş derisi'],
+    trainTime:360,maxCount:99999,count:0,
+    desc:"Ağır zırhlı savunma. 3-4-5-6. turlarda savaşır."},
+
+  ork:{id:'ork',side:'dark',icon:'🐺',name:'Ork',role:'Kurtlu Saldırı',tier:2,
+    baseAtk:8,baseDef:24,maas:40,
+    atkGelArtis:1,defGelArtis:1,atkGelMax:10,defGelMax:10,
+    saldiriCarpan:1, savasTurlari:[3,4,5,6],
+    cost:{altin:11500,metal:80,islenmis:120},
+    extraCost:{kurt:1},
+    traits:['Kurt gerekli','Güçlü saldırı'],
+    trainTime:300,maxCount:99999,count:0,
+    desc:"Kurtlu saldırı birimi. 1 Kurt gerektirir. 3-4-5-6. turlarda savaşır."},
+
+  golem:{id:'golem',side:'dark',icon:'🪨',name:'Golem',role:'Elite Tank',tier:3,
+    baseAtk:9,baseDef:29,maas:80,
+    atkGelArtis:1,defGelArtis:2,atkGelMax:10,defGelMax:10,
+    saldiriCarpan:1, savasTurlari:[3,4,5,6],
+    cost:{altin:33000,odun:250,metal:150,islenmis:150},
+    extraCost:{kurt:1},
+    traits:['Kurt gerekli','Yüksek ATK & DEF'],
+    trainTime:900,maxCount:99999,count:0,
+    desc:"Karanlığın elit tankı. 1 Kurt gerektirir. 3-4-5-6. turlarda savaşır."},
+
+  kara_sovalye:{id:'kara_sovalye',side:'dark',icon:'🖤',name:'Kara Şovalye',role:'Gizli Elit',tier:2,
+    baseAtk:8,baseDef:36,maas:48,
+    atkGelArtis:1,defGelArtis:2,atkGelMax:10,defGelMax:10,
+    saldiriCarpan:2, savasTurlari:[2,3,4,5,6],
+    cost:{altin:15250,odun:150,metal:100,islenmis:150},
+    extraCost:{gizlilik:1},
+    traits:['x2 saldırı çarpanı','Gizlilik gerekli'],
+    trainTime:480,maxCount:99999,count:0,
+    desc:"Her saldırısı x2. 1 Gizlilik Puanı gerektirir. 2-3-4-5-6. turlarda."},
+
+  kara_elf:{id:'kara_elf',side:'dark',icon:'🧝',name:'Kara Elf',role:'Büyü Saldırısı',tier:3,
+    baseAtk:10,baseDef:19,maas:120,
+    atkGelArtis:1,defGelArtis:1,atkGelMax:10,defGelMax:10,
+    saldiriCarpan:2, savasTurlari:[1,2,3],
+    cost:{altin:24500},
+    extraCost:{mana:5},
+    traits:['x2 saldırı çarpanı','5 Mana gerekli'],
+    trainTime:720,maxCount:99999,count:0,
+    desc:"Karanlık büyücü. Her saldırı x2. 5 Mana gerektirir. 1-2-3. turlarda."},
+
+  golge_savasci:{id:'golge_savasci',side:'dark',icon:'🌑',name:'Gölge Savaşçı',role:'Efsanevi',tier:3,
+    baseAtk:40,baseDef:100,maas:250,
+    atkGelArtis:2,defGelArtis:2,atkGelMax:10,defGelMax:10,
+    saldiriCarpan:3, savasTurlari:[1,2,3,4,5],
+    cost:{altin:50000,odun:1000,metal:300,islenmis:500},
+    extraCost:{buyulu_yumurta:1},
+    traits:['x3 saldırı çarpanı','Büyülü Yumurta gerekli','Efsanevi'],
+    trainTime:1500,maxCount:99999,count:0,
+    desc:"Karanlığın en güçlüsü. x3 çarpan. 1 Büyülü Yumurta gerekli. 1-2-3-4-5. turlarda."},
+
+  /* ─── KARANLIK EJDERHALAR (üretilemez) ─── */
+  kirmizi_ejderha:{id:'kirmizi_ejderha',side:'dark',icon:'🐲',name:'Kırmızı Ejderha',role:'Ejderha',tier:4,
+    baseAtk:750,baseDef:2500,maas:0,
+    atkGelArtis:0,defGelArtis:0,atkGelMax:0,defGelMax:0,
+    saldiriCarpan:1, savasTurlari:[1,2,3,4,5,6],
+    cost:{},extraCost:{},
+    traits:['Mağaradan çıkar','Maaş almaz','Üretilemez'],
+    trainTime:0,maxCount:99999,count:0,producible:false,
+    desc:"Mağaradan rastgele çıkar. Üretilemez. Her turda savaşır."},
+
+  siyah_ejderha:{id:'siyah_ejderha',side:'dark',icon:'🐉',name:'Siyah Ejderha',role:'Ejderha',tier:4,
+    baseAtk:1000,baseDef:5000,maas:0,
+    atkGelArtis:0,defGelArtis:0,atkGelMax:0,defGelMax:0,
+    saldiriCarpan:1, savasTurlari:[1,2,3,4,5,6],
+    cost:{},extraCost:{},
+    traits:['Mağaradan çıkar','Maaş almaz','Üretilemez','Efsanevi'],
+    trainTime:0,maxCount:99999,count:0,producible:false,
+    desc:"Mağaradan çok nadir çıkar. Üretilemez. Her turda savaşır."},
+};
+
+/* Saf dizilimi state - removed old front/back, now using 4-row system in formation JS below */
+
+/* ── ORDU SEKMESİ ── */
+function armyTab(tab, el){
+  // Hide all army sections
+  document.querySelectorAll('.army-section').forEach(s=>s.style.display='none');
+  const target = document.getElementById('atab-'+tab);
+  if(target) target.style.display='block';
+
+  // Highlight internal tab buttons (if they exist)
+  document.querySelectorAll('.army-tabs .atab').forEach(b=>b.classList.remove('on'));
+  const tbtn = document.getElementById('atab-btn-'+tab);
+  if(tbtn) tbtn.classList.add('on');
+
+  // Highlight sidebar sub-items
+  document.querySelectorAll('.army-sub').forEach(s=>s.classList.remove('on'));
+  if(el && el.classList && el.classList.contains('army-sub')) {
+    el.classList.add('on');
+  } else {
+    const match = document.querySelector('.army-sub[data-atab="'+tab+'"]');
+    if(match) match.classList.add('on');
+  }
+
+  // Render appropriate content
+  if(tab==='units') {
+    const side = OYUNCU && OYUNCU.taraf === 'kotu' ? 'dark' : 'light';
+    renderUnitGrid(side, 'ugrid-player');
+  }
+  if(tab==='soldier') renderSoldierPanel();
+  if(tab==='armies') renderOrduListe();
+  if(tab==='formation') {
+    renderFormationGrid();
+    const sel = document.getElementById('formation-army-select');
+    if(sel) {
+      sel.innerHTML = '<option value="">-- Ordu Seç --</option>';
+      ORDULAR.forEach(o => {
+        sel.innerHTML += '<option value="'+o.id+'">'+o.isim+'</option>';
+      });
+    }
+  }
+  if(tab==='upgrades') renderUpgrades();
+}
+
+/* ── GELİŞTİRME PANELİ ── */
+function renderUpgrades(){
+  const panel = document.getElementById('atab-upgrades');
+  if(!panel) return;
+  const side = OYUNCU && OYUNCU.taraf === 'kotu' ? 'dark' : 'light';
+
+  let html = `
+  <div style="padding:15px">
+    <h3 style="color:#f5f0e8;margin:0 0 15px">📈 Global Geliştirmeler</h3>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
+      <div style="background:#1a1a0a;border:1px solid #333;border-radius:8px;padding:12px;flex:1;min-width:200px">
+        <div style="color:#f1c40f;font-weight:bold">⚔️ Askeri Geliştirme</div>
+        <div style="color:#aaa;font-size:11px;margin:4px 0">Ünite üretim altın maliyetini azaltır (%1/seviye)</div>
+        <div style="color:#fff;margin:8px 0">Seviye: <b>${ASKERI_GEL_SEV}</b> / 5</div>
+        <div style="color:#f1c40f;font-size:12px">İndirim: %${ASKERI_GEL_SEV}</div>
+        ${ASKERI_GEL_SEV<5?`<button class="btn-action" onclick="upgradeGlobal('askeri')" style="margin-top:8px;padding:4px 12px;font-size:11px">Yükselt (${GEL_MALIYET} Altın)</button>`:'<div style="color:#2ecc71;margin-top:8px">✅ MAX SEVİYE</div>'}
+      </div>
+      <div style="background:#1a1a0a;border:1px solid #333;border-radius:8px;padding:12px;flex:1;min-width:200px">
+        <div style="color:#f1c40f;font-weight:bold">💰 Maaş Geliştirme</div>
+        <div style="color:#aaa;font-size:11px;margin:4px 0">Tüm ünitelerin maaşını azaltır (%2/seviye)</div>
+        <div style="color:#fff;margin:8px 0">Seviye: <b>${MAAS_GEL_SEV}</b> / 6</div>
+        <div style="color:#f1c40f;font-size:12px">İndirim: %${MAAS_GEL_SEV*2}</div>
+        ${MAAS_GEL_SEV<6?`<button class="btn-action" onclick="upgradeGlobal('maas')" style="margin-top:8px;padding:4px 12px;font-size:11px">Yükselt (${GEL_MALIYET} Altın)</button>`:'<div style="color:#2ecc71;margin-top:8px">✅ MAX SEVİYE</div>'}
+      </div>
+    </div>
+
+    <h3 style="color:#f5f0e8;margin:0 0 15px">⚔️ Üniteye Özel Geliştirmeler</h3>
+    <div style="color:#aaa;font-size:11px;margin-bottom:10px">Her kademe ${GEL_MALIYET} altın. Geliştirmeler geri alınamaz!</div>
+    <div style="display:flex;flex-direction:column;gap:8px">`;
+
+  const playerUnits = Object.values(UNITS).filter(u=>u.side===side && u.producible !== false);
+  playerUnits.forEach(u=>{
+    const gel = UNIT_GEL[u.id] || {atk:0,def:0};
+    const curAtk = realAtk(u.id);
+    const curDef = realDef(u.id);
+    const atkMax = gel.atk >= u.atkGelMax;
+    const defMax = gel.def >= u.defGelMax;
+
+    html += `
+    <div style="background:#111;border:1px solid #222;border-radius:6px;padding:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div style="font-size:20px;width:30px;text-align:center">${u.icon}</div>
+      <div style="min-width:100px"><b style="color:#e8e0d0">${u.name}</b><br><span style="color:#666;font-size:10px">ATK:${curAtk} DEF:${curDef}</span></div>
+      <div style="flex:1;display:flex;gap:8px;flex-wrap:wrap">
+        <div style="background:#1a0a0a;padding:6px 10px;border-radius:4px;border:1px solid #331111">
+          <span style="color:#e74c3c;font-size:11px">ATK Gel.</span>
+          <span style="color:#fff;font-size:11px"> ${gel.atk}/${u.atkGelMax}</span>
+          <span style="color:#666;font-size:10px"> (+${u.atkGelArtis}/sv)</span>
+          ${!atkMax?`<button onclick="upgradeUnit('${u.id}','atk')" style="margin-left:6px;padding:2px 8px;font-size:10px;background:#e74c3c;color:#fff;border:none;border-radius:3px;cursor:pointer">+</button>`:'<span style="color:#2ecc71;font-size:10px;margin-left:4px">MAX</span>'}
+        </div>
+        <div style="background:#0a0a1a;padding:6px 10px;border-radius:4px;border:1px solid #111133">
+          <span style="color:#3498db;font-size:11px">DEF Gel.</span>
+          <span style="color:#fff;font-size:11px"> ${gel.def}/${u.defGelMax}</span>
+          <span style="color:#666;font-size:10px"> (+${u.defGelArtis}/sv)</span>
+          ${!defMax?`<button onclick="upgradeUnit('${u.id}','def')" style="margin-left:6px;padding:2px 8px;font-size:10px;background:#3498db;color:#fff;border:none;border-radius:3px;cursor:pointer">+</button>`:'<span style="color:#2ecc71;font-size:10px;margin-left:4px">MAX</span>'}
+        </div>
+      </div>
+    </div>`;
+  });
+
+  html += `</div>
+
+    <h3 style="color:#f5f0e8;margin:20px 0 15px">📦 Extra Kaynaklar</h3>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">🐴 At/Kurt: <b style="color:#f1c40f">${EXTRA_RES.at||EXTRA_RES.kurt||0}</b></div>
+      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">🔮 Mana: <b style="color:#9b59b6">${EXTRA_RES.mana||0}</b></div>
+      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">🎯 Gizlilik: <b style="color:#2ecc71">${(EXTRA_RES.gizlilik||0).toFixed(1)}</b></div>
+      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">🥚 B.Yumurta: <b style="color:#e67e22">${(EXTRA_RES.buyulu_yumurta||0).toFixed(1)}</b></div>
+      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">🥩 Çiğ Et: <b style="color:#c0392b">${EXTRA_RES.cig_et||0}</b></div>
+    </div>
+  </div>`;
+
+  panel.innerHTML = html;
+}
+
+function upgradeGlobal(type){
+  if((RES.altin||0) < GEL_MALIYET){ toast('❌ Yetersiz altın!'); return; }
+  if(type==='askeri'){
+    if(ASKERI_GEL_SEV >= 5){ toast('⚠️ Max seviye!'); return; }
+    ASKERI_GEL_SEV++;
+    toast(`✅ Askeri Geliştirme Seviye ${ASKERI_GEL_SEV}! Altın maliyeti -%${ASKERI_GEL_SEV}`);
+  } else {
+    if(MAAS_GEL_SEV >= 6){ toast('⚠️ Max seviye!'); return; }
+    MAAS_GEL_SEV++;
+    toast(`✅ Maaş Geliştirme Seviye ${MAAS_GEL_SEV}! Maaş -%${MAAS_GEL_SEV*2}`);
+  }
+  RES.altin -= GEL_MALIYET;
+  setText('hud-g', RES.altin);
+  renderUpgrades();
+}
+
+function upgradeUnit(unitId, stat){
+  if((RES.altin||0) < GEL_MALIYET){ toast('❌ Yetersiz altın!'); return; }
+  const u = UNITS[unitId]; if(!u) return;
+  if(!UNIT_GEL[unitId]) UNIT_GEL[unitId] = {atk:0,def:0};
+  const gel = UNIT_GEL[unitId];
+  if(stat==='atk'){
+    if(gel.atk >= u.atkGelMax){ toast('⚠️ Max ATK seviye!'); return; }
+    gel.atk++;
+    toast(`✅ ${u.name} ATK Geliştirme Sv.${gel.atk}! ATK: ${realAtk(unitId)}`);
+  } else {
+    if(gel.def >= u.defGelMax){ toast('⚠️ Max DEF seviye!'); return; }
+    gel.def++;
+    toast(`✅ ${u.name} DEF Geliştirme Sv.${gel.def}! DEF: ${realDef(unitId)}`);
+  }
+  RES.altin -= GEL_MALIYET;
+  setText('hud-g', RES.altin);
+  renderUpgrades();
+}
+
+/* ── ASKER YÖNETİMİ ── */
+let SM_MIKTAR = 0;
+let ASKER_SAYISI = 0;
+
+function renderSoldierPanel(){
+  const setText = (id,v) => { const e=document.getElementById(id); if(e) e.innerText=v; };
+  const koylu = Math.max(0, population.free - ASKER_SAYISI);
+  setText('sm-koylu', koylu);
+  setText('sm-asker', ASKER_SAYISI);
+  setText('sm-miktar', SM_MIKTAR);
+}
+
+function smAdjust(d){
+  const koylu = Math.max(0, population.free - ASKER_SAYISI);
+  SM_MIKTAR = Math.max(0, Math.min(SM_MIKTAR + d, koylu));
+  setText('sm-miktar', SM_MIKTAR);
+}
+
+async function smConvert(){
+  if(SM_MIKTAR <= 0){ document.getElementById('sm-msg').textContent = '⚠️ Dönüştürülecek köylü sayısını belirle.'; return; }
+  const koylu = Math.max(0, population.free - ASKER_SAYISI);
+  if(SM_MIKTAR > koylu){ document.getElementById('sm-msg').textContent = '⚠️ Yeterli boş köylü yok!'; return; }
+
+  const token = getToken();
+  if(token) {
+    try {
+      const resp = await fetch(API_BASE + '/api/game/soldiers/convert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ miktar: SM_MIKTAR, yon: 'askere' })
+      });
+      if(!resp.ok) {
+        const err = await resp.json();
+        document.getElementById('sm-msg').textContent = '⚠️ ' + (err.error || 'Hata oluştu');
+        return;
+      }
+      const data = await resp.json();
+      ASKER_SAYISI = data.workers?.asker || (ASKER_SAYISI + SM_MIKTAR);
+    } catch(e) {
+      // Backend'e ulaşılamazsa lokal güncelle
+      ASKER_SAYISI += SM_MIKTAR;
+    }
+  } else {
+    ASKER_SAYISI += SM_MIKTAR;
+  }
+
+  document.getElementById('sm-msg').textContent = `✅ ${SM_MIKTAR} köylü askere çevrildi!`;
+  SM_MIKTAR = 0;
+  renderSoldierPanel();
+  updateArmyStats();
+}
+
+async function smRelease(){
+  if(SM_MIKTAR <= 0){ document.getElementById('sm-msg').textContent = '⚠️ Köylüye çevrilecek asker sayısını belirle.'; return; }
+  if(SM_MIKTAR > ASKER_SAYISI){ document.getElementById('sm-msg').textContent = '⚠️ Bu kadar asker yok!'; return; }
+
+  const token = getToken();
+  if(token) {
+    try {
+      const resp = await fetch(API_BASE + '/api/game/soldiers/convert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ miktar: SM_MIKTAR, yon: 'koylue' })
+      });
+      if(!resp.ok) {
+        const err = await resp.json();
+        document.getElementById('sm-msg').textContent = '⚠️ ' + (err.error || 'Hata oluştu');
+        return;
+      }
+      const data = await resp.json();
+      ASKER_SAYISI = data.workers?.asker || (ASKER_SAYISI - SM_MIKTAR);
+    } catch(e) {
+      ASKER_SAYISI -= SM_MIKTAR;
+    }
+  } else {
+    ASKER_SAYISI -= SM_MIKTAR;
+  }
+
+  document.getElementById('sm-msg').textContent = `✅ ${SM_MIKTAR} asker köylüye çevrildi.`;
+  SM_MIKTAR = 0;
+  renderSoldierPanel();
+  updateArmyStats();
+}
+
+/* ── ORDU YÖNETİMİ ── */
+let ORDULAR = []; // [{id, isim, asker, dizilim:{on:[], arka:[]}}]
+let ORDU_MIKTAR = 1;
+
+function orduYeniAc(){
+  if(ORDULAR.length >= 5){ toast('⚠️ Maksimum 5 ordu kurabilirsin!'); return; }
+  ORDU_MIKTAR = 1;
+  setText('ordu-miktar', ORDU_MIKTAR);
+  document.getElementById('ordu-isim').value = '';
+  document.getElementById('ordu-form-msg').textContent = '';
+  document.getElementById('ordu-form').style.display = 'block';
+}
+
+function orduAdjust(d){
+  ORDU_MIKTAR = Math.max(1, Math.min(ORDU_MIKTAR + d, 500, ASKER_SAYISI));
+  setText('ordu-miktar', ORDU_MIKTAR);
+}
+
+function orduKur(){
+  const isim = document.getElementById('ordu-isim').value.trim();
+  const msg = document.getElementById('ordu-form-msg');
+  if(!isim){ msg.textContent = '⚠️ Ordu adı gir.'; return; }
+  if(ORDU_MIKTAR < 1){ msg.textContent = '⚠️ En az 1 asker gerekli!'; return; }
+  if(ORDU_MIKTAR > ASKER_SAYISI){ msg.textContent = '⚠️ Yeterli boşta asker yok!'; return; }
+  if(ORDULAR.length >= 5){ msg.textContent = '⚠️ Maksimum 5 ordu!'; return; }
+  const ordu = { id: Date.now(), isim, asker: ORDU_MIKTAR, dizilim:{saflar:[[],[],[],[]]} };
+  ORDULAR.push(ordu);
+  document.getElementById('ordu-form').style.display = 'none';
+  toast(`✅ "${isim}" ordusu kuruldu! (${ORDU_MIKTAR} asker)`);
+  renderOrduListe();
+}
+
+function orduSil(id){
+  const ordu = ORDULAR.find(o=>o.id===id);
+  if(!ordu) return;
+  ORDULAR = ORDULAR.filter(o=>o.id!==id);
+  toast(`🏠 "${ordu.isim}" ordusu dağıtıldı.`);
+  renderOrduListe();
+}
+
+function renderOrduListe(){
+  const el = document.getElementById('ordu-liste');
+  if(!el) return;
+  const yeniBtn = document.getElementById('ordu-yeni-btn');
+  if(yeniBtn) yeniBtn.style.display = ORDULAR.length >= 5 ? 'none' : 'inline-block';
+  if(ORDULAR.length === 0){
+    el.innerHTML = '<div class="card" style="text-align:center;color:#555;padding:32px">Henüz ordu kurulmamış. Önce askere köylü çevir, sonra ordu kur.</div>';
+    return;
+  }
+  el.innerHTML = ORDULAR.map(o=>`
+    <div class="card" style="margin-bottom:12px;border-left:3px solid #d4af37">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <div>
+          <div style="font-size:16px;font-weight:bold;color:#d4af37">🏕️ ${o.isim}</div>
+          <div style="color:#aaa;font-size:13px;margin-top:4px">
+            ⚔️ ATK: ${o.asker} &nbsp;|&nbsp; 🛡️ DEF: ${o.asker} &nbsp;|&nbsp; 👥 ${o.asker} asker
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn ghost" style="font-size:12px;padding:5px 12px" onclick="orduDizilim(${o.id})">⚔️ Dizilim</button>
+          <button class="btn ghost" style="font-size:12px;padding:5px 12px;border-color:#c0392b;color:#c0392b" onclick="orduSil(${o.id})">🗑️ Dağıt</button>
+        </div>
+      </div>
+      ${o.dizilim && o.dizilim.saflar && o.dizilim.saflar.some(s=>s.length>0) ? `
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid #333;font-size:12px;color:#888">
+          ${o.dizilim.saflar.map((s,i)=>'Saf '+(i+1)+': '+(s.length?s.join(', '):'—')).join(' &nbsp;|&nbsp; ')}
+        </div>` : ''}
+    </div>
+  `).join('');
+}
+
+function orduDizilim(id){
+  const ordu = ORDULAR.find(o=>o.id===id);
+  if(!ordu) return;
+  toast(`Dizilim özelliği yakında eklenecek: ${ordu.isim}`);
+}
+
+/* ── ÜNİTE GRID ── */
+function renderUnitGrid(side, gridId){
+  const id = gridId || ('ugrid-'+side);
+  const grid = document.getElementById(id);
+  if(!grid) return;
+  const units = Object.values(UNITS).filter(u=>u.side===side && u.producible !== false);
+  grid.innerHTML = '';
+
+  units.forEach(u=>{
+    const rc = realCost(u.cost);
+    const afford = canAfford(rc) && canAffordExtra(u.extraCost);
+    const costHTML = Object.entries(rc).map(([r,a])=>
+      `<span class="ucost-i ${(RES[r]||0)>=a?'ok':'no'}">${RICONS[r]||'📦'} ${a.toLocaleString()}</span>`
+    ).join('');
+    // Extra kaynak gösterimi
+    const extraHTML = Object.entries(u.extraCost||{}).map(([r,a])=>{
+      const icons = {at:'🐴',kurt:'🐺',mana:'🔮',gizlilik:'🎯',buyulu_yumurta:'🥚'};
+      const names = {at:'At',kurt:'Kurt',mana:'Mana',gizlilik:'Gizlilik',buyulu_yumurta:'B.Yumurta'};
+      const have = EXTRA_RES[r]||0;
+      return `<span class="ucost-i ${have>=a?'ok':'no'}">${icons[r]||'📦'} ${a} ${names[r]||r}</span>`;
+    }).join('');
+
+    const traitHTML = u.traits.map(t=>{
+      const cl = t.includes('ATK')||t.includes('saldır')||t.includes('çarpan') ? 'atk' :
+                 t.includes('DEF')||t.includes('savun')||t.includes('kalkan') ? 'def' :
+                 t.includes('büyü')||t.includes('Mana')||t.includes('mana') ? 'mag' :
+                 t.includes('Gizli')||t.includes('gizlilik') ? 'spd' : 'neu';
+      return `<span class="utrait ${cl}">${t}</span>`;
+    }).join('');
+    const tierCl = u.tier===1?'tier1':u.tier===2?'tier2':u.tier===3?'tier3':'tier4';
+    const tierLbl = u.tier===1?'TEMEL':u.tier===2?'GELİŞMİŞ':u.tier===3?'EFSANEVİ':'EJDERHA';
+    const bgCol = side==='light' ? '#141200' : '#100010';
+    const uAtk = realAtk(u.id);
+    const uDef = realDef(u.id);
+    const uMaas = realMaas(u.maas);
+    const turStr = u.savasTurlari.join(',');
+
+    const div = document.createElement('div');
+    div.className = `ucard ${side}-unit`;
+    div.draggable = true;
+    div.dataset.unitId = u.id;
+    div.addEventListener('dragstart', e=>{
+      e.dataTransfer.setData('unitId', u.id);
+      div.classList.add('dragging');
+    });
+    div.addEventListener('dragend', ()=>div.classList.remove('dragging'));
+
+    div.innerHTML = `
+      <div class="utier ${tierCl}">${tierLbl}</div>
+      <div class="uhead">
+        <div class="uico" style="background:${bgCol}">${u.icon}</div>
+        <div>
+          <div class="uname">${u.name} ${u.saldiriCarpan>1?'<span style="color:#e74c3c;font-size:10px">x'+u.saldiriCarpan+'</span>':''}</div>
+          <div class="urole">${u.role}</div>
+        </div>
+      </div>
+      <div class="ustat-row">
+        <div class="ustat"><div class="ustat-lbl">ATK</div><div class="ustat-val atk">${uAtk}</div></div>
+        <div class="ustat"><div class="ustat-lbl">DEF</div><div class="ustat-val def">${uDef}</div></div>
+        <div class="ustat"><div class="ustat-lbl">TUR</div><div class="ustat-val" style="font-size:10px">${turStr}</div></div>
+        <div class="ustat"><div class="ustat-lbl">MAAŞ</div><div class="ustat-val" style="color:#f1c40f">${uMaas}💰</div></div>
+      </div>
+      <div class="utraits">${traitHTML}</div>
+      <div class="ucost">${costHTML}${extraHTML}</div>
+      <div class="ucount-bar">
+        <button class="ucount-btn" onclick="changeCount('${u.id}',-10)">−10</button>
+        <button class="ucount-btn" onclick="changeCount('${u.id}',-1)">−</button>
+        <input class="ucount-inp" id="cnt-${u.id}" value="${u.count}" type="number" min="0" onchange="setCount('${u.id}',this.value)">
+        <button class="ucount-btn" onclick="changeCount('${u.id}',1)">+</button>
+        <button class="ucount-btn" onclick="changeCount('${u.id}',10)">+10</button>
+        <button class="utrain-btn" ${afford?'':'disabled'} onclick="trainUnit('${u.id}')">Eğit</button>
+      </div>
+      <div style="padding:0 15px 10px;font-size:11px;color:#555;line-height:1.4">${u.desc}</div>
+    `;
+    grid.appendChild(div);
+  });
+
+  updateArmyStats();
+}
+
+/* Extra kaynak yeterlilik kontrolü */
+function canAffordExtra(extraCost) {
+  if (!extraCost) return true;
+  return Object.entries(extraCost).every(([r,a]) => (EXTRA_RES[r]||0) >= a);
+}
+/* Extra kaynak harca */
+function spendExtra(extraCost) {
+  if (!extraCost) return;
+  Object.entries(extraCost).forEach(([r,a]) => { EXTRA_RES[r] = (EXTRA_RES[r]||0) - a; });
+}
+
+function changeCount(id, delta){
+  const u = UNITS[id]; if(!u) return;
+  u.count = Math.max(0, Math.min(u.maxCount, u.count + delta));
+  const inp = document.getElementById('cnt-'+id); if(inp) inp.value = u.count;
+  updateArmyStats();
+}
+
+function setCount(id, val){
+  const u = UNITS[id]; if(!u) return;
+  u.count = Math.max(0, Math.min(u.maxCount, parseInt(val)||0));
+  updateArmyStats();
+}
+
+async function trainUnit(id){
+  const u = UNITS[id]; if(!u) return;
+  if(u.producible === false){ toast('❌ Bu ünite üretilemez!'); return; }
+  const rc = realCost(u.cost);
+  if(!canAfford(rc)){ toast('❌ Yetersiz hammadde!'); return; }
+  if(!canAffordExtra(u.extraCost)){
+    const missing = Object.entries(u.extraCost).filter(([r,a])=>(EXTRA_RES[r]||0)<a).map(([r])=>r).join(', ');
+    toast('❌ Yetersiz: ' + missing); return;
+  }
+
+  const token = getToken();
+  if(token) {
+    try {
+      const resp = await fetch(API_BASE + '/api/game/resources/spend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ cost: rc })
+      });
+      if(!resp.ok) {
+        const err = await resp.json();
+        toast('❌ ' + (err.error || 'Yetersiz kaynak!'));
+        return;
+      }
+      const data = await resp.json();
+      if (data.resources) {
+        Object.entries(data.resources).forEach(([k,v]) => { if(RES[k] !== undefined) RES[k] = parseInt(v)||0; });
+      }
+    } catch(e) {
+      spendCost(rc);
+    }
+  } else {
+    spendCost(rc);
+  }
+
+  // Extra kaynakları düş
+  spendExtra(u.extraCost);
+
+  // HUD kaynak güncelle
+  setText('hud-w', RES.odun); setText('hud-m', RES.metal); setText('hud-t', RES.tas);
+  setText('hud-g', RES.altin); setText('hud-bu', RES.bugday); setText('hud-ba', RES.balik);
+
+  u.count = u.count + 1;
+  const inp = document.getElementById('cnt-'+id); if(inp) inp.value = u.count;
+  updateArmyStats();
+  // Ünite grid yenile (maliyet durumu değişmiş olabilir)
+  const playerSide = loadPlayer()?.taraf === 'kotu' ? 'dark' : 'light';
+  renderUnitGrid(playerSide);
+  toast(`✅ 1 ${u.name} eğitildi! (Maaş: ${realMaas(u.maas)} altın/saat)`);
+}
+
+function updateArmyStats(){
+  const all = Object.values(UNITS);
+  const totalAtk = all.reduce((s,u)=>s+realAtk(u.id)*u.count*u.saldiriCarpan,0);
+  const totalDef = all.reduce((s,u)=>s+realDef(u.id)*u.count,0);
+  const totalUnits = all.reduce((s,u)=>s+u.count,0);
+  const totalMaas = all.reduce((s,u)=>s+realMaas(u.maas)*u.count,0);
+  setText('as-atk', Math.round(totalAtk).toLocaleString());
+  setText('as-def', Math.round(totalDef).toLocaleString());
+  setText('as-units', totalUnits.toLocaleString());
+  setText('as-maas', totalMaas.toLocaleString());
+}
+
+/* ── SAF DİZİLİMİ (4 saf: 3-3-5-3) ── */
+const SAF_LIMITS = [3, 3, 5, 3]; // 14 total slots
+let FORMATION_STATE = [[], [], [], []]; // 4 rows
+let FORMATION_ARMY_ID = null;
+
+function loadFormationForArmy() {
+  const sel = document.getElementById('formation-army-select');
+  FORMATION_ARMY_ID = sel.value ? parseInt(sel.value) : null;
+  FORMATION_STATE = [[], [], [], []];
+  renderFormationGrid();
+}
+
+function renderFormationGrid() {
+  const army = ORDULAR.find(o => o.id === FORMATION_ARMY_ID);
+
+  for (let i = 0; i < 4; i++) {
+    const container = document.getElementById('saf-' + (i+1));
+    if (!container) continue;
+    const row = container.closest('.saf-row');
+    container.innerHTML = '';
+
+    // Lock row if previous row not full (except row 0)
+    const prevFull = i === 0 || FORMATION_STATE[i-1].length >= SAF_LIMITS[i-1];
+    if (row) {
+      row.classList.toggle('locked', !prevFull);
+    }
+
+    // Render slots
+    for (let j = 0; j < SAF_LIMITS[i]; j++) {
+      const slot = document.createElement('div');
+      slot.className = 'saf-slot' + (FORMATION_STATE[i][j] ? ' filled' : '');
+      if (FORMATION_STATE[i][j]) {
+        const unitId = FORMATION_STATE[i][j];
+        const unitData = typeof UNITS !== 'undefined' ? UNITS[unitId] : null;
+        slot.innerHTML = '<div class="slot-unit">' + (unitData ? unitData.icon || unitId : unitId) + '<br><small>' + unitId + '</small></div>';
+        (function(si, sj){ slot.onclick = function(){ removeFromSaf(si, sj); }; })(i, j);
+      } else {
+        slot.textContent = '+';
+        if (prevFull || i === 0) {
+          (function(si, sj){ slot.onclick = function(){ showUnitPicker(si, sj); }; })(i, j);
+        }
+      }
+      container.appendChild(slot);
+    }
+  }
+
+  // Render available units pool
+  renderFormationPool();
+}
+
+let PICKING_SAF = null;
+let PICKING_SLOT = null;
+
+function showUnitPicker(safIndex, slotIndex) {
+  PICKING_SAF = safIndex;
+  PICKING_SLOT = slotIndex;
+  renderFormationPool();
+}
+
+function renderFormationPool() {
+  const pool = document.getElementById('formation-units-pool');
+  if (!pool) return;
+  pool.innerHTML = '';
+
+  const army = ORDULAR.find(o => o.id === FORMATION_ARMY_ID);
+  if (!army) {
+    pool.innerHTML = '<p style="color:#666">Önce bir ordu seçin.</p>';
+    return;
+  }
+
+  // Count units already placed in formation
+  const placed = {};
+  FORMATION_STATE.forEach(function(row){ row.forEach(function(uid){
+    if (uid) placed[uid] = (placed[uid] || 0) + 1;
+  }); });
+
+  // Show available units from trained units for player's side
+  const unitTypes = Object.keys(typeof UNITS !== 'undefined' ? UNITS : {});
+  const side = OYUNCU.taraf === 'iyi' ? 'light' : 'dark';
+
+  unitTypes.filter(function(uid){ return UNITS[uid].side === side; }).forEach(function(uid){
+    const chip = document.createElement('div');
+    chip.className = 'formation-unit-chip';
+    chip.textContent = (UNITS[uid].icon || '') + ' ' + UNITS[uid].name;
+    (function(u){ chip.onclick = function(){ placeUnitInSaf(u); }; })(uid);
+    pool.appendChild(chip);
+  });
+}
+
+function placeUnitInSaf(unitId) {
+  if (PICKING_SAF === null) {
+    // Auto-place in first available slot
+    for (let i = 0; i < 4; i++) {
+      if (i > 0 && FORMATION_STATE[i-1].length < SAF_LIMITS[i-1]) break;
+      if (FORMATION_STATE[i].length < SAF_LIMITS[i]) {
+        FORMATION_STATE[i].push(unitId);
+        renderFormationGrid();
+        return;
+      }
+    }
+    return;
+  }
+  FORMATION_STATE[PICKING_SAF][PICKING_SLOT] = unitId;
+  PICKING_SAF = null;
+  PICKING_SLOT = null;
+  renderFormationGrid();
+}
+
+function removeFromSaf(safIndex, slotIndex) {
+  FORMATION_STATE[safIndex].splice(slotIndex, 1);
+  renderFormationGrid();
+}
+
+function saveFormation() {
+  if (!FORMATION_ARMY_ID) {
+    document.getElementById('formation-msg').textContent = '⚠️ Önce bir ordu seç!';
+    return;
+  }
+  const total = FORMATION_STATE.reduce(function(s, r){ return s + r.length; }, 0);
+  if (total === 0) {
+    document.getElementById('formation-msg').textContent = '⚠️ En az 1 ünite yerleştir!';
+    return;
+  }
+  // Save to army
+  const army = ORDULAR.find(function(o){ return o.id === FORMATION_ARMY_ID; });
+  if (army) {
+    army.dizilim = { saflar: [FORMATION_STATE[0].slice(), FORMATION_STATE[1].slice(), FORMATION_STATE[2].slice(), FORMATION_STATE[3].slice()] };
+  }
+  document.getElementById('formation-msg').textContent = '✅ Dizilim kaydedildi! (' + total + ' ünite)';
+  toast('✅ Saf dizilimi kaydedildi!');
+}
+
+function resetFormation() {
+  FORMATION_STATE = [[], [], [], []];
+  renderFormationGrid();
+  document.getElementById('formation-msg').textContent = '🔄 Dizilim sıfırlandı.';
+}
+
+/* ilk render */
+(function(){ const side = OYUNCU && OYUNCU.taraf === 'kotu' ? 'dark' : 'light'; renderUnitGrid(side, 'ugrid-player'); })();
+updateArmyStats();
+
+
+
+
+/* showPage için agent desteği ekle */
+const _agOrigNav = typeof nav === 'function' ? nav : null;
+
+
+/* ══════════════════════════════
+   WORSHIPPER & MANA SİSTEMİ
+   Max 2000 Worshipper, mana üretir
+══════════════════════════════ */
+let WORSHIPPERS = { count: 0, max: 2000, manaPerHour: 0 };
+
+function setWorshippers(n) {
+  WORSHIPPERS.count = Math.min(Math.max(0, n), WORSHIPPERS.max);
+  WORSHIPPERS.manaPerHour = Math.floor(WORSHIPPERS.count * 0.5);
+  const el = document.getElementById('worshipper-count');
+  if (el) el.textContent = WORSHIPPERS.count;
+  const mp = document.getElementById('worshipper-mana');
+  if (mp) mp.textContent = WORSHIPPERS.manaPerHour;
+}
+
+/* ══════════════════════════════
+   I. ÇAĞ KISITLAMALARI
+══════════════════════════════ */
+function checkCagRestrictions(action) {
+  if (!OYUNCU || OYUNCU.cag > 1) return true; // Serbest
+  const restricted = ['savaş', 'guild', 'attack'];
+  if (restricted.includes(action)) {
+    toast('⚠️ I. Çağda bu işlem yapılamaz! II. Çağa geç.');
+    return false;
+  }
+  return true;
+}
+
+/* ══════════════════════════════
+   1. ÇAĞDAN ÇIK (test butonu)
+══════════════════════════════ */
+function nextCag() {
+  if (!OYUNCU) return;
+  if (OYUNCU.cag >= 5) { toast('Maksimum çağdasın!'); return; }
+  OYUNCU.cag++;
+  const roman = ['','I','II','III','IV','V'];
+  document.getElementById('cs-age').textContent = roman[OYUNCU.cag] + '. Çağ';
+  document.getElementById('home-cag').textContent = roman[OYUNCU.cag] + '. Çağ';
+  document.getElementById('sidebar-cag').textContent = roman[OYUNCU.cag] + '. Çağ';
+  if (OYUNCU.cag > 1) {
+    const uyari = document.getElementById('cag1-uyari');
+    if (uyari) uyari.style.display = 'none';
+  }
+  toast(`🌟 ${roman[OYUNCU.cag]}. Çağa geçildi! Yeni binalar ve üniteler açıldı.`);
+  // Nüfus limiti çağla artar
+  population.max = 1500 + (OYUNCU.cag - 1) * 500;
+  updatePopulationUI();
+}
+
+
+/* ═══════════════════════════════════════════
+   ONBOARDING SİSTEMİ
+   localStorage ile kayıtlı kullanıcı takibi
+═══════════════════════════════════════════ */
+
+const STORAGE_KEY = 'palantis_player';
+const API_BASE = 'https://palantis-backend-production.up.railway.app';
+const SITE_URL = 'https://beamish-dodol-8f329a.netlify.app';
+function getToken() { return localStorage.getItem('palantis_token'); }
+function setToken(t) { localStorage.setItem('palantis_token', t); }
+function clearToken() { localStorage.removeItem('palantis_token'); localStorage.removeItem(STORAGE_KEY); }
+function loadPlayerFromAPI() {
+  return fetch(API_BASE + '/api/player/me', {
+    headers: { 'Authorization': 'Bearer ' + getToken() }
+  }).then(r => r.ok ? r.json() : null).catch(() => null);
+}
+
+let obMode = 'login'; // 'login' | 'register'
+let obSelectedSide = null;
+let obSelectedIrk = null;
+
+/* ── Sayfa yüklenince kontrol ── */
+(function obInit() {
+  // Google OAuth callback kontrolü (?token=...&setup=...)
+  const params = new URLSearchParams(window.location.search);
+  const urlToken = params.get('token');
+  const urlSetup = params.get('setup');
+  if (urlToken) {
+    setToken(urlToken);
+    window.history.replaceState({}, '', window.location.pathname);
+    if (urlSetup === 'false') {
+      // Google OAuth ile gelen kullanıcının adını al
+      loadPlayerFromAPI().then(p => {
+        if (p) obSelectedKral = p.username || p.kral || '';
+        showObStep('side');
+      });
+      return;
+    }
+    loadPlayerFromAPI().then(p => {
+      if (p && p.setup_done) { savePlayer(p); obApplyPlayer(p); obEnterGame(); }
+      else showObStep('login');
+    });
+    return;
+  }
+  // Kayıtlı token var mı?
+  if (getToken()) {
+    loadPlayerFromAPI().then(p => {
+      if (p && p.setup_done) {
+        savePlayer(p);
+        obApplyPlayer(p);
+        document.getElementById('ob-welcome-name').textContent = p.kral + ' · ' + p.sehir;
+        const irkData = findIrk(p.irk);
+        document.getElementById('ob-welcome-irk').textContent =
+          (irkData ? irkData.icon + ' ' + irkData.name : p.irk) +
+          ' · ' + (p.taraf === 'iyi' ? '☀️ Aydınlık' : '🌑 Karanlık');
+        showObStep('welcome');
+      } else if (p) {
+        obSelectedKral = p.username || p.kral || '';
+        showObStep('side');
+      } else {
+        clearToken();
+        showObStep('login');
+      }
+    });
+  } else {
+    showObStep('login');
+  }
+})();
+
+function showObStep(step) {
+  ['login','side','irk','welcome'].forEach(s => {
+    const el = document.getElementById('ob-step-' + s);
+    if (el) el.style.display = s === step ? 'block' : 'none';
+  });
+  if (step === 'side') loadSideStats();
+}
+
+function loadSideStats() {
+  fetch(API_BASE + '/api/stats/sides')
+    .then(r => r.ok ? r.json() : {iyi: 0, kotu: 0})
+    .then(data => {
+      if (!data) return;
+      const iEl = document.getElementById('stat-iyi');
+      const kEl = document.getElementById('stat-kotu');
+      if (iEl) iEl.textContent = data.iyi || 0;
+      if (kEl) kEl.textContent = data.kotu || 0;
+    })
+    .catch(() => {
+      const iEl = document.getElementById('stat-iyi');
+      const kEl = document.getElementById('stat-kotu');
+      if (iEl) iEl.textContent = 0;
+      if (kEl) kEl.textContent = 0;
+    });
+}
+
+/* ── Giriş / Kayıt toggle ── */
+function obToggleRegister() {
+  obMode = obMode === 'login' ? 'register' : 'login';
+  const emailWrap = document.getElementById('ob-email-wrap');
+  const pass2Wrap = document.getElementById('ob-pass2-wrap');
+  const txt = document.getElementById('ob-toggle-txt');
+  const btn = document.getElementById('ob-main-btn');
+  if (obMode === 'register') {
+    if(emailWrap) emailWrap.style.display = 'block';
+    if(pass2Wrap) pass2Wrap.style.display = 'block';
+    txt.innerHTML = 'Hesabın var mı? <u>Giriş yap</u>';
+    if(btn) btn.textContent = '📜 KAYIT OL';
+  } else {
+    if(emailWrap) emailWrap.style.display = 'none';
+    if(pass2Wrap) pass2Wrap.style.display = 'none';
+    txt.innerHTML = 'Hesabın yok mu? <u>Kayıt ol</u>';
+    if(btn) btn.textContent = '⚔️ GİRİŞ YAP';
+  }
+}
+
+/* ── Google login simülasyonu ── */
+function obGoogleLogin() {
+  window.location.href = API_BASE + '/api/auth/google';
+}
+
+/* ── Giriş / Kayıt ── */
+let obSelectedKral = '';
+let obSelectedSehir = '';
+let obSelectedPass = '';
+
+function obLogin() {
+  const username = document.getElementById('ob-username').value.trim();
+  const password = document.getElementById('ob-password').value;
+  const errEl = document.getElementById('ob-login-err');
+  errEl.classList.remove('ob-show');
+
+  if (!username) { showObErr('Kullanıcı adı gir!'); return; }
+  if (!password) { showObErr('Şifre gir!'); return; }
+
+  if (obMode === 'register') {
+    const email = document.getElementById('ob-email').value.trim();
+    const pass2 = document.getElementById('ob-password2').value;
+    if (!email) { showObErr('E-mail adresi gir!'); return; }
+    const emailRx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRx.test(email)) { showObErr('Geçerli bir e-mail adresi gir!'); return; }
+    if (password !== pass2) { showObErr('Şifreler eşleşmiyor!'); return; }
+    if (password.length < 4) { showObErr('Şifre en az 4 karakter olmalı!'); return; }
+    fetch(API_BASE + '/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password, email, screen_width: screen.width, screen_height: screen.height })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) { showObErr(data.error); return; }
+      setToken(data.token);
+      obSelectedKral = username;
+      obGoTo('side');
+    })
+    .catch(() => showObErr('Sunucuya bağlanılamadı!'));
+  } else {
+    fetch(API_BASE + '/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password, screen_width: screen.width, screen_height: screen.height })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) { showObErr(data.error); return; }
+      setToken(data.token);
+      if (data.setupDone && data.player) {
+        obApplyPlayer(data.player);
+        document.getElementById('ob-welcome-name').textContent = data.player.kral + ' · ' + data.player.sehir;
+        const irkData = findIrk(data.player.irk);
+        document.getElementById('ob-welcome-irk').textContent =
+          (irkData ? irkData.icon + ' ' + irkData.name : data.player.irk) +
+          ' · ' + (data.player.taraf === 'iyi' ? '☀️ Aydınlık' : '🌑 Karanlık');
+        showObStep('welcome');
+      } else {
+        obSelectedKral = username;
+        obGoTo('side');
+      }
+    })
+    .catch(() => showObErr('Sunucuya bağlanılamadı!'));
+  }
+}
+
+function showObErr(msg) {
+  const el = document.getElementById('ob-login-err');
+  el.textContent = msg;
+  el.classList.add('ob-show');
+}
+
+/* ── Taraf seçimi ── */
+function obSelectSide(side, el) {
+  obSelectedSide = side;
+  document.querySelectorAll('.ob-side-card').forEach(c => c.classList.remove('ob-on'));
+  el.classList.add('ob-on');
+  document.getElementById('ob-side-btn').disabled = false;
+}
+
+function obGoToIrk() {
+  if (!obSelectedSide) return;
+  renderObIrkGrid();
+  obGoTo('irk');
+}
+
+/* ── Irk grid ── */
+function renderObIrkGrid() {
+  const grid = document.getElementById('ob-irk-grid');
+  if (!grid) return;
+  const irklar = IRKLAR[obSelectedSide] || [];
+  grid.innerHTML = '';
+  irklar.forEach(irk => {
+    const div = document.createElement('div');
+    div.className = 'ob-irk-card';
+    div.style.borderColor = obSelectedIrk === irk.id ? irk.color : '';
+    div.style.boxShadow = obSelectedIrk === irk.id ? '0 0 16px ' + irk.color + '33' : '';
+    div.innerHTML =
+      '<div class="ob-irk-head">' +
+        '<span class="ob-irk-icon">' + irk.icon + '</span>' +
+        '<span class="ob-irk-name" style="color:' + irk.color + '">' + irk.name + '</span>' +
+      '</div>' +
+      '<div class="ob-irk-bonus">' +
+        irk.bonuslar.map(b => '<span>✦ ' + b + '</span><br>').join('') +
+      '</div>';
+    div.onclick = () => {
+      obSelectedIrk = irk.id;
+      document.getElementById('ob-irk-btn').disabled = false;
+      renderObIrkGrid();
+    };
+    grid.appendChild(div);
+  });
+}
+
+/* ── Bitir — oyuna gir ── */
+function obFinish() {
+  if (!obSelectedIrk || !obSelectedSide) return;
+  if (!obSelectedKral) {
+    console.warn('obFinish: obSelectedKral boş, API\'den çekiliyor...');
+    loadPlayerFromAPI().then(p => {
+      if (p) { obSelectedKral = p.username || p.kral || 'Kral'; }
+      else { obSelectedKral = 'Kral'; }
+      obFinish();
+    });
+    return;
+  }
+  const sehirAdi = obSelectedKral + "'in Şehri";
+  fetch(API_BASE + '/api/player/setup', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + getToken()
+    },
+    body: JSON.stringify({ kral: obSelectedKral, sehir: sehirAdi, irk: obSelectedIrk, taraf: obSelectedSide })
+  })
+  .then(async r => {
+    const data = await r.json();
+    if (r.status === 409) {
+      // Kurulum zaten yapılmış → direkt oyuna gir
+      loadPlayerFromAPI().then(p => {
+        if (p) { savePlayer(p); obApplyPlayer(p); obEnterGame(); }
+      });
+      return;
+    }
+    if (data.error) { alert(data.error); return; }
+    savePlayer(data.player);
+    obApplyPlayer(data.player);
+    obEnterGame();
+  })
+  .catch(() => alert('Sunucuya bağlanılamadı!'));
+}
+
+/* ── Backend'den kaynakları çek ve HUD'u güncelle ── */
+async function loadGameData() {
+  const token = getToken();
+  if (!token) return;
+  try {
+    const [resRes, prodRes, workRes] = await Promise.all([
+      fetch(API_BASE + '/api/game/resources', { headers: { 'Authorization': 'Bearer ' + token } }),
+      fetch(API_BASE + '/api/game/production', { headers: { 'Authorization': 'Bearer ' + token } }),
+      fetch(API_BASE + '/api/game/workers',    { headers: { 'Authorization': 'Bearer ' + token } }),
+    ]);
+    const res  = resRes.ok  ? await resRes.json()  : {};
+    const prod = prodRes.ok ? await prodRes.json() : {};
+    const work = workRes.ok ? await workRes.json() : {};
+
+    // Backend'den gelen kaynakları RES objesine yaz (tek kaynak doğruluğu)
+    if (res.odun !== undefined) RES.odun = parseInt(res.odun) || 0;
+    if (res.tas !== undefined) RES.tas = parseInt(res.tas) || 0;
+    if (res.metal !== undefined) RES.metal = parseInt(res.metal) || 0;
+    if (res.altin !== undefined) RES.altin = parseInt(res.altin) || 0;
+    if (res.bugday !== undefined) RES.bugday = parseInt(res.bugday) || 0;
+    if (res.balik !== undefined) RES.balik = parseInt(res.balik) || 0;
+    if (res.kereste !== undefined) RES.kereste = parseInt(res.kereste) || 0;
+    if (res.islenmis !== undefined) RES.islenmis = parseInt(res.islenmis) || 0;
+    if (res.ekmek !== undefined) RES.ekmek = parseInt(res.ekmek) || 0;
+    if (res.pismis !== undefined) RES.pismis = parseInt(res.pismis) || 0;
+
+    // HUD Ham kaynaklar
+    setText('hud-w',   RES.odun);
+    setText('hud-wg',  prod.odun  ?? 0);
+    setText('hud-m',   RES.metal);
+    setText('hud-mg',  prod.metal ?? 0);
+    setText('hud-bu',  RES.bugday);
+    setText('hud-bug', prod.bugday ?? 0);
+    setText('hud-ba',  RES.balik);
+    setText('hud-bag', prod.balik ?? 0);
+    setText('hud-t',   RES.tas);
+    setText('hud-tg',  prod.tas   ?? 0);
+    setText('hud-g',   RES.altin);
+    setText('hud-gg',  prod.altin ?? 0);
+
+    // İşlenmiş kaynaklar HUD
+    setText('hud-ke',  RES.kereste);
+    setText('hud-is',  RES.islenmis);
+    setText('hud-ek',  RES.ekmek);
+    setText('hud-pb',  RES.pismis);
+
+    // Nüfus & İşçiler sayfasını güncelle
+    if (work && typeof NUFUS !== 'undefined') {
+      NUFUS.bos = Math.max(0, (NUFUS.total || 10) - Object.values(work).filter(v=>typeof v==='number').reduce((a,b)=>a+b,0));
+    }
+
+    // İşçi dağılımı güncelle
+    const isciMap = { oduncu:'w-oduncu', tasci:'w-tasci', madenci:'w-madenci', ciftci:'w-ciftci', 'balıkci':'w-balikci', tuccar:'w-tuccar' };
+    for (const [key, elId] of Object.entries(isciMap)) {
+      const inp = document.getElementById(elId);
+      if (inp && work[key] !== undefined) inp.value = work[key];
+      const gainEl = document.getElementById('gain-' + elId.replace('w-',''));
+      if (gainEl) gainEl.textContent = '+' + (prod[key === 'oduncu' ? 'odun' : key === 'tasci' ? 'tas' : key === 'madenci' ? 'metal' : key === 'ciftci' ? 'bugday' : key === 'balıkci' ? 'balik' : 'altin'] || 0) + '/s';
+    }
+
+    // Asker sayısını worker tablosundan al
+    if (work.asker !== undefined) {
+      ASKER_SAYISI = parseInt(work.asker) || 0;
+    }
+
+    // Binaları backend'den yükle
+    await loadBuildingsFromBackend();
+
+  } catch(e) {
+    console.error('[loadGameData]', e);
+  }
+}
+
+/* ── Binaları backend'den yükle ── */
+async function loadBuildingsFromBackend() {
+  const token = getToken();
+  if (!token) return;
+  try {
+    const resp = await fetch(API_BASE + '/api/game/buildings', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!resp.ok) return;
+    const buildings = await resp.json();
+    let usedArea = 0;
+    for (const [binaId, data] of Object.entries(buildings)) {
+      if (BLDGS[binaId]) {
+        // Kuyruk bitmişse seviyeyi güncelle
+        if (data.inQueue && data.queueEnd) {
+          const endTime = new Date(data.queueEnd).getTime();
+          if (Date.now() >= endTime) {
+            BLDGS[binaId].lv = data.seviye + 1;
+            // Backend'de seviyeyi tamamla
+            completeBuildingOnBackend(binaId, data.seviye + 1);
+          } else {
+            BLDGS[binaId].lv = data.seviye;
+            // Kuyruğa ekle (eğer yoksa)
+            if (!QUEUE.find(q => q.id === binaId)) {
+              const remaining = endTime - Date.now();
+              QUEUE.push({id: binaId, targetLv: data.seviye + 1, start: Date.now() - (data.seviye * 1000), dur: remaining + (Date.now() - (Date.now() - (data.seviye * 1000)))});
+            }
+          }
+        } else {
+          BLDGS[binaId].lv = data.seviye;
+        }
+        if (BLDGS[binaId].lv > 0) usedArea += BLDGS[binaId].lv;
+      }
+    }
+    // Alan sayacını güncelle
+    setText('hud-used', usedArea);
+    // Şehir grid'ini güncelle (eğer açıksa)
+    if (document.getElementById('city')?.classList.contains('active-panel')) {
+      renderGrid(); renderQueue();
+    }
+  } catch(e) {
+    console.error('[loadBuildings]', e);
+  }
+}
+
+/* ── Backend'de bina seviyesini tamamla ── */
+async function completeBuildingOnBackend(binaId, seviye) {
+  const token = getToken();
+  if (!token) return;
+  try {
+    await fetch(API_BASE + '/api/game/buildings/complete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ binaId, seviye })
+    });
+  } catch(e) { console.error('[completeBuild]', e); }
+}
+
+function obEnterGame() {
+  const saved = loadPlayer();
+  if (!saved) return;
+  obApplyPlayer(saved);
+  // Backend'den gerçek verileri yükle
+  loadGameData();
+  // Her 60 saniyede bir güncelle
+  if (!window._gameDataInterval) {
+    window._gameDataInterval = setInterval(loadGameData, 60000);
+  }
+  // Overlay'i kapat — animasyonla
+  const overlay = document.getElementById('ob-overlay');
+  overlay.style.transition = 'opacity .5s ease';
+  overlay.style.opacity = '0';
+  setTimeout(() => overlay.classList.add('ob-hidden'), 500);
+}
+
+function obGoTo(step) {
+  showObStep(step);
+}
+
+/* ── Oyuncu verilerini uygula ── */
+function applyTheme(irk) {
+  // Tüm tema sınıflarını temizle
+  const temaIrklar = ['insan','elf','cuce','bucukluk','kara_elf','ork','ogre_irk','undead'];
+  temaIrklar.forEach(t => document.body.classList.remove('theme-' + t));
+  if (irk) document.body.classList.add('theme-' + irk);
+}
+
+function obApplyPlayer(p) {
+  OYUNCU = { kral: p.kral, sehir: p.sehir, irk: p.irk, taraf: p.taraf, cag: p.cag || 1 };
+  const irkData = findIrk(p.irk);
+  OYUNCU.irkData = irkData;
+
+  // Tema uygula
+  applyTheme(p.irk);
+
+  // Dashboard güncelle
+  if (irkData) document.documentElement.style.setProperty('--race-color', irkData.color);
+  const set = (id, v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+  set('home-kral', p.kral);
+  set('home-sehir', p.sehir);
+  set('home-irk', irkData ? irkData.icon + ' ' + irkData.name : p.irk);
+  set('home-cag', romanCag(p.cag || 1) + '. Çağ');
+  set('sidebar-kral', p.kral);
+  set('sidebar-irk', irkData ? irkData.icon + ' ' + irkData.name : p.irk);
+  set('main-welcome', 'Hoş geldin, ' + p.kral + '!');
+
+  // I. Çağ uyarısı
+  if ((p.cag || 1) > 1) {
+    const el = document.getElementById('cag1-uyari');
+    if (el) el.style.display = 'none';
+  }
+}
+
+function findIrk(id) {
+  return [...(IRKLAR.iyi || []), ...(IRKLAR.kotu || [])].find(i => i.id === id);
+}
+
+function romanCag(n) {
+  return ['','I','II','III','IV','V'][n] || n;
+}
+
+/* ── LocalStorage ── */
+function savePlayer(data) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+}
+function loadPlayer() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch(e) { return null; }
+}
+
+/* Enter tuşu ile login */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const overlay = document.getElementById('ob-overlay');
+    if (overlay && !overlay.classList.contains('ob-hidden')) {
+      const loginStep = document.getElementById('ob-step-login');
+      if (loginStep && loginStep.style.display !== 'none') obLogin();
+    }
+  }
+});
+
+</script>
+
+</body>
+</html>
