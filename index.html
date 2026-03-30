@@ -947,6 +947,10 @@ body{
         🧱 Limit <b id="hud-limit">300</b>
       </div>
 
+      <div class="hud-cell" data-tip="Palantis takvim tarihi (1 saat = 1 Palantis günü)">
+        📅 Tarih <b id="hud-takvim">—</b>
+      </div>
+
       <div class="hud-cell" data-tip="Şu anki saat">
         ⏰ Saat <b id="c-now">00:00:00</b>
       </div>
@@ -1718,8 +1722,8 @@ function refreshLandNumbers(){
   setText('hud-land', landState.land);  // toplam alan
   setText('hud-limit', landState.landLimit);
 
-  // 💰 Altın da burada senkron kalsın
-  setText('hud-g', landState.gold);
+  // 💰 Altın: her zaman backend'den gelen RES.altin
+  setText('hud-g', RES.altin);
 }
 
 
@@ -1749,27 +1753,44 @@ function renderOffers(){
   });
 }
 
-function buyOffer(id){
+async function buyOffer(id){
   if(landState.chosenThisCycle){
-    alert("Bu döngüde zaten 1 arazi aldın.");
+    toast("⚠️ Bu döngüde zaten 1 arazi aldın.");
     return;
   }
   const offer = landState.offers.find(x=>x.id===id);
   if(!offer || offer.status!=="active") return;
 
-  if(landState.gold < offer.price){
-    alert("Yetersiz altın.");
+  if(RES.altin < offer.price){
+    toast("⚠️ Yetersiz altın.");
     return;
   }
   if(landState.land + offer.amount > landState.landLimit){
-    alert("Çağ limitini aşıyorsun.");
+    toast("⚠️ Çağ limitini aşıyorsun.");
     return;
   }
 
-  landState.gold -= offer.price;
-  landState.land += offer.amount;
-  landState.chosenThisCycle = true;
+  // Backend'e kaydet
+  const token = getToken();
+  if(token) {
+    try {
+      const resp = await fetch(API_BASE + '/api/game/alan/buy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ miktar: offer.amount, fiyat: offer.price })
+      });
+      const data = await resp.json();
+      if(!resp.ok){ toast('⚠️ ' + (data.error || 'Hata')); return; }
+      landState.land = data.yeni_alan;
+      RES.altin -= offer.price;
+    } catch(e) { toast('⚠️ Sunucu hatası'); return; }
+  } else {
+    // Token yoksa local
+    RES.altin -= offer.price;
+    landState.land += offer.amount;
+  }
 
+  landState.chosenThisCycle = true;
   landState.offers = landState.offers.map(o=>{
     if(o.id===id) return {...o, status:"sold"};
     return {...o, status:"disabled"};
@@ -3383,15 +3404,32 @@ async function loadGameData() {
   const token = getToken();
   if (!token) return;
   try {
-    const [resRes, prodRes, workRes] = await Promise.all([
+    const [resRes, prodRes, workRes, alanRes, takvimRes] = await Promise.all([
       fetch(API_BASE + '/api/game/resources', { headers: { 'Authorization': 'Bearer ' + token } }),
       fetch(API_BASE + '/api/game/production', { headers: { 'Authorization': 'Bearer ' + token } }),
       fetch(API_BASE + '/api/game/workers',    { headers: { 'Authorization': 'Bearer ' + token } }),
+      fetch(API_BASE + '/api/game/alan',       { headers: { 'Authorization': 'Bearer ' + token } }),
+      fetch(API_BASE + '/api/takvim'),
     ]);
     const res  = resRes.ok  ? await resRes.json()  : {};
     const prodData = prodRes.ok ? await prodRes.json() : {};
-    const prod = prodData.toplam || prodData; // backend returns { toplam: {...} }
+    const prod = prodData.toplam || prodData;
     const work = workRes.ok ? await workRes.json() : {};
+    const alanData = alanRes.ok ? await alanRes.json() : {};
+    const takvimData = takvimRes.ok ? await takvimRes.json() : null;
+
+    // Arazi verisi güncelle (F5 persist)
+    if (alanData.alan !== undefined) {
+      landState.land = parseInt(alanData.alan) || 100;
+      const landEl = document.getElementById('hud-land');
+      if (landEl) landEl.textContent = landState.land;
+    }
+
+    // Palantis takvim HUD
+    if (takvimData) {
+      const takvimEl = document.getElementById('hud-takvim');
+      if (takvimEl) takvimEl.textContent = takvimData.formatted || (takvimData.palantis_gun + '/' + takvimData.palantis_ay + '/' + takvimData.palantis_yil);
+    }
 
     // Backend'den gelen kaynakları RES objesine yaz (tek kaynak doğruluğu)
     if (res.odun !== undefined) RES.odun = parseInt(res.odun) || 0;
