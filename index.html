@@ -1722,8 +1722,8 @@ function refreshLandNumbers(){
   setText('hud-land', landState.land);  // toplam alan
   setText('hud-limit', landState.landLimit);
 
-  // 💰 Altın: backend'den gelen RES.altin (RES henüz yoksa atla)
-  if (typeof RES !== 'undefined') setText('hud-g', RES.altin);
+  // 💰 Altın (RES const TDZ hatası: try-catch ile koru)
+  try { setText('hud-g', RES.altin); } catch(e) {}
 }
 
 
