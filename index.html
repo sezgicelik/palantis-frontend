@@ -1581,11 +1581,25 @@ function updatePopulationUI(){
 }
 updatePopulationUI();
 
-// ŞİMDİLİK KAYDET (backend gelince fetch)
-function saveWorkers(){
-  alert(
-    `Kaydedildi (test)\nOduncu:${population.wood} Taşçı:${population.stone} Madenci:${population.iron}`
-  );
+async function saveWorkers(){
+  const token = getToken();
+  if (!token) { toast('⚠️ Giriş yapmalısın!'); return; }
+  try {
+    const resp = await fetch(API_BASE + '/api/game/workers', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({
+        oduncu: population.wood || 0,
+        tasci: population.stone || 0,
+        madenci: population.iron || 0,
+        ciftci: population.farm || 0,
+        balikci: population.fish || 0,
+        tuccar: population.merchant || 0
+      })
+    });
+    if (resp.ok) { toast('✅ İşçi dağılımı kaydedildi!'); }
+    else { const err = await resp.json(); toast('⚠️ ' + (err.error || 'Hata')); }
+  } catch(e) { toast('⚠️ Sunucu hatası'); }
 }
 
 /* =====================================================
@@ -3375,7 +3389,8 @@ async function loadGameData() {
       fetch(API_BASE + '/api/game/workers',    { headers: { 'Authorization': 'Bearer ' + token } }),
     ]);
     const res  = resRes.ok  ? await resRes.json()  : {};
-    const prod = prodRes.ok ? await prodRes.json() : {};
+    const prodData = prodRes.ok ? await prodRes.json() : {};
+    const prod = prodData.toplam || prodData; // backend returns { toplam: {...} }
     const work = workRes.ok ? await workRes.json() : {};
 
     // Backend'den gelen kaynakları RES objesine yaz (tek kaynak doğruluğu)
@@ -3410,18 +3425,27 @@ async function loadGameData() {
     setText('hud-ek',  RES.ekmek);
     setText('hud-pb',  RES.pismis);
 
-    // Nüfus & İşçiler sayfasını güncelle
-    if (work && typeof NUFUS !== 'undefined') {
-      NUFUS.bos = Math.max(0, (NUFUS.total || 10) - Object.values(work).filter(v=>typeof v==='number').reduce((a,b)=>a+b,0));
+    // Nüfus & İşçiler — backend verilerini population objesine yaz (F5 persist)
+    if (work) {
+      if (work.total !== undefined) population.total = parseInt(work.total) || 10;
+      population.wood = parseInt(work.oduncu) || 0;
+      population.stone = parseInt(work.tasci) || 0;
+      population.iron = parseInt(work.madenci) || 0;
+      population.farm = parseInt(work.ciftci) || 0;
+      population.fish = parseInt(work.balikci) || 0;
+      population.merchant = parseInt(work.tuccar) || 0;
+      const atanan = population.wood + population.stone + population.iron + population.farm + population.fish + population.merchant + (parseInt(work.asker)||0) + (parseInt(work.worshipper_beyaz)||0) + (parseInt(work.worshipper_kirmizi)||0) + (parseInt(work.worshipper_mavi)||0) + (parseInt(work.worshipper_yesil)||0);
+      population.free = Math.max(0, population.total - atanan);
+      updatePopulationUI();
     }
 
     // İşçi dağılımı güncelle
-    const isciMap = { oduncu:'w-oduncu', tasci:'w-tasci', madenci:'w-madenci', ciftci:'w-ciftci', 'balıkci':'w-balikci', tuccar:'w-tuccar' };
+    const isciMap = { oduncu:'w-oduncu', tasci:'w-tasci', madenci:'w-madenci', ciftci:'w-ciftci', balikci:'w-balikci', tuccar:'w-tuccar' };
     for (const [key, elId] of Object.entries(isciMap)) {
       const inp = document.getElementById(elId);
       if (inp && work[key] !== undefined) inp.value = work[key];
       const gainEl = document.getElementById('gain-' + elId.replace('w-',''));
-      if (gainEl) gainEl.textContent = '+' + (prod[key === 'oduncu' ? 'odun' : key === 'tasci' ? 'tas' : key === 'madenci' ? 'metal' : key === 'ciftci' ? 'bugday' : key === 'balıkci' ? 'balik' : 'altin'] || 0) + '/s';
+      if (gainEl) gainEl.textContent = '+' + (prod[key === 'oduncu' ? 'odun' : key === 'tasci' ? 'tas' : key === 'madenci' ? 'metal' : key === 'ciftci' ? 'bugday' : key === 'balikci' ? 'balik' : 'altin'] || 0) + '/s';
     }
 
     // Asker sayısını worker tablosundan al
