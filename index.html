@@ -985,8 +985,10 @@ body{
         <div id="sidebar-cag" style="font-size:10px;color:#444">I. Çağ</div>
       </div>
 
-      <div class="menu-item" onclick="showPage('home')">🏠 Ana Ekran</div>
-      <div class="menu-item" onclick="showPage('sehirde-olanlar')">📜 Şehirde Olanlar</div>
+      <div class="menu-item" onclick="showPage('home');toggleSubMenu('submenu-home',this)">🏠 Ana Ekran</div>
+      <div id="submenu-home" style="display:block;background:#0a0a0a;border-left:2px solid #2a2a2a;margin:0">
+        <div class="menu-item sub-item" onclick="showPage('sehirde-olanlar')" style="padding:6px 6px 6px 28px;font-size:12px">📜 Şehirde Olanlar</div>
+      </div>
       <div class="menu-item" onclick="showPage('population')">👥 Nüfus & İşçiler</div>
       <div class="menu-item" onclick="showPage('city');setFilter('all',null);toggleSubMenu('submenu-city',this)">🏙️ Şehrim</div>
       <div id="submenu-city" style="display:none;background:#0a0a0a;border-left:2px solid #2a2a2a;margin:0">
@@ -1318,9 +1320,10 @@ body{
         <div class="unit-grid" id="ugrid-player"></div>
       </div>
 
-      <!-- Asker Yönetimi: köylü → asker dönüşümü -->
+      <!-- Asker Yönetimi: köylü → asker dönüşümü + her iki taraf ünite listesi -->
       <div id="atab-soldier" class="army-section" style="display:none">
-        <div class="card">
+        <!-- Köylü ↔ Asker çevirici -->
+        <div class="card" style="margin-bottom:12px">
           <h2>🪖 Asker Yönetimi</h2>
           <p style="color:#777;margin-bottom:18px;font-size:14px">Boştaki köylüleri askere dönüştür. Her asker 1 köylü kullanır.</p>
           <div class="city-stats" style="margin-bottom:20px">
@@ -1340,6 +1343,18 @@ body{
             <button class="btn ghost" onclick="smRelease()" style="min-width:140px">🏠 Köylüye Çevir</button>
           </div>
           <div id="sm-msg" style="color:#888;font-size:13px;min-height:20px"></div>
+        </div>
+
+        <!-- Aydınlık Tarafı Üniteleri (1'er asker) -->
+        <div class="card" style="margin-bottom:12px">
+          <h3 style="color:#f1c40f;font-family:'Cinzel',serif;margin:0 0 12px">☀️ Aydınlık Tarafı — Her Üniteden 1 Asker</h3>
+          <div class="unit-grid" id="ugrid-light"></div>
+        </div>
+
+        <!-- Karanlık Tarafı Üniteleri (1'er asker) -->
+        <div class="card">
+          <h3 style="color:#9b59b6;font-family:'Cinzel',serif;margin:0 0 12px">🌑 Karanlık Tarafı — Her Üniteden 1 Asker</h3>
+          <div class="unit-grid" id="ugrid-dark"></div>
         </div>
       </div>
 
@@ -2959,7 +2974,13 @@ function armyTab(tab, el){
     const side = OYUNCU && OYUNCU.taraf === 'kotu' ? 'dark' : 'light';
     renderUnitGrid(side, 'ugrid-player');
   }
-  if(tab==='soldier') renderSoldierPanel();
+  if(tab==='soldier'){
+    renderSoldierPanel();
+    // Her iki tarafın ünitelerini 1'er default ile göster
+    Object.values(UNITS).forEach(u=>{ u.count=1; });
+    renderUnitGrid('light','ugrid-light');
+    renderUnitGrid('dark','ugrid-dark');
+  }
   if(tab==='armies') renderOrduListe();
   if(tab==='formation') {
     renderFormationGrid();
