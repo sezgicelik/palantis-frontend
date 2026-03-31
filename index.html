@@ -969,6 +969,7 @@ body{
       </div>
 
       <div class="menu-item" onclick="showPage('home')">🏠 Ana Ekran</div>
+      <div class="menu-item" onclick="showPage('sehirde-olanlar')">📜 Şehirde Olanlar</div>
       <div class="menu-item" onclick="showPage('population')">👥 Nüfus & İşçiler</div>
       <div class="menu-item" onclick="showPage('city');setFilter('all',null);toggleSubMenu('submenu-city',this)">🏙️ Şehrim</div>
       <div id="submenu-city" style="display:none;background:#0a0a0a;border-left:2px solid #2a2a2a;margin:0">
@@ -1203,15 +1204,6 @@ body{
             <button type="button" onclick="assignWorker('fish',1)">+</button>
             <button type="button" onclick="assignWorker('fish',10)">+10</button>
             <span class="info">(+<span id="p-fish">0</span> balık/gün)</span>
-          </div>
-          <div class="worker-row">
-            <span class="wr-lbl">🥩 Avcı</span>
-            <button type="button" onclick="assignWorker('hunter',-10)">−10</button>
-            <button type="button" onclick="assignWorker('hunter',-1)">−</button>
-            <b id="w-hunter">0</b>
-            <button type="button" onclick="assignWorker('hunter',1)">+</button>
-            <button type="button" onclick="assignWorker('hunter',10)">+10</button>
-            <span class="info">(+<span id="p-hunter">0</span> çiğ et/gün)</span>
           </div>
           <div class="worker-row">
             <span class="wr-lbl">💰 Tüccar</span>
@@ -1868,7 +1860,6 @@ async function saveWorkers(){
         madenci: population.iron || 0,
         ciftci: population.farm || 0,
         balikci: population.fish || 0,
-        avci: population.hunter || 0,
         tuccar: population.merchant || 0
       })
     });
@@ -4009,7 +4000,6 @@ async function loadGameData() {
       population.iron     = parseInt(work.madenci) || 0;
       population.farm     = parseInt(work.ciftci)  || 0;
       population.fish     = parseInt(work.balikci) || 0;
-      population.hunter   = parseInt(work.avci)    || 0;
       population.merchant = parseInt(work.tuccar)  || 0;
       population.asker    = parseInt(work.asker)   || 0;
       population.worshipper = (parseInt(work.worshipper_beyaz)||0) + (parseInt(work.worshipper_kirmizi)||0)
@@ -4025,7 +4015,7 @@ async function loadGameData() {
     }
 
     // İşçi dağılımı güncelle
-    const isciMap = { oduncu:'w-oduncu', tasci:'w-tasci', madenci:'w-madenci', ciftci:'w-ciftci', balikci:'w-balikci', avci:'w-hunter', tuccar:'w-tuccar' };
+    const isciMap = { oduncu:'w-oduncu', tasci:'w-tasci', madenci:'w-madenci', ciftci:'w-ciftci', balikci:'w-balikci', tuccar:'w-tuccar' };
     for (const [key, elId] of Object.entries(isciMap)) {
       const inp = document.getElementById(elId);
       if (inp && work[key] !== undefined) inp.value = work[key];
