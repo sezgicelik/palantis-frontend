@@ -971,6 +971,10 @@ body{
         🍞 Açlık <b id="hud-hunger">10%</b>
       </div>
 
+      <div class="hud-cell" data-tip="Nüfus: Mevcut / Maksimum kapasite">
+        👥 Nüfus <b><span id="hud-nufus">—</span>/<span id="hud-nufus-sinir">—</span></b>
+      </div>
+
       <div class="hud-cell" data-tip="Alan: Kullanılan / Mevcut">
         📐 Alan <b><span id="hud-used">0</span>/<span id="hud-land">100</span></b>
       </div>
@@ -1137,10 +1141,52 @@ body{
           </div>
         </div>
 
+        <!-- Pişirme Oranı -->
+        <div class="card" style="padding:20px;margin-bottom:16px">
+          <h2>🔥 Ocak / Fırın Pişirme Oranı</h2>
+          <p style="color:#555;font-size:12px;margin-bottom:14px">
+            Toplam <b id="pisirme-toplam" style="color:#c8a96e">100</b>% olmalı.
+            Ham hammadde pişince 2× yemek üretir.
+          </p>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="width:130px;font-size:13px;color:#aaa">🌾 Buğday → Ekmek</span>
+              <button type="button" onclick="pisirmeAdj('bugday',-5)" style="padding:2px 8px">−5</button>
+              <button type="button" onclick="pisirmeAdj('bugday',-1)" style="padding:2px 8px">−</button>
+              <b id="pisirme-bugday" style="min-width:32px;text-align:center">34</b>
+              <button type="button" onclick="pisirmeAdj('bugday',1)"  style="padding:2px 8px">+</button>
+              <button type="button" onclick="pisirmeAdj('bugday',5)"  style="padding:2px 8px">+5</button>
+              <span style="font-size:11px;color:#555">% (kapas: <span id="pisirme-kap-bugday">—</span>/saat)</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="width:130px;font-size:13px;color:#aaa">🐟 Balık → Pişmiş</span>
+              <button type="button" onclick="pisirmeAdj('balik',-5)"  style="padding:2px 8px">−5</button>
+              <button type="button" onclick="pisirmeAdj('balik',-1)"  style="padding:2px 8px">−</button>
+              <b id="pisirme-balik" style="min-width:32px;text-align:center">33</b>
+              <button type="button" onclick="pisirmeAdj('balik',1)"   style="padding:2px 8px">+</button>
+              <button type="button" onclick="pisirmeAdj('balik',5)"   style="padding:2px 8px">+5</button>
+              <span style="font-size:11px;color:#555">% (kapas: <span id="pisirme-kap-balik">—</span>/saat)</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="width:130px;font-size:13px;color:#aaa">🥩 Çiğ Et → Pişmiş</span>
+              <button type="button" onclick="pisirmeAdj('et',-5)"     style="padding:2px 8px">−5</button>
+              <button type="button" onclick="pisirmeAdj('et',-1)"     style="padding:2px 8px">−</button>
+              <b id="pisirme-et" style="min-width:32px;text-align:center">33</b>
+              <button type="button" onclick="pisirmeAdj('et',1)"      style="padding:2px 8px">+</button>
+              <button type="button" onclick="pisirmeAdj('et',5)"      style="padding:2px 8px">+5</button>
+              <span style="font-size:11px;color:#555">% (kapas: <span id="pisirme-kap-et">—</span>/saat)</span>
+            </div>
+          </div>
+          <button onclick="pisirmeKaydet()" style="margin-top:14px;padding:8px 20px;background:#1a3a1a;border:1px solid #2ecc71;color:#2ecc71;border-radius:4px;cursor:pointer;font-size:13px">
+            💾 Kaydet
+          </button>
+          <span id="pisirme-msg" style="font-size:11px;color:#444;margin-left:10px"></span>
+        </div>
+
         <!-- İşçi dağılımı -->
         <div class="card" style="padding:20px;margin-bottom:16px">
           <h2>👥 İşçi Dağılımı</h2>
-          <p style="color:#555;font-size:13px;margin-bottom:18px">Maksimum işçi sayısı <b style="color:#ccc">1500</b>'dür. Çağ atladıkça artar.</p>
+          <p style="color:#555;font-size:13px;margin-bottom:18px">Nüfus sınırına göre değişir (ev/köy/kasaba).</p>
 
           <div class="worker-row">
             <span class="wr-lbl">🌳 Oduncu</span>
@@ -1669,6 +1715,76 @@ function assignWorker(type, delta){
   updatePopulationUI();
 }
 
+/* ── Pişirme Oranı ── */
+let PISIRME = { bugday: 34, balik: 33, et: 33 };
+
+async function loadPisirme() {
+  const token = getToken();
+  if (!token) return;
+  try {
+    const r = await fetch(API_BASE + '/api/game/pisirme', { headers: { 'Authorization': 'Bearer ' + token } });
+    if (!r.ok) return;
+    const d = await r.json();
+    PISIRME.bugday = parseInt(d.bugday_oran) || 34;
+    PISIRME.balik  = parseInt(d.balik_oran)  || 33;
+    PISIRME.et     = parseInt(d.et_oran)      || 33;
+    updatePisirmeUI();
+  } catch(e) {}
+}
+
+function pisirmeAdj(tip, delta) {
+  const keys = { bugday:'bugday', balik:'balik', et:'et' };
+  const k = keys[tip];
+  PISIRME[k] = Math.max(0, Math.min(100, PISIRME[k] + delta));
+  updatePisirmeUI();
+}
+
+function updatePisirmeUI() {
+  const set = (id, v) => { const e=document.getElementById(id); if(e) e.innerText=v; };
+  set('pisirme-bugday', PISIRME.bugday);
+  set('pisirme-balik',  PISIRME.balik);
+  set('pisirme-et',     PISIRME.et);
+  const toplam = PISIRME.bugday + PISIRME.balik + PISIRME.et;
+  const totEl = document.getElementById('pisirme-toplam');
+  if (totEl) { totEl.innerText = toplam; totEl.style.color = toplam === 100 ? '#2ecc71' : '#e74c3c'; }
+  // Kapasite göster (ocak+fırın sayısından hesapla)
+  const ocak  = (BLDGS.ocak?.lv  || 0);
+  const firin = (BLDGS.firin?.lv || 0);
+  const bKap = ocak*100 + firin*200;
+  const baKap = ocak*75 + firin*150;
+  const eKap  = ocak*50 + firin*100;
+  set('pisirme-kap-bugday', Math.floor(bKap  * PISIRME.bugday / 100));
+  set('pisirme-kap-balik',  Math.floor(baKap * PISIRME.balik  / 100));
+  set('pisirme-kap-et',     Math.floor(eKap  * PISIRME.et     / 100));
+}
+
+async function pisirmeKaydet() {
+  const token = getToken();
+  if (!token) return;
+  const toplam = PISIRME.bugday + PISIRME.balik + PISIRME.et;
+  const msgEl = document.getElementById('pisirme-msg');
+  if (toplam !== 100) {
+    if (msgEl) { msgEl.style.color='#e74c3c'; msgEl.innerText=`Toplam ${toplam}% — 100 olmalı!`; }
+    return;
+  }
+  try {
+    const r = await fetch(API_BASE + '/api/game/pisirme', {
+      method: 'PUT',
+      headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+token },
+      body: JSON.stringify({ bugday_oran: PISIRME.bugday, balik_oran: PISIRME.balik, et_oran: PISIRME.et })
+    });
+    const d = await r.json();
+    if (r.ok) {
+      if (msgEl) { msgEl.style.color='#2ecc71'; msgEl.innerText='✅ Kaydedildi'; }
+      setTimeout(() => { if(msgEl) msgEl.innerText=''; }, 3000);
+    } else {
+      if (msgEl) { msgEl.style.color='#e74c3c'; msgEl.innerText=d.error||'Hata'; }
+    }
+  } catch(e) {
+    if (msgEl) { msgEl.style.color='#e74c3c'; msgEl.innerText='Bağlantı hatası'; }
+  }
+}
+
 function updatePopulationUI(){
   const set = (id, v) => { const e=document.getElementById(id); if(e) e.innerText=v; };
 
@@ -1689,6 +1805,10 @@ function updatePopulationUI(){
 
   // Şehrim sayfası cs-pop
   set('cs-pop', nufus);
+
+  // HUD nüfus
+  set('hud-nufus', nufus);
+  set('hud-nufus-sinir', sinir);
 
   // Boş köylü senkronu — ordu sayfasındaki sm-koylu aynı değeri göstersin
   try { set('sm-koylu', Math.max(0, koylu - ASKER_SAYISI)); } catch(e) {}
@@ -2349,6 +2469,7 @@ function showPage(id){
   if(id==='city'){renderGrid();renderQueue();}
   if(id==='sehirde-olanlar'){loadActivity();}
   if(id==='home'){loadTakvimHome();}
+  if(id==='population'){loadPisirme();updatePisirmeUI();}
 }
 
 /* ══════════════════════════════════
@@ -2358,6 +2479,9 @@ const ACTIVITY_ICONS = {
   isci_uretim: '⚒️',
   bina_tamam:  '🏗️',
   egitim_tamam:'⚔️',
+  pisirme:     '🔥',
+  nufus:       '👥',
+  yemek:       '🍽️',
   bina_uretim: '🔥',
   maas:        '💰',
 };
@@ -2384,11 +2508,15 @@ async function loadActivity() {
     }
     if (list) {
       list.style.display = 'block';
-      list.innerHTML = data.gunler.map(g => `
-        <div style="margin-bottom:20px">
+      const gunSayisi = data.gunler.length;
+      list.innerHTML = `<p style="color:#444;font-size:11px;margin-bottom:16px">Son ${gunSayisi} Palantis günü gösteriliyor</p>` +
+      data.gunler.map(g => `
+        <div style="margin-bottom:24px">
           <div style="color:#c8a96e;font-family:'Cinzel',serif;font-size:13px;
-               border-bottom:1px solid #2a2a1a;padding-bottom:6px;margin-bottom:10px">
-            📅 ${g.tarih}
+               border-bottom:1px solid #2a2a1a;padding-bottom:6px;margin-bottom:10px;
+               display:flex;justify-content:space-between;align-items:center">
+            <span>📅 ${g.tarih}</span>
+            <span style="font-size:10px;color:#333">${g.loglar.length} olay</span>
           </div>
           ${g.loglar.map(l => `
             <div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid #111;font-size:12px;color:#bbb">
@@ -3865,6 +3993,9 @@ async function loadGameData() {
     if (work.asker !== undefined) {
       ASKER_SAYISI = parseInt(work.asker) || 0;
     }
+
+    // Pişirme oranlarını yükle
+    await loadPisirme();
 
     // Binaları backend'den yükle
     await loadBuildingsFromBackend();
