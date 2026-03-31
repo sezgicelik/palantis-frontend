@@ -936,7 +936,7 @@ body{
       <div class="hud-row-lbl">HAM</div>
       <div class="hud-res-row" id="hud-panel-ham">
         <div class="hud-res-item" data-tip="ODUN">🌳 <b id="hud-w">0</b><span class="hg"> +<span id="hud-wg">0</span></span></div>
-        <div class="hud-res-item" data-tip="METAL">⛓️ <b id="hud-m">0</b><span class="hg"> +<span id="hud-mg">0</span></span></div>
+        <div class="hud-res-item" data-tip="METAL"><svg width="15" height="11" viewBox="0 0 15 11" style="display:inline-block;vertical-align:-1px"><path d="M2,1 L13,1 L11,10 L4,10 Z" fill="#8a8a8a" stroke="#666" stroke-width="0.5"/><path d="M4,3 L11,3 L9.5,8.5 L5.5,8.5 Z" fill="#b0b0b0"/></svg> <b id="hud-m">0</b><span class="hg"> +<span id="hud-mg">0</span></span></div>
         <div class="hud-res-item" data-tip="BUĞDAY">🌾 <b id="hud-bu">0</b><span class="hg"> +<span id="hud-bug">0</span></span></div>
         <div class="hud-res-item" data-tip="BALIK">🎣 <b id="hud-ba">0</b><span class="hg"> +<span id="hud-bag">0</span></span></div>
         <div class="hud-res-item" data-tip="TAŞ">🪨 <b id="hud-t">0</b><span class="hg"> +<span id="hud-tg">0</span></span></div>
@@ -961,7 +961,7 @@ body{
       <div class="hud-res-row" id="hud-panel-genel">
         <div class="hud-res-item" data-tip="ORDU MORALİ">😊 <b id="hud-moral">—</b></div>
         <div class="hud-res-item" data-tip="AÇLIK">🍽️ <b id="hud-hunger">—</b></div>
-        <div class="hud-res-item" data-tip="NÜFUS / SİNİR">👥 <b><span id="hud-nufus">—</span>/<span id="hud-nufus-sinir">—</span></b></div>
+        <div class="hud-res-item" data-tip="KULLANILAN / TOPLAM">👥 <b><span id="hud-nufus">—</span>/<span id="hud-nufus-sinir">—</span></b></div>
         <div class="hud-res-item" data-tip="KULLANILAN ALAN">📐 <b><span id="hud-used">0</span>/<span id="hud-land">0</span></b></div>
         <div class="hud-res-item" data-tip="ÇAĞ LİMİTİ">🧱 <b id="hud-limit">—</b></div>
         <div class="hud-res-item" data-tip="PALANTİS TARİHİ">📅 <b id="hud-takvim">—</b></div>
@@ -1197,7 +1197,7 @@ body{
             <span class="info">(+<span id="p-stone">0</span> taş/gün)</span>
           </div>
           <div class="worker-row">
-            <span class="wr-lbl">⛓️ Madenci</span>
+            <span class="wr-lbl"><svg width="14" height="10" viewBox="0 0 15 11" style="display:inline-block;vertical-align:-1px"><path d="M2,1 L13,1 L11,10 L4,10 Z" fill="#8a8a8a" stroke="#666" stroke-width="0.5"/><path d="M4,3 L11,3 L9.5,8.5 L5.5,8.5 Z" fill="#b0b0b0"/></svg> Madenci</span>
             <button type="button" onclick="assignWorker('iron',-10)">−10</button>
             <button type="button" onclick="assignWorker('iron',-1)">−</button>
             <b id="w-iron">0</b>
@@ -1838,9 +1838,10 @@ function updatePopulationUI(){
   // Şehrim sayfası cs-pop
   set('cs-pop', nufus);
 
-  // HUD nüfus
-  set('hud-nufus', nufus);
-  set('hud-nufus-sinir', sinir);
+  // HUD nüfus: kullanılan (isci+asker+worshipper) / toplam köylü
+  const atananKoylu = isci + sabit;
+  set('hud-nufus', atananKoylu);
+  set('hud-nufus-sinir', population.total || nufus);
   // Ana ekran hızlı stats
   const hn=document.getElementById('hs-nufus'); if(hn) hn.textContent=nufus;
 
@@ -2186,7 +2187,7 @@ console.log("hud-bu:", !!document.getElementById("hud-bu"));
 const BLDGS = {
   oduncu:{id:'oduncu',cat:'uretim',icon:'🌳',name:'Oduncu Kampı',bg:'#0a160a',desc:"Günlük odun üretir.",maxLv:10,lv:3,fx:l=>[{t:'pos',s:`+${l*40} Odun/gün`}],cost:l=>({odun:l*200,tas:l*100,altin:l*50}),time:l=>l*3600},
   tas_ocagi:{id:'tas_ocagi',cat:'uretim',icon:'🪨',name:'Taş Ocağı',bg:'#16140a',desc:"Taş çıkarır.",maxLv:10,lv:2,fx:l=>[{t:'pos',s:`+${l*30} Taş/gün`}],cost:l=>({odun:l*150,altin:l*80}),time:l=>l*3600},
-  demir_madeni:{id:'demir_madeni',cat:'uretim',icon:'⛓️',name:'Demir Madeni',bg:'#101018',desc:"Ham metal üretir.",maxLv:10,lv:2,fx:l=>[{t:'pos',s:`+${l*25} Metal/gün`}],cost:l=>({odun:l*200,tas:l*150,altin:l*100}),time:l=>l*3600},
+  demir_madeni:{id:'demir_madeni',cat:'uretim',icon:'🪨',name:'Demir Madeni',bg:'#101018',desc:"Ham metal üretir.",maxLv:10,lv:2,fx:l=>[{t:'pos',s:`+${l*25} Metal/gün`}],cost:l=>({odun:l*200,tas:l*150,altin:l*100}),time:l=>l*3600},
   tarla:{id:'tarla',cat:'uretim',icon:'🌾',name:'Tarla',bg:'#161400',desc:"Buğday üretir.",maxLv:10,lv:5,fx:l=>[{t:'pos',s:`+${l*60} Buğday/gün`},{t:'pos',s:`Açlık -%${l*2}`}],cost:l=>({odun:l*100,altin:l*40}),time:l=>l*3600},
   balikci:{id:'balikci',cat:'uretim',icon:'🎣',name:'Balıkçı Limanı',bg:'#001616',desc:"Balık üretir. Hasat günü 2x.",maxLv:5,lv:1,fx:l=>[{t:'pos',s:`+${l*20} Balık/gün`},{t:'pos',s:'Hasat: 2x'}],cost:l=>({odun:l*300,tas:l*200,altin:l*120}),time:l=>l*3600},
   isleme:{id:'isleme',cat:'uretim',icon:'🔩',name:'İşleme Atölyesi',bg:'#141000',desc:"Ham → İşlenmiş ürün dönüştürür.",maxLv:8,lv:2,fx:l=>[{t:'pos',s:`İşleme +${l*10}%`},{t:'pos',s:`Kapasite ${l*500}`}],cost:l=>({odun:l*250,metal:l*150,altin:l*200}),time:l=>l*3600},
@@ -2262,7 +2263,9 @@ const BINA_BIRLESTIRME_FE = {
 };
 
 const RES={odun:2400,metal:1850,bugday:3200,balik:640,tas:1100,altin:5840,kereste:820,islenmis:310,ekmek:920,pismis:180,cig_et:0,pismis_et:0};
-const RICONS={odun:'🌳',metal:'⛓️',bugday:'🌾',balik:'🎣',tas:'🪨',altin:'💰',kereste:'🪵',islenmis:'🔩',ekmek:'🍞',pismis:'🍳',cig_et:'🥩',pismis_et:'🍖',mana:'🔮',at:'🐴',kurt:'🐺',gizlilik:'🎯',buyulu_yumurta:'🥚'};
+const _METAL_SVG = '<svg width="15" height="11" viewBox="0 0 15 11" style="display:inline-block;vertical-align:-1px"><path d="M2,1 L13,1 L11,10 L4,10 Z" fill="#8a8a8a" stroke="#666" stroke-width="0.5"/><path d="M4,3 L11,3 L9.5,8.5 L5.5,8.5 Z" fill="#b0b0b0"/></svg>';
+const _ISLENMIS_SVG = '<svg width="15" height="11" viewBox="0 0 15 11" style="display:inline-block;vertical-align:-1px"><path d="M2,1 L13,1 L11,10 L4,10 Z" fill="#2471a3" stroke="#1a5276" stroke-width="0.5"/><path d="M4,3 L11,3 L9.5,8.5 L5.5,8.5 Z" fill="#5dade2"/></svg>';
+const RICONS={odun:'🌳',metal:_METAL_SVG,bugday:'🌾',balik:'🎣',tas:'🪨',altin:'💰',kereste:'🪵',islenmis:_ISLENMIS_SVG,ekmek:'🍞',pismis:'🍳',cig_et:'🥩',pismis_et:'🍖',mana:'🔮',at:'🐴',kurt:'🐺',gizlilik:'🎯',buyulu_yumurta:'🥚'};
 const canAfford=cost=>Object.entries(cost).every(([r,a])=>(RES[r]||0)>=a);
 const spendCost=cost=>Object.entries(cost).forEach(([r,a])=>{RES[r]=(RES[r]||0)-a;});
 // 1 Palantis günü = 3600 saniye = 1 gerçek saat
@@ -3276,7 +3279,16 @@ function renderUnitGrid(side, gridId){
 
   units.forEach(u=>{
     const rc = realCost(u.cost);
-    const afford = canAfford(rc) && canAffordExtra(u.extraCost);
+    // Tier bazlı asker maliyeti: T1=1, T2=2, T3=3, T4=0
+    const TIER_ASKER = { 1:1, 2:2, 3:3, 4:0 };
+    const askerGerekli = TIER_ASKER[u.tier] || 0;
+    const askerVar = population.asker || 0;
+    const askerOk = askerGerekli === 0 || askerVar >= askerGerekli;
+    const afford = canAfford(rc) && canAffordExtra(u.extraCost) && askerOk;
+    // Asker gereksinimi (ilk gösterilir)
+    const askerHTML = askerGerekli > 0
+      ? `<span class="ucost-i ${askerOk?'ok':'no'}">⚔️ ${askerGerekli} Asker</span>`
+      : '';
     const costHTML = Object.entries(rc).map(([r,a])=>{
       const have = RES[r]||0;
       return `<span class="ucost-i ${have>=a?'ok':'no'}">${RICONS[r]||'📦'} ${a.toLocaleString()}</span>`;
@@ -3317,7 +3329,7 @@ function renderUnitGrid(side, gridId){
         <span style="color:#3498db">🛡${uDef}</span>
         <span style="color:#f1c40f">💰${uMaas}/g</span>
       </div>
-      <div class="ucost" style="flex:1;display:flex;flex-wrap:wrap;gap:4px">${costHTML}${extraHTML}</div>
+      <div class="ucost" style="flex:1;display:flex;flex-wrap:wrap;gap:4px">${askerHTML}${costHTML}${extraHTML}</div>
       <div style="width:68px;flex-shrink:0;text-align:center;font-size:10px;color:#555">⏱ ${trainDays} P.G.</div>
       <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
         <button class="ucount-btn" onclick="changeCount('${u.id}',-1)">−</button>
@@ -3363,6 +3375,11 @@ async function trainUnit(id){
   if(adet < 1){ toast('❌ Eğitilecek adet 0!'); return; }
   const baseCostOne = realCost(u.cost); // askeri geliştirme indirimli birim maliyet
   const rc = {}; Object.entries(baseCostOne).forEach(([k,v])=>rc[k]=v*adet);
+  // Tier bazlı asker kontrolü: T1=1, T2=2, T3=3, T4=0
+  const askerGerekliToplam = ({ 1:1, 2:2, 3:3, 4:0 }[u.tier] || 0) * adet;
+  if(askerGerekliToplam > 0 && (population.asker || 0) < askerGerekliToplam){
+    toast(`❌ Yetersiz asker! ${askerGerekliToplam} asker gerekli, ${population.asker||0} var.`); return;
+  }
   if(!canAfford(rc)){ toast('❌ Yetersiz hammadde!'); return; }
   if(!canAffordExtra(u.extraCost)){
     const missing = Object.entries(u.extraCost).filter(([r,a])=>(EXTRA_RES[r]||0)<a*adet).map(([r])=>r).join(', ');
