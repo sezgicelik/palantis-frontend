@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Palantis – Şehirde Olanlar</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div id="hudbar-mount"></div>
+<div class="layout">
+  <div id="sidebar-mount"></div>
+  <div class="main-content">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <h2 style="color:#c8a96e;font-family:'Cinzel',serif;margin:0">📜 Şehirde Olanlar</h2>
+      <button class="btn-action" onclick="loadActivity()" style="padding:4px 14px;font-size:11px">↻ Yenile</button>
+    </div>
+    <div id="activity-loading" style="color:#555;font-size:13px;text-align:center;padding:40px">Yükleniyor...</div>
+    <div id="activity-list" style="display:none"></div>
+    <div id="activity-empty" style="display:none;color:#444;font-size:13px;text-align:center;padding:40px">
+      Henüz kayıt yok.<br><small style="color:#333">Her Palantis günü başında işçi üretimi, inşaat ve eğitim olayları burada görünür.</small>
+    </div>
+
+  </div>
+</div>
+<div id="toast"></div>
+<div id="building-modal-mount"></div>
+
+<script src="js/constants.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/game-data.js"></script>
+<script src="js/hud.js"></script>
+<script src="js/layout.js"></script>
+<script src="js/page-activity.js"></script>
+</body>
+</html>

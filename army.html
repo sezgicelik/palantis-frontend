@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Palantis – Ordu & Savaş</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div id="hudbar-mount"></div>
+<div class="layout">
+  <div id="sidebar-mount"></div>
+  <div class="main-content">
+
+    <!-- Özet bar -->
+    <div class="city-stats" id="army-stats-bar">
+      <div class="cstat"><span class="snum" id="as-atk">0</span><span class="slbl">TOPLAM ATK</span></div>
+      <div class="cstat"><span class="snum" id="as-def">0</span><span class="slbl">TOPLAM DEF</span></div>
+      <div class="cstat"><span class="snum" id="as-units">0</span><span class="slbl">BİRİM SAYISI</span></div>
+      <div class="cstat"><span class="snum" id="as-maas">0</span><span class="slbl">MAAŞ/GÜN 💰</span></div>
+    </div>
+
+    <!-- Sekmeler -->
+    <div class="army-tabs" style="display:none">
+      <button class="atab on" id="atab-btn-units" onclick="armyTab('units',this)">⚔️ Asker Eğitimi</button>
+      <button class="atab" id="atab-btn-soldier" onclick="armyTab('soldier',this)">🪖 Asker Yönetimi</button>
+      <button class="atab" id="atab-btn-armies" onclick="armyTab('armies',this)">🏕️ Ordu Yönetimi</button>
+      <button class="atab" id="atab-btn-formation" onclick="armyTab('formation',this)">⚔️ Saf Dizilimi</button>
+      <button class="atab" id="atab-btn-upgrades" onclick="armyTab('upgrades',this)">📈 Geliştirmeler</button>
+    </div>
+
+    <!-- Asker Eğitimi: otomatik oyuncunun tarafına göre -->
+    <div id="atab-units" class="army-section">
+      <!-- Eğitim Kuyruğu -->
+      <div id="training-queue-wrap" style="display:none;margin-bottom:16px">
+        <div class="card" style="padding:14px 18px">
+          <h3 style="margin:0 0 10px">⏳ Eğitim Kuyruğu</h3>
+          <div id="training-queue-list"></div>
+        </div>
+      </div>
+      <div class="unit-grid" id="ugrid-player"></div>
+    </div>
+
+    <!-- Asker Yönetimi: köylü → asker dönüşümü + her iki taraf ünite listesi -->
+    <div id="atab-soldier" class="army-section" style="display:none">
+      <!-- Köylü ↔ Asker çevirici -->
+      <div class="card" style="margin-bottom:12px">
+        <h2>🪖 Asker Yönetimi</h2>
+        <p style="color:#777;margin-bottom:18px;font-size:14px">Boştaki köylüleri askere dönüştür. Her asker 1 köylü kullanır.</p>
+        <div class="city-stats" style="margin-bottom:20px">
+          <div class="cstat"><span class="snum" id="sm-koylu">0</span><span class="slbl">BOŞ KÖYLÜ</span></div>
+          <div class="cstat"><span class="snum" id="sm-asker">0</span><span class="slbl">TOPLAM ASKER</span></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+          <label style="color:#aaa;font-size:14px">Dönüştürülecek köylü sayısı:</label>
+          <div style="display:flex;align-items:center;gap:6px">
+            <button class="btn ghost" style="padding:4px 12px;font-size:16px" onclick="smAdjust(-10)">−10</button>
+            <button class="btn ghost" style="padding:4px 10px;font-size:16px" onclick="smAdjust(-1)">−</button>
+            <span id="sm-miktar" style="min-width:48px;text-align:center;font-size:18px;font-weight:bold;color:#d4af37">0</span>
+            <button class="btn ghost" style="padding:4px 10px;font-size:16px" onclick="smAdjust(1)">+</button>
+            <button class="btn ghost" style="padding:4px 12px;font-size:16px" onclick="smAdjust(10)">+10</button>
+          </div>
+          <button class="btn" onclick="smConvert()" style="min-width:140px">⚔️ Askere Çevir</button>
+          <button class="btn ghost" onclick="smRelease()" style="min-width:140px">🏠 Köylüye Çevir</button>
+        </div>
+        <div id="sm-msg" style="color:#888;font-size:13px;min-height:20px"></div>
+      </div>
+
+      <!-- Aydınlık Tarafı Üniteleri (1'er asker) -->
+      <div class="card" style="margin-bottom:12px">
+        <h3 style="color:#f1c40f;font-family:'Cinzel',serif;margin:0 0 12px">☀️ Aydınlık Tarafı — Her Üniteden 1 Asker</h3>
+        <div class="unit-grid" id="ugrid-light"></div>
+      </div>
+
+      <!-- Karanlık Tarafı Üniteleri (1'er asker) -->
+      <div class="card">
+        <h3 style="color:#9b59b6;font-family:'Cinzel',serif;margin:0 0 12px">🌑 Karanlık Tarafı — Her Üniteden 1 Asker</h3>
+        <div class="unit-grid" id="ugrid-dark"></div>
+      </div>
+    </div>
+
+    <!-- Ordu Yönetimi: max 5 ordu -->
+    <div id="atab-armies" class="army-section" style="display:none">
+      <div class="card" style="margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+          <div>
+            <h2 style="margin:0">🏕️ Ordu Yönetimi</h2>
+            <p style="color:#777;font-size:13px;margin:4px 0 0">Maksimum 5 ordu kurabilirsin. Her orduda max 500 asker.</p>
+          </div>
+          <button class="btn" id="ordu-yeni-btn" onclick="orduYeniAc()">➕ Yeni Ordu Kur</button>
+        </div>
+      </div>
+      <!-- Yeni ordu formu -->
+      <div id="ordu-form" class="card" style="display:none;margin-bottom:16px;border:1px solid #d4af3744">
+        <h3 style="margin:0 0 12px">Yeni Ordu Kur</h3>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+          <input id="ordu-isim" type="text" placeholder="Ordu adı (ör: Kuzey Lejyonu)" maxlength="30"
+            style="flex:1;min-width:200px;background:#1a1a1a;border:1px solid #444;color:#eee;padding:8px 12px;border-radius:6px;font-size:14px">
+          <div style="display:flex;align-items:center;gap:6px">
+            <label style="color:#aaa;font-size:13px">Asker:</label>
+            <button class="btn ghost" style="padding:3px 10px" onclick="orduAdjust(-10)">−10</button>
+            <button class="btn ghost" style="padding:3px 8px" onclick="orduAdjust(-1)">−</button>
+            <span id="ordu-miktar" style="min-width:44px;text-align:center;font-size:16px;font-weight:bold;color:#d4af37">1</span>
+            <button class="btn ghost" style="padding:3px 8px" onclick="orduAdjust(1)">+</button>
+            <button class="btn ghost" style="padding:3px 10px" onclick="orduAdjust(10)">+10</button>
+          </div>
+          <button class="btn" onclick="orduKur()">✅ Kur</button>
+          <button class="btn ghost" onclick="document.getElementById('ordu-form').style.display='none'">İptal</button>
+        </div>
+        <div id="ordu-form-msg" style="color:#888;font-size:12px"></div>
+      </div>
+      <!-- Kurulu ordular listesi -->
+      <div id="ordu-liste"></div>
+    </div>
+
+    <div class="army-section" id="atab-formation" style="display:none">
+      <div class="card">
+        <h2>⚔️ Saf Dizilimi</h2>
+        <p style="color:#888;margin-bottom:16px">Birliklerini 4 safa yerleştir. Bir saf dolmadan sonraki safa geçilemez.</p>
+
+        <div id="formation-select" style="margin-bottom:16px">
+          <label style="color:#aaa">Ordu seç: </label>
+          <select id="formation-army-select" onchange="loadFormationForArmy()" style="background:#1a1a1a;color:#f5f0e8;border:1px solid #333;padding:6px 12px;border-radius:6px">
+            <option value="">-- Ordu Seç --</option>
+          </select>
+        </div>
+
+        <div id="formation-grid" style="display:flex;flex-direction:column;gap:12px">
+          <div class="saf-row" data-saf="1">
+            <div class="saf-label">1. SAF (3 birim)</div>
+            <div class="saf-slots" id="saf-1" style="display:flex;gap:8px"></div>
+          </div>
+          <div class="saf-row" data-saf="2">
+            <div class="saf-label">2. SAF (3 birim)</div>
+            <div class="saf-slots" id="saf-2" style="display:flex;gap:8px"></div>
+          </div>
+          <div class="saf-row" data-saf="3">
+            <div class="saf-label">3. SAF (5 birim)</div>
+            <div class="saf-slots" id="saf-3" style="display:flex;gap:8px"></div>
+          </div>
+          <div class="saf-row" data-saf="4">
+            <div class="saf-label">4. SAF (3 birim)</div>
+            <div class="saf-slots" id="saf-4" style="display:flex;gap:8px"></div>
+          </div>
+        </div>
+
+        <div id="formation-available" style="margin-top:20px">
+          <h3 style="color:var(--race-color)">Kullanılabilir Üniteler</h3>
+          <div id="formation-units-pool" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
+        </div>
+
+        <div style="margin-top:20px;display:flex;gap:12px">
+          <button class="btn" onclick="saveFormation()" style="flex:1">💾 Dizilimi Kaydet</button>
+          <button class="btn ghost" onclick="resetFormation()">🔄 Sıfırla</button>
+        </div>
+        <div id="formation-msg" style="margin-top:8px"></div>
+      </div>
+    </div>
+
+    <!-- GELİŞTİRMELER PANELİ -->
+    <div class="army-section" id="atab-upgrades" style="display:none">
+      <div class="card" style="padding:15px">
+        <!-- renderUpgrades() ile doldurulacak -->
+      </div>
+    </div>
+
+  </div>
+</div>
+<div id="toast"></div>
+<div id="building-modal-mount"></div>
+
+<script src="js/constants.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/game-data.js"></script>
+<script src="js/hud.js"></script>
+<script src="js/layout.js"></script>
+<script src="js/page-army.js"></script>
+</body>
+</html>

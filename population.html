@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Palantis – Nüfus & İşçiler</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div id="hudbar-mount"></div>
+<div class="layout">
+  <div id="sidebar-mount"></div>
+  <div class="main-content">
+
+    <!-- Nüfus özet bar -->
+    <div class="city-stats" style="margin-bottom:12px">
+      <div class="cstat" title="Toplam nüfus = Köylü + İşçi + Ünite"><span class="snum" id="pop-total">—</span><span class="slbl">TOPLAM NÜFUS</span></div>
+      <div class="cstat" title="Nüfus sınırı (ev/köy/kasaba)"><span class="snum" id="pop-max">—</span><span class="slbl">SINIR</span></div>
+      <div class="cstat" title="Boşta duran (görev verilmemiş) köylüler"><span class="snum" id="pop-free">—</span><span class="slbl">KÖYLÜ (BOŞTA)</span></div>
+      <div class="cstat" title="Eğitilmiş ve orduda bulunan birimler"><span class="snum" id="pop-unite">—</span><span class="slbl">ÜNİTE</span></div>
+    </div>
+    <!-- Nüfus dağılım barı -->
+    <div style="margin-bottom:20px;padding:0 2px">
+      <div style="display:flex;gap:4px;font-size:11px;color:#555;margin-bottom:4px;justify-content:space-between">
+        <span>🏘️ Köylü <b id="bar-koylu-lbl">—</b></span>
+        <span>⚒️ İşçi <b id="bar-isci-lbl">—</b></span>
+        <span>⚔️ Asker+Tapınak <b id="bar-sabit-lbl">—</b></span>
+        <span>🗡️ Ünite <b id="bar-unite-lbl">—</b></span>
+      </div>
+      <div style="display:flex;height:10px;border-radius:4px;overflow:hidden;background:#1a1a1a">
+        <div id="bar-koylu"  style="background:#4a8;transition:.3s"></div>
+        <div id="bar-isci"   style="background:#c8a96e;transition:.3s"></div>
+        <div id="bar-sabit"  style="background:#8e44ad;transition:.3s"></div>
+        <div id="bar-unite"  style="background:#e74c3c;transition:.3s"></div>
+      </div>
+    </div>
+
+    <!-- Pişirme Oranı -->
+    <div class="card" style="padding:20px;margin-bottom:16px">
+      <h2>🔥 Ocak / Fırın Pişirme Oranı</h2>
+      <p style="color:#555;font-size:12px;margin-bottom:14px">
+        Toplam <b id="pisirme-toplam" style="color:#c8a96e">100</b>% olmalı.
+        Ham hammadde pişince 2× yemek üretir.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="width:130px;font-size:13px;color:#aaa">🌾 Buğday → Ekmek</span>
+          <button type="button" onclick="pisirmeAdj('bugday',-5)" style="padding:2px 8px">−5</button>
+          <button type="button" onclick="pisirmeAdj('bugday',-1)" style="padding:2px 8px">−</button>
+          <b id="pisirme-bugday" style="min-width:32px;text-align:center">34</b>
+          <button type="button" onclick="pisirmeAdj('bugday',1)"  style="padding:2px 8px">+</button>
+          <button type="button" onclick="pisirmeAdj('bugday',5)"  style="padding:2px 8px">+5</button>
+          <span style="font-size:11px;color:#555">% (kapas: <span id="pisirme-kap-bugday">—</span>/saat)</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="width:130px;font-size:13px;color:#aaa">🐟 Balık → Pişmiş</span>
+          <button type="button" onclick="pisirmeAdj('balik',-5)"  style="padding:2px 8px">−5</button>
+          <button type="button" onclick="pisirmeAdj('balik',-1)"  style="padding:2px 8px">−</button>
+          <b id="pisirme-balik" style="min-width:32px;text-align:center">33</b>
+          <button type="button" onclick="pisirmeAdj('balik',1)"   style="padding:2px 8px">+</button>
+          <button type="button" onclick="pisirmeAdj('balik',5)"   style="padding:2px 8px">+5</button>
+          <span style="font-size:11px;color:#555">% (kapas: <span id="pisirme-kap-balik">—</span>/saat)</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="width:130px;font-size:13px;color:#aaa">🥩 Çiğ Et → Pişmiş</span>
+          <button type="button" onclick="pisirmeAdj('et',-5)"     style="padding:2px 8px">−5</button>
+          <button type="button" onclick="pisirmeAdj('et',-1)"     style="padding:2px 8px">−</button>
+          <b id="pisirme-et" style="min-width:32px;text-align:center">33</b>
+          <button type="button" onclick="pisirmeAdj('et',1)"      style="padding:2px 8px">+</button>
+          <button type="button" onclick="pisirmeAdj('et',5)"      style="padding:2px 8px">+5</button>
+          <span style="font-size:11px;color:#555">% (kapas: <span id="pisirme-kap-et">—</span>/saat)</span>
+        </div>
+      </div>
+      <button onclick="pisirmeKaydet()" style="margin-top:14px;padding:8px 20px;background:#1a3a1a;border:1px solid #2ecc71;color:#2ecc71;border-radius:4px;cursor:pointer;font-size:13px">
+        💾 Kaydet
+      </button>
+      <span id="pisirme-msg" style="font-size:11px;color:#444;margin-left:10px"></span>
+    </div>
+
+    <!-- İşçi dağılımı -->
+    <div class="card" style="padding:20px;margin-bottom:16px">
+      <h2>👥 İşçi Dağılımı</h2>
+      <p style="color:#555;font-size:13px;margin-bottom:18px">Nüfus sınırına göre değişir (ev/köy/kasaba).</p>
+
+      <div class="worker-row">
+        <span class="wr-lbl">🌳 Oduncu</span>
+        <button type="button" onclick="assignWorker('wood',-10)">−10</button>
+        <button type="button" onclick="assignWorker('wood',-1)">−</button>
+        <b id="w-wood">0</b>
+        <button type="button" onclick="assignWorker('wood',1)">+</button>
+        <button type="button" onclick="assignWorker('wood',10)">+10</button>
+        <span class="info">(+<span id="p-wood">0</span> odun/gün)</span>
+      </div>
+      <div class="worker-row">
+        <span class="wr-lbl">🪨 Taşçı</span>
+        <button type="button" onclick="assignWorker('stone',-10)">−10</button>
+        <button type="button" onclick="assignWorker('stone',-1)">−</button>
+        <b id="w-stone">0</b>
+        <button type="button" onclick="assignWorker('stone',1)">+</button>
+        <button type="button" onclick="assignWorker('stone',10)">+10</button>
+        <span class="info">(+<span id="p-stone">0</span> taş/gün)</span>
+      </div>
+      <div class="worker-row">
+        <span class="wr-lbl"><svg width="14" height="10" viewBox="0 0 15 11" style="display:inline-block;vertical-align:-1px"><path d="M2,1 L13,1 L11,10 L4,10 Z" fill="#8a8a8a" stroke="#666" stroke-width="0.5"/><path d="M4,3 L11,3 L9.5,8.5 L5.5,8.5 Z" fill="#b0b0b0"/></svg> Madenci</span>
+        <button type="button" onclick="assignWorker('iron',-10)">−10</button>
+        <button type="button" onclick="assignWorker('iron',-1)">−</button>
+        <b id="w-iron">0</b>
+        <button type="button" onclick="assignWorker('iron',1)">+</button>
+        <button type="button" onclick="assignWorker('iron',10)">+10</button>
+        <span class="info">(+<span id="p-iron">0</span> metal/gün)</span>
+      </div>
+      <div class="worker-row">
+        <span class="wr-lbl">🌾 Çiftçi</span>
+        <button type="button" onclick="assignWorker('farm',-10)">−10</button>
+        <button type="button" onclick="assignWorker('farm',-1)">−</button>
+        <b id="w-farm">0</b>
+        <button type="button" onclick="assignWorker('farm',1)">+</button>
+        <button type="button" onclick="assignWorker('farm',10)">+10</button>
+        <span class="info">(+<span id="p-farm">0</span> buğday/gün)</span>
+      </div>
+      <div class="worker-row">
+        <span class="wr-lbl">🎣 Balıkçı</span>
+        <button type="button" onclick="assignWorker('fish',-10)">−10</button>
+        <button type="button" onclick="assignWorker('fish',-1)">−</button>
+        <b id="w-fish">0</b>
+        <button type="button" onclick="assignWorker('fish',1)">+</button>
+        <button type="button" onclick="assignWorker('fish',10)">+10</button>
+        <span class="info">(+<span id="p-fish">0</span> balık/gün)</span>
+      </div>
+      <div class="worker-row">
+        <span class="wr-lbl">💰 Tüccar</span>
+        <button type="button" onclick="assignWorker('merchant',-10)">−10</button>
+        <button type="button" onclick="assignWorker('merchant',-1)">−</button>
+        <b id="w-merchant">0</b>
+        <button type="button" onclick="assignWorker('merchant',1)">+</button>
+        <button type="button" onclick="assignWorker('merchant',10)">+10</button>
+        <span class="info">(+<span id="p-merchant">0</span> altın/gün)</span>
+      </div>
+
+      <button class="btn" type="button" onclick="saveWorkers()" style="margin-top:14px;width:100%">💾 Dağılımı Kaydet</button>
+    </div>
+
+    <!-- Mutluluk & Nüfus etkileri -->
+    <div class="card" style="padding:18px">
+      <h3 style="margin-bottom:12px">📊 Hammadde Bonus Etkileri</h3>
+      <p style="font-size:13px;color:#555;line-height:1.9">
+        Hammadde üretimine etki eden faktörler:<br>
+        <span style="color:#888">🏹 Irk etkisi &nbsp;·&nbsp; 🌟 Çağ etkisi &nbsp;·&nbsp; 😊 Mutluluk etkisi</span><br>
+        <span style="color:#888">👥 Popülasyon etkisi &nbsp;·&nbsp; 🔮 Büyü etkisi &nbsp;·&nbsp; 💎 Premium etkisi</span><br>
+        <span style="color:#e67e22;font-size:12px">⚠ Popülasyon arttıkça hammadde geliri düşer.</span>
+      </p>
+    </div>
+
+  </div>
+</div>
+<div id="toast"></div>
+<div id="building-modal-mount"></div>
+
+<script src="js/constants.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/game-data.js"></script>
+<script src="js/hud.js"></script>
+<script src="js/layout.js"></script>
+<script src="js/page-population.js"></script>
+</body>
+</html>

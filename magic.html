@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Palantis – Büyüler</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div id="hudbar-mount"></div>
+<div class="layout">
+  <div id="sidebar-mount"></div>
+  <div class="main-content">
+
+    <div class="city-stats" style="margin-bottom:20px">
+      <div class="cstat"><span class="snum" id="worshipper-count">0</span><span class="slbl">WORSHIPPER</span></div>
+      <div class="cstat"><span class="snum">2000</span><span class="slbl">MAKSİMUM</span></div>
+      <div class="cstat"><span class="snum" id="worshipper-mana">0</span><span class="slbl">MANA/GÜN</span></div>
+      <div class="cstat"><span class="snum">—</span><span class="slbl">TANRI</span></div>
+    </div>
+    <div class="card" style="padding:20px;margin-bottom:16px">
+      <h2>🙏 Worshipper Sistemi</h2>
+      <p style="color:#555;font-size:13px;margin-bottom:16px">Büyü savaşı için Worshipper üretirsin. Maksimum <b style="color:#ccc">2000</b> adet. Bedavaya çalışır, mana üretir.</p>
+      <div class="worker-row" style="gap:12px">
+        🙏 Worshipper:
+        <button type="button" onclick="setWorshippers(WORSHIPPERS.count-100)">−100</button>
+        <button type="button" onclick="setWorshippers(WORSHIPPERS.count-1)">−</button>
+        <b id="worshipper-count">0</b>
+        <button type="button" onclick="setWorshippers(WORSHIPPERS.count+1)">+</button>
+        <button type="button" onclick="setWorshippers(WORSHIPPERS.count+100)">+100</button>
+        <span class="info">(+<span id="worshipper-mana">0</span> mana/gün)</span>
+      </div>
+    </div>
+    <div class="card" style="padding:20px">
+      <h2>🔮 Büyü Slotları</h2>
+      <p style="color:#444;font-size:13px">Büyücü Kulesi inşa edilince büyü slotları açılır.</p>
+      <div style="margin-top:14px;padding:16px;background:#080808;border-radius:8px;border:1px solid #1a1a1a">
+        <div style="color:#333;font-size:13px;text-align:center">[ Büyücü Kulesi gerekli ]</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<div id="toast"></div>
+<div id="building-modal-mount"></div>
+
+<script src="js/constants.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/game-data.js"></script>
+<script src="js/hud.js"></script>
+<script src="js/layout.js"></script>
+<script src="js/page-magic.js"></script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Palantis – Ana Ekran</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div id="hudbar-mount"></div>
+<div class="layout">
+  <div id="sidebar-mount"></div>
+  <div class="main-content">
+
+    <!-- Kral Bilgi Kartı -->
+    <!-- Gizli ID'ler (JS uyumu için) -->
+    <span id="home-kral" style="display:none">—</span>
+    <span id="home-sehir" style="display:none">—</span>
+    <span id="home-irk" style="display:none">—</span>
+    <span id="home-cag" style="display:none">I. Çağ</span>
+
+    <!-- Kurulduktan sonra ana ekran -->
+    <div id="main-home">
+
+      <!-- Profil Bandı (tek satır, tekrar yok) -->
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;
+           padding:12px 18px;background:#0d0a06;
+           border:1px solid rgba(200,169,110,0.12);border-left:3px solid var(--race-color);
+           border-radius:4px">
+        <div style="font-size:26px" id="home-irk-icon">👑</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:'Cinzel',serif;color:#f0e8d8;font-size:16px;font-weight:700" id="main-welcome">—</div>
+          <div style="font-size:11px;color:#555;margin-top:3px">
+            <span id="home-sehir-lbl">—</span>
+            <span style="color:#2a1a08"> · </span>
+            <span id="home-irk-lbl">—</span>
+            <span style="color:#2a1a08"> · </span>
+            <span id="home-cag-lbl" style="color:var(--race-color)">I. Çağ</span>
+          </div>
+        </div>
+        <!-- Hızlı stats sağda -->
+        <div style="display:flex;gap:16px;font-size:11px;text-align:center;flex-shrink:0">
+          <div><div style="color:#c8a96e;font-size:16px;font-weight:700" id="hs-nufus">—</div><div style="color:#333">NÜFUS</div></div>
+          <div><div style="color:#c8a96e;font-size:16px;font-weight:700" id="hs-bina">—</div><div style="color:#333">BİNA</div></div>
+          <div><div style="color:#c8a96e;font-size:16px;font-weight:700" id="hs-alan">—</div><div style="color:#333">ALAN</div></div>
+        </div>
+      </div>
+
+      <!-- Tarih + Aktivite yan yana -->
+      <div style="display:grid;grid-template-columns:220px 1fr;gap:12px;margin-bottom:14px">
+        <!-- Tarih -->
+        <div style="padding:14px 16px;background:#0d0a06;border:1px solid rgba(200,169,110,0.12);border-radius:4px;display:flex;flex-direction:column;justify-content:center">
+          <div style="color:#c8a96e;font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;margin-bottom:6px">PALANTİS TAKVİMİ</div>
+          <div id="home-tarih" style="color:#f0e8d8;font-size:18px;font-family:'Cinzel',serif;font-weight:700">— — —</div>
+          <div style="color:#333;font-size:10px;margin-top:8px">GERÇEK SAAT</div>
+          <div id="home-real-saat" style="color:#666;font-size:14px">—:—</div>
+        </div>
+        <!-- Bugün olanlar -->
+        <div style="padding:14px 16px;background:#0d0a06;border:1px solid rgba(200,169,110,0.12);border-radius:4px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-family:'Cinzel',serif;font-size:11px;color:#c8a96e;letter-spacing:1px">📜 SON PALANTİS GÜNÜ</span>
+            <button onclick="showPage('sehirde-olanlar')" style="background:none;border:none;color:#3a2a10;font-size:10px;cursor:pointer">tümünü gör →</button>
+          </div>
+          <div id="home-activity" style="font-size:12px;color:#555;line-height:1.9">
+            <span style="color:#2a1a08">Yükleniyor...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1. Çağ uyarısı -->
+      <div id="cag1-uyari" class="card" style="padding:16px;border-left:3px solid #e67e22;margin-bottom:16px">
+        <h3 style="color:#e67e22;margin-bottom:8px">⚠️ I. Çağ Kısıtlamaları</h3>
+        <p style="font-size:13px;color:#888;line-height:1.7">
+          • Diğer oyuncularla savaşamazsın<br>
+          • Guild'lere katılamazsın<br>
+          • Pazar alanını 30 reel gün boyunca özgürce kullanabilirsin<br>
+          • II. Çağa geçince tüm özellikler açılır
+        </p>
+      </div>
+
+      <!-- Haber paneli (savaş raporları örneği) -->
+      <div class="card" style="padding:20px">
+        <h3 style="margin-bottom:14px">📜 Şehir Haberleri</h3>
+        <div id="haberler" style="font-size:13px;color:#666;line-height:2">
+          <div>• Krallığın kuruldu. İlk binaları inşa etmeye başla.</div>
+          <div>• Balıkçılar her ayın 4-8-12-16-20-24. günlerinde limana uğrar.</div>
+          <div>• Hasat ayları: Haziran, Ağustos, Ekim — kaynak üretimi artar.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<div id="toast"></div>
+<div id="building-modal-mount"></div>
+
+<script src="js/constants.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/game-data.js"></script>
+<script src="js/hud.js"></script>
+<script src="js/layout.js"></script>
+<script src="js/page-home.js"></script>
+</body>
+</html>
