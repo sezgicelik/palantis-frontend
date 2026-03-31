@@ -245,6 +245,10 @@ function obFinish() {
   .catch(() => alert('Sunucuya baglanamadi!'));
 }
 
+function obEnterGame() {
+  window.location.href = 'home.html';
+}
+
 function obGoTo(step) {
   showObStep(step);
 }
