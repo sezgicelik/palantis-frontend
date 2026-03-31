@@ -114,14 +114,19 @@ body{
   display:flex;
   align-items:center;
   gap:8px;
-  margin:10px 0;
-  font-size:14px;
-  white-space:nowrap;
-  padding:8px 12px;
+  margin:6px 0;
+  font-size:13px;
+  padding:7px 12px;
   background:#0d0d0d;
   border:1px solid #1e1e1e;
-  border-radius:10px;
+  border-radius:8px;
   transition:.2s;
+}
+.wr-lbl{
+  min-width:120px;
+  font-size:13px;
+  color:#ccc;
+  flex-shrink:0;
 }
 .worker-row:hover{
   border-color:#2a2a2a;
@@ -300,7 +305,24 @@ body{
 .fbtn{padding:7px 14px;background:#111;border:1px solid #222;border-radius:16px;color:#888;cursor:pointer;font-size:12px;transition:.18s;}
 .fbtn:hover,.fbtn.on{background:var(--race-color);color:#000;border-color:var(--race-color);font-weight:700;}
 
-.bg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px;}
+/* Bina grid → satır listesi */
+.bg-grid{display:flex;flex-direction:column;gap:6px;}
+.brow{display:flex;align-items:center;gap:10px;background:#111;border:1px solid #1e1e1e;border-left:3px solid #333;border-radius:8px;padding:8px 12px;transition:.18s;position:relative;flex-wrap:wrap;}
+.brow:hover{border-color:#2a2a2a;background:#141414;}
+.brow.building{border-left-color:#2ecc71;background:#0b0f0b;}
+.brow.locked{opacity:.4;}
+.br-ico{width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.br-main{min-width:150px;flex:1;max-width:220px;}
+.br-name{font-family:'Cinzel',serif;font-size:12px;color:#eee;font-weight:600;margin-bottom:2px;}
+.br-desc{font-size:10px;color:#555;line-height:1.3;}
+.br-lv{width:54px;flex-shrink:0;text-align:center;font-family:'Cinzel',serif;font-size:12px;color:var(--race-color);font-weight:700;}
+.br-fx{display:flex;flex-wrap:wrap;gap:4px;flex:1;min-width:0;}
+.br-cost{display:flex;flex-wrap:wrap;gap:4px;width:200px;flex-shrink:0;}
+.br-time{width:78px;flex-shrink:0;text-align:center;font-size:10px;color:#555;}
+.br-act{width:110px;flex-shrink:0;text-align:right;}
+.br-prog{width:100%;height:2px;background:#0a1a08;border-radius:2px;overflow:hidden;margin-top:4px;flex-basis:100%;}
+.br-prog-fill{height:100%;background:#2ecc71;border-radius:2px;transition:width 1s linear;}
+.br-building-lbl{font-size:10px;color:#2ecc71;font-family:'Cinzel',serif;flex-basis:100%;padding-top:2px;}
 
 .bcard{background:#111;border:1px solid #1e1e1e;border-radius:12px;overflow:hidden;transition:.22s;position:relative;}
 .bcard:hover{border-color:#333;transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.5);}
@@ -394,7 +416,9 @@ body{
 .atab{padding:9px 18px;background:#111;border:1px solid #222;border-radius:20px;color:#888;cursor:pointer;font-size:13px;font-family:'Cinzel',serif;letter-spacing:.5px;transition:.18s;}
 .atab:hover,.atab.on{background:var(--race-color);color:#000;border-color:var(--race-color);font-weight:700;}
 
-.unit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+/* Ünite grid → satır listesi */
+.unit-grid{display:flex;flex-direction:column;gap:5px;}
+
 
 /* Ünite kartı */
 .ucard{
@@ -923,7 +947,14 @@ body{
         🍳 Pişmiş <b id="hud-pb">0</b> <span class="gain">(+<span id="hud-pbg">0</span>)</span>
       </div>
 
-      <div class="hud-spacer"></div>
+      <div class="hud-cell" data-tip="Çiğ Et (Avcılar toplar)">
+        🥩 Çiğ Et <b id="hud-ce">0</b> <span class="gain">(+<span id="hud-ceg">0</span>)</span>
+      </div>
+
+      <div class="hud-cell" data-tip="Pişmiş Et (Ocakta pişirilir)">
+        🍖 Pişmiş Et <b id="hud-pe">0</b>
+      </div>
+
       <div class="hud-spacer"></div>
     </div>
 
@@ -955,8 +986,8 @@ body{
         ⏰ Saat <b id="c-now">00:00:00</b>
       </div>
 
-      <div class="hud-cell" data-tip="Bir sonraki saat başına kalan süre">
-        ⏳ Hasat <b id="c-next">00:00</b>
+      <div class="hud-cell" data-tip="Sonraki Palantis Gününe kalan süre (1 P.G. = 1 saat)">
+        ⏳ Sonraki P.G. <b id="c-next">—</b>
       </div>
     </div>
   </div>
@@ -1063,52 +1094,62 @@ body{
           <p style="color:#555;font-size:13px;margin-bottom:18px">Maksimum işçi sayısı <b style="color:#ccc">1500</b>'dür. Çağ atladıkça artar.</p>
 
           <div class="worker-row">
-            🌳 Oduncu: <button type="button" onclick="assignWorker('wood',-10)">−10</button>
+            <span class="wr-lbl">🌳 Oduncu</span>
+            <button type="button" onclick="assignWorker('wood',-10)">−10</button>
             <button type="button" onclick="assignWorker('wood',-1)">−</button>
             <b id="w-wood">0</b>
             <button type="button" onclick="assignWorker('wood',1)">+</button>
             <button type="button" onclick="assignWorker('wood',10)">+10</button>
             <span class="info">(+<span id="p-wood">0</span> odun/gün)</span>
           </div>
-
           <div class="worker-row">
-            🪨 Taşçı: <button type="button" onclick="assignWorker('stone',-10)">−10</button>
+            <span class="wr-lbl">🪨 Taşçı</span>
+            <button type="button" onclick="assignWorker('stone',-10)">−10</button>
             <button type="button" onclick="assignWorker('stone',-1)">−</button>
             <b id="w-stone">0</b>
             <button type="button" onclick="assignWorker('stone',1)">+</button>
             <button type="button" onclick="assignWorker('stone',10)">+10</button>
             <span class="info">(+<span id="p-stone">0</span> taş/gün)</span>
           </div>
-
           <div class="worker-row">
-            ⛓️ Madenci: <button type="button" onclick="assignWorker('iron',-10)">−10</button>
+            <span class="wr-lbl">⛓️ Madenci</span>
+            <button type="button" onclick="assignWorker('iron',-10)">−10</button>
             <button type="button" onclick="assignWorker('iron',-1)">−</button>
             <b id="w-iron">0</b>
             <button type="button" onclick="assignWorker('iron',1)">+</button>
             <button type="button" onclick="assignWorker('iron',10)">+10</button>
             <span class="info">(+<span id="p-iron">0</span> metal/gün)</span>
           </div>
-
           <div class="worker-row">
-            🌾 Çiftçi: <button type="button" onclick="assignWorker('farm',-10)">−10</button>
+            <span class="wr-lbl">🌾 Çiftçi</span>
+            <button type="button" onclick="assignWorker('farm',-10)">−10</button>
             <button type="button" onclick="assignWorker('farm',-1)">−</button>
             <b id="w-farm">0</b>
             <button type="button" onclick="assignWorker('farm',1)">+</button>
             <button type="button" onclick="assignWorker('farm',10)">+10</button>
             <span class="info">(+<span id="p-farm">0</span> buğday/gün)</span>
           </div>
-
           <div class="worker-row">
-            🎣 Balıkçı: <button type="button" onclick="assignWorker('fish',-10)">−10</button>
+            <span class="wr-lbl">🎣 Balıkçı</span>
+            <button type="button" onclick="assignWorker('fish',-10)">−10</button>
             <button type="button" onclick="assignWorker('fish',-1)">−</button>
             <b id="w-fish">0</b>
             <button type="button" onclick="assignWorker('fish',1)">+</button>
             <button type="button" onclick="assignWorker('fish',10)">+10</button>
             <span class="info">(+<span id="p-fish">0</span> balık/gün)</span>
           </div>
-
           <div class="worker-row">
-            💰 Tüccar: <button type="button" onclick="assignWorker('merchant',-10)">−10</button>
+            <span class="wr-lbl">🥩 Avcı</span>
+            <button type="button" onclick="assignWorker('hunter',-10)">−10</button>
+            <button type="button" onclick="assignWorker('hunter',-1)">−</button>
+            <b id="w-hunter">0</b>
+            <button type="button" onclick="assignWorker('hunter',1)">+</button>
+            <button type="button" onclick="assignWorker('hunter',10)">+10</button>
+            <span class="info">(+<span id="p-hunter">0</span> çiğ et/gün)</span>
+          </div>
+          <div class="worker-row">
+            <span class="wr-lbl">💰 Tüccar</span>
+            <button type="button" onclick="assignWorker('merchant',-10)">−10</button>
             <button type="button" onclick="assignWorker('merchant',-1)">−</button>
             <b id="w-merchant">0</b>
             <button type="button" onclick="assignWorker('merchant',1)">+</button>
@@ -1193,6 +1234,13 @@ body{
 
       <!-- Asker Eğitimi: otomatik oyuncunun tarafına göre -->
       <div id="atab-units" class="army-section">
+        <!-- Eğitim Kuyruğu -->
+        <div id="training-queue-wrap" style="display:none;margin-bottom:16px">
+          <div class="card" style="padding:14px 18px">
+            <h3 style="margin:0 0 10px">⏳ Eğitim Kuyruğu</h3>
+            <div id="training-queue-list"></div>
+          </div>
+        </div>
         <div class="unit-grid" id="ugrid-player"></div>
       </div>
 
@@ -1312,7 +1360,7 @@ body{
         <div class="city-stats" style="margin-bottom:20px">
           <div class="cstat"><span class="snum" id="worshipper-count">0</span><span class="slbl">WORSHIPPER</span></div>
           <div class="cstat"><span class="snum">2000</span><span class="slbl">MAKSİMUM</span></div>
-          <div class="cstat"><span class="snum" id="worshipper-mana">0</span><span class="slbl">MANA/SAAT</span></div>
+          <div class="cstat"><span class="snum" id="worshipper-mana">0</span><span class="slbl">MANA/GÜN</span></div>
           <div class="cstat"><span class="snum">—</span><span class="slbl">TANRI</span></div>
         </div>
         <div class="card" style="padding:20px;margin-bottom:16px">
@@ -1426,7 +1474,7 @@ function updateTopTimers(){
   const s = Math.floor((diff%60000)/1000);
 
   const cNext = document.getElementById('c-next');
-  if(cNext) cNext.innerText = `${pad2(m)}:${pad2(s)}`;
+  if(cNext) cNext.innerText = `${(diff/3600000).toFixed(3)} P.G.`;
 }
 setInterval(updateTopTimers, 1000);
 updateTopTimers();
@@ -1543,7 +1591,7 @@ function startGame() {
 let population = {
   total: 10, free: 10, max: 1500,
   wood: 0, stone: 0, iron: 0,
-  farm: 0, fish: 0, merchant: 0
+  farm: 0, fish: 0, hunter: 0, merchant: 0
 };
 
 function assignWorker(type, delta){
@@ -1598,6 +1646,7 @@ async function saveWorkers(){
         madenci: population.iron || 0,
         ciftci: population.farm || 0,
         balikci: population.fish || 0,
+        avci: population.hunter || 0,
         tuccar: population.merchant || 0
       })
     });
@@ -1822,7 +1871,8 @@ renderOffers();
   const ss = Math.floor((diff%60000)/1000);
 
   const tEl = document.getElementById('land-timer');
-  if(tEl) tEl.innerText = `${pad2(hh)}:${pad2(mm)}:${pad2(ss)}`;
+  const gunKalan = diff / 3600000;
+  if(tEl) tEl.innerText = gunKalan > 0 ? `${gunKalan.toFixed(2)} P.G.` : '—';
 }
 
 setInterval(landTick, 1000);
@@ -1890,67 +1940,94 @@ console.log("hud-bu:", !!document.getElementById("hud-bu"));
 
 /* ── BİNA DB ── */
 const BLDGS = {
-  oduncu:{id:'oduncu',cat:'uretim',icon:'🌳',name:'Oduncu Kampı',bg:'#0a160a',desc:"Günlük odun üretir.",maxLv:10,lv:3,fx:l=>[{t:'pos',s:`+${l*40} Odun/gün`}],cost:l=>({odun:l*200,tas:l*100,altin:l*50}),time:l=>l*180},
-  tas_ocagi:{id:'tas_ocagi',cat:'uretim',icon:'🪨',name:'Taş Ocağı',bg:'#16140a',desc:"Taş çıkarır.",maxLv:10,lv:2,fx:l=>[{t:'pos',s:`+${l*30} Taş/gün`}],cost:l=>({odun:l*150,altin:l*80}),time:l=>l*240},
-  demir_madeni:{id:'demir_madeni',cat:'uretim',icon:'⛓️',name:'Demir Madeni',bg:'#101018',desc:"Ham metal üretir.",maxLv:10,lv:2,fx:l=>[{t:'pos',s:`+${l*25} Metal/gün`}],cost:l=>({odun:l*200,tas:l*150,altin:l*100}),time:l=>l*300},
-  tarla:{id:'tarla',cat:'uretim',icon:'🌾',name:'Tarla',bg:'#161400',desc:"Buğday üretir.",maxLv:10,lv:5,fx:l=>[{t:'pos',s:`+${l*60} Buğday/gün`},{t:'pos',s:`Açlık -%${l*2}`}],cost:l=>({odun:l*100,altin:l*40}),time:l=>l*120},
-  balikci:{id:'balikci',cat:'uretim',icon:'🎣',name:'Balıkçı Limanı',bg:'#001616',desc:"Balık üretir. Hasat günü 2x.",maxLv:5,lv:1,fx:l=>[{t:'pos',s:`+${l*20} Balık/gün`},{t:'pos',s:'Hasat: 2x'}],cost:l=>({odun:l*300,tas:l*200,altin:l*120}),time:l=>l*360},
-  isleme:{id:'isleme',cat:'uretim',icon:'🔩',name:'İşleme Atölyesi',bg:'#141000',desc:"Ham → İşlenmiş ürün dönüştürür.",maxLv:8,lv:2,fx:l=>[{t:'pos',s:`İşleme +${l*10}%`},{t:'pos',s:`Kapasite ${l*500}`}],cost:l=>({odun:l*250,metal:l*150,altin:l*200}),time:l=>l*420},
-  kisla:{id:'kisla',cat:'askeri',icon:'⚔️',name:'Kışla',bg:'#180a0a',desc:"Piyade ve temel birimleri eğitir.",maxLv:10,lv:3,fx:l=>[{t:'pos',s:`${l} birim tipi`},{t:'pos',s:`Eğitim +${l*8}%`}],cost:l=>({odun:l*300,tas:l*200,metal:l*100,altin:l*150}),time:l=>l*480},
-  ahar:{id:'ahar',cat:'askeri',icon:'🐴',name:'Ahır',bg:'#161000',desc:"Süvari birliklerini eğitir.",maxLv:8,lv:0,fx:l=>[{t:'pos',s:`Süvari ATK +${l*5}%`},{t:'pos',s:`Hız +${l*3}%`}],cost:l=>({odun:l*400,metal:l*200,altin:l*200}),time:l=>l*600},
-  surlar:{id:'surlar',cat:'askeri',icon:'🛡️',name:'Surlar',bg:'#0a0a18',desc:"Şehir savunmasını güçlendirir.",maxLv:10,lv:4,fx:l=>[{t:'pos',s:`DEF +${l*12}%`},{t:'pos',s:`Hasar -%${l*3}`}],cost:l=>({tas:l*400,metal:l*200,altin:l*100}),time:l=>l*720},
-  okcu_kulesi:{id:'okcu_kulesi',cat:'askeri',icon:'🏹',name:'Okçu Kulesi',bg:'#180d00',desc:"Savaşlarda otomatik atış yapar.",maxLv:6,lv:0,fx:l=>[{t:'pos',s:`${l} Okçu/tur`},{t:'pos',s:`ATK ${l*50}`}],cost:l=>({odun:l*500,tas:l*500,metal:l*300,altin:l*300}),time:l=>l*900},
-  akademi:{id:'akademi',cat:'gelisim',icon:'📚',name:'Akademi',bg:'#0a0a18',desc:"Araştırma ve teknoloji merkezi.",maxLv:8,lv:2,fx:l=>[{t:'pos',s:`Araştırma +${l*10}%`},{t:'pos',s:`${l} teknoloji slotu`}],cost:l=>({odun:l*300,altin:l*300}),time:l=>l*540},
-  buyucu_kulesi:{id:'buyucu_kulesi',cat:'gelisim',icon:'🔮',name:'Büyücü Kulesi',bg:'#150015',desc:"Büyü slotları ve güç artışı.",maxLv:10,lv:1,fx:l=>[{t:'pos',s:`${l*2} büyü slotu`},{t:'pos',s:`Büyü +${l*5}%`}],cost:l=>({altin:l*500,metal:l*200}),time:l=>l*600},
-  kutuphane:{id:'kutuphane',cat:'gelisim',icon:'📖',name:'Kütüphane',bg:'#0a1200',desc:"Üretim verimliliği ve araştırma indirgesi.",maxLv:6,lv:0,fx:l=>[{t:'pos',s:`Verimlilik +${l*3}%`},{t:'pos',s:`Araştırma -%${l*5}%`}],cost:l=>({odun:l*400,altin:l*400}),time:l=>l*480},
-  sehir_meydani:{id:'sehir_meydani',cat:'sosyal',icon:'🏛️',name:'Şehir Meydanı',bg:'#141400',desc:"Moral ve mutluluk merkezi.",maxLv:5,lv:1,fx:l=>[{t:'pos',s:`Moral +${l*5}`},{t:'pos',s:'Etkinlik slotu'}],cost:l=>({odun:l*200,tas:l*200,altin:l*100}),time:l=>l*300},
-  pazar:{id:'pazar',cat:'sosyal',icon:'💰',name:'Pazar',bg:'#160e00',desc:"Oyuncularla kaynak ticareti.",maxLv:8,lv:2,fx:l=>[{t:'pos',s:`${l*2} ticaret slotu`},{t:'pos',s:`Altın +${l*15}/gün`}],cost:l=>({odun:l*250,altin:l*200}),time:l=>l*360},
-  guild_binasi:{id:'guild_binasi',cat:'sosyal',icon:'🏰',name:'Guild Binası',bg:'#100018',desc:"Guild kurma ve yönetim merkezi.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`${l*10} üye kapasitesi`},{t:'pos',s:`Guild bonus +${l*5}%`}],cost:l=>({odun:l*600,tas:l*400,altin:l*500}),time:l=>l*900},
-  hazine:{id:'hazine',cat:'ozel',icon:'🏦',name:'Hazine',bg:'#141000',desc:"Depolama kapasitesi ve yağma koruması.",maxLv:10,lv:3,fx:l=>[{t:'pos',s:`Depo ${l*5000}`},{t:'pos',s:`Koruma %${l*5}`}],cost:l=>({odun:l*300,tas:l*300,metal:l*100,altin:l*100}),time:l=>l*360},
-  istihbarat:{id:'istihbarat',cat:'ozel',icon:'🕵️',name:'İstihbarat',bg:'#001510',desc:"Casusluk başarısı ve slotlar.",maxLv:6,lv:0,fx:l=>[{t:'pos',s:`Casus +${l*10}%`},{t:'pos',s:`${l} casus slotu`}],cost:l=>({altin:l*700,metal:l*300}),time:l=>l*720},
+  oduncu:{id:'oduncu',cat:'uretim',icon:'🌳',name:'Oduncu Kampı',bg:'#0a160a',desc:"Günlük odun üretir.",maxLv:10,lv:3,fx:l=>[{t:'pos',s:`+${l*40} Odun/gün`}],cost:l=>({odun:l*200,tas:l*100,altin:l*50}),time:l=>l*3600},
+  tas_ocagi:{id:'tas_ocagi',cat:'uretim',icon:'🪨',name:'Taş Ocağı',bg:'#16140a',desc:"Taş çıkarır.",maxLv:10,lv:2,fx:l=>[{t:'pos',s:`+${l*30} Taş/gün`}],cost:l=>({odun:l*150,altin:l*80}),time:l=>l*3600},
+  demir_madeni:{id:'demir_madeni',cat:'uretim',icon:'⛓️',name:'Demir Madeni',bg:'#101018',desc:"Ham metal üretir.",maxLv:10,lv:2,fx:l=>[{t:'pos',s:`+${l*25} Metal/gün`}],cost:l=>({odun:l*200,tas:l*150,altin:l*100}),time:l=>l*3600},
+  tarla:{id:'tarla',cat:'uretim',icon:'🌾',name:'Tarla',bg:'#161400',desc:"Buğday üretir.",maxLv:10,lv:5,fx:l=>[{t:'pos',s:`+${l*60} Buğday/gün`},{t:'pos',s:`Açlık -%${l*2}`}],cost:l=>({odun:l*100,altin:l*40}),time:l=>l*3600},
+  balikci:{id:'balikci',cat:'uretim',icon:'🎣',name:'Balıkçı Limanı',bg:'#001616',desc:"Balık üretir. Hasat günü 2x.",maxLv:5,lv:1,fx:l=>[{t:'pos',s:`+${l*20} Balık/gün`},{t:'pos',s:'Hasat: 2x'}],cost:l=>({odun:l*300,tas:l*200,altin:l*120}),time:l=>l*3600},
+  isleme:{id:'isleme',cat:'uretim',icon:'🔩',name:'İşleme Atölyesi',bg:'#141000',desc:"Ham → İşlenmiş ürün dönüştürür.",maxLv:8,lv:2,fx:l=>[{t:'pos',s:`İşleme +${l*10}%`},{t:'pos',s:`Kapasite ${l*500}`}],cost:l=>({odun:l*250,metal:l*150,altin:l*200}),time:l=>l*3600},
+  kisla:{id:'kisla',cat:'askeri',icon:'⚔️',name:'Kışla',bg:'#180a0a',desc:"Piyade ve temel birimleri eğitir.",maxLv:10,lv:3,fx:l=>[{t:'pos',s:`${l} birim tipi`},{t:'pos',s:`Eğitim +${l*8}%`}],cost:l=>({odun:l*300,tas:l*200,metal:l*100,altin:l*150}),time:l=>l*3600},
+  ahar:{id:'ahar',cat:'askeri',icon:'🐴',name:'Ahır',bg:'#161000',desc:"Süvari birliklerini eğitir.",maxLv:8,lv:0,fx:l=>[{t:'pos',s:`Süvari ATK +${l*5}%`},{t:'pos',s:`Hız +${l*3}%`}],cost:l=>({odun:l*400,metal:l*200,altin:l*200}),time:l=>l*3600},
+  surlar:{id:'surlar',cat:'askeri',icon:'🛡️',name:'Surlar',bg:'#0a0a18',desc:"Şehir savunmasını güçlendirir.",maxLv:10,lv:4,fx:l=>[{t:'pos',s:`DEF +${l*12}%`},{t:'pos',s:`Hasar -%${l*3}`}],cost:l=>({tas:l*400,metal:l*200,altin:l*100}),time:l=>l*3600},
+  okcu_kulesi:{id:'okcu_kulesi',cat:'askeri',icon:'🏹',name:'Okçu Kulesi',bg:'#180d00',desc:"Savaşlarda otomatik atış yapar.",maxLv:6,lv:0,fx:l=>[{t:'pos',s:`${l} Okçu/tur`},{t:'pos',s:`ATK ${l*50}`}],cost:l=>({odun:l*500,tas:l*500,metal:l*300,altin:l*300}),time:l=>l*3600},
+  akademi:{id:'akademi',cat:'gelisim',icon:'📚',name:'Akademi',bg:'#0a0a18',desc:"Araştırma ve teknoloji merkezi.",maxLv:8,lv:2,fx:l=>[{t:'pos',s:`Araştırma +${l*10}%`},{t:'pos',s:`${l} teknoloji slotu`}],cost:l=>({odun:l*300,altin:l*300}),time:l=>l*3600},
+  buyucu_kulesi:{id:'buyucu_kulesi',cat:'gelisim',icon:'🔮',name:'Büyücü Kulesi',bg:'#150015',desc:"Büyü slotları ve güç artışı.",maxLv:10,lv:1,fx:l=>[{t:'pos',s:`${l*2} büyü slotu`},{t:'pos',s:`Büyü +${l*5}%`}],cost:l=>({altin:l*500,metal:l*200}),time:l=>l*3600},
+  kutuphane:{id:'kutuphane',cat:'gelisim',icon:'📖',name:'Kütüphane',bg:'#0a1200',desc:"Üretim verimliliği ve araştırma indirgesi.",maxLv:6,lv:0,fx:l=>[{t:'pos',s:`Verimlilik +${l*3}%`},{t:'pos',s:`Araştırma -%${l*5}%`}],cost:l=>({odun:l*400,altin:l*400}),time:l=>l*3600},
+  sehir_meydani:{id:'sehir_meydani',cat:'sosyal',icon:'🏛️',name:'Şehir Meydanı',bg:'#141400',desc:"Moral ve mutluluk merkezi.",maxLv:5,lv:1,fx:l=>[{t:'pos',s:`Moral +${l*5}`},{t:'pos',s:'Etkinlik slotu'}],cost:l=>({odun:l*200,tas:l*200,altin:l*100}),time:l=>l*3600},
+  pazar:{id:'pazar',cat:'sosyal',icon:'💰',name:'Pazar',bg:'#160e00',desc:"Oyuncularla kaynak ticareti.",maxLv:8,lv:2,fx:l=>[{t:'pos',s:`${l*2} ticaret slotu`},{t:'pos',s:`Altın +${l*15}/gün`}],cost:l=>({odun:l*250,altin:l*200}),time:l=>l*3600},
+  guild_binasi:{id:'guild_binasi',cat:'sosyal',icon:'🏰',name:'Guild Binası',bg:'#100018',desc:"Guild kurma ve yönetim merkezi.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`${l*10} üye kapasitesi`},{t:'pos',s:`Guild bonus +${l*5}%`}],cost:l=>({odun:l*600,tas:l*400,altin:l*500}),time:l=>l*3600},
+  hazine:{id:'hazine',cat:'ozel',icon:'🏦',name:'Hazine',bg:'#141000',desc:"Depolama kapasitesi ve yağma koruması.",maxLv:10,lv:3,fx:l=>[{t:'pos',s:`Depo ${l*5000}`},{t:'pos',s:`Koruma %${l*5}`}],cost:l=>({odun:l*300,tas:l*300,metal:l*100,altin:l*100}),time:l=>l*3600},
+  istihbarat:{id:'istihbarat',cat:'ozel',icon:'🕵️',name:'İstihbarat',bg:'#001510',desc:"Casusluk başarısı ve slotlar.",maxLv:6,lv:0,fx:l=>[{t:'pos',s:`Casus +${l*10}%`},{t:'pos',s:`${l} casus slotu`}],cost:l=>({altin:l*700,metal:l*300}),time:l=>l*3600},
 
   /* ── ŞEHİR BİNALARI ── */
-  okul:{id:'okul',cat:'sehir',icon:'🏫',name:'Okul',bg:'#0a1200',desc:"Nüfus eğitimi ve kültür artışı.",maxLv:8,lv:0,fx:l=>[{t:'pos',s:`Eğitim +${l*5}%`},{t:'pos',s:`Nüfus sınırı +${l*50}`}],cost:l=>({odun:l*200,tas:l*100,altin:l*150}),time:l=>l*300},
-  asma_bahceler:{id:'asma_bahceler',cat:'sehir',icon:'🌺',name:'Asma Bahçeler',bg:'#0a1400',desc:"Mutluluk ve moral artışı.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`Mutluluk +${l*8}`},{t:'pos',s:`Moral +${l*4}`}],cost:l=>({odun:l*300,altin:l*200}),time:l=>l*240},
-  muze:{id:'muze',cat:'sehir',icon:'🏛️',name:'Müze',bg:'#140e00',desc:"Kültür puanı ve prestij artışı.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`Kültür +${l*10}%`},{t:'pos',s:`Prestij +${l*20}`}],cost:l=>({odun:l*400,tas:l*400,altin:l*500}),time:l=>l*600},
-  universite:{id:'universite',cat:'sehir',icon:'🎓',name:'Üniversite',bg:'#100a18',desc:"İleri araştırma ve teknoloji hızlanması.",maxLv:6,lv:0,fx:l=>[{t:'pos',s:`Araştırma +${l*15}%`},{t:'pos',s:`Bilim +${l*10}`}],cost:l=>({odun:l*500,tas:l*300,altin:l*600}),time:l=>l*900},
-  tiyatro:{id:'tiyatro',cat:'sehir',icon:'🎭',name:'Tiyatro',bg:'#14000e',desc:"Eğlence ve mutluluk merkezi.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`Mutluluk +${l*6}`},{t:'pos',s:`Eğlence +${l*10}%`}],cost:l=>({odun:l*350,altin:l*300}),time:l=>l*480},
-  arena:{id:'arena',cat:'sehir',icon:'⚔️',name:'Arena',bg:'#180a0a',desc:"Savaş eğitimi ve gladyatör dövüşleri.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`ATK eğitim +${l*5}%`},{t:'pos',s:`Moral +${l*5}`}],cost:l=>({odun:l*400,tas:l*400,metal:l*200,altin:l*400}),time:l=>l*720},
-  uras_tapinagi:{id:'uras_tapinagi',cat:'sehir',icon:'🏯',name:'Uras Tapınağı',bg:'#140014',desc:"Tanrı Uras\u2019a adanm\u0131\u015f. Büyü gücü artırır.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`Büyü +${l*10}%`},{t:'pos',s:`Mana regen +${l*2}`}],cost:l=>({odun:l*600,tas:l*500,altin:l*800}),time:l=>l*1200},
-  ejderha_heykeli:{id:'ejderha_heykeli',cat:'sehir',icon:'🐉',name:'Ejderha Heykeli',bg:'#180a00',desc:"Prestij ve korku aracı. Savunma bonusu.",maxLv:3,lv:0,fx:l=>[{t:'pos',s:`Prestij +${l*50}`},{t:'pos',s:`Savunma korkusu +${l*8}%`}],cost:l=>({odun:l*1000,tas:l*800,metal:l*500,altin:l*1500}),time:l=>l*2400},
+  okul:{id:'okul',cat:'sehir',icon:'🏫',name:'Okul',bg:'#0a1200',desc:"Nüfus eğitimi ve kültür artışı.",maxLv:8,lv:0,fx:l=>[{t:'pos',s:`Eğitim +${l*5}%`},{t:'pos',s:`Nüfus sınırı +${l*50}`}],cost:l=>({odun:l*200,tas:l*100,altin:l*150}),time:l=>l*3600},
+  asma_bahceler:{id:'asma_bahceler',cat:'sehir',icon:'🌺',name:'Asma Bahçeler',bg:'#0a1400',desc:"Mutluluk ve moral artışı.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`Mutluluk +${l*8}`},{t:'pos',s:`Moral +${l*4}`}],cost:l=>({odun:l*300,altin:l*200}),time:l=>l*3600},
+  muze:{id:'muze',cat:'sehir',icon:'🏛️',name:'Müze',bg:'#140e00',desc:"Kültür puanı ve prestij artışı.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`Kültür +${l*10}%`},{t:'pos',s:`Prestij +${l*20}`}],cost:l=>({odun:l*400,tas:l*400,altin:l*500}),time:l=>l*3600},
+  universite:{id:'universite',cat:'sehir',icon:'🎓',name:'Üniversite',bg:'#100a18',desc:"İleri araştırma ve teknoloji hızlanması.",maxLv:6,lv:0,fx:l=>[{t:'pos',s:`Araştırma +${l*15}%`},{t:'pos',s:`Bilim +${l*10}`}],cost:l=>({odun:l*500,tas:l*300,altin:l*600}),time:l=>l*3600},
+  tiyatro:{id:'tiyatro',cat:'sehir',icon:'🎭',name:'Tiyatro',bg:'#14000e',desc:"Eğlence ve mutluluk merkezi.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`Mutluluk +${l*6}`},{t:'pos',s:`Eğlence +${l*10}%`}],cost:l=>({odun:l*350,altin:l*300}),time:l=>l*3600},
+  arena:{id:'arena',cat:'sehir',icon:'⚔️',name:'Arena',bg:'#180a0a',desc:"Savaş eğitimi ve gladyatör dövüşleri.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`ATK eğitim +${l*5}%`},{t:'pos',s:`Moral +${l*5}`}],cost:l=>({odun:l*400,tas:l*400,metal:l*200,altin:l*400}),time:l=>l*3600},
+  uras_tapinagi:{id:'uras_tapinagi',cat:'sehir',icon:'🏯',name:'Uras Tapınağı',bg:'#140014',desc:"Tanrı Uras\u2019a adanm\u0131\u015f. Büyü gücü artırır.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`Büyü +${l*10}%`},{t:'pos',s:`Mana regen +${l*2}`}],cost:l=>({odun:l*600,tas:l*500,altin:l*800}),time:l=>l*3600},
+  ejderha_heykeli:{id:'ejderha_heykeli',cat:'sehir',icon:'🐉',name:'Ejderha Heykeli',bg:'#180a00',desc:"Prestij ve korku aracı. Savunma bonusu.",maxLv:3,lv:0,fx:l=>[{t:'pos',s:`Prestij +${l*50}`},{t:'pos',s:`Savunma korkusu +${l*8}%`}],cost:l=>({odun:l*1000,tas:l*800,metal:l*500,altin:l*1500}),time:l=>l*3600},
 
   /* ── ASKERİ TAPINAKLAR ── */
-  rathe_tapinagi:{id:'rathe_tapinagi',cat:'askeri',icon:'⚔️',name:'Rathe Tapınağı',bg:'#180000',desc:"Savaş tanrısı Rathe'ye adanmış. ATK artışı.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`ATK +${l*8}%`},{t:'pos',s:`Savaşçı eğitim -%${l*5}`}],cost:l=>({odun:l*500,metal:l*400,altin:l*600}),time:l=>l*1000},
-  xegony_tapinagi:{id:'xegony_tapinagi',cat:'askeri',icon:'💫',name:'Xegony Tapınağı',bg:'#000018',desc:"Büyü savaşı tapınağı. Büyücü gücü artırır.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`Büyü ATK +${l*10}%`},{t:'pos',s:`Mana +${l*20}`}],cost:l=>({metal:l*300,altin:l*800}),time:l=>l*1200},
-  fennin_tapinagi:{id:'fennin_tapinagi',cat:'askeri',icon:'🔥',name:'Fennin Ro Tapınağı',bg:'#180800',desc:"Ateş ve büyü tanrısına adanmış.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`Ateş büyüsü +${l*12}%`},{t:'pos',s:`Hasar +${l*6}%`}],cost:l=>({metal:l*400,altin:l*700}),time:l=>l*1100},
-  tunare_tapinagi:{id:'tunare_tapinagi',cat:'askeri',icon:'🌿',name:'Tunare Tapınağı',bg:'#001800',desc:"Doğa tanrıçasına adanmış. Savunma güçlendirir.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`DEF +${l*8}%`},{t:'pos',s:`İyileştirme +${l*5}%`}],cost:l=>({odun:l*600,altin:l*500}),time:l=>l*1000},
-  mizrak_kulesi:{id:'mizrak_kulesi',cat:'askeri',icon:'🗼',name:'Mızrak Kulesi',bg:'#120a00',desc:"Savunma burcu. Saldıranlara hasar verir.",maxLv:8,lv:0,fx:l=>[{t:'pos',s:`${l*3} Mızrakçı/tur`},{t:'pos',s:`DEF +${l*30}`}],cost:l=>({odun:l*400,tas:l*600,metal:l*200,altin:l*200}),time:l=>l*800},
-  rahip_tapinagi:{id:'rahip_tapinagi',cat:'askeri',icon:'⛪',name:'Rahip Tapınağı',bg:'#0a0a14',desc:"Worshipper üretim merkezi. Büyü savaşı için.",maxLv:8,lv:0,fx:l=>[{t:'pos',s:`Worshipper +${l*250} kapasite`},{t:'pos',s:`Mana regen +${l*5}`}],cost:l=>({odun:l*300,tas:l*200,altin:l*400}),time:l=>l*600},
-  balista_kulesi:{id:'balista_kulesi',cat:'askeri',icon:'🏹',name:'Balista Kulesi',bg:'#180800',desc:"Uzun menzilli savunma. Büyük hasar.",maxLv:6,lv:0,fx:l=>[{t:'pos',s:`${l} Balista/tur`},{t:'pos',s:`Menzil hasar +${l*80}`}],cost:l=>({odun:l*600,metal:l*500,altin:l*400}),time:l=>l*1200},
-  buyulu_tarlalar:{id:'buyulu_tarlalar',cat:'askeri',icon:'✨',name:'Büyülü Tarlalar',bg:'#0a0014',desc:"Büyü enerjisi toplar. Mana pasif üretir.",maxLv:6,lv:0,fx:l=>[{t:'pos',s:`+${l*10} Mana/gün`},{t:'pos',s:`Büyü gücü +${l*3}%`}],cost:l=>({odun:l*200,altin:l*500}),time:l=>l*480},
-  magara:{id:'magara',cat:'askeri',icon:'🕳️',name:'Mağara',bg:'#080808',desc:"Gizli depo ve casus barınağı.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`Gizlilik +${l*10}%`},{t:'pos',s:`Casus kapasite +${l*5}`}],cost:l=>({odun:l*100,tas:l*300,altin:l*200}),time:l=>l*400},
+  rathe_tapinagi:{id:'rathe_tapinagi',cat:'askeri',icon:'⚔️',name:'Rathe Tapınağı',bg:'#180000',desc:"Savaş tanrısı Rathe'ye adanmış. ATK artışı.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`ATK +${l*8}%`},{t:'pos',s:`Savaşçı eğitim -%${l*5}`}],cost:l=>({odun:l*500,metal:l*400,altin:l*600}),time:l=>l*3600},
+  xegony_tapinagi:{id:'xegony_tapinagi',cat:'askeri',icon:'💫',name:'Xegony Tapınağı',bg:'#000018',desc:"Büyü savaşı tapınağı. Büyücü gücü artırır.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`Büyü ATK +${l*10}%`},{t:'pos',s:`Mana +${l*20}`}],cost:l=>({metal:l*300,altin:l*800}),time:l=>l*3600},
+  fennin_tapinagi:{id:'fennin_tapinagi',cat:'askeri',icon:'🔥',name:'Fennin Ro Tapınağı',bg:'#180800',desc:"Ateş ve büyü tanrısına adanmış.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`Ateş büyüsü +${l*12}%`},{t:'pos',s:`Hasar +${l*6}%`}],cost:l=>({metal:l*400,altin:l*700}),time:l=>l*3600},
+  tunare_tapinagi:{id:'tunare_tapinagi',cat:'askeri',icon:'🌿',name:'Tunare Tapınağı',bg:'#001800',desc:"Doğa tanrıçasına adanmış. Savunma güçlendirir.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`DEF +${l*8}%`},{t:'pos',s:`İyileştirme +${l*5}%`}],cost:l=>({odun:l*600,altin:l*500}),time:l=>l*3600},
+  mizrak_kulesi:{id:'mizrak_kulesi',cat:'askeri',icon:'🗼',name:'Mızrak Kulesi',bg:'#120a00',desc:"Savunma burcu. Saldıranlara hasar verir.",maxLv:8,lv:0,fx:l=>[{t:'pos',s:`${l*3} Mızrakçı/tur`},{t:'pos',s:`DEF +${l*30}`}],cost:l=>({odun:l*400,tas:l*600,metal:l*200,altin:l*200}),time:l=>l*3600},
+  rahip_tapinagi:{id:'rahip_tapinagi',cat:'askeri',icon:'⛪',name:'Rahip Tapınağı',bg:'#0a0a14',desc:"Worshipper üretim merkezi. Büyü savaşı için.",maxLv:8,lv:0,fx:l=>[{t:'pos',s:`Worshipper +${l*250} kapasite`},{t:'pos',s:`Mana regen +${l*5}`}],cost:l=>({odun:l*300,tas:l*200,altin:l*400}),time:l=>l*3600},
+  balista_kulesi:{id:'balista_kulesi',cat:'askeri',icon:'🏹',name:'Balista Kulesi',bg:'#180800',desc:"Uzun menzilli savunma. Büyük hasar.",maxLv:6,lv:0,fx:l=>[{t:'pos',s:`${l} Balista/tur`},{t:'pos',s:`Menzil hasar +${l*80}`}],cost:l=>({odun:l*600,metal:l*500,altin:l*400}),time:l=>l*3600},
+  buyulu_tarlalar:{id:'buyulu_tarlalar',cat:'askeri',icon:'✨',name:'Büyülü Tarlalar',bg:'#0a0014',desc:"Büyü enerjisi toplar. Mana pasif üretir.",maxLv:6,lv:0,fx:l=>[{t:'pos',s:`+${l*10} Mana/gün`},{t:'pos',s:`Büyü gücü +${l*3}%`}],cost:l=>({odun:l*200,altin:l*500}),time:l=>l*3600},
+  magara:{id:'magara',cat:'askeri',icon:'🕳️',name:'Mağara',bg:'#080808',desc:"Gizli depo ve casus barınağı.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`Gizlilik +${l*10}%`},{t:'pos',s:`Casus kapasite +${l*5}`}],cost:l=>({odun:l*100,tas:l*300,altin:l*200}),time:l=>l*3600},
 
   /* ── EĞLENCe ── */
-  palantis_hani:{id:'palantis_hani',cat:'sosyal',icon:'🍺',name:'Palantis Hanı',bg:'#160e00',desc:"Böcek dövüşleri ve eğlence. Moral artırır.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`Moral +${l*5}`},{t:'pos',s:`Gelir +${l*10} altın/gün`}],cost:l=>({odun:l*250,altin:l*200}),time:l=>l*300},
-  taverna:{id:'taverna',cat:'sosyal',icon:'🎪',name:'Taverna (RP)',bg:'#14000a',desc:"Role-play alanı. Oyuncu etkileşimi.",maxLv:3,lv:0,fx:l=>[{t:'pos',s:`Prestij +${l*10}`},{t:'pos',s:`Sosyal bonus +${l*5}%`}],cost:l=>({odun:l*200,altin:l*150}),time:l=>l*240},
+  palantis_hani:{id:'palantis_hani',cat:'sosyal',icon:'🍺',name:'Palantis Hanı',bg:'#160e00',desc:"Böcek dövüşleri ve eğlence. Moral artırır.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`Moral +${l*5}`},{t:'pos',s:`Gelir +${l*10} altın/gün`}],cost:l=>({odun:l*250,altin:l*200}),time:l=>l*3600},
+  taverna:{id:'taverna',cat:'sosyal',icon:'🎪',name:'Taverna (RP)',bg:'#14000a',desc:"Role-play alanı. Oyuncu etkileşimi.",maxLv:3,lv:0,fx:l=>[{t:'pos',s:`Prestij +${l*10}`},{t:'pos',s:`Sosyal bonus +${l*5}%`}],cost:l=>({odun:l*200,altin:l*150}),time:l=>l*3600},
 
   /* ═══ YENİ ASKERİ BİNALAR ═══ */
-  ahir:{id:'ahir',cat:'askeri',icon:'🐴',name:'Ahır / Hara',bg:'#0d1200',desc:"At (Aydınlık) veya Kurt (Karanlık) üretir. Her bina saatte 5 adet üretir. At/Kurt buğday tüketir.",maxLv:10,lv:0,fx:l=>[{t:'pos',s:`${l*5} At-Kurt/saat`},{t:'neg',s:`Buğday tüketir`}],cost:l=>({odun:l*300,metal:l*100,altin:l*500}),time:l=>l*180},
+  ahir:{id:'ahir',cat:'askeri',icon:'🐴',name:'Ahır / Hara',bg:'#0d1200',desc:"At (Aydınlık) veya Kurt (Karanlık) üretir. Her bina günde 5 adet üretir. At/Kurt buğday tüketir.",maxLv:10,lv:0,fx:l=>[{t:'pos',s:`${l*5} At-Kurt/gün`},{t:'neg',s:`Buğday tüketir`}],cost:l=>({odun:l*300,metal:l*100,altin:l*500}),time:l=>l*3600},
 
-  lonca:{id:'lonca',cat:'askeri',icon:'🎯',name:'Lonca',bg:'#0a0014',desc:"Gizlilik Puanı üretir. Her lonca saatte 0.1 gizlilik üretir.",maxLv:10,lv:0,fx:l=>[{t:'pos',s:`${(l*0.1).toFixed(1)} Gizlilik/saat`}],cost:l=>({odun:l*200,metal:l*150,altin:l*400}),time:l=>l*240},
+  lonca:{id:'lonca',cat:'askeri',icon:'🎯',name:'Lonca',bg:'#0a0014',desc:"Gizlilik Puanı üretir. Her lonca günde 0.1 gizlilik üretir.",maxLv:10,lv:0,fx:l=>[{t:'pos',s:`${(l*0.1).toFixed(1)} Gizlilik/gün`}],cost:l=>({odun:l*200,metal:l*150,altin:l*400}),time:l=>l*3600},
 
-  buyulu_tarla:{id:'buyulu_tarla',cat:'askeri',icon:'🥚',name:'Büyülü Tarla',bg:'#140014',desc:"Büyülü Yumurta üretir. Her tarla saatte 0.1 yumurta üretir.",maxLv:100,lv:0,fx:l=>[{t:'pos',s:`${(l*0.1).toFixed(1)} B.Yumurta/saat`}],cost:l=>({odun:l*100,altin:l*300}),time:l=>l*120},
+  buyulu_tarla:{id:'buyulu_tarla',cat:'askeri',icon:'🥚',name:'Büyülü Tarla',bg:'#140014',desc:"Büyülü Yumurta üretir. Her tarla günde 0.1 yumurta üretir.",maxLv:100,lv:0,fx:l=>[{t:'pos',s:`${(l*0.1).toFixed(1)} B.Yumurta/gün`}],cost:l=>({odun:l*100,altin:l*300}),time:l=>l*3600},
 
-  magara:{id:'magara',cat:'askeri',icon:'🐲',name:'Mağara',bg:'#1a0000',desc:"Ejderha çıkma şansı verir. Her mağara %0.01 şans ekler. Mağara yoksa ejderha çıkamaz.",maxLv:10,lv:0,fx:l=>[{t:'pos',s:`Ejderha şansı %${(l*0.01).toFixed(2)}`}],cost:l=>({tas:l*500,metal:l*300,altin:l*1000}),time:l=>l*600},
+  magara:{id:'magara',cat:'askeri',icon:'🐲',name:'Mağara',bg:'#1a0000',desc:"Ejderha çıkma şansı verir. Her mağara %0.01 şans ekler. Mağara yoksa ejderha çıkamaz.",maxLv:10,lv:0,fx:l=>[{t:'pos',s:`Ejderha şansı %${(l*0.01).toFixed(2)}`}],cost:l=>({tas:l*500,metal:l*300,altin:l*1000}),time:l=>l*3600},
 
-  demirci:{id:'demirci',cat:'uretim',icon:'🔨',name:'Demirci',bg:'#1a0a00',desc:"Metal'i İşlenmiş Metal'e dönüştürür.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`${l*2} İşl.Metal/saat`}],cost:l=>({odun:l*150,metal:l*200,altin:l*300}),time:l=>l*200},
+  demirci:{id:'demirci',cat:'uretim',icon:'🔨',name:'Demirci',bg:'#1a0a00',desc:"Metal'i İşlenmiş Metal'e dönüştürür.",maxLv:5,lv:0,fx:l=>[{t:'pos',s:`${l*2} İşl.Metal/gün`}],cost:l=>({odun:l*150,metal:l*200,altin:l*300}),time:l=>l*3600},
+
+  ocak:{id:'ocak',cat:'uretim',icon:'🔥',name:'Ocak',bg:'#1a0800',desc:"Çiğ eti pişirir. Her gün adet×15 çiğ et → pişmiş ete dönüştürür. 10 ocak → 1 fırın birleştirilebilir.",maxLv:999,lv:0,fx:l=>[{t:'pos',s:`${l*15} Pişmiş Et/gün`},{t:'neg',s:`${l*15} Çiğ Et tüketir`}],cost:l=>({odun:200,tas:100,altin:150}),time:l=>3600},
+
+  /* ── KONUT BİNALARI ── */
+  ev:{id:'ev',cat:'sehir',icon:'🏠',name:'Ev',bg:'#141414',desc:"Nüfus sınırını artırır. 10 ev → 1 köy birleştirilebilir. Her ev 1 alan kaplar.",maxLv:999,lv:0,fx:l=>[{t:'pos',s:`+50 Nüfus sınırı/ev`}],cost:l=>({odun:100,tas:50,altin:20}),time:l=>3600},
+  koy:{id:'koy',cat:'sehir',icon:'🏘️',name:'Köy',bg:'#1a1200',desc:"10 ev birleştirince oluşur. 5 alan kaplar. +500 nüfus sınırı.",maxLv:999,lv:0,mergeOnly:true,fx:l=>[{t:'pos',s:`+500 Nüfus sınırı/köy`}],cost:l=>({}),time:l=>0},
+  kasaba:{id:'kasaba',cat:'sehir',icon:'🏙️',name:'Kasaba',bg:'#1a1600',desc:"10 köy birleştirince oluşur. 25 alan kaplar. +5000 nüfus sınırı.",maxLv:999,lv:0,mergeOnly:true,fx:l=>[{t:'pos',s:`+5000 Nüfus sınırı/kasaba`}],cost:l=>({}),time:l=>0},
+
+  /* ── BİRLEŞİK ÜRETİM ── */
+  firin:{id:'firin',cat:'uretim',icon:'🍞',name:'Fırın',bg:'#1a0a00',desc:"10 ocak birleştirince oluşur. 5 alan kaplar. Buğday→Ekmek ve Balık→Pişmiş Balık dönüştürür.",maxLv:999,lv:0,mergeOnly:true,fx:l=>[{t:'pos',s:`${l*20} Ekmek/gün`},{t:'neg',s:`${l*20} Buğday tüketir`}],cost:l=>({}),time:l=>0},
 };
 
-const RES={odun:2400,metal:1850,bugday:3200,balik:640,tas:1100,altin:5840,kereste:820,islenmis:310,ekmek:920,pismis:180};
-const RICONS={odun:'🌳',metal:'⛓️',bugday:'🌾',balik:'🎣',tas:'🪨',altin:'💰',kereste:'🪵',islenmis:'🔩',ekmek:'🍞',pismis:'🍳',mana:'🔮',at:'🐴',kurt:'🐺',gizlilik:'🎯',buyulu_yumurta:'🥚',cig_et:'🥩'};
+// Bina alan maliyetleri (frontend mirror of BINA_ALAN backend)
+const BINA_ALAN_FE = { koy: 5, kasaba: 25, firin: 5 };
+function binaAlanFE(id) { return BINA_ALAN_FE[id] || 1; }
+
+// Bina birleştirme kuralları (frontend mirror of BINA_BIRLESTIRME backend)
+const BINA_BIRLESTIRME_FE = {
+  koy:    { source: 'ev',   miktar: 10 },
+  kasaba: { source: 'koy',  miktar: 10 },
+  firin:  { source: 'ocak', miktar: 10 },
+};
+
+const RES={odun:2400,metal:1850,bugday:3200,balik:640,tas:1100,altin:5840,kereste:820,islenmis:310,ekmek:920,pismis:180,cig_et:0,pismis_et:0};
+const RICONS={odun:'🌳',metal:'⛓️',bugday:'🌾',balik:'🎣',tas:'🪨',altin:'💰',kereste:'🪵',islenmis:'🔩',ekmek:'🍞',pismis:'🍳',cig_et:'🥩',pismis_et:'🍖',mana:'🔮',at:'🐴',kurt:'🐺',gizlilik:'🎯',buyulu_yumurta:'🥚'};
 const canAfford=cost=>Object.entries(cost).every(([r,a])=>(RES[r]||0)>=a);
 const spendCost=cost=>Object.entries(cost).forEach(([r,a])=>{RES[r]=(RES[r]||0)-a;});
-const fmtT=sec=>sec<60?`${sec}sn`:sec<3600?`${Math.floor(sec/60)}dk ${sec%60}sn`:`${Math.floor(sec/3600)}sa ${Math.floor((sec%3600)/60)}dk`;
+// 1 Palantis günü = 3600 saniye = 1 gerçek saat
+const fmtT=sec=>{
+  const gun=sec/3600;
+  if(gun>=1) return `${gun.toFixed(1)} P.G.`;
+  if(gun>=0.1) return `${gun.toFixed(2)} P.G.`;
+  return `${gun.toFixed(3)} P.G.`;
+};
 
 const QUEUE=[];
 let activeCat='all';
@@ -1964,28 +2041,45 @@ function renderGrid(){
   grid.innerHTML='';
   list.forEach(b=>{
     const inC=inQ.has(b.id);
-    const isMax=b.lv>=b.maxLv;
-    // Her zaman sabit maliyet (1. seviye maliyeti) kullan — seviye yok, tekrar inşa var
-    const cost=b.cost(1);
-    const afford=canAfford(cost);
-    const pct=isMax?100:(b.lv/b.maxLv*100);
-    const barC=isMax?'#f1c40f':b.lv<4?'#e74c3c':b.lv<7?'#e67e22':'#2ecc71';
+    const isMergeOnly=!!b.mergeOnly;
+    const cost=isMergeOnly?{}:b.cost(1);
+    const afford=!isMergeOnly&&canAfford(cost);
     const fx=b.fx(b.lv>0?b.lv:1).map(e=>`<span class="etag ${e.t==='pos'?'pos':'neg'}">${e.s}</span>`).join('');
-    const costH=Object.entries(cost).map(([r,a])=>`<span class="citem ${(RES[r]||0)>=a?'ok':'no'}">${RICONS[r]||'📦'} ${a.toLocaleString()}</span>`).join('');
+    // Maliyet: yetersiz kaynaklar kırmızı, yeterli yeşil
+    const costH=Object.entries(cost).map(([r,a])=>{
+      const have=RES[r]||0;
+      return `<span class="citem ${have>=a?'ok':'no'}">${RICONS[r]||'📦'} ${a.toLocaleString()} <small style="color:#555">(${have.toLocaleString()})</small></span>`;
+    }).join('');
+    // Süre: sabit 1 P.G.
+    const surePG=isMergeOnly?0:1;
+    // Ana aksiyon butonu
     let action;
-    if(inC) action=`<span style="color:#2ecc71;font-size:12px;font-family:'Cinzel',serif">🔨 İnşa Ediliyor...</span>`;
-    else if(isMax) action=`<span class="maxbadge">⭐ MAKSİMUM</span>`;
-    else action=`<button class="btn-sm" ${afford?'':'disabled'} onclick="openModal('${b.id}')">🏗️ İNŞA ET</button>`;
+    if(inC) action=`<span style="color:#2ecc71;font-size:11px;font-family:'Cinzel',serif">🔨 İnşada</span>`;
+    else if(isMergeOnly) action=`<span style="color:#888;font-size:10px">🔗 Birleştirme ile oluşur</span>`;
+    else action=`<button class="btn-sm" ${afford?'':'disabled'} onclick="openModal('${b.id}')">🏗️ İNŞA</button>`;
+    // Birleştirme butonu (bu bina birleştirme hedefiyse)
+    const mergeKural=BINA_BIRLESTIRME_FE[b.id];
+    let mergeBtn='';
+    if(mergeKural){
+      const srcAdet=BLDGS[mergeKural.source]?.lv||0;
+      const canMerge=srcAdet>=mergeKural.miktar;
+      mergeBtn=`<button class="btn-sm" ${canMerge?'':'disabled'} onclick="mergeBina('${b.id}')" style="margin-top:4px;font-size:10px">🔗 BİRLEŞTİR (${srcAdet}/${mergeKural.miktar} ${mergeKural.source})</button>`;
+    }
+
     const d=document.createElement('div');
-    d.className=`bcard${inC?' building':''}${b.lv===0&&!inC?' locked':''}`;
+    d.className=`brow${inC?' building':''}${b.lv===0&&!inC?' locked':''}`;
     d.innerHTML=`
-      ${b.lv===0&&!inC?`<div class="lockbadge">🔒 İnşa Et</div>`:''}
-      <div class="bhead"><div class="bico" style="background:${b.bg}">${b.icon}</div><div><div class="bname">${b.name}</div><div class="bdesc">${b.desc}</div></div></div>
-      <div class="blevel"><div class="blevel-top"><span class="blv-lbl">ADET</span><span class="blv-val">${b.lv}/${b.maxLv}</span></div><div class="bbar"><div class="bbar-fill" style="width:${pct}%;background:${barC}"></div></div></div>
-      <div class="beffects">${fx}</div>
-      ${!isMax&&!inC?`<div class="bcost"><div class="cost-lbl">İNŞAAT MALİYETİ</div><div class="cost-row">${costH}</div></div>`:''}
-      <div class="bactions">${action}${!isMax&&!inC?`<span class="btime">⏱ ${fmtT(b.time(1))}</span>`:''}</div>
-      ${inC?`<div class="bprog"><div class="bprog-top"><span>${b.name} inşa ediliyor</span><span id="bpct-${b.id}">—</span></div><div class="bprog-track"><div class="bprog-fill" id="bfill-${b.id}" style="width:0%"></div></div></div>`:''}
+      <div class="br-ico" style="background:${b.bg}">${b.icon}</div>
+      <div class="br-main">
+        <div class="br-name">${b.name} ${b.lv>0?`<span style="color:#2ecc71;font-size:10px">${b.lv} adet</span>`:''}</div>
+        <div class="br-desc">${b.desc}</div>
+      </div>
+      <div class="br-lv">${b.lv} adet</div>
+      <div class="br-fx">${fx}</div>
+      ${!isMergeOnly&&!inC?`<div class="br-cost">${costH}</div>`:'<div class="br-cost"></div>'}
+      ${!isMergeOnly&&!inC?`<div class="br-time">⏱ ${surePG.toFixed(1)} P.G.</div>`:'<div class="br-time"></div>'}
+      <div class="br-act">${action}${mergeBtn}</div>
+      ${inC?`<div class="br-building-lbl">🔨 İnşa ediliyor... <span id="bpct-${b.id}">—</span></div><div class="br-prog"><div class="br-prog-fill" id="bfill-${b.id}" style="width:0%"></div></div>`:''}
     `;
     grid.appendChild(d);
   });
@@ -2030,10 +2124,10 @@ function finishBuild(q){
   QUEUE.splice(idx,1);
 
   // Backend'de bina seviyesini güncelle
-  completeBuildingOnBackend(q.id, q.targetLv);
+  completeBuildingOnBackend(q.id);
 
-  // Alan sayacını güncelle
-  const usedArea = Object.values(BLDGS).reduce((s,bl)=>s+bl.lv,0);
+  // Alan sayacını güncelle (ağırlıklı)
+  const usedArea = Object.values(BLDGS).reduce((s,bl)=>s+bl.lv*binaAlanFE(bl.id),0);
   setText('hud-used', usedArea);
   updateCityStats();
 
@@ -2045,8 +2139,9 @@ function updateCityStats(){
   const active=Object.values(BLDGS).filter(b=>b.lv>0).length;
   const e1=document.getElementById('cs-active');if(e1)e1.innerText=active;
   const e2=document.getElementById('cs-constr');if(e2)e2.innerText=QUEUE.length;
-  // HUD alan göstergesini de senkronize et
-  setText('hud-used', active);
+  // HUD alan göstergesini de senkronize et (ağırlıklı alan)
+  const usedArea=Object.values(BLDGS).reduce((s,b)=>s+b.lv*binaAlanFE(b.id),0);
+  setText('hud-used', usedArea);
 }
 
 function setFilter(cat,el){
@@ -2125,12 +2220,11 @@ async function confirmBuild(){
       return;
     }
 
-    // 2. Bina inşaatını backend'e kaydet
-    const sureSaniye = b.time(1);
+    // 2. Bina inşaatını backend'e kaydet (sabit 1 P.G. süre)
     await fetch(API_BASE + '/api/game/buildings/upgrade', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ binaId: b.id, hedefSeviye: nLv, sureSaniye })
+      body: JSON.stringify({ binaId: b.id })
     });
   } catch(e) {
     // Backend'e ulaşılamazsa lokal düş
@@ -2143,8 +2237,8 @@ async function confirmBuild(){
 
   QUEUE.push({id:b.id,targetLv:nLv,start:Date.now(),dur:b.time(1)*1000});
 
-  // Alan sayacını artır
-  const usedArea = Object.values(BLDGS).reduce((s,bl)=>s+bl.lv,0) + 1; // +1 çünkü henüz lv artmadı
+  // Alan sayacını artır (ağırlıklı, +binaAlan çünkü henüz lv artmadı)
+  const usedArea = Object.values(BLDGS).reduce((s,bl)=>s+bl.lv*binaAlanFE(bl.id),0) + binaAlanFE(b.id);
   setText('hud-used', usedArea);
 
   closeModal();renderGrid();renderQueue();
@@ -2213,7 +2307,7 @@ function realDef(unitId) {
 
 const UNITS = {
   /* ═══════════ AYDINLIK ═══════════ */
-  piyade:{id:'piyade',side:'light',icon:'🗡️',name:'Piyade',role:'Hafif Piyade',tier:1,
+  piyade:{id:'piyade',side:'light',icon:'🗡️',name:'Piyade',role:'Hafif Piyade',tier:1,trainDays:1,
     baseAtk:2,baseDef:10,maas:20,
     atkGelArtis:0.5,defGelArtis:0.5,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[4,5,6],
@@ -2223,7 +2317,7 @@ const UNITS = {
     trainTime:60,maxCount:99999,count:0,
     desc:"Temel piyade. Ucuz, hızlı üretilir. 4-5-6. turlarda savaşır."},
 
-  baltaci:{id:'baltaci',side:'light',icon:'🪓',name:'Baltacı',role:'Hafif Saldırgan',tier:1,
+  baltaci:{id:'baltaci',side:'light',icon:'🪓',name:'Baltacı',role:'Hafif Saldırgan',tier:1,trainDays:1,
     baseAtk:2,baseDef:7,maas:15,
     atkGelArtis:0.5,defGelArtis:0.5,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[4,5,6],
@@ -2233,7 +2327,7 @@ const UNITS = {
     trainTime:90,maxCount:99999,count:0,
     desc:"Ucuz saldırı birimi. 4-5-6. turlarda savaşır."},
 
-  okcu:{id:'okcu',side:'light',icon:'🏹',name:'Okçu',role:'Menzilli',tier:1,
+  okcu:{id:'okcu',side:'light',icon:'🏹',name:'Okçu',role:'Menzilli',tier:1,trainDays:1,
     baseAtk:5,baseDef:12,maas:28,
     atkGelArtis:0.5,defGelArtis:0.5,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[1,2,3],
@@ -2243,7 +2337,7 @@ const UNITS = {
     trainTime:120,maxCount:99999,count:0,
     desc:"Menzilli saldırı. 1-2-3. turlarda savaşır."},
 
-  savasci:{id:'savasci',side:'light',icon:'⚔️',name:'Savaşçı',role:'Ağır Piyade',tier:2,
+  savasci:{id:'savasci',side:'light',icon:'⚔️',name:'Savaşçı',role:'Ağır Piyade',tier:2,trainDays:2,
     baseAtk:6,baseDef:18,maas:32,
     atkGelArtis:0.5,defGelArtis:1,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[2,3,4,5,6],
@@ -2253,7 +2347,7 @@ const UNITS = {
     trainTime:180,maxCount:99999,count:0,
     desc:"Dengeli saldırı ve savunma. 2-3-4-5-6. turlarda savaşır."},
 
-  sovalye:{id:'sovalye',side:'light',icon:'🛡️',name:'Şovalye',role:'Zırhlı Tank',tier:2,
+  sovalye:{id:'sovalye',side:'light',icon:'🛡️',name:'Şovalye',role:'Zırhlı Tank',tier:2,trainDays:2,
     baseAtk:6,baseDef:22,maas:35,
     atkGelArtis:1,defGelArtis:1,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[3,4,5,6],
@@ -2263,7 +2357,7 @@ const UNITS = {
     trainTime:240,maxCount:99999,count:0,
     desc:"Ağır zırhlı savunma birimi. 3-4-5-6. turlarda savaşır."},
 
-  suvari:{id:'suvari',side:'light',icon:'🐴',name:'Süvari',role:'Atlı Saldırı',tier:2,
+  suvari:{id:'suvari',side:'light',icon:'🐴',name:'Süvari',role:'Atlı Saldırı',tier:2,trainDays:2,
     baseAtk:8,baseDef:26,maas:40,
     atkGelArtis:1,defGelArtis:1,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[3,4,5,6],
@@ -2273,7 +2367,7 @@ const UNITS = {
     trainTime:300,maxCount:99999,count:0,
     desc:"Atlı saldırı birimi. 1 At gerektirir. 3-4-5-6. turlarda savaşır."},
 
-  paladin:{id:'paladin',side:'light',icon:'✨',name:'Paladin',role:'Kutsal Savaşçı',tier:3,
+  paladin:{id:'paladin',side:'light',icon:'✨',name:'Paladin',role:'Kutsal Savaşçı',tier:3,trainDays:3,
     baseAtk:9,baseDef:33,maas:52,
     atkGelArtis:1,defGelArtis:2,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[3,4,5,6],
@@ -2283,7 +2377,7 @@ const UNITS = {
     trainTime:480,maxCount:99999,count:0,
     desc:"Aydınlığın elit savaşçısı. 1 At gerektirir. 3-4-5-6. turlarda savaşır."},
 
-  kolcu:{id:'kolcu',side:'light',icon:'🎯',name:'Kolcu',role:'Gizli Elit',tier:2,
+  kolcu:{id:'kolcu',side:'light',icon:'🎯',name:'Kolcu',role:'Gizli Elit',tier:2,trainDays:2,
     baseAtk:10,baseDef:30,maas:76,
     atkGelArtis:1,defGelArtis:2,atkGelMax:10,defGelMax:10,
     saldiriCarpan:2, savasTurlari:[2,3,4,5,6],
@@ -2293,7 +2387,7 @@ const UNITS = {
     trainTime:300,maxCount:99999,count:0,
     desc:"Her saldırısı x2 ile çarpılır. 1 Gizlilik Puanı gerektirir. 2-3-4-5-6. turlarda."},
 
-  buyucu:{id:'buyucu',side:'light',icon:'🔮',name:'Büyücü',role:'Büyü Saldırısı',tier:3,
+  buyucu:{id:'buyucu',side:'light',icon:'🔮',name:'Büyücü',role:'Büyü Saldırısı',tier:3,trainDays:3,
     baseAtk:11,baseDef:18,maas:120,
     atkGelArtis:1,defGelArtis:1,atkGelMax:10,defGelMax:10,
     saldiriCarpan:2, savasTurlari:[1,2,3],
@@ -2303,7 +2397,7 @@ const UNITS = {
     trainTime:600,maxCount:99999,count:0,
     desc:"Büyü saldırısı. Her saldırı x2. 5 Mana gerektirir. 1-2-3. turlarda."},
 
-  isin_savasci:{id:'isin_savasci',side:'light',icon:'⚡',name:'Işığın Savaşçısı',role:'Efsanevi',tier:3,
+  isin_savasci:{id:'isin_savasci',side:'light',icon:'⚡',name:'Işığın Savaşçısı',role:'Efsanevi',tier:3,trainDays:3,
     baseAtk:40,baseDef:100,maas:250,
     atkGelArtis:2,defGelArtis:2,atkGelMax:10,defGelMax:10,
     saldiriCarpan:3, savasTurlari:[1,2,3,4,5],
@@ -2333,7 +2427,7 @@ const UNITS = {
     desc:"Mağaradan çok nadir çıkar. Üretilemez. Her turda savaşır."},
 
   /* ═══════════ KARANLIK ═══════════ */
-  iskelet:{id:'iskelet',side:'dark',icon:'💀',name:'İskelet',role:'Hafif Piyade',tier:1,
+  iskelet:{id:'iskelet',side:'dark',icon:'💀',name:'İskelet',role:'Hafif Piyade',tier:1,trainDays:1,
     baseAtk:1,baseDef:8,maas:15,
     atkGelArtis:0.5,defGelArtis:0.5,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[4,5,6],
@@ -2343,7 +2437,7 @@ const UNITS = {
     trainTime:60,maxCount:99999,count:0,
     desc:"Ölümsüz piyade. Ucuz, hızlı üretilir. 4-5-6. turlarda savaşır."},
 
-  goblin:{id:'goblin',side:'dark',icon:'👺',name:'Goblin',role:'Hafif Saldırgan',tier:1,
+  goblin:{id:'goblin',side:'dark',icon:'👺',name:'Goblin',role:'Hafif Saldırgan',tier:1,trainDays:1,
     baseAtk:3,baseDef:9,maas:20,
     atkGelArtis:0.5,defGelArtis:0.5,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[4,5,6],
@@ -2353,7 +2447,7 @@ const UNITS = {
     trainTime:90,maxCount:99999,count:0,
     desc:"Hızlı ve sinsi saldırgan. 4-5-6. turlarda savaşır."},
 
-  iskelet_okcu:{id:'iskelet_okcu',side:'dark',icon:'🏹',name:'İskelet Okçu',role:'Menzilli',tier:1,
+  iskelet_okcu:{id:'iskelet_okcu',side:'dark',icon:'🏹',name:'İskelet Okçu',role:'Menzilli',tier:1,trainDays:1,
     baseAtk:6,baseDef:11,maas:32,
     atkGelArtis:0.5,defGelArtis:0.5,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[1,2,3],
@@ -2363,7 +2457,7 @@ const UNITS = {
     trainTime:120,maxCount:99999,count:0,
     desc:"Ölümsüz menzilli. 1-2-3. turlarda savaşır."},
 
-  ogre:{id:'ogre',side:'dark',icon:'👹',name:'Ogre Savaşçı',role:'Ağır Piyade',tier:2,
+  ogre:{id:'ogre',side:'dark',icon:'👹',name:'Ogre Savaşçı',role:'Ağır Piyade',tier:2,trainDays:2,
     baseAtk:5,baseDef:19,maas:28,
     atkGelArtis:0.5,defGelArtis:1,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[2,3,4,5,6],
@@ -2373,7 +2467,7 @@ const UNITS = {
     trainTime:180,maxCount:99999,count:0,
     desc:"Devasa saldırı gücü. 2-3-4-5-6. turlarda savaşır."},
 
-  troll:{id:'troll',side:'dark',icon:'🧌',name:'Troll',role:'Zırhlı Tank',tier:2,
+  troll:{id:'troll',side:'dark',icon:'🧌',name:'Troll',role:'Zırhlı Tank',tier:2,trainDays:2,
     baseAtk:7,baseDef:21,maas:35,
     atkGelArtis:1,defGelArtis:1,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[3,4,5,6],
@@ -2383,7 +2477,7 @@ const UNITS = {
     trainTime:360,maxCount:99999,count:0,
     desc:"Ağır zırhlı savunma. 3-4-5-6. turlarda savaşır."},
 
-  ork:{id:'ork',side:'dark',icon:'🐺',name:'Ork',role:'Kurtlu Saldırı',tier:2,
+  ork:{id:'ork',side:'dark',icon:'🐺',name:'Ork',role:'Kurtlu Saldırı',tier:2,trainDays:2,
     baseAtk:8,baseDef:24,maas:40,
     atkGelArtis:1,defGelArtis:1,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[3,4,5,6],
@@ -2393,7 +2487,7 @@ const UNITS = {
     trainTime:300,maxCount:99999,count:0,
     desc:"Kurtlu saldırı birimi. 1 Kurt gerektirir. 3-4-5-6. turlarda savaşır."},
 
-  golem:{id:'golem',side:'dark',icon:'🪨',name:'Golem',role:'Elite Tank',tier:3,
+  golem:{id:'golem',side:'dark',icon:'🪨',name:'Golem',role:'Elite Tank',tier:3,trainDays:3,
     baseAtk:9,baseDef:29,maas:80,
     atkGelArtis:1,defGelArtis:2,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[3,4,5,6],
@@ -2403,7 +2497,7 @@ const UNITS = {
     trainTime:900,maxCount:99999,count:0,
     desc:"Karanlığın elit tankı. 1 Kurt gerektirir. 3-4-5-6. turlarda savaşır."},
 
-  kara_sovalye:{id:'kara_sovalye',side:'dark',icon:'🖤',name:'Kara Şovalye',role:'Gizli Elit',tier:2,
+  kara_sovalye:{id:'kara_sovalye',side:'dark',icon:'🖤',name:'Kara Şovalye',role:'Gizli Elit',tier:2,trainDays:2,
     baseAtk:8,baseDef:36,maas:48,
     atkGelArtis:1,defGelArtis:2,atkGelMax:10,defGelMax:10,
     saldiriCarpan:2, savasTurlari:[2,3,4,5,6],
@@ -2413,7 +2507,7 @@ const UNITS = {
     trainTime:480,maxCount:99999,count:0,
     desc:"Her saldırısı x2. 1 Gizlilik Puanı gerektirir. 2-3-4-5-6. turlarda."},
 
-  kara_elf:{id:'kara_elf',side:'dark',icon:'🧝',name:'Kara Elf',role:'Büyü Saldırısı',tier:3,
+  kara_elf:{id:'kara_elf',side:'dark',icon:'🧝',name:'Kara Elf',role:'Büyü Saldırısı',tier:3,trainDays:3,
     baseAtk:10,baseDef:19,maas:120,
     atkGelArtis:1,defGelArtis:1,atkGelMax:10,defGelMax:10,
     saldiriCarpan:2, savasTurlari:[1,2,3],
@@ -2423,7 +2517,7 @@ const UNITS = {
     trainTime:720,maxCount:99999,count:0,
     desc:"Karanlık büyücü. Her saldırı x2. 5 Mana gerektirir. 1-2-3. turlarda."},
 
-  golge_savasci:{id:'golge_savasci',side:'dark',icon:'🌑',name:'Gölge Savaşçı',role:'Efsanevi',tier:3,
+  golge_savasci:{id:'golge_savasci',side:'dark',icon:'🌑',name:'Gölge Savaşçı',role:'Efsanevi',tier:3,trainDays:3,
     baseAtk:40,baseDef:100,maas:250,
     atkGelArtis:2,defGelArtis:2,atkGelMax:10,defGelMax:10,
     saldiriCarpan:3, savasTurlari:[1,2,3,4,5],
@@ -2563,7 +2657,8 @@ function renderUpgrades(){
       <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">🔮 Mana: <b style="color:#9b59b6">${EXTRA_RES.mana||0}</b></div>
       <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">🎯 Gizlilik: <b style="color:#2ecc71">${(EXTRA_RES.gizlilik||0).toFixed(1)}</b></div>
       <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">🥚 B.Yumurta: <b style="color:#e67e22">${(EXTRA_RES.buyulu_yumurta||0).toFixed(1)}</b></div>
-      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">🥩 Çiğ Et: <b style="color:#c0392b">${EXTRA_RES.cig_et||0}</b></div>
+      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">🥩 Çiğ Et: <b style="color:#c0392b">${RES.cig_et||0}</b></div>
+      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">🍖 Pişmiş Et: <b style="color:#e67e22">${RES.pismis_et||0}</b></div>
     </div>
   </div>`;
 
@@ -2777,68 +2872,54 @@ function renderUnitGrid(side, gridId){
   units.forEach(u=>{
     const rc = realCost(u.cost);
     const afford = canAfford(rc) && canAffordExtra(u.extraCost);
-    const costHTML = Object.entries(rc).map(([r,a])=>
-      `<span class="ucost-i ${(RES[r]||0)>=a?'ok':'no'}">${RICONS[r]||'📦'} ${a.toLocaleString()}</span>`
-    ).join('');
-    // Extra kaynak gösterimi
+    const costHTML = Object.entries(rc).map(([r,a])=>{
+      const have = RES[r]||0;
+      return `<span class="ucost-i ${have>=a?'ok':'no'}">${RICONS[r]||'📦'} ${a.toLocaleString()}</span>`;
+    }).join('');
     const extraHTML = Object.entries(u.extraCost||{}).map(([r,a])=>{
       const icons = {at:'🐴',kurt:'🐺',mana:'🔮',gizlilik:'🎯',buyulu_yumurta:'🥚'};
       const names = {at:'At',kurt:'Kurt',mana:'Mana',gizlilik:'Gizlilik',buyulu_yumurta:'B.Yumurta'};
       const have = EXTRA_RES[r]||0;
       return `<span class="ucost-i ${have>=a?'ok':'no'}">${icons[r]||'📦'} ${a} ${names[r]||r}</span>`;
     }).join('');
-
-    const traitHTML = u.traits.map(t=>{
-      const cl = t.includes('ATK')||t.includes('saldır')||t.includes('çarpan') ? 'atk' :
-                 t.includes('DEF')||t.includes('savun')||t.includes('kalkan') ? 'def' :
-                 t.includes('büyü')||t.includes('Mana')||t.includes('mana') ? 'mag' :
-                 t.includes('Gizli')||t.includes('gizlilik') ? 'spd' : 'neu';
-      return `<span class="utrait ${cl}">${t}</span>`;
-    }).join('');
     const tierCl = u.tier===1?'tier1':u.tier===2?'tier2':u.tier===3?'tier3':'tier4';
-    const tierLbl = u.tier===1?'TEMEL':u.tier===2?'GELİŞMİŞ':u.tier===3?'EFSANEVİ':'EJDERHA';
+    const tierLbl = u.tier===1?'T1':u.tier===2?'T2':u.tier===3?'T3':'T4';
     const bgCol = side==='light' ? '#141200' : '#100010';
     const uAtk = realAtk(u.id);
     const uDef = realDef(u.id);
     const uMaas = realMaas(u.maas);
-    const turStr = u.savasTurlari.join(',');
+    // Eğitim süresi: trainDays Palantis günü (backend ile uyumlu)
+    const trainDays = u.trainDays || (u.tier===1?1:u.tier===2?2:3);
 
     const div = document.createElement('div');
-    div.className = `ucard ${side}-unit`;
+    div.className = `urow ${side}-unit`;
     div.draggable = true;
     div.dataset.unitId = u.id;
-    div.addEventListener('dragstart', e=>{
-      e.dataTransfer.setData('unitId', u.id);
-      div.classList.add('dragging');
-    });
-    div.addEventListener('dragend', ()=>div.classList.remove('dragging'));
+    div.addEventListener('dragstart', e=>{ e.dataTransfer.setData('unitId', u.id); div.style.opacity='.5'; });
+    div.addEventListener('dragend', ()=>div.style.opacity='1');
 
     div.innerHTML = `
-      <div class="utier ${tierCl}">${tierLbl}</div>
-      <div class="uhead">
-        <div class="uico" style="background:${bgCol}">${u.icon}</div>
-        <div>
-          <div class="uname">${u.name} ${u.saldiriCarpan>1?'<span style="color:#e74c3c;font-size:10px">x'+u.saldiriCarpan+'</span>':''}</div>
-          <div class="urole">${u.role}</div>
+      <div class="uico" style="background:${bgCol};width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${u.icon}</div>
+      <div style="min-width:140px;flex-shrink:0">
+        <div style="font-family:'Cinzel',serif;font-size:12px;color:#eee;font-weight:600">
+          ${u.name} ${u.saldiriCarpan>1?`<span style="color:#e74c3c;font-size:10px">×${u.saldiriCarpan}</span>`:''}
+          <span class="utier ${tierCl}" style="position:static;display:inline;margin-left:4px;font-size:9px">${tierLbl}</span>
         </div>
+        <div style="font-size:10px;color:#555">${u.role||''}</div>
       </div>
-      <div class="ustat-row">
-        <div class="ustat"><div class="ustat-lbl">ATK</div><div class="ustat-val atk">${uAtk}</div></div>
-        <div class="ustat"><div class="ustat-lbl">DEF</div><div class="ustat-val def">${uDef}</div></div>
-        <div class="ustat"><div class="ustat-lbl">TUR</div><div class="ustat-val" style="font-size:10px">${turStr}</div></div>
-        <div class="ustat"><div class="ustat-lbl">MAAŞ</div><div class="ustat-val" style="color:#f1c40f">${uMaas}💰</div></div>
+      <div style="width:130px;flex-shrink:0;display:flex;gap:8px;font-size:11px">
+        <span style="color:#e74c3c">⚔️${uAtk}</span>
+        <span style="color:#3498db">🛡${uDef}</span>
+        <span style="color:#f1c40f">💰${uMaas}/g</span>
       </div>
-      <div class="utraits">${traitHTML}</div>
-      <div class="ucost">${costHTML}${extraHTML}</div>
-      <div class="ucount-bar">
-        <button class="ucount-btn" onclick="changeCount('${u.id}',-10)">−10</button>
+      <div class="ucost" style="flex:1;display:flex;flex-wrap:wrap;gap:4px">${costHTML}${extraHTML}</div>
+      <div style="width:68px;flex-shrink:0;text-align:center;font-size:10px;color:#555">⏱ ${trainDays} P.G.</div>
+      <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
         <button class="ucount-btn" onclick="changeCount('${u.id}',-1)">−</button>
-        <input class="ucount-inp" id="cnt-${u.id}" value="${u.count}" type="number" min="0" onchange="setCount('${u.id}',this.value)">
+        <input class="ucount-inp" id="cnt-${u.id}" value="${u.count}" type="number" min="0" style="width:44px;text-align:center" onchange="setCount('${u.id}',this.value)">
         <button class="ucount-btn" onclick="changeCount('${u.id}',1)">+</button>
-        <button class="ucount-btn" onclick="changeCount('${u.id}',10)">+10</button>
-        <button class="utrain-btn" ${afford?'':'disabled'} onclick="trainUnit('${u.id}')">Eğit</button>
       </div>
-      <div style="padding:0 15px 10px;font-size:11px;color:#555;line-height:1.4">${u.desc}</div>
+      <button class="utrain-btn" style="flex-shrink:0" ${afford?'':'disabled'} onclick="trainUnit('${u.id}')">EĞİT</button>
     `;
     grid.appendChild(div);
   });
@@ -2873,51 +2954,109 @@ function setCount(id, val){
 async function trainUnit(id){
   const u = UNITS[id]; if(!u) return;
   if(u.producible === false){ toast('❌ Bu ünite üretilemez!'); return; }
-  const rc = realCost(u.cost);
+  const adet = u.count || 1;
+  if(adet < 1){ toast('❌ Eğitilecek adet 0!'); return; }
+  const baseCostOne = realCost(u.cost); // askeri geliştirme indirimli birim maliyet
+  const rc = {}; Object.entries(baseCostOne).forEach(([k,v])=>rc[k]=v*adet);
   if(!canAfford(rc)){ toast('❌ Yetersiz hammadde!'); return; }
   if(!canAffordExtra(u.extraCost)){
-    const missing = Object.entries(u.extraCost).filter(([r,a])=>(EXTRA_RES[r]||0)<a).map(([r])=>r).join(', ');
+    const missing = Object.entries(u.extraCost).filter(([r,a])=>(EXTRA_RES[r]||0)<a*adet).map(([r])=>r).join(', ');
     toast('❌ Yetersiz: ' + missing); return;
   }
 
   const token = getToken();
   if(token) {
     try {
-      const resp = await fetch(API_BASE + '/api/game/resources/spend', {
+      const resp = await fetch(API_BASE + '/api/game/army/train', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-        body: JSON.stringify({ cost: rc })
+        body: JSON.stringify({ uniteId: id, adet })
       });
       if(!resp.ok) {
-        const err = await resp.json();
-        toast('❌ ' + (err.error || 'Yetersiz kaynak!'));
+        const err = await resp.json().catch(()=>({}));
+        toast('❌ ' + (err.error || 'Eğitim başlatılamadı!'));
         return;
       }
-      const data = await resp.json();
-      if (data.resources) {
-        Object.entries(data.resources).forEach(([k,v]) => { if(RES[k] !== undefined) RES[k] = parseInt(v)||0; });
-      }
+      // Backend kaynakları düştü — tüm kaynakları yenile
+      spendExtra(u.extraCost); // extra frontend-only
+      await loadGameData(); // HUD + kaynakları backend'den güncelle
+      // HUD kaynak güncelle
+      setText('hud-w', RES.odun); setText('hud-m', RES.metal); setText('hud-t', RES.tas);
+      setText('hud-g', RES.altin); setText('hud-bu', RES.bugday); setText('hud-ba', RES.balik);
+      // Count sıfırla
+      u.count = 0;
+      const inp = document.getElementById('cnt-'+id); if(inp) inp.value = 0;
+      updateArmyStats();
+      const playerSide = loadPlayer()?.taraf === 'kotu' ? 'dark' : 'light';
+      renderUnitGrid(playerSide);
+      toast(`✅ ${adet}x ${u.name} eğitim kuyruğuna eklendi! (${u.trainDays} P.G.)`);
+      // Eğitim kuyruğunu yenile
+      loadTrainingQueue();
     } catch(e) {
-      spendCost(rc);
+      toast('❌ Sunucuya bağlanılamadı.');
     }
   } else {
+    // Offline mod: sadece local state'e ekle
+    const extraRc = {}; Object.entries(u.extraCost).forEach(([k,v])=>extraRc[k]=v*adet);
     spendCost(rc);
+    spendExtra(extraRc);
+    setText('hud-w', RES.odun); setText('hud-m', RES.metal); setText('hud-t', RES.tas);
+    setText('hud-g', RES.altin); setText('hud-bu', RES.bugday); setText('hud-ba', RES.balik);
+    u.count = 0;
+    const inp = document.getElementById('cnt-'+id); if(inp) inp.value = 0;
+    updateArmyStats();
+    const playerSide = loadPlayer()?.taraf === 'kotu' ? 'dark' : 'light';
+    renderUnitGrid(playerSide);
+    toast(`✅ ${adet}x ${u.name} eğitildi (offline mod).`);
   }
+}
 
-  // Extra kaynakları düş
-  spendExtra(u.extraCost);
+async function loadArmyPool(){
+  const token = getToken(); if(!token) return;
+  try {
+    const resp = await fetch(API_BASE + '/api/game/army', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if(!resp.ok) return;
+    const army = await resp.json(); // { piyade: 10, okcu: 5, ... }
+    Object.entries(army).forEach(([uniteId, adet]) => {
+      if(UNITS[uniteId]) UNITS[uniteId].count = parseInt(adet) || 0;
+    });
+    updateArmyStats();
+    const playerSide = loadPlayer()?.taraf === 'kotu' ? 'dark' : 'light';
+    renderUnitGrid(playerSide);
+  } catch(e) {}
+}
 
-  // HUD kaynak güncelle
-  setText('hud-w', RES.odun); setText('hud-m', RES.metal); setText('hud-t', RES.tas);
-  setText('hud-g', RES.altin); setText('hud-bu', RES.bugday); setText('hud-ba', RES.balik);
+async function loadTrainingQueue(){
+  const token = getToken(); if(!token) return;
+  try {
+    const resp = await fetch(API_BASE + '/api/game/army/queue', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if(!resp.ok) return;
+    const data = await resp.json();
+    renderTrainingQueue(data.queue || []);
+  } catch(e) {}
+}
 
-  u.count = u.count + 1;
-  const inp = document.getElementById('cnt-'+id); if(inp) inp.value = u.count;
-  updateArmyStats();
-  // Ünite grid yenile (maliyet durumu değişmiş olabilir)
-  const playerSide = loadPlayer()?.taraf === 'kotu' ? 'dark' : 'light';
-  renderUnitGrid(playerSide);
-  toast(`✅ 1 ${u.name} eğitildi! (Maaş: ${realMaas(u.maas)} altın/saat)`);
+function renderTrainingQueue(queue){
+  const wrap = document.getElementById('training-queue-wrap');
+  const list = document.getElementById('training-queue-list');
+  if(!wrap||!list) return;
+  if(!queue.length){ wrap.style.display='none'; return; }
+  wrap.style.display='block';
+  list.innerHTML = queue.map(q=>{
+    const gun = parseFloat(q.gunKalan)||0;
+    const unitName = UNITS[q.uniteId]?.name || q.uniteId;
+    const icon = UNITS[q.uniteId]?.icon || '⚔️';
+    return `<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #333">
+      <span style="font-size:18px">${icon}</span>
+      <span style="min-width:120px;color:#d4af37;font-weight:bold">${unitName}</span>
+      <span style="color:#aaa">×${q.adet}</span>
+      <span style="margin-left:auto;color:#88aaff">⏱ ${gun > 0 ? gun.toFixed(2)+' P.G.' : '✅ Tamamlandı'}</span>
+    </div>`;
+  }).join('');
 }
 
 function updateArmyStats(){
@@ -3442,6 +3581,8 @@ async function loadGameData() {
     if (res.islenmis !== undefined) RES.islenmis = parseInt(res.islenmis) || 0;
     if (res.ekmek !== undefined) RES.ekmek = parseInt(res.ekmek) || 0;
     if (res.pismis !== undefined) RES.pismis = parseInt(res.pismis) || 0;
+    if (res.cig_et !== undefined) RES.cig_et = parseInt(res.cig_et) || 0;
+    if (res.pismis_et !== undefined) RES.pismis_et = parseInt(res.pismis_et) || 0;
 
     // HUD Ham kaynaklar
     setText('hud-w',   RES.odun);
@@ -3462,6 +3603,8 @@ async function loadGameData() {
     setText('hud-is',  RES.islenmis);
     setText('hud-ek',  RES.ekmek);
     setText('hud-pb',  RES.pismis);
+    setText('hud-ce',  RES.cig_et);
+    setText('hud-pe',  RES.pismis_et);
 
     // Nüfus & İşçiler — backend verilerini population objesine yaz (F5 persist)
     if (work) {
@@ -3471,14 +3614,15 @@ async function loadGameData() {
       population.iron = parseInt(work.madenci) || 0;
       population.farm = parseInt(work.ciftci) || 0;
       population.fish = parseInt(work.balikci) || 0;
+      population.hunter = parseInt(work.avci) || 0;
       population.merchant = parseInt(work.tuccar) || 0;
-      const atanan = population.wood + population.stone + population.iron + population.farm + population.fish + population.merchant + (parseInt(work.asker)||0) + (parseInt(work.worshipper_beyaz)||0) + (parseInt(work.worshipper_kirmizi)||0) + (parseInt(work.worshipper_mavi)||0) + (parseInt(work.worshipper_yesil)||0);
+      const atanan = population.wood + population.stone + population.iron + population.farm + population.fish + population.hunter + population.merchant + (parseInt(work.asker)||0) + (parseInt(work.worshipper_beyaz)||0) + (parseInt(work.worshipper_kirmizi)||0) + (parseInt(work.worshipper_mavi)||0) + (parseInt(work.worshipper_yesil)||0);
       population.free = Math.max(0, population.total - atanan);
       updatePopulationUI();
     }
 
     // İşçi dağılımı güncelle
-    const isciMap = { oduncu:'w-oduncu', tasci:'w-tasci', madenci:'w-madenci', ciftci:'w-ciftci', balikci:'w-balikci', tuccar:'w-tuccar' };
+    const isciMap = { oduncu:'w-oduncu', tasci:'w-tasci', madenci:'w-madenci', ciftci:'w-ciftci', balikci:'w-balikci', avci:'w-hunter', tuccar:'w-tuccar' };
     for (const [key, elId] of Object.entries(isciMap)) {
       const inp = document.getElementById(elId);
       if (inp && work[key] !== undefined) inp.value = work[key];
@@ -3493,6 +3637,12 @@ async function loadGameData() {
 
     // Binaları backend'den yükle
     await loadBuildingsFromBackend();
+
+    // Eğitim kuyruğunu backend'den yükle
+    await loadTrainingQueue();
+
+    // Ordu havuzunu backend'den yükle (F5'ten sonra kaybolmaz)
+    await loadArmyPool();
 
   } catch(e) {
     console.error('[loadGameData]', e);
@@ -3517,20 +3667,18 @@ async function loadBuildingsFromBackend() {
           const endTime = new Date(data.queueEnd).getTime();
           if (Date.now() >= endTime) {
             BLDGS[binaId].lv = data.seviye + 1;
-            // Backend'de seviyeyi tamamla
-            completeBuildingOnBackend(binaId, data.seviye + 1);
+            completeBuildingOnBackend(binaId);
           } else {
             BLDGS[binaId].lv = data.seviye;
-            // Kuyruğa ekle (eğer yoksa)
             if (!QUEUE.find(q => q.id === binaId)) {
-              const remaining = endTime - Date.now();
-              QUEUE.push({id: binaId, targetLv: data.seviye + 1, start: Date.now() - (data.seviye * 1000), dur: remaining + (Date.now() - (Date.now() - (data.seviye * 1000)))});
+              const dur = 3600 * 1000; // 1 P.G. sabit
+              QUEUE.push({id: binaId, targetLv: data.seviye + 1, start: endTime - dur, dur});
             }
           }
         } else {
           BLDGS[binaId].lv = data.seviye;
         }
-        if (BLDGS[binaId].lv > 0) usedArea += BLDGS[binaId].lv;
+        usedArea += BLDGS[binaId].lv * binaAlanFE(binaId);
       }
     }
     // Alan sayacını güncelle
@@ -3545,16 +3693,50 @@ async function loadBuildingsFromBackend() {
 }
 
 /* ── Backend'de bina seviyesini tamamla ── */
-async function completeBuildingOnBackend(binaId, seviye) {
+async function completeBuildingOnBackend(binaId) {
   const token = getToken();
   if (!token) return;
   try {
     await fetch(API_BASE + '/api/game/buildings/complete', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ binaId, seviye })
+      body: JSON.stringify({ binaId })
     });
   } catch(e) { console.error('[completeBuild]', e); }
+}
+
+/* ── Bina Birleştirme ── */
+async function mergeBina(target) {
+  const kural = BINA_BIRLESTIRME_FE[target];
+  if (!kural) return;
+  const srcAdet = BLDGS[kural.source]?.lv || 0;
+  if (srcAdet < kural.miktar) {
+    toast(`❌ ${kural.miktar} adet ${kural.source} gerekli (mevcut: ${srcAdet})`);
+    return;
+  }
+  const token = getToken();
+  if (!token) { toast('❌ Oturum bulunamadı!'); return; }
+  try {
+    const resp = await fetch(API_BASE + '/api/game/buildings/merge', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ target })
+    });
+    const data = await resp.json();
+    if (!resp.ok) { toast('❌ ' + (data.error || 'Birleştirme başarısız')); return; }
+    // Frontend adet güncelle
+    if (data.buildings) {
+      Object.entries(data.buildings).forEach(([id, adet]) => {
+        if (BLDGS[id]) BLDGS[id].lv = adet;
+      });
+    }
+    const usedArea = Object.values(BLDGS).reduce((s,b)=>s+b.lv*binaAlanFE(b.id),0);
+    setText('hud-used', usedArea);
+    renderGrid();
+    toast(`✅ ${kural.miktar} ${kural.source} → 1 ${target} birleştirildi!`);
+  } catch(e) {
+    toast('❌ Bağlantı hatası');
+  }
 }
 
 function obEnterGame() {
