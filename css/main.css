@@ -787,3 +787,149 @@ body{
   font-size:.8rem;color:#4a4060;
 }
 
+/* ═══════════════════════════════════════
+   HAMBURGER MENÜ BUTONU (mobil)
+═══════════════════════════════════════ */
+.hamburger-btn{
+  display:none;
+  position:fixed;top:8px;left:8px;z-index:1100;
+  width:40px;height:40px;
+  background:var(--sidebar-bg,#111);
+  border:1px solid #333;border-radius:8px;
+  color:var(--race-color);font-size:22px;
+  cursor:pointer;align-items:center;justify-content:center;
+  box-shadow:0 2px 8px rgba(0,0,0,.5);
+}
+.sidebar-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.6);z-index:999;
+}
+.sidebar-overlay.open{display:block;}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE — TABLET (768px ve altı)
+═══════════════════════════════════════ */
+@media (max-width: 768px) {
+  .hamburger-btn{display:flex;}
+
+  .sidebar{
+    position:fixed;top:0;left:-280px;
+    width:260px;height:100vh;z-index:1000;
+    transition:left .25s ease;
+    box-shadow:4px 0 20px rgba(0,0,0,.5);
+  }
+  .sidebar.open{left:0;}
+
+  .main-content{padding:16px 12px;margin-left:0;}
+  .layout{flex-direction:column;}
+
+  /* HUD bar */
+  .hudbar{font-size:11px;}
+  .hud-row-lbl{min-width:36px;font-size:7px;padding:0 4px;}
+  .hud-res-item{padding:3px 6px;font-size:10px;}
+  .hud-res-item b{font-size:12px;}
+  .hg{font-size:9px;}
+
+  /* Şehir istatistik grid */
+  .city-stats{grid-template-columns:repeat(2,1fr);gap:8px;}
+
+  /* Bina satırları */
+  .brow{flex-wrap:wrap;gap:6px;padding:8px;}
+  .br-main{min-width:120px;}
+  .br-cost{width:100%;flex-basis:100%;}
+  .br-time{width:auto;}
+  .br-act{width:100%;text-align:left;margin-top:4px;}
+
+  /* Ünite satırları */
+  .urow{flex-wrap:wrap;gap:6px;padding:8px;}
+  .ucost{flex-basis:100%;}
+
+  /* Worker satırları */
+  .worker-row{flex-wrap:wrap;gap:4px;padding:6px 8px;}
+  .wr-lbl{min-width:90px;font-size:12px;}
+  .worker-row button{min-width:26px;height:26px;font-size:11px;}
+  .worker-row b{font-size:14px;}
+
+  /* Arazi teklifleri */
+  .land-offer{flex-direction:column;gap:8px;text-align:center;}
+  .land-right{justify-content:center;}
+
+  /* Ordu tab'ları */
+  .army-tabs{gap:4px;}
+  .atab{padding:6px 12px;font-size:11px;}
+
+  /* Modal */
+  .modal-box{width:95vw;padding:18px;}
+
+  /* Card padding azalt */
+  .card{padding:16px;margin-bottom:16px;}
+
+  /* Ana ekran profil bandı */
+  #main-home > div:first-child{flex-wrap:wrap;}
+}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE — TELEFON (480px ve altı)
+═══════════════════════════════════════ */
+@media (max-width: 480px) {
+  /* HUD bar daha da kompakt */
+  .hud-row-wrap{min-height:30px;}
+  .hud-row-lbl{min-width:28px;font-size:6px;padding:0 2px;}
+  .hud-res-item{padding:2px 4px;font-size:9px;gap:2px;}
+  .hud-res-item b{font-size:10px;}
+  .hg{font-size:8px;}
+
+  /* Şehir istatistik grid tek sütun */
+  .city-stats{grid-template-columns:1fr 1fr;gap:6px;}
+  .cstat{padding:10px;}
+  .cstat .snum{font-size:20px;}
+
+  /* Filtreler */
+  .filters{gap:4px;}
+  .fbtn{padding:5px 10px;font-size:10px;}
+
+  /* Ana ekran tarih+aktivite yan yana → alt alta */
+  /* Bu inline style olduğu için JS'te de handle edilmeli */
+
+  /* Bina satırları daha dar */
+  .br-ico{width:28px;height:28px;font-size:15px;}
+  .br-name{font-size:11px;}
+  .br-lv{width:auto;font-size:11px;}
+  .br-fx{gap:2px;}
+  .etag{font-size:9px;padding:1px 5px;}
+
+  /* Ünite kompakt */
+  .uico{width:28px;height:28px;font-size:15px;}
+  .ucount-inp{width:40px;font-size:12px;}
+
+  /* Saf dizilimi */
+  .saf-slot{width:60px;height:60px;font-size:10px;}
+  .formation-unit-chip{padding:4px 8px;font-size:10px;}
+
+  /* Onboarding zaten responsive */
+  .ob-box{width:min(420px,96vw);}
+  .ob-card{padding:20px;}
+
+  /* Genel butonlar */
+  .btn{padding:7px 14px;font-size:12px;}
+  .btn-sm{padding:7px 12px;font-size:11px;}
+
+  /* Worker daha dar */
+  .wr-lbl{min-width:70px;font-size:11px;}
+  .worker-row button{min-width:24px;height:24px;font-size:10px;padding:0 6px;}
+}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE — Fold/küçük ekran (360px)
+═══════════════════════════════════════ */
+@media (max-width: 360px) {
+  .main-content{padding:10px 8px;}
+  .card{padding:12px;}
+  .hud-res-item{padding:1px 3px;font-size:8px;}
+  .hud-res-item b{font-size:9px;}
+  .city-stats{grid-template-columns:1fr 1fr;}
+  .cstat .snum{font-size:18px;}
+  .ob-box{width:98vw;}
+  .ob-card{padding:14px;}
+}
+

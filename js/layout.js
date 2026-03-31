@@ -15,8 +15,26 @@ function renderSidebar(){
     return page === target ? ' on' : '';
   }
 
+  // Hamburger butonu ekle (mobil icin)
+  if(!document.getElementById('hamburger-btn')){
+    const hb = document.createElement('button');
+    hb.id = 'hamburger-btn';
+    hb.className = 'hamburger-btn';
+    hb.innerHTML = '☰';
+    hb.onclick = function(){ toggleMobileSidebar(); };
+    document.body.prepend(hb);
+  }
+  // Overlay ekle
+  if(!document.getElementById('sidebar-overlay')){
+    const ov = document.createElement('div');
+    ov.id = 'sidebar-overlay';
+    ov.className = 'sidebar-overlay';
+    ov.onclick = function(){ toggleMobileSidebar(); };
+    document.body.prepend(ov);
+  }
+
   mount.innerHTML = `
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
       <div class="sidebar-header">PALANTIS</div>
       <div style="padding:10px 14px;border-bottom:1px solid #1a1a1a;line-height:1.8">
         <div id="sidebar-kral" style="color:#ccc;font-family:'Cinzel',serif;font-size:12px">— Kral —</div>
@@ -153,9 +171,18 @@ function renderBuildingModal(){
   `;
 }
 
+/* Mobil sidebar toggle */
+function toggleMobileSidebar(){
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sidebar-overlay');
+  if(!sb) return;
+  sb.classList.toggle('open');
+  if(ov) ov.classList.toggle('open');
+}
+
 function initLayout(){
-  // Auth kontrolu
-  const token = localStorage.getItem('token');
+  // Auth kontrolu — dogru key: palantis_token
+  const token = getToken ? getToken() : localStorage.getItem('palantis_token');
   if(!token){
     window.location.href = 'index.html';
     return;
@@ -166,8 +193,8 @@ function initLayout(){
   renderHUD();
   renderBuildingModal();
 
-  // Kayitli oyuncu verisini uygula
-  const playerRaw = localStorage.getItem('player');
+  // Kayitli oyuncu verisini uygula — dogru key: palantis_player
+  const playerRaw = localStorage.getItem('palantis_player');
   if(playerRaw){
     try {
       const player = JSON.parse(playerRaw);
