@@ -1027,6 +1027,7 @@ body{
         <div class="menu-item sub-item army-sub" data-atab="formation" onclick="showPage('army');armyTab('formation',this)" style="padding:6px 6px 6px 28px;font-size:12px">⚔️ Saf Dizilimi</div>
         <div class="menu-item sub-item army-sub" data-atab="upgrades" onclick="showPage('army');armyTab('upgrades',this)" style="padding:6px 6px 6px 28px;font-size:12px">📈 Geliştirmeler</div>
       </div>
+      <div class="menu-item" onclick="showPage('sehirde-olanlar')">📜 Şehirde Olanlar</div>
       <div class="menu-item" onclick="showPage('magic')">🧙 Büyüler</div>
       <div class="menu-item" onclick="showPage('guild')">🏰 Guild</div>
       <div class="menu-item" onclick="showPage('reports')">📜 Raporlar</div>
@@ -1354,6 +1355,21 @@ body{
         </div>
       </div>
 
+      </div>
+
+      <!-- ════════════════════════════════════════
+           ŞEHİRDE OLANLAR — Aktivite Logu
+      ════════════════════════════════════════ -->
+      <div id="sehirde-olanlar" class="page-panel">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <h2 style="color:#c8a96e;font-family:'Cinzel',serif;margin:0">📜 Şehirde Olanlar</h2>
+          <button class="btn-action" onclick="loadActivity()" style="padding:4px 14px;font-size:11px">↻ Yenile</button>
+        </div>
+        <div id="activity-loading" style="color:#555;font-size:13px;text-align:center;padding:40px">Yükleniyor...</div>
+        <div id="activity-list" style="display:none"></div>
+        <div id="activity-empty" style="display:none;color:#444;font-size:13px;text-align:center;padding:40px">
+          Henüz kayıt yok.<br><small style="color:#333">Her Palantis günü başında işçi üretimi, inşaat ve eğitim olayları burada görünür.</small>
+        </div>
       </div>
 
       <div id="magic" class="page-panel">
@@ -2256,6 +2272,60 @@ function showPage(id){
   if(panel)panel.classList.add('active-panel');
   if(id==='land'){applyLandCapRules();refreshLandNumbers();renderOffers();}
   if(id==='city'){renderGrid();renderQueue();}
+  if(id==='sehirde-olanlar'){loadActivity();}
+}
+
+/* ══════════════════════════════════
+   ŞEHİRDE OLANLAR — Aktivite Logu
+══════════════════════════════════ */
+const ACTIVITY_ICONS = {
+  isci_uretim: '⚒️',
+  bina_tamam:  '🏗️',
+  egitim_tamam:'⚔️',
+  bina_uretim: '🔥',
+  maas:        '💰',
+};
+
+async function loadActivity() {
+  const token = getToken();
+  if (!token) return;
+  const loading = document.getElementById('activity-loading');
+  const list    = document.getElementById('activity-list');
+  const empty   = document.getElementById('activity-empty');
+  if (loading) loading.style.display = 'block';
+  if (list)    list.style.display    = 'none';
+  if (empty)   empty.style.display   = 'none';
+  try {
+    const resp = await fetch(API_BASE + '/api/game/activity', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!resp.ok) { if (loading) loading.style.display='none'; return; }
+    const data = await resp.json();
+    if (loading) loading.style.display = 'none';
+    if (!data.gunler || data.gunler.length === 0) {
+      if (empty) empty.style.display = 'block';
+      return;
+    }
+    if (list) {
+      list.style.display = 'block';
+      list.innerHTML = data.gunler.map(g => `
+        <div style="margin-bottom:20px">
+          <div style="color:#c8a96e;font-family:'Cinzel',serif;font-size:13px;
+               border-bottom:1px solid #2a2a1a;padding-bottom:6px;margin-bottom:10px">
+            📅 ${g.tarih}
+          </div>
+          ${g.loglar.map(l => `
+            <div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid #111;font-size:12px;color:#bbb">
+              <span style="width:20px;text-align:center;flex-shrink:0">${ACTIVITY_ICONS[l.event_type]||'•'}</span>
+              <span>${l.mesaj}</span>
+            </div>
+          `).join('')}
+        </div>
+      `).join('');
+    }
+  } catch(e) {
+    if (loading) { loading.style.display='block'; loading.innerText='Bağlantı hatası.'; }
+  }
 }
 
 setInterval(()=>{
