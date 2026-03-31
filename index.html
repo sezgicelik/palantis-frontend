@@ -1050,6 +1050,30 @@ body{
 
         <!-- Kurulduktan sonra ana ekran -->
         <div id="main-home">
+
+          <!-- Palantis Tarihi Kartı -->
+          <div class="card" style="padding:16px 20px;margin-bottom:16px;border-left:3px solid #c8a96e;display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <div style="color:#c8a96e;font-family:'Cinzel',serif;font-size:11px;letter-spacing:1px;margin-bottom:4px">PALANTİS TAKVİMİ</div>
+              <div id="home-tarih" style="color:#fff;font-size:22px;font-family:'Cinzel',serif">— — —</div>
+            </div>
+            <div style="text-align:right">
+              <div style="color:#555;font-size:11px;margin-bottom:4px">GERÇEK SAAT</div>
+              <div id="home-real-saat" style="color:#888;font-size:16px">—:—</div>
+            </div>
+          </div>
+
+          <!-- Bugünkü Olaylar Özeti -->
+          <div class="card" style="padding:16px 20px;margin-bottom:16px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+              <h3 style="margin:0;font-size:14px">📜 Bugün Şehirde Olanlar</h3>
+              <span style="color:#444;font-size:11px">Son Palantis günü</span>
+            </div>
+            <div id="home-activity" style="font-size:12px;color:#666;line-height:2">
+              <span style="color:#333">Yükleniyor...</span>
+            </div>
+          </div>
+
           <div class="card" style="padding:20px;margin-bottom:16px">
             <h2 id="main-welcome">Hoş geldin, Kral!</h2>
             <p style="color:#666;margin-top:8px;font-size:14px">Krallığın büyüyor. Sol menüden istediğin bölüme git.</p>
@@ -2273,6 +2297,7 @@ function showPage(id){
   if(id==='land'){applyLandCapRules();refreshLandNumbers();renderOffers();}
   if(id==='city'){renderGrid();renderQueue();}
   if(id==='sehirde-olanlar'){loadActivity();}
+  if(id==='home'){loadTakvimHome();}
 }
 
 /* ══════════════════════════════════
@@ -2327,6 +2352,67 @@ async function loadActivity() {
     if (loading) { loading.style.display='block'; loading.innerText='Bağlantı hatası.'; }
   }
 }
+
+/* ══════════════════════════════════
+   ANA EKRAN — Palantis Tarihi + Aktivite Özeti
+══════════════════════════════════ */
+async function loadTakvimHome() {
+  // Gerçek saat göster
+  const now = new Date();
+  const saatStr = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+  const saatEl = document.getElementById('home-real-saat');
+  if (saatEl) saatEl.innerText = saatStr;
+
+  // Palantis tarihi — public endpoint, token gerekmez
+  try {
+    const resp = await fetch(API_BASE + '/api/takvim');
+    if (resp.ok) {
+      const t = await resp.json();
+      const AYLAR = ['','Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+      const tarihStr = `${t.palantis_gun} ${AYLAR[t.palantis_ay]||t.palantis_ay} ${t.palantis_yil}`;
+      const tarihEl = document.getElementById('home-tarih');
+      if (tarihEl) tarihEl.innerText = tarihStr;
+      // HUD güncelle
+      const hudEl = document.getElementById('hud-takvim');
+      if (hudEl) hudEl.innerText = tarihStr;
+    }
+  } catch(e) {}
+
+  // Bugünkü aktivite özeti
+  const token = getToken();
+  const actEl = document.getElementById('home-activity');
+  if (!token || !actEl) { if(actEl) actEl.innerHTML='<span style="color:#333">Giriş yapınca görünür.</span>'; return; }
+  try {
+    const resp2 = await fetch(API_BASE + '/api/game/activity', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!resp2.ok) { actEl.innerHTML='<span style="color:#333">—</span>'; return; }
+    const data = await resp2.json();
+    const bugun = data.gunler?.[0];
+    if (!bugun || !bugun.loglar?.length) {
+      actEl.innerHTML = '<span style="color:#333">Bu gün için henüz kayıt yok.</span>';
+      return;
+    }
+    // Son 6 olay
+    actEl.innerHTML = bugun.loglar.slice(0,6).map(l =>
+      `<div>${ACTIVITY_ICONS[l.event_type]||'•'} ${l.mesaj}</div>`
+    ).join('') +
+    (bugun.loglar.length > 6
+      ? `<div style="color:#444;margin-top:4px">+${bugun.loglar.length-6} daha... <a href="#" onclick="showPage('sehirde-olanlar');return false;" style="color:#c8a96e">Tümünü gör</a></div>`
+      : '');
+  } catch(e) {
+    actEl.innerHTML = '<span style="color:#333">—</span>';
+  }
+}
+
+// HUD saatini de canlı güncelle (1 dakikada bir)
+setInterval(()=>{
+  if(document.getElementById('home')?.classList.contains('active-panel')) {
+    const now=new Date();
+    const el=document.getElementById('home-real-saat');
+    if(el) el.innerText=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  }
+}, 60000);
 
 setInterval(()=>{
   updateBars();
