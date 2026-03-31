@@ -524,7 +524,7 @@ body{
   background:#080608;
   display:flex;align-items:center;justify-content:center;
   font-family:'Crimson Pro',Georgia,serif;
-  overflow:hidden;
+  overflow:auto;
 }
 #ob-overlay.ob-hidden { display:none; }
 
@@ -812,6 +812,12 @@ body{
 @media (max-width: 768px) {
   .hamburger-btn{display:flex;}
 
+  /* Genel tasma korumasi */
+  *{box-sizing:border-box;}
+  body{overflow-x:hidden;}
+  .main-content{overflow-x:hidden;word-wrap:break-word;}
+  h2,h3{font-size:clamp(14px,4vw,22px);word-wrap:break-word;}
+
   .sidebar{
     position:fixed;top:0;left:-280px;
     width:260px;height:100vh;z-index:1000;
@@ -861,17 +867,40 @@ body{
   /* Modal */
   .modal-box{width:95vw;padding:18px;}
 
-  /* Card padding azalt */
-  .card{padding:16px;margin-bottom:16px;}
+  /* Card padding azalt + tasma engelle */
+  .card{padding:16px;margin-bottom:16px;overflow:hidden;word-wrap:break-word;}
 
   /* Ana ekran profil bandı */
   #main-home > div:first-child{flex-wrap:wrap;}
+
+  /* Aktivite header */
+  #sehirde-olanlar > div:first-child{flex-wrap:wrap;gap:8px;}
+  #sehirde-olanlar .btn-action{width:auto !important;}
+
+  /* Magic worshipper row */
+  .worker-row{overflow-x:auto;}
 }
 
 /* ═══════════════════════════════════════
    RESPONSIVE — TELEFON (480px ve altı)
 ═══════════════════════════════════════ */
 @media (max-width: 480px) {
+  /* Onboarding taşma fix */
+  #ob-overlay{padding:8px;overflow-y:auto;overflow-x:hidden;}
+  .ob-box{width:calc(100vw - 16px) !important;max-width:100%;overflow:visible;}
+  .ob-logo{margin-bottom:16px;overflow:visible;}
+  .ob-title{font-size:clamp(1.2rem,6vw,1.8rem) !important;letter-spacing:1px !important;overflow:visible;}
+  .ob-card{padding:16px !important;overflow:visible;}
+  .ob-rune{font-size:9px !important;letter-spacing:4px !important;}
+  .ob-sub{font-size:.5rem !important;letter-spacing:1px !important;}
+  .ob-side-grid{grid-template-columns:1fr !important;gap:10px;}
+  .ob-irk-grid{grid-template-columns:1fr !important;gap:8px;}
+  .ob-btn{font-size:.7rem !important;padding:11px !important;letter-spacing:1px !important;}
+  .ob-google{font-size:.6rem !important;padding:10px !important;}
+  .ob-input{padding:9px 10px !important;font-size:.85rem !important;}
+  .ob-step-title{font-size:.85rem !important;}
+  .ob-step-label{font-size:.55rem !important;}
+
   /* HUD bar daha da kompakt */
   .hud-row-wrap{min-height:30px;}
   .hud-row-lbl{min-width:28px;font-size:6px;padding:0 2px;}
