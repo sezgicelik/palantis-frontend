@@ -54,6 +54,7 @@ body{
   border-right:1px solid #333;
   display:flex;
   flex-direction:column;
+  overflow-y:auto;
 }
 .sidebar-header{
   padding:25px 10px;
@@ -1031,6 +1032,14 @@ body{
       <div class="menu-item" onclick="showPage('magic')">🧙 Büyüler</div>
       <div class="menu-item" onclick="showPage('guild')">🏰 Guild</div>
       <div class="menu-item" onclick="showPage('reports')">📜 Raporlar</div>
+
+      <!-- Logout -->
+      <div style="margin-top:auto;padding:12px 10px;border-top:1px solid #1a1a1a">
+        <button onclick="logoutGame()" style="width:100%;padding:9px;background:#1a0a0a;border:1px solid #3a1a1a;color:#c0392b;border-radius:4px;cursor:pointer;font-size:13px;letter-spacing:0.5px;transition:background .2s"
+          onmouseover="this.style.background='#2a0d0d'" onmouseout="this.style.background='#1a0a0a'">
+          🚪 Oyundan Çık
+        </button>
+      </div>
     </div>
 
     <!-- ORTA ALAN -->
@@ -1106,11 +1115,26 @@ body{
       <div id="population" class="page-panel">
 
         <!-- Nüfus özet bar -->
-        <div class="city-stats" style="margin-bottom:20px">
-          <div class="cstat"><span class="snum" id="pop-total">10</span><span class="slbl">TOPLAM</span></div>
-          <div class="cstat"><span class="snum" id="pop-free">10</span><span class="slbl">BOŞTA</span></div>
-          <div class="cstat"><span class="snum" id="pop-max">1500</span><span class="slbl">MAKSİMUM</span></div>
-          <div class="cstat"><span class="snum" id="pop-mutlu">70%</span><span class="slbl">MUTLULUK</span></div>
+        <div class="city-stats" style="margin-bottom:12px">
+          <div class="cstat" title="Toplam nüfus = Köylü + İşçi + Ünite"><span class="snum" id="pop-total">—</span><span class="slbl">TOPLAM NÜFUS</span></div>
+          <div class="cstat" title="Nüfus sınırı (ev/köy/kasaba)"><span class="snum" id="pop-max">—</span><span class="slbl">SINIR</span></div>
+          <div class="cstat" title="Boşta duran (görev verilmemiş) köylüler"><span class="snum" id="pop-free">—</span><span class="slbl">KÖYLÜ (BOŞTA)</span></div>
+          <div class="cstat" title="Eğitilmiş ve orduda bulunan birimler"><span class="snum" id="pop-unite">—</span><span class="slbl">ÜNİTE</span></div>
+        </div>
+        <!-- Nüfus dağılım barı -->
+        <div style="margin-bottom:20px;padding:0 2px">
+          <div style="display:flex;gap:4px;font-size:11px;color:#555;margin-bottom:4px;justify-content:space-between">
+            <span>🏘️ Köylü <b id="bar-koylu-lbl">—</b></span>
+            <span>⚒️ İşçi <b id="bar-isci-lbl">—</b></span>
+            <span>⚔️ Asker+Tapınak <b id="bar-sabit-lbl">—</b></span>
+            <span>🗡️ Ünite <b id="bar-unite-lbl">—</b></span>
+          </div>
+          <div style="display:flex;height:10px;border-radius:4px;overflow:hidden;background:#1a1a1a">
+            <div id="bar-koylu"  style="background:#4a8;transition:.3s"></div>
+            <div id="bar-isci"   style="background:#c8a96e;transition:.3s"></div>
+            <div id="bar-sabit"  style="background:#8e44ad;transition:.3s"></div>
+            <div id="bar-unite"  style="background:#e74c3c;transition:.3s"></div>
+          </div>
         </div>
 
         <!-- İşçi dağılımı -->
@@ -1205,7 +1229,7 @@ body{
           <div class="cstat"><span class="snum" id="cs-active">—</span><span class="slbl">AKTİF BİNA</span></div>
           <div class="cstat"><span class="snum" id="cs-constr">0</span><span class="slbl">İNŞAAT</span></div>
           <div class="cstat"><span class="snum" id="cs-age">I. Çağ</span><span class="slbl">ÇAĞ</span></div>
-          <div class="cstat"><span class="snum" id="cs-pop">340</span><span class="slbl">NÜFUS</span></div>
+          <div class="cstat" title="Köylü + İşçi + Ünite = Toplam Nüfus"><span class="snum" id="cs-pop">—</span><span class="slbl">NÜFUS</span></div>
         </div>
 
         <!-- Kuyruk -->
@@ -1629,9 +1653,11 @@ function startGame() {
 
 /* ── NÜFUS ── */
 let population = {
-  total: 10, free: 10, max: 1500,
+  total: 10, free: 10, max: 1000,
   wood: 0, stone: 0, iron: 0,
-  farm: 0, fish: 0, hunter: 0, merchant: 0
+  farm: 0, fish: 0, hunter: 0, merchant: 0,
+  asker: 0, worshipper: 0, unite: 0,
+  nufus_siniri: 1000, nufus_toplam: 10
 };
 
 function assignWorker(type, delta){
@@ -1645,31 +1671,56 @@ function assignWorker(type, delta){
 
 function updatePopulationUI(){
   const set = (id, v) => { const e=document.getElementById(id); if(e) e.innerText=v; };
-  set('pop-total', population.total);
-  set('pop-free', population.free);
+
+  // Nüfus hesabı: Köylü (boşta) + İşçi (atanmış) + Asker+Tapınak (sabit) + Ünite (orduda)
+  const isci   = (population.wood||0)+(population.stone||0)+(population.iron||0)+
+                 (population.farm||0)+(population.fish||0)+(population.hunter||0)+(population.merchant||0);
+  const sabit  = (population.asker||0)+(population.worshipper||0);
+  const unite  = population.unite||0;
+  const koylu  = Math.max(0, population.free||0);
+  const nufus  = population.nufus_toplam || (population.total + unite);
+  const sinir  = population.nufus_siniri || population.max || 1000;
+
+  // Nüfus özet (Nüfus & İşçiler sayfası)
+  set('pop-total', nufus);
+  set('pop-free',  koylu);
+  set('pop-max',   sinir);
+  set('pop-unite', unite);
+
+  // Şehrim sayfası cs-pop
+  set('cs-pop', nufus);
+
   // Boş köylü senkronu — ordu sayfasındaki sm-koylu aynı değeri göstersin
-  try { set('sm-koylu', Math.max(0, population.free - ASKER_SAYISI)); } catch(e) {}
-  set('pop-max', population.max);
+  try { set('sm-koylu', Math.max(0, koylu - ASKER_SAYISI)); } catch(e) {}
+
+  // Dağılım barı
+  const topBar = nufus || 1;
+  const pct = v => (v/topBar*100).toFixed(1)+'%';
+  ['bar-koylu','bar-isci','bar-sabit','bar-unite'].forEach((id,i)=>{
+    const el=document.getElementById(id);
+    const vals=[koylu,isci,sabit,unite];
+    if(el) el.style.width=pct(vals[i]);
+  });
+  set('bar-koylu-lbl', koylu);
+  set('bar-isci-lbl',  isci);
+  set('bar-sabit-lbl', sabit);
+  set('bar-unite-lbl', unite);
+
+  // İşçi sayıları
   set('w-wood', population.wood);
   set('w-stone', population.stone);
   set('w-iron', population.iron);
   set('w-farm', population.farm||0);
   set('w-fish', population.fish||0);
   set('w-merchant', population.merchant||0);
-  // Saatlik üretim hesapla
-  set('p-wood', population.wood * 40);
-  set('p-stone', population.stone * 30);
-  set('p-iron', population.iron * 25);
-  set('p-farm', (population.farm||0) * 50);
-  set('p-fish', (population.fish||0) * 20);
-  set('p-merchant', (population.merchant||0) * 15);
 
-  const pw = document.getElementById('p-wood');
-  const ps = document.getElementById('p-stone');
-  const pi = document.getElementById('p-iron');
-  if(pw) pw.innerText = population.wood;
-  if(ps) ps.innerText = population.stone;
-  if(pi) pi.innerText = population.iron;
+  // Saatlik üretim
+  set('p-wood',     population.wood * 40);
+  set('p-stone',    population.stone * 30);
+  set('p-iron',     population.iron * 25);
+  set('p-farm',     (population.farm||0) * 50);
+  set('p-fish',     (population.fish||0) * 20);
+  set('p-merchant', (population.merchant||0) * 15);
 }
 updatePopulationUI();
 
@@ -3495,6 +3546,22 @@ let obSelectedIrk = null;
   }
 })();
 
+function logoutGame() {
+  if (!confirm('Oyundan çıkmak istediğine emin misin?')) return;
+  clearToken();
+  // Sıfırla
+  OYUNCU = { kral: null, sehir: null, irk: null, taraf: null, cag: 1 };
+  QUEUE = [];
+  Object.values(BLDGS).forEach(b => b.lv = 0);
+  population = { total: 10, free: 10, max: 1000, wood:0, stone:0, iron:0,
+    farm:0, fish:0, hunter:0, merchant:0, asker:0, worshipper:0, unite:0,
+    nufus_siniri:1000, nufus_toplam:10 };
+  // Overlay'i göster, login adımına git
+  const overlay = document.getElementById('ob-overlay');
+  if (overlay) overlay.classList.remove('ob-hidden');
+  showObStep('login');
+}
+
 function showObStep(step) {
   ['login','side','irk','welcome'].forEach(s => {
     const el = document.getElementById('ob-step-' + s);
@@ -3765,14 +3832,22 @@ async function loadGameData() {
     // Nüfus & İşçiler — backend verilerini population objesine yaz (F5 persist)
     if (work) {
       if (work.total !== undefined) population.total = parseInt(work.total) || 10;
-      population.wood = parseInt(work.oduncu) || 0;
-      population.stone = parseInt(work.tasci) || 0;
-      population.iron = parseInt(work.madenci) || 0;
-      population.farm = parseInt(work.ciftci) || 0;
-      population.fish = parseInt(work.balikci) || 0;
-      population.hunter = parseInt(work.avci) || 0;
-      population.merchant = parseInt(work.tuccar) || 0;
-      const atanan = population.wood + population.stone + population.iron + population.farm + population.fish + population.hunter + population.merchant + (parseInt(work.asker)||0) + (parseInt(work.worshipper_beyaz)||0) + (parseInt(work.worshipper_kirmizi)||0) + (parseInt(work.worshipper_mavi)||0) + (parseInt(work.worshipper_yesil)||0);
+      population.wood     = parseInt(work.oduncu)  || 0;
+      population.stone    = parseInt(work.tasci)   || 0;
+      population.iron     = parseInt(work.madenci) || 0;
+      population.farm     = parseInt(work.ciftci)  || 0;
+      population.fish     = parseInt(work.balikci) || 0;
+      population.hunter   = parseInt(work.avci)    || 0;
+      population.merchant = parseInt(work.tuccar)  || 0;
+      population.asker    = parseInt(work.asker)   || 0;
+      population.worshipper = (parseInt(work.worshipper_beyaz)||0) + (parseInt(work.worshipper_kirmizi)||0)
+                            + (parseInt(work.worshipper_mavi)||0)  + (parseInt(work.worshipper_yesil)||0);
+      population.unite         = parseInt(work.unite_toplam)  || 0;
+      population.nufus_siniri  = parseInt(work.nufus_siniri)  || population.total;
+      population.nufus_toplam  = parseInt(work.nufus_toplam)  || population.total;
+      const atanan = population.wood + population.stone + population.iron + population.farm
+                   + population.fish + population.hunter + population.merchant
+                   + population.asker + population.worshipper;
       population.free = Math.max(0, population.total - atanan);
       updatePopulationUI();
     }
