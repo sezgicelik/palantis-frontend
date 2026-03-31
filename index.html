@@ -435,6 +435,23 @@ body{
 /* Ünite grid → satır listesi */
 .unit-grid{display:flex;flex-direction:column;gap:5px;}
 
+/* Ünite satırı — brow ile tutarlı yatay layout */
+.urow{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:#111;
+  border:1px solid #1e1e1e;
+  border-radius:8px;
+  padding:8px 12px;
+  transition:.18s;
+  position:relative;
+  flex-wrap:nowrap;
+}
+.urow:hover{border-color:#2a2a2a;background:#141414;}
+.urow.light-unit{border-left:3px solid #f1c40f;}
+.urow.dark-unit{border-left:3px solid #9b59b6;}
+
 
 /* Ünite kartı */
 .ucard{
@@ -990,7 +1007,6 @@ body{
         <div class="menu-item sub-item army-sub" data-atab="formation" onclick="showPage('army');armyTab('formation',this)" style="padding:6px 6px 6px 28px;font-size:12px">⚔️ Saf Dizilimi</div>
         <div class="menu-item sub-item army-sub" data-atab="upgrades" onclick="showPage('army');armyTab('upgrades',this)" style="padding:6px 6px 6px 28px;font-size:12px">📈 Geliştirmeler</div>
       </div>
-      <div class="menu-item" onclick="showPage('sehirde-olanlar')">📜 Şehirde Olanlar</div>
       <div class="menu-item" onclick="showPage('magic')">🧙 Büyüler</div>
       <div class="menu-item" onclick="showPage('guild')">🏰 Guild</div>
       <div class="menu-item" onclick="showPage('reports')">📜 Raporlar</div>
