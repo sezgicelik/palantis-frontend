@@ -213,79 +213,103 @@ body{
 }
 
 /* =========================
-   HUDBAR (Excel benzeri 3 satır)  ✅ (ÜST ŞERİT)
+   HUDBAR — Premium Medieval Tabbed Resource Bar
 ========================= */
 .hudbar{
-  background:#000;
-  border-bottom:2px solid var(--race-color);
-  padding:10px 12px;
+  display:flex;
+  align-items:stretch;
+  min-height:48px;
+  background:linear-gradient(180deg,#160c04 0%,#0d0703 100%);
+  border-bottom:1px solid rgba(200,169,110,0.25);
+  box-shadow:0 2px 20px rgba(0,0,0,0.6),inset 0 -1px 0 rgba(200,169,110,0.1);
+  overflow:hidden;
 }
-
-.hud-row{
-  display:grid;
-  grid-template-columns: 90px repeat(6, 1fr);
-  gap:8px;
-  margin-bottom:8px;
+.hud-tabs{
+  display:flex;
+  flex-direction:column;
+  justify-content:space-around;
+  background:rgba(0,0,0,0.35);
+  border-right:1px solid rgba(200,169,110,0.12);
+  flex-shrink:0;
+  min-width:80px;
 }
-.hud-row:last-child{ margin-bottom:0; }
-
-/* HUD satır başlığı: HAM / İŞLENMİŞ / GENEL */
-.hud-row-title{
+.hud-tab-btn{
+  padding:5px 14px;
+  background:transparent;
+  border:none;
+  border-left:2px solid transparent;
+  color:#3a2a16;
+  font-size:9px;
+  letter-spacing:1.5px;
+  cursor:pointer;
+  font-family:'Cinzel',serif;
+  font-weight:700;
+  transition:all .2s;
+  text-align:left;
+}
+.hud-tab-btn:hover{ color:#7a5a2a; }
+.hud-tab-btn.active{
+  color:#c8a96e;
+  border-left-color:#c8a96e;
+  text-shadow:0 0 10px rgba(200,169,110,0.5);
+  background:linear-gradient(90deg,rgba(200,169,110,0.1),transparent);
+}
+.hud-res-row{
   display:flex;
   align-items:center;
-  justify-content:center;
-  font-weight:800;
-  font-size:12px;
-  color:var(--race-color);
-  background:#0d0d0d;
-  border:1px solid #222;
-  border-radius:10px;
-  padding:10px 6px;
+  flex-wrap:nowrap;
+  gap:3px;
+  padding:6px 10px;
+  flex:1;
+  overflow-x:auto;
+  scrollbar-width:none;
 }
-
-.hud-cell{
+.hud-res-row::-webkit-scrollbar{ display:none; }
+.hud-res-item{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  padding:5px 11px;
+  background:rgba(255,255,255,0.02);
+  border:1px solid rgba(200,169,110,0.07);
+  border-radius:3px;
+  font-size:12px;
+  white-space:nowrap;
+  cursor:default;
+  transition:all .15s;
   position:relative;
-  background:#0f0f0f;
-  border:1px solid #222;
-  border-radius:10px;
-  padding:10px 10px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  font-size:13px;
-  white-space:nowrap;
 }
-.hud-cell b{ font-size:14px; color:#f5f0e8; }
-.hud-cell .gain{ color:#2ecc71; font-size:11px; margin-left:6px; }
-.hud-spacer{ background:transparent; border:none; }
-
-/* Tooltip (hover açıklama) */
-.hud-cell[data-tip]::after{
-  content: attr(data-tip);
+.hud-res-item:hover{
+  background:rgba(200,169,110,0.07);
+  border-color:rgba(200,169,110,0.3);
+  transform:translateY(-1px);
+  box-shadow:0 3px 10px rgba(200,169,110,0.1);
+}
+.hud-res-item b{ color:#f0e8d8; font-size:13px; font-weight:600; }
+.hg{ color:#2ecc71; font-size:9px; margin-left:1px; }
+/* Tooltip */
+.hud-res-item[data-tip]::after{
+  content:attr(data-tip);
   position:absolute;
+  bottom:calc(100% + 7px);
   left:50%;
-  top:calc(100% + 8px);
   transform:translateX(-50%);
-  background:#111;
-  border:1px solid #333;
-  color:#ddd;
-  padding:7px 10px;
-  border-radius:10px;
-  opacity:0;
-  pointer-events:none;
-  z-index:999;
-  font-size:12px;
+  background:#1a0e04;
+  border:1px solid rgba(200,169,110,0.5);
+  color:#c8a96e;
+  font-size:9px;
+  letter-spacing:2px;
+  padding:4px 10px;
+  border-radius:2px;
   white-space:nowrap;
-  box-shadow:0 10px 22px rgba(0,0,0,.35);
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .15s;
+  box-shadow:0 0 14px rgba(200,169,110,0.2);
+  font-family:'Cinzel',serif;
+  z-index:9999;
 }
-.hud-cell[data-tip]:hover::after{ opacity:1; }
-
-/* Dar ekranda taşmasın */
-@media (max-width: 1200px){
-  .hud-row{ grid-template-columns: 80px repeat(6, 1fr); }
-  .hud-cell{ font-size:12px; padding:9px 9px; }
-}
+.hud-res-item[data-tip]:hover::after{ opacity:1; }
 
 
 /* ═══ ŞEHİR & BİNALAR ═══ */
@@ -897,103 +921,41 @@ body{
   <!-- /ONBOARDING -->
 
 
-  <!-- ===== ÜST HUD (SENİN EXCEL BAR) ===== -->
-  <div class="top-bar hudbar">
-    <!-- SATIR 1: HAM -->
-    <div class="hud-row">
-     <div class="hud-row-title">HAM</div>
-
-      <div class="hud-cell" data-tip="Odun (ham)">
-        🌳 Odun <b id="hud-w">0</b> <span class="gain">(+<span id="hud-wg">0</span>)</span>
-      </div>
-
-      <div class="hud-cell" data-tip="Metal/Demir (ham)">
-        ⛓️ Metal <b id="hud-m">0</b> <span class="gain">(+<span id="hud-mg">0</span>)</span>
-      </div>
-
-      <div class="hud-cell" data-tip="Buğday (ham)">
-        🌾 Buğday <b id="hud-bu">0</b> <span class="gain">(+<span id="hud-bug">0</span>)</span>
-      </div>
-
-      <div class="hud-cell" data-tip="Balık (ham)">
-        🎣 Balık <b id="hud-ba">0</b> <span class="gain">(+<span id="hud-bag">0</span>)</span>
-      </div>
-
-      <div class="hud-cell" data-tip="Taş (ham)">
-        🪨 Taş <b id="hud-t">0</b> <span class="gain">(+<span id="hud-tg">0</span>)</span>
-      </div>
-
-      <div class="hud-cell" data-tip="Altın">
-        💰 Altın <b id="hud-g">0</b> <span class="gain">(+<span id="hud-gg">0</span>)</span>
-      </div>
+  <!-- ===== ÜST HUD — Premium Tabbed ===== -->
+  <div class="top-bar hudbar" id="hudbar">
+    <div class="hud-tabs">
+      <button class="hud-tab-btn active" id="htab-ham"      onclick="hudSetTab('ham',this)">HAM</button>
+      <button class="hud-tab-btn"        id="htab-islenmis" onclick="hudSetTab('islenmis',this)">İŞLENMİŞ</button>
+      <button class="hud-tab-btn"        id="htab-genel"    onclick="hudSetTab('genel',this)">GENEL</button>
     </div>
-
-    <!-- SATIR 2: İŞLENMİŞ -->
-    <div class="hud-row">
-     <div class="hud-row-title">İŞLENMİŞ</div>
-
-      <div class="hud-cell" data-tip="Kereste (Odun → Kereste)">
-        🪵 Kereste <b id="hud-k">0</b> <span class="gain">(+<span id="hud-kg">0</span>)</span>
-      </div>
-
-      <div class="hud-cell" data-tip="İşlenmiş Metal (Metal → İşlenmiş)">
-        🔩 İşlenmiş <b id="hud-im">0</b> <span class="gain">(+<span id="hud-img">0</span>)</span>
-      </div>
-
-      <div class="hud-cell" data-tip="Ekmek (Buğday → Ekmek)">
-        🍞 Ekmek <b id="hud-e">0</b> <span class="gain">(+<span id="hud-eg">0</span>)</span>
-      </div>
-
-      <div class="hud-cell" data-tip="Pişmiş Balık (Balık → Pişmiş)">
-        🍳 Pişmiş <b id="hud-pb">0</b> <span class="gain">(+<span id="hud-pbg">0</span>)</span>
-      </div>
-
-      <div class="hud-cell" data-tip="Çiğ Et (Avcılar toplar)">
-        🥩 Çiğ Et <b id="hud-ce">0</b> <span class="gain">(+<span id="hud-ceg">0</span>)</span>
-      </div>
-
-      <div class="hud-cell" data-tip="Pişmiş Et (Ocakta pişirilir)">
-        🍖 Pişmiş Et <b id="hud-pe">0</b>
-      </div>
-
-      <div class="hud-spacer"></div>
+    <!-- HAM -->
+    <div class="hud-res-row" id="hud-panel-ham">
+      <div class="hud-res-item" data-tip="ODUN">🌳 <b id="hud-w">0</b><span class="hg"> +<span id="hud-wg">0</span></span></div>
+      <div class="hud-res-item" data-tip="METAL">⛓️ <b id="hud-m">0</b><span class="hg"> +<span id="hud-mg">0</span></span></div>
+      <div class="hud-res-item" data-tip="BUĞDAY">🌾 <b id="hud-bu">0</b><span class="hg"> +<span id="hud-bug">0</span></span></div>
+      <div class="hud-res-item" data-tip="BALIK">🎣 <b id="hud-ba">0</b><span class="hg"> +<span id="hud-bag">0</span></span></div>
+      <div class="hud-res-item" data-tip="TAŞ">🪨 <b id="hud-t">0</b><span class="hg"> +<span id="hud-tg">0</span></span></div>
+      <div class="hud-res-item" data-tip="ALTIN">💰 <b id="hud-g">0</b><span class="hg"> +<span id="hud-gg">0</span></span></div>
     </div>
-
-    <!-- SATIR 3: GENEL + SAAT -->
-    <div class="hud-row">
-     <div class="hud-row-title">GENEL</div>
-
-      <div class="hud-cell" data-tip="Moral seviyesi">
-        😊 Moral <b id="hud-moral">70%</b>
-      </div>
-
-      <div class="hud-cell" data-tip="Açlık seviyesi">
-        🍞 Açlık <b id="hud-hunger">10%</b>
-      </div>
-
-      <div class="hud-cell" data-tip="Nüfus: Mevcut / Maksimum kapasite">
-        👥 Nüfus <b><span id="hud-nufus">—</span>/<span id="hud-nufus-sinir">—</span></b>
-      </div>
-
-      <div class="hud-cell" data-tip="Alan: Kullanılan / Mevcut">
-        📐 Alan <b><span id="hud-used">0</span>/<span id="hud-land">100</span></b>
-      </div>
-
-      <div class="hud-cell" data-tip="Çağa göre alan limiti">
-        🧱 Limit <b id="hud-limit">300</b>
-      </div>
-
-      <div class="hud-cell" data-tip="Palantis takvim tarihi (1 saat = 1 Palantis günü)">
-        📅 Tarih <b id="hud-takvim">—</b>
-      </div>
-
-      <div class="hud-cell" data-tip="Şu anki saat">
-        ⏰ Saat <b id="c-now">00:00:00</b>
-      </div>
-
-      <div class="hud-cell" data-tip="Sonraki Palantis Gününe kalan süre (1 P.G. = 1 saat)">
-        ⏳ Sonraki P.G. <b id="c-next">—</b>
-      </div>
+    <!-- İŞLENMİŞ -->
+    <div class="hud-res-row" id="hud-panel-islenmis" style="display:none">
+      <div class="hud-res-item" data-tip="KERESTE">🪵 <b id="hud-ke">0</b></div>
+      <div class="hud-res-item" data-tip="İŞLENMİŞ METAL">🔩 <b id="hud-is">0</b></div>
+      <div class="hud-res-item" data-tip="EKMEK">🍞 <b id="hud-ek">0</b></div>
+      <div class="hud-res-item" data-tip="PİŞMİŞ BALIK">🍳 <b id="hud-pb">0</b></div>
+      <div class="hud-res-item" data-tip="ÇİĞ ET">🥩 <b id="hud-ce">0</b></div>
+      <div class="hud-res-item" data-tip="PİŞMİŞ ET">🍖 <b id="hud-pe">0</b></div>
+    </div>
+    <!-- GENEL -->
+    <div class="hud-res-row" id="hud-panel-genel" style="display:none">
+      <div class="hud-res-item" data-tip="ORDU MORALİ">😊 <b id="hud-moral">—</b></div>
+      <div class="hud-res-item" data-tip="AÇLIK">🍽️ <b id="hud-hunger">—</b></div>
+      <div class="hud-res-item" data-tip="NÜFUS / SİNİR">👥 <b><span id="hud-nufus">—</span>/<span id="hud-nufus-sinir">—</span></b></div>
+      <div class="hud-res-item" data-tip="KULLANILAN ALAN">📐 <b><span id="hud-used">0</span>/<span id="hud-land">0</span></b></div>
+      <div class="hud-res-item" data-tip="ÇAĞ LİMİTİ">🧱 <b id="hud-limit">—</b></div>
+      <div class="hud-res-item" data-tip="PALANTİS TARİHİ">📅 <b id="hud-takvim">—</b></div>
+      <div class="hud-res-item" data-tip="ŞU ANKİ SAAT">⏰ <b id="c-now">—</b></div>
+      <div class="hud-res-item" data-tip="SONRAKİ P.G.">⏳ <b id="c-next">—</b></div>
     </div>
   </div>
   <!-- ===== /ÜST HUD ===== -->
@@ -1052,44 +1014,58 @@ body{
       <div id="home" class="page-panel active-panel">
 
         <!-- Kral Bilgi Kartı -->
-        <div class="city-stats" style="margin-bottom:20px">
-          <div class="cstat"><span class="snum" id="home-kral">—</span><span class="slbl">KRAL</span></div>
-          <div class="cstat"><span class="snum" id="home-sehir">—</span><span class="slbl">ŞEHİR</span></div>
-          <div class="cstat"><span class="snum" id="home-irk">—</span><span class="slbl">IRK</span></div>
-          <div class="cstat"><span class="snum" id="home-cag">I. Çağ</span><span class="slbl">ÇAĞ</span></div>
-        </div>
-
-        <!-- Eğer ırk seçilmemişse setup göster -->
+        <!-- Gizli ID'ler (JS uyumu için) -->
+        <span id="home-kral" style="display:none">—</span>
+        <span id="home-sehir" style="display:none">—</span>
+        <span id="home-irk" style="display:none">—</span>
+        <span id="home-cag" style="display:none">I. Çağ</span>
 
         <!-- Kurulduktan sonra ana ekran -->
         <div id="main-home">
 
-          <!-- Palantis Tarihi Kartı -->
-          <div class="card" style="padding:16px 20px;margin-bottom:16px;border-left:3px solid #c8a96e;display:flex;align-items:center;justify-content:space-between">
-            <div>
-              <div style="color:#c8a96e;font-family:'Cinzel',serif;font-size:11px;letter-spacing:1px;margin-bottom:4px">PALANTİS TAKVİMİ</div>
-              <div id="home-tarih" style="color:#fff;font-size:22px;font-family:'Cinzel',serif">— — —</div>
+          <!-- Profil Bandı (tek satır, tekrar yok) -->
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;
+               padding:12px 18px;background:#0d0a06;
+               border:1px solid rgba(200,169,110,0.12);border-left:3px solid var(--race-color);
+               border-radius:4px">
+            <div style="font-size:26px" id="home-irk-icon">👑</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-family:'Cinzel',serif;color:#f0e8d8;font-size:16px;font-weight:700" id="main-welcome">—</div>
+              <div style="font-size:11px;color:#555;margin-top:3px">
+                <span id="home-sehir-lbl">—</span>
+                <span style="color:#2a1a08"> · </span>
+                <span id="home-irk-lbl">—</span>
+                <span style="color:#2a1a08"> · </span>
+                <span id="home-cag-lbl" style="color:var(--race-color)">I. Çağ</span>
+              </div>
             </div>
-            <div style="text-align:right">
-              <div style="color:#555;font-size:11px;margin-bottom:4px">GERÇEK SAAT</div>
-              <div id="home-real-saat" style="color:#888;font-size:16px">—:—</div>
+            <!-- Hızlı stats sağda -->
+            <div style="display:flex;gap:16px;font-size:11px;text-align:center;flex-shrink:0">
+              <div><div style="color:#c8a96e;font-size:16px;font-weight:700" id="hs-nufus">—</div><div style="color:#333">NÜFUS</div></div>
+              <div><div style="color:#c8a96e;font-size:16px;font-weight:700" id="hs-bina">—</div><div style="color:#333">BİNA</div></div>
+              <div><div style="color:#c8a96e;font-size:16px;font-weight:700" id="hs-alan">—</div><div style="color:#333">ALAN</div></div>
             </div>
           </div>
 
-          <!-- Bugünkü Olaylar Özeti -->
-          <div class="card" style="padding:16px 20px;margin-bottom:16px">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-              <h3 style="margin:0;font-size:14px">📜 Bugün Şehirde Olanlar</h3>
-              <span style="color:#444;font-size:11px">Son Palantis günü</span>
+          <!-- Tarih + Aktivite yan yana -->
+          <div style="display:grid;grid-template-columns:220px 1fr;gap:12px;margin-bottom:14px">
+            <!-- Tarih -->
+            <div style="padding:14px 16px;background:#0d0a06;border:1px solid rgba(200,169,110,0.12);border-radius:4px;display:flex;flex-direction:column;justify-content:center">
+              <div style="color:#c8a96e;font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;margin-bottom:6px">PALANTİS TAKVİMİ</div>
+              <div id="home-tarih" style="color:#f0e8d8;font-size:18px;font-family:'Cinzel',serif;font-weight:700">— — —</div>
+              <div style="color:#333;font-size:10px;margin-top:8px">GERÇEK SAAT</div>
+              <div id="home-real-saat" style="color:#666;font-size:14px">—:—</div>
             </div>
-            <div id="home-activity" style="font-size:12px;color:#666;line-height:2">
-              <span style="color:#333">Yükleniyor...</span>
+            <!-- Bugün olanlar -->
+            <div style="padding:14px 16px;background:#0d0a06;border:1px solid rgba(200,169,110,0.12);border-radius:4px">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <span style="font-family:'Cinzel',serif;font-size:11px;color:#c8a96e;letter-spacing:1px">📜 SON PALANTİS GÜNÜ</span>
+                <button onclick="showPage('sehirde-olanlar')" style="background:none;border:none;color:#3a2a10;font-size:10px;cursor:pointer">tümünü gör →</button>
+              </div>
+              <div id="home-activity" style="font-size:12px;color:#555;line-height:1.9">
+                <span style="color:#2a1a08">Yükleniyor...</span>
+              </div>
             </div>
-          </div>
-
-          <div class="card" style="padding:20px;margin-bottom:16px">
-            <h2 id="main-welcome">Hoş geldin, Kral!</h2>
-            <p style="color:#666;margin-top:8px;font-size:14px">Krallığın büyüyor. Sol menüden istediğin bölüme git.</p>
           </div>
 
           <!-- 1. Çağ uyarısı -->
@@ -1531,9 +1507,19 @@ body{
         <div class="lvc" id="mlvc"></div>
       </div>
       <div class="modal-sec">
-        <h4>İnşaat Maliyeti</h4>
+        <h4>İnşaat Maliyeti <span style="font-size:10px;color:#444;font-weight:normal">(1 adet)</span></h4>
         <div class="cost-row" id="mcost"></div>
         <div style="margin-top:10px;color:#666;font-size:13px" id="mtime"></div>
+      </div>
+      <div class="modal-sec">
+        <h4>Kaç Adet?</h4>
+        <div style="display:flex;align-items:center;gap:10px">
+          <input type="number" id="build-adet" min="1" max="999" value="1"
+            oninput="updateBuildTotal()"
+            style="width:80px;padding:6px 10px;background:#111;border:1px solid #333;color:#f0e8d8;border-radius:3px;font-size:14px">
+          <span style="color:#555;font-size:12px">adet (her biri 1 P.G. sürer)</span>
+        </div>
+        <div id="build-total-cost" style="margin-top:8px;font-size:12px;color:#c8a96e;min-height:16px"></div>
       </div>
       <div class="modal-sec" style="border-bottom:none">
         <button class="btn" id="mbtn" style="width:100%" onclick="confirmBuild()">🏗️ İnşa Et</button>
@@ -1546,6 +1532,15 @@ body{
 
 
 <script>
+function hudSetTab(tab, btn) {
+  ['ham','islenmis','genel'].forEach(t => {
+    const p = document.getElementById('hud-panel-'+t);
+    if (p) p.style.display = t === tab ? 'flex' : 'none';
+    const b = document.getElementById('htab-'+t);
+    if (b) b.classList.toggle('active', t === tab);
+  });
+}
+
 function setText(id, value){
   const el = document.getElementById(id);
   if(!el) return; // yoksa sessiz geç
@@ -1683,7 +1678,16 @@ function startGame() {
   // UI güncelle
   document.getElementById('setup-wrap').style.display = 'none';
   document.getElementById('main-home').style.display = 'block';
-  document.getElementById('main-welcome').textContent = `Hoş geldin, ${kral}!`;
+  // Yeni profil bandı
+  const mw = document.getElementById('main-welcome');
+  if (mw) mw.textContent = kral || '—';
+  const sl = document.getElementById('home-sehir-lbl');
+  if (sl) sl.textContent = sehir || '—';
+  const il = document.getElementById('home-irk-lbl');
+  if (il) il.textContent = irkData ? irkData.name : (selectedIrk || '—');
+  const ii = document.getElementById('home-irk-icon');
+  if (ii) ii.textContent = irkData?.icon || '👑';
+  // Gizli span'lar güncelle (diğer kodlar için)
   document.getElementById('home-kral').textContent = kral;
   document.getElementById('home-sehir').textContent = sehir;
   document.getElementById('home-irk').textContent = irkData ? irkData.icon + ' ' + irkData.name : selectedIrk;
@@ -1809,6 +1813,8 @@ function updatePopulationUI(){
   // HUD nüfus
   set('hud-nufus', nufus);
   set('hud-nufus-sinir', sinir);
+  // Ana ekran hızlı stats
+  const hn=document.getElementById('hs-nufus'); if(hn) hn.textContent=nufus;
 
   // Boş köylü senkronu — ordu sayfasındaki sm-koylu aynı değeri göstersin
   try { set('sm-koylu', Math.max(0, koylu - ASKER_SAYISI)); } catch(e) {}
@@ -2310,8 +2316,9 @@ function renderQueue(){
     const el=Date.now()-q.start;
     const pct=Math.min(100,el/q.dur*100);
     const rem=Math.max(0,Math.ceil((q.dur-el)/1000));
+    const kalanLabel=(q.kalanInsa&&q.kalanInsa>0)?`<span style="color:#c8a96e;font-size:10px"> +${q.kalanInsa} daha bekliyor</span>`:'';
     const d=document.createElement('div');d.className='q-item';
-    d.innerHTML=`<div class="q-icon">${b.icon}</div><div class="q-info"><div class="q-name">${b.name} inşa ediliyor</div><div class="q-bar"><div class="q-fill" id="qf-${b.id}" style="width:${pct}%"></div></div></div><div class="q-time" id="qt-${b.id}">${fmtT(rem)}</div>`;
+    d.innerHTML=`<div class="q-icon">${b.icon}</div><div class="q-info"><div class="q-name">${b.name} inşa ediliyor${kalanLabel}</div><div class="q-bar"><div class="q-fill" id="qf-${b.id}" style="width:${pct}%"></div></div></div><div class="q-time" id="qt-${b.id}">${fmtT(rem)}</div>`;
     list.appendChild(d);
   });
 }
@@ -2350,9 +2357,12 @@ function updateCityStats(){
   const active=Object.values(BLDGS).filter(b=>b.lv>0).length;
   const e1=document.getElementById('cs-active');if(e1)e1.innerText=active;
   const e2=document.getElementById('cs-constr');if(e2)e2.innerText=QUEUE.length;
-  // HUD alan göstergesini de senkronize et (ağırlıklı alan)
+  // HUD alan
   const usedArea=Object.values(BLDGS).reduce((s,b)=>s+b.lv*binaAlanFE(b.id),0);
   setText('hud-used', usedArea);
+  // Ana ekran hızlı stats
+  const bEl=document.getElementById('hs-bina'); if(bEl) bEl.textContent=active;
+  const aEl=document.getElementById('hs-alan'); if(aEl) aEl.textContent=usedArea+'/'+(parseInt(document.getElementById('hud-land')?.textContent)||100);
 }
 
 function setFilter(cat,el){
@@ -2392,11 +2402,31 @@ function openModal(id){
   const nxtFx=b.fx(1).map(e=>`<div class="lv">${e.s}</div>`).join('');
   document.getElementById('mlvc').innerHTML=`<div class="lvc-col"><div class="lt">Mevcut Adet: ${b.lv}</div>${curFx}</div><div class="lvc-arr">➜</div><div class="lvc-col next"><div class="lt">Yeni Adet: ${nLv}</div>${nxtFx}</div>`;
   document.getElementById('mcost').innerHTML=Object.entries(cost).map(([r,a])=>`<span class="citem ${(RES[r]||0)>=a?'ok':'no'}">${RICONS[r]||'📦'} ${a.toLocaleString()} <span style="color:#333;font-size:9px">(${(RES[r]||0).toLocaleString()} var)</span></span>`).join('');
-  document.getElementById('mtime').innerText=`⏱ ${fmtT(b.time(1))}`;
+  document.getElementById('mtime').innerText=`⏱ ${fmtT(b.time(1))} / adet`;
   const btn=document.getElementById('mbtn');
   btn.disabled=!afford;
   btn.innerText=`🏗️ ${b.name} İnşa Et`;
+  // Adet inputunu sıfırla
+  const adetInput=document.getElementById('build-adet');
+  if(adetInput){adetInput.value=1;}
+  document.getElementById('build-total-cost').innerHTML='';
   document.getElementById('building-modal').classList.add('open');
+}
+
+function updateBuildTotal(){
+  if(!modalId)return;
+  const b=BLDGS[modalId];if(!b)return;
+  const adet=Math.max(1,Math.min(999,parseInt(document.getElementById('build-adet')?.value)||1));
+  const cost1=b.cost(1);
+  // Tek adet ise toplam maliyet satırını temizle
+  if(adet<=1){document.getElementById('build-total-cost').innerHTML='';
+    const btn=document.getElementById('mbtn');if(btn)btn.disabled=!canAfford(cost1);return;}
+  const totalCost={};
+  Object.entries(cost1).forEach(([r,a])=>{totalCost[r]=a*adet;});
+  const afford=canAfford(totalCost);
+  const html=Object.entries(totalCost).map(([r,a])=>`<span class="citem ${(RES[r]||0)>=a?'ok':'no'}">${RICONS[r]||'📦'} ${a.toLocaleString()}</span>`).join('');
+  document.getElementById('build-total-cost').innerHTML=`<span style="color:#888">${adet} adet toplam:</span> ${html}`;
+  const btn=document.getElementById('mbtn');if(btn)btn.disabled=!afford;
 }
 
 function closeModal(){document.getElementById('building-modal').classList.remove('open');modalId=null;}
@@ -2404,8 +2434,13 @@ function closeModalOut(e){if(e.target===document.getElementById('building-modal'
 async function confirmBuild(){
   if(!modalId)return;
   const b=BLDGS[modalId];if(!b)return;
-  const nLv=b.lv+1;const cost=b.cost(1);
-  if(!canAfford(cost)){toast('❌ Yetersiz kaynak!');return;}
+  const adet=Math.max(1,Math.min(999,parseInt(document.getElementById('build-adet')?.value)||1));
+  const nLv=b.lv+adet;
+  const cost1=b.cost(1);
+  // Toplam maliyet = birim maliyet × adet
+  const totalCost={};
+  Object.entries(cost1).forEach(([r,a])=>{totalCost[r]=a*adet;});
+  if(!canAfford(totalCost)){toast('❌ Yetersiz kaynak!');return;}
 
   const token = getToken();
   if(!token){toast('❌ Oturum bulunamadı!');return;}
@@ -2413,11 +2448,11 @@ async function confirmBuild(){
   // Backend'de kaynakları düş + bina kaydet
   let backendSuccess = false;
   try {
-    // 1. Kaynakları backend'de düş
+    // 1. Toplam kaynakları backend'de düş
     const resResp = await fetch(API_BASE + '/api/game/resources/spend', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ cost })
+      body: JSON.stringify({ cost: totalCost })
     });
     if (resResp.ok) {
       const resData = await resResp.json();
@@ -2431,29 +2466,31 @@ async function confirmBuild(){
       return;
     }
 
-    // 2. Bina inşaatını backend'e kaydet (sabit 1 P.G. süre)
+    // 2. Bina kuyruğuna ekle (adet ile birlikte — backend kalan_insa = adet-1 olarak saklar)
     await fetch(API_BASE + '/api/game/buildings/upgrade', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ binaId: b.id })
+      body: JSON.stringify({ binaId: b.id, adet })
     });
   } catch(e) {
     // Backend'e ulaşılamazsa lokal düş
-    if(!backendSuccess) spendCost(cost);
+    if(!backendSuccess) spendCost(totalCost);
   }
 
   // HUD kaynak güncelle
   setText('hud-w', RES.odun); setText('hud-m', RES.metal); setText('hud-t', RES.tas);
   setText('hud-g', RES.altin); setText('hud-bu', RES.bugday); setText('hud-ba', RES.balik);
 
-  QUEUE.push({id:b.id,targetLv:nLv,start:Date.now(),dur:b.time(1)*1000});
+  // Kuyruğa 1 item ekle (1. binanın inşaatı — geri kalanlar cron ile otomatik devam)
+  QUEUE.push({id:b.id,targetLv:b.lv+1,start:Date.now(),dur:b.time(1)*1000,kalanInsa:adet-1});
 
-  // Alan sayacını artır (ağırlıklı, +binaAlan çünkü henüz lv artmadı)
+  // Alan sayacını artır
   const usedArea = Object.values(BLDGS).reduce((s,bl)=>s+bl.lv*binaAlanFE(bl.id),0) + binaAlanFE(b.id);
   setText('hud-used', usedArea);
 
   closeModal();renderGrid();renderQueue();
-  toast(`🔨 ${b.name} inşaatı başladı!`);
+  const adetMsg = adet > 1 ? ` (${adet} adet sıralandı)` : '';
+  toast(`🔨 ${b.name} inşaatı başladı!${adetMsg}`);
 }
 
 let toastT;
@@ -3593,6 +3630,8 @@ function nextCag() {
   const roman = ['','I','II','III','IV','V'];
   document.getElementById('cs-age').textContent = roman[OYUNCU.cag] + '. Çağ';
   document.getElementById('home-cag').textContent = roman[OYUNCU.cag] + '. Çağ';
+  const hcl = document.getElementById('home-cag-lbl');
+  if (hcl) hcl.textContent = roman[OYUNCU.cag] + '. Çağ';
   document.getElementById('sidebar-cag').textContent = roman[OYUNCU.cag] + '. Çağ';
   if (OYUNCU.cag > 1) {
     const uyari = document.getElementById('cag1-uyari');
@@ -4034,7 +4073,7 @@ async function loadBuildingsFromBackend() {
             BLDGS[binaId].lv = data.seviye;
             if (!QUEUE.find(q => q.id === binaId)) {
               const dur = 3600 * 1000; // 1 P.G. sabit
-              QUEUE.push({id: binaId, targetLv: data.seviye + 1, start: endTime - dur, dur});
+              QUEUE.push({id: binaId, targetLv: data.seviye + 1, start: endTime - dur, dur, kalanInsa: data.kalanInsa || 0});
             }
           }
         } else {
