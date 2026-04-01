@@ -138,6 +138,11 @@ async function loadGameData() {
     if (res.pismis !== undefined) RES.pismis = parseInt(res.pismis) || 0;
     if (res.cig_et !== undefined) RES.cig_et = parseInt(res.cig_et) || 0;
     if (res.pismis_et !== undefined) RES.pismis_et = parseInt(res.pismis_et) || 0;
+    // Mana degerlerini yukle
+    if (res.mana_beyaz !== undefined) RES.mana_beyaz = parseFloat(res.mana_beyaz) || 0;
+    if (res.mana_kirmizi !== undefined) RES.mana_kirmizi = parseFloat(res.mana_kirmizi) || 0;
+    if (res.mana_mavi !== undefined) RES.mana_mavi = parseFloat(res.mana_mavi) || 0;
+    if (res.mana_yesil !== undefined) RES.mana_yesil = parseFloat(res.mana_yesil) || 0;
 
     // HUD Ham kaynaklar (miktar + rate)
     setText('hud-w',   RES.odun);
@@ -161,6 +166,12 @@ async function loadGameData() {
     setText('hud-ce',  RES.cig_et);
     setText('hud-pe',  RES.pismis_et);
 
+    // Mana HUD
+    setText('hud-mana-beyaz',   Math.floor(RES.mana_beyaz || 0));
+    setText('hud-mana-kirmizi', Math.floor(RES.mana_kirmizi || 0));
+    setText('hud-mana-mavi',    Math.floor(RES.mana_mavi || 0));
+    setText('hud-mana-yesil',   Math.floor(RES.mana_yesil || 0));
+
     // Nufus & Isciler
     if (work) {
       if (work.total !== undefined) population.total = parseInt(work.total) || 10;
@@ -171,8 +182,12 @@ async function loadGameData() {
       population.fish     = parseInt(work.balikci) || 0;
       population.merchant = parseInt(work.tuccar)  || 0;
       population.asker    = parseInt(work.asker)   || 0;
-      population.worshipper = (parseInt(work.worshipper_beyaz)||0) + (parseInt(work.worshipper_kirmizi)||0)
-                            + (parseInt(work.worshipper_mavi)||0)  + (parseInt(work.worshipper_yesil)||0);
+      population.worshipper_beyaz   = parseInt(work.worshipper_beyaz)   || 0;
+      population.worshipper_kirmizi = parseInt(work.worshipper_kirmizi) || 0;
+      population.worshipper_mavi    = parseInt(work.worshipper_mavi)    || 0;
+      population.worshipper_yesil   = parseInt(work.worshipper_yesil)   || 0;
+      population.worshipper = population.worshipper_beyaz + population.worshipper_kirmizi
+                            + population.worshipper_mavi + population.worshipper_yesil;
       population.unite         = parseInt(work.unite_toplam)  || 0;
       population.nufus_siniri  = parseInt(work.nufus_siniri)  || population.total;
       population.nufus_toplam  = parseInt(work.nufus_toplam)  || population.total;

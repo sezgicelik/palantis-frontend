@@ -15,30 +15,98 @@
   <div id="sidebar-mount"></div>
   <div class="main-content">
 
+    <!-- Worshipper Ozet -->
     <div class="city-stats" style="margin-bottom:20px">
-      <div class="cstat"><span class="snum" id="worshipper-count">0</span><span class="slbl">WORSHIPPER</span></div>
-      <div class="cstat"><span class="snum">2000</span><span class="slbl">MAKSİMUM</span></div>
-      <div class="cstat"><span class="snum" id="worshipper-mana">0</span><span class="slbl">MANA/GÜN</span></div>
-      <div class="cstat"><span class="snum">—</span><span class="slbl">TANRI</span></div>
+      <div class="cstat"><span class="snum" id="ws-total">0</span><span class="slbl">TOPLAM WS</span></div>
+      <div class="cstat"><span class="snum" id="ws-kapasite">0</span><span class="slbl">KAPASİTE</span></div>
+      <div class="cstat"><span class="snum" id="ws-koylu">0</span><span class="slbl">BOŞ KÖYLÜ</span></div>
+      <div class="cstat"><span class="snum" id="ws-altin">0</span><span class="slbl">ALTIN</span></div>
     </div>
+
+    <!-- Mana Durum Kartlari -->
+    <div class="city-stats" style="margin-bottom:20px">
+      <div class="cstat" style="border-left:3px solid #f0e8d8"><span class="snum" id="mana-beyaz-val" style="color:#f0e8d8">0</span><span class="slbl">🤍 BEYAZ MANA</span></div>
+      <div class="cstat" style="border-left:3px solid #e74c3c"><span class="snum" id="mana-kirmizi-val" style="color:#e74c3c">0</span><span class="slbl">❤️ KIRMIZI MANA</span></div>
+      <div class="cstat" style="border-left:3px solid #3498db"><span class="snum" id="mana-mavi-val" style="color:#3498db">0</span><span class="slbl">💙 MAVİ MANA</span></div>
+      <div class="cstat" style="border-left:3px solid #2ecc71"><span class="snum" id="mana-yesil-val" style="color:#2ecc71">0</span><span class="slbl">💚 YEŞİL MANA</span></div>
+    </div>
+
+    <!-- Worshipper Uretim -->
     <div class="card" style="padding:20px;margin-bottom:16px">
-      <h2>🙏 Worshipper Sistemi</h2>
-      <p style="color:#555;font-size:13px;margin-bottom:16px">Büyü savaşı için Worshipper üretirsin. Maksimum <b style="color:#ccc">2000</b> adet. Bedavaya çalışır, mana üretir.</p>
-      <div class="worker-row" style="gap:12px">
-        🙏 Worshipper:
-        <button type="button" onclick="setWorshippers(WORSHIPPERS.count-100)">−100</button>
-        <button type="button" onclick="setWorshippers(WORSHIPPERS.count-1)">−</button>
-        <b id="worshipper-count">0</b>
-        <button type="button" onclick="setWorshippers(WORSHIPPERS.count+1)">+</button>
-        <button type="button" onclick="setWorshippers(WORSHIPPERS.count+100)">+100</button>
-        <span class="info">(+<span id="worshipper-mana">0</span> mana/gün)</span>
+      <h2>🙏 Worshipper Üretimi</h2>
+      <p style="color:#888;font-size:13px;margin-bottom:16px">
+        Tapınak binası gerekli. Her tapınak <b style="color:#c8a96e">200 WS</b> kapasitesi sağlar.<br>
+        Maliyet: <b style="color:#c8a96e">1 köylü + 1.000 altın</b> · Süre: <b style="color:#c8a96e">4 P.G.</b>
+      </p>
+
+      <!-- Tapinak secimi -->
+      <div style="margin-bottom:16px">
+        <label style="color:#aaa;font-size:13px">Tapınak Seç:</label>
+        <select id="ws-tapinak-select" onchange="wsUpdateUI()" style="background:#1a1a1a;color:#f5f0e8;border:1px solid #333;padding:8px 14px;border-radius:6px;font-size:14px;margin-left:8px;min-width:200px">
+          <option value="">-- Tapınak Seç --</option>
+          <option value="rathe_tapinagi" data-renk="kirmizi" data-color="#e74c3c">⚔️ Rathe Tapınağı → Kırmızı Mana</option>
+          <option value="xegony_tapinagi" data-renk="mavi" data-color="#3498db">💫 Xegony Tapınağı → Mavi Mana</option>
+          <option value="fennin_tapinagi" data-renk="beyaz" data-color="#f0e8d8">🔥 Fennin Ro Tapınağı → Beyaz Mana</option>
+          <option value="tunare_tapinagi" data-renk="yesil" data-color="#2ecc71">🌿 Tunare (Uras) Tapınağı → Yeşil Mana</option>
+        </select>
+      </div>
+
+      <!-- Tapinak durumu -->
+      <div id="ws-tapinak-info" style="padding:12px;background:#0d0d0d;border-radius:6px;border:1px solid #1e1e1e;margin-bottom:16px;font-size:13px;color:#888">
+        Üstten tapınak seçin.
+      </div>
+
+      <!-- Miktar + Uret -->
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <label style="color:#aaa;font-size:14px">Üretilecek WS:</label>
+        <div style="display:flex;align-items:center;gap:6px">
+          <button class="btn ghost" style="padding:4px 10px" onclick="wsAdjust(-10)">−10</button>
+          <button class="btn ghost" style="padding:4px 8px" onclick="wsAdjust(-1)">−</button>
+          <span id="ws-miktar" style="min-width:48px;text-align:center;font-size:18px;font-weight:bold;color:#d4af37">0</span>
+          <button class="btn ghost" style="padding:4px 8px" onclick="wsAdjust(1)">+</button>
+          <button class="btn ghost" style="padding:4px 10px" onclick="wsAdjust(10)">+10</button>
+        </div>
+        <button class="btn" id="ws-uret-btn" onclick="wsUret()" disabled>🙏 Eğit</button>
+      </div>
+      <div style="margin-top:8px;font-size:12px;color:#888">
+        Maliyet: <b id="ws-maliyet">0</b> altın + <b id="ws-koylu-gerek">0</b> köylü · Süre: <b id="ws-sure">0</b> P.G.
+      </div>
+      <div id="ws-msg" style="margin-top:8px;font-size:13px;min-height:20px"></div>
+    </div>
+
+    <!-- WS Dagilim -->
+    <div class="card" style="padding:20px;margin-bottom:16px">
+      <h2>📊 Worshipper Dağılımı</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+        <div style="background:#0d0d0d;padding:12px;border-radius:6px;border-left:3px solid #f0e8d8">
+          <div style="color:#f0e8d8;font-weight:bold">🤍 Beyaz WS</div>
+          <div style="font-size:20px;color:#f0e8d8;margin-top:4px" id="ws-beyaz">0</div>
+          <div style="font-size:11px;color:#888">Fennin Ro · +<span id="ws-beyaz-mana">0</span> mana/gün</div>
+        </div>
+        <div style="background:#0d0d0d;padding:12px;border-radius:6px;border-left:3px solid #e74c3c">
+          <div style="color:#e74c3c;font-weight:bold">❤️ Kırmızı WS</div>
+          <div style="font-size:20px;color:#e74c3c;margin-top:4px" id="ws-kirmizi">0</div>
+          <div style="font-size:11px;color:#888">Rathe · +<span id="ws-kirmizi-mana">0</span> mana/gün</div>
+        </div>
+        <div style="background:#0d0d0d;padding:12px;border-radius:6px;border-left:3px solid #3498db">
+          <div style="color:#3498db;font-weight:bold">💙 Mavi WS</div>
+          <div style="font-size:20px;color:#3498db;margin-top:4px" id="ws-mavi">0</div>
+          <div style="font-size:11px;color:#888">Xegony · +<span id="ws-mavi-mana">0</span> mana/gün</div>
+        </div>
+        <div style="background:#0d0d0d;padding:12px;border-radius:6px;border-left:3px solid #2ecc71">
+          <div style="color:#2ecc71;font-weight:bold">💚 Yeşil WS</div>
+          <div style="font-size:20px;color:#2ecc71;margin-top:4px" id="ws-yesil">0</div>
+          <div style="font-size:11px;color:#888">Tunare · +<span id="ws-yesil-mana">0</span> mana/gün</div>
+        </div>
       </div>
     </div>
+
+    <!-- Buyu Slotlari -->
     <div class="card" style="padding:20px">
       <h2>🔮 Büyü Slotları</h2>
-      <p style="color:#444;font-size:13px">Büyücü Kulesi inşa edilince büyü slotları açılır.</p>
+      <p style="color:#888;font-size:13px">Büyücü Kulesi inşa edilince büyü slotları açılır.</p>
       <div style="margin-top:14px;padding:16px;background:#080808;border-radius:8px;border:1px solid #1a1a1a">
-        <div style="color:#333;font-size:13px;text-align:center">[ Büyücü Kulesi gerekli ]</div>
+        <div style="color:#555;font-size:13px;text-align:center">[ Büyücü Kulesi gerekli ]</div>
       </div>
     </div>
 

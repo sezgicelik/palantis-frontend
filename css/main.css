@@ -397,7 +397,8 @@ body{padding-top:95px;}
 .fbtn:hover,.fbtn.on{background:var(--race-color);color:#000;border-color:var(--race-color);font-weight:700;}
 
 /* Bina grid → satır listesi */
-.bg-grid{display:flex;flex-direction:column;gap:6px;}
+.bg-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+@media(max-width:768px){.bg-grid{grid-template-columns:1fr;}}
 .brow{display:flex;align-items:center;gap:10px;background:#111;border:1px solid #1e1e1e;border-left:3px solid #333;border-radius:8px;padding:8px 12px;transition:.18s;position:relative;flex-wrap:wrap;}
 .brow:hover{border-color:#2a2a2a;background:#141414;}
 .brow.building{border-left-color:#2ecc71;background:#0b0f0b;}
