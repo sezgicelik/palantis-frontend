@@ -148,6 +148,7 @@ function renderHUD(){
         ${sb('NÜFUS','👥','Nüfus','hud-nufus-box',null)}
         ${sb('ALAN','📐','Alan','hud-alan-box',null)}
         ${sb('ÇAĞ','🧱','Çağ','hud-limit',null)}
+        ${sb('ŞEHİR','🏰','Ş.Değeri','hud-sehir-deger',null)}
         <div class="stat-box mana-box" data-tip="BEYAZ MANA" style="border-left:2px solid #f0e8d8"><span class="res-icon">🤍</span><div class="res-details"><span class="res-label" style="color:#f0e8d8">B.Mana</span><span class="res-amount" id="hud-mana-beyaz">0</span></div></div>
         <div class="stat-box mana-box" data-tip="KIRMIZI MANA" style="border-left:2px solid #e74c3c"><span class="res-icon">❤️</span><div class="res-details"><span class="res-label" style="color:#e74c3c">K.Mana</span><span class="res-amount" id="hud-mana-kirmizi">0</span></div></div>
         <div class="stat-box mana-box" data-tip="MAVİ MANA" style="border-left:2px solid #3498db"><span class="res-icon">💙</span><div class="res-details"><span class="res-label" style="color:#3498db">M.Mana</span><span class="res-amount" id="hud-mana-mavi">0</span></div></div>

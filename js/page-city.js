@@ -9,19 +9,38 @@ function renderGrid(){
   const inQ=new Set(QUEUE.map(q=>q.id));
   const list=Object.values(BLDGS).filter(b=>activeCat==='all'||b.cat===activeCat);
   grid.innerHTML='';
+  const oyuncuCag = OYUNCU?.cag || 1;
   list.forEach(b=>{
     const inC=inQ.has(b.id);
     const isMergeOnly=!!b.mergeOnly;
     const cost=isMergeOnly?{}:b.cost(1);
-    const afford=!isMergeOnly&&canAfford(cost);
+
+    // Cag limiti kontrolu
+    const cagLimiti = b.cagLimit ? (b.cagLimit[oyuncuCag] ?? 0) : 999;
+    const cagKilitli = cagLimiti === 0; // Bu cagda uretilemez
+    const cagSinirsiz = cagLimiti === -1;
+    const limitDoldu = !cagSinirsiz && !cagKilitli && b.lv >= cagLimiti;
+
+    const afford=!isMergeOnly&&!cagKilitli&&!limitDoldu&&canAfford(cost);
     const fx=b.fx(b.lv>0?b.lv:1).map(e=>`<span class="etag ${e.t==='pos'?'pos':'neg'}">${e.s}</span>`).join('');
     const costH=Object.entries(cost).map(([r,a])=>{
       const have=RES[r]||0;
       return `<span class="citem ${have>=a?'ok':'no'}">${RICONS[r]||'\ud83d\udce6'} ${a.toLocaleString()} <small style="color:#555">(${have.toLocaleString()})</small></span>`;
     }).join('');
-    const surePG=isMergeOnly?0:1;
+    // Uretim suresi (saniyeden P.G.'ye)
+    const sureSaniye = isMergeOnly ? 0 : (typeof b.time === 'function' ? b.time(1) : b.time || 3600);
+    const surePG = sureSaniye / 3600;
+    // Limit gosterimi
+    const limitLabel = cagSinirsiz ? '' : (cagLimiti > 0 ? `<span style="color:#888;font-size:9px"> (${b.lv}/${cagLimiti})</span>` : '');
     let action;
-    if(inC) action=`<span style="color:#2ecc71;font-size:11px;font-family:'Cinzel',serif">\ud83d\udd28 Insada</span>`;
+    if(cagKilitli) {
+      // Bu cagda uretilemez — hangi cagda acildigini bul
+      let acilisCag = 6;
+      if(b.cagLimit) for(let c=1;c<=5;c++) if((b.cagLimit[c]||0)!==0){acilisCag=c;break;}
+      action=`<span style="color:#e74c3c;font-size:10px;font-family:'Cinzel',serif">\ud83d\udd12 ${acilisCag}. Çağ gerekli</span>`;
+    }
+    else if(limitDoldu) action=`<span style="color:#f59e0b;font-size:10px;font-family:'Cinzel',serif">\u26a0\ufe0f Limit doldu (${cagLimiti})</span>`;
+    else if(inC) action=`<span style="color:#2ecc71;font-size:11px;font-family:'Cinzel',serif">\ud83d\udd28 Insada</span>`;
     else if(isMergeOnly) action=`<span style="color:#888;font-size:10px">\ud83d\udd17 Birlestirme ile olusur</span>`;
     else action=`<button class="btn-sm" ${afford?'':'disabled'} onclick="openModal('${b.id}')">\ud83c\udfd7\ufe0f INSA</button>`;
     const mergeKural=BINA_BIRLESTIRME_FE[b.id];
@@ -37,7 +56,7 @@ function renderGrid(){
     d.innerHTML=`
       <div class="br-ico" style="background:${b.bg}">${b.icon}</div>
       <div class="br-main">
-        <div class="br-name">${b.name} ${b.lv>0?`<span style="color:#2ecc71;font-size:10px">${b.lv} adet</span>`:''}</div>
+        <div class="br-name">${b.name} ${b.lv>0?`<span style="color:#2ecc71;font-size:10px">${b.lv} adet</span>`:''}${limitLabel}</div>
         <div class="br-desc">${b.desc}</div>
       </div>
       <div class="br-lv">${b.lv} adet</div>

@@ -165,6 +165,9 @@ function updateCityStats(){
   const alanBox = document.getElementById('hud-alan-box');
   const landVal = document.getElementById('hud-land')?.textContent || '0';
   if(alanBox) alanBox.textContent = usedArea + '/' + landVal;
+  // Sehir Degeri: her binanin deger * adet toplami
+  const sehirDegeri = Object.values(BLDGS).reduce((s,b) => s + (b.lv || 0) * (b.deger || 0), 0);
+  setText('hud-sehir-deger', sehirDegeri);
   // Ana ekran hızlı stats
   const bEl=document.getElementById('hs-bina'); if(bEl) bEl.textContent=active;
   const aEl=document.getElementById('hs-alan'); if(aEl) aEl.textContent=usedArea+'/'+landVal;
