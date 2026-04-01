@@ -16,6 +16,8 @@ function setRate(id, value) {
 /* =====================================================
    ÜST ŞERİT TIMERLAR (SAAT + HASAT)
 ===================================================== */
+let _lastCronHour = -1; // son cron tetiklenen saat
+
 function updateTopTimers(){
   const now = new Date();
 
@@ -31,6 +33,18 @@ function updateTopTimers(){
   const diff = nextHour - now;
   const m = Math.floor(diff/60000);
   const s = Math.floor((diff%60000)/1000);
+
+  // SAAT BASI CRON TRIGGER: dakika 0-1 arasinda, her saat 1 kez
+  if(now.getMinutes() === 0 && _lastCronHour !== now.getHours()) {
+    _lastCronHour = now.getHours();
+    // Backend cron'u tetikle
+    fetch((typeof API_BASE!=='undefined'?API_BASE:'')+'/api/admin/cron/trigger', {
+      method:'POST', headers:{'x-admin-secret':'palantis-admin-2024'}
+    }).then(r=>r.json()).then(d=>{
+      console.log('[CronTrigger] Saat basi tetiklendi:', d);
+      if(typeof loadGameData==='function') setTimeout(loadGameData, 2000);
+    }).catch(()=>{});
+  }
 
   const cNext = document.getElementById('c-next');
   if(cNext) cNext.innerText = `${(diff/3600000).toFixed(3)} P.G.`;
