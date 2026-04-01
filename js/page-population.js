@@ -102,8 +102,87 @@ async function saveWorkers(){
   } catch(e) { toast('Sunucu hatasi'); }
 }
 
+/* ── AT/KURT KESİM SİSTEMİ ── */
+let KESIM_MIKTAR = 0;
+
+function kesimInit() {
+  // Taraf bazli aciklama ve label
+  const taraf = OYUNCU?.taraf || 'iyi';
+  const isLight = taraf === 'iyi';
+  const hayvanAdi = isLight ? 'At' : 'Kurt';
+  const hayvanIcon = isLight ? '🐴' : '🐺';
+
+  const lbl = document.getElementById('kesim-hayvan-lbl');
+  if (lbl) lbl.textContent = hayvanIcon + ' ' + hayvanAdi.toUpperCase();
+
+  const aciklama = document.getElementById('kesim-taraf-aciklama');
+  if (aciklama) aciklama.textContent = isLight
+    ? '🐴 Aydınlık taraf at keser. Her at = 50 çiğ et.'
+    : '🐺 Karanlık taraf kurt keser. Her kurt = 50 çiğ et.';
+
+  // Mevcut hayvan ve et sayisi
+  const hayvanSayisi = isLight ? (EXTRA_RES.at || 0) : (EXTRA_RES.kurt || 0);
+  setText('kesim-hayvan', hayvanSayisi);
+  setText('kesim-cig-et', RES.cig_et || 0);
+  KESIM_MIKTAR = 0;
+  setText('kesim-miktar', 0);
+  setText('kesim-miktar-preview', 0);
+  setText('kesim-et-preview', 0);
+}
+
+function kesimAdjust(delta) {
+  const taraf = OYUNCU?.taraf || 'iyi';
+  const isLight = taraf === 'iyi';
+  const max = isLight ? (EXTRA_RES.at || 0) : (EXTRA_RES.kurt || 0);
+  KESIM_MIKTAR = Math.max(0, Math.min(KESIM_MIKTAR + delta, max));
+  setText('kesim-miktar', KESIM_MIKTAR);
+  setText('kesim-miktar-preview', KESIM_MIKTAR);
+  setText('kesim-et-preview', KESIM_MIKTAR * 50);
+}
+
+async function kesimYap() {
+  if (KESIM_MIKTAR <= 0) {
+    document.getElementById('kesim-sonuc').textContent = '⚠️ Kesilecek miktar gir!';
+    return;
+  }
+  const token = getToken();
+  if (!token) { toast('Giriş yapmalısın!'); return; }
+
+  try {
+    const resp = await fetch(API_BASE + '/api/game/resources/slaughter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ miktar: KESIM_MIKTAR })
+    });
+    const data = await resp.json();
+    if (!resp.ok) {
+      document.getElementById('kesim-sonuc').textContent = '⚠️ ' + (data.error || 'Hata');
+      return;
+    }
+    const uretilen = KESIM_MIKTAR * 50;
+    document.getElementById('kesim-sonuc').textContent =
+      '✅ ' + KESIM_MIKTAR + ' hayvan kesildi → ' + uretilen + ' çiğ et üretildi!';
+    document.getElementById('kesim-sonuc').style.color = '#2ecc71';
+    // Kaynaklari guncelle
+    if (data.extra_res) {
+      EXTRA_RES.at = data.extra_res.at || 0;
+      EXTRA_RES.kurt = data.extra_res.kurt || 0;
+    }
+    if (data.cig_et !== undefined) RES.cig_et = data.cig_et;
+    KESIM_MIKTAR = 0;
+    kesimInit();
+    setTimeout(() => {
+      const el = document.getElementById('kesim-sonuc');
+      if (el) { el.textContent = ''; el.style.color = '#888'; }
+    }, 4000);
+  } catch(e) {
+    document.getElementById('kesim-sonuc').textContent = '⚠️ Bağlantı hatası';
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   updatePopulationUI();
   loadPisirme();
   updatePisirmeUI();
+  kesimInit();
 });
