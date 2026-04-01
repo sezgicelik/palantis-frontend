@@ -178,11 +178,10 @@ function updateCityStats(){
   const e2=document.getElementById('cs-constr');if(e2)e2.innerText=QUEUE.length;
   // HUD alan
   const usedArea=Object.values(BLDGS).reduce((s,b)=>s+b.lv*binaAlanFE(b.id),0);
-  setText('hud-used', usedArea);
-  // Yeni stat-box alan gosterimi
+  // Toplam alan global'den al (loadGameData'da set edilir)
+  const toplamAlan = window._palantisToplamAlan || 0;
   const alanBox = document.getElementById('hud-alan-box');
-  const landVal = document.getElementById('hud-land')?.textContent || '0';
-  if(alanBox) alanBox.textContent = usedArea + '/' + landVal;
+  if(alanBox) alanBox.textContent = usedArea + '/' + toplamAlan;
   // Sehir Degeri: her binanin deger * adet toplami
   const sehirDegeri = Object.values(BLDGS).reduce((s,b) => s + (b.lv || 0) * (b.deger || 0), 0);
   setText('hud-sehir-deger', sehirDegeri);

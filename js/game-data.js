@@ -116,6 +116,7 @@ async function loadGameData() {
     if (alanData.alan !== undefined) {
       const toplamAlan = parseInt(alanData.alan) || 100;
       const kullanilanAlan = parseInt(alanData.kullanilan_alan) || 0;
+      window._palantisToplamAlan = toplamAlan;
       // landState (arazi sayfasi)
       if (typeof landState !== 'undefined') {
         landState.land = toplamAlan;
@@ -277,8 +278,8 @@ async function loadBuildingsFromBackend() {
     setText('hud-sehir-deger', sehirDegeri);
     // Alan box guncelle
     const alanBox = document.getElementById('hud-alan-box');
-    const landVal = document.getElementById('hud-land')?.textContent || '0';
-    if (alanBox) alanBox.textContent = usedArea + '/' + landVal;
+    const toplamAlanG = window._palantisToplamAlan || 0;
+    if (alanBox) alanBox.textContent = usedArea + '/' + toplamAlanG;
     // Sehir grid'i guncelle
     if (typeof renderGrid === 'function') { renderGrid(); }
     if (typeof renderQueue === 'function') { renderQueue(); }
