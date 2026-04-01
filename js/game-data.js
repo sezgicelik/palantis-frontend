@@ -261,9 +261,16 @@ async function loadBuildingsFromBackend() {
       }
     }
     setText('hud-used', usedArea);
-    if (document.getElementById('city')?.classList.contains('active-panel')) {
-      renderGrid(); renderQueue();
-    }
+    // Sehir Degeri hesapla ve HUD'a yaz
+    const sehirDegeri = Object.values(BLDGS).reduce((s,b) => s + (b.lv || 0) * (b.deger || 0), 0);
+    setText('hud-sehir-deger', sehirDegeri);
+    // Alan box guncelle
+    const alanBox = document.getElementById('hud-alan-box');
+    const landVal = document.getElementById('hud-land')?.textContent || '0';
+    if (alanBox) alanBox.textContent = usedArea + '/' + landVal;
+    // Sehir grid'i guncelle
+    if (typeof renderGrid === 'function') { renderGrid(); }
+    if (typeof renderQueue === 'function') { renderQueue(); }
   } catch(e) {
     console.error('[loadBuildings]', e);
   }
