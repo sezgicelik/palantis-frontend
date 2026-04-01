@@ -112,6 +112,9 @@ function updatePopulationUI(){
   const atananKoylu = isci + sabit;
   set('hud-nufus', atananKoylu);
   set('hud-nufus-sinir', population.total || nufus);
+  // Yeni stat-box icin birlesik gosterim
+  const nufusBox = document.getElementById('hud-nufus-box');
+  if(nufusBox) nufusBox.textContent = atananKoylu + '/' + (population.total || nufus);
   // Ana ekran hızlı stats
   const hn=document.getElementById('hs-nufus'); if(hn) hn.textContent=nufus;
 
@@ -158,9 +161,13 @@ function updateCityStats(){
   // HUD alan
   const usedArea=Object.values(BLDGS).reduce((s,b)=>s+b.lv*binaAlanFE(b.id),0);
   setText('hud-used', usedArea);
+  // Yeni stat-box alan gosterimi
+  const alanBox = document.getElementById('hud-alan-box');
+  const landVal = document.getElementById('hud-land')?.textContent || '0';
+  if(alanBox) alanBox.textContent = usedArea + '/' + landVal;
   // Ana ekran hızlı stats
   const bEl=document.getElementById('hs-bina'); if(bEl) bEl.textContent=active;
-  const aEl=document.getElementById('hs-alan'); if(aEl) aEl.textContent=usedArea+'/'+(parseInt(document.getElementById('hud-land')?.textContent)||100);
+  const aEl=document.getElementById('hs-alan'); if(aEl) aEl.textContent=usedArea+'/'+landVal;
 }
 
 /* =====================================================

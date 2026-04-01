@@ -93,91 +93,64 @@ function renderHUD(){
   const mount = document.getElementById('hudbar-mount');
   if(!mount) return;
 
-  // stat-box helper: ikon + miktar + rate
-  function sb(tip, icon, amountId, rateId) {
+  // stat-box helper: ikon + isim + miktar + rate
+  function sb(tip, icon, label, amountId, rateId) {
     const rateHtml = rateId
       ? `<span class="res-rate pos" id="${rateId}">+0</span>`
       : '';
     return `<div class="stat-box" data-tip="${tip}">
       <span class="res-icon">${icon}</span>
       <div class="res-details">
+        <span class="res-label">${label}</span>
         <span class="res-amount" id="${amountId}">0</span>
         ${rateHtml}
       </div>
     </div>`;
   }
 
-  // Metal SVG ikon
   const metalSvg = '<svg width="13" height="10" viewBox="0 0 15 11" style="display:inline-block;vertical-align:-1px"><path d="M2,1 L13,1 L11,10 L4,10 Z" fill="#8a8a8a" stroke="#666" stroke-width="0.5"/><path d="M4,3 L11,3 L9.5,8.5 L5.5,8.5 Z" fill="#b0b0b0"/></svg>';
+  const islSvg = '<svg width="13" height="10" viewBox="0 0 15 11" style="display:inline-block;vertical-align:-1px"><path d="M2,1 L13,1 L11,10 L4,10 Z" fill="#2471a3" stroke="#1a5276" stroke-width="0.5"/><path d="M4,3 L11,3 L9.5,8.5 L5.5,8.5 Z" fill="#5dade2"/></svg>';
 
   mount.innerHTML = `
   <div class="hudbar" id="hudbar">
-    <!-- HAM MADDELER -->
+    <!-- HAM: Odun Metal Bugday Balik CigEt Tas Altin -->
     <div class="hud-row-wrap">
       <div class="hud-row-lbl">HAM</div>
-      <div class="hud-res-row" id="hud-panel-ham">
-        ${sb('ODUN','🌳','hud-w','hud-wg')}
-        <div class="stat-box" data-tip="METAL">
-          <span class="res-icon">${metalSvg}</span>
-          <div class="res-details">
-            <span class="res-amount" id="hud-m">0</span>
-            <span class="res-rate pos" id="hud-mg">+0</span>
-          </div>
-        </div>
-        ${sb('BUĞDAY','🌾','hud-bu','hud-bug')}
-        ${sb('BALIK','🎣','hud-ba','hud-bag')}
-        ${sb('TAŞ','🪨','hud-t','hud-tg')}
-        ${sb('ALTIN','💰','hud-g','hud-gg')}
+      <div class="hud-res-row hud-aligned">
+        ${sb('ODUN','🌳','Odun','hud-w','hud-wg')}
+        <div class="stat-box" data-tip="METAL"><span class="res-icon">${metalSvg}</span><div class="res-details"><span class="res-label">Metal</span><span class="res-amount" id="hud-m">0</span><span class="res-rate pos" id="hud-mg">+0</span></div></div>
+        ${sb('BUĞDAY','🌾','Buğday','hud-bu','hud-bug')}
+        ${sb('BALIK','🎣','Balık','hud-ba','hud-bag')}
+        ${sb('ÇİĞ ET','🥩','Çiğ Et','hud-ce',null)}
+        ${sb('TAŞ','🪨','Taş','hud-t','hud-tg')}
+        ${sb('ALTIN','💰','Altın','hud-g','hud-gg')}
       </div>
     </div>
-    <!-- İŞLENMİŞ -->
+    <!-- ISL: Kereste IslMetal Ekmek PisBal PisEt (bos) (bos) — ayni sirada -->
     <div class="hud-row-wrap">
       <div class="hud-row-lbl">İŞL.</div>
-      <div class="hud-res-row" id="hud-panel-islenmis">
-        ${sb('KERESTE','🪵','hud-ke',null)}
-        ${sb('İŞL.METAL','🔩','hud-is',null)}
-        ${sb('EKMEK','🍞','hud-ek',null)}
-        ${sb('PİŞ.BALIK','🍳','hud-pb',null)}
-        ${sb('ÇİĞ ET','🥩','hud-ce',null)}
-        ${sb('PİŞ.ET','🍖','hud-pe',null)}
+      <div class="hud-res-row hud-aligned">
+        ${sb('KERESTE','🪵','Kereste','hud-ke',null)}
+        <div class="stat-box" data-tip="İŞL.METAL"><span class="res-icon">${islSvg}</span><div class="res-details"><span class="res-label">İşl.Metal</span><span class="res-amount" id="hud-is">0</span></div></div>
+        ${sb('EKMEK','🍞','Ekmek','hud-ek',null)}
+        ${sb('PİŞ.BALIK','🍳','Piş.Balık','hud-pb',null)}
+        ${sb('PİŞ.ET','🍖','Piş.Et','hud-pe',null)}
+        <div class="stat-box stat-empty"></div>
+        <div class="stat-box stat-empty"></div>
       </div>
     </div>
     <!-- GENEL -->
     <div class="hud-row-wrap">
       <div class="hud-row-lbl">GENEL</div>
-      <div class="hud-res-row" id="hud-panel-genel">
-        <div class="stat-box" data-tip="MORAL">
-          <span class="res-icon">😊</span>
-          <div class="res-details"><span class="res-amount" id="hud-moral">—</span></div>
-        </div>
-        <div class="stat-box" data-tip="AÇLIK">
-          <span class="res-icon">🍽️</span>
-          <div class="res-details"><span class="res-amount" id="hud-hunger">—</span></div>
-        </div>
-        <div class="stat-box" data-tip="NÜFUS">
-          <span class="res-icon">👥</span>
-          <div class="res-details"><span class="res-amount"><span id="hud-nufus">—</span>/<span id="hud-nufus-sinir">—</span></span></div>
-        </div>
-        <div class="stat-box" data-tip="ALAN">
-          <span class="res-icon">📐</span>
-          <div class="res-details"><span class="res-amount"><span id="hud-used">0</span>/<span id="hud-land">0</span></span></div>
-        </div>
-        <div class="stat-box" data-tip="ÇAĞ LİMİTİ">
-          <span class="res-icon">🧱</span>
-          <div class="res-details"><span class="res-amount" id="hud-limit">—</span></div>
-        </div>
-        <div class="stat-box" data-tip="PALANTİS TARİHİ">
-          <span class="res-icon">📅</span>
-          <div class="res-details"><span class="res-amount" id="hud-takvim">—</span></div>
-        </div>
-        <div class="stat-box" data-tip="SAAT">
-          <span class="res-icon">⏰</span>
-          <div class="res-details"><span class="res-amount" id="c-now">—</span></div>
-        </div>
-        <div class="stat-box" data-tip="SONRAKİ P.G.">
-          <span class="res-icon">⏳</span>
-          <div class="res-details"><span class="res-amount" id="c-next">—</span></div>
-        </div>
+      <div class="hud-res-row">
+        ${sb('MORAL','😊','Moral','hud-moral',null)}
+        ${sb('AÇLIK','🍽️','Açlık','hud-hunger',null)}
+        ${sb('NÜFUS','👥','Nüfus','hud-nufus-box',null)}
+        ${sb('ALAN','📐','Alan','hud-alan-box',null)}
+        ${sb('ÇAĞ','🧱','Çağ','hud-limit',null)}
+        ${sb('TARİH','📅','Tarih','hud-takvim',null)}
+        ${sb('SAAT','⏰','Saat','c-now',null)}
+        ${sb('P.G.','⏳','P.G.','c-next',null)}
       </div>
     </div>
   </div>

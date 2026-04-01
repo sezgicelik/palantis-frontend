@@ -227,7 +227,7 @@ body{
   box-shadow:0 4px 24px rgba(0,0,0,0.6),inset 0 -1px 0 rgba(200,169,110,0.08);
 }
 /* Body padding-top: HUD yuksekligi kadar bosluk birak */
-body{padding-top:120px;}
+body{padding-top:95px;}
 
 .hud-row-wrap{
   display:flex;
@@ -264,7 +264,7 @@ body{padding-top:120px;}
 }
 .hud-res-row::-webkit-scrollbar{display:none;}
 
-/* ── STAT BOX: Her kaynak kutusu ── */
+/* ── STAT BOX: Tek kaynak kutusu ── */
 .stat-box{
   display:inline-flex;
   align-items:center;
@@ -282,11 +282,24 @@ body{padding-top:120px;}
 .stat-box:hover{
   background:rgba(200,169,110,0.06);
   border-color:rgba(200,169,110,0.25);
-  transform:translateY(-1px);
-  box-shadow:0 3px 12px rgba(200,169,110,0.1);
+  box-shadow:0 2px 10px rgba(200,169,110,0.08);
 }
-.res-icon{font-size:13px;flex-shrink:0;}
-.res-details{display:flex;flex-direction:column;align-items:flex-start;gap:0;line-height:1.2;}
+
+/* ── HIZALI SATIRLAR: HAM ve ISL ayni grid ile sutun hizasi ── */
+.hud-aligned{
+  display:grid !important;
+  grid-template-columns:repeat(7, 1fr);
+  gap:4px;
+  flex:1;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.hud-aligned::-webkit-scrollbar{display:none;}
+.stat-empty{border-color:transparent;background:transparent;pointer-events:none;}
+
+.res-icon{font-size:12px;flex-shrink:0;}
+.res-details{display:flex;align-items:center;gap:4px;line-height:1.2;}
+.res-label{font-size:8px;color:rgba(200,169,110,0.5);font-family:'Cinzel',serif;letter-spacing:.5px;min-width:36px;}
 .res-amount{color:#f0e8d8;font-size:13px;font-weight:600;}
 .res-rate{font-size:9px;font-weight:500;}
 .res-rate.pos{color:#2ecc71;}
