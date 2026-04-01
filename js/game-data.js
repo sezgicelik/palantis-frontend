@@ -114,9 +114,9 @@ async function loadGameData() {
 
     // Arazi verisi guncelle (F5 persist)
     if (alanData.alan !== undefined) {
-      landState.land = parseInt(alanData.alan) || 100;
+      if (typeof landState !== 'undefined') landState.land = parseInt(alanData.alan) || 100;
       const landEl = document.getElementById('hud-land');
-      if (landEl) landEl.textContent = landState.land;
+      if (landEl) landEl.textContent = parseInt(alanData.alan) || 100;
     }
 
     // Palantis takvim HUD
