@@ -222,3 +222,6 @@ function initLayout(){
     setInterval(loadGameData, 60000);
   }
 }
+
+/* Sayfa yuklenince otomatik cagir */
+document.addEventListener('DOMContentLoaded', initLayout);
