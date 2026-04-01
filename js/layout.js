@@ -43,39 +43,39 @@ function renderSidebar(){
       </div>
 
       <a href="home.html" class="menu-item${isActive('home.html')}">🏠 Ana Ekran</a>
-
       <a href="population.html" class="menu-item${isActive('population.html')}">👥 Nüfus & İşçiler</a>
 
-      <a href="city.html" class="menu-item${isActive('city.html')}" onclick="toggleSubMenu('submenu-city',this)">🏙️ Şehrim</a>
-      <div id="submenu-city" style="display:${page==='city.html'?'block':'none'};background:#0a0a0a;border-left:2px solid #2a2a2a;margin:0">
-        <div class="menu-item sub-item" onclick="setFilter('all',this)" style="padding:6px 6px 6px 28px;font-size:12px" data-filter="all">🏛️ Tümü</div>
-        <div class="menu-item sub-item" onclick="setFilter('uretim',this)" style="padding:6px 6px 6px 28px;font-size:12px" data-filter="uretim">⚒️ Üretim</div>
-        <div class="menu-item sub-item" onclick="setFilter('askeri',this)" style="padding:6px 6px 6px 28px;font-size:12px" data-filter="askeri">⚔️ Askeri</div>
-        <div class="menu-item sub-item" onclick="setFilter('gelisim',this)" style="padding:6px 6px 6px 28px;font-size:12px" data-filter="gelisim">📚 Gelişim</div>
-        <div class="menu-item sub-item" onclick="setFilter('sosyal',this)" style="padding:6px 6px 6px 28px;font-size:12px" data-filter="sosyal">🏛️ Sosyal</div>
-        <div class="menu-item sub-item" onclick="setFilter('sehir',this)" style="padding:6px 6px 6px 28px;font-size:12px" data-filter="sehir">🏙️ Şehir</div>
-        <div class="menu-item sub-item" onclick="setFilter('ozel',this)" style="padding:6px 6px 6px 28px;font-size:12px" data-filter="ozel">✨ Özel</div>
+      <a href="city.html" class="menu-item${isActive('city.html')}">🏙️ Şehrim</a>
+      <div class="submenu" id="submenu-city" style="display:${page==='city.html'?'block':'none'}">
+        <div class="menu-item sub-item" onclick="setFilter('all',this)" data-filter="all">🏛️ Tümü</div>
+        <div class="menu-item sub-item" onclick="setFilter('uretim',this)" data-filter="uretim">⚒️ Üretim</div>
+        <div class="menu-item sub-item" onclick="setFilter('askeri',this)" data-filter="askeri">⚔️ Askeri</div>
+        <div class="menu-item sub-item" onclick="setFilter('gelisim',this)" data-filter="gelisim">📚 Gelişim</div>
+        <div class="menu-item sub-item" onclick="setFilter('sosyal',this)" data-filter="sosyal">🏛️ Sosyal</div>
+        <div class="menu-item sub-item" onclick="setFilter('sehir',this)" data-filter="sehir">🏙️ Şehir</div>
+        <div class="menu-item sub-item" onclick="setFilter('ozel',this)" data-filter="ozel">✨ Özel</div>
       </div>
 
       <a href="land.html" class="menu-item${isActive('land.html')}">🧭 Arazi</a>
 
-      <a href="army.html" class="menu-item${isActive('army.html')}" onclick="toggleSubMenu('submenu-army',this)">⚔️ Ordu & Savaş</a>
-      <div id="submenu-army" style="display:${page==='army.html'?'block':'none'};background:#0a0a0a;border-left:2px solid #2a2a2a;margin:0">
-        <div class="menu-item sub-item army-sub on" data-atab="units" onclick="armyTab('units',this)" style="padding:6px 6px 6px 28px;font-size:12px">🗡️ Asker Eğitimi</div>
-        <div class="menu-item sub-item army-sub" data-atab="soldier" onclick="armyTab('soldier',this)" style="padding:6px 6px 6px 28px;font-size:12px">🪖 Asker Yönetimi</div>
-        <div class="menu-item sub-item army-sub" data-atab="armies" onclick="armyTab('armies',this)" style="padding:6px 6px 6px 28px;font-size:12px">🏕️ Ordu Yönetimi</div>
-        <div class="menu-item sub-item army-sub" data-atab="formation" onclick="armyTab('formation',this)" style="padding:6px 6px 6px 28px;font-size:12px">⚔️ Saf Dizilimi</div>
-        <div class="menu-item sub-item army-sub" data-atab="upgrades" onclick="armyTab('upgrades',this)" style="padding:6px 6px 6px 28px;font-size:12px">📈 Geliştirmeler</div>
+      <a href="army.html" class="menu-item${isActive('army.html')}">⚔️ Ordu & Savaş</a>
+      <div class="submenu" id="submenu-army" style="display:${page==='army.html'?'block':'none'}">
+        <div class="menu-item sub-item army-sub on" data-atab="units" onclick="armyTab('units',this)">🗡️ Asker Eğitimi</div>
+        <div class="menu-item sub-item army-sub" data-atab="soldier" onclick="armyTab('soldier',this)">🪖 Asker Yönetimi</div>
+        <div class="menu-item sub-item army-sub" data-atab="armies" onclick="armyTab('armies',this)">🏕️ Ordu Yönetimi</div>
+        <div class="menu-item sub-item army-sub" data-atab="formation" onclick="armyTab('formation',this)">⚔️ Saf Dizilimi</div>
+        <div class="menu-item sub-item army-sub" data-atab="upgrades" onclick="armyTab('upgrades',this)">📈 Geliştirmeler</div>
       </div>
 
       <a href="magic.html" class="menu-item${isActive('magic.html')}">🧙 Büyüler</a>
       <a href="guild.html" class="menu-item${isActive('guild.html')}">🏰 Guild</a>
-      <a href="reports.html" class="menu-item${isActive('reports.html')||isActive('activity.html')}" onclick="toggleSubMenu('submenu-reports',this)">📜 Raporlar</a>
-      <div id="submenu-reports" style="display:${page==='reports.html'||page==='activity.html'?'block':'none'};background:#0a0a0a;border-left:2px solid #2a2a2a;margin:0">
-        <a href="activity.html" class="menu-item sub-item${isActive('activity.html')}" style="padding:6px 6px 6px 28px;font-size:12px">🏙️ Şehir Raporları</a>
-        <a href="reports.html?tab=savas" class="menu-item sub-item" style="padding:6px 6px 6px 28px;font-size:12px">⚔️ Savaş Raporları</a>
-        <a href="reports.html?tab=koloni" class="menu-item sub-item" style="padding:6px 6px 6px 28px;font-size:12px">🏰 Koloni Raporları</a>
-        <a href="reports.html?tab=ekonomi" class="menu-item sub-item" style="padding:6px 6px 6px 28px;font-size:12px">💰 Ekonomi Raporları</a>
+
+      <a href="reports.html" class="menu-item${isActive('reports.html')||isActive('activity.html')}">📜 Raporlar</a>
+      <div class="submenu" id="submenu-reports" style="display:${page==='reports.html'||page==='activity.html'?'block':'none'}">
+        <a href="activity.html" class="menu-item sub-item${isActive('activity.html')}">🏙️ Şehir Raporları</a>
+        <a href="reports.html?tab=savas" class="menu-item sub-item">⚔️ Savaş Raporları</a>
+        <a href="reports.html?tab=koloni" class="menu-item sub-item">🏰 Koloni Raporları</a>
+        <a href="reports.html?tab=ekonomi" class="menu-item sub-item">💰 Ekonomi Raporları</a>
       </div>
 
       <!-- Logout -->

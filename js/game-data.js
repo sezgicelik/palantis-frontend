@@ -197,17 +197,11 @@ async function loadGameData() {
       ASKER_SAYISI = parseInt(work.asker) || 0;
     }
 
-    // Pisirme oranlarini yukle
-    await loadPisirme();
-
-    // Binalari backend'den yukle
-    await loadBuildingsFromBackend();
-
-    // Egitim kuyrugunu backend'den yukle
-    await loadTrainingQueue();
-
-    // Ordu havuzunu backend'den yukle
-    await loadArmyPool();
+    // Sayfa-ozel fonksiyonlar — sadece tanimli ise cagir
+    if(typeof loadPisirme === 'function') await loadPisirme();
+    if(typeof loadBuildingsFromBackend === 'function') await loadBuildingsFromBackend();
+    if(typeof loadTrainingQueue === 'function') await loadTrainingQueue();
+    if(typeof loadArmyPool === 'function') await loadArmyPool();
 
   } catch(e) {
     console.error('[loadGameData]', e);

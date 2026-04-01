@@ -640,7 +640,12 @@ function resetFormation() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const side = OYUNCU && OYUNCU.taraf === 'kotu' ? 'dark' : 'light';
-  renderUnitGrid(side, 'ugrid-player');
-  updateArmyStats();
+  // initLayout ve loadGameData async — biraz bekle ki OYUNCU dolsun
+  setTimeout(() => {
+    const side = OYUNCU && OYUNCU.taraf === 'kotu' ? 'dark' : 'light';
+    renderUnitGrid(side, 'ugrid-player');
+    updateArmyStats();
+    // Varsayilan olarak Asker Egitimi tab'ini ac
+    armyTab('units', null);
+  }, 1500);
 });
