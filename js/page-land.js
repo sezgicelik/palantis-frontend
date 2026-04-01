@@ -5,9 +5,9 @@
 
 const landState = {
   gold: 999,
-  land: 490,
+  land: 100,
   age: 1,
-  landLimit: 500,
+  landLimit: 300,
   chosenThisCycle: false,
   cycleKey: null,
   offers: []
@@ -21,8 +21,7 @@ function ageLandLimit(age){
   return Infinity;
 }
 
-// oyuna baslayinca 100 alan
-landState.land = 100;
+// Cag ve alan backend'den guncellenecek (loadGameData ile)
 landState.age = 1;
 landState.landLimit = ageLandLimit(landState.age);
 

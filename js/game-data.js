@@ -112,17 +112,28 @@ async function loadGameData() {
     const alanData = alanRes.ok ? await alanRes.json() : {};
     const takvimData = takvimRes.ok ? await takvimRes.json() : null;
 
-    // Arazi verisi guncelle (F5 persist)
+    // Arazi verisi guncelle
     if (alanData.alan !== undefined) {
       const toplamAlan = parseInt(alanData.alan) || 100;
       const kullanilanAlan = parseInt(alanData.kullanilan_alan) || 0;
-      if (typeof landState !== 'undefined') landState.land = toplamAlan;
-      const landEl = document.getElementById('hud-land');
-      if (landEl) landEl.textContent = toplamAlan;
-      setText('hud-used', kullanilanAlan);
-      // Yeni stat-box alan gosterimi
+      // landState (arazi sayfasi)
+      if (typeof landState !== 'undefined') {
+        landState.land = toplamAlan;
+        landState.age = OYUNCU?.cag || 1;
+        landState.landLimit = typeof ageLandLimit === 'function'
+          ? ageLandLimit(landState.age) : toplamAlan;
+        landState.gold = RES.altin || 0;
+      }
+      // HUD stat-box
       const alanBox = document.getElementById('hud-alan-box');
       if (alanBox) alanBox.textContent = kullanilanAlan + '/' + toplamAlan;
+      // Eski ID uyumluluk
+      const landEl = document.getElementById('hud-land');
+      if (landEl) landEl.textContent = toplamAlan;
+      const usedEl = document.getElementById('hud-used');
+      if (usedEl) usedEl.textContent = kullanilanAlan;
+      // Arazi sayfasindaki gosterim
+      setText('land-current', toplamAlan);
     }
 
     // Palantis takvim HUD

@@ -72,12 +72,18 @@
     // URL param ile sekme ac
     const urlParams = new URLSearchParams(window.location.search);
     const tabParam = urlParams.get('tab');
-    if (tabParam) {
-      document.addEventListener('DOMContentLoaded', () => {
-        const btn = document.getElementById('rtab-btn-' + tabParam);
-        if (btn) reportTab(tabParam, btn);
-      });
-    }
+    document.addEventListener('DOMContentLoaded', () => {
+      // loadGameData bitene kadar bekle, sonra aktivite yukle
+      setTimeout(() => {
+        if (tabParam) {
+          const btn = document.getElementById('rtab-btn-' + tabParam);
+          if (btn) reportTab(tabParam, btn);
+        } else {
+          // Varsayilan: Sehir Raporlari
+          reportTab('sehir', document.getElementById('rtab-btn-sehir'));
+        }
+      }, 2000);
+    });
     </script>
 
   </div>

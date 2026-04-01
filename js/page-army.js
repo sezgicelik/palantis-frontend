@@ -640,12 +640,20 @@ function resetFormation() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // initLayout ve loadGameData async — biraz bekle ki OYUNCU dolsun
-  setTimeout(() => {
+  // loadGameData tamamlaninca ordu verisini yukle
+  function initArmy() {
     const side = OYUNCU && OYUNCU.taraf === 'kotu' ? 'dark' : 'light';
     renderUnitGrid(side, 'ugrid-player');
     updateArmyStats();
-    // Varsayilan olarak Asker Egitimi tab'ini ac
     armyTab('units', null);
-  }, 1500);
+  }
+  // loadGameData bitene kadar bekle (polling)
+  let attempts = 0;
+  const check = setInterval(() => {
+    attempts++;
+    if (OYUNCU?.kral || attempts > 20) {
+      clearInterval(check);
+      initArmy();
+    }
+  }, 500);
 });
