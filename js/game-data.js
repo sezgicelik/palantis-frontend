@@ -114,9 +114,15 @@ async function loadGameData() {
 
     // Arazi verisi guncelle (F5 persist)
     if (alanData.alan !== undefined) {
-      if (typeof landState !== 'undefined') landState.land = parseInt(alanData.alan) || 100;
+      const toplamAlan = parseInt(alanData.alan) || 100;
+      const kullanilanAlan = parseInt(alanData.kullanilan_alan) || 0;
+      if (typeof landState !== 'undefined') landState.land = toplamAlan;
       const landEl = document.getElementById('hud-land');
-      if (landEl) landEl.textContent = parseInt(alanData.alan) || 100;
+      if (landEl) landEl.textContent = toplamAlan;
+      setText('hud-used', kullanilanAlan);
+      // Yeni stat-box alan gosterimi
+      const alanBox = document.getElementById('hud-alan-box');
+      if (alanBox) alanBox.textContent = kullanilanAlan + '/' + toplamAlan;
     }
 
     // Palantis takvim HUD
