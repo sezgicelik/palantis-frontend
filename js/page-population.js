@@ -3,10 +3,44 @@
    Extracted from index.html
 ══════════════════════════════════ */
 
+// Isci tipi -> bina eslesmesi
+const ISCI_BINA_MAP = {
+  wood:     { binaId: 'oduncu',       kapasite: 40, ad: 'Oduncu Kampı' },
+  stone:    { binaId: 'tas_ocagi',    kapasite: 30, ad: 'Taş Ocağı' },
+  iron:     { binaId: 'demir_madeni', kapasite: 50, ad: 'Demir Madeni' },
+  farm:     { binaId: 'tarla',        kapasite: 50, ad: 'Tarla' },
+  fish:     { binaId: 'balikci',      kapasite: 20, ad: 'Balıkçı Limanı' },
+  // merchant: Market binasi eklenince baglanacak — simdilik serbest
+};
+
+function getWorkerCapacity(type) {
+  const map = ISCI_BINA_MAP[type];
+  if (!map) return Infinity; // Tuccar vb. serbest
+  const binaAdet = BLDGS[map.binaId]?.lv || 0;
+  return binaAdet * map.kapasite;
+}
+
 function assignWorker(type, delta){
   const abs = Math.abs(delta);
-  if(delta > 0 && population.free < abs) { toast('Yeterli bos isci yok!'); return; }
+  if(delta > 0 && population.free < abs) { toast('Yeterli boş köylü yok!'); return; }
   if(delta < 0 && population[type] < abs) return;
+
+  // Bina kapasite kontrolu (artirma icin)
+  if(delta > 0) {
+    const kapasite = getWorkerCapacity(type);
+    const mevcut = population[type] || 0;
+    if(mevcut + delta > kapasite) {
+      const map = ISCI_BINA_MAP[type];
+      const binaAdet = map ? (BLDGS[map.binaId]?.lv || 0) : 0;
+      if(kapasite === 0) {
+        toast('⚠️ ' + (map?.ad || type) + ' binası yok! Önce inşa et.');
+      } else {
+        toast('⚠️ Kapasite dolu! ' + kapasite + ' max (' + binaAdet + ' bina × ' + (map?.kapasite||0) + ')');
+      }
+      return;
+    }
+  }
+
   population[type] = Math.max(0, population[type] + delta);
   population.free -= delta;
   updatePopulationUI();

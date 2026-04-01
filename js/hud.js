@@ -149,6 +149,24 @@ function updatePopulationUI(){
   set('p-farm',     (population.farm||0) * 50);
   set('p-fish',     (population.fish||0) * 20);
   set('p-merchant', (population.merchant||0) * 15);
+
+  // Bina kapasite gosterimi (sayfa icerisindeki isci satirlarina)
+  if(typeof getWorkerCapacity === 'function') {
+    const kapTypes = ['wood','stone','iron','farm','fish'];
+    kapTypes.forEach(t => {
+      const el = document.getElementById('kap-'+t);
+      if(!el) return;
+      const kap = getWorkerCapacity(t);
+      const mevcut = population[t] || 0;
+      if(kap === Infinity || kap === 0) {
+        el.textContent = kap === 0 ? 'Bina yok!' : '';
+        el.style.color = kap === 0 ? '#e74c3c' : '#888';
+      } else {
+        el.textContent = mevcut + '/' + kap;
+        el.style.color = mevcut >= kap ? '#e74c3c' : '#2ecc71';
+      }
+    });
+  }
 }
 
 /* =====================================================
