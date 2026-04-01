@@ -332,6 +332,9 @@ function obApplyPlayer(p) {
   set('sidebar-kral', p.kral);
   set('sidebar-irk', irkData ? irkData.icon + ' ' + irkData.name : p.irk);
   set('main-welcome', 'Hos geldin, ' + p.kral + '!');
+  // HUD Cag gosterimi
+  set('hud-limit', romanCag(p.cag || 1) + '. Cag');
+  set('sidebar-cag', romanCag(p.cag || 1) + '. Cag');
 
   if ((p.cag || 1) > 1) {
     const el = document.getElementById('cag1-uyari');
