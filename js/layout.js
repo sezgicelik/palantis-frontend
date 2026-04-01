@@ -93,44 +93,91 @@ function renderHUD(){
   const mount = document.getElementById('hudbar-mount');
   if(!mount) return;
 
+  // stat-box helper: ikon + miktar + rate
+  function sb(tip, icon, amountId, rateId) {
+    const rateHtml = rateId
+      ? `<span class="res-rate pos" id="${rateId}">+0</span>`
+      : '';
+    return `<div class="stat-box" data-tip="${tip}">
+      <span class="res-icon">${icon}</span>
+      <div class="res-details">
+        <span class="res-amount" id="${amountId}">0</span>
+        ${rateHtml}
+      </div>
+    </div>`;
+  }
+
+  // Metal SVG ikon
+  const metalSvg = '<svg width="13" height="10" viewBox="0 0 15 11" style="display:inline-block;vertical-align:-1px"><path d="M2,1 L13,1 L11,10 L4,10 Z" fill="#8a8a8a" stroke="#666" stroke-width="0.5"/><path d="M4,3 L11,3 L9.5,8.5 L5.5,8.5 Z" fill="#b0b0b0"/></svg>';
+
   mount.innerHTML = `
-  <div class="top-bar hudbar" id="hudbar">
-    <!-- HAM MADDELEr -->
+  <div class="hudbar" id="hudbar">
+    <!-- HAM MADDELER -->
     <div class="hud-row-wrap">
       <div class="hud-row-lbl">HAM</div>
       <div class="hud-res-row" id="hud-panel-ham">
-        <div class="hud-res-item" data-tip="ODUN">🌳 <b id="hud-w">0</b><span class="hg"> +<span id="hud-wg">0</span></span></div>
-        <div class="hud-res-item" data-tip="METAL"><svg width="15" height="11" viewBox="0 0 15 11" style="display:inline-block;vertical-align:-1px"><path d="M2,1 L13,1 L11,10 L4,10 Z" fill="#8a8a8a" stroke="#666" stroke-width="0.5"/><path d="M4,3 L11,3 L9.5,8.5 L5.5,8.5 Z" fill="#b0b0b0"/></svg> <b id="hud-m">0</b><span class="hg"> +<span id="hud-mg">0</span></span></div>
-        <div class="hud-res-item" data-tip="BUĞDAY">🌾 <b id="hud-bu">0</b><span class="hg"> +<span id="hud-bug">0</span></span></div>
-        <div class="hud-res-item" data-tip="BALIK">🎣 <b id="hud-ba">0</b><span class="hg"> +<span id="hud-bag">0</span></span></div>
-        <div class="hud-res-item" data-tip="TAŞ">🪨 <b id="hud-t">0</b><span class="hg"> +<span id="hud-tg">0</span></span></div>
-        <div class="hud-res-item" data-tip="ALTIN">💰 <b id="hud-g">0</b><span class="hg"> +<span id="hud-gg">0</span></span></div>
+        ${sb('ODUN','🌳','hud-w','hud-wg')}
+        <div class="stat-box" data-tip="METAL">
+          <span class="res-icon">${metalSvg}</span>
+          <div class="res-details">
+            <span class="res-amount" id="hud-m">0</span>
+            <span class="res-rate pos" id="hud-mg">+0</span>
+          </div>
+        </div>
+        ${sb('BUĞDAY','🌾','hud-bu','hud-bug')}
+        ${sb('BALIK','🎣','hud-ba','hud-bag')}
+        ${sb('TAŞ','🪨','hud-t','hud-tg')}
+        ${sb('ALTIN','💰','hud-g','hud-gg')}
       </div>
     </div>
     <!-- İŞLENMİŞ -->
     <div class="hud-row-wrap">
       <div class="hud-row-lbl">İŞL.</div>
       <div class="hud-res-row" id="hud-panel-islenmis">
-        <div class="hud-res-item" data-tip="KERESTE">🪵 <b id="hud-ke">0</b></div>
-        <div class="hud-res-item" data-tip="İŞLENMİŞ METAL">🔩 <b id="hud-is">0</b></div>
-        <div class="hud-res-item" data-tip="EKMEK">🍞 <b id="hud-ek">0</b></div>
-        <div class="hud-res-item" data-tip="PİŞMİŞ BALIK">🍳 <b id="hud-pb">0</b></div>
-        <div class="hud-res-item" data-tip="ÇİĞ ET">🥩 <b id="hud-ce">0</b></div>
-        <div class="hud-res-item" data-tip="PİŞMİŞ ET">🍖 <b id="hud-pe">0</b></div>
+        ${sb('KERESTE','🪵','hud-ke',null)}
+        ${sb('İŞL.METAL','🔩','hud-is',null)}
+        ${sb('EKMEK','🍞','hud-ek',null)}
+        ${sb('PİŞ.BALIK','🍳','hud-pb',null)}
+        ${sb('ÇİĞ ET','🥩','hud-ce',null)}
+        ${sb('PİŞ.ET','🍖','hud-pe',null)}
       </div>
     </div>
     <!-- GENEL -->
     <div class="hud-row-wrap">
       <div class="hud-row-lbl">GENEL</div>
       <div class="hud-res-row" id="hud-panel-genel">
-        <div class="hud-res-item" data-tip="ORDU MORALİ">😊 <b id="hud-moral">—</b></div>
-        <div class="hud-res-item" data-tip="AÇLIK">🍽️ <b id="hud-hunger">—</b></div>
-        <div class="hud-res-item" data-tip="KULLANILAN / TOPLAM">👥 <b><span id="hud-nufus">—</span>/<span id="hud-nufus-sinir">—</span></b></div>
-        <div class="hud-res-item" data-tip="KULLANILAN ALAN">📐 <b><span id="hud-used">0</span>/<span id="hud-land">0</span></b></div>
-        <div class="hud-res-item" data-tip="ÇAĞ LİMİTİ">🧱 <b id="hud-limit">—</b></div>
-        <div class="hud-res-item" data-tip="PALANTİS TARİHİ">📅 <b id="hud-takvim">—</b></div>
-        <div class="hud-res-item" data-tip="ŞU ANKİ SAAT">⏰ <b id="c-now">—</b></div>
-        <div class="hud-res-item" data-tip="SONRAKİ P.G.">⏳ <b id="c-next">—</b></div>
+        <div class="stat-box" data-tip="MORAL">
+          <span class="res-icon">😊</span>
+          <div class="res-details"><span class="res-amount" id="hud-moral">—</span></div>
+        </div>
+        <div class="stat-box" data-tip="AÇLIK">
+          <span class="res-icon">🍽️</span>
+          <div class="res-details"><span class="res-amount" id="hud-hunger">—</span></div>
+        </div>
+        <div class="stat-box" data-tip="NÜFUS">
+          <span class="res-icon">👥</span>
+          <div class="res-details"><span class="res-amount"><span id="hud-nufus">—</span>/<span id="hud-nufus-sinir">—</span></span></div>
+        </div>
+        <div class="stat-box" data-tip="ALAN">
+          <span class="res-icon">📐</span>
+          <div class="res-details"><span class="res-amount"><span id="hud-used">0</span>/<span id="hud-land">0</span></span></div>
+        </div>
+        <div class="stat-box" data-tip="ÇAĞ LİMİTİ">
+          <span class="res-icon">🧱</span>
+          <div class="res-details"><span class="res-amount" id="hud-limit">—</span></div>
+        </div>
+        <div class="stat-box" data-tip="PALANTİS TARİHİ">
+          <span class="res-icon">📅</span>
+          <div class="res-details"><span class="res-amount" id="hud-takvim">—</span></div>
+        </div>
+        <div class="stat-box" data-tip="SAAT">
+          <span class="res-icon">⏰</span>
+          <div class="res-details"><span class="res-amount" id="c-now">—</span></div>
+        </div>
+        <div class="stat-box" data-tip="SONRAKİ P.G.">
+          <span class="res-icon">⏳</span>
+          <div class="res-details"><span class="res-amount" id="c-next">—</span></div>
+        </div>
       </div>
     </div>
   </div>

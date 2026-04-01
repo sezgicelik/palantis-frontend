@@ -4,6 +4,15 @@
    updateCityStats, updateBars, finishBuild
 ===================================================== */
 
+/* Rate elementine deger + renk class'i ata */
+function setRate(id, value) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const v = Number(value) || 0;
+  el.textContent = (v >= 0 ? '+' : '') + numFmt(v);
+  el.className = 'res-rate ' + (v > 0 ? 'pos' : v < 0 ? 'neg' : 'neu');
+}
+
 /* =====================================================
    ÜST ŞERİT TIMERLAR (SAAT + HASAT)
 ===================================================== */

@@ -139,19 +139,19 @@ async function loadGameData() {
     if (res.cig_et !== undefined) RES.cig_et = parseInt(res.cig_et) || 0;
     if (res.pismis_et !== undefined) RES.pismis_et = parseInt(res.pismis_et) || 0;
 
-    // HUD Ham kaynaklar
+    // HUD Ham kaynaklar (miktar + rate)
     setText('hud-w',   RES.odun);
-    setText('hud-wg',  prod.odun  ?? 0);
+    if(typeof setRate==='function') setRate('hud-wg', prod.odun ?? 0); else setText('hud-wg', prod.odun ?? 0);
     setText('hud-m',   RES.metal);
-    setText('hud-mg',  prod.metal ?? 0);
+    if(typeof setRate==='function') setRate('hud-mg', prod.metal ?? 0); else setText('hud-mg', prod.metal ?? 0);
     setText('hud-bu',  RES.bugday);
-    setText('hud-bug', prod.bugday ?? 0);
+    if(typeof setRate==='function') setRate('hud-bug', prod.bugday ?? 0); else setText('hud-bug', prod.bugday ?? 0);
     setText('hud-ba',  RES.balik);
-    setText('hud-bag', prod.balik ?? 0);
+    if(typeof setRate==='function') setRate('hud-bag', prod.balik ?? 0); else setText('hud-bag', prod.balik ?? 0);
     setText('hud-t',   RES.tas);
-    setText('hud-tg',  prod.tas   ?? 0);
+    if(typeof setRate==='function') setRate('hud-tg', prod.tas ?? 0); else setText('hud-tg', prod.tas ?? 0);
     setText('hud-g',   RES.altin);
-    setText('hud-gg',  prod.altin ?? 0);
+    if(typeof setRate==='function') setRate('hud-gg', prod.altin ?? 0); else setText('hud-gg', prod.altin ?? 0);
 
     // Islenmis kaynaklar HUD
     setText('hud-ke',  RES.kereste);
