@@ -271,6 +271,10 @@ async function loadBuildingsFromBackend() {
     // Sehir grid'i guncelle
     if (typeof renderGrid === 'function') { renderGrid(); }
     if (typeof renderQueue === 'function') { renderQueue(); }
+    // Pisirme kapasitesini guncelle (ocak/firin lv degisti)
+    if (typeof updatePisirmeUI === 'function') { updatePisirmeUI(); }
+    // Isci kapasite badge'lerini guncelle
+    if (typeof updatePopulationUI === 'function') { updatePopulationUI(); }
   } catch(e) {
     console.error('[loadBuildings]', e);
   }
