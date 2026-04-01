@@ -42,10 +42,7 @@ function renderSidebar(){
         <div id="sidebar-cag" style="font-size:10px;color:#444">I. Çağ</div>
       </div>
 
-      <a href="home.html" class="menu-item${isActive('home.html')}" onclick="toggleSubMenu('submenu-home',this)">🏠 Ana Ekran</a>
-      <div id="submenu-home" style="display:${page==='home.html'||page==='activity.html'?'block':'none'};background:#0a0a0a;border-left:2px solid #2a2a2a;margin:0">
-        <a href="activity.html" class="menu-item sub-item${isActive('activity.html')}" style="padding:6px 6px 6px 28px;font-size:12px">📜 Şehirde Olanlar</a>
-      </div>
+      <a href="home.html" class="menu-item${isActive('home.html')}">🏠 Ana Ekran</a>
 
       <a href="population.html" class="menu-item${isActive('population.html')}">👥 Nüfus & İşçiler</a>
 
@@ -73,7 +70,13 @@ function renderSidebar(){
 
       <a href="magic.html" class="menu-item${isActive('magic.html')}">🧙 Büyüler</a>
       <a href="guild.html" class="menu-item${isActive('guild.html')}">🏰 Guild</a>
-      <a href="reports.html" class="menu-item${isActive('reports.html')}">📜 Raporlar</a>
+      <a href="reports.html" class="menu-item${isActive('reports.html')||isActive('activity.html')}" onclick="toggleSubMenu('submenu-reports',this)">📜 Raporlar</a>
+      <div id="submenu-reports" style="display:${page==='reports.html'||page==='activity.html'?'block':'none'};background:#0a0a0a;border-left:2px solid #2a2a2a;margin:0">
+        <a href="activity.html" class="menu-item sub-item${isActive('activity.html')}" style="padding:6px 6px 6px 28px;font-size:12px">🏙️ Şehir Raporları</a>
+        <a href="reports.html?tab=savas" class="menu-item sub-item" style="padding:6px 6px 6px 28px;font-size:12px">⚔️ Savaş Raporları</a>
+        <a href="reports.html?tab=koloni" class="menu-item sub-item" style="padding:6px 6px 6px 28px;font-size:12px">🏰 Koloni Raporları</a>
+        <a href="reports.html?tab=ekonomi" class="menu-item sub-item" style="padding:6px 6px 6px 28px;font-size:12px">💰 Ekonomi Raporları</a>
+      </div>
 
       <!-- Logout -->
       <div style="margin-top:auto;padding:12px 10px;border-top:1px solid #1a1a1a">

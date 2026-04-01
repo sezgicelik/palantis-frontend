@@ -15,10 +15,70 @@
   <div id="sidebar-mount"></div>
   <div class="main-content">
 
-    <div class="card">
-      <h2>📜 Raporlar</h2>
-      <p>Savaş raporları, casus raporları ve şehir olayları burada listelenecek.</p>
+    <!-- Rapor Sekmeleri -->
+    <div class="army-tabs" style="margin-bottom:20px">
+      <button class="atab on" id="rtab-btn-sehir" onclick="reportTab('sehir',this)">🏙️ Şehir</button>
+      <button class="atab" id="rtab-btn-savas" onclick="reportTab('savas',this)">⚔️ Savaş</button>
+      <button class="atab" id="rtab-btn-koloni" onclick="reportTab('koloni',this)">🏰 Koloni</button>
+      <button class="atab" id="rtab-btn-ekonomi" onclick="reportTab('ekonomi',this)">💰 Ekonomi</button>
     </div>
+
+    <!-- Şehir Raporları (eski Şehirde Olanlar) -->
+    <div id="rtab-sehir" class="report-section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+        <h2 style="color:#c8a96e;font-family:'Cinzel',serif;margin:0;font-size:clamp(16px,4vw,22px)">🏙️ Şehir Raporları</h2>
+        <button class="btn-action" onclick="loadActivity()" style="padding:4px 14px;font-size:11px;width:auto">↻ Yenile</button>
+      </div>
+      <div id="activity-loading" style="color:#888;font-size:13px;text-align:center;padding:40px">Yükleniyor...</div>
+      <div id="activity-list" style="display:none"></div>
+      <div id="activity-empty" style="display:none;color:#777;font-size:13px;text-align:center;padding:40px">
+        Henüz kayıt yok.<br><small style="color:#555">Her Palantis günü başında işçi üretimi, inşaat ve eğitim olayları burada görünür.</small>
+      </div>
+    </div>
+
+    <!-- Savaş Raporları -->
+    <div id="rtab-savas" class="report-section" style="display:none">
+      <div class="card" style="text-align:center;color:#888;padding:40px">
+        <h3>⚔️ Savaş Raporları</h3>
+        <p>Savaş raporları II. Çağ'dan itibaren burada listelenecek.</p>
+      </div>
+    </div>
+
+    <!-- Koloni Raporları -->
+    <div id="rtab-koloni" class="report-section" style="display:none">
+      <div class="card" style="text-align:center;color:#888;padding:40px">
+        <h3>🏰 Koloni Raporları</h3>
+        <p>Koloni fethi ve kaynak akışı raporları burada görünecek.</p>
+      </div>
+    </div>
+
+    <!-- Ekonomi Raporları -->
+    <div id="rtab-ekonomi" class="report-section" style="display:none">
+      <div class="card" style="text-align:center;color:#888;padding:40px">
+        <h3>💰 Ekonomi Raporları</h3>
+        <p>Kaynak üretim/tüketim istatistikleri burada görünecek.</p>
+      </div>
+    </div>
+
+    <script>
+    function reportTab(tab, el) {
+      document.querySelectorAll('.report-section').forEach(s => s.style.display = 'none');
+      const target = document.getElementById('rtab-' + tab);
+      if (target) target.style.display = 'block';
+      document.querySelectorAll('.army-tabs .atab').forEach(b => b.classList.remove('on'));
+      if (el) el.classList.add('on');
+      if (tab === 'sehir' && typeof loadActivity === 'function') loadActivity();
+    }
+    // URL param ile sekme ac
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    if (tabParam) {
+      document.addEventListener('DOMContentLoaded', () => {
+        const btn = document.getElementById('rtab-btn-' + tabParam);
+        if (btn) reportTab(tabParam, btn);
+      });
+    }
+    </script>
 
   </div>
 </div>
@@ -33,5 +93,6 @@
 <script src="js/game-data.js"></script>
 <script src="js/hud.js"></script>
 <script src="js/layout.js"></script>
+<script src="js/page-activity.js"></script>
 </body>
 </html>
