@@ -9,17 +9,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/main.css">
 <style>
-.map-grid { border-collapse: collapse; width: 100%; table-layout: fixed; }
-.map-grid th { background:#1a1a00; color:#888; font-size:10px; padding:3px; border:1px solid #222; text-align:center; }
-.map-grid td { border:1px solid #1a1a0a; padding:2px; text-align:center; font-size:9px; height:28px;
-  overflow:hidden; white-space:nowrap; text-overflow:ellipsis; cursor:pointer; vertical-align:middle; }
-.map-grid td:hover { background:#1a1a10 !important; }
-.map-cell-ben { background:#081a08 !important; border:2px solid #2ecc71 !important; }
-.map-cell-iyi { background:#081018 !important; }
-.map-cell-kotu { background:#1a0808 !important; }
-.map-cell-koloni { background:#1a1500 !important; }
-.map-cell-empty { color:#111; }
-.map-nick { font-size:8px; max-width:100%; overflow:hidden; text-overflow:ellipsis; display:block; line-height:1.2; }
+#map-canvas { cursor: crosshair; border: 2px solid #333; border-radius: 6px; display: block; }
+#map-canvas:hover { border-color: #d4af37; }
+.map-view-btn { padding:4px 12px; font-size:11px; }
+.map-view-btn.active { background:#d4af37; color:#000; border-color:#d4af37; }
+.map-legend { display:flex; gap:12px; flex-wrap:wrap; font-size:10px; color:#888; margin-top:8px; }
+.map-legend span { display:flex; align-items:center; gap:4px; }
+.map-legend .dot { width:10px; height:10px; border-radius:2px; display:inline-block; }
 </style>
 </head>
 <body>
@@ -30,27 +26,32 @@
 
     <h2 style="color:#c8a96e;font-family:'Cinzel',serif;margin:0 0 8px;font-size:clamp(16px,4vw,22px)">🗺️ Dünya Haritası</h2>
 
-    <!-- Navigasyon -->
-    <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-      <button class="btn ghost" onclick="mapSayfa(MAP_SAYFA - 1)" id="map-prev">⬅ Önceki</button>
-      <div style="padding:6px 20px;background:#2a1a00;border:1px solid #d4af37;color:#d4af37;border-radius:4px;font-weight:bold;font-size:14px">
-        📍 Sayfa <span id="map-sayfa-label">1</span>/20 &nbsp; (X: <span id="map-x-range">1-10</span>)
-      </div>
-      <button class="btn ghost" onclick="mapSayfa(MAP_SAYFA + 1)" id="map-next">Sonraki ➡</button>
+    <!-- Görünüm Seçimi -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      <button class="btn ghost map-view-btn active" id="vbtn-2d" onclick="setView('2d')">🎨 2D Harita</button>
+      <button class="btn ghost map-view-btn" id="vbtn-grid" onclick="setView('grid')">📊 Grid Tablo</button>
       <span style="color:#333">|</span>
-      <input id="map-git-input" placeholder="Sayfa" style="width:50px;padding:6px;background:#111;border:1px solid #333;color:#fff;border-radius:4px;text-align:center" type="number" min="1" max="20">
+      <button class="btn ghost" onclick="mapSayfa(MAP_SAYFA - 1)" id="map-prev">⬅</button>
+      <div style="padding:4px 14px;background:#2a1a00;border:1px solid #d4af37;color:#d4af37;border-radius:4px;font-weight:bold;font-size:13px">
+        📍 Sayfa <span id="map-sayfa-label">1</span>/20 &nbsp;(X:<span id="map-x-range">1-10</span>)
+      </div>
+      <button class="btn ghost" onclick="mapSayfa(MAP_SAYFA + 1)" id="map-next">➡</button>
+      <input id="map-git-input" placeholder="Sf" style="width:40px;padding:4px;background:#111;border:1px solid #333;color:#fff;border-radius:4px;text-align:center" type="number" min="1" max="20">
       <button class="btn ghost" onclick="mapGitInput()">Git</button>
-      <button class="btn ghost" style="color:#2ecc71" onclick="mapSayfa(MAP_BENIM_SAYFA)">🏠 Evim</button>
+      <button class="btn ghost" style="color:#2ecc71" onclick="mapSayfa(MAP_BENIM_SAYFA)">🏠</button>
     </div>
 
     <!-- Bölge bilgisi -->
-    <div style="text-align:center;color:#555;font-size:11px;margin-bottom:8px" id="map-bolge-info">—</div>
+    <div style="text-align:center;color:#555;font-size:11px;margin-bottom:6px" id="map-bolge-info">—</div>
 
-    <!-- Harita Grid -->
-    <div style="background:#0d0d00;border:1px solid #222;border-radius:8px;padding:8px;overflow-x:auto" id="map-scroll">
-      <div id="map-grid" style="min-width:600px">
-        <div style="color:#555;text-align:center;padding:30px" id="map-loading">Yükleniyor...</div>
-      </div>
+    <!-- 2D Canvas Harita -->
+    <div id="map-2d-wrap" style="background:#0a0a00;border-radius:8px;padding:6px;overflow:hidden">
+      <canvas id="map-canvas" width="700" height="420"></canvas>
+    </div>
+
+    <!-- Grid Tablo (alternatif görünüm) -->
+    <div id="map-grid-wrap" style="background:#0d0d00;border:1px solid #222;border-radius:8px;padding:8px;overflow-x:auto;display:none">
+      <div id="map-grid" style="min-width:600px"></div>
     </div>
 
     <!-- Bilgi Paneli -->
@@ -59,13 +60,16 @@
       <div id="map-info-content" style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px"></div>
     </div>
 
-    <!-- Renk Açıklaması -->
-    <div style="margin-top:8px;display:flex;gap:14px;flex-wrap:wrap;font-size:10px;color:#555">
-      <span>🏰 <span style="color:#2ecc71">Sen</span></span>
-      <span>🏠 <span style="color:#3498db">Aydınlık</span></span>
-      <span>🏠 <span style="color:#e74c3c">Karanlık</span></span>
-      <span>⛏️ <span style="color:#f1c40f">Koloni (boş)</span></span>
-      <span>⛏️ <span style="color:#e67e22">Koloni (işgalli)</span></span>
+    <!-- Açıklama -->
+    <div class="map-legend">
+      <span><span class="dot" style="background:#2ecc71"></span> Sen</span>
+      <span><span class="dot" style="background:#3498db"></span> Aydınlık</span>
+      <span><span class="dot" style="background:#e74c3c"></span> Karanlık</span>
+      <span><span class="dot" style="background:#f1c40f"></span> Koloni (boş)</span>
+      <span><span class="dot" style="background:#e67e22"></span> Koloni (işgal)</span>
+      <span><span class="dot" style="background:#1a3a1a"></span> Orman</span>
+      <span><span class="dot" style="background:#2a2a1a"></span> Ova</span>
+      <span><span class="dot" style="background:#1a1a2a"></span> Dağ</span>
     </div>
 
   </div>
@@ -87,16 +91,54 @@ let MAP_BENIM_SAYFA = 1;
 let MAP_BENIM_X = null;
 let MAP_BENIM_Y = null;
 let MAP_DATA = null;
+let MAP_VIEW = '2d'; // '2d' veya 'grid'
+let MAP_HOVER = null; // {x,y} hover edilen hücre
 
 const KAYNAK_IKON = { odun:'🌳', tas:'🪨', metal:'⛏️', altin:'💰', bugday:'🌾', balik:'🎣' };
 const TARAF_RENK = { iyi:'#3498db', kotu:'#e74c3c' };
 
+// Bölge renkleri (arka plan)
+const BOLGE_RENK = {
+  kuzey_bati: '#0a1a0a', kuzey_orta: '#0a0a1a', kuzey_dogu: '#121218',
+  orta_bati: '#1a1a08', merkez: '#0f0f0a', orta_dogu: '#1a150a',
+  guney_bati: '#0a1218', guney_orta: '#1a1208', guney_dogu: '#0a1a12'
+};
+const BOLGE_TILE = {
+  kuzey_bati: '#143814', kuzey_orta: '#1a2838', kuzey_dogu: '#222830',
+  orta_bati: '#2a2a10', merkez: '#1a1810', orta_dogu: '#2a2210',
+  guney_bati: '#102838', guney_orta: '#2a2010', guney_dogu: '#103020'
+};
+
+// Bölge sınırları (200x50, 3 sütun × 3 satır)
+const BOLGELER_CLIENT = [
+  { id:'kuzey_bati', xMin:1,xMax:66, yMin:1,yMax:16 },
+  { id:'kuzey_orta', xMin:1,xMax:66, yMin:17,yMax:33 },
+  { id:'kuzey_dogu', xMin:1,xMax:66, yMin:34,yMax:50 },
+  { id:'orta_bati', xMin:67,xMax:133, yMin:1,yMax:16 },
+  { id:'merkez', xMin:67,xMax:133, yMin:17,yMax:33 },
+  { id:'orta_dogu', xMin:67,xMax:133, yMin:34,yMax:50 },
+  { id:'guney_bati', xMin:134,xMax:200, yMin:1,yMax:16 },
+  { id:'guney_orta', xMin:134,xMax:200, yMin:17,yMax:33 },
+  { id:'guney_dogu', xMin:134,xMax:200, yMin:34,yMax:50 },
+];
+
+function getBolge(x, y) {
+  return BOLGELER_CLIENT.find(b => x >= b.xMin && x <= b.xMax && y >= b.yMin && y <= b.yMax);
+}
+
+function setView(v) {
+  MAP_VIEW = v;
+  document.getElementById('vbtn-2d').classList.toggle('active', v === '2d');
+  document.getElementById('vbtn-grid').classList.toggle('active', v === 'grid');
+  document.getElementById('map-2d-wrap').style.display = v === '2d' ? 'block' : 'none';
+  document.getElementById('map-grid-wrap').style.display = v === 'grid' ? 'block' : 'none';
+  if (MAP_DATA) { if (v === '2d') render2D(); else renderGrid(); }
+}
+
 async function mapInit() {
   const token = getToken(); if (!token) return;
   try {
-    const resp = await fetch(API_BASE + '/api/map/me', {
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
+    const resp = await fetch(API_BASE + '/api/map/me', { headers: { 'Authorization': 'Bearer ' + token } });
     if (resp.ok) {
       const data = await resp.json();
       MAP_BENIM_X = data.koordinat.x;
@@ -105,6 +147,14 @@ async function mapInit() {
       MAP_SAYFA = MAP_BENIM_SAYFA;
     }
   } catch(e) {}
+  // Canvas boyutunu ayarla
+  const canvas = document.getElementById('map-canvas');
+  const wrap = document.getElementById('map-2d-wrap');
+  if (canvas && wrap) {
+    const w = Math.min(wrap.clientWidth - 12, 900);
+    canvas.width = w;
+    canvas.height = Math.round(w * 50 / 10 * 0.6); // 10 kolon, 50 satır
+  }
   mapYukle();
 }
 
@@ -116,14 +166,10 @@ async function mapYukle() {
   if (label) label.textContent = MAP_SAYFA;
   if (range) range.textContent = xMin + '-' + xMax;
 
-  // Prev/Next butonları
   const prev = document.getElementById('map-prev');
   const next = document.getElementById('map-next');
   if (prev) prev.disabled = MAP_SAYFA <= 1;
   if (next) next.disabled = MAP_SAYFA >= 20;
-
-  const grid = document.getElementById('map-grid');
-  if (grid) grid.innerHTML = '<div style="color:#555;text-align:center;padding:30px">Yükleniyor...</div>';
 
   const token = getToken(); if (!token) return;
   try {
@@ -132,72 +178,197 @@ async function mapYukle() {
     });
     if (!resp.ok) return;
     MAP_DATA = await resp.json();
-    mapRender();
-  } catch(e) {
-    if (grid) grid.innerHTML = '<div style="color:#e74c3c;text-align:center;padding:30px">Bağlantı hatası</div>';
-  }
+    // Bölge bilgisi
+    const bolgeEl = document.getElementById('map-bolge-info');
+    if (bolgeEl && MAP_DATA.bolge) {
+      bolgeEl.textContent = MAP_DATA.bolge.ikon + ' ' + MAP_DATA.bolge.ad + ' — ' +
+        Object.entries(MAP_DATA.bolge.bonuslar || {}).map(([k,v]) => k + ' +' + v + '%').join(', ');
+    }
+    if (MAP_VIEW === '2d') render2D(); else renderGrid();
+  } catch(e) {}
 }
 
-function mapRender() {
-  if (!MAP_DATA) return;
-  const grid = document.getElementById('map-grid');
-  if (!grid) return;
-
+// ═══════════════════════════════════
+// 2D CANVAS HARITA
+// ═══════════════════════════════════
+function render2D() {
+  const canvas = document.getElementById('map-canvas');
+  if (!canvas || !MAP_DATA) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width;
+  const H = canvas.height;
+  const cols = 10; // X kolonu
+  const rows = 50; // Y satırı
+  const cellW = W / (cols + 1); // +1 Y label kolonu
+  const cellH = H / (rows + 1); // +1 X label satırı
   const xMin = MAP_DATA.xMin;
-  const xMax = MAP_DATA.xMax;
 
-  // Bölge bilgisi
-  const bolgeEl = document.getElementById('map-bolge-info');
-  if (bolgeEl && MAP_DATA.bolge) {
-    bolgeEl.textContent = MAP_DATA.bolge.ikon + ' ' + MAP_DATA.bolge.ad + ' — ' +
-      Object.entries(MAP_DATA.bolge.bonuslar || {}).map(([k,v]) => k + ' +' + v + '%').join(', ');
+  // Hücre map
+  const cellMap = {};
+  (MAP_DATA.oyuncular || []).forEach(o => { cellMap[o.x + ':' + o.y] = { tip: 'oyuncu', d: o }; });
+  (MAP_DATA.koloniler || []).forEach(k => { cellMap[k.x + ':' + k.y] = { tip: 'koloni', d: k }; });
+
+  // Arka plan
+  ctx.fillStyle = '#050505';
+  ctx.fillRect(0, 0, W, H);
+
+  // X header
+  ctx.fillStyle = '#666';
+  ctx.font = Math.max(8, cellW * 0.35) + 'px Crimson Pro, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  for (let c = 0; c < cols; c++) {
+    ctx.fillText(xMin + c, (c + 1.5) * cellW, cellH * 0.5);
+  }
+  // Y header
+  for (let r = 0; r < rows; r++) {
+    ctx.fillStyle = '#444';
+    ctx.fillText(r + 1, cellW * 0.5, (r + 1.5) * cellH);
   }
 
-  // X:Y bazında index oluştur
-  const cellMap = {}; // key: "x:y"
-  (MAP_DATA.oyuncular || []).forEach(o => { cellMap[o.x + ':' + o.y] = { tip: 'oyuncu', data: o }; });
-  (MAP_DATA.koloniler || []).forEach(k => { cellMap[k.x + ':' + k.y] = { tip: 'koloni', data: k }; });
+  // Hücreler
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const x = xMin + c;
+      const y = r + 1;
+      const px = (c + 1) * cellW;
+      const py = (r + 1) * cellH;
+      const bolge = getBolge(x, y);
 
-  // Tablo başlığı
-  let html = '<table class="map-grid"><thead><tr><th style="width:30px">Y\\X</th>';
-  for (let x = xMin; x <= xMax; x++) {
-    html += '<th>' + x + '</th>';
-  }
-  html += '</tr></thead><tbody>';
+      // Bölge arka plan
+      ctx.fillStyle = bolge ? (BOLGE_TILE[bolge.id] || '#111') : '#0a0a0a';
+      ctx.fillRect(px + 0.5, py + 0.5, cellW - 1, cellH - 1);
 
-  // 50 satır (Y=1-50)
-  for (let y = 1; y <= 50; y++) {
-    html += '<tr><th>' + y + '</th>';
-    for (let x = xMin; x <= xMax; x++) {
       const cell = cellMap[x + ':' + y];
-      let cls = 'map-cell-empty';
-      let content = '<span style="color:#111">·</span>';
-
       if (cell) {
         if (cell.tip === 'oyuncu') {
-          const o = cell.data;
+          const o = cell.d;
           if (o.benMi) {
-            cls = 'map-cell-ben';
-            content = '🏰<span class="map-nick" style="color:#2ecc71">' + o.kral + '</span>';
+            ctx.fillStyle = '#2ecc71';
+            ctx.fillRect(px + 1, py + 1, cellW - 2, cellH - 2);
+            ctx.fillStyle = '#000';
+            ctx.font = 'bold ' + Math.max(7, cellW * 0.28) + 'px sans-serif';
+            ctx.fillText(o.kral.substring(0, 6), px + cellW/2, py + cellH/2);
           } else {
-            cls = o.taraf === 'iyi' ? 'map-cell-iyi' : 'map-cell-kotu';
-            const renk = TARAF_RENK[o.taraf] || '#888';
-            content = '🏠<span class="map-nick" style="color:' + renk + '">' + o.kral + '</span>';
+            ctx.fillStyle = o.taraf === 'iyi' ? 'rgba(52,152,219,0.4)' : 'rgba(231,76,60,0.4)';
+            ctx.fillRect(px + 1, py + 1, cellW - 2, cellH - 2);
+            ctx.fillStyle = o.taraf === 'iyi' ? '#5dade2' : '#ec7063';
+            ctx.font = Math.max(6, cellW * 0.24) + 'px sans-serif';
+            ctx.fillText(o.kral.substring(0, 6), px + cellW/2, py + cellH/2);
           }
-        } else if (cell.tip === 'koloni') {
-          const k = cell.data;
-          cls = 'map-cell-koloni';
-          const ikon = KAYNAK_IKON[k.kaynak_tipi] || '⛏️';
-          if (k.sahip_kral) {
-            const renk = TARAF_RENK[k.sahip_taraf] || '#e67e22';
-            content = ikon + '<span class="map-nick" style="color:' + renk + '">' + k.sahip_kral + '</span>';
-          } else {
-            content = ikon + '<span class="map-nick" style="color:#f1c40f">Boş</span>';
-          }
+        } else {
+          const k = cell.d;
+          ctx.fillStyle = k.sahip_kral ? 'rgba(230,126,34,0.4)' : 'rgba(241,196,15,0.3)';
+          ctx.fillRect(px + 1, py + 1, cellW - 2, cellH - 2);
+          ctx.fillStyle = k.sahip_kral ? '#e67e22' : '#f1c40f';
+          ctx.font = Math.max(8, cellW * 0.35) + 'px sans-serif';
+          ctx.fillText(KAYNAK_IKON[k.kaynak_tipi] || '⛏', px + cellW/2, py + cellH/2);
         }
       }
 
-      html += '<td class="' + cls + '" onclick="mapSecHucre(' + x + ',' + y + ')">' + content + '</td>';
+      // Grid çizgisi
+      ctx.strokeStyle = '#1a1a0a';
+      ctx.lineWidth = 0.5;
+      ctx.strokeRect(px, py, cellW, cellH);
+    }
+  }
+
+  // Hover tooltip
+  if (MAP_HOVER) {
+    const hx = MAP_HOVER.px;
+    const hy = MAP_HOVER.py;
+    const cell = cellMap[MAP_HOVER.x + ':' + MAP_HOVER.y];
+    if (cell) {
+      let txt = '';
+      if (cell.tip === 'oyuncu') txt = cell.d.kral + ' (' + cell.d.irk + ')';
+      else txt = (cell.d.kaynak_tipi || '') + ' koloni %' + (cell.d.bonus_oran || '');
+      ctx.fillStyle = 'rgba(0,0,0,0.85)';
+      ctx.fillRect(hx - 2, hy - 18, ctx.measureText(txt).width + 8, 16);
+      ctx.fillStyle = '#fff';
+      ctx.font = '10px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(txt, hx + 2, hy - 6);
+      ctx.textAlign = 'center';
+    }
+  }
+}
+
+// Canvas tıklama
+document.addEventListener('DOMContentLoaded', () => {
+  const canvas = document.getElementById('map-canvas');
+  if (canvas) {
+    canvas.addEventListener('click', (e) => {
+      if (!MAP_DATA) return;
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      const cols = 10, rows = 50;
+      const cellW = canvas.width / (cols + 1);
+      const cellH = canvas.height / (rows + 1);
+      const c = Math.floor(mx / cellW) - 1;
+      const r = Math.floor(my / cellH) - 1;
+      if (c < 0 || c >= cols || r < 0 || r >= rows) return;
+      const x = MAP_DATA.xMin + c;
+      const y = r + 1;
+      mapSecHucre(x, y);
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (!MAP_DATA) return;
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      const cols = 10, rows = 50;
+      const cellW = canvas.width / (cols + 1);
+      const cellH = canvas.height / (rows + 1);
+      const c = Math.floor(mx / cellW) - 1;
+      const r = Math.floor(my / cellH) - 1;
+      if (c < 0 || c >= cols || r < 0 || r >= rows) {
+        MAP_HOVER = null; render2D(); return;
+      }
+      MAP_HOVER = { x: MAP_DATA.xMin + c, y: r + 1, px: mx, py: my };
+      render2D();
+    });
+
+    canvas.addEventListener('mouseleave', () => { MAP_HOVER = null; render2D(); });
+  }
+  setTimeout(mapInit, 1500);
+});
+
+// ═══════════════════════════════════
+// GRID TABLO GÖRÜNÜMÜ (alternatif)
+// ═══════════════════════════════════
+function renderGrid() {
+  if (!MAP_DATA) return;
+  const grid = document.getElementById('map-grid');
+  if (!grid) return;
+  const xMin = MAP_DATA.xMin;
+  const xMax = MAP_DATA.xMax;
+  const cellMap = {};
+  (MAP_DATA.oyuncular || []).forEach(o => { cellMap[o.x + ':' + o.y] = { tip: 'oyuncu', d: o }; });
+  (MAP_DATA.koloniler || []).forEach(k => { cellMap[k.x + ':' + k.y] = { tip: 'koloni', d: k }; });
+
+  let html = '<table style="border-collapse:collapse;width:100%;table-layout:fixed;font-size:9px"><thead><tr><th style="background:#1a1a00;color:#888;padding:2px;border:1px solid #222;width:25px">Y\\X</th>';
+  for (let x = xMin; x <= xMax; x++) html += '<th style="background:#1a1a00;color:#888;padding:2px;border:1px solid #222">' + x + '</th>';
+  html += '</tr></thead><tbody>';
+
+  for (let y = 1; y <= 50; y++) {
+    html += '<tr><th style="background:#1a1a00;color:#888;padding:2px;border:1px solid #222">' + y + '</th>';
+    for (let x = xMin; x <= xMax; x++) {
+      const cell = cellMap[x + ':' + y];
+      let bg = '#0a0a0a'; let content = '·'; let color = '#111';
+      if (cell) {
+        if (cell.tip === 'oyuncu') {
+          const o = cell.d;
+          if (o.benMi) { bg = '#081a08'; color = '#2ecc71'; content = '🏰' + o.kral.substring(0,4); }
+          else { bg = o.taraf==='iyi'?'#081018':'#1a0808'; color = TARAF_RENK[o.taraf]; content = o.kral.substring(0,5); }
+        } else {
+          const k = cell.d;
+          bg = '#1a1500'; color = k.sahip_kral ? '#e67e22' : '#f1c40f';
+          content = (KAYNAK_IKON[k.kaynak_tipi]||'⛏');
+        }
+      }
+      html += '<td style="background:' + bg + ';color:' + color + ';border:1px solid #1a1a0a;padding:1px;text-align:center;height:20px;cursor:pointer;overflow:hidden;font-size:8px" onclick="mapSecHucre(' + x + ',' + y + ')">' + content + '</td>';
     }
     html += '</tr>';
   }
@@ -205,21 +376,19 @@ function mapRender() {
   grid.innerHTML = html;
 }
 
+// ═══════════════════════════════════
+// HÜCRE SEÇİMİ (detay paneli)
+// ═══════════════════════════════════
 function mapSecHucre(x, y) {
-  const cell = MAP_DATA ? null : null;
-  const key = x + ':' + y;
-
-  // Oyuncu veya koloni ara
   const oyuncu = (MAP_DATA?.oyuncular || []).find(o => o.x === x && o.y === y);
   const koloni = (MAP_DATA?.koloniler || []).find(k => k.x === x && k.y === y);
-
   const panel = document.getElementById('map-info');
   const title = document.getElementById('map-info-title');
   const content = document.getElementById('map-info-content');
   if (!panel) return;
+  panel.style.display = 'block';
 
   if (oyuncu) {
-    panel.style.display = 'block';
     if (title) title.textContent = '📋 ' + oyuncu.kral + ' (' + x + ':' + y + ')';
     if (content) content.innerHTML =
       '<div><div style="color:#555;font-size:10px">Kral</div><div style="color:#d4af37">' + oyuncu.kral + '</div></div>' +
@@ -229,16 +398,14 @@ function mapSecHucre(x, y) {
       '<div><div style="color:#555;font-size:10px">Çağ</div><div>' + oyuncu.cag + '. Çağ</div></div>' +
       '<div><div style="color:#555;font-size:10px">Mesafe</div><div>' + (oyuncu.mesafe??'—') + '</div></div>';
   } else if (koloni) {
-    panel.style.display = 'block';
     if (title) title.textContent = '📋 Koloni (' + x + ':' + y + ')';
     if (content) content.innerHTML =
-      '<div><div style="color:#555;font-size:10px">Tür</div><div style="color:#f1c40f">' + (KAYNAK_IKON[koloni.kaynak_tipi]||'⛏️') + ' ' + koloni.kaynak_tipi + '</div></div>' +
+      '<div><div style="color:#555;font-size:10px">Tür</div><div style="color:#f1c40f">' + (KAYNAK_IKON[koloni.kaynak_tipi]||'⛏') + ' ' + koloni.kaynak_tipi + '</div></div>' +
       '<div><div style="color:#555;font-size:10px">Bonus</div><div>%' + koloni.bonus_oran + '</div></div>' +
       '<div><div style="color:#555;font-size:10px">Durum</div><div>' + (koloni.sahip_kral ? '🔴 İşgal' : '🟢 Boş') + '</div></div>' +
       (koloni.sahip_kral ? '<div><div style="color:#555;font-size:10px">İşgalci</div><div style="color:' + (TARAF_RENK[koloni.sahip_taraf]||'#888') + '">' + koloni.sahip_kral + '</div></div>' : '') +
       '<div><div style="color:#555;font-size:10px">Mesafe</div><div>' + (koloni.mesafe??'—') + '</div></div>';
   } else {
-    panel.style.display = 'block';
     if (title) title.textContent = '📋 Boş Alan (' + x + ':' + y + ')';
     if (content) content.innerHTML = '<div style="color:#555">Bu hücrede kimse yok.</div>';
   }
@@ -249,15 +416,10 @@ function mapSayfa(s) {
   MAP_SAYFA = s;
   mapYukle();
 }
-
 function mapGitInput() {
   const inp = document.getElementById('map-git-input');
   if (inp) mapSayfa(parseInt(inp.value) || 1);
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(mapInit, 1500);
-});
 </script>
 </body>
 </html>
