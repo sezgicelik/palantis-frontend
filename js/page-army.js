@@ -568,7 +568,7 @@ function updateArmyStats(){
 }
 
 /* -- SAF DİZİLİMİ (4 saf: 3-3-5-3) -- */
-const SAF_LIMITS = [3, 3, 5, 3];
+// SAF_LIMITS constants.js'de tanimli
 
 function loadFormationForArmy() {
   const sel = document.getElementById('formation-army-select');
