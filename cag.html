@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palantis – Çağ Atla</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div id="hudbar-mount"></div>
+<div class="layout">
+  <div id="sidebar-mount"></div>
+  <div class="main-content">
+
+    <h2 style="color:#c8a96e;font-family:'Cinzel',serif;margin:0 0 8px;font-size:clamp(16px,4vw,22px)">⬆️ Çağ Yükseltme</h2>
+    <p style="color:#888;font-size:13px;margin-bottom:20px">
+      Çağ yükselterek yeni binalar, daha yüksek nüfus sınırı ve gelişmiş üniteler açabilirsin.
+    </p>
+
+    <!-- Mevcut Çağ -->
+    <div class="card" style="padding:20px;margin-bottom:16px;text-align:center">
+      <div style="font-size:48px;margin-bottom:8px" id="cag-icon">🏛️</div>
+      <div style="font-family:'Cinzel',serif;font-size:28px;color:#d4af37;font-weight:bold" id="cag-isim">I. Çağ</div>
+      <div style="color:#888;font-size:13px;margin-top:8px">
+        Nüfus Sınırı Bonusu: <b style="color:#fff" id="cag-nufus-bonus">+0</b> &nbsp;|&nbsp;
+        Moral Maks: <b style="color:#fff" id="cag-moral-maks">1500</b>
+      </div>
+    </div>
+
+    <!-- Sonraki Çağ Maliyeti -->
+    <div class="card" style="padding:20px;margin-bottom:16px" id="cag-maliyet-kart">
+      <h3 style="color:#c8a96e;margin:0 0 16px">Sonraki Çağa Geçiş Maliyeti</h3>
+      <div id="cag-maliyet-liste" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px"></div>
+      <button class="btn" onclick="cagAtla()" id="cag-atla-btn" style="width:100%;font-size:16px;padding:12px">
+        ⬆️ Çağ Atla
+      </button>
+      <div id="cag-sonuc" style="margin-top:10px;font-size:13px;color:#888;text-align:center;min-height:20px"></div>
+    </div>
+
+    <!-- Çağ Detayları -->
+    <div class="card" style="padding:16px">
+      <h3 style="color:#c8a96e;margin:0 0 12px">Çağ Avantajları</h3>
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <tr style="border-bottom:1px solid #222">
+          <th style="color:#888;text-align:left;padding:6px">Çağ</th>
+          <th style="color:#888;text-align:center;padding:6px">Nüfus Sınırı</th>
+          <th style="color:#888;text-align:center;padding:6px">Moral Maks</th>
+          <th style="color:#888;text-align:center;padding:6px">Yeni Binalar</th>
+        </tr>
+        <tr style="border-bottom:1px solid #111"><td style="padding:6px;color:#d4af37">I. Çağ</td><td style="text-align:center;color:#aaa">Baz</td><td style="text-align:center;color:#aaa">1500</td><td style="color:#666;padding:6px">Temel binalar</td></tr>
+        <tr style="border-bottom:1px solid #111"><td style="padding:6px;color:#d4af37">II. Çağ</td><td style="text-align:center;color:#aaa">+500</td><td style="text-align:center;color:#aaa">2000</td><td style="color:#666;padding:6px">Kışla, Akademi, Lonca</td></tr>
+        <tr style="border-bottom:1px solid #111"><td style="padding:6px;color:#d4af37">III. Çağ</td><td style="text-align:center;color:#aaa">+1000</td><td style="text-align:center;color:#aaa">2500</td><td style="color:#666;padding:6px">Surlar, Büyülü Tarla</td></tr>
+        <tr style="border-bottom:1px solid #111"><td style="padding:6px;color:#d4af37">IV. Çağ</td><td style="text-align:center;color:#aaa">+1500</td><td style="text-align:center;color:#aaa">3000</td><td style="color:#666;padding:6px">Mağara, İleri binalar</td></tr>
+        <tr><td style="padding:6px;color:#d4af37">V. Çağ</td><td style="text-align:center;color:#aaa">+2000</td><td style="text-align:center;color:#aaa">3500</td><td style="color:#666;padding:6px">Tüm binalar açık</td></tr>
+      </table>
+    </div>
+
+  </div>
+</div>
+<div id="toast"></div>
+<div id="building-modal-mount"></div>
+
+<script src="js/constants.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/game-data.js"></script>
+<script src="js/hud.js"></script>
+<script src="js/layout.js"></script>
+<script>
+const CAG_IKONLARI = { 1:'🏛️', 2:'⚔️', 3:'🏰', 4:'🐉', 5:'👑' };
+const CAG_MORAL_MAKS = { 1:1500, 2:2000, 3:2500, 4:3000, 5:3500 };
+const CAG_NUFUS_BONUS = { 1:0, 2:500, 3:1000, 4:1500, 5:2000 };
+const KAYNAK_IKON = { odun:'🌳', tas:'🪨', metal:'⛏️', altin:'💰', kereste:'🪵', islenmis:'🔩', ekmek:'🍞', pismis:'🍳', pismis_et:'🍖' };
+
+let CAG_DATA = {};
+
+async function loadCag() {
+  const token = getToken(); if (!token) return;
+  try {
+    const resp = await fetch(API_BASE + '/api/game/cag', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!resp.ok) return;
+    CAG_DATA = await resp.json();
+    renderCag();
+  } catch(e) {}
+}
+
+function renderCag() {
+  const cag = CAG_DATA.cag || 1;
+
+  const iconEl = document.getElementById('cag-icon');
+  if (iconEl) iconEl.textContent = CAG_IKONLARI[cag] || '🏛️';
+
+  const isimEl = document.getElementById('cag-isim');
+  if (isimEl) isimEl.textContent = CAG_DATA.cag_isim || (cag + '. Çağ');
+
+  const nufusEl = document.getElementById('cag-nufus-bonus');
+  if (nufusEl) nufusEl.textContent = '+' + (CAG_NUFUS_BONUS[cag] || 0);
+
+  const moralEl = document.getElementById('cag-moral-maks');
+  if (moralEl) moralEl.textContent = CAG_MORAL_MAKS[cag] || 1500;
+
+  const maliyetKart = document.getElementById('cag-maliyet-kart');
+  const maliyetListe = document.getElementById('cag-maliyet-liste');
+  const btn = document.getElementById('cag-atla-btn');
+
+  if (cag >= 5) {
+    if (maliyetKart) maliyetKart.innerHTML = '<div style="text-align:center;padding:30px;color:#2ecc71;font-size:18px;font-family:Cinzel,serif">👑 Maksimum Çağa Ulaştınız!</div>';
+    return;
+  }
+
+  const maliyet = CAG_DATA.sonraki_maliyet;
+  if (!maliyet || !maliyetListe) return;
+
+  let karsilanabilir = true;
+  maliyetListe.innerHTML = Object.entries(maliyet).map(([kaynak, miktar]) => {
+    const mevcut = kaynak === 'altin' ? (RES.altin||0) :
+                   kaynak === 'odun' ? (RES.odun||0) :
+                   kaynak === 'tas' ? (RES.tas||0) :
+                   kaynak === 'metal' ? (RES.metal||0) :
+                   kaynak === 'kereste' ? (RES.kereste||0) :
+                   kaynak === 'islenmis' ? (RES.islenmis||0) :
+                   kaynak === 'ekmek' ? (RES.ekmek||0) :
+                   kaynak === 'pismis' ? (RES.pismis||0) : 0;
+    const yeterli = mevcut >= miktar;
+    if (!yeterli) karsilanabilir = false;
+    return `<div style="background:#0d0d0d;border:1px solid ${yeterli?'#1e3a1e':'#3a1e1e'};border-radius:6px;padding:8px 12px;min-width:120px">
+      <div style="font-size:11px;color:#888">${KAYNAK_IKON[kaynak]||'📦'} ${kaynak}</div>
+      <div style="font-size:16px;font-weight:bold;color:${yeterli?'#2ecc71':'#e74c3c'}">${miktar.toLocaleString()}</div>
+      <div style="font-size:10px;color:#555">Mevcut: ${mevcut.toLocaleString()}</div>
+    </div>`;
+  }).join('');
+
+  if (btn) btn.disabled = !karsilanabilir;
+}
+
+async function cagAtla() {
+  const token = getToken(); if (!token) return;
+  const sonuc = document.getElementById('cag-sonuc');
+  const btn = document.getElementById('cag-atla-btn');
+  if (btn) btn.disabled = true;
+
+  try {
+    const resp = await fetch(API_BASE + '/api/game/cag-atla', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }
+    });
+    const data = await resp.json();
+    if (!resp.ok) {
+      if (sonuc) { sonuc.textContent = data.error || 'Hata!'; sonuc.style.color = '#e74c3c'; }
+      if (btn) btn.disabled = false;
+      return;
+    }
+    if (sonuc) { sonuc.textContent = '🎉 ' + data.cag_isim + ' çağına geçtiniz!'; sonuc.style.color = '#2ecc71'; }
+    // Oyuncu verisini guncelle
+    if (typeof OYUNCU !== 'undefined') OYUNCU.cag = data.yeni_cag;
+    await loadGameData();
+    await loadCag();
+    toast('🎉 ' + data.cag_isim + ' çağına yükseldiniz!');
+  } catch(e) {
+    if (sonuc) { sonuc.textContent = 'Bağlantı hatası'; sonuc.style.color = '#e74c3c'; }
+    if (btn) btn.disabled = false;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(loadCag, 1500);
+});
+</script>
+</body>
+</html>
