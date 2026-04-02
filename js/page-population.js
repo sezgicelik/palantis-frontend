@@ -214,9 +214,68 @@ async function kesimYap() {
   }
 }
 
+/* ═══════════════════════════════════════════
+   VERGİ SİSTEMİ UI
+═══════════════════════════════════════════ */
+const VERGI_MORAL_TABLO = {0:0, 1:-1, 2:-3, 3:-5, 4:-10, 5:-18, 6:-28, 7:-40, 8:-55, 9:-72, 10:-90};
+let VERGI_ORANI = 0;
+
+function vergiSliderChange(val) {
+  VERGI_ORANI = parseInt(val) || 0;
+  const el = document.getElementById('vergi-deger');
+  if (el) el.textContent = VERGI_ORANI;
+  const freeKoylu = population.free || 0;
+  const gelir = freeKoylu * VERGI_ORANI;
+  const gelirEl = document.getElementById('vergi-gelir');
+  if (gelirEl) gelirEl.textContent = gelir.toLocaleString() + ' altın';
+  const moralEl = document.getElementById('vergi-moral-etki');
+  const moralVal = VERGI_MORAL_TABLO[VERGI_ORANI] || 0;
+  if (moralEl) {
+    moralEl.textContent = moralVal === 0 ? '0' : moralVal;
+    moralEl.style.color = moralVal === 0 ? '#2ecc71' : moralVal > -20 ? '#e67e22' : '#e74c3c';
+  }
+}
+
+async function vergiYukle() {
+  const token = getToken(); if (!token) return;
+  try {
+    const resp = await fetch(API_BASE + '/api/game/vergi', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!resp.ok) return;
+    const data = await resp.json();
+    VERGI_ORANI = data.vergi_orani || 0;
+    const slider = document.getElementById('vergi-slider');
+    if (slider) slider.value = VERGI_ORANI;
+    vergiSliderChange(VERGI_ORANI);
+  } catch(e) {}
+}
+
+async function vergiKaydet() {
+  const token = getToken(); if (!token) return;
+  const sonuc = document.getElementById('vergi-sonuc');
+  try {
+    const resp = await fetch(API_BASE + '/api/game/vergi', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ vergi_orani: VERGI_ORANI })
+    });
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      if (sonuc) { sonuc.textContent = err.error || 'Hata!'; sonuc.style.color = '#e74c3c'; }
+      return;
+    }
+    if (sonuc) { sonuc.textContent = '✅ Vergi oranı %' + VERGI_ORANI + ' olarak kaydedildi.'; sonuc.style.color = '#2ecc71'; }
+    setTimeout(() => { if (sonuc) { sonuc.textContent = ''; sonuc.style.color = '#888'; } }, 3000);
+  } catch(e) {
+    if (sonuc) { sonuc.textContent = '⚠️ Bağlantı hatası'; sonuc.style.color = '#e74c3c'; }
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   updatePopulationUI();
   loadPisirme();
   updatePisirmeUI();
   kesimInit();
+  vergiYukle();
 });
