@@ -158,21 +158,21 @@ function upgradeUnit(unitId, stat){
 /* -- ASKER YONETIMi -- */
 function renderSoldierPanel(){
   const setText = (id,v) => { const e=document.getElementById(id); if(e) e.innerText=v; };
-  const koylu = Math.max(0, population.free - ASKER_SAYISI);
+  const koylu = Math.max(0, population.free);
   setText('sm-koylu', koylu);
   setText('sm-asker', ASKER_SAYISI);
   setText('sm-miktar', SM_MIKTAR);
 }
 
 function smAdjust(d){
-  const koylu = Math.max(0, population.free - ASKER_SAYISI);
+  const koylu = Math.max(0, population.free);
   SM_MIKTAR = Math.max(0, Math.min(SM_MIKTAR + d, koylu));
   setText('sm-miktar', SM_MIKTAR);
 }
 
 async function smConvert(){
   if(SM_MIKTAR <= 0){ document.getElementById('sm-msg').textContent = 'Donusturulecek koylu sayisini belirle.'; return; }
-  const koylu = Math.max(0, population.free - ASKER_SAYISI);
+  const koylu = Math.max(0, population.free);
   if(SM_MIKTAR > koylu){ document.getElementById('sm-msg').textContent = 'Yeterli bos koylu yok!'; return; }
 
   const token = getToken();

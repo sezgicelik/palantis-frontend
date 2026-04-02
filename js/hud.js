@@ -106,7 +106,7 @@ function updatePopulationUI(){
 
   // Nüfus hesabı: Köylü (boşta) + İşçi (atanmış) + Asker+Tapınak (sabit) + Ünite (orduda)
   const isci   = (population.wood||0)+(population.stone||0)+(population.iron||0)+
-                 (population.farm||0)+(population.fish||0)+(population.hunter||0)+(population.merchant||0);
+                 (population.farm||0)+(population.fish||0)+(population.merchant||0);
   const sabit  = (population.asker||0)+(population.worshipper||0);
   const unite  = population.unite||0;
   const koylu  = Math.max(0, population.free||0);
@@ -128,12 +128,12 @@ function updatePopulationUI(){
   set('hud-nufus-sinir', population.total || nufus);
   // Yeni stat-box icin birlesik gosterim
   const nufusBox = document.getElementById('hud-nufus-box');
-  if(nufusBox) nufusBox.textContent = atananKoylu + '/' + (population.total || nufus);
+  if(nufusBox) nufusBox.textContent = nufus + '/' + sinir;
   // Ana ekran hızlı stats
   const hn=document.getElementById('hs-nufus'); if(hn) hn.textContent=nufus;
 
   // Boş köylü senkronu — ordu sayfasındaki sm-koylu aynı değeri göstersin
-  try { set('sm-koylu', Math.max(0, koylu - ASKER_SAYISI)); } catch(e) {}
+  try { set('sm-koylu', koylu); } catch(e) {}
 
   // Dağılım barı
   const topBar = nufus || 1;

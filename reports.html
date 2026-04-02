@@ -73,16 +73,20 @@
     const urlParams = new URLSearchParams(window.location.search);
     const tabParam = urlParams.get('tab');
     document.addEventListener('DOMContentLoaded', () => {
-      // loadGameData bitene kadar bekle, sonra aktivite yukle
-      setTimeout(() => {
+      // v1.2.0: loadGameData promise ile bekle, setTimeout yerine
+      const openTab = () => {
         if (tabParam) {
           const btn = document.getElementById('rtab-btn-' + tabParam);
           if (btn) reportTab(tabParam, btn);
         } else {
-          // Varsayilan: Sehir Raporlari
           reportTab('sehir', document.getElementById('rtab-btn-sehir'));
         }
-      }, 2000);
+      };
+      if (typeof loadGameData === 'function') {
+        loadGameData().then(openTab).catch(openTab);
+      } else {
+        setTimeout(openTab, 2000);
+      }
     });
     </script>
 

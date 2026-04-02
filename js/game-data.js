@@ -209,10 +209,15 @@ async function loadGameData() {
       population.unite         = parseInt(work.unite_toplam)  || 0;
       population.nufus_siniri  = parseInt(work.nufus_siniri)  || population.total;
       population.nufus_toplam  = parseInt(work.nufus_toplam)  || population.total;
-      const atanan = population.wood + population.stone + population.iron + population.farm
-                   + population.fish + population.hunter + population.merchant
-                   + population.asker + population.worshipper;
-      population.free = Math.max(0, population.total - atanan);
+      // v1.2.0: Backend free_koylu hesapliyor — tek dogru kaynak
+      if (work.free_koylu !== undefined) {
+        population.free = parseInt(work.free_koylu) || 0;
+      } else {
+        const atanan = population.wood + population.stone + population.iron + population.farm
+                     + population.fish + population.merchant
+                     + population.asker + population.worshipper;
+        population.free = Math.max(0, population.total - atanan);
+      }
       updatePopulationUI();
     }
 
