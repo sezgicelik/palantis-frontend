@@ -3,16 +3,7 @@
    Extracted from index.html
 ══════════════════════════════════ */
 
-const ACTIVITY_ICONS = {
-  isci_uretim: '\u2692\ufe0f',
-  bina_tamam:  '\ud83c\udfd7\ufe0f',
-  egitim_tamam:'\u2694\ufe0f',
-  pisirme:     '\ud83d\udd25',
-  nufus:       '\ud83d\udc65',
-  yemek:       '\ud83c\udf7d\ufe0f',
-  bina_uretim: '\ud83d\udd25',
-  maas:        '\ud83d\udcb0',
-};
+// ACTIVITY_ICONS constants.js'de tanimli
 
 async function loadActivity() {
   const token = getToken();
