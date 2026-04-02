@@ -297,6 +297,8 @@ function initDayTransition() {
   let dtDismissed = false;
   let lastCheckedHour = -1;
 
+  let dtPhase = 'none'; // 'none' | 'sunset' | 'sunrise'
+
   setInterval(() => {
     const now = new Date();
     const min = now.getMinutes();
@@ -308,33 +310,46 @@ function initDayTransition() {
       lastCheckedHour = hour;
     }
 
-    // XX:59 — gün dönüyor
-    // XX:59 — GÜN BATIMI başlat
-    if (min >= 59 && !dtActive && !dtDismissed) {
+    // XX:59 — GÜN BATIMI (1 dakika boyunca)
+    if (min === 59 && !dtActive && !dtDismissed) {
       dtActive = true;
+      dtPhase = 'sunset';
       document.body.classList.add('dt-locked');
       overlay.style.display = 'flex';
       overlay.style.background = 'rgba(20,5,0,0.95)';
       requestAnimationFrame(() => overlay.classList.add('active'));
-      // Güneş batıyor
       const sun = document.getElementById('dt-sun');
       if (sun) { sun.className = 'dt-sunset'; sun.style.opacity = '1'; }
       const titleEl = document.getElementById('dt-title');
       if (titleEl) { titleEl.textContent = '🌅 Gün Batıyor...'; titleEl.style.color = '#e67e22'; }
       const subEl = document.getElementById('dt-subtitle');
-      if (subEl) subEl.textContent = 'Gece yaklaşıyor';
+      if (subEl) subEl.textContent = 'Palantis gecesi yaklaşıyor...';
     }
 
-    // XX:01 — GÜN DOĞUMU + kapat
-    if (min >= 1 && min <= 2 && dtActive) {
-      overlay.style.background = 'rgba(0,0,0,0.92)';
+    // XX:00 — GECE (geçiş anı, overlay kalır)
+    if (min === 0 && dtActive && dtPhase === 'sunset') {
+      dtPhase = 'night';
+      overlay.style.background = 'rgba(0,0,8,0.97)';
+      const sun = document.getElementById('dt-sun');
+      if (sun) { sun.className = ''; sun.style.opacity = '0'; }
+      const titleEl = document.getElementById('dt-title');
+      if (titleEl) { titleEl.textContent = '🌙 Yeni Gün Başlıyor'; titleEl.style.color = '#8888bb'; }
+      const subEl = document.getElementById('dt-subtitle');
+      if (subEl) subEl.textContent = 'Kaynaklar hesaplanıyor...';
+    }
+
+    // XX:01 — GÜN DOĞUMU (1 dakika boyunca, sonra kapanır)
+    if (min === 1 && dtActive && (dtPhase === 'night' || dtPhase === 'sunset')) {
+      dtPhase = 'sunrise';
+      overlay.style.background = 'rgba(10,5,0,0.92)';
       const sun = document.getElementById('dt-sun');
       if (sun) { sun.className = 'dt-sunrise'; }
       const titleEl = document.getElementById('dt-title');
-      if (titleEl) { titleEl.textContent = '☀️ Güneş Doğdu!'; titleEl.style.color = '#f1c40f'; }
+      if (titleEl) { titleEl.textContent = '☀️ Güneş Doğuyor!'; titleEl.style.color = '#f1c40f'; }
       const subEl = document.getElementById('dt-subtitle');
       if (subEl) subEl.textContent = 'Kaynaklar güncellendi';
 
+      // 45 saniye sonra kapat (dakikanın sonuna doğru)
       setTimeout(() => {
         overlay.classList.add('fade-out');
         setTimeout(() => {
@@ -342,10 +357,11 @@ function initDayTransition() {
           overlay.style.display = 'none';
           document.body.classList.remove('dt-locked');
           dtActive = false;
+          dtPhase = 'none';
           dtDismissed = true;
           if (typeof loadGameData === 'function') loadGameData();
-        }, 1200);
-      }, 3000);
+        }, 1500);
+      }, 45000);
     }
   }, 1000);
 }
