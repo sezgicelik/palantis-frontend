@@ -116,6 +116,10 @@ async function loadGameData() {
     if (alanData.alan !== undefined) {
       const toplamAlan = parseInt(alanData.alan) || 100;
       const kullanilanAlan = parseInt(alanData.kullanilan_alan) || 0;
+      // Moral HUD
+      if (alanData.ordu_morali !== undefined) {
+        setText('hud-moral', alanData.ordu_morali);
+      }
       window._palantisToplamAlan = toplamAlan;
       // landState (arazi sayfasi)
       if (typeof landState !== 'undefined') {
