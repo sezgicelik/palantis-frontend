@@ -73,7 +73,7 @@ function renderSidebar(){
       <a href="reports.html" class="menu-item${isActive('reports.html')||isActive('activity.html')}">📜 Raporlar</a>
       <div class="submenu" id="submenu-reports" style="display:${page==='reports.html'||page==='activity.html'?'block':'none'}">
         <a href="activity.html" class="menu-item sub-item${isActive('activity.html')}">🏙️ Şehir Raporları</a>
-        <a href="reports.html?tab=savas" class="menu-item sub-item">⚔️ Savaş Raporları</a>
+        <a href="reports.html?tab=askeri" class="menu-item sub-item">⚔️ Askeri Raporlar</a>
         <a href="reports.html?tab=koloni" class="menu-item sub-item">🏰 Koloni Raporları</a>
         <a href="reports.html?tab=ekonomi" class="menu-item sub-item">💰 Ekonomi Raporları</a>
       </div>
@@ -249,6 +249,90 @@ function initLayout(){
   if(typeof loadGameData === 'function'){
     setInterval(loadGameData, 60000);
   }
+
+  // v1.2.0: Gün geçişi sistemi
+  initDayTransition();
+}
+
+/* ═══════════════════════════════════════════
+   GÜN GEÇİŞİ SİSTEMİ
+   XX:59 — overlay göster, butonları kilitle
+   XX:01 — overlay kaldır, veriyi yenile
+═══════════════════════════════════════════ */
+function initDayTransition() {
+  // Overlay HTML oluştur
+  const overlay = document.createElement('div');
+  overlay.id = 'day-transition-overlay';
+  overlay.style.cssText = 'display:none;position:fixed;inset:0;z-index:99999;pointer-events:all;' +
+    'background:rgba(0,0,0,0.92);transition:opacity 1s ease;opacity:0;' +
+    'display:none;flex-direction:column;align-items:center;justify-content:center;';
+  overlay.innerHTML = `
+    <div id="dt-sun" style="width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,#f1c40f,#e67e22,#d35400);
+      box-shadow:0 0 60px #f39c12,0 0 120px #e67e2255;margin-bottom:24px;
+      animation:dtSunRise 3s ease-out forwards;transform:translateY(100px);opacity:0"></div>
+    <div style="font-family:'Cinzel',serif;font-size:24px;color:#c8a96e;letter-spacing:2px;margin-bottom:8px" id="dt-title">Yeni Gün Doğuyor...</div>
+    <div style="font-family:'Crimson Pro',serif;font-size:14px;color:#888" id="dt-subtitle">Kaynaklar hesaplanıyor</div>
+  `;
+  document.body.appendChild(overlay);
+
+  // CSS animasyon
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes dtSunRise { 0%{transform:translateY(100px);opacity:0} 50%{opacity:1} 100%{transform:translateY(0);opacity:1} }
+    #day-transition-overlay.active { display:flex!important;opacity:1; }
+    #day-transition-overlay.fade-out { opacity:0; }
+    body.dt-locked .btn-action, body.dt-locked button:not(.atab) { pointer-events:none!important;opacity:0.5!important; }
+  `;
+  document.head.appendChild(style);
+
+  let dtActive = false;
+  let dtDismissed = false;
+  let lastCheckedHour = -1;
+
+  setInterval(() => {
+    const now = new Date();
+    const min = now.getMinutes();
+    const hour = now.getHours();
+
+    // Saat değişti — reset dismiss flag
+    if (hour !== lastCheckedHour) {
+      dtDismissed = false;
+      lastCheckedHour = hour;
+    }
+
+    // XX:59 — gün dönüyor
+    if (min >= 59 && !dtActive && !dtDismissed) {
+      dtActive = true;
+      document.body.classList.add('dt-locked');
+      overlay.style.display = 'flex';
+      requestAnimationFrame(() => overlay.classList.add('active'));
+      const titleEl = document.getElementById('dt-title');
+      if (titleEl) titleEl.textContent = 'Yeni Gün Doğuyor...';
+      const subEl = document.getElementById('dt-subtitle');
+      if (subEl) subEl.textContent = 'Kaynaklar hesaplanıyor';
+    }
+
+    // XX:01 — gün döndü, overlay kaldır
+    if (min >= 1 && min <= 2 && dtActive) {
+      const titleEl = document.getElementById('dt-title');
+      if (titleEl) titleEl.textContent = 'Güneş Doğdu!';
+      const subEl = document.getElementById('dt-subtitle');
+      if (subEl) subEl.textContent = 'Kaynaklar güncellendi';
+
+      setTimeout(() => {
+        overlay.classList.add('fade-out');
+        setTimeout(() => {
+          overlay.classList.remove('active', 'fade-out');
+          overlay.style.display = 'none';
+          document.body.classList.remove('dt-locked');
+          dtActive = false;
+          dtDismissed = true;
+          // Veriyi yenile
+          if (typeof loadGameData === 'function') loadGameData();
+        }, 1000);
+      }, 2000);
+    }
+  }, 1000);
 }
 
 /* Sayfa yuklenince otomatik cagir */
