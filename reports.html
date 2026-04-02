@@ -29,10 +29,10 @@
         <h2 style="color:#c8a96e;font-family:'Cinzel',serif;margin:0;font-size:clamp(16px,4vw,22px)">🏙️ Şehir Raporları</h2>
         <button class="btn-action" onclick="loadActivity()" style="padding:4px 14px;font-size:11px;width:auto">↻ Yenile</button>
       </div>
-      <div id="activity-loading" style="color:#888;font-size:13px;text-align:center;padding:40px">Yükleniyor...</div>
-      <div id="activity-list" style="display:none"></div>
-      <div id="activity-empty" style="display:none;color:#777;font-size:13px;text-align:center;padding:40px">
-        Henüz kayıt yok.<br><small style="color:#555">Her Palantis günü başında işçi üretimi, inşaat ve eğitim olayları burada görünür.</small>
+      <div id="sehir-loading" style="color:#888;font-size:13px;text-align:center;padding:40px">Yükleniyor...</div>
+      <div id="sehir-list" style="display:none"></div>
+      <div id="sehir-empty" style="display:none;color:#777;font-size:13px;text-align:center;padding:40px">
+        Henüz kayıt yok.<br><small style="color:#555">Her Palantis günü başında işçi üretimi, inşaat ve nüfus olayları burada görünür.</small>
       </div>
     </div>
 
@@ -71,8 +71,9 @@
     </div>
 
     <script>
-    // v1.2.0: Rapor sekme sistemi — her sekme kendi event_type'ini filtreler
+    // v1.2.1: Rapor sekme sistemi — her sekme kendi event_type'ini filtreler
     const REPORT_EVENT_TYPES = {
+      sehir: ['isci_uretim','bina_tamam','nufus','aclik','kacis','yemek','maas','vergi'],
       askeri: ['egitim_tamam','worshipper'],
       ekonomi: ['ekonomi','pisirme','bina_uretim']
     };
@@ -83,7 +84,11 @@
       if (target) target.style.display = 'block';
       document.querySelectorAll('.army-tabs .atab').forEach(b => b.classList.remove('on'));
       if (el) el.classList.add('on');
-      if (tab === 'sehir' && typeof loadActivity === 'function') loadActivity();
+      if (tab === 'sehir') {
+        // Sehir raporlari da filtreli gosterilir
+        if (typeof loadFilteredReport === 'function') loadFilteredReport('sehir');
+        else if (typeof loadActivity === 'function') loadActivity();
+      }
       if (tab === 'askeri' || tab === 'ekonomi') loadFilteredReport(tab);
     }
 
