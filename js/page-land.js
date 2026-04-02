@@ -14,8 +14,8 @@ const landState = {
 };
 
 function ageLandLimit(age){
-  if(age === 1) return 300;
-  if(age === 2) return 600;
+  if(age === 1) return 500;
+  if(age === 2) return 800;
   if(age === 3) return 1000;
   if(age === 4) return 1500;
   return Infinity;

@@ -274,21 +274,21 @@ function initDayTransition() {
     'background:rgba(0,0,0,0.92);transition:opacity 1s ease;opacity:0;' +
     'display:none;flex-direction:column;align-items:center;justify-content:center;';
   overlay.innerHTML = `
-    <div id="dt-sun" style="width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,#f1c40f,#e67e22,#d35400);
-      box-shadow:0 0 60px #f39c12,0 0 120px #e67e2255;margin-bottom:24px;
-      animation:dtSunRise 3s ease-out forwards;transform:translateY(100px);opacity:0"></div>
-    <div style="font-family:'Cinzel',serif;font-size:24px;color:#c8a96e;letter-spacing:2px;margin-bottom:8px" id="dt-title">Yeni Gün Doğuyor...</div>
-    <div style="font-family:'Crimson Pro',serif;font-size:14px;color:#888" id="dt-subtitle">Kaynaklar hesaplanıyor</div>
+    <div id="dt-sun" style="width:80px;height:80px;border-radius:50%;margin-bottom:24px;opacity:0"></div>
+    <div style="font-family:'Cinzel',serif;font-size:24px;color:#c8a96e;letter-spacing:2px;margin-bottom:8px" id="dt-title"></div>
+    <div style="font-family:'Crimson Pro',serif;font-size:14px;color:#888" id="dt-subtitle"></div>
   `;
   document.body.appendChild(overlay);
 
-  // CSS animasyon
   const style = document.createElement('style');
   style.textContent = `
+    @keyframes dtSunSet { 0%{transform:translateY(0);opacity:1} 100%{transform:translateY(100px);opacity:0} }
     @keyframes dtSunRise { 0%{transform:translateY(100px);opacity:0} 50%{opacity:1} 100%{transform:translateY(0);opacity:1} }
     #day-transition-overlay.active { display:flex!important;opacity:1; }
     #day-transition-overlay.fade-out { opacity:0; }
     body.dt-locked .btn-action, body.dt-locked button:not(.atab) { pointer-events:none!important;opacity:0.5!important; }
+    .dt-sunset { background:radial-gradient(circle,#e74c3c,#c0392b,#7b241c)!important; box-shadow:0 0 60px #e74c3c,0 0 120px #c0392b55!important; animation:dtSunSet 3s ease-in forwards!important; }
+    .dt-sunrise { background:radial-gradient(circle,#f1c40f,#e67e22,#d35400)!important; box-shadow:0 0 60px #f39c12,0 0 120px #e67e2255!important; animation:dtSunRise 3s ease-out forwards!important; }
   `;
   document.head.appendChild(style);
 
@@ -308,21 +308,29 @@ function initDayTransition() {
     }
 
     // XX:59 — gün dönüyor
+    // XX:59 — GÜN BATIMI başlat
     if (min >= 59 && !dtActive && !dtDismissed) {
       dtActive = true;
       document.body.classList.add('dt-locked');
       overlay.style.display = 'flex';
+      overlay.style.background = 'rgba(20,5,0,0.95)';
       requestAnimationFrame(() => overlay.classList.add('active'));
+      // Güneş batıyor
+      const sun = document.getElementById('dt-sun');
+      if (sun) { sun.className = 'dt-sunset'; sun.style.opacity = '1'; }
       const titleEl = document.getElementById('dt-title');
-      if (titleEl) titleEl.textContent = 'Yeni Gün Doğuyor...';
+      if (titleEl) { titleEl.textContent = '🌅 Gün Batıyor...'; titleEl.style.color = '#e67e22'; }
       const subEl = document.getElementById('dt-subtitle');
-      if (subEl) subEl.textContent = 'Kaynaklar hesaplanıyor';
+      if (subEl) subEl.textContent = 'Gece yaklaşıyor';
     }
 
-    // XX:01 — gün döndü, overlay kaldır
+    // XX:01 — GÜN DOĞUMU + kapat
     if (min >= 1 && min <= 2 && dtActive) {
+      overlay.style.background = 'rgba(0,0,0,0.92)';
+      const sun = document.getElementById('dt-sun');
+      if (sun) { sun.className = 'dt-sunrise'; }
       const titleEl = document.getElementById('dt-title');
-      if (titleEl) titleEl.textContent = 'Güneş Doğdu!';
+      if (titleEl) { titleEl.textContent = '☀️ Güneş Doğdu!'; titleEl.style.color = '#f1c40f'; }
       const subEl = document.getElementById('dt-subtitle');
       if (subEl) subEl.textContent = 'Kaynaklar güncellendi';
 
@@ -334,10 +342,9 @@ function initDayTransition() {
           document.body.classList.remove('dt-locked');
           dtActive = false;
           dtDismissed = true;
-          // Veriyi yenile
           if (typeof loadGameData === 'function') loadGameData();
-        }, 1000);
-      }, 2000);
+        }, 1200);
+      }, 3000);
     }
   }, 1000);
 }
