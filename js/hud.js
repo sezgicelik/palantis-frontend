@@ -181,6 +181,9 @@ function updatePopulationUI(){
       }
     });
   }
+
+  // Kesim panelini de guncelle (at/kurt sayisi)
+  if(typeof kesimInit === 'function') try { kesimInit(); } catch(e) {}
 }
 
 /* =====================================================
