@@ -9,17 +9,25 @@
   --glass-tint: rgba(255,255,255,0.03);
 }
 
-/* ===== TEMALAR: AYDINLIK ===== */
-body.theme-insan   { --dark-bg:#0d0b00; --card-bg:rgba(24,21,0,0.75); --sidebar-bg:rgba(19,15,0,0.92); --hud-bg:rgba(15,12,0,0.88); --race-color:#f1c40f; --theme-glow:rgba(241,196,15,0.10); --glass-tint:rgba(241,196,15,0.03); }
-body.theme-elf     { --dark-bg:#001008; --card-bg:rgba(0,26,13,0.75); --sidebar-bg:rgba(0,18,8,0.92); --hud-bg:rgba(0,14,6,0.88); --race-color:#2ecc71; --theme-glow:rgba(46,204,113,0.10); --glass-tint:rgba(46,204,113,0.03); }
-body.theme-cuce    { --dark-bg:#080a0d; --card-bg:rgba(16,20,26,0.75); --sidebar-bg:rgba(11,14,18,0.92); --hud-bg:rgba(8,9,13,0.88); --race-color:#b0bec5; --theme-glow:rgba(176,190,197,0.10); --glass-tint:rgba(176,190,197,0.03); }
-body.theme-bucukluk{ --dark-bg:#0a0010; --card-bg:rgba(22,0,32,0.75); --sidebar-bg:rgba(14,0,24,0.92); --hud-bg:rgba(10,0,18,0.88); --race-color:#b07cc9; --theme-glow:rgba(176,124,201,0.10); --glass-tint:rgba(176,124,201,0.03); }
+/* ===== TEMALAR: AYDINLIK TARAF — Sarı ana ton, ırk bazlı farklı vurgu ===== */
+/* İnsan: Saf altın sarısı */
+body.theme-insan   { --dark-bg:#0d0a00; --card-bg:rgba(26,20,0,0.75); --sidebar-bg:rgba(20,15,0,0.92); --hud-bg:rgba(16,12,0,0.88); --race-color:#f1c40f; --theme-glow:rgba(241,196,15,0.12); --glass-tint:rgba(241,196,15,0.04); }
+/* Elf: Zümrüt yeşili-altın */
+body.theme-elf     { --dark-bg:#060a00; --card-bg:rgba(14,22,0,0.75); --sidebar-bg:rgba(10,17,0,0.92); --hud-bg:rgba(7,13,0,0.88); --race-color:#8cc63f; --theme-glow:rgba(140,198,63,0.12); --glass-tint:rgba(140,198,63,0.04); }
+/* Cüce: Bakır/bronz */
+body.theme-cuce    { --dark-bg:#0d0600; --card-bg:rgba(28,14,0,0.75); --sidebar-bg:rgba(22,10,0,0.92); --hud-bg:rgba(16,8,0,0.88); --race-color:#cd7f32; --theme-glow:rgba(205,127,50,0.12); --glass-tint:rgba(205,127,50,0.04); }
+/* Bucukluk: Gül altını / sıcak amber */
+body.theme-bucukluk{ --dark-bg:#0d0400; --card-bg:rgba(26,10,4,0.75); --sidebar-bg:rgba(20,8,2,0.92); --hud-bg:rgba(15,6,1,0.88); --race-color:#e8a87c; --theme-glow:rgba(232,168,124,0.12); --glass-tint:rgba(232,168,124,0.04); }
 
-/* ===== TEMALAR: KARANLIK (parlaklik arttirildi) ===== */
-body.theme-kara_elf { --dark-bg:#0a0010; --card-bg:rgba(20,0,32,0.72); --sidebar-bg:rgba(13,0,24,0.90); --hud-bg:rgba(9,0,16,0.88); --race-color:#a855f7; --theme-glow:rgba(168,85,247,0.14); --glass-tint:rgba(168,85,247,0.05); }
-body.theme-ork      { --dark-bg:#030d03; --card-bg:rgba(8,20,8,0.72); --sidebar-bg:rgba(6,15,6,0.90); --hud-bg:rgba(4,10,4,0.88); --race-color:#34d399; --theme-glow:rgba(52,211,153,0.14); --glass-tint:rgba(52,211,153,0.04); }
-body.theme-ogre_irk { --dark-bg:#0d0500; --card-bg:rgba(26,12,0,0.72); --sidebar-bg:rgba(19,8,0,0.90); --hud-bg:rgba(14,6,0,0.88); --race-color:#f59e0b; --theme-glow:rgba(245,158,11,0.14); --glass-tint:rgba(245,158,11,0.04); }
-body.theme-undead   { --dark-bg:#080808; --card-bg:rgba(17,17,17,0.72); --sidebar-bg:rgba(13,13,13,0.90); --hud-bg:rgba(9,9,9,0.88); --race-color:#a8b4b5; --theme-glow:rgba(168,180,181,0.14); --glass-tint:rgba(168,180,181,0.03); }
+/* ===== TEMALAR: KARANLIK TARAF — Lacivert ana ton, ırk bazlı farklı vurgu ===== */
+/* Kara Elf: Mor-lacivert (büyü) */
+body.theme-kara_elf { --dark-bg:#060418; --card-bg:rgba(12,8,40,0.78); --sidebar-bg:rgba(8,5,32,0.92); --hud-bg:rgba(6,3,24,0.90); --race-color:#9370f7; --theme-glow:rgba(147,112,247,0.16); --glass-tint:rgba(147,112,247,0.05); }
+/* Ork: Zehir yeşili-lacivert */
+body.theme-ork      { --dark-bg:#000a12; --card-bg:rgba(0,16,32,0.78); --sidebar-bg:rgba(0,12,26,0.92); --hud-bg:rgba(0,8,20,0.90); --race-color:#3dc4b0; --theme-glow:rgba(61,196,176,0.16); --glass-tint:rgba(61,196,176,0.05); }
+/* Ogre: Çelik mavisi */
+body.theme-ogre_irk { --dark-bg:#040810; --card-bg:rgba(8,16,34,0.78); --sidebar-bg:rgba(5,12,28,0.92); --hud-bg:rgba(3,8,20,0.90); --race-color:#6b9fd4; --theme-glow:rgba(107,159,212,0.16); --glass-tint:rgba(107,159,212,0.05); }
+/* Undead: Buz mavisi */
+body.theme-undead   { --dark-bg:#020812; --card-bg:rgba(4,14,32,0.78); --sidebar-bg:rgba(2,10,26,0.92); --hud-bg:rgba(1,7,20,0.90); --race-color:#8ab4f8; --theme-glow:rgba(138,180,248,0.16); --glass-tint:rgba(138,180,248,0.05); }
 
 /* ===== GENEL ===== */
 body{
