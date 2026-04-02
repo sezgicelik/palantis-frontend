@@ -271,9 +271,6 @@ function initDayTransition() {
   // Overlay HTML oluştur
   const overlay = document.createElement('div');
   overlay.id = 'day-transition-overlay';
-  overlay.style.cssText = 'display:none;position:fixed;inset:0;z-index:99999;pointer-events:all;' +
-    'background:rgba(0,0,0,0.92);transition:opacity 1s ease;opacity:0;' +
-    'display:none;flex-direction:column;align-items:center;justify-content:center;';
   overlay.innerHTML = `
     <div id="dt-sun" style="width:80px;height:80px;border-radius:50%;margin-bottom:24px;opacity:0"></div>
     <div style="font-family:'Cinzel',serif;font-size:24px;color:#c8a96e;letter-spacing:2px;margin-bottom:8px" id="dt-title"></div>
@@ -285,7 +282,12 @@ function initDayTransition() {
   style.textContent = `
     @keyframes dtSunSet { 0%{transform:translateY(0);opacity:1} 100%{transform:translateY(100px);opacity:0} }
     @keyframes dtSunRise { 0%{transform:translateY(100px);opacity:0} 50%{opacity:1} 100%{transform:translateY(0);opacity:1} }
-    #day-transition-overlay.active { display:flex!important;opacity:1; }
+    #day-transition-overlay {
+      display:none; position:fixed; inset:0; z-index:99999; pointer-events:all;
+      flex-direction:column; align-items:center; justify-content:center;
+      background:rgba(0,0,0,0.92); transition:opacity 1s ease; opacity:0;
+    }
+    #day-transition-overlay.active { display:flex; opacity:1; }
     #day-transition-overlay.fade-out { opacity:0; }
     body.dt-locked .btn-action, body.dt-locked button:not(.atab) { pointer-events:none!important;opacity:0.5!important; }
     .dt-sunset { background:radial-gradient(circle,#e74c3c,#c0392b,#7b241c)!important; box-shadow:0 0 60px #e74c3c,0 0 120px #c0392b55!important; animation:dtSunSet 3s ease-in forwards!important; }
@@ -296,8 +298,25 @@ function initDayTransition() {
   let dtActive = false;
   let dtDismissed = false;
   let lastCheckedHour = -1;
-
   let dtPhase = 'none'; // 'none' | 'sunset' | 'sunrise'
+
+  function showOverlay(bg) {
+    overlay.style.background = bg;
+    overlay.classList.add('active');
+    document.body.classList.add('dt-locked');
+  }
+
+  function hideOverlay() {
+    overlay.classList.add('fade-out');
+    setTimeout(() => {
+      overlay.classList.remove('active', 'fade-out');
+      document.body.classList.remove('dt-locked');
+      dtActive = false;
+      dtPhase = 'none';
+      dtDismissed = true;
+      if (typeof loadGameData === 'function') loadGameData();
+    }, 1500);
+  }
 
   setInterval(() => {
     const now = new Date();
@@ -310,14 +329,11 @@ function initDayTransition() {
       lastCheckedHour = hour;
     }
 
-    // XX:59 — GÜN BATIMI (1 dakika boyunca)
+    // XX:59 — GÜN BATIMI
     if (min === 59 && !dtActive && !dtDismissed) {
       dtActive = true;
       dtPhase = 'sunset';
-      document.body.classList.add('dt-locked');
-      overlay.style.display = 'flex';
-      overlay.style.background = 'rgba(20,5,0,0.95)';
-      requestAnimationFrame(() => overlay.classList.add('active'));
+      showOverlay('rgba(20,5,0,0.95)');
       const sun = document.getElementById('dt-sun');
       if (sun) { sun.className = 'dt-sunset'; sun.style.opacity = '1'; }
       const titleEl = document.getElementById('dt-title');
@@ -326,42 +342,48 @@ function initDayTransition() {
       if (subEl) subEl.textContent = 'Palantis gecesi yaklaşıyor...';
     }
 
-    // XX:00 — GECE (geçiş anı, overlay kalır)
-    if (min === 0 && dtActive && dtPhase === 'sunset') {
-      dtPhase = 'night';
-      overlay.style.background = 'rgba(0,0,8,0.97)';
-      const sun = document.getElementById('dt-sun');
-      if (sun) { sun.className = ''; sun.style.opacity = '0'; }
-      const titleEl = document.getElementById('dt-title');
-      if (titleEl) { titleEl.textContent = '🌙 Yeni Gün Başlıyor'; titleEl.style.color = '#8888bb'; }
-      const subEl = document.getElementById('dt-subtitle');
-      if (subEl) subEl.textContent = 'Kaynaklar hesaplanıyor...';
+    // XX:00 — GECE (geçiş anı)
+    if (min === 0 && !dtDismissed) {
+      if (!dtActive) {
+        // Sayfa XX:00'da açıldıysa doğrudan gece göster
+        dtActive = true;
+      }
+      if (dtPhase !== 'night') {
+        dtPhase = 'night';
+        showOverlay('rgba(0,0,8,0.97)');
+        const sun = document.getElementById('dt-sun');
+        if (sun) { sun.className = ''; sun.style.opacity = '0'; }
+        const titleEl = document.getElementById('dt-title');
+        if (titleEl) { titleEl.textContent = '🌙 Yeni Gün Başlıyor'; titleEl.style.color = '#8888bb'; }
+        const subEl = document.getElementById('dt-subtitle');
+        if (subEl) subEl.textContent = 'Kaynaklar hesaplanıyor...';
+      }
     }
 
-    // XX:01 — GÜN DOĞUMU (1 dakika boyunca, sonra kapanır)
-    if (min === 1 && dtActive && (dtPhase === 'night' || dtPhase === 'sunset')) {
-      dtPhase = 'sunrise';
-      overlay.style.background = 'rgba(10,5,0,0.92)';
-      const sun = document.getElementById('dt-sun');
-      if (sun) { sun.className = 'dt-sunrise'; }
-      const titleEl = document.getElementById('dt-title');
-      if (titleEl) { titleEl.textContent = '☀️ Güneş Doğuyor!'; titleEl.style.color = '#f1c40f'; }
-      const subEl = document.getElementById('dt-subtitle');
-      if (subEl) subEl.textContent = 'Kaynaklar güncellendi';
+    // XX:01 — GÜN DOĞUMU (sonra kapanır)
+    if (min === 1 && !dtDismissed) {
+      if (!dtActive) {
+        // Sayfa XX:01'de açıldıysa doğrudan sunrise göster
+        dtActive = true;
+      }
+      if (dtPhase !== 'sunrise') {
+        dtPhase = 'sunrise';
+        showOverlay('rgba(10,5,0,0.92)');
+        const sun = document.getElementById('dt-sun');
+        if (sun) { sun.className = 'dt-sunrise'; }
+        const titleEl = document.getElementById('dt-title');
+        if (titleEl) { titleEl.textContent = '☀️ Güneş Doğuyor!'; titleEl.style.color = '#f1c40f'; }
+        const subEl = document.getElementById('dt-subtitle');
+        if (subEl) subEl.textContent = 'Kaynaklar güncellendi';
 
-      // 45 saniye sonra kapat (dakikanın sonuna doğru)
-      setTimeout(() => {
-        overlay.classList.add('fade-out');
-        setTimeout(() => {
-          overlay.classList.remove('active', 'fade-out');
-          overlay.style.display = 'none';
-          document.body.classList.remove('dt-locked');
-          dtActive = false;
-          dtPhase = 'none';
-          dtDismissed = true;
-          if (typeof loadGameData === 'function') loadGameData();
-        }, 1500);
-      }, 45000);
+        // 45 saniye sonra kapat
+        setTimeout(() => hideOverlay(), 45000);
+      }
+    }
+
+    // XX:02+ — overlay hala açıksa kapat (güvenlik)
+    if (min >= 2 && dtActive) {
+      hideOverlay();
     }
   }, 1000);
 }
