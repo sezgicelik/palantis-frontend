@@ -44,6 +44,7 @@ function renderSidebar(){
 
       <a href="home.html" class="menu-item${isActive('home.html')}">🏠 Ana Ekran</a>
       <a href="population.html" class="menu-item${isActive('population.html')}">👥 Nüfus & İşçiler</a>
+      <a href="market.html" class="menu-item${isActive('market.html')}">🏪 Market</a>
 
       <a href="city.html" class="menu-item${isActive('city.html')}">🏙️ Şehrim</a>
       <div class="submenu" id="submenu-city" style="display:${page==='city.html'?'block':'none'}">

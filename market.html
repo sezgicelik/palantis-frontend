@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palantis – Market</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div id="hudbar-mount"></div>
+<div class="layout">
+  <div id="sidebar-mount"></div>
+  <div class="main-content">
+
+    <h2 style="color:#c8a96e;font-family:'Cinzel',serif;margin:0 0 16px;font-size:clamp(16px,4vw,22px)">🏪 Market</h2>
+    <p style="color:#888;font-size:13px;margin-bottom:20px">
+      Tüccarlarınız her Palantis günü nadir hammadde toplar. Bu hammaddeleri güncel kurdan altına çevirebilirsiniz.
+      Kurlar her saat değişir (%70-%130 arası).
+    </p>
+
+    <!-- Tüccar Bilgisi -->
+    <div class="card" style="padding:16px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <span style="font-size:24px">🧑‍💼</span>
+        <div>
+          <div style="color:#d4af37;font-weight:bold;font-size:16px">Tüccar Sayısı: <span id="mk-tuccar">0</span></div>
+          <div style="color:#666;font-size:12px">Her tüccar günde 300-500 arası market hammaddesi toplar</div>
+        </div>
+        <div style="margin-left:auto;color:#555;font-size:11px">
+          Kur güncelleme: <span id="mk-kur-zaman">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hammadde Tablosu -->
+    <div id="mk-liste" style="display:flex;flex-direction:column;gap:10px">
+      <div style="color:#888;text-align:center;padding:40px" id="mk-loading">Yükleniyor...</div>
+    </div>
+
+    <!-- Satış sonucu -->
+    <div id="mk-sonuc" style="margin-top:12px;font-size:13px;color:#888;min-height:20px;text-align:center"></div>
+
+  </div>
+</div>
+<div id="toast"></div>
+<div id="building-modal-mount"></div>
+
+<script src="js/constants.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/game-data.js"></script>
+<script src="js/hud.js"></script>
+<script src="js/layout.js"></script>
+<script>
+const MK_IKONLAR = { gumus:'🪙', mitril:'💎', bakir:'🔶', obsidyen:'🖤', ejderha_tasi:'🐉' };
+let MK_DATA = {};
+let MK_SATIS_MIKTAR = {};
+
+async function loadMarket() {
+  const token = getToken(); if (!token) return;
+  try {
+    const resp = await fetch(API_BASE + '/api/game/market', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!resp.ok) return;
+    MK_DATA = await resp.json();
+    renderMarket();
+  } catch(e) {
+    document.getElementById('mk-loading').textContent = 'Bağlantı hatası';
+  }
+}
+
+function renderMarket() {
+  const liste = document.getElementById('mk-liste');
+  if (!liste || !MK_DATA.fiyatlar) return;
+
+  // Tuccar sayisi
+  const tuccarEl = document.getElementById('mk-tuccar');
+  if (tuccarEl) tuccarEl.textContent = population.merchant || 0;
+
+  // Kur zamani
+  const zamanEl = document.getElementById('mk-kur-zaman');
+  if (zamanEl && MK_DATA.kur_guncelleme) {
+    const d = new Date(MK_DATA.kur_guncelleme);
+    zamanEl.textContent = d.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
+  }
+
+  const keys = ['gumus','mitril','bakir','obsidyen','ejderha_tasi'];
+  liste.innerHTML = keys.map(key => {
+    const f = MK_DATA.fiyatlar[key];
+    if (!f) return '';
+    const kur = f.kur;
+    const kurRenk = kur >= 100 ? '#2ecc71' : kur >= 85 ? '#f1c40f' : '#e74c3c';
+    const kurOk = kur >= 100 ? '▲' : '▼';
+    MK_SATIS_MIKTAR[key] = MK_SATIS_MIKTAR[key] || 0;
+
+    return `
+    <div class="card" style="padding:14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <span style="font-size:28px;width:36px;text-align:center">${MK_IKONLAR[key]||'📦'}</span>
+      <div style="min-width:120px">
+        <div style="color:#d4af37;font-weight:bold;font-size:14px">${f.isim}</div>
+        <div style="color:#888;font-size:12px">Stok: <b style="color:#fff">${f.miktar.toLocaleString()}</b></div>
+      </div>
+      <div style="min-width:140px">
+        <div style="color:#666;font-size:11px">Baz: ${f.baz_fiyat} altın</div>
+        <div style="font-size:13px">
+          Kur: <span style="color:${kurRenk};font-weight:bold">${kurOk} %${kur}</span>
+        </div>
+        <div style="color:#f1c40f;font-size:14px;font-weight:bold">${f.satis_fiyat.toFixed(1)} altın/adet</div>
+      </div>
+      <div style="flex:1;display:flex;align-items:center;gap:6px;justify-content:flex-end;min-width:200px">
+        <button class="btn ghost" style="padding:4px 8px" onclick="mkAdjust('${key}',-100)">−100</button>
+        <button class="btn ghost" style="padding:4px 6px" onclick="mkAdjust('${key}',-10)">−10</button>
+        <span id="mk-m-${key}" style="min-width:48px;text-align:center;font-weight:bold;color:#d4af37">${MK_SATIS_MIKTAR[key]}</span>
+        <button class="btn ghost" style="padding:4px 6px" onclick="mkAdjust('${key}',10)">+10</button>
+        <button class="btn ghost" style="padding:4px 8px" onclick="mkAdjust('${key}',100)">+100</button>
+        <button class="btn ghost" style="padding:4px 8px;color:#f1c40f" onclick="mkAdjust('${key}','max')">MAX</button>
+        <button class="btn" style="min-width:80px" onclick="mkSat('${key}')">💰 Sat</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function mkAdjust(key, delta) {
+  const f = MK_DATA.fiyatlar?.[key];
+  if (!f) return;
+  if (delta === 'max') {
+    MK_SATIS_MIKTAR[key] = f.miktar;
+  } else {
+    MK_SATIS_MIKTAR[key] = Math.max(0, Math.min((MK_SATIS_MIKTAR[key]||0) + delta, f.miktar));
+  }
+  const el = document.getElementById('mk-m-' + key);
+  if (el) el.textContent = MK_SATIS_MIKTAR[key];
+}
+
+async function mkSat(key) {
+  const miktar = MK_SATIS_MIKTAR[key] || 0;
+  if (miktar < 1) { toast('Satılacak miktar belirle!'); return; }
+  const token = getToken(); if (!token) return;
+  const sonuc = document.getElementById('mk-sonuc');
+
+  try {
+    const resp = await fetch(API_BASE + '/api/game/market/sell', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ hammadde: key, miktar })
+    });
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      if (sonuc) { sonuc.textContent = err.error || 'Hata!'; sonuc.style.color = '#e74c3c'; }
+      return;
+    }
+    const data = await resp.json();
+    if (sonuc) {
+      sonuc.textContent = `✅ ${miktar} ${MK_DATA.fiyatlar[key]?.isim} satıldı → ${data.kazanc.toLocaleString()} altın kazanıldı!`;
+      sonuc.style.color = '#2ecc71';
+    }
+    MK_SATIS_MIKTAR[key] = 0;
+    // HUD altin guncelle
+    RES.altin = data.yeni_altin;
+    setText('hud-g', RES.altin);
+    // Market yenile
+    await loadMarket();
+    setTimeout(() => { if (sonuc) { sonuc.textContent = ''; sonuc.style.color = '#888'; } }, 4000);
+  } catch(e) {
+    if (sonuc) { sonuc.textContent = '⚠️ Bağlantı hatası'; sonuc.style.color = '#e74c3c'; }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(loadMarket, 1500);
+});
+</script>
+</body>
+</html>

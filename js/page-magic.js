@@ -111,7 +111,7 @@ function wsUpdateUI() {
   // Maliyet goster
   setText('ws-maliyet', WS_MIKTAR * WS_MALIYET_ALTIN);
   setText('ws-koylu-gerek', WS_MIKTAR);
-  setText('ws-sure', WS_MIKTAR * WS_SURE_PG);
+  setText('ws-sure', WS_SURE_PG);
 }
 
 function wsAdjust(delta) {
@@ -156,7 +156,7 @@ async function wsUret() {
       if (msg) { msg.style.color = '#e74c3c'; msg.textContent = '⚠️ ' + (data.error || 'Hata'); }
       return;
     }
-    if (msg) { msg.style.color = '#2ecc71'; msg.textContent = '✅ ' + WS_MIKTAR + ' ' + renk + ' Worshipper eğitim kuyruğuna eklendi! (' + (WS_MIKTAR*WS_SURE_PG) + ' P.G.)'; }
+    if (msg) { msg.style.color = '#2ecc71'; msg.textContent = '✅ ' + WS_MIKTAR + ' ' + renk + ' Worshipper eğitim kuyruğuna eklendi! (' + WS_SURE_PG + ' P.G.)'; }
     WS_MIKTAR = 0;
     // Verileri yenile
     await loadGameData();
