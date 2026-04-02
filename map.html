@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palantis – Harita</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div id="hudbar-mount"></div>
+<div class="layout">
+  <div id="sidebar-mount"></div>
+  <div class="main-content">
+
+    <h2 style="color:#c8a96e;font-family:'Cinzel',serif;margin:0 0 8px;font-size:clamp(16px,4vw,22px)">🗺️ Dünya Haritası</h2>
+
+    <!-- Navigasyon -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <button class="btn ghost" onclick="mapGit(MAP_X - 1)" id="map-prev">⬅ Önceki</button>
+      <div style="padding:6px 20px;background:#2a1a00;border:1px solid #d4af37;color:#d4af37;border-radius:4px;font-weight:bold;font-size:16px">
+        📍 X = <span id="map-x-label">?</span>
+      </div>
+      <button class="btn ghost" onclick="mapGit(MAP_X + 1)" id="map-next">Sonraki ➡</button>
+      <span style="color:#333">|</span>
+      <input id="map-git-input" placeholder="X=" style="width:50px;padding:6px;background:#111;border:1px solid #333;color:#fff;border-radius:4px;text-align:center" type="number" min="1" max="200">
+      <button class="btn ghost" onclick="mapGitInput()">Git</button>
+      <button class="btn ghost" style="color:#2ecc71" onclick="mapGit(MAP_BENIM_X)">🏠 Evim</button>
+    </div>
+
+    <!-- Bölge bilgisi -->
+    <div style="text-align:center;color:#555;font-size:11px;margin-bottom:8px" id="map-bolge-info">—</div>
+
+    <!-- Harita Grid -->
+    <div style="background:#0d0d00;border:1px solid #222;border-radius:8px;padding:8px;max-height:480px;overflow-y:auto" id="map-scroll">
+      <div id="map-grid" style="display:flex;flex-direction:column;gap:1px">
+        <div style="color:#555;text-align:center;padding:30px" id="map-loading">Yükleniyor...</div>
+      </div>
+    </div>
+
+    <!-- Bilgi Paneli -->
+    <div id="map-info" style="margin-top:10px;background:#111;border:1px solid #222;border-radius:6px;padding:12px;display:none">
+      <h3 style="color:#c8a96e;margin:0 0 8px;font-size:13px" id="map-info-title">📋 Seçili Hücre</h3>
+      <div id="map-info-content" style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px"></div>
+    </div>
+
+    <!-- Renk Açıklaması -->
+    <div style="margin-top:8px;display:flex;gap:14px;flex-wrap:wrap;font-size:10px;color:#555">
+      <span>🏰 <span style="color:#2ecc71">Sen</span></span>
+      <span>🏠 <span style="color:#3498db">Aydınlık</span></span>
+      <span>🏠 <span style="color:#e74c3c">Karanlık</span></span>
+      <span>⛏️ <span style="color:#f1c40f">Koloni (boş)</span></span>
+      <span>⛏️ <span style="color:#e67e22">Koloni (işgalli)</span></span>
+    </div>
+
+  </div>
+</div>
+<div id="toast"></div>
+<div id="building-modal-mount"></div>
+
+<script src="js/constants.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/game-data.js"></script>
+<script src="js/hud.js"></script>
+<script src="js/layout.js"></script>
+<script>
+let MAP_X = 1;
+let MAP_BENIM_X = 1;
+let MAP_BENIM_Y = null;
+let MAP_DATA = null;
+
+const KAYNAK_IKON = { odun:'🌳', tas:'🪨', metal:'⛏️', altin:'💰', bugday:'🌾', balik:'🎣', kereste:'🪵', islenmis:'🔩' };
+const TARAF_RENK = { iyi:'#3498db', kotu:'#e74c3c' };
+
+async function mapInit() {
+  const token = getToken(); if (!token) return;
+  try {
+    const resp = await fetch(API_BASE + '/api/map/me', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (resp.ok) {
+      const data = await resp.json();
+      MAP_BENIM_X = data.koordinat.x;
+      MAP_BENIM_Y = data.koordinat.y;
+      MAP_X = MAP_BENIM_X;
+    }
+  } catch(e) {}
+  mapYukle();
+}
+
+async function mapYukle() {
+  const token = getToken(); if (!token) return;
+  const label = document.getElementById('map-x-label');
+  if (label) label.textContent = MAP_X;
+
+  const grid = document.getElementById('map-grid');
+  if (grid) grid.innerHTML = '<div style="color:#555;text-align:center;padding:30px">Yükleniyor...</div>';
+
+  try {
+    const resp = await fetch(API_BASE + '/api/map/sayfa?x=' + MAP_X, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!resp.ok) return;
+    MAP_DATA = await resp.json();
+    mapRender();
+  } catch(e) {
+    if (grid) grid.innerHTML = '<div style="color:#e74c3c;text-align:center;padding:30px">Bağlantı hatası</div>';
+  }
+}
+
+function mapRender() {
+  if (!MAP_DATA) return;
+  const grid = document.getElementById('map-grid');
+  if (!grid) return;
+
+  // Bölge bilgisi
+  const bolgeEl = document.getElementById('map-bolge-info');
+  if (bolgeEl && MAP_DATA.bolge) {
+    bolgeEl.textContent = MAP_DATA.bolge.ikon + ' ' + MAP_DATA.bolge.ad + ' — ' +
+      Object.entries(MAP_DATA.bolge.bonuslar || {}).map(([k,v]) => k + ' +' + v + '%').join(', ');
+  }
+
+  // Y bazında index oluştur
+  const oyuncuMap = {};
+  (MAP_DATA.oyuncular || []).forEach(o => { oyuncuMap[o.y] = o; });
+  const koloniMap = {};
+  (MAP_DATA.koloniler || []).forEach(k => { koloniMap[k.y] = k; });
+
+  let html = '';
+  for (let y = 1; y <= 200; y++) {
+    const oyuncu = oyuncuMap[y];
+    const koloni = koloniMap[y];
+    const benMi = oyuncu?.benMi;
+
+    let icon = '<span style="color:#1a1a1a;font-size:9px">·</span>';
+    let info = '';
+    let rowStyle = 'padding:4px 8px;display:flex;align-items:center;gap:6px;';
+
+    if (benMi) {
+      icon = '🏰';
+      const renk = '#2ecc71';
+      info = `<b style="color:${renk}">👈 SEN — ${oyuncu.kral} (${oyuncu.irk}, ${oyuncu.taraf === 'iyi' ? 'Aydınlık' : 'Karanlık'})</b>`;
+      rowStyle += 'background:#081a08;border:1px solid #2ecc71;border-radius:4px;';
+    } else if (oyuncu) {
+      icon = '🏠';
+      const renk = TARAF_RENK[oyuncu.taraf] || '#888';
+      info = `<span style="color:${renk}">${oyuncu.kral}</span> <span style="color:#555">(${oyuncu.irk}, ${oyuncu.taraf === 'iyi' ? 'Aydınlık' : 'Karanlık'})</span>` +
+        (oyuncu.mesafe !== null ? ` — <span style="color:#888">Mesafe: ${oyuncu.mesafe}</span>` : '');
+      rowStyle += oyuncu.taraf === 'iyi' ? 'background:#081018;' : 'background:#1a0808;';
+    } else if (koloni) {
+      icon = KAYNAK_IKON[koloni.kaynak_tipi] || '⛏️';
+      const isIsgal = koloni.sahip_kral;
+      info = `<span style="color:#f1c40f">${koloni.kaynak_tipi} Kolonisi %${koloni.bonus_oran}</span>`;
+      if (isIsgal) {
+        const renk = TARAF_RENK[koloni.sahip_taraf] || '#888';
+        info += ` — <span style="color:${renk}">İşgalci: ${koloni.sahip_kral}</span>`;
+      } else {
+        info += ` — <span style="color:#2ecc71">Boş</span>`;
+      }
+      if (koloni.mesafe !== null) info += ` — <span style="color:#888">Mesafe: ${koloni.mesafe}</span>`;
+      rowStyle += 'background:#1a1500;';
+    }
+
+    const clickData = oyuncu ? `onclick="mapSecOyuncu(${y})"` : koloni ? `onclick="mapSecKoloni(${y})"` : '';
+    const cursor = clickData ? 'cursor:pointer;' : '';
+
+    html += `<div style="${rowStyle}${cursor}" ${clickData}>
+      <span style="color:#444;font-size:10px;width:40px;flex-shrink:0">Y=${y}</span>
+      <div style="width:28px;height:28px;background:#0a0a00;border:1px solid #1a1a0a;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">${icon}</div>
+      <span style="font-size:11px;color:#888;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${info}</span>
+    </div>`;
+  }
+  grid.innerHTML = html;
+
+  // Kendi konumuna scroll
+  if (MAP_DATA.benim_y) {
+    setTimeout(() => {
+      const scroll = document.getElementById('map-scroll');
+      if (scroll) scroll.scrollTop = Math.max(0, (MAP_DATA.benim_y - 5) * 33);
+    }, 100);
+  }
+}
+
+function mapSecOyuncu(y) {
+  const o = (MAP_DATA?.oyuncular || []).find(p => p.y === y);
+  if (!o) return;
+  const panel = document.getElementById('map-info');
+  const title = document.getElementById('map-info-title');
+  const content = document.getElementById('map-info-content');
+  if (panel) panel.style.display = 'block';
+  if (title) title.textContent = '📋 ' + o.kral + ' (' + MAP_X + ':' + y + ')';
+  if (content) content.innerHTML = `
+    <div><div style="color:#555;font-size:10px">Kral</div><div style="color:#d4af37">${o.kral}</div></div>
+    <div><div style="color:#555;font-size:10px">Şehir</div><div>${o.sehir || '—'}</div></div>
+    <div><div style="color:#555;font-size:10px">Irk</div><div>${o.irk}</div></div>
+    <div><div style="color:#555;font-size:10px">Taraf</div><div style="color:${TARAF_RENK[o.taraf]||'#888'}">${o.taraf === 'iyi' ? 'Aydınlık' : 'Karanlık'}</div></div>
+    <div><div style="color:#555;font-size:10px">Çağ</div><div>${o.cag}. Çağ</div></div>
+    <div><div style="color:#555;font-size:10px">Mesafe</div><div>${o.mesafe ?? '—'} birim</div></div>
+  `;
+}
+
+function mapSecKoloni(y) {
+  const k = (MAP_DATA?.koloniler || []).find(c => c.y === y);
+  if (!k) return;
+  const panel = document.getElementById('map-info');
+  const title = document.getElementById('map-info-title');
+  const content = document.getElementById('map-info-content');
+  if (panel) panel.style.display = 'block';
+  if (title) title.textContent = '📋 Koloni (' + MAP_X + ':' + y + ')';
+  if (content) content.innerHTML = `
+    <div><div style="color:#555;font-size:10px">Tür</div><div style="color:#f1c40f">${KAYNAK_IKON[k.kaynak_tipi]||'⛏️'} ${k.kaynak_tipi}</div></div>
+    <div><div style="color:#555;font-size:10px">Bonus</div><div>%${k.bonus_oran}</div></div>
+    <div><div style="color:#555;font-size:10px">Durum</div><div>${k.sahip_kral ? '🔴 İşgal altında' : '🟢 Boş'}</div></div>
+    ${k.sahip_kral ? `<div><div style="color:#555;font-size:10px">İşgalci</div><div style="color:${TARAF_RENK[k.sahip_taraf]||'#888'}">${k.sahip_kral}</div></div>` : ''}
+    <div><div style="color:#555;font-size:10px">Mesafe</div><div>${k.mesafe ?? '—'} birim</div></div>
+  `;
+}
+
+function mapGit(x) {
+  x = Math.max(1, Math.min(200, x));
+  MAP_X = x;
+  mapYukle();
+}
+
+function mapGitInput() {
+  const inp = document.getElementById('map-git-input');
+  if (inp) mapGit(parseInt(inp.value) || 1);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(mapInit, 1500);
+});
+</script>
+</body>
+</html>

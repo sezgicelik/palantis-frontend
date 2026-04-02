@@ -62,6 +62,7 @@ function renderSidebar(){
       </div>
 
       <a href="land.html" class="menu-item${isActive('land.html')}">🧭 Arazi</a>
+      <a href="map.html" class="menu-item${isActive('map.html')}">🗺️ Harita</a>
 
       <a href="army.html" class="menu-item${isActive('army.html')}">⚔️ Ordu & Savaş</a>
       <div class="submenu" id="submenu-army" style="display:${page==='army.html'?'block':'none'}">
