@@ -734,16 +734,43 @@ function renderFormationPool() {
   const unitTypes = Object.keys(typeof UNITS !== 'undefined' ? UNITS : {});
   const side = OYUNCU.taraf === 'iyi' ? 'light' : 'dark';
 
-  unitTypes.filter(function(uid){ return UNITS[uid].side === side; }).forEach(function(uid){
+  // Ordudaki üniteleri göster (sadece orduda olanlar)
+  const armyObj = ORDULAR.find(o => o.id === FORMATION_ARMY_ID);
+  const armyUnits = armyObj ? (armyObj.units || []) : [];
+
+  armyUnits.filter(au => au.adet > 0).forEach(function(au){
+    const uid = au.unite_id;
+    if (!UNITS[uid] || UNITS[uid].side !== side) return;
+    // Kaç tanesi zaten saflarda?
+    let placed = 0;
+    FORMATION_STATE.forEach(row => row.forEach(u => { if (u === uid) placed++; }));
+    const kalan = au.adet - placed;
     const chip = document.createElement('div');
     chip.className = 'formation-unit-chip';
-    chip.textContent = (UNITS[uid].icon || '') + ' ' + UNITS[uid].name;
-    (function(u){ chip.onclick = function(){ placeUnitInSaf(u); }; })(uid);
+    chip.style.opacity = kalan > 0 ? '1' : '0.3';
+    chip.textContent = (UNITS[uid].icon || '') + ' ' + UNITS[uid].name + ' (' + kalan + '/' + au.adet + ')';
+    if (kalan > 0) {
+      (function(u){ chip.onclick = function(){ placeUnitInSaf(u); }; })(uid);
+    }
     pool.appendChild(chip);
   });
 }
 
 function placeUnitInSaf(unitId) {
+  // Ordudaki bu üniteden kaç tane var?
+  const army = ORDULAR.find(o => o.id === FORMATION_ARMY_ID);
+  const armyUnit = army ? (army.units || []).find(u => u.unite_id === unitId) : null;
+  const ordudaVar = armyUnit ? armyUnit.adet : 0;
+
+  // Saflarda kaç tane zaten yerleştirilmiş?
+  let yerlestirilen = 0;
+  FORMATION_STATE.forEach(row => row.forEach(uid => { if (uid === unitId) yerlestirilen++; }));
+
+  if (yerlestirilen >= ordudaVar) {
+    toast(`${UNITS[unitId]?.name || unitId}: orduda ${ordudaVar} adet var, hepsi yerleştirilmiş!`);
+    return;
+  }
+
   if (PICKING_SAF === null) {
     for (let i = 0; i < 4; i++) {
       if (i > 0 && FORMATION_STATE[i-1].length < SAF_LIMITS[i-1]) break;

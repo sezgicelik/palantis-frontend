@@ -189,107 +189,206 @@ async function mapYukle() {
 }
 
 // ═══════════════════════════════════
-// 2D CANVAS HARITA
+// 2D CANVAS HARITA — Arazi Görselli
 // ═══════════════════════════════════
+
+// Bölge arazi renkleri (zemin + detay)
+const ARAZI = {
+  kuzey_bati:  { zemin:'#1a3a1a', detay:'#2a5a2a', accent:'#3a7a3a', desen:'orman', emoji:'🌲' },
+  kuzey_orta:  { zemin:'#2a2a3a', detay:'#3a3a5a', accent:'#5a5a7a', desen:'dag',   emoji:'⛰️' },
+  kuzey_dogu:  { zemin:'#2a3038', detay:'#3a4048', accent:'#4a5058', desen:'tundra', emoji:'🏔️' },
+  orta_bati:   { zemin:'#2a3a1a', detay:'#3a5a1a', accent:'#5a7a2a', desen:'ova',    emoji:'🌾' },
+  merkez:      { zemin:'#2a2a18', detay:'#3a3a28', accent:'#4a4a38', desen:'sehir',  emoji:'🏛️' },
+  orta_dogu:   { zemin:'#3a2a10', detay:'#5a3a18', accent:'#7a5a28', desen:'col',    emoji:'🏜️' },
+  guney_bati:  { zemin:'#0a2a3a', detay:'#1a3a5a', accent:'#2a4a6a', desen:'deniz',  emoji:'🌊' },
+  guney_orta:  { zemin:'#3a3010', detay:'#5a4818', accent:'#7a6028', desen:'col',    emoji:'☀️' },
+  guney_dogu:  { zemin:'#1a3028', detay:'#2a4a38', accent:'#3a5a48', desen:'bataklk',emoji:'🌿' },
+};
+
+// Deterministik pseudo-random (aynı x,y her zaman aynı değeri verir)
+function seedRand(x, y) {
+  let h = (x * 374761 + y * 668265) & 0x7fffffff;
+  h = ((h >> 16) ^ h) * 0x45d9f3b;
+  return (h & 0xff) / 255;
+}
+
 function render2D() {
   const canvas = document.getElementById('map-canvas');
   if (!canvas || !MAP_DATA) return;
   const ctx = canvas.getContext('2d');
   const W = canvas.width;
   const H = canvas.height;
-  const cols = 10; // X kolonu
-  const rows = 50; // Y satırı
-  const cellW = W / (cols + 1); // +1 Y label kolonu
-  const cellH = H / (rows + 1); // +1 X label satırı
+  const cols = 10, rows = 50;
+  const padL = 24, padT = 16; // Sol ve üst padding (label alanı)
+  const cellW = (W - padL) / cols;
+  const cellH = (H - padT) / rows;
   const xMin = MAP_DATA.xMin;
 
-  // Hücre map
   const cellMap = {};
   (MAP_DATA.oyuncular || []).forEach(o => { cellMap[o.x + ':' + o.y] = { tip: 'oyuncu', d: o }; });
   (MAP_DATA.koloniler || []).forEach(k => { cellMap[k.x + ':' + k.y] = { tip: 'koloni', d: k }; });
 
   // Arka plan
-  ctx.fillStyle = '#050505';
+  ctx.fillStyle = '#080808';
   ctx.fillRect(0, 0, W, H);
 
   // X header
-  ctx.fillStyle = '#666';
-  ctx.font = Math.max(8, cellW * 0.35) + 'px Crimson Pro, sans-serif';
+  ctx.fillStyle = '#555';
+  ctx.font = '9px Crimson Pro, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   for (let c = 0; c < cols; c++) {
-    ctx.fillText(xMin + c, (c + 1.5) * cellW, cellH * 0.5);
-  }
-  // Y header
-  for (let r = 0; r < rows; r++) {
-    ctx.fillStyle = '#444';
-    ctx.fillText(r + 1, cellW * 0.5, (r + 1.5) * cellH);
+    ctx.fillText(xMin + c, padL + (c + 0.5) * cellW, padT * 0.5);
   }
 
-  // Hücreler
+  // Arazi çizimi
   for (let r = 0; r < rows; r++) {
+    // Y label (her 5'te bir)
+    if ((r + 1) % 5 === 0 || r === 0) {
+      ctx.fillStyle = '#444';
+      ctx.font = '8px sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(r + 1, padL - 3, padT + (r + 0.5) * cellH);
+    }
+
     for (let c = 0; c < cols; c++) {
       const x = xMin + c;
       const y = r + 1;
-      const px = (c + 1) * cellW;
-      const py = (r + 1) * cellH;
+      const px = padL + c * cellW;
+      const py = padT + r * cellH;
       const bolge = getBolge(x, y);
+      const arazi = bolge ? (ARAZI[bolge.id] || ARAZI.merkez) : ARAZI.merkez;
+      const rnd = seedRand(x, y);
 
-      // Bölge arka plan
-      ctx.fillStyle = bolge ? (BOLGE_TILE[bolge.id] || '#111') : '#0a0a0a';
-      ctx.fillRect(px + 0.5, py + 0.5, cellW - 1, cellH - 1);
+      // Zemin rengi (hafif varyasyon)
+      ctx.fillStyle = rnd > 0.7 ? arazi.detay : arazi.zemin;
+      ctx.fillRect(px, py, cellW, cellH);
 
+      // Arazi deseni (küçük detaylar)
+      if (rnd > 0.85 && !cellMap[x + ':' + y]) {
+        ctx.fillStyle = arazi.accent;
+        if (arazi.desen === 'orman') {
+          // Ağaç benzeri üçgen
+          ctx.beginPath();
+          ctx.moveTo(px + cellW*0.5, py + 2);
+          ctx.lineTo(px + cellW*0.2, py + cellH - 1);
+          ctx.lineTo(px + cellW*0.8, py + cellH - 1);
+          ctx.fill();
+        } else if (arazi.desen === 'dag') {
+          // Dağ tepe
+          ctx.beginPath();
+          ctx.moveTo(px + cellW*0.5, py + 1);
+          ctx.lineTo(px + 1, py + cellH);
+          ctx.lineTo(px + cellW - 1, py + cellH);
+          ctx.fill();
+          ctx.fillStyle = '#8888aa';
+          ctx.fillRect(px + cellW*0.4, py + 1, cellW*0.2, 2); // Kar tepesi
+        } else if (arazi.desen === 'deniz') {
+          // Su dalgası
+          ctx.strokeStyle = arazi.accent;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(px + 2, py + cellH*0.5);
+          ctx.quadraticCurveTo(px + cellW*0.5, py + cellH*0.3, px + cellW - 2, py + cellH*0.5);
+          ctx.stroke();
+        } else if (arazi.desen === 'ova') {
+          // Buğday çizgisi
+          ctx.strokeStyle = arazi.accent;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(px + cellW*0.5, py + cellH - 1);
+          ctx.lineTo(px + cellW*0.5, py + 2);
+          ctx.stroke();
+          ctx.fillRect(px + cellW*0.3, py + 2, cellW*0.4, 2);
+        } else if (arazi.desen === 'col') {
+          // Kumul
+          ctx.fillRect(px + cellW*0.2, py + cellH*0.6, cellW*0.6, 2);
+        }
+      }
+
+      // Oyuncu veya koloni
       const cell = cellMap[x + ':' + y];
       if (cell) {
         if (cell.tip === 'oyuncu') {
           const o = cell.d;
+          // Kale sembolü
+          const renk = o.benMi ? '#2ecc71' : (o.taraf === 'iyi' ? '#3498db' : '#e74c3c');
+          const bgRenk = o.benMi ? 'rgba(46,204,113,0.25)' : (o.taraf === 'iyi' ? 'rgba(52,152,219,0.2)' : 'rgba(231,76,60,0.2)');
+          ctx.fillStyle = bgRenk;
+          ctx.fillRect(px + 1, py + 1, cellW - 2, cellH - 2);
+          // Kale şekli
+          ctx.fillStyle = renk;
+          const kw = Math.min(cellW * 0.6, 12);
+          const kh = Math.min(cellH * 0.5, 6);
+          const kx = px + (cellW - kw) / 2;
+          const ky = py + (cellH - kh) / 2 - 1;
+          ctx.fillRect(kx, ky, kw, kh);
+          ctx.fillRect(kx, ky - 2, 2, 2);
+          ctx.fillRect(kx + kw/2 - 1, ky - 2, 2, 2);
+          ctx.fillRect(kx + kw - 2, ky - 2, 2, 2);
+          // İsim
+          ctx.fillStyle = renk;
+          ctx.font = 'bold ' + Math.max(6, Math.min(cellW * 0.22, 8)) + 'px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(o.kral.substring(0, 5), px + cellW/2, py + cellH - 2);
           if (o.benMi) {
-            ctx.fillStyle = '#2ecc71';
-            ctx.fillRect(px + 1, py + 1, cellW - 2, cellH - 2);
-            ctx.fillStyle = '#000';
-            ctx.font = 'bold ' + Math.max(7, cellW * 0.28) + 'px sans-serif';
-            ctx.fillText(o.kral.substring(0, 6), px + cellW/2, py + cellH/2);
-          } else {
-            ctx.fillStyle = o.taraf === 'iyi' ? 'rgba(52,152,219,0.4)' : 'rgba(231,76,60,0.4)';
-            ctx.fillRect(px + 1, py + 1, cellW - 2, cellH - 2);
-            ctx.fillStyle = o.taraf === 'iyi' ? '#5dade2' : '#ec7063';
-            ctx.font = Math.max(6, cellW * 0.24) + 'px sans-serif';
-            ctx.fillText(o.kral.substring(0, 6), px + cellW/2, py + cellH/2);
+            ctx.strokeStyle = '#2ecc71';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(px + 0.5, py + 0.5, cellW - 1, cellH - 1);
           }
         } else {
           const k = cell.d;
-          ctx.fillStyle = k.sahip_kral ? 'rgba(230,126,34,0.4)' : 'rgba(241,196,15,0.3)';
+          const renk = k.sahip_kral ? '#e67e22' : '#f1c40f';
+          ctx.fillStyle = k.sahip_kral ? 'rgba(230,126,34,0.2)' : 'rgba(241,196,15,0.15)';
           ctx.fillRect(px + 1, py + 1, cellW - 2, cellH - 2);
-          ctx.fillStyle = k.sahip_kral ? '#e67e22' : '#f1c40f';
-          ctx.font = Math.max(8, cellW * 0.35) + 'px sans-serif';
-          ctx.fillText(KAYNAK_IKON[k.kaynak_tipi] || '⛏', px + cellW/2, py + cellH/2);
+          // Maden/kaynak sembolü
+          ctx.fillStyle = renk;
+          ctx.font = Math.max(8, cellW * 0.3) + 'px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(KAYNAK_IKON[k.kaynak_tipi] || '⛏', px + cellW/2, py + cellH/2 + 1);
         }
       }
-
-      // Grid çizgisi
-      ctx.strokeStyle = '#1a1a0a';
-      ctx.lineWidth = 0.5;
-      ctx.strokeRect(px, py, cellW, cellH);
     }
   }
 
+  // Bölge sınır çizgileri
+  ctx.strokeStyle = 'rgba(200,169,110,0.15)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  // Y=16/17 ve Y=33/34 sınırları
+  [16, 33].forEach(yBound => {
+    const lineY = padT + yBound * cellH;
+    ctx.beginPath(); ctx.moveTo(padL, lineY); ctx.lineTo(W, lineY); ctx.stroke();
+  });
+  ctx.setLineDash([]);
+
   // Hover tooltip
   if (MAP_HOVER) {
-    const hx = MAP_HOVER.px;
-    const hy = MAP_HOVER.py;
     const cell = cellMap[MAP_HOVER.x + ':' + MAP_HOVER.y];
+    const bolge = getBolge(MAP_HOVER.x, MAP_HOVER.y);
+    let txt = MAP_HOVER.x + ':' + MAP_HOVER.y;
     if (cell) {
-      let txt = '';
-      if (cell.tip === 'oyuncu') txt = cell.d.kral + ' (' + cell.d.irk + ')';
-      else txt = (cell.d.kaynak_tipi || '') + ' koloni %' + (cell.d.bonus_oran || '');
-      ctx.fillStyle = 'rgba(0,0,0,0.85)';
-      ctx.fillRect(hx - 2, hy - 18, ctx.measureText(txt).width + 8, 16);
-      ctx.fillStyle = '#fff';
-      ctx.font = '10px sans-serif';
-      ctx.textAlign = 'left';
-      ctx.fillText(txt, hx + 2, hy - 6);
-      ctx.textAlign = 'center';
+      if (cell.tip === 'oyuncu') txt = cell.d.kral + ' (' + cell.d.irk + ', ' + (cell.d.taraf==='iyi'?'Aydınlık':'Karanlık') + ')';
+      else txt = (cell.d.kaynak_tipi||'') + ' koloni %' + (cell.d.bonus_oran||'') + (cell.d.sahip_kral ? ' — ' + cell.d.sahip_kral : ' — Boş');
+    } else if (bolge) {
+      const a = ARAZI[bolge.id];
+      txt += ' ' + (a ? a.emoji : '') + ' Boş alan';
     }
+    ctx.font = '11px Crimson Pro, sans-serif';
+    const tw = ctx.measureText(txt).width + 12;
+    let tx = Math.min(MAP_HOVER.px, W - tw - 4);
+    let ty = Math.max(MAP_HOVER.py - 22, 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.9)';
+    ctx.strokeStyle = '#d4af37';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    ctx.roundRect(tx, ty, tw, 18, 3);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#f5f0e8';
+    ctx.textAlign = 'left';
+    ctx.fillText(txt, tx + 6, ty + 13);
+    ctx.textAlign = 'center';
   }
 }
 
@@ -348,27 +447,29 @@ function renderGrid() {
   (MAP_DATA.oyuncular || []).forEach(o => { cellMap[o.x + ':' + o.y] = { tip: 'oyuncu', d: o }; });
   (MAP_DATA.koloniler || []).forEach(k => { cellMap[k.x + ':' + k.y] = { tip: 'koloni', d: k }; });
 
-  let html = '<table style="border-collapse:collapse;width:100%;table-layout:fixed;font-size:9px"><thead><tr><th style="background:#1a1a00;color:#888;padding:2px;border:1px solid #222;width:25px">Y\\X</th>';
-  for (let x = xMin; x <= xMax; x++) html += '<th style="background:#1a1a00;color:#888;padding:2px;border:1px solid #222">' + x + '</th>';
+  let html = '<table style="border-collapse:collapse;width:100%;table-layout:fixed;font-size:7px"><thead><tr><th style="background:#1a1a00;color:#666;padding:1px;border:1px solid #1a1a0a;width:18px;font-size:7px">Y</th>';
+  for (let x = xMin; x <= xMax; x++) html += '<th style="background:#1a1a00;color:#666;padding:1px;border:1px solid #1a1a0a;font-size:7px">' + x + '</th>';
   html += '</tr></thead><tbody>';
 
   for (let y = 1; y <= 50; y++) {
-    html += '<tr><th style="background:#1a1a00;color:#888;padding:2px;border:1px solid #222">' + y + '</th>';
+    html += '<tr><th style="background:#1a1a00;color:#555;padding:0;border:1px solid #1a1a0a;font-size:7px">' + y + '</th>';
     for (let x = xMin; x <= xMax; x++) {
       const cell = cellMap[x + ':' + y];
-      let bg = '#0a0a0a'; let content = '·'; let color = '#111';
+      const bolge = getBolge(x, y);
+      let bg = bolge ? (BOLGE_TILE[bolge.id] || '#0a0a0a') : '#0a0a0a';
+      let content = ''; let color = '#222';
       if (cell) {
         if (cell.tip === 'oyuncu') {
           const o = cell.d;
-          if (o.benMi) { bg = '#081a08'; color = '#2ecc71'; content = '🏰' + o.kral.substring(0,4); }
-          else { bg = o.taraf==='iyi'?'#081018':'#1a0808'; color = TARAF_RENK[o.taraf]; content = o.kral.substring(0,5); }
+          if (o.benMi) { bg = '#0a2a0a'; color = '#2ecc71'; content = o.kral.substring(0,3); }
+          else { bg = o.taraf==='iyi'?'#0a1420':'#200a0a'; color = TARAF_RENK[o.taraf]; content = o.kral.substring(0,3); }
         } else {
           const k = cell.d;
           bg = '#1a1500'; color = k.sahip_kral ? '#e67e22' : '#f1c40f';
           content = (KAYNAK_IKON[k.kaynak_tipi]||'⛏');
         }
       }
-      html += '<td style="background:' + bg + ';color:' + color + ';border:1px solid #1a1a0a;padding:1px;text-align:center;height:20px;cursor:pointer;overflow:hidden;font-size:8px" onclick="mapSecHucre(' + x + ',' + y + ')">' + content + '</td>';
+      html += '<td style="background:' + bg + ';color:' + color + ';border:1px solid #111;padding:0;text-align:center;height:13px;line-height:13px;cursor:pointer;overflow:hidden;font-size:7px" onclick="mapSecHucre(' + x + ',' + y + ')">' + content + '</td>';
     }
     html += '</tr>';
   }
