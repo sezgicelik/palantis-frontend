@@ -126,9 +126,12 @@ function updatePopulationUI(){
   const atananKoylu = isci + sabit;
   set('hud-nufus', atananKoylu);
   set('hud-nufus-sinir', population.total || nufus);
-  // Yeni stat-box icin birlesik gosterim
+  // Yeni stat-box: nufus/sinir — sinir asilmissa kirmizi
   const nufusBox = document.getElementById('hud-nufus-box');
-  if(nufusBox) nufusBox.textContent = nufus + '/' + sinir;
+  if(nufusBox) {
+    nufusBox.textContent = nufus + '/' + sinir;
+    nufusBox.style.color = nufus > sinir ? '#e74c3c' : '';
+  }
   // Ana ekran hızlı stats
   const hn=document.getElementById('hs-nufus'); if(hn) hn.textContent=nufus;
 
