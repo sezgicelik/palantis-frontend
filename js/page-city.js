@@ -29,6 +29,7 @@ function renderGrid(){
       if (cagGruplari[c].length === 0) continue;
       const kilitli = c > oyuncuCag;
       const baslik = document.createElement('div');
+      baslik.className = 'cag-baslik';
       baslik.style.cssText = 'padding:12px 16px;margin:16px 0 8px;border-left:3px solid ' +
         (kilitli ? '#333' : '#d4af37') + ';color:' + (kilitli ? '#555' : '#c8a96e') +
         ';font-family:Cinzel,serif;font-size:15px;background:' + (kilitli ? '#0a0a0a' : '#111100') + ';border-radius:0 6px 6px 0;';
