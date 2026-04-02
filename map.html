@@ -41,8 +41,8 @@
       <button class="btn ghost" style="color:#2ecc71" onclick="mapSayfa(MAP_BENIM_SAYFA)">🏠</button>
     </div>
 
-    <!-- Bölge bilgisi -->
-    <div style="text-align:center;color:#555;font-size:11px;margin-bottom:6px" id="map-bolge-info">—</div>
+    <!-- Bölge bilgisi (gizli, sadece JS erişimi için) -->
+    <div style="display:none" id="map-bolge-info"></div>
 
     <!-- 2D Canvas Harita -->
     <div id="map-2d-wrap" style="background:#0a0a00;border-radius:8px;padding:6px;overflow:hidden">
@@ -332,9 +332,16 @@ function render2D() {
           ctx.textAlign = 'center';
           ctx.fillText(o.kral.substring(0, 5), px + cellW/2, py + cellH - 2);
           if (o.benMi) {
-            ctx.strokeStyle = '#2ecc71';
-            ctx.lineWidth = 1.5;
-            ctx.strokeRect(px + 0.5, py + 0.5, cellW - 1, cellH - 1);
+            // Parlayan çerçeve (pulse efekti)
+            const pulse = Math.sin(Date.now() / 300) * 0.3 + 0.7;
+            ctx.strokeStyle = 'rgba(46,204,113,' + pulse + ')';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(px - 1, py - 1, cellW + 2, cellH + 2);
+            // Dış glow
+            ctx.shadowColor = '#2ecc71';
+            ctx.shadowBlur = 6;
+            ctx.strokeRect(px - 1, py - 1, cellW + 2, cellH + 2);
+            ctx.shadowBlur = 0;
           }
         } else {
           const k = cell.d;
@@ -432,6 +439,8 @@ document.addEventListener('DOMContentLoaded', () => {
     canvas.addEventListener('mouseleave', () => { MAP_HOVER = null; render2D(); });
   }
   setTimeout(mapInit, 1500);
+  // Pulse animasyonu (kendi konumun parlar)
+  setInterval(() => { if (MAP_VIEW === '2d' && MAP_DATA) render2D(); }, 200);
 });
 
 // ═══════════════════════════════════
@@ -447,12 +456,12 @@ function renderGrid() {
   (MAP_DATA.oyuncular || []).forEach(o => { cellMap[o.x + ':' + o.y] = { tip: 'oyuncu', d: o }; });
   (MAP_DATA.koloniler || []).forEach(k => { cellMap[k.x + ':' + k.y] = { tip: 'koloni', d: k }; });
 
-  let html = '<table style="border-collapse:collapse;width:100%;table-layout:fixed;font-size:7px"><thead><tr><th style="background:#1a1a00;color:#666;padding:1px;border:1px solid #1a1a0a;width:18px;font-size:7px">Y</th>';
-  for (let x = xMin; x <= xMax; x++) html += '<th style="background:#1a1a00;color:#666;padding:1px;border:1px solid #1a1a0a;font-size:7px">' + x + '</th>';
+  let html = '<table style="border-collapse:collapse;width:auto;table-layout:fixed;font-size:6px"><thead><tr><th style="background:#1a1a00;color:#555;padding:0;border:1px solid #111;width:14px;font-size:6px">Y</th>';
+  for (let x = xMin; x <= xMax; x++) html += '<th style="background:#1a1a00;color:#555;padding:0;border:1px solid #111;width:52px;font-size:6px">' + x + '</th>';
   html += '</tr></thead><tbody>';
 
   for (let y = 1; y <= 50; y++) {
-    html += '<tr><th style="background:#1a1a00;color:#555;padding:0;border:1px solid #1a1a0a;font-size:7px">' + y + '</th>';
+    html += '<tr><th style="background:#1a1a00;color:#444;padding:0;border:1px solid #111;font-size:6px">' + y + '</th>';
     for (let x = xMin; x <= xMax; x++) {
       const cell = cellMap[x + ':' + y];
       const bolge = getBolge(x, y);
@@ -469,7 +478,7 @@ function renderGrid() {
           content = (KAYNAK_IKON[k.kaynak_tipi]||'⛏');
         }
       }
-      html += '<td style="background:' + bg + ';color:' + color + ';border:1px solid #111;padding:0;text-align:center;height:13px;line-height:13px;cursor:pointer;overflow:hidden;font-size:7px" onclick="mapSecHucre(' + x + ',' + y + ')">' + content + '</td>';
+      html += '<td style="background:' + bg + ';color:' + color + ';border:1px solid #0a0a0a;padding:0;text-align:center;height:10px;line-height:10px;cursor:pointer;overflow:hidden;font-size:6px" onclick="mapSecHucre(' + x + ',' + y + ')">' + content + '</td>';
     }
     html += '</tr>';
   }
@@ -497,6 +506,8 @@ function mapSecHucre(x, y) {
       '<div><div style="color:#555;font-size:10px">Irk</div><div>' + oyuncu.irk + '</div></div>' +
       '<div><div style="color:#555;font-size:10px">Taraf</div><div style="color:' + (TARAF_RENK[oyuncu.taraf]||'#888') + '">' + (oyuncu.taraf==='iyi'?'Aydınlık':'Karanlık') + '</div></div>' +
       '<div><div style="color:#555;font-size:10px">Çağ</div><div>' + oyuncu.cag + '. Çağ</div></div>' +
+      '<div><div style="color:#555;font-size:10px">Alan</div><div>' + (oyuncu.alan||0) + '</div></div>' +
+      '<div><div style="color:#555;font-size:10px">Nüfus</div><div>' + (oyuncu.nufus||0) + '</div></div>' +
       '<div><div style="color:#555;font-size:10px">Mesafe</div><div>' + (oyuncu.mesafe??'—') + '</div></div>';
   } else if (koloni) {
     if (title) title.textContent = '📋 Koloni (' + x + ':' + y + ')';

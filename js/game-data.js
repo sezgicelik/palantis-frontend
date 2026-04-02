@@ -98,6 +98,16 @@ async function loadGameData() {
   const token = getToken();
   if (!token) return;
   try {
+    // Her yüklemede player verisini API'den çek ve localStorage'ı güncelle
+    try {
+      const pResp = await fetch(API_BASE + '/api/player/me', { headers: { 'Authorization': 'Bearer ' + token } });
+      if (pResp.ok) {
+        const pData = await pResp.json();
+        savePlayer(pData);
+        obApplyPlayer(pData);
+      }
+    } catch(e) {}
+
     const [resRes, prodRes, workRes, alanRes, takvimRes] = await Promise.all([
       fetch(API_BASE + '/api/game/resources', { headers: { 'Authorization': 'Bearer ' + token } }),
       fetch(API_BASE + '/api/game/production', { headers: { 'Authorization': 'Bearer ' + token } }),
