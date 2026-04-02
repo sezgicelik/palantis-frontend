@@ -208,17 +208,21 @@ async function smConvert(){
       }
       const data = await resp.json();
       ASKER_SAYISI = data.workers?.asker || (ASKER_SAYISI + SM_MIKTAR);
+      population.free = Math.max(0, (population.free || 0) - SM_MIKTAR);
     } catch(e) {
       ASKER_SAYISI += SM_MIKTAR;
+      population.free = Math.max(0, (population.free || 0) - SM_MIKTAR);
     }
   } else {
     ASKER_SAYISI += SM_MIKTAR;
+    population.free = Math.max(0, (population.free || 0) - SM_MIKTAR);
   }
 
   document.getElementById('sm-msg').textContent = `${SM_MIKTAR} koylu askere cevrildi!`;
   SM_MIKTAR = 0;
   renderSoldierPanel();
   updateArmyStats();
+  if (typeof updateBars === 'function') updateBars();
 }
 
 async function smRelease(){
@@ -240,17 +244,21 @@ async function smRelease(){
       }
       const data = await resp.json();
       ASKER_SAYISI = data.workers?.asker || (ASKER_SAYISI - SM_MIKTAR);
+      population.free = (population.free || 0) + SM_MIKTAR;
     } catch(e) {
       ASKER_SAYISI -= SM_MIKTAR;
+      population.free = (population.free || 0) + SM_MIKTAR;
     }
   } else {
     ASKER_SAYISI -= SM_MIKTAR;
+    population.free = (population.free || 0) + SM_MIKTAR;
   }
 
   document.getElementById('sm-msg').textContent = `${SM_MIKTAR} asker koyluye cevrildi.`;
   SM_MIKTAR = 0;
   renderSoldierPanel();
   updateArmyStats();
+  if (typeof updateBars === 'function') updateBars();
 }
 
 /* -- ORDU YONETIMi -- */
