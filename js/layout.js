@@ -150,7 +150,7 @@ function renderHUD(){
     <div class="hud-row-wrap">
       <div class="hud-row-lbl">GENEL</div>
       <div class="hud-res-row">
-        ${sb('Ş.MORAL','😊','Ş.Moral','hud-sehir-moral',null)}
+        ${sb('MUTLULUK','😊','Mutluluk','hud-sehir-moral',null)}
         ${sb('O.MORAL','⚔️','O.Moral','hud-moral',null)}
         ${sb('AÇLIK','🍽️','Açlık','hud-hunger',null)}
         ${sb('NÜFUS','👥','Nüfus','hud-nufus-box',null)}
