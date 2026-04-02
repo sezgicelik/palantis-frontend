@@ -57,7 +57,10 @@
 <script src="js/hud.js"></script>
 <script src="js/layout.js"></script>
 <script>
-const MK_IKONLAR = { gumus:'🪙', mitril:'💎', bakir:'🔶', obsidyen:'🖤', ejderha_tasi:'🐉' };
+const MK_IKONLAR = {
+  gumus:'🪙', bakir:'🔶', mitril:'💎', kalay:'⚪', kehribar:'🟠',
+  obsidyen:'🖤', yakut:'🔴', zumrut:'🟢', ejderha_tasi:'🐉', elmas:'💠'
+};
 let MK_DATA = {};
 let MK_SATIS_MIKTAR = {};
 
@@ -90,7 +93,7 @@ function renderMarket() {
     zamanEl.textContent = d.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
   }
 
-  const keys = ['gumus','mitril','bakir','obsidyen','ejderha_tasi'];
+  const keys = ['gumus','bakir','mitril','kalay','kehribar','obsidyen','yakut','zumrut','ejderha_tasi','elmas'];
   liste.innerHTML = keys.map(key => {
     const f = MK_DATA.fiyatlar[key];
     if (!f) return '';
