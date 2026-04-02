@@ -44,11 +44,12 @@ function renderSidebar(){
       </div>
 
       <a href="home.html" class="menu-item${isActive('home.html')}">🏠 Ana Ekran</a>
-      <a href="population.html" class="menu-item${isActive('population.html')||isActive('market.html')||isActive('cag.html')}">👥 Nüfus & İşçiler</a>
-      <div class="submenu" id="submenu-population" style="display:${page==='population.html'||page==='market.html'||page==='cag.html'?'block':'none'}">
+      <a href="population.html" class="menu-item${isActive('population.html')||isActive('market.html')||isActive('cag.html')||isActive('festival.html')}">👥 Nüfus & İşçiler</a>
+      <div class="submenu" id="submenu-population" style="display:${page==='population.html'||page==='market.html'||page==='cag.html'||page==='festival.html'?'block':'none'}">
         <a href="population.html" class="menu-item sub-item${isActive('population.html')}">👷 İşçi Dağılımı</a>
         <a href="market.html" class="menu-item sub-item${isActive('market.html')}">🏪 Market</a>
         <a href="cag.html" class="menu-item sub-item${isActive('cag.html')}">⬆️ Çağ Atla</a>
+        <a href="festival.html" class="menu-item sub-item${isActive('festival.html')}">🎉 Festival</a>
       </div>
 
       <a href="city.html" class="menu-item${isActive('city.html')}">🏙️ Şehrim</a>
@@ -68,7 +69,6 @@ function renderSidebar(){
       <a href="army.html" class="menu-item${isActive('army.html')}">⚔️ Ordu & Savaş</a>
       <div class="submenu" id="submenu-army" style="display:${page==='army.html'?'block':'none'}">
         <div class="menu-item sub-item army-sub on" data-atab="units" onclick="armyTab('units',this)">🗡️ Asker Eğitimi</div>
-        <div class="menu-item sub-item army-sub" data-atab="soldier" onclick="armyTab('soldier',this)">🪖 Asker Yönetimi</div>
         <div class="menu-item sub-item army-sub" data-atab="armies" onclick="armyTab('armies',this)">🏕️ Ordu Yönetimi</div>
         <div class="menu-item sub-item army-sub" data-atab="formation" onclick="armyTab('formation',this)">⚔️ Saf Dizilimi</div>
         <div class="menu-item sub-item army-sub" data-atab="upgrades" onclick="armyTab('upgrades',this)">📈 Geliştirmeler</div>
@@ -150,7 +150,8 @@ function renderHUD(){
     <div class="hud-row-wrap">
       <div class="hud-row-lbl">GENEL</div>
       <div class="hud-res-row">
-        ${sb('MORAL','😊','Moral','hud-moral',null)}
+        ${sb('Ş.MORAL','😊','Ş.Moral','hud-sehir-moral',null)}
+        ${sb('O.MORAL','⚔️','O.Moral','hud-moral',null)}
         ${sb('AÇLIK','🍽️','Açlık','hud-hunger',null)}
         ${sb('NÜFUS','👥','Nüfus','hud-nufus-box',null)}
         ${sb('ALAN','📐','Alan','hud-alan-box',null)}

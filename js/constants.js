@@ -584,6 +584,12 @@ const ACTIVITY_ICONS = {
   yemek:       '🍽️',
   bina_uretim: '🔥',
   maas:        '💰',
+  bolge_bonus: '🗺️',
+  irk_bonus:   '🧬',
+  mana_uretim: '✨',
+  festival:      '🎉',
+  sehir_morali:  '😊',
+  kacis:         '😤',
 };
 
 const SAF_LIMITS = [3, 3, 5, 3]; // 14 total slots

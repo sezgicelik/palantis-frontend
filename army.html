@@ -25,30 +25,17 @@
 
     <!-- Sekmeler sidebar'dan yonetilir, inline tab butonlari kaldirildi -->
 
-    <!-- Asker Eğitimi: otomatik oyuncunun tarafına göre -->
+    <!-- Asker Eğitimi: köylü↔asker + ünite eğitimi tek sekmede -->
     <div id="atab-units" class="army-section">
-      <!-- Eğitim Kuyruğu -->
-      <div id="training-queue-wrap" style="display:none;margin-bottom:16px">
-        <div class="card" style="padding:14px 18px">
-          <h3 style="margin:0 0 10px">⏳ Eğitim Kuyruğu</h3>
-          <div id="training-queue-list"></div>
-        </div>
-      </div>
-      <div class="unit-grid" id="ugrid-player"></div>
-    </div>
-
-    <!-- Asker Yönetimi: köylü → asker dönüşümü + her iki taraf ünite listesi -->
-    <div id="atab-soldier" class="army-section" style="display:none">
       <!-- Köylü ↔ Asker çevirici -->
       <div class="card" style="margin-bottom:12px">
-        <h2>🪖 Asker Yönetimi</h2>
-        <p style="color:#777;margin-bottom:18px;font-size:14px">Boştaki köylüleri askere dönüştür. Her asker 1 köylü kullanır.</p>
-        <div class="city-stats" style="margin-bottom:20px">
+        <h3 style="color:#c8a96e;font-family:'Cinzel',serif;margin:0 0 8px">🪖 Köylü ↔ Asker Dönüşümü</h3>
+        <p style="color:#777;margin-bottom:14px;font-size:13px">Boştaki köylüleri askere dönüştür. Askerler ünite eğitmek için gereklidir.</p>
+        <div class="city-stats" style="margin-bottom:14px">
           <div class="cstat"><span class="snum" id="sm-koylu">0</span><span class="slbl">BOŞ KÖYLÜ</span></div>
-          <div class="cstat"><span class="snum" id="sm-asker">0</span><span class="slbl">TOPLAM ASKER</span></div>
+          <div class="cstat"><span class="snum" id="sm-asker">0</span><span class="slbl">HAM ASKER</span></div>
         </div>
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
-          <label style="color:#aaa;font-size:14px">Dönüştürülecek köylü sayısı:</label>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
           <div style="display:flex;align-items:center;gap:6px">
             <button class="btn ghost" style="padding:4px 12px;font-size:16px" onclick="smAdjust(-10)">−10</button>
             <button class="btn ghost" style="padding:4px 10px;font-size:16px" onclick="smAdjust(-1)">−</button>
@@ -62,17 +49,14 @@
         <div id="sm-msg" style="color:#888;font-size:13px;min-height:20px"></div>
       </div>
 
-      <!-- Aydınlık Tarafı Üniteleri (1'er asker) -->
-      <div class="card" style="margin-bottom:12px">
-        <h3 style="color:#f1c40f;font-family:'Cinzel',serif;margin:0 0 12px">☀️ Aydınlık Tarafı — Her Üniteden 1 Asker</h3>
-        <div class="unit-grid" id="ugrid-light"></div>
+      <!-- Eğitim Kuyruğu -->
+      <div id="training-queue-wrap" style="display:none;margin-bottom:16px">
+        <div class="card" style="padding:14px 18px">
+          <h3 style="margin:0 0 10px">⏳ Eğitim Kuyruğu</h3>
+          <div id="training-queue-list"></div>
+        </div>
       </div>
-
-      <!-- Karanlık Tarafı Üniteleri (1'er asker) -->
-      <div class="card">
-        <h3 style="color:#9b59b6;font-family:'Cinzel',serif;margin:0 0 12px">🌑 Karanlık Tarafı — Her Üniteden 1 Asker</h3>
-        <div class="unit-grid" id="ugrid-dark"></div>
-      </div>
+      <div class="unit-grid" id="ugrid-player"></div>
     </div>
 
     <!-- Ordu Yönetimi: max 5 ordu -->

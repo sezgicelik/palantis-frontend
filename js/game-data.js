@@ -116,9 +116,12 @@ async function loadGameData() {
     if (alanData.alan !== undefined) {
       const toplamAlan = parseInt(alanData.alan) || 100;
       const kullanilanAlan = parseInt(alanData.kullanilan_alan) || 0;
-      // Moral HUD
+      // Moral HUD — iki ayrı moral
       if (alanData.ordu_morali !== undefined) {
         setText('hud-moral', alanData.ordu_morali);
+      }
+      if (alanData.sehir_morali !== undefined) {
+        setText('hud-sehir-moral', alanData.sehir_morali);
       }
       window._palantisToplamAlan = toplamAlan;
       // landState (arazi sayfasi)
@@ -438,17 +441,17 @@ let ASKERI_GEL_SEV = 0;
 let MAAS_GEL_SEV = 0;
 let UNIT_GEL = {};
 
-/* Gercek maliyet hesapla (askeri gelistirme indirimi) */
+/* Gercek maliyet hesapla (askeri gelistirme indirimi: %10/seviye) */
 function realCost(baseCost) {
   const c = {...baseCost};
   if (c.altin && ASKERI_GEL_SEV > 0) {
-    c.altin = Math.floor(c.altin * (1 - ASKERI_GEL_SEV * 0.01));
+    c.altin = Math.floor(c.altin * (1 - ASKERI_GEL_SEV * 0.10));
   }
   return c;
 }
-/* Gercek maas hesapla */
+/* Gercek maas hesapla (maas gelistirme: %5/seviye) */
 function realMaas(baseMaas) {
-  return Math.floor(baseMaas * (1 - MAAS_GEL_SEV * 0.02));
+  return Math.floor(baseMaas * (1 - MAAS_GEL_SEV * 0.05));
 }
 /* Gercek ATK/DEF hesapla */
 function realAtk(unitId) {

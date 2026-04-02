@@ -22,14 +22,9 @@ function armyTab(tab, el){
   }
 
   if(tab==='units') {
+    renderSoldierPanel();
     const side = OYUNCU && OYUNCU.taraf === 'kotu' ? 'dark' : 'light';
     renderUnitGrid(side, 'ugrid-player');
-  }
-  if(tab==='soldier'){
-    renderSoldierPanel();
-    Object.values(UNITS).forEach(u=>{ u.count=1; });
-    renderUnitGrid('light','ugrid-light');
-    renderUnitGrid('dark','ugrid-dark');
   }
   if(tab==='armies') renderOrduListe();
   if(tab==='formation') {
@@ -57,17 +52,17 @@ function renderUpgrades(){
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
       <div style="background:#1a1a0a;border:1px solid #333;border-radius:8px;padding:12px;flex:1;min-width:200px">
         <div style="color:#f1c40f;font-weight:bold">Askeri Gelistirme</div>
-        <div style="color:#aaa;font-size:11px;margin:4px 0">Unite uretim altin maliyetini azaltir (%1/seviye)</div>
-        <div style="color:#fff;margin:8px 0">Seviye: <b>${ASKERI_GEL_SEV}</b> / 5</div>
-        <div style="color:#f1c40f;font-size:12px">Indirim: %${ASKERI_GEL_SEV}</div>
-        ${ASKERI_GEL_SEV<5?`<button class="btn-action" onclick="upgradeGlobal('askeri')" style="margin-top:8px;padding:4px 12px;font-size:11px">Yukselt (${GEL_MALIYET} Altin)</button>`:'<div style="color:#2ecc71;margin-top:8px">MAX SEVIYE</div>'}
+        <div style="color:#aaa;font-size:11px;margin:4px 0">Ünite üretim altın maliyetini azaltır (%10/seviye)</div>
+        <div style="color:#fff;margin:8px 0">Seviye: <b>${ASKERI_GEL_SEV}</b> / ${ASKERI_GEL_MAX}</div>
+        <div style="color:#f1c40f;font-size:12px">İndirim: %${ASKERI_GEL_SEV*10}</div>
+        ${ASKERI_GEL_SEV<ASKERI_GEL_MAX?`<button class="btn-action" onclick="upgradeGlobal('askeri')" style="margin-top:8px;padding:4px 12px;font-size:11px">Yükselt (${gelMaliyet('askeri')} Altın)</button>`:'<div style="color:#2ecc71;margin-top:8px">MAX SEVİYE</div>'}
       </div>
       <div style="background:#1a1a0a;border:1px solid #333;border-radius:8px;padding:12px;flex:1;min-width:200px">
-        <div style="color:#f1c40f;font-weight:bold">Maas Gelistirme</div>
-        <div style="color:#aaa;font-size:11px;margin:4px 0">Tum unitelerin maasini azaltir (%2/seviye)</div>
-        <div style="color:#fff;margin:8px 0">Seviye: <b>${MAAS_GEL_SEV}</b> / 6</div>
-        <div style="color:#f1c40f;font-size:12px">Indirim: %${MAAS_GEL_SEV*2}</div>
-        ${MAAS_GEL_SEV<6?`<button class="btn-action" onclick="upgradeGlobal('maas')" style="margin-top:8px;padding:4px 12px;font-size:11px">Yukselt (${GEL_MALIYET} Altin)</button>`:'<div style="color:#2ecc71;margin-top:8px">MAX SEVIYE</div>'}
+        <div style="color:#f1c40f;font-weight:bold">Maaş Geliştirme</div>
+        <div style="color:#aaa;font-size:11px;margin:4px 0">Tüm ünitelerin maaşını azaltır (%5/seviye)</div>
+        <div style="color:#fff;margin:8px 0">Seviye: <b>${MAAS_GEL_SEV}</b> / ${MAAS_GEL_MAX}</div>
+        <div style="color:#f1c40f;font-size:12px">İndirim: %${MAAS_GEL_SEV*5}</div>
+        ${MAAS_GEL_SEV<MAAS_GEL_MAX?`<button class="btn-action" onclick="upgradeGlobal('maas')" style="margin-top:8px;padding:4px 12px;font-size:11px">Yükselt (${gelMaliyet('maas')} Altın)</button>`:'<div style="color:#2ecc71;margin-top:8px">MAX SEVİYE</div>'}
       </div>
     </div>
 
@@ -120,39 +115,62 @@ function renderUpgrades(){
   panel.innerHTML = html;
 }
 
-function upgradeGlobal(type){
-  if((RES.altin||0) < GEL_MALIYET){ toast('Yetersiz altin!'); return; }
-  if(type==='askeri'){
-    if(ASKERI_GEL_SEV >= 5){ toast('Max seviye!'); return; }
-    ASKERI_GEL_SEV++;
-    toast(`Askeri Gelistirme Seviye ${ASKERI_GEL_SEV}! Altin maliyeti -%${ASKERI_GEL_SEV}`);
-  } else {
-    if(MAAS_GEL_SEV >= 6){ toast('Max seviye!'); return; }
-    MAAS_GEL_SEV++;
-    toast(`Maas Gelistirme Seviye ${MAAS_GEL_SEV}! Maas -%${MAAS_GEL_SEV*2}`);
-  }
-  RES.altin -= GEL_MALIYET;
-  setText('hud-g', RES.altin);
-  renderUpgrades();
+// Çağ bazlı max: her çağda +3 (max 15)
+const ASKERI_GEL_MAX = Math.min((OYUNCU?.cag || 1) * 3, 15);
+const MAAS_GEL_MAX = Math.min((OYUNCU?.cag || 1) * 3, 15);
+
+function gelMaliyet(type) {
+  const sev = type === 'askeri' ? ASKERI_GEL_SEV : MAAS_GEL_SEV;
+  return GEL_MALIYET * (sev + 1); // Artan maliyet
 }
 
-function upgradeUnit(unitId, stat){
-  if((RES.altin||0) < GEL_MALIYET){ toast('Yetersiz altin!'); return; }
+async function upgradeGlobal(type){
+  const maliyet = gelMaliyet(type);
+  if((RES.altin||0) < maliyet){ toast('Yetersiz altın!'); return; }
+  const maxSev = type === 'askeri' ? ASKERI_GEL_MAX : MAAS_GEL_MAX;
+  const curSev = type === 'askeri' ? ASKERI_GEL_SEV : MAAS_GEL_SEV;
+  if(curSev >= maxSev){ toast('Bu çağda max seviyeye ulaştın!'); return; }
+
+  const token = getToken(); if(!token) return;
+  try {
+    const resp = await fetch(API_BASE + '/api/army/gelistir', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tip: type })
+    });
+    const data = await resp.json();
+    if(!resp.ok){ toast(data.error || 'Hata!'); return; }
+    await loadArmyPool();
+    await loadGameData();
+    if(type === 'askeri') toast(`Askeri Geliştirme Seviye ${ASKERI_GEL_SEV}! Altın maliyeti -%${ASKERI_GEL_SEV*10}`);
+    else toast(`Maaş Geliştirme Seviye ${MAAS_GEL_SEV}! Maaş -%${MAAS_GEL_SEV*5}`);
+    renderUpgrades();
+  } catch(e) { toast('Bağlantı hatası!'); }
+}
+
+async function upgradeUnit(unitId, stat){
   const u = UNITS[unitId]; if(!u) return;
-  if(!UNIT_GEL[unitId]) UNIT_GEL[unitId] = {atk:0,def:0};
-  const gel = UNIT_GEL[unitId];
-  if(stat==='atk'){
-    if(gel.atk >= u.atkGelMax){ toast('Max ATK seviye!'); return; }
-    gel.atk++;
-    toast(`${u.name} ATK Gelistirme Sv.${gel.atk}! ATK: ${realAtk(unitId)}`);
-  } else {
-    if(gel.def >= u.defGelMax){ toast('Max DEF seviye!'); return; }
-    gel.def++;
-    toast(`${u.name} DEF Gelistirme Sv.${gel.def}! DEF: ${realDef(unitId)}`);
-  }
-  RES.altin -= GEL_MALIYET;
-  setText('hud-g', RES.altin);
-  renderUpgrades();
+  const gel = UNIT_GEL[unitId] || {atk:0,def:0};
+  const curSev = stat === 'atk' ? gel.atk : gel.def;
+  const maxSev = stat === 'atk' ? u.atkGelMax : u.defGelMax;
+  if(curSev >= maxSev){ toast(`Max ${stat.toUpperCase()} seviye!`); return; }
+  const maliyet = GEL_MALIYET * (curSev + 1);
+  if((RES.altin||0) < maliyet){ toast(`Yetersiz altın! (${maliyet} gerekli)`); return; }
+
+  const token = getToken(); if(!token) return;
+  try {
+    const resp = await fetch(API_BASE + '/api/army/gelistir', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tip: 'unite_' + stat, unite_id: unitId })
+    });
+    const data = await resp.json();
+    if(!resp.ok){ toast(data.error || 'Hata!'); return; }
+    await loadArmyPool();
+    await loadGameData();
+    toast(`${u.name} ${stat.toUpperCase()} Geliştirme tamamlandı!`);
+    renderUpgrades();
+  } catch(e) { toast('Bağlantı hatası!'); }
 }
 
 /* -- ASKER YONETIMi -- */
@@ -250,26 +268,47 @@ function orduAdjust(d){
   setText('ordu-miktar', ORDU_MIKTAR);
 }
 
-function orduKur(){
+async function orduKur(){
   const isim = document.getElementById('ordu-isim').value.trim();
   const msg = document.getElementById('ordu-form-msg');
-  if(!isim){ msg.textContent = 'Ordu adi gir.'; return; }
+  if(!isim){ msg.textContent = 'Ordu adı gir.'; return; }
   if(ORDU_MIKTAR < 1){ msg.textContent = 'En az 1 asker gerekli!'; return; }
-  if(ORDU_MIKTAR > ASKER_SAYISI){ msg.textContent = 'Yeterli bosta asker yok!'; return; }
   if(ORDULAR.length >= 5){ msg.textContent = 'Maksimum 5 ordu!'; return; }
-  const ordu = { id: Date.now(), isim, asker: ORDU_MIKTAR, dizilim:{saflar:[[],[],[],[]]} };
-  ORDULAR.push(ordu);
-  document.getElementById('ordu-form').style.display = 'none';
-  toast(`"${isim}" ordusu kuruldu! (${ORDU_MIKTAR} asker)`);
-  renderOrduListe();
+  const token = getToken(); if(!token) return;
+  try {
+    const resp = await fetch(API_BASE + '/api/army/armies', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isim, raw_soldiers: ORDU_MIKTAR })
+    });
+    const data = await resp.json();
+    if(!resp.ok){ msg.textContent = data.error || 'Hata!'; return; }
+    document.getElementById('ordu-form').style.display = 'none';
+    toast(`"${isim}" ordusu kuruldu! (${ORDU_MIKTAR} asker)`);
+    await loadArmyPool();
+    renderOrduListe();
+  } catch(e) {
+    msg.textContent = 'Bağlantı hatası!';
+  }
 }
 
-function orduSil(id){
+async function orduSil(id){
   const ordu = ORDULAR.find(o=>o.id===id);
   if(!ordu) return;
-  ORDULAR = ORDULAR.filter(o=>o.id!==id);
-  toast(`"${ordu.isim}" ordusu dagitildi.`);
-  renderOrduListe();
+  if(!confirm(`"${ordu.isim}" ordusunu dağıtmak istediğine emin misin?`)) return;
+  const token = getToken(); if(!token) return;
+  try {
+    const resp = await fetch(API_BASE + '/api/army/armies/' + id, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if(!resp.ok){ toast('Ordu silinemedi!'); return; }
+    toast(`"${ordu.isim}" ordusu dağıtıldı.`);
+    await loadArmyPool();
+    renderOrduListe();
+  } catch(e) {
+    toast('Bağlantı hatası!');
+  }
 }
 
 function renderOrduListe(){
@@ -278,37 +317,86 @@ function renderOrduListe(){
   const yeniBtn = document.getElementById('ordu-yeni-btn');
   if(yeniBtn) yeniBtn.style.display = ORDULAR.length >= 5 ? 'none' : 'inline-block';
   if(ORDULAR.length === 0){
-    el.innerHTML = '<div class="card" style="text-align:center;color:#555;padding:32px">Henuz ordu kurulmamis. Once askere koylu cevir, sonra ordu kur.</div>';
+    el.innerHTML = '<div class="card" style="text-align:center;color:#555;padding:32px">Henüz ordu kurulmamış. Önce askere köylü çevir, sonra ordu kur.</div>';
     return;
   }
-  el.innerHTML = ORDULAR.map(o=>`
+  const side = OYUNCU && OYUNCU.taraf === 'kotu' ? 'dark' : 'light';
+  const playerUnits = Object.values(UNITS).filter(u => u.side === side && u.producible !== false);
+
+  el.innerHTML = ORDULAR.map(o => {
+    // Ordudaki üniteleri listele
+    const unitsHTML = (o.units||[]).filter(u=>u.adet>0).map(u => {
+      const def = UNITS[u.unite_id];
+      return `<span style="display:inline-flex;align-items:center;gap:4px;background:#1a1a0a;border:1px solid #333;border-radius:6px;padding:3px 8px;font-size:11px;color:#ccc">
+        ${def?.icon||'?'} ${def?.name||u.unite_id} ×${u.adet}
+        <button style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:13px;padding:0 2px" onclick="orduUniteCircar(${o.id},'${u.unite_id}',1)" title="1 çıkar">−</button>
+      </span>`;
+    }).join('');
+
+    // Havuzdan eklenebilir üniteler
+    const poolUnits = playerUnits.filter(u => u.count > 0);
+    const poolHTML = poolUnits.length > 0 ? `
+      <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+        <span style="color:#888;font-size:11px">Havuzdan ekle:</span>
+        ${poolUnits.map(u => `
+          <button class="btn ghost" style="font-size:10px;padding:3px 8px" onclick="orduUniteEkle(${o.id},'${u.id}',1)">
+            ${u.icon} ${u.name} (${u.count})
+          </button>
+        `).join('')}
+      </div>` : '';
+
+    return `
     <div class="card" style="margin-bottom:12px;border-left:3px solid #d4af37">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
         <div>
           <div style="font-size:16px;font-weight:bold;color:#d4af37">${o.isim}</div>
           <div style="color:#aaa;font-size:13px;margin-top:4px">
-            <span style="color:#e74c3c">ATK: ${(o.atk||0).toLocaleString()}</span> &nbsp;|&nbsp;
-            <span style="color:#3498db">DEF: ${(o.def||0).toLocaleString()}</span> &nbsp;|&nbsp;
-            ${o.total_units||o.asker||0} unite
+            <span style="color:#e74c3c">⚔️ ATK: ${(o.atk||0).toLocaleString()}</span> &nbsp;|&nbsp;
+            <span style="color:#3498db">🛡️ DEF: ${(o.def||0).toLocaleString()}</span> &nbsp;|&nbsp;
+            👥 ${o.total_units||0} ünite
           </div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn ghost" style="font-size:12px;padding:5px 12px" onclick="orduDizilim(${o.id})">Dizilim</button>
-          <button class="btn ghost" style="font-size:12px;padding:5px 12px;border-color:#c0392b;color:#c0392b" onclick="orduSil(${o.id})">Dagit</button>
+          <button class="btn ghost" style="font-size:12px;padding:5px 12px" onclick="armyTab('formation');document.getElementById('formation-army-select').value='${o.id}';loadFormationForArmy()">Dizilim</button>
+          <button class="btn ghost" style="font-size:12px;padding:5px 12px;border-color:#c0392b;color:#c0392b" onclick="orduSil(${o.id})">Dağıt</button>
         </div>
       </div>
-      ${o.dizilim && o.dizilim.saflar && o.dizilim.saflar.some(s=>s.length>0) ? `
-        <div style="margin-top:10px;padding-top:10px;border-top:1px solid #333;font-size:12px;color:#888">
-          ${o.dizilim.saflar.map((s,i)=>'Saf '+(i+1)+': '+(s.length?s.join(', '):'\u2014')).join(' &nbsp;|&nbsp; ')}
-        </div>` : ''}
-    </div>
-  `).join('');
+      ${unitsHTML ? `<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">${unitsHTML}</div>` : '<div style="margin-top:8px;color:#555;font-size:12px">Henüz ünite atanmamış.</div>'}
+      ${poolHTML}
+    </div>`;
+  }).join('');
 }
 
-function orduDizilim(id){
-  const ordu = ORDULAR.find(o=>o.id===id);
-  if(!ordu) return;
-  toast(`Dizilim ozelligi yakinda eklenecek: ${ordu.isim}`);
+async function orduUniteEkle(armyId, uniteId, adet){
+  const token = getToken(); if(!token) return;
+  try {
+    const resp = await fetch(API_BASE + '/api/army/armies/' + armyId + '/units', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ unite_id: uniteId, adet })
+    });
+    const data = await resp.json();
+    if(!resp.ok){ toast(data.error || 'Hata!'); return; }
+    toast(`${UNITS[uniteId]?.name||uniteId} eklendi.`);
+    await loadArmyPool();
+    renderOrduListe();
+  } catch(e) { toast('Bağlantı hatası!'); }
+}
+
+async function orduUniteCircar(armyId, uniteId, adet){
+  const token = getToken(); if(!token) return;
+  try {
+    const resp = await fetch(API_BASE + '/api/army/armies/' + armyId + '/units', {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ unite_id: uniteId, adet })
+    });
+    const data = await resp.json();
+    if(!resp.ok){ toast(data.error || 'Hata!'); return; }
+    toast(`${UNITS[uniteId]?.name||uniteId} havuza geri verildi.`);
+    await loadArmyPool();
+    renderOrduListe();
+  } catch(e) { toast('Bağlantı hatası!'); }
 }
 
 /* -- UNITE GRID -- */
@@ -321,7 +409,7 @@ function renderUnitGrid(side, gridId){
 
   units.forEach(u=>{
     const rc = realCost(u.cost);
-    const TIER_ASKER = { 1:1, 2:2, 3:3, 4:0 };
+    const TIER_ASKER = { 1:1, 2:1, 3:1, 4:0 };
     const askerGerekli = TIER_ASKER[u.tier] || 0;
     const askerVar = population.asker || 0;
     const askerOk = askerGerekli === 0 || askerVar >= askerGerekli;
@@ -574,6 +662,15 @@ function loadFormationForArmy() {
   const sel = document.getElementById('formation-army-select');
   FORMATION_ARMY_ID = sel.value ? parseInt(sel.value) : null;
   FORMATION_STATE = [[], [], [], []];
+  // Mevcut dizilimi yükle (backend'den gelen veri)
+  if (FORMATION_ARMY_ID) {
+    const army = ORDULAR.find(o => o.id === FORMATION_ARMY_ID);
+    if (army && army.dizilim && army.dizilim.saflar) {
+      for (let i = 0; i < 4; i++) {
+        FORMATION_STATE[i] = (army.dizilim.saflar[i] || []).slice();
+      }
+    }
+  }
   renderFormationGrid();
 }
 
@@ -669,22 +766,38 @@ function removeFromSaf(safIndex, slotIndex) {
   renderFormationGrid();
 }
 
-function saveFormation() {
+async function saveFormation() {
   if (!FORMATION_ARMY_ID) {
-    document.getElementById('formation-msg').textContent = 'Once bir ordu sec!';
+    document.getElementById('formation-msg').textContent = 'Önce bir ordu seç!';
     return;
   }
   const total = FORMATION_STATE.reduce(function(s, r){ return s + r.length; }, 0);
   if (total === 0) {
-    document.getElementById('formation-msg').textContent = 'En az 1 unite yerlestir!';
+    document.getElementById('formation-msg').textContent = 'En az 1 ünite yerleştir!';
     return;
   }
-  const army = ORDULAR.find(function(o){ return o.id === FORMATION_ARMY_ID; });
-  if (army) {
-    army.dizilim = { saflar: [FORMATION_STATE[0].slice(), FORMATION_STATE[1].slice(), FORMATION_STATE[2].slice(), FORMATION_STATE[3].slice()] };
+  const token = getToken(); if(!token) return;
+  try {
+    const resp = await fetch(API_BASE + '/api/army/armies/' + FORMATION_ARMY_ID + '/formation', {
+      method: 'PUT',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        on_saf: [...FORMATION_STATE[0], ...FORMATION_STATE[1]],
+        arka_saf: [...FORMATION_STATE[2], ...FORMATION_STATE[3]]
+      })
+    });
+    const data = await resp.json();
+    if(!resp.ok){ document.getElementById('formation-msg').textContent = data.error || 'Hata!'; return; }
+    // Lokal state güncelle
+    const army = ORDULAR.find(o => o.id === FORMATION_ARMY_ID);
+    if (army) {
+      army.dizilim = { saflar: [FORMATION_STATE[0].slice(), FORMATION_STATE[1].slice(), FORMATION_STATE[2].slice(), FORMATION_STATE[3].slice()] };
+    }
+    document.getElementById('formation-msg').textContent = 'Dizilim kaydedildi! (' + total + ' ünite)';
+    toast('Saf dizilimi DB\'ye kaydedildi!');
+  } catch(e) {
+    document.getElementById('formation-msg').textContent = 'Bağlantı hatası!';
   }
-  document.getElementById('formation-msg').textContent = 'Dizilim kaydedildi! (' + total + ' unite)';
-  toast('Saf dizilimi kaydedildi!');
 }
 
 function resetFormation() {

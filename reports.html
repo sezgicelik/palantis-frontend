@@ -66,16 +66,16 @@
       <div id="ekonomi-loading" style="color:#888;font-size:13px;text-align:center;padding:40px">Yükleniyor...</div>
       <div id="ekonomi-list" style="display:none"></div>
       <div id="ekonomi-empty" style="display:none;color:#777;font-size:13px;text-align:center;padding:40px">
-        Henüz ekonomi raporu yok.<br><small style="color:#555">Kereste, işlenmiş metal, at/kurt üretimi ve ocak/fırın raporları burada görünür.</small>
+        Henüz ekonomi raporu yok.<br><small style="color:#555">İşçi üretimi, kereste, işlenmiş metal, at/kurt, bölge/ırk bonusu ve mana raporları burada görünür.</small>
       </div>
     </div>
 
     <script>
     // v1.2.1: Rapor sekme sistemi — her sekme kendi event_type'ini filtreler
     const REPORT_EVENT_TYPES = {
-      sehir: ['isci_uretim','bina_tamam','nufus','aclik','kacis','yemek','maas','vergi'],
+      sehir: ['isci_uretim','bina_tamam','nufus','aclik','kacis','yemek','maas','vergi','festival','sehir_morali'],
       askeri: ['egitim_tamam','worshipper'],
-      ekonomi: ['ekonomi','pisirme','bina_uretim']
+      ekonomi: ['isci_uretim','ekonomi','pisirme','bina_uretim','bolge_bonus','irk_bonus','mana_uretim']
     };
 
     function reportTab(tab, el) {
