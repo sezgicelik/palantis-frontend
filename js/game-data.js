@@ -190,11 +190,18 @@ async function loadGameData() {
     setText('hud-ce',  RES.cig_et);
     setText('hud-pe',  RES.pismis_et);
 
-    // Mana HUD
+    // Mana HUD + üretim rate
     setText('hud-mana-beyaz',   Math.floor(RES.mana_beyaz || 0));
     setText('hud-mana-kirmizi', Math.floor(RES.mana_kirmizi || 0));
     setText('hud-mana-mavi',    Math.floor(RES.mana_mavi || 0));
     setText('hud-mana-yesil',   Math.floor(RES.mana_yesil || 0));
+    // Mana rate: her worshipper 0.1/gün
+    if(typeof setRate==='function') {
+      setRate('hud-mana-beyaz-g',   (parseInt(work?.worshipper_beyaz)||0) * 0.1);
+      setRate('hud-mana-kirmizi-g', (parseInt(work?.worshipper_kirmizi)||0) * 0.1);
+      setRate('hud-mana-mavi-g',    (parseInt(work?.worshipper_mavi)||0) * 0.1);
+      setRate('hud-mana-yesil-g',   (parseInt(work?.worshipper_yesil)||0) * 0.1);
+    }
 
     // Nufus & Isciler
     if (work) {
@@ -369,6 +376,8 @@ function obApplyPlayer(p) {
   // HUD Cag gosterimi
   set('hud-limit', romanCag(p.cag || 1) + '. Cag');
   set('sidebar-cag', romanCag(p.cag || 1) + '. Cag');
+  // Koordinat sidebar'da göster
+  if (p.koord_x) set('sidebar-koord', '📍 ' + p.koord_x + ':' + p.koord_y);
 
   if ((p.cag || 1) > 1) {
     const el = document.getElementById('cag1-uyari');
