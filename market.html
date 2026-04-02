@@ -103,27 +103,25 @@ function renderMarket() {
     MK_SATIS_MIKTAR[key] = MK_SATIS_MIKTAR[key] || 0;
 
     return `
-    <div class="card" style="padding:14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
-      <span style="font-size:28px;width:36px;text-align:center">${MK_IKONLAR[key]||'📦'}</span>
+    <div style="padding:6px 10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#111;border:1px solid #1e1e1e;border-radius:4px;margin-bottom:2px">
+      <span style="font-size:20px;width:24px;text-align:center">${MK_IKONLAR[key]||'📦'}</span>
+      <div style="min-width:100px">
+        <div style="color:#d4af37;font-weight:bold;font-size:12px">${f.isim}</div>
+        <div style="color:#888;font-size:10px">Stok: <b style="color:#fff">${f.miktar.toLocaleString()}</b></div>
+      </div>
       <div style="min-width:120px">
-        <div style="color:#d4af37;font-weight:bold;font-size:14px">${f.isim}</div>
-        <div style="color:#888;font-size:12px">Stok: <b style="color:#fff">${f.miktar.toLocaleString()}</b></div>
+        <span style="color:#666;font-size:10px">Kur: </span>
+        <span style="color:${kurRenk};font-weight:bold;font-size:11px">${kurOk} %${kur}</span>
+        <span style="color:#f1c40f;font-size:12px;font-weight:bold;margin-left:6px">${f.satis_fiyat.toFixed(1)} altın/adet</span>
       </div>
-      <div style="min-width:140px">
-        <div style="color:#666;font-size:11px">Baz: ${f.baz_fiyat} altın</div>
-        <div style="font-size:13px">
-          Kur: <span style="color:${kurRenk};font-weight:bold">${kurOk} %${kur}</span>
-        </div>
-        <div style="color:#f1c40f;font-size:14px;font-weight:bold">${f.satis_fiyat.toFixed(1)} altın/adet</div>
-      </div>
-      <div style="flex:1;display:flex;align-items:center;gap:6px;justify-content:flex-end;min-width:200px">
-        <button class="btn ghost" style="padding:4px 8px" onclick="mkAdjust('${key}',-100)">−100</button>
-        <button class="btn ghost" style="padding:4px 6px" onclick="mkAdjust('${key}',-10)">−10</button>
-        <span id="mk-m-${key}" style="min-width:48px;text-align:center;font-weight:bold;color:#d4af37">${MK_SATIS_MIKTAR[key]}</span>
-        <button class="btn ghost" style="padding:4px 6px" onclick="mkAdjust('${key}',10)">+10</button>
-        <button class="btn ghost" style="padding:4px 8px" onclick="mkAdjust('${key}',100)">+100</button>
-        <button class="btn ghost" style="padding:4px 8px;color:#f1c40f" onclick="mkAdjust('${key}','max')">MAX</button>
-        <button class="btn" style="min-width:80px" onclick="mkSat('${key}')">💰 Sat</button>
+      <div style="flex:1;display:flex;align-items:center;gap:4px;justify-content:flex-end;min-width:200px">
+        <button class="btn ghost" style="padding:2px 6px;font-size:10px" onclick="mkAdjust('${key}',-100)">−100</button>
+        <button class="btn ghost" style="padding:2px 5px;font-size:10px" onclick="mkAdjust('${key}',-10)">−10</button>
+        <span id="mk-m-${key}" style="min-width:36px;text-align:center;font-weight:bold;color:#d4af37;font-size:12px">${MK_SATIS_MIKTAR[key]}</span>
+        <button class="btn ghost" style="padding:2px 5px;font-size:10px" onclick="mkAdjust('${key}',10)">+10</button>
+        <button class="btn ghost" style="padding:2px 6px;font-size:10px" onclick="mkAdjust('${key}',100)">+100</button>
+        <button class="btn ghost" style="padding:2px 6px;font-size:10px;color:#f1c40f" onclick="mkAdjust('${key}','max')">MAX</button>
+        <button class="btn" style="min-width:60px;padding:3px 8px;font-size:10px" onclick="mkSat('${key}')">💰 Sat</button>
       </div>
     </div>`;
   }).join('');
