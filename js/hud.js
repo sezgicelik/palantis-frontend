@@ -87,7 +87,8 @@ function setHUD(d){
   setText('hud-pbg',d.islenmis.pismis_balik_g);
 
   // GENEL
-  setText('hud-moral',  d.genel.moral + '%');
+  if (d.genel.sehir_morali !== undefined) setText('hud-sehir-moral', d.genel.sehir_morali);
+  setText('hud-moral',  d.genel.moral);
   setText('hud-hunger', d.genel.aclik + '%');
 
   setText('hud-used',  d.genel.kullanilan_alan);
@@ -196,6 +197,13 @@ function updateCityStats(){
   const active=Object.values(BLDGS).reduce((s,b)=>s+(b.lv||0),0);
   const e1=document.getElementById('cs-active');if(e1)e1.innerText=active;
   const e2=document.getElementById('cs-constr');if(e2)e2.innerText=QUEUE.length;
+  // Çağ bilgisi her yerde senkron
+  const roman = ['','I','II','III','IV','V'];
+  const cag = OYUNCU?.cag || 1;
+  const cagStr = roman[cag] + '. Çağ';
+  const csAge=document.getElementById('cs-age');if(csAge)csAge.textContent=cagStr;
+  const hudLimit=document.getElementById('hud-limit');if(hudLimit)hudLimit.textContent=cagStr;
+  const sidebarCag=document.getElementById('sidebar-cag');if(sidebarCag)sidebarCag.textContent=cagStr;
   // HUD alan
   const usedArea=Object.values(BLDGS).reduce((s,b)=>s+b.lv*binaAlanFE(b.id),0);
   // Toplam alan global'den al (loadGameData'da set edilir)
