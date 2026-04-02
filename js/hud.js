@@ -193,7 +193,7 @@ function updatePopulationUI(){
    updateCityStats — Şehir istatistiklerini günceller
 ===================================================== */
 function updateCityStats(){
-  const active=Object.values(BLDGS).filter(b=>b.lv>0).length;
+  const active=Object.values(BLDGS).reduce((s,b)=>s+(b.lv||0),0);
   const e1=document.getElementById('cs-active');if(e1)e1.innerText=active;
   const e2=document.getElementById('cs-constr');if(e2)e2.innerText=QUEUE.length;
   // HUD alan
