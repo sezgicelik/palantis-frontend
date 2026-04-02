@@ -10,14 +10,51 @@ function renderGrid(){
   const list=Object.values(BLDGS).filter(b=>activeCat==='all'||b.cat===activeCat);
   grid.innerHTML='';
   const oyuncuCag = OYUNCU?.cag || 1;
-  list.forEach(b=>{
+
+  // Çağ bazlı gruplama (sadece 'all' filtresinde)
+  if (activeCat === 'all') {
+    const cagGruplari = {1:[], 2:[], 3:[], 4:[], 5:[]};
+    list.forEach(b => {
+      let acilisCag = 1;
+      if (b.cagLimit) {
+        for (let c = 1; c <= 5; c++) {
+          if ((b.cagLimit[c] || 0) !== 0) { acilisCag = c; break; }
+        }
+      }
+      cagGruplari[acilisCag].push(b);
+    });
+    const CAG_ROMA = {1:'I',2:'II',3:'III',4:'IV',5:'V'};
+    const CAG_IKON = {1:'🏛️',2:'⚔️',3:'🏰',4:'🐉',5:'👑'};
+    for (let c = 1; c <= 5; c++) {
+      if (cagGruplari[c].length === 0) continue;
+      const kilitli = c > oyuncuCag;
+      const baslik = document.createElement('div');
+      baslik.style.cssText = 'padding:12px 16px;margin:16px 0 8px;border-left:3px solid ' +
+        (kilitli ? '#333' : '#d4af37') + ';color:' + (kilitli ? '#555' : '#c8a96e') +
+        ';font-family:Cinzel,serif;font-size:15px;background:' + (kilitli ? '#0a0a0a' : '#111100') + ';border-radius:0 6px 6px 0;';
+      baslik.innerHTML = CAG_IKON[c] + ' ' + CAG_ROMA[c] + '. Çağ Binaları' +
+        (kilitli ? ' <span style="color:#e74c3c;font-size:11px">🔒 Kilitli</span>' : ' <span style="color:#2ecc71;font-size:11px">✓ Açık</span>') +
+        ' <span style="color:#444;font-size:11px">(' + cagGruplari[c].length + ' bina)</span>';
+      grid.appendChild(baslik);
+      cagGruplari[c].forEach(b => renderBinaRow(grid, b, inQ, oyuncuCag));
+    }
+    updateBars();
+    updateCityStats();
+    return;
+  }
+
+  list.forEach(b => renderBinaRow(grid, b, inQ, oyuncuCag));
+  updateBars();
+  updateCityStats();
+}
+
+function renderBinaRow(grid, b, inQ, oyuncuCag) {
     const inC=inQ.has(b.id);
     const isMergeOnly=!!b.mergeOnly;
     const cost=isMergeOnly?{}:b.cost(1);
 
-    // Cag limiti kontrolu
     const cagLimiti = b.cagLimit ? (b.cagLimit[oyuncuCag] ?? 0) : 999;
-    const cagKilitli = cagLimiti === 0; // Bu cagda uretilemez
+    const cagKilitli = cagLimiti === 0;
     const cagSinirsiz = cagLimiti === -1;
     const limitDoldu = !cagSinirsiz && !cagKilitli && b.lv >= cagLimiti;
 
@@ -27,14 +64,11 @@ function renderGrid(){
       const have=RES[r]||0;
       return `<span class="citem ${have>=a?'ok':'no'}">${RICONS[r]||'\ud83d\udce6'} ${a.toLocaleString()} <small style="color:#555">(${have.toLocaleString()})</small></span>`;
     }).join('');
-    // Uretim suresi (saniyeden P.G.'ye)
     const sureSaniye = isMergeOnly ? 0 : (typeof b.time === 'function' ? b.time(1) : b.time || 3600);
     const surePG = sureSaniye / 3600;
-    // Limit gosterimi
     const limitLabel = cagSinirsiz ? '' : (cagLimiti > 0 ? `<span style="color:#888;font-size:9px"> (${b.lv}/${cagLimiti})</span>` : '');
     let action;
     if(cagKilitli) {
-      // Bu cagda uretilemez — hangi cagda acildigini bul
       let acilisCag = 6;
       if(b.cagLimit) for(let c=1;c<=5;c++) if((b.cagLimit[c]||0)!==0){acilisCag=c;break;}
       action=`<span style="color:#e74c3c;font-size:10px;font-family:'Cinzel',serif">\ud83d\udd12 ${acilisCag}. Çağ gerekli</span>`;
@@ -67,9 +101,6 @@ function renderGrid(){
       ${inC?`<div class="br-building-lbl">\ud83d\udd28 Insa ediliyor... <span id="bpct-${b.id}">\u2014</span></div><div class="br-prog"><div class="br-prog-fill" id="bfill-${b.id}" style="width:0%"></div></div>`:''}
     `;
     grid.appendChild(d);
-  });
-  updateBars();
-  updateCityStats();
 }
 
 function renderQueue(){
