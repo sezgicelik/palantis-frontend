@@ -287,7 +287,9 @@ function renderOrduListe(){
         <div>
           <div style="font-size:16px;font-weight:bold;color:#d4af37">${o.isim}</div>
           <div style="color:#aaa;font-size:13px;margin-top:4px">
-            ATK: ${o.asker} &nbsp;|&nbsp; DEF: ${o.asker} &nbsp;|&nbsp; ${o.asker} asker
+            <span style="color:#e74c3c">ATK: ${(o.atk||0).toLocaleString()}</span> &nbsp;|&nbsp;
+            <span style="color:#3498db">DEF: ${(o.def||0).toLocaleString()}</span> &nbsp;|&nbsp;
+            ${o.total_units||o.asker||0} unite
           </div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -456,18 +458,70 @@ async function trainUnit(id){
 async function loadArmyPool(){
   const token = getToken(); if(!token) return;
   try {
-    const resp = await fetch(API_BASE + '/api/game/army', {
+    // v1.2.0: /api/army/state — tek seferde tum ordu verisi
+    const resp = await fetch(API_BASE + '/api/army/state', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
     if(!resp.ok) return;
-    const army = await resp.json();
-    Object.entries(army).forEach(([uniteId, adet]) => {
-      if(UNITS[uniteId]) UNITS[uniteId].count = parseInt(adet) || 0;
-    });
+    const data = await resp.json();
+
+    // Unite havuzu (egitilmis ama orduya atanmamis uniteler)
+    if(data.unit_pool) {
+      // Once hepsini sifirla
+      Object.values(UNITS).forEach(u => u.count = 0);
+      data.unit_pool.forEach(u => {
+        if(UNITS[u.unite_id]) UNITS[u.unite_id].count = parseInt(u.adet) || 0;
+      });
+    }
+
+    // Ordular listesi
+    if(data.armies) {
+      ORDULAR = data.armies.map(a => ({
+        id: a.id,
+        isim: a.isim,
+        asker: a.raw_soldiers || 0,
+        durum: a.durum,
+        is_busy: a.is_busy,
+        units: a.units || [],
+        total_units: a.total_units || 0,
+        atk: a.atk || 0,
+        def: a.def || 0,
+        dizilim: { saflar: [a.formation?.on_saf || [], a.formation?.arka_saf || [], [], []] }
+      }));
+    }
+
+    // Gelistirmeler
+    if(data.gelistirmeler) {
+      ASKERI_GEL_SEV = data.gelistirmeler.askeri_gel_sev || 0;
+      MAAS_GEL_SEV = data.gelistirmeler.maas_gel_sev || 0;
+    }
+
+    // Unite gelistirmeleri
+    if(data.unite_gel) {
+      UNIT_GEL = {};
+      Object.entries(data.unite_gel).forEach(([uid, g]) => {
+        UNIT_GEL[uid] = { atk: g.atk_sev || 0, def: g.def_sev || 0 };
+      });
+    }
+
+    // Moral
+    if(data.ordu_morali !== undefined) {
+      const moralEl = document.getElementById('hud-moral');
+      if(moralEl) moralEl.textContent = data.ordu_morali;
+    }
+
+    // Asker sayisi (workers.asker)
+    if(data.workers) {
+      ASKER_SAYISI = parseInt(data.workers.asker) || 0;
+      population.asker = ASKER_SAYISI;
+    }
+
     updateArmyStats();
     const playerSide = loadPlayer()?.taraf === 'kotu' ? 'dark' : 'light';
     renderUnitGrid(playerSide);
-  } catch(e) {}
+  } catch(e) {
+    console.error('[loadArmyPool]', e);
+  }
 }
 
 async function loadTrainingQueue(){

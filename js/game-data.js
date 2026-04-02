@@ -162,6 +162,12 @@ async function loadGameData() {
     if (res.mana_mavi !== undefined) RES.mana_mavi = parseFloat(res.mana_mavi) || 0;
     if (res.mana_yesil !== undefined) RES.mana_yesil = parseFloat(res.mana_yesil) || 0;
 
+    // v1.2.0: Extra kaynaklar (at, kurt, gizlilik, buyulu_yumurta)
+    if (res.at !== undefined) EXTRA_RES.at = parseInt(res.at) || 0;
+    if (res.kurt !== undefined) EXTRA_RES.kurt = parseInt(res.kurt) || 0;
+    if (res.gizlilik !== undefined) EXTRA_RES.gizlilik = parseFloat(res.gizlilik) || 0;
+    if (res.buyulu_yumurta !== undefined) EXTRA_RES.buyulu_yumurta = parseFloat(res.buyulu_yumurta) || 0;
+
     // HUD Ham kaynaklar (miktar + rate)
     setText('hud-w',   RES.odun);
     if(typeof setRate==='function') setRate('hud-wg', prod.odun ?? 0); else setText('hud-wg', prod.odun ?? 0);
