@@ -16,7 +16,10 @@
   <div class="main-content">
 
     <h2 style="color:#c8a96e;font-family:'Cinzel',serif;margin:0 0 8px;font-size:clamp(16px,4vw,22px)">🏪 Oyuncu Pazari</h2>
-    <p style="color:#666;font-size:11px;margin-bottom:16px">Kervanin pazarda olmali. Kaynak sat, baska oyunculardan satin al.</p>
+    <div id="pz-kervan-uyari" style="display:none;background:rgba(231,76,60,0.1);border:1px solid #e74c3c;border-radius:6px;padding:12px;margin-bottom:12px;text-align:center">
+      <span style="color:#e74c3c;font-size:12px">Pazarda kervanin yok! Once <a href="kervan.html" style="color:#f1c40f">Kervan sayfasindan</a> bir kervan olustur ve pazara gonder.</span>
+    </div>
+    <p id="pz-aciklama" style="color:#666;font-size:11px;margin-bottom:16px">Kervanin pazarda olmali. Kaynak sat, baska oyunculardan satin al.</p>
 
     <!-- Sekmeler -->
     <div class="army-tabs" style="margin-bottom:16px">
@@ -65,6 +68,12 @@
           <select id="pz-istek-kaynak" style="padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">
             <option value="altin">Altin</option><option value="odun">Odun</option><option value="tas">Tas</option>
             <option value="metal">Metal</option><option value="kereste">Kereste</option><option value="islenmis">Islenmis</option>
+            <option value="bugday">Bugday</option><option value="balik">Balik</option><option value="ekmek">Ekmek</option>
+            <option value="pismis">Pismis</option><option value="pismis_et">Pismis Et</option><option value="cig_et">Cig Et</option>
+            <option value="mana_beyaz">Beyaz Mana</option><option value="mana_kirmizi">Kirmizi Mana</option>
+            <option value="mana_mavi">Mavi Mana</option><option value="mana_yesil">Yesil Mana</option>
+            <option value="at">At</option><option value="kurt">Kurt</option>
+            <option value="ates_tozu">Ates Tozu</option><option value="ay_cigi">Ay Cicegi</option>
           </select>
         </div>
         <button class="btn-action" onclick="pzIlanVer()" style="padding:6px 16px;font-size:12px;width:auto">Ilan Ver</button>
@@ -216,7 +225,15 @@ async function pzIptal(ilanId) {
   else showToast(resp.error||'Hata','error');
 }
 
-document.addEventListener('DOMContentLoaded', () => { setTimeout(()=>{ loadIlanlar(); loadKervanlarPazar(); }, 1500); });
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(async ()=>{
+    await loadKervanlarPazar();
+    const uyari = document.getElementById('pz-kervan-uyari');
+    if (PZ_KERVANLAR.length === 0 && uyari) uyari.style.display = 'block';
+    else if (uyari) uyari.style.display = 'none';
+    loadIlanlar();
+  }, 1500);
+});
 </script>
 </body>
 </html>
