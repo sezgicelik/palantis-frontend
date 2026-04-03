@@ -134,7 +134,17 @@
       <div class="actions">
         <button class="btn" onclick="confirmAction('Cron tetiklenecek. Emin misiniz?',triggerCron)">Cron Tetikle</button>
         <button class="btn" onclick="confirmAction('Tum koloniler silinip yeniden olusturulacak. Emin misiniz?',koloniReset)">Koloni Reset</button>
-        <button class="btn btn-danger" onclick="confirmAction('TUM OYUN VERILERI SILINECEK! Bu islem geri alinamaz. Emin misiniz?',gameReset)">Oyun Reset</button>
+      </div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+        <h4 style="color:var(--red);font-size:12px;margin-bottom:8px">Yeni Sezon Baslat (Oyun Reset)</h4>
+        <p style="font-size:10px;color:var(--muted);margin-bottom:8px">Tum oyun verileri silinir. Oyunculara sezon rozeti verilir. Yeni sezon baslar.</p>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
+          <input id="sezon-isim-input" placeholder="Sezon ismi (zorunlu)" style="padding:6px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;width:180px;font-size:11px">
+          <label style="font-size:10px;color:var(--muted)">Baslangic:</label>
+          <input id="sezon-tarih-input" type="datetime-local" style="padding:6px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:11px">
+          <button class="btn btn-danger" onclick="yeniSezonBaslat()">Yeni Sezon Baslat</button>
+        </div>
+        <div style="font-size:9px;color:var(--muted)">Tarih bos birakilirsa hemen baslar. Gelecek tarih secilirse o tarihe kadar beklenir.</div>
       </div>
       <div id="status-msg"></div>
     </div>
@@ -535,9 +545,22 @@ async function koloniReset() {
   document.getElementById('status-msg').textContent = `Koloni reset: ${r.slotlar} slot, ${r.koloniler} koloni`;
   setTimeout(()=>{ loadKoloniStats(); loadKoloniList(); }, 2000);
 }
-async function gameReset() {
-  const r = await fetch(API+'/api/admin/reset',{method:'POST',headers:hdr()}).then(r=>r.json());
-  document.getElementById('status-msg').textContent = r.mesaj || 'Reset tamamlandi';
+function yeniSezonBaslat() {
+  const isim = document.getElementById('sezon-isim-input').value.trim();
+  if (!isim) { document.getElementById('status-msg').textContent = 'Sezon ismi zorunlu!'; return; }
+  const tarih = document.getElementById('sezon-tarih-input').value;
+  const msg = tarih
+    ? `YENi SEZON "${isim}" ${new Date(tarih).toLocaleDateString('tr-TR')} tarihinde baslatilacak. Tum oyun verileri silinecek! Emin misiniz?`
+    : `YENi SEZON "${isim}" HEMEN baslatilacak. Tum oyun verileri silinecek! Emin misiniz?`;
+  if (!confirm(msg)) return;
+  doYeniSezon(isim, tarih);
+}
+
+async function doYeniSezon(isim, tarih) {
+  const body = { aciklama: isim };
+  if (tarih) body.baslangic_tarihi = tarih;
+  const r = await fetch(API+'/api/admin/sezon/yeni',{method:'POST',headers:hdr(),body:JSON.stringify(body)}).then(r=>r.json());
+  document.getElementById('status-msg').textContent = r.ok ? r.mesaj : (r.error||'Hata');
 }
 
 // ── Koloni Ayarlari ──
