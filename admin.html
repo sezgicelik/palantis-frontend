@@ -83,7 +83,7 @@
   <!-- PLAYERS TAB -->
   <div id="tab-players" class="panel">
     <div class="card">
-      <h3>Oyuncular</h3>
+      <h3>Canli Durum</h3>
       <div style="overflow-x:auto">
       <table><thead><tr>
         <th>Kullanici</th><th>Kral</th><th>Irk</th><th>Taraf</th><th>Cag</th>
@@ -94,6 +94,16 @@
       </tr></thead>
       <tbody id="players-list"></tbody></table>
       </div>
+    </div>
+    <div class="card">
+      <h3>Gun Bazli Gecmis (Snapshot)</h3>
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;color:var(--muted)">Son </label>
+        <select id="hist-days" onchange="loadHistory()" style="padding:4px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:11px">
+          <option value="3">3 gun</option><option value="7" selected>7 gun</option><option value="14">14 gun</option><option value="24">24 gun</option>
+        </select>
+      </div>
+      <div id="history-container" style="overflow-x:auto"></div>
     </div>
   </div>
 
@@ -197,10 +207,22 @@ async function loadCron() {
   `).join('');
 }
 
+function fmt(n) { return (n||0).toLocaleString(); }
+function diff(cur,prev) {
+  if(prev===undefined||prev===null) return '';
+  const d = cur - prev;
+  if(d===0) return '';
+  const color = d > 0 ? 'var(--green)' : 'var(--red)';
+  const arrow = d > 0 ? '+' : '';
+  // Buyuk ziplama tespiti: %50'den fazla artis
+  const pct = prev > 0 ? Math.abs(d)/prev*100 : 0;
+  const bg = pct > 50 && Math.abs(d) > 100 ? 'background:rgba(231,76,60,0.15);' : '';
+  return `<span style="color:${color};font-size:9px;${bg}">${arrow}${d.toLocaleString()}</span>`;
+}
+
 async function loadPlayers() {
   const d = await fetch(API + '/api/admin/players?secret=' + SECRET).then(r=>r.json());
   if (!d.ok) return;
-  const fmt = n => (n||0).toLocaleString();
   document.getElementById('players-list').innerHTML = d.oyuncular.map(p => `
     <tr>
       <td>${p.username||'-'}</td><td>${p.kral||'-'}</td><td>${p.irk||'-'}</td><td>${p.taraf||'-'}</td><td>${p.cag||'-'}</td>
@@ -213,6 +235,57 @@ async function loadPlayers() {
       <td>${p.sehir_morali||0}</td>
     </tr>
   `).join('') || '<tr><td colspan="22" style="text-align:center;color:var(--muted)">Oyuncu yok</td></tr>';
+  loadHistory();
+}
+
+const HIST_COLS = [
+  {k:'nufus',l:'Nufus'},{k:'toplam_koylu',l:'Koylu'},{k:'asker',l:'Asker'},
+  {k:'odun',l:'Odun'},{k:'tas',l:'Tas'},{k:'metal',l:'Metal'},{k:'altin',l:'Altin'},
+  {k:'bugday',l:'Bugday'},{k:'balik',l:'Balik'},{k:'kereste',l:'Kereste'},{k:'islenmis',l:'Islenmis'},
+  {k:'mana_beyaz',l:'B.Mana'},{k:'mana_kirmizi',l:'K.Mana'},{k:'mana_mavi',l:'M.Mana'},{k:'mana_yesil',l:'Y.Mana'},
+];
+
+async function loadHistory() {
+  const gun = document.getElementById('hist-days').value || 7;
+  const d = await fetch(API+'/api/admin/players-history?secret='+SECRET+'&gun='+gun).then(r=>r.json());
+  if (!d.ok || d.gun_sayisi === 0) {
+    document.getElementById('history-container').innerHTML = '<p style="color:var(--muted);font-size:12px;text-align:center">Snapshot verisi yok</p>';
+    return;
+  }
+
+  // Oyuncu listesini bul
+  const users = new Set();
+  d.gunler.forEach(g => Object.keys(g.oyuncular).forEach(u => users.add(u)));
+
+  let html = '';
+  for (const user of users) {
+    html += `<h4 style="color:var(--gold);font-size:13px;margin:16px 0 6px;font-family:'Cinzel',serif">${user}</h4>`;
+    html += `<table><thead><tr><th>Tarih</th>`;
+    HIST_COLS.forEach(c => html += `<th>${c.l}</th>`);
+    html += `</tr></thead><tbody>`;
+
+    // Gunleri eskiden yeniye sirala (karsilastirma icin)
+    const sorted = [...d.gunler].reverse();
+
+    for (let i = 0; i < sorted.length; i++) {
+      const g = sorted[i];
+      const p = g.oyuncular[user];
+      if (!p) continue;
+      const prev = i > 0 ? sorted[i-1].oyuncular[user] : null;
+
+      html += `<tr><td style="color:var(--gold);white-space:nowrap">${g.tarih}</td>`;
+      HIST_COLS.forEach(c => {
+        const val = p[c.k] || 0;
+        const prevVal = prev ? (prev[c.k] || 0) : null;
+        const d_ = diff(val, prevVal);
+        html += `<td>${fmt(val)} ${d_}</td>`;
+      });
+      html += `</tr>`;
+    }
+    html += `</tbody></table>`;
+  }
+
+  document.getElementById('history-container').innerHTML = html;
 }
 
 async function loadLogins() {
