@@ -60,6 +60,7 @@
     <button onclick="switchTab('logins',this)">Login Loglar</button>
     <button onclick="switchTab('actions',this)">Islemler</button>
     <button onclick="switchTab('premium',this)">Premium</button>
+    <button onclick="switchTab('buyu',this)">Buyu Dukkani</button>
     <button onclick="switchTab('irklar',this)">Irk Bonuslari</button>
     <button onclick="switchTab('map',this)">Harita & Koloni</button>
   </div>
@@ -222,6 +223,30 @@
     </div>
   </div>
 
+  <!-- BUYU DUKKANI ADMIN TAB -->
+  <div id="tab-buyu" class="panel">
+    <div class="card">
+      <h3>Buyu Dukkani Ayarlari</h3>
+      <p style="font-size:10px;color:var(--muted);margin-bottom:10px">Mana tupu ve buyu malzemesi fiyatlari + stok limitleri. Stoklar her 2 saatte bu degerlerle yenilenir.</p>
+      <h4 style="color:var(--gold);font-size:11px;margin:10px 0 6px">Mana Tupu Fiyatlari (altin)</h4>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px">
+        <div><label style="font-size:9px;color:var(--muted)">Kucuk</label><input type="number" id="bc-mf-kucuk" style="width:100%;padding:4px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:11px"></div>
+        <div><label style="font-size:9px;color:var(--muted)">Orta</label><input type="number" id="bc-mf-orta" style="width:100%;padding:4px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:11px"></div>
+        <div><label style="font-size:9px;color:var(--muted)">Buyuk</label><input type="number" id="bc-mf-buyuk" style="width:100%;padding:4px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:11px"></div>
+      </div>
+      <h4 style="color:var(--gold);font-size:11px;margin:10px 0 6px">Mana Tupu Stok (her renkten)</h4>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px">
+        <div><label style="font-size:9px;color:var(--muted)">Kucuk</label><input type="number" id="bc-ms-kucuk" style="width:100%;padding:4px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:11px"></div>
+        <div><label style="font-size:9px;color:var(--muted)">Orta</label><input type="number" id="bc-ms-orta" style="width:100%;padding:4px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:11px"></div>
+        <div><label style="font-size:9px;color:var(--muted)">Buyuk</label><input type="number" id="bc-ms-buyuk" style="width:100%;padding:4px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:11px"></div>
+      </div>
+      <h4 style="color:var(--gold);font-size:11px;margin:10px 0 6px">Buyu Malzeme Fiyatlari + Stok</h4>
+      <div id="bc-malzeme-fields" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:6px;margin-bottom:10px"></div>
+      <button class="btn" onclick="confirmAction('Buyu dukkani ayarlari kaydedilecek. Emin misiniz?',saveBuyuConfig)">Kaydet</button>
+      <div id="bc-msg" style="color:var(--green);font-size:11px;margin-top:6px"></div>
+    </div>
+  </div>
+
   <!-- IRK BONUSLARI TAB -->
   <div id="tab-irklar" class="panel">
     <div class="card">
@@ -318,6 +343,7 @@ function switchTab(tab, el) {
   if (tab === 'map') loadMapConfig();
   if (tab === 'actions') loadKoloniStats();
   if (tab === 'premium') loadPremium();
+  if (tab === 'buyu') loadBuyuConfig();
   if (tab === 'irklar') loadIrkBonuslari();
 }
 
@@ -663,6 +689,43 @@ async function premiumIptal() {
   const r = await fetch(API+'/api/admin/premium-iptal',{method:'POST',headers:hdr(),body:JSON.stringify({username})}).then(r=>r.json());
   document.getElementById('prem-msg').textContent = r.ok ? r.mesaj : (r.error||'Hata');
   if(r.ok) setTimeout(loadPremium, 1000);
+}
+
+// ── Buyu Dukkani Config ──
+const BC_MALZEMELER = ['ates_tozu','ay_cigi','golgeler_otu','ejderha_goz_damla'];
+const BC_MAL_ISIM = {ates_tozu:'Ates Tozu',ay_cigi:'Ay Cicegi',golgeler_otu:'Golgeler Otu',ejderha_goz_damla:'Ejderha Goz Damlasi'};
+
+async function loadBuyuConfig() {
+  const d = await fetch(API+'/api/admin/buyu-config?secret='+SECRET).then(r=>r.json());
+  if(!d.ok) return;
+  const c = d.config;
+  const mf = c.mana_fiyatlari||{}; const ms = c.mana_stok||{};
+  document.getElementById('bc-mf-kucuk').value = mf.kucuk||500;
+  document.getElementById('bc-mf-orta').value = mf.orta||2000;
+  document.getElementById('bc-mf-buyuk').value = mf.buyuk||8000;
+  document.getElementById('bc-ms-kucuk').value = ms.kucuk||100;
+  document.getElementById('bc-ms-orta').value = ms.orta||40;
+  document.getElementById('bc-ms-buyuk').value = ms.buyuk||10;
+
+  const mlf = c.malzeme_fiyatlari||{}; const mls = c.malzeme_stok||{};
+  document.getElementById('bc-malzeme-fields').innerHTML = BC_MALZEMELER.map(m =>
+    `<div style="display:flex;flex-direction:column;gap:2px">
+      <label style="font-size:10px;color:var(--gold)">${BC_MAL_ISIM[m]}</label>
+      <div style="display:flex;gap:4px">
+        <div><span style="font-size:8px;color:var(--muted)">Fiyat</span><input type="number" id="bc-mlf-${m}" value="${mlf[m]||0}" style="width:60px;padding:3px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px"></div>
+        <div><span style="font-size:8px;color:var(--muted)">Stok</span><input type="number" id="bc-mls-${m}" value="${mls[m]||0}" style="width:50px;padding:3px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px"></div>
+      </div>
+    </div>`
+  ).join('');
+}
+
+async function saveBuyuConfig() {
+  const mana_fiyatlari = { kucuk:+document.getElementById('bc-mf-kucuk').value, orta:+document.getElementById('bc-mf-orta').value, buyuk:+document.getElementById('bc-mf-buyuk').value };
+  const mana_stok = { kucuk:+document.getElementById('bc-ms-kucuk').value, orta:+document.getElementById('bc-ms-orta').value, buyuk:+document.getElementById('bc-ms-buyuk').value };
+  const malzeme_fiyatlari = {}; const malzeme_stok = {};
+  BC_MALZEMELER.forEach(m => { malzeme_fiyatlari[m]=+document.getElementById('bc-mlf-'+m).value; malzeme_stok[m]=+document.getElementById('bc-mls-'+m).value; });
+  const r = await fetch(API+'/api/admin/buyu-config',{method:'POST',headers:hdr(),body:JSON.stringify({mana_fiyatlari,mana_stok,malzeme_fiyatlari,malzeme_stok})}).then(r=>r.json());
+  document.getElementById('bc-msg').textContent = r.ok ? r.mesaj : (r.error||'Hata');
 }
 
 // ── Irk Bonuslari ──

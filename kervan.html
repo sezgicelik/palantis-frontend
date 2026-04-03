@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palantis – Kervan</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div id="hudbar-mount"></div>
+<div class="layout">
+  <div id="sidebar-mount"></div>
+  <div class="main-content">
+
+    <h2 style="color:#c8a96e;font-family:'Cinzel',serif;margin:0 0 8px;font-size:clamp(16px,4vw,22px)">🐪 Kervan Yonetimi</h2>
+    <p style="color:#666;font-size:11px;margin-bottom:16px">Eshsheklerinle kervan olustur, kaynak yukle, pazara veya buyu dukkanina gonder.</p>
+
+    <!-- Ozet -->
+    <div class="city-stats" style="margin-bottom:16px">
+      <div class="cstat"><span class="snum" id="kv-essek">0</span><span class="slbl">ESSEK (Sehirde)</span></div>
+      <div class="cstat"><span class="snum" id="kv-count">0</span><span class="slbl">KERVAN</span></div>
+      <div class="cstat"><span class="snum" id="kv-max">5</span><span class="slbl">MAX KERVAN</span></div>
+    </div>
+
+    <!-- Yeni Kervan -->
+    <div class="card" style="padding:14px;margin-bottom:16px">
+      <h3 style="color:#c8a96e;font-size:13px;margin-bottom:8px">Yeni Kervan Olustur</h3>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <input id="kv-isim" placeholder="Kervan ismi" style="padding:6px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;width:120px;font-size:11px">
+        <label style="font-size:10px;color:#888">Essek:</label>
+        <input id="kv-essek-sayi" type="number" value="1" min="1" max="500" style="padding:6px;width:60px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">
+        <span style="font-size:9px;color:#555" id="kv-kap-info">= 5.000 kapasite</span>
+        <button class="btn-action" onclick="kvOlustur()" style="padding:5px 14px;font-size:11px;width:auto">Olustur</button>
+      </div>
+      <div id="kv-olustur-msg" style="font-size:11px;margin-top:4px;min-height:14px"></div>
+    </div>
+
+    <!-- Kervan Listesi -->
+    <div id="kv-liste"></div>
+
+  </div>
+</div>
+<div id="toast"></div>
+<div id="building-modal-mount"></div>
+
+<script src="js/constants.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/game-data.js"></script>
+<script src="js/hud.js"></script>
+<script src="js/layout.js"></script>
+<script>
+const DURUM_ISIM = { sehirde:'Sehirde', yolda_gidis:'Yolda (Gidis)', yolda_donus:'Yolda (Donus)', pazarda:'Pazarda', buyu_dukkaninda:'Buyu Dukkaninda' };
+const DURUM_RENK = { sehirde:'#2ecc71', yolda_gidis:'#f39c12', yolda_donus:'#f39c12', pazarda:'#3498db', buyu_dukkaninda:'#9b59b6' };
+const KAYNAKLAR = ['altin','odun','tas','metal','islenmis','kereste','bugday','balik','cig_et','ekmek','pismis','pismis_et'];
+let KV_DATA = null;
+
+document.getElementById('kv-essek-sayi').addEventListener('input', function() {
+  const n = parseInt(this.value) || 1;
+  document.getElementById('kv-kap-info').textContent = `= ${(n*5000).toLocaleString()} kapasite`;
+});
+
+async function loadKervanlar() {
+  const token = getToken(); if (!token) return;
+  try {
+    const resp = await fetch(API_BASE + '/api/kervan/liste', { headers: { 'Authorization': 'Bearer ' + token } });
+    if (!resp.ok) return;
+    KV_DATA = await resp.json();
+    renderKervanlar();
+  } catch(e) { console.error(e); }
+}
+
+function renderKervanlar() {
+  if (!KV_DATA) return;
+  setText('kv-essek', KV_DATA.essek_stok);
+  setText('kv-count', KV_DATA.kervanlar.length);
+  setText('kv-max', KV_DATA.max_kervan);
+
+  const liste = document.getElementById('kv-liste');
+  if (KV_DATA.kervanlar.length === 0) {
+    liste.innerHTML = '<div class="card" style="text-align:center;color:#666;padding:30px">Henuz kervan yok. Essek ile kervan olusturabilirsiniz.</div>';
+    return;
+  }
+
+  liste.innerHTML = KV_DATA.kervanlar.map(k => {
+    const pct = k.kapasite > 0 ? Math.round(k.toplam_yuk / k.kapasite * 100) : 0;
+    const durumRenk = DURUM_RENK[k.durum] || '#888';
+    const sehirde = k.durum === 'sehirde';
+    const hedefte = k.durum === 'pazarda' || k.durum === 'buyu_dukkaninda';
+    const yolda = k.durum === 'yolda_gidis' || k.durum === 'yolda_donus';
+    const varisStr = k.varis_zamani ? new Date(k.varis_zamani).toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}) : '';
+
+    let yukHTML = '';
+    if (Object.keys(k.yuk).length > 0) {
+      yukHTML = '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">' +
+        Object.entries(k.yuk).filter(([,v])=>v>0).map(([key,val])=>`<span style="background:#1a1a1a;padding:2px 6px;border-radius:3px;font-size:10px;color:#bbb">${key}: ${val.toLocaleString()}</span>`).join('') +
+        '</div>';
+    }
+
+    let aksiyonHTML = '';
+    if (sehirde) {
+      aksiyonHTML = `
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:8px">
+          <select id="kv-kaynak-${k.id}" style="padding:3px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px;font-size:10px">
+            ${KAYNAKLAR.map(r=>`<option value="${r}">${r}</option>`).join('')}
+          </select>
+          <input id="kv-miktar-${k.id}" type="number" value="100" min="1" style="padding:3px;width:60px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px;font-size:10px">
+          <button class="btn-action" onclick="kvYukle(${k.id})" style="padding:3px 8px;font-size:10px;width:auto">Yukle</button>
+          <button class="btn-action" onclick="kvBosalt(${k.id})" style="padding:3px 8px;font-size:10px;width:auto;border-color:#f39c12;color:#f39c12">Bosalt</button>
+        </div>
+        <div style="display:flex;gap:4px;margin-top:6px">
+          <button class="btn-action" onclick="kvGonder(${k.id},'pazar')" style="padding:4px 10px;font-size:10px;width:auto">Pazara Gonder</button>
+          <button class="btn-action" onclick="kvGonder(${k.id},'buyu_dukkani')" style="padding:4px 10px;font-size:10px;width:auto;border-color:#9b59b6;color:#9b59b6">Buyu Dukkanina</button>
+          <button class="btn-action" onclick="kvSil(${k.id})" style="padding:4px 10px;font-size:10px;width:auto;border-color:#e74c3c;color:#e74c3c">Sil</button>
+        </div>`;
+    } else if (hedefte) {
+      aksiyonHTML = `<div style="margin-top:8px"><button class="btn-action" onclick="kvGeriCagir(${k.id})" style="padding:4px 12px;font-size:11px;width:auto;border-color:#f39c12;color:#f39c12">Geri Cagir</button></div>`;
+    } else if (yolda) {
+      aksiyonHTML = `<div style="margin-top:6px;font-size:10px;color:#f39c12">Varis: ${varisStr}</div>`;
+    }
+
+    return `<div class="card" style="padding:14px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+        <div>
+          <span style="font-weight:bold;color:#d4af37;font-size:13px">${k.isim}</span>
+          <span style="color:${durumRenk};font-size:11px;margin-left:8px">${DURUM_ISIM[k.durum]||k.durum}</span>
+        </div>
+        <div style="font-size:10px;color:#888">${k.essek_sayisi} essek | ${k.toplam_yuk.toLocaleString()} / ${k.kapasite.toLocaleString()} (%${pct})</div>
+      </div>
+      <div style="height:3px;background:#222;border-radius:2px;margin-top:4px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${pct>80?'#e74c3c':pct>50?'#f39c12':'#2ecc71'};border-radius:2px"></div></div>
+      ${yukHTML}
+      ${aksiyonHTML}
+      <div id="kv-msg-${k.id}" style="font-size:10px;margin-top:4px;min-height:12px"></div>
+    </div>`;
+  }).join('');
+}
+
+async function kvOlustur() {
+  const token = getToken(); if (!token) return;
+  const essek = parseInt(document.getElementById('kv-essek-sayi').value) || 1;
+  const isim = document.getElementById('kv-isim').value || undefined;
+  const r = await fetch(API_BASE+'/api/kervan/olustur',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({essek_sayisi:essek,isim})}).then(r=>r.json());
+  document.getElementById('kv-olustur-msg').innerHTML = r.ok ? `<span style="color:#2ecc71">${r.mesaj}</span>` : `<span style="color:#e74c3c">${r.error||'Hata'}</span>`;
+  if (r.ok) { loadKervanlar(); if(typeof loadGameData==='function')loadGameData(); }
+}
+
+async function kvSil(id) {
+  if (!confirm('Kervan silinecek, essekler ve yuk sehre donecek. Emin misiniz?')) return;
+  const token = getToken();
+  const r = await fetch(API_BASE+`/api/kervan/${id}/sil`,{method:'POST',headers:{'Authorization':'Bearer '+token}}).then(r=>r.json());
+  showMsg(id, r); if(r.ok) { loadKervanlar(); if(typeof loadGameData==='function')loadGameData(); }
+}
+
+async function kvYukle(id) {
+  const token = getToken();
+  const kaynak = document.getElementById('kv-kaynak-'+id).value;
+  const miktar = parseInt(document.getElementById('kv-miktar-'+id).value) || 0;
+  const r = await fetch(API_BASE+`/api/kervan/${id}/yukle`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({kaynak,miktar})}).then(r=>r.json());
+  showMsg(id, r); if(r.ok) { loadKervanlar(); if(typeof loadGameData==='function')loadGameData(); }
+}
+
+async function kvBosalt(id) {
+  const token = getToken();
+  const kaynak = document.getElementById('kv-kaynak-'+id).value;
+  const miktar = parseInt(document.getElementById('kv-miktar-'+id).value) || 0;
+  const r = await fetch(API_BASE+`/api/kervan/${id}/bosalt`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({kaynak,miktar})}).then(r=>r.json());
+  showMsg(id, r); if(r.ok) { loadKervanlar(); if(typeof loadGameData==='function')loadGameData(); }
+}
+
+async function kvGonder(id, hedef) {
+  const token = getToken();
+  const r = await fetch(API_BASE+`/api/kervan/${id}/gonder`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({hedef})}).then(r=>r.json());
+  showMsg(id, r); if(r.ok) loadKervanlar();
+}
+
+async function kvGeriCagir(id) {
+  const token = getToken();
+  const r = await fetch(API_BASE+`/api/kervan/${id}/geri-cagir`,{method:'POST',headers:{'Authorization':'Bearer '+token}}).then(r=>r.json());
+  showMsg(id, r); if(r.ok) loadKervanlar();
+}
+
+function showMsg(id, r) {
+  const el = document.getElementById('kv-msg-'+id);
+  if (el) el.innerHTML = r.ok ? `<span style="color:#2ecc71">${r.mesaj}</span>` : `<span style="color:#e74c3c">${r.error||'Hata'}</span>`;
+}
+
+document.addEventListener('DOMContentLoaded', () => { setTimeout(loadKervanlar, 1500); });
+</script>
+</body>
+</html>

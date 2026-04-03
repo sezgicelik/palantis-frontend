@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palantis – Buyu Dukkani</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div id="hudbar-mount"></div>
+<div class="layout">
+  <div id="sidebar-mount"></div>
+  <div class="main-content">
+
+    <h2 style="color:#9b59b6;font-family:'Cinzel',serif;margin:0 0 8px;font-size:clamp(16px,4vw,22px)">🔮 Buyu Dukkani</h2>
+    <p style="color:#666;font-size:11px;margin-bottom:16px">Kervanini buyu dukkanina gonder, mana tupleri ve buyu malzemeleri satin al. Stoklar her 2 saatte yenilenir.</p>
+
+    <!-- Kervan secimi -->
+    <div class="card" style="padding:14px;margin-bottom:16px">
+      <h3 style="color:#9b59b6;font-size:13px;margin-bottom:8px">Kervan Sec</h3>
+      <select id="bd-kervan" onchange="bdKervanSec()" style="padding:6px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:12px;min-width:200px">
+        <option value="">-- Kervan sec --</option>
+      </select>
+      <div id="bd-kervan-info" style="font-size:10px;color:#888;margin-top:4px"></div>
+    </div>
+
+    <!-- Mana Tupleri -->
+    <div class="card" style="padding:14px;margin-bottom:16px">
+      <h3 style="color:#9b59b6;font-size:13px;margin-bottom:10px">Mana Tupleri</h3>
+      <div id="bd-mana-liste"></div>
+    </div>
+
+    <!-- Buyu Malzemeleri -->
+    <div class="card" style="padding:14px;margin-bottom:16px">
+      <h3 style="color:#9b59b6;font-size:13px;margin-bottom:10px">Buyu Malzemeleri</h3>
+      <div id="bd-malzeme-liste"></div>
+    </div>
+
+    <div id="bd-msg" style="font-size:12px;text-align:center;min-height:16px;margin-top:8px"></div>
+
+  </div>
+</div>
+<div id="toast"></div>
+<div id="building-modal-mount"></div>
+
+<script src="js/constants.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/game-data.js"></script>
+<script src="js/hud.js"></script>
+<script src="js/layout.js"></script>
+<script>
+const RENK_ISIM = { beyaz:'Beyaz', kirmizi:'Kirmizi', mavi:'Mavi', yesil:'Yesil' };
+const RENK_CSS = { beyaz:'#f5f5f5', kirmizi:'#e74c3c', mavi:'#3498db', yesil:'#2ecc71' };
+const BOYUT_ISIM = { kucuk:'Kucuk', orta:'Orta', buyuk:'Buyuk' };
+let BD_STOK = null;
+let BD_KERVAN_ID = null;
+
+async function loadBuyuDukkani() {
+  const token = getToken(); if (!token) return;
+
+  // Kervan listesi
+  try {
+    const kResp = await fetch(API_BASE + '/api/kervan/liste', { headers: { 'Authorization': 'Bearer ' + token } });
+    if (kResp.ok) {
+      const kData = await kResp.json();
+      const sel = document.getElementById('bd-kervan');
+      const buyuKervanlar = kData.kervanlar.filter(k => k.durum === 'buyu_dukkaninda');
+      sel.innerHTML = '<option value="">-- Kervan sec --</option>' +
+        buyuKervanlar.map(k => `<option value="${k.id}">${k.isim} (${k.toplam_yuk.toLocaleString()}/${k.kapasite.toLocaleString()})</option>`).join('');
+      if (buyuKervanlar.length === 0) {
+        document.getElementById('bd-kervan-info').innerHTML = '<span style="color:#e74c3c">Buyu dukkaninda kervan yok! Once kervan sayfasindan bir kervan gonderin.</span>';
+      }
+    }
+  } catch(e) {}
+
+  // Stok
+  try {
+    const resp = await fetch(API_BASE + '/api/buyu-dukkani/stok', { headers: { 'Authorization': 'Bearer ' + token } });
+    if (resp.ok) {
+      BD_STOK = await resp.json();
+      renderBuyuDukkani();
+    }
+  } catch(e) {}
+}
+
+function bdKervanSec() {
+  BD_KERVAN_ID = parseInt(document.getElementById('bd-kervan').value) || null;
+  const info = document.getElementById('bd-kervan-info');
+  if (BD_KERVAN_ID) {
+    info.innerHTML = '<span style="color:#2ecc71">Kervan secildi — satin alma aktif</span>';
+  } else {
+    info.innerHTML = '';
+  }
+}
+
+function renderBuyuDukkani() {
+  if (!BD_STOK) return;
+
+  // Mana tupleri
+  const manaEl = document.getElementById('bd-mana-liste');
+  let manaHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px">';
+  for (const m of BD_STOK.manalar) {
+    const renk = RENK_CSS[m.renk] || '#888';
+    const stokPct = m.max_stok > 0 ? Math.round(m.stok / m.max_stok * 100) : 0;
+    manaHTML += `<div style="background:#111;border:1px solid #222;border-radius:6px;padding:10px;border-left:3px solid ${renk}">
+      <div style="font-size:12px;font-weight:bold;color:${renk}">${BOYUT_ISIM[m.boyut]} ${RENK_ISIM[m.renk]} Mana</div>
+      <div style="font-size:10px;color:#888;margin:4px 0">+${m.mana_miktari} mana | ${m.fiyat.toLocaleString()} altin</div>
+      <div style="font-size:10px;color:${m.stok>0?'#2ecc71':'#e74c3c'}">Stok: ${m.stok}/${m.max_stok}</div>
+      <button class="btn-action" onclick="bdSatinAl('${m.id}',1)" ${m.stok<1||!BD_KERVAN_ID?'disabled':''}
+        style="padding:3px 10px;font-size:10px;width:auto;margin-top:6px;${!BD_KERVAN_ID?'opacity:0.3':''}">Satin Al</button>
+    </div>`;
+  }
+  manaHTML += '</div>';
+  manaEl.innerHTML = manaHTML;
+
+  // Buyu malzemeleri
+  const malEl = document.getElementById('bd-malzeme-liste');
+  const MAL_IKON = { ates_tozu:'🔥', ay_cigi:'🌙', golgeler_otu:'🌿', ejderha_goz_damla:'🐉' };
+  malEl.innerHTML = BD_STOK.malzemeler.map(m => {
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px;background:#111;border:1px solid #222;border-radius:4px;margin-bottom:4px">
+      <span style="font-size:18px">${MAL_IKON[m.id]||'📦'}</span>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:bold;color:#d4af37">${m.isim}</div>
+        <div style="font-size:10px;color:#888">${m.fiyat.toLocaleString()} altin | Stok: <span style="color:${m.stok>0?'#2ecc71':'#e74c3c'}">${m.stok}/${m.max_stok}</span></div>
+      </div>
+      <input type="number" id="bd-mal-${m.id}" value="1" min="1" max="${m.stok}" style="padding:3px;width:40px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px;font-size:10px">
+      <button class="btn-action" onclick="bdSatinAl('${m.id}',parseInt(document.getElementById('bd-mal-${m.id}').value)||1)" ${m.stok<1||!BD_KERVAN_ID?'disabled':''}
+        style="padding:3px 10px;font-size:10px;width:auto;${!BD_KERVAN_ID?'opacity:0.3':''}">Al</button>
+    </div>`;
+  }).join('');
+}
+
+async function bdSatinAl(urunId, miktar) {
+  if (!BD_KERVAN_ID) { showToast('Once kervan secin!','error'); return; }
+  const token = getToken(); if (!token) return;
+  const r = await fetch(API_BASE+'/api/buyu-dukkani/satin-al',{method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+    body:JSON.stringify({kervan_id:BD_KERVAN_ID, urun_id:urunId, miktar})}).then(r=>r.json());
+  const el = document.getElementById('bd-msg');
+  if (r.ok) {
+    el.innerHTML = `<span style="color:#2ecc71">${r.mesaj}</span>`;
+    showToast(r.mesaj, 'success');
+    loadBuyuDukkani();
+    if(typeof loadGameData==='function')loadGameData();
+  } else {
+    el.innerHTML = `<span style="color:#e74c3c">${r.error||'Hata'}</span>`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => { setTimeout(loadBuyuDukkani, 1500); });
+</script>
+</body>
+</html>
