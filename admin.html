@@ -228,6 +228,11 @@
       <h3>Premium Ver / Iptal</h3>
       <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
         <input id="prem-user" placeholder="Kullanici adi" style="padding:6px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;width:130px">
+        <select id="prem-paket" style="padding:6px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:11px">
+          <option value="bronz" style="color:#cd7f32">Bronz</option>
+          <option value="gumus" style="color:#c0c0c0">Gümüş</option>
+          <option value="altin_paket" style="color:#f1c40f">Altın</option>
+        </select>
         <input id="prem-gun" type="number" value="30" min="1" style="padding:6px;width:60px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px"> <span style="font-size:10px;color:var(--muted)">gun</span>
         <button class="btn" onclick="premiumVer()">Premium Ver</button>
         <button class="btn btn-danger" onclick="premiumIptal()">Iptal</button>
@@ -385,7 +390,7 @@ function switchTab(tab, el) {
   if (tab === 'players') loadPlayers();
   if (tab === 'logins') loadLogins();
   if (tab === 'map') loadMapConfig();
-  if (tab === 'actions') loadKoloniStats();
+  if (tab === 'actions') { loadKoloniStats(); loadUnitDropdown(); }
   if (tab === 'premium') loadPremium();
   if (tab === 'sezon') loadSezon();
   if (tab === 'market-cfg') loadMarketConfig();
@@ -698,17 +703,28 @@ const PREM_FIELDS = [
   {k:'koloni_bonus', l:'Koloni Bonusu (+%)', t:'yuzde'},
 ];
 
+const PREM_PAKETLER = ['bronz','gumus','altin_paket'];
+const PREM_PAKET_ISIM = { bronz:'Bronz', gumus:'Gümüş', altin_paket:'Altın' };
+const PREM_PAKET_RENK = { bronz:'#cd7f32', gumus:'#c0c0c0', altin_paket:'#f1c40f' };
+
 async function loadPremium() {
-  // Config
+  // Config (3 paket)
   const cfg = await fetch(API+'/api/admin/premium-config?secret='+SECRET).then(r=>r.json());
   if(cfg.ok) {
-    document.getElementById('prem-cfg-fields').innerHTML = PREM_FIELDS.map(f => {
-      const val = cfg.bonuslar[f.k] ?? 0;
-      return `<div style="display:flex;align-items:center;gap:4px">
-        <label style="font-size:10px;color:var(--muted);width:130px">${f.l}</label>
-        <input type="number" id="pcfg-${f.k}" value="${val}" min="0" style="padding:4px;width:55px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:11px">
-      </div>`;
-    }).join('');
+    let html = '<div style="overflow-x:auto"><table style="font-size:11px"><thead><tr><th>Bonus</th>';
+    PREM_PAKETLER.forEach(p => html += `<th style="color:${PREM_PAKET_RENK[p]};text-align:center">${PREM_PAKET_ISIM[p]}</th>`);
+    html += '</tr></thead><tbody>';
+    PREM_FIELDS.forEach(f => {
+      html += `<tr><td style="color:var(--muted)">${f.l}</td>`;
+      PREM_PAKETLER.forEach(p => {
+        const val = cfg.paketler?.[p]?.[f.k] ?? 0;
+        html += `<td style="text-align:center"><input type="number" id="pcfg-${p}-${f.k}" value="${val}" min="0"
+          style="width:50px;padding:3px;text-align:center;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px"></td>`;
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+    document.getElementById('prem-cfg-fields').innerHTML = html;
   }
 
   // Players
@@ -729,17 +745,21 @@ async function loadPremium() {
 }
 
 async function savePremiumConfig() {
-  const bonuslar = {};
-  PREM_FIELDS.forEach(f => { bonuslar[f.k] = parseInt(document.getElementById('pcfg-'+f.k)?.value) || 0; });
-  const r = await fetch(API+'/api/admin/premium-config',{method:'POST',headers:hdr(),body:JSON.stringify({bonuslar})}).then(r=>r.json());
+  const paketler = {};
+  PREM_PAKETLER.forEach(p => {
+    paketler[p] = {};
+    PREM_FIELDS.forEach(f => { paketler[p][f.k] = parseInt(document.getElementById(`pcfg-${p}-${f.k}`)?.value) || 0; });
+  });
+  const r = await fetch(API+'/api/admin/premium-config',{method:'POST',headers:hdr(),body:JSON.stringify({paketler})}).then(r=>r.json());
   document.getElementById('prem-cfg-msg').textContent = r.ok ? r.mesaj : (r.error||'Hata');
 }
 
 async function premiumVer() {
   const username = document.getElementById('prem-user').value;
+  const paket = document.getElementById('prem-paket').value;
   const gun = parseInt(document.getElementById('prem-gun').value) || 30;
   if(!username){document.getElementById('prem-msg').textContent='Kullanici adi gir!';return;}
-  const r = await fetch(API+'/api/admin/premium-ver',{method:'POST',headers:hdr(),body:JSON.stringify({username,gun})}).then(r=>r.json());
+  const r = await fetch(API+'/api/admin/premium-ver',{method:'POST',headers:hdr(),body:JSON.stringify({username,gun,paket})}).then(r=>r.json());
   document.getElementById('prem-msg').textContent = r.ok ? r.mesaj : (r.error||'Hata');
   if(r.ok) setTimeout(loadPremium, 1000);
 }
