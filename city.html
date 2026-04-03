@@ -15,29 +15,147 @@
   <div id="sidebar-mount"></div>
   <div class="main-content">
 
-    <!-- Özet -->
-    <div class="city-stats">
-      <div class="cstat"><span class="snum" id="cs-active">—</span><span class="slbl">AKTİF BİNA</span></div>
-      <div class="cstat"><span class="snum" id="cs-constr">0</span><span class="slbl">İNŞAAT</span></div>
-      <div class="cstat"><span class="snum" id="cs-age">I. Çağ</span><span class="slbl">ÇAĞ</span></div>
-      <div class="cstat" title="Köylü + İşçi + Ünite = Toplam Nüfus"><span class="snum" id="cs-pop">—</span><span class="slbl">NÜFUS</span></div>
+    <!-- Sekmeler -->
+    <div class="army-tabs" style="margin-bottom:16px">
+      <button class="atab on" onclick="cityTab('binalar',this)">🏗️ Binalar</button>
+      <button class="atab" onclick="cityTab('gelistirmeler',this)">📈 Geliştirmeler</button>
     </div>
 
-    <!-- Kuyruk -->
-    <div id="queue-wrap" style="display:none;margin-bottom:20px">
-      <div class="card" style="padding:18px">
-        <h3>🔨 İnşaat Kuyruğu</h3>
-        <div id="queue-list"></div>
+    <!-- BINALAR TAB -->
+    <div id="ctab-binalar">
+      <!-- Özet -->
+      <div class="city-stats">
+        <div class="cstat"><span class="snum" id="cs-active">—</span><span class="slbl">AKTİF BİNA</span></div>
+        <div class="cstat"><span class="snum" id="cs-constr">0</span><span class="slbl">İNŞAAT</span></div>
+        <div class="cstat"><span class="snum" id="cs-age">I. Çağ</span><span class="slbl">ÇAĞ</span></div>
+        <div class="cstat" title="Köylü + İşçi + Ünite = Toplam Nüfus"><span class="snum" id="cs-pop">—</span><span class="slbl">NÜFUS</span></div>
       </div>
+
+      <!-- Kuyruk -->
+      <div id="queue-wrap" style="display:none;margin-bottom:20px">
+        <div class="card" style="padding:18px">
+          <h3>🔨 İnşaat Kuyruğu</h3>
+          <div id="queue-list"></div>
+        </div>
+      </div>
+
+      <!-- Bina Grid -->
+      <div class="bg-grid" id="bg-grid"></div>
     </div>
 
-    <!-- Filtreler -->
-    <div class="filters">
-      <!-- Filtre butonları sol menüye taşındı -->
+    <!-- GELISTIRMELER TAB -->
+    <div id="ctab-gelistirmeler" style="display:none">
+      <div id="gel-loading" style="color:#888;text-align:center;padding:40px">Yükleniyor...</div>
+      <div id="gel-container" style="display:none"></div>
     </div>
 
-    <!-- Bina Grid -->
-    <div class="bg-grid" id="bg-grid"></div>
+    <script>
+    function cityTab(tab, el) {
+      document.getElementById('ctab-binalar').style.display = tab==='binalar' ? 'block' : 'none';
+      document.getElementById('ctab-gelistirmeler').style.display = tab==='gelistirmeler' ? 'block' : 'none';
+      document.querySelectorAll('.army-tabs .atab').forEach(b => b.classList.remove('on'));
+      if (el) el.classList.add('on');
+      if (tab === 'gelistirmeler') loadSehirGel();
+    }
+
+    const GEL_KAT_ISIM = { kaynak:'⛏️ Kaynak Üretimi', isleme:'🔥 İşleme', ekonomi:'🏛️ Ekonomi', askeri:'⚔️ Askeri Destek', mana:'✨ Mana' };
+    const GEL_KAT_SIRA = ['kaynak','isleme','ekonomi','askeri','mana'];
+
+    async function loadSehirGel() {
+      const token = getToken();
+      if (!token) return;
+      const loading = document.getElementById('gel-loading');
+      const container = document.getElementById('gel-container');
+      loading.style.display = 'block';
+      container.style.display = 'none';
+
+      try {
+        const resp = await fetch(API_BASE + '/api/game/sehir-gel', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (!resp.ok) { loading.textContent = 'Hata!'; return; }
+        const data = await resp.json();
+        loading.style.display = 'none';
+        container.style.display = 'block';
+
+        // Kategorilere ayir
+        const katMap = {};
+        for (const g of data.gelistirmeler) {
+          if (!katMap[g.kategori]) katMap[g.kategori] = [];
+          katMap[g.kategori].push(g);
+        }
+
+        let html = `<div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+          <div class="cstat"><span class="snum">${data.cag}. Çağ</span><span class="slbl">MEVCUT ÇAĞ</span></div>
+        </div>`;
+
+        for (const kat of GEL_KAT_SIRA) {
+          const items = katMap[kat];
+          if (!items) continue;
+          html += `<div class="card" style="margin-bottom:16px;padding:16px">
+            <h3 style="color:var(--race-color,#c8a96e);font-family:'Cinzel',serif;font-size:14px;margin-bottom:12px">${GEL_KAT_ISIM[kat]||kat}</h3>`;
+
+          for (const g of items) {
+            const pct = g.max_ulasildi ? 100 : Math.round(g.seviye / 10 * 100);
+            const barColor = g.max_ulasildi ? 'var(--race-color,#c8a96e)' : '#2ecc71';
+            const canUpgrade = !g.max_ulasildi && g.cag_yeterli;
+            const maliyetStr = g.maliyet ? `${g.maliyet.altin.toLocaleString()} altın + ${g.maliyet.islenmis.toLocaleString()} işlenmiş` : '';
+            const cagStr = !g.max_ulasildi && !g.cag_yeterli ? `<span style="color:#e74c3c;font-size:10px">Çağ ${g.gereken_cag} gerekli</span>` : '';
+
+            html += `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #1a1a1a;flex-wrap:wrap">
+              <div style="flex:1;min-width:180px">
+                <div style="font-size:13px;color:#eee;font-weight:600">${g.isim}</div>
+                <div style="font-size:10px;color:#777;margin-top:2px">${g.etki}</div>
+              </div>
+              <div style="width:100px;text-align:center">
+                <div style="font-size:12px;color:var(--race-color,#c8a96e);font-weight:bold">${g.seviye} / ${g.max}</div>
+                <div style="height:4px;background:#222;border-radius:2px;margin-top:3px;overflow:hidden">
+                  <div style="height:100%;width:${pct}%;background:${barColor};border-radius:2px"></div>
+                </div>
+              </div>
+              <div style="width:180px;text-align:right;font-size:10px">
+                ${g.max_ulasildi
+                  ? '<span style="color:var(--race-color,#c8a96e)">✓ MAKSİMUM</span>'
+                  : cagStr || `<div style="color:#888;margin-bottom:4px">${maliyetStr}</div>
+                     <button class="btn-action" onclick="yukseltGel('${g.id}')" style="padding:4px 12px;font-size:11px;width:auto"
+                       ${canUpgrade ? '' : 'disabled style="opacity:0.4;padding:4px 12px;font-size:11px;width:auto"'}>
+                       Kademe ${g.sonraki_kademe}
+                     </button>`
+                }
+              </div>
+            </div>`;
+          }
+          html += `</div>`;
+        }
+
+        container.innerHTML = html;
+      } catch(e) {
+        loading.textContent = 'Bağlantı hatası';
+      }
+    }
+
+    async function yukseltGel(gelId) {
+      const token = getToken();
+      if (!token) return;
+      try {
+        const resp = await fetch(API_BASE + '/api/game/sehir-gel/yuksel', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ gel_id: gelId })
+        });
+        const data = await resp.json();
+        if (resp.ok && data.success) {
+          showToast(data.mesaj, 'success');
+          loadSehirGel();
+          if (typeof loadGameData === 'function') loadGameData();
+        } else {
+          showToast(data.error || 'Hata!', 'error');
+        }
+      } catch(e) {
+        showToast('Bağlantı hatası', 'error');
+      }
+    }
+    </script>
 
   </div>
 </div>
