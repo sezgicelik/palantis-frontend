@@ -108,12 +108,13 @@ async function loadGameData() {
       }
     } catch(e) {}
 
-    const [resRes, prodRes, workRes, alanRes, takvimRes] = await Promise.all([
+    const [resRes, prodRes, workRes, alanRes, takvimRes, armyRes] = await Promise.all([
       fetch(API_BASE + '/api/game/resources', { headers: { 'Authorization': 'Bearer ' + token } }),
       fetch(API_BASE + '/api/game/production', { headers: { 'Authorization': 'Bearer ' + token } }),
       fetch(API_BASE + '/api/game/workers',    { headers: { 'Authorization': 'Bearer ' + token } }),
       fetch(API_BASE + '/api/game/alan',       { headers: { 'Authorization': 'Bearer ' + token } }),
       fetch(API_BASE + '/api/takvim'),
+      fetch(API_BASE + '/api/army/state',      { headers: { 'Authorization': 'Bearer ' + token } }),
     ]);
     const res  = resRes.ok  ? await resRes.json()  : {};
     const prodData = prodRes.ok ? await prodRes.json() : {};
@@ -121,6 +122,15 @@ async function loadGameData() {
     const work = workRes.ok ? await workRes.json() : {};
     const alanData = alanRes.ok ? await alanRes.json() : {};
     const takvimData = takvimRes.ok ? await takvimRes.json() : null;
+
+    // Army state — toplam ATK/DEF (sehir degeri icin)
+    try {
+      const armyData = armyRes.ok ? await armyRes.json() : {};
+      window._palantisToplamAtk = armyData.toplam_atk || 0;
+      window._palantisToplamDef = armyData.toplam_def || 0;
+      // Essek bilgisi
+      setText('hud-essek', res.essek || 0);
+    } catch(e) {}
 
     // Arazi verisi guncelle
     if (alanData.alan !== undefined) {
@@ -399,6 +409,37 @@ function obApplyPlayer(p) {
   if ((p.cag || 1) > 1) {
     const el = document.getElementById('cag1-uyari');
     if (el) el.style.display = 'none';
+  }
+
+  // Bonus ozet karti
+  const bonusEl = document.getElementById('home-bonus-content');
+  if (bonusEl) {
+    let html = '';
+    // Irk bonusu
+    if (p.irk_bonuslari && Object.keys(p.irk_bonuslari).length > 0) {
+      const bonusParts = Object.entries(p.irk_bonuslari).map(([k,v]) => `${k} +%${v}`).join(', ');
+      html += `<div style="padding:8px;background:#111;border-radius:4px;border-left:2px solid var(--race-color,#c8a96e)">
+        <div style="font-size:10px;color:var(--race-color,#c8a96e);font-weight:bold">Irk: ${p.irk||'-'}</div>
+        <div style="font-size:11px;color:#bbb;margin-top:3px">${bonusParts}</div>
+      </div>`;
+    }
+    // Bolge bonusu
+    if (p.bolge_bilgi) {
+      const bParts = Object.entries(p.bolge_bilgi.bonuslar||{}).map(([k,v]) => `${k} +%${v}`).join(', ');
+      html += `<div style="padding:8px;background:#111;border-radius:4px;border-left:2px solid #3498db">
+        <div style="font-size:10px;color:#3498db;font-weight:bold">${p.bolge_bilgi.ikon||''} ${p.bolge_bilgi.ad||'Bolge'}</div>
+        <div style="font-size:11px;color:#bbb;margin-top:3px">${bParts || 'Bonus yok'}</div>
+      </div>`;
+    }
+    // Premium
+    if (p.premium && p.premium.aktif) {
+      html += `<div style="padding:8px;background:#111;border-radius:4px;border-left:2px solid #f1c40f">
+        <div style="font-size:10px;color:#f1c40f;font-weight:bold">Premium: ${(p.premium.paket||'').toUpperCase()}</div>
+        <div style="font-size:11px;color:#bbb;margin-top:3px">${Math.max(0,Math.ceil((new Date(p.premium.bitis)-new Date())/(1000*60*60*24)))} gun kaldi</div>
+      </div>`;
+    }
+    if (!html) html = '<div style="color:#555;font-size:11px">Aktif bonus yok</div>';
+    bonusEl.innerHTML = html;
   }
 
   // Sezon rozetleri

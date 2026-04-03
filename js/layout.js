@@ -160,13 +160,20 @@ function renderHUD(){
         ${sb('ALAN','📐','Alan','hud-alan-box',null)}
         ${sb('ÇAĞ','🧱','Çağ','hud-limit',null)}
         ${sb('ŞEHİR','🏰','Ş.Değeri','hud-sehir-deger',null)}
+        ${sb('TARİH','📅','Tarih','hud-takvim',null)}
+        ${sb('SAAT','⏰','Saat','c-now',null)}
+        ${sb('P.G.','⏳','P.G.','c-next',null)}
+      </div>
+    </div>
+    <!-- MANA -->
+    <div class="hud-row-wrap">
+      <div class="hud-row-lbl">MANA</div>
+      <div class="hud-res-row">
         <div class="stat-box mana-box" data-tip="BEYAZ MANA" style="border-left:2px solid #f0e8d8"><span class="res-icon">🤍</span><div class="res-details"><span class="res-label" style="color:#f0e8d8">B.Mana</span><span class="res-amount" id="hud-mana-beyaz">0</span><span class="res-rate" id="hud-mana-beyaz-g"></span></div></div>
         <div class="stat-box mana-box" data-tip="KIRMIZI MANA" style="border-left:2px solid #e74c3c"><span class="res-icon">❤️</span><div class="res-details"><span class="res-label" style="color:#e74c3c">K.Mana</span><span class="res-amount" id="hud-mana-kirmizi">0</span><span class="res-rate" id="hud-mana-kirmizi-g"></span></div></div>
         <div class="stat-box mana-box" data-tip="MAVİ MANA" style="border-left:2px solid #3498db"><span class="res-icon">💙</span><div class="res-details"><span class="res-label" style="color:#3498db">M.Mana</span><span class="res-amount" id="hud-mana-mavi">0</span><span class="res-rate" id="hud-mana-mavi-g"></span></div></div>
         <div class="stat-box mana-box" data-tip="YEŞİL MANA" style="border-left:2px solid #2ecc71"><span class="res-icon">💚</span><div class="res-details"><span class="res-label" style="color:#2ecc71">Y.Mana</span><span class="res-amount" id="hud-mana-yesil">0</span><span class="res-rate" id="hud-mana-yesil-g"></span></div></div>
-        ${sb('TARİH','📅','Tarih','hud-takvim',null)}
-        ${sb('SAAT','⏰','Saat','c-now',null)}
-        ${sb('P.G.','⏳','P.G.','c-next',null)}
+        ${sb('EŞEK','🫏','Eşek','hud-essek',null)}
       </div>
     </div>
   </div>
