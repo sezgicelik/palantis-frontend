@@ -953,12 +953,13 @@ function unitUserChanged() {
     const sel = document.getElementById('unit-id');
     if (!username || username.length < 2) { badge.textContent = ''; sel.innerHTML = '<option value="">-- Kullanici gir --</option>'; return; }
     if (!_unitData) await loadUnitDropdown();
-    if (!_unitData?.ok) return;
+    if (!_unitData?.ok) { badge.textContent = 'Unit data yuklenemedi'; return; }
 
-    // Oyuncunun tarafini bul (players tablosundan)
     try {
       const d = await fetch(API+'/api/admin/players?secret='+SECRET).then(r=>r.json());
-      const oyuncu = d.oyuncular?.find(p => p.username === username);
+      if (!d.ok) { badge.textContent = 'API hatasi'; return; }
+      // Case-insensitive arama
+      const oyuncu = d.oyuncular?.find(p => p.username?.toLowerCase() === username.toLowerCase());
       if (!oyuncu || !oyuncu.taraf) {
         badge.innerHTML = '<span style="color:var(--red)">Oyuncu bulunamadi</span>';
         sel.innerHTML = '<option value="">--</option>';
@@ -966,13 +967,14 @@ function unitUserChanged() {
       }
       const taraf = oyuncu.taraf;
       const renk = taraf === 'iyi' ? '#f1c40f' : '#3498db';
-      const isim = taraf === 'iyi' ? 'Aydinlik' : 'Karanlik';
-      badge.innerHTML = `<span style="color:${renk};font-weight:bold">${isim}</span>`;
+      const isimT = taraf === 'iyi' ? 'Aydinlik' : 'Karanlik';
+      badge.innerHTML = `<span style="color:${renk};font-weight:bold">${isimT} (${oyuncu.kral||oyuncu.username})</span>`;
 
       const uniteler = taraf === 'iyi' ? _unitData.iyi : _unitData.kotu;
+      if (!uniteler || uniteler.length === 0) { sel.innerHTML = '<option value="">Unite yok</option>'; return; }
       sel.innerHTML = uniteler.map(u => `<option value="${u.id}">${u.isim} (T${u.tier}) ATK:${u.atk} DEF:${u.def}</option>`).join('');
-    } catch(e) { badge.textContent = 'Hata'; }
-  }, 500);
+    } catch(e) { badge.textContent = 'Baglanti hatasi'; console.error(e); }
+  }, 800);
 }
 
 // ── Harita & Koloni ──
