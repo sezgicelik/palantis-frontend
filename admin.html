@@ -59,6 +59,7 @@
     <button onclick="switchTab('players',this)">Oyuncular</button>
     <button onclick="switchTab('logins',this)">Login Loglar</button>
     <button onclick="switchTab('actions',this)">Islemler</button>
+    <button onclick="switchTab('map',this)">Harita & Koloni</button>
   </div>
 
   <!-- CRON TAB -->
@@ -193,6 +194,41 @@
       </div>
     </div>
   </div>
+
+  <!-- MAP & KOLONI TAB -->
+  <div id="tab-map" class="panel">
+    <div class="card">
+      <h3>Harita Boyutu</h3>
+      <div id="map-info" class="stat-grid" style="margin-bottom:12px"></div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <label style="font-size:11px;color:var(--muted)">X:</label>
+        <input type="number" id="map-x" value="200" min="50" max="1000" style="padding:4px;width:70px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px">
+        <label style="font-size:11px;color:var(--muted)">Y:</label>
+        <input type="number" id="map-y" value="50" min="10" max="200" style="padding:4px;width:60px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px">
+        <button class="btn" onclick="confirmAction('Harita boyutu degisecek, tum koloniler yeniden olusturulacak. Emin misiniz?',saveMapConfig)">Uygula</button>
+      </div>
+      <div id="map-msg" style="color:var(--green);font-size:11px;margin-top:6px"></div>
+    </div>
+    <div class="card">
+      <h3>Koloni Listesi</h3>
+      <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+        <select id="kol-filtre-kaynak" onchange="loadKoloniList()" style="padding:4px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:11px">
+          <option value="">Tum Kaynaklar</option>
+          <option value="odun">Odun</option><option value="tas">Tas</option><option value="metal">Metal</option>
+          <option value="altin">Altin</option><option value="bugday">Bugday</option><option value="balik">Balik</option>
+        </select>
+        <select id="kol-filtre-durum" onchange="loadKoloniList()" style="padding:4px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:11px">
+          <option value="">Tum Durumlar</option>
+          <option value="bos">Bos</option><option value="sahipli">Sahipli</option>
+        </select>
+        <button class="btn" onclick="loadKoloniList()">Yenile</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table><thead><tr><th>ID</th><th>Koord</th><th>Kaynak</th><th>Bonus</th><th>Durum</th><th>Sahip</th><th>Bitis</th></tr></thead>
+        <tbody id="koloni-list-body"></tbody></table>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -224,6 +260,7 @@ function switchTab(tab, el) {
   if (tab === 'cron') loadCron();
   if (tab === 'players') loadPlayers();
   if (tab === 'logins') loadLogins();
+  if (tab === 'map') loadMapConfig();
 }
 
 function hdr() { return { 'x-admin-secret': SECRET, 'Content-Type': 'application/json' }; }
@@ -490,9 +527,56 @@ async function loadUnitDropdown(){
     if(!d.ok) return;
     const iyiEl = document.getElementById('unit-iyi');
     const kotuEl = document.getElementById('unit-kotu');
-    if(iyiEl) iyiEl.innerHTML = d.iyi.map(u=>`<option value="${u.id}">${u.id} (T${u.tier})</option>`).join('');
-    if(kotuEl) kotuEl.innerHTML = d.kotu.map(u=>`<option value="${u.id}">${u.id} (T${u.tier})</option>`).join('');
+    if(iyiEl) iyiEl.innerHTML = d.iyi.map(u=>`<option value="${u.id}">${u.isim} (T${u.tier}) ATK:${u.atk} DEF:${u.def}</option>`).join('');
+    if(kotuEl) kotuEl.innerHTML = d.kotu.map(u=>`<option value="${u.id}">${u.isim} (T${u.tier}) ATK:${u.atk} DEF:${u.def}</option>`).join('');
   }catch(e){}
+}
+
+// ── Harita & Koloni ──
+async function loadMapConfig() {
+  const d = await fetch(API+'/api/admin/map-config?secret='+SECRET).then(r=>r.json());
+  if(!d.ok) return;
+  document.getElementById('map-x').value = d.harita_x;
+  document.getElementById('map-y').value = d.harita_y;
+  document.getElementById('map-info').innerHTML = `
+    <div class="stat"><div class="val">${d.harita_x}x${d.harita_y}</div><div class="lbl">Harita</div></div>
+    <div class="stat"><div class="val">${d.slot_sayisi}</div><div class="lbl">Slot</div></div>
+    <div class="stat"><div class="val">${d.koloni_sayisi}</div><div class="lbl">Koloni</div></div>
+    <div class="stat"><div class="val">${d.oyuncu_sayisi}</div><div class="lbl">Oyuncu</div></div>
+    <div class="stat"><div class="val">${d.bolge_sayisi}</div><div class="lbl">Bolge</div></div>
+  `;
+  loadKoloniList();
+}
+
+async function saveMapConfig() {
+  const x = parseInt(document.getElementById('map-x').value);
+  const y = parseInt(document.getElementById('map-y').value);
+  const r = await fetch(API+'/api/admin/map-config',{method:'POST',headers:hdr(),body:JSON.stringify({harita_x:x,harita_y:y})}).then(r=>r.json());
+  document.getElementById('map-msg').textContent = r.ok ? r.mesaj : (r.error||'Hata');
+  if(r.ok) setTimeout(loadMapConfig, 2000);
+}
+
+const KAYNAK_RENK = {odun:'#8B4513',tas:'#888',metal:'#607d8b',altin:'var(--gold)',bugday:'#daa520',balik:'#4fc3f7'};
+
+async function loadKoloniList() {
+  const kaynak = document.getElementById('kol-filtre-kaynak').value;
+  const durum = document.getElementById('kol-filtre-durum').value;
+  let url = API+'/api/admin/koloni-list?secret='+SECRET+'&limit=300';
+  if(kaynak) url += '&kaynak='+kaynak;
+  if(durum) url += '&durum='+durum;
+  const d = await fetch(url).then(r=>r.json());
+  if(!d.ok) return;
+  document.getElementById('koloni-list-body').innerHTML = d.koloniler.map(k => {
+    const renk = KAYNAK_RENK[k.kaynak_tipi] || '#888';
+    const bitis = k.bitis ? new Date(k.bitis).toLocaleString('tr-TR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '-';
+    return `<tr>
+      <td>${k.id}</td><td>${k.slot_x},${k.slot_y}</td>
+      <td style="color:${renk};font-weight:bold">${k.kaynak_tipi}</td>
+      <td>%${k.bonus_oran}</td>
+      <td class="${k.durum==='bos'?'ok':''}${k.durum==='sahipli'?'':''}" style="${k.durum==='sahipli'?'color:var(--blue)':''}">${k.durum}</td>
+      <td>${k.sahip_kral||'-'}</td><td>${bitis}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--muted)">Koloni yok</td></tr>';
 }
 </script>
 </body>
