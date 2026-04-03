@@ -84,8 +84,16 @@
   <div id="tab-players" class="panel">
     <div class="card">
       <h3>Oyuncular</h3>
-      <table><thead><tr><th>Kullanici</th><th>Kral</th><th>Irk</th><th>Taraf</th><th>Cag</th><th>Nufus</th><th>Altin</th><th>Koord</th></tr></thead>
+      <div style="overflow-x:auto">
+      <table><thead><tr>
+        <th>Kullanici</th><th>Kral</th><th>Irk</th><th>Taraf</th><th>Cag</th>
+        <th>Nufus</th><th>Koylu</th><th>Asker</th><th>Alan</th>
+        <th>ATK</th><th>DEF</th><th>Unite</th>
+        <th>Altin</th><th>Odun</th><th>Tas</th><th>Metal</th><th>Bugday</th><th>Balik</th>
+        <th>Kereste</th><th>Islenmis</th><th>Ekmek</th><th>Moral</th>
+      </tr></thead>
       <tbody id="players-list"></tbody></table>
+      </div>
     </div>
   </div>
 
@@ -115,9 +123,12 @@
     </div>
     <div class="card">
       <h3>Oyuncuya Kaynak Ekle</h3>
-      <input id="res-user" placeholder="Kullanici adi" style="padding:6px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;margin-right:6px">
-      <input id="res-amount" type="number" value="15000" style="padding:6px;width:80px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;margin-right:6px">
-      <button class="btn" onclick="addResources()">Ekle</button>
+      <div style="margin-bottom:10px">
+        <input id="res-user" placeholder="Kullanici adi" style="padding:6px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;width:160px">
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px;margin-bottom:10px" id="res-fields">
+      </div>
+      <button class="btn" onclick="addResources()">Kaynak Ekle</button>
     </div>
   </div>
 </div>
@@ -189,11 +200,19 @@ async function loadCron() {
 async function loadPlayers() {
   const d = await fetch(API + '/api/admin/players?secret=' + SECRET).then(r=>r.json());
   if (!d.ok) return;
+  const fmt = n => (n||0).toLocaleString();
   document.getElementById('players-list').innerHTML = d.oyuncular.map(p => `
-    <tr><td>${p.username||'-'}</td><td>${p.kral||'-'}</td><td>${p.irk||'-'}</td><td>${p.taraf||'-'}</td>
-    <td>${p.cag||'-'}</td><td>${p.nufus||0}</td><td>${(p.altin||0).toLocaleString()}</td>
-    <td>${p.koord_x||'-'},${p.koord_y||'-'}</td></tr>
-  `).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--muted)">Oyuncu yok</td></tr>';
+    <tr>
+      <td>${p.username||'-'}</td><td>${p.kral||'-'}</td><td>${p.irk||'-'}</td><td>${p.taraf||'-'}</td><td>${p.cag||'-'}</td>
+      <td>${fmt(p.nufus)}</td><td>${fmt(p.toplam_koylu)}</td><td>${fmt(p.asker)}</td>
+      <td>${p.kullanilan_alan||0}/${p.toplam_alan||0}</td>
+      <td style="color:var(--red)">${fmt(p.toplam_atak)}</td><td style="color:var(--blue)">${fmt(p.toplam_defans)}</td><td>${fmt(p.toplam_unite)}</td>
+      <td style="color:var(--gold)">${fmt(p.altin)}</td><td>${fmt(p.odun)}</td><td>${fmt(p.tas)}</td><td>${fmt(p.metal)}</td>
+      <td>${fmt(p.bugday)}</td><td>${fmt(p.balik)}</td>
+      <td>${fmt(p.kereste)}</td><td>${fmt(p.islenmis)}</td><td>${fmt(p.ekmek)}</td>
+      <td>${p.sehir_morali||0}</td>
+    </tr>
+  `).join('') || '<tr><td colspan="22" style="text-align:center;color:var(--muted)">Oyuncu yok</td></tr>';
 }
 
 async function loadLogins() {
@@ -229,11 +248,35 @@ async function gameReset() {
   const r = await fetch(API+'/api/admin/reset',{method:'POST',headers:hdr()}).then(r=>r.json());
   document.getElementById('status-msg').textContent = r.mesaj || 'Reset tamamlandi';
 }
+const RES_LIST = [
+  {id:'odun',label:'Odun'},{id:'tas',label:'Tas'},{id:'metal',label:'Metal'},{id:'altin',label:'Altin'},
+  {id:'bugday',label:'Bugday'},{id:'balik',label:'Balik'},{id:'kereste',label:'Kereste'},{id:'islenmis',label:'Islenmis'},
+  {id:'ekmek',label:'Ekmek'},{id:'pismis',label:'Pismis'},{id:'pismis_et',label:'Pismis Et'},{id:'cig_et',label:'Cig Et'},
+  {id:'mana_beyaz',label:'B.Mana'},{id:'mana_kirmizi',label:'K.Mana'},{id:'mana_mavi',label:'M.Mana'},{id:'mana_yesil',label:'Y.Mana'},
+  {id:'at',label:'At'},{id:'kurt',label:'Kurt'},{id:'gizlilik',label:'Gizlilik'},{id:'buyulu_yumurta',label:'B.Yumurta'},
+];
+(function initResFields(){
+  const c = document.getElementById('res-fields');
+  if(!c)return;
+  c.innerHTML = RES_LIST.map(r =>
+    `<div style="display:flex;align-items:center;gap:4px">
+      <label style="font-size:10px;color:var(--muted);width:60px">${r.label}</label>
+      <input type="number" id="res-${r.id}" value="0" style="padding:4px;width:70px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:11px">
+    </div>`
+  ).join('');
+})();
+
 async function addResources() {
   const user = document.getElementById('res-user').value;
-  const amount = parseInt(document.getElementById('res-amount').value) || 15000;
-  const r = await fetch(API+'/api/admin/resources',{method:'POST',headers:hdr(),body:JSON.stringify({username:user,amount})}).then(r=>r.json());
-  document.getElementById('status-msg').textContent = r.ok ? `Kaynak eklendi: ${JSON.stringify(r.kaynaklar)}` : (r.error||'Hata');
+  if(!user){document.getElementById('status-msg').textContent='Kullanici adi gir!';return;}
+  const kaynaklar = {};
+  RES_LIST.forEach(r => {
+    const v = parseInt(document.getElementById('res-'+r.id).value) || 0;
+    if(v !== 0) kaynaklar[r.id] = v;
+  });
+  if(Object.keys(kaynaklar).length===0){document.getElementById('status-msg').textContent='En az bir kaynak gir!';return;}
+  const r = await fetch(API+'/api/admin/resources',{method:'POST',headers:hdr(),body:JSON.stringify({username:user,kaynaklar})}).then(r=>r.json());
+  document.getElementById('status-msg').textContent = r.ok ? 'Kaynaklar eklendi!' : (r.error||'Hata');
 }
 </script>
 </body>
