@@ -130,8 +130,14 @@ async function loadGameData() {
       window._palantisToplamDef = armyData.toplam_def || 0;
       window._palantisReyting = armyData.reyting || 0;
       window._palantisOrduMorali = armyData.ordu_morali ?? 0;
-      // Essek bilgisi
-      setText('hud-essek', res.essek || 0);
+      // Essek bilgisi: sehirdeki / toplam (sehir + kervanlardaki)
+      const sehirEssek = parseInt(res.essek) || 0;
+      let kervanEssek = 0;
+      try {
+        const kvResp = await fetch(API_BASE + '/api/kervan/liste', { headers: { 'Authorization': 'Bearer ' + token } });
+        if (kvResp.ok) { const kvData = await kvResp.json(); kervanEssek = (kvData.kervanlar || []).reduce((s,k) => s + (k.essek_sayisi || 0), 0); }
+      } catch(e) {}
+      setText('hud-essek', sehirEssek + ' / ' + (sehirEssek + kervanEssek));
       // Sehir degeri ordu ile guncelle
       if (typeof updateCityStats === 'function') updateCityStats();
     } catch(e) {}
