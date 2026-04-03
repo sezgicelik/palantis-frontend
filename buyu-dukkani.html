@@ -38,16 +38,16 @@
       <div id="bd-kervan-info" style="font-size:10px;color:#888;margin-top:4px"></div>
     </div>
 
-    <!-- Mana Tupleri -->
-    <div class="card" style="padding:14px;margin-bottom:16px">
-      <h3 style="color:#9b59b6;font-size:13px;margin-bottom:10px">Mana Tupleri</h3>
-      <div id="bd-mana-liste"></div>
-    </div>
-
-    <!-- Buyu Malzemeleri -->
+    <!-- Buyu Malzemeleri (uste) -->
     <div class="card" style="padding:14px;margin-bottom:16px">
       <h3 style="color:#9b59b6;font-size:13px;margin-bottom:10px">Buyu Malzemeleri</h3>
       <div id="bd-malzeme-liste"></div>
+    </div>
+
+    <!-- Mana Tupleri (renk bazli satirlar) -->
+    <div class="card" style="padding:14px;margin-bottom:16px">
+      <h3 style="color:#9b59b6;font-size:13px;margin-bottom:10px">Mana Tupleri</h3>
+      <div id="bd-mana-liste"></div>
     </div>
 
     <div id="bd-msg" style="font-size:12px;text-align:center;min-height:16px;margin-top:8px"></div>
@@ -123,38 +123,53 @@ function bdKervanSec() {
 function renderBuyuDukkani() {
   if (!BD_STOK) return;
 
-  // Mana tupleri
-  const manaEl = document.getElementById('bd-mana-liste');
-  let manaHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px">';
-  for (const m of BD_STOK.manalar) {
-    const renk = RENK_CSS[m.renk] || '#888';
-    const stokPct = m.max_stok > 0 ? Math.round(m.stok / m.max_stok * 100) : 0;
-    manaHTML += `<div style="background:#111;border:1px solid #222;border-radius:6px;padding:10px;border-left:3px solid ${renk}">
-      <div style="font-size:12px;font-weight:bold;color:${renk}">${BOYUT_ISIM[m.boyut]} ${RENK_ISIM[m.renk]} Mana</div>
-      <div style="font-size:10px;color:#888;margin:4px 0">+${m.mana_miktari} mana | ${m.fiyat.toLocaleString()} altin</div>
-      <div style="font-size:10px;color:${m.stok>0?'#2ecc71':'#e74c3c'}">Stok: ${m.stok}/${m.max_stok}</div>
-      <button class="btn-action" onclick="bdSatinAl('${m.id}',1)" ${m.stok<1||!BD_KERVAN_ID?'disabled':''}
-        style="padding:3px 10px;font-size:10px;width:auto;margin-top:6px;${!BD_KERVAN_ID?'opacity:0.3':''}">Satin Al</button>
-    </div>`;
-  }
-  manaHTML += '</div>';
-  manaEl.innerHTML = manaHTML;
-
-  // Buyu malzemeleri
+  // Buyu malzemeleri (uste)
   const malEl = document.getElementById('bd-malzeme-liste');
   const MAL_IKON = { ates_tozu:'🔥', ay_cigi:'🌙', golgeler_otu:'🌿', ejderha_goz_damla:'🐉' };
-  malEl.innerHTML = BD_STOK.malzemeler.map(m => {
-    return `<div style="display:flex;align-items:center;gap:10px;padding:8px;background:#111;border:1px solid #222;border-radius:4px;margin-bottom:4px">
-      <span style="font-size:18px">${MAL_IKON[m.id]||'📦'}</span>
-      <div style="flex:1">
-        <div style="font-size:12px;font-weight:bold;color:#d4af37">${m.isim}</div>
-        <div style="font-size:10px;color:#888">${m.fiyat.toLocaleString()} altin | Stok: <span style="color:${m.stok>0?'#2ecc71':'#e74c3c'}">${m.stok}/${m.max_stok}</span></div>
+  malEl.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:6px">' +
+    BD_STOK.malzemeler.map(m => `
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:#111;border:1px solid #222;border-radius:4px">
+        <span style="font-size:18px">${MAL_IKON[m.id]||'📦'}</span>
+        <div style="flex:1">
+          <div style="font-size:11px;font-weight:bold;color:#d4af37">${m.isim}</div>
+          <div style="font-size:9px;color:#888">${m.fiyat.toLocaleString()} altin | Stok: <span style="color:${m.stok>0?'#2ecc71':'#e74c3c'}">${m.stok}/${m.max_stok}</span></div>
+        </div>
+        <input type="number" id="bd-mal-${m.id}" value="1" min="1" max="${m.stok}" style="padding:2px;width:35px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px;font-size:10px;text-align:center">
+        <button class="btn-action" onclick="bdSatinAl('${m.id}',parseInt(document.getElementById('bd-mal-${m.id}').value)||1)" ${m.stok<1||!BD_KERVAN_ID?'disabled':''}
+          style="padding:2px 8px;font-size:9px;width:auto;${!BD_KERVAN_ID?'opacity:0.3':''}">Al</button>
       </div>
-      <input type="number" id="bd-mal-${m.id}" value="1" min="1" max="${m.stok}" style="padding:3px;width:40px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px;font-size:10px">
-      <button class="btn-action" onclick="bdSatinAl('${m.id}',parseInt(document.getElementById('bd-mal-${m.id}').value)||1)" ${m.stok<1||!BD_KERVAN_ID?'disabled':''}
-        style="padding:3px 10px;font-size:10px;width:auto;${!BD_KERVAN_ID?'opacity:0.3':''}">Al</button>
-    </div>`;
-  }).join('');
+    `).join('') + '</div>';
+
+  // Mana tupleri — renk bazli satirlar, her satirda K-O-B yan yana
+  const manaEl = document.getElementById('bd-mana-liste');
+  let manaHTML = '';
+
+  for (const renk of MANA_RENKLERI) {
+    const renkCSS = RENK_CSS[renk] || '#888';
+    const renkIsim = RENK_ISIM[renk] || renk;
+    // Bu rengin 3 boyutunu bul
+    const boyutlar = BD_STOK.manalar.filter(m => m.renk === renk);
+
+    manaHTML += `<div style="margin-bottom:10px">
+      <div style="color:${renkCSS};font-size:12px;font-weight:bold;margin-bottom:4px;border-bottom:1px solid ${renkCSS}33;padding-bottom:3px">${renkIsim} Mana</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">`;
+
+    for (const m of boyutlar) {
+      manaHTML += `<div style="background:#111;border:1px solid #222;border-radius:6px;padding:8px;border-top:2px solid ${renkCSS};text-align:center">
+        <div style="font-size:11px;font-weight:bold;color:${renkCSS}">${BOYUT_ISIM[m.boyut]}</div>
+        <div style="font-size:16px;margin:4px 0">+${m.mana_miktari}</div>
+        <div style="font-size:9px;color:#888">${m.fiyat.toLocaleString()} altin</div>
+        <div style="font-size:9px;color:${m.stok>0?'#2ecc71':'#e74c3c'};margin:2px 0">Stok: ${m.stok}/${m.max_stok}</div>
+        <button class="btn-action" onclick="bdSatinAl('${m.id}',1)" ${m.stok<1||!BD_KERVAN_ID?'disabled':''}
+          style="padding:2px 10px;font-size:9px;width:auto;${!BD_KERVAN_ID?'opacity:0.3':''}">Al</button>
+      </div>`;
+    }
+
+    manaHTML += `</div></div>`;
+  }
+
+  manaEl.innerHTML = manaHTML;
+
 }
 
 async function bdSatinAl(urunId, miktar) {
