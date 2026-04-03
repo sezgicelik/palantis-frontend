@@ -59,6 +59,7 @@
     <button onclick="switchTab('players',this)">Oyuncular</button>
     <button onclick="switchTab('logins',this)">Login Loglar</button>
     <button onclick="switchTab('actions',this)">Islemler</button>
+    <button onclick="switchTab('irklar',this)">Irk Bonuslari</button>
     <button onclick="switchTab('map',this)">Harita & Koloni</button>
   </div>
 
@@ -195,6 +196,20 @@
     </div>
   </div>
 
+  <!-- IRK BONUSLARI TAB -->
+  <div id="tab-irklar" class="panel">
+    <div class="card">
+      <h3>Irk Bonuslari</h3>
+      <p style="font-size:10px;color:var(--muted);margin-bottom:12px">Her ırk için kaynak bazlı üretim bonusu (%). 0 = bonus yok. İstediğin kaynağa istediğin oranı gir.</p>
+      <div id="irk-bonus-container">Yukleniyor...</div>
+      <div style="margin-top:12px;display:flex;gap:8px">
+        <button class="btn" onclick="confirmAction('Irk bonuslari kaydedilecek. Emin misiniz?', saveIrkBonuslari)">Kaydet</button>
+        <button class="btn" onclick="loadIrkBonuslari()">Sifirla</button>
+      </div>
+      <div id="irk-msg" style="color:var(--green);font-size:11px;margin-top:6px"></div>
+    </div>
+  </div>
+
   <!-- MAP & KOLONI TAB -->
   <div id="tab-map" class="panel">
     <div class="card">
@@ -276,6 +291,7 @@ function switchTab(tab, el) {
   if (tab === 'logins') loadLogins();
   if (tab === 'map') loadMapConfig();
   if (tab === 'actions') loadKoloniStats();
+  if (tab === 'irklar') loadIrkBonuslari();
 }
 
 function hdr() { return { 'x-admin-secret': SECRET, 'Content-Type': 'application/json' }; }
@@ -553,6 +569,62 @@ async function addUnits() {
   if(!user){document.getElementById('status-msg').textContent='Kullanici adi gir!';return;}
   const r = await fetch(API+'/api/admin/add-units',{method:'POST',headers:hdr(),body:JSON.stringify({username:user,unite_id,adet})}).then(r=>r.json());
   document.getElementById('status-msg').textContent = r.ok ? r.mesaj+' (Oyuncuya bildirim gitti)' : (r.error||'Hata');
+}
+
+// ── Irk Bonuslari ──
+const IRK_ISIM = { insan:'Insan', elf:'Elf', cuce:'Cuce', bucukluk:'Bucukluk', kara_elf:'Kara Elf', ork:'Ork', ogre_irk:'Ogre', undead:'Undead' };
+const BONUS_KAT = {
+  'Hammadde': ['odun','tas','metal','altin','bugday','balik'],
+  'Islenmis': ['kereste','islenmis','ekmek','pismis','pismis_et'],
+  'Mana': ['mana_beyaz','mana_kirmizi','mana_mavi','mana_yesil'],
+  'Ozel': ['at','kurt','gizlilik','buyulu_yumurta']
+};
+
+let _irkData = null;
+
+async function loadIrkBonuslari() {
+  const d = await fetch(API+'/api/admin/irk-bonuslari?secret='+SECRET).then(r=>r.json());
+  if(!d.ok) return;
+  _irkData = d;
+
+  let html = '<div style="overflow-x:auto"><table style="font-size:11px"><thead><tr><th>Kaynak</th>';
+  d.irklar.forEach(irk => html += `<th style="text-align:center;min-width:60px">${IRK_ISIM[irk]||irk}</th>`);
+  html += '</tr></thead><tbody>';
+
+  for (const [kat, kaynaklar] of Object.entries(BONUS_KAT)) {
+    html += `<tr><td colspan="${d.irklar.length+1}" style="color:var(--gold);font-weight:bold;padding:8px 4px 4px;font-size:10px">${kat}</td></tr>`;
+    for (const kaynak of kaynaklar) {
+      html += `<tr><td style="color:#aaa">${kaynak}</td>`;
+      d.irklar.forEach(irk => {
+        const val = d.bonuslar[irk]?.[kaynak] || 0;
+        html += `<td style="text-align:center"><input type="number" id="ib-${irk}-${kaynak}" value="${val}" min="0" max="100"
+          style="width:40px;padding:2px;text-align:center;background:${val>0?'#1a2a1a':'#1a1a1a'};border:1px solid ${val>0?'#2a4a2a':'var(--border)'};color:var(--text);border-radius:3px;font-size:10px"
+          oninput="this.style.background=this.value>0?'#1a2a1a':'#1a1a1a';this.style.borderColor=this.value>0?'#2a4a2a':'var(--border)'"></td>`;
+      });
+      html += '</tr>';
+    }
+  }
+  html += '</tbody></table></div>';
+  document.getElementById('irk-bonus-container').innerHTML = html;
+}
+
+async function saveIrkBonuslari() {
+  if(!_irkData) return;
+  const bonuslar = {};
+  for (const irk of _irkData.irklar) {
+    bonuslar[irk] = {};
+    for (const kaynaklar of Object.values(BONUS_KAT)) {
+      for (const kaynak of kaynaklar) {
+        const el = document.getElementById(`ib-${irk}-${kaynak}`);
+        const v = parseInt(el?.value) || 0;
+        if (v > 0) bonuslar[irk][kaynak] = v;
+      }
+    }
+  }
+
+  const r = await fetch(API+'/api/admin/irk-bonuslari',{method:'POST',headers:hdr(),body:JSON.stringify({bonuslar})}).then(r=>r.json());
+  document.getElementById('irk-msg').textContent = r.ok ? r.mesaj : (r.error||'Hata');
+  if(r.ok) setTimeout(loadIrkBonuslari, 1000);
 }
 
 async function loadUnitDropdown(){
