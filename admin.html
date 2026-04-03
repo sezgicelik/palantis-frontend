@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palantis Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#0a0a0a; --card:#151515; --border:#222; --gold:#c8a96e; --green:#2ecc71; --red:#e74c3c; --blue:#3498db; --text:#ddd; --muted:#666; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Segoe UI',sans-serif; padding:16px; }
+  h1 { font-family:'Cinzel',serif; color:var(--gold); font-size:22px; margin-bottom:16px; text-align:center; }
+  .login-box { max-width:300px; margin:80px auto; text-align:center; }
+  .login-box input { width:100%; padding:10px; background:#1a1a1a; border:1px solid var(--border); color:var(--text); border-radius:6px; margin:8px 0; }
+  .login-box button { width:100%; padding:10px; background:var(--gold); color:#000; border:none; border-radius:6px; cursor:pointer; font-weight:bold; }
+  .tabs { display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; }
+  .tabs button { padding:8px 16px; background:var(--card); border:1px solid var(--border); color:var(--muted); cursor:pointer; border-radius:6px; font-size:12px; }
+  .tabs button.on { color:var(--gold); border-color:var(--gold); }
+  .panel { display:none; }
+  .panel.active { display:block; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px; margin-bottom:12px; }
+  .card h3 { color:var(--gold); font-size:14px; margin-bottom:10px; }
+  .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px; }
+  .stat { text-align:center; padding:12px 8px; background:#1a1a1a; border-radius:6px; }
+  .stat .val { font-size:20px; font-weight:bold; color:var(--gold); }
+  .stat .lbl { font-size:10px; color:var(--muted); margin-top:4px; }
+  table { width:100%; border-collapse:collapse; font-size:11px; }
+  th { text-align:left; color:var(--gold); padding:8px 6px; border-bottom:1px solid var(--border); font-size:10px; text-transform:uppercase; }
+  td { padding:6px; border-bottom:1px solid #111; color:#bbb; }
+  tr:hover td { background:#1a1a1a; }
+  .ok { color:var(--green); } .fail { color:var(--red); }
+  .btn { padding:6px 14px; border:1px solid var(--gold); background:transparent; color:var(--gold); border-radius:4px; cursor:pointer; font-size:11px; margin:4px; }
+  .btn:hover { background:var(--gold); color:#000; }
+  .btn-danger { border-color:var(--red); color:var(--red); }
+  .btn-danger:hover { background:var(--red); color:#fff; }
+  .actions { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+  #status-msg { color:var(--green); font-size:11px; margin-top:8px; min-height:16px; }
+  .cron-bar { display:flex; gap:2px; align-items:flex-end; height:40px; margin:12px 0; }
+  .cron-bar .bar { flex:1; border-radius:2px 2px 0 0; min-width:4px; }
+  @media(max-width:600px) { body{padding:8px;} .stat-grid{grid-template-columns:repeat(2,1fr);} }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen" class="login-box">
+  <h1>Palantis Admin</h1>
+  <input type="password" id="secret-input" placeholder="Admin Secret" onkeydown="if(event.key==='Enter')doLogin()">
+  <button onclick="doLogin()">Giris</button>
+  <div id="login-err" style="color:var(--red);font-size:11px;margin-top:8px"></div>
+</div>
+
+<!-- PANEL -->
+<div id="admin-panel" style="display:none; max-width:1000px; margin:0 auto;">
+  <h1>Palantis Admin Paneli</h1>
+
+  <div class="tabs">
+    <button class="on" onclick="switchTab('cron',this)">Cron Durumu</button>
+    <button onclick="switchTab('players',this)">Oyuncular</button>
+    <button onclick="switchTab('logins',this)">Login Loglar</button>
+    <button onclick="switchTab('actions',this)">Islemler</button>
+  </div>
+
+  <!-- CRON TAB -->
+  <div id="tab-cron" class="panel active">
+    <div class="card">
+      <h3>Son Cron Calismasi</h3>
+      <div id="cron-summary" class="stat-grid"></div>
+    </div>
+    <div class="card">
+      <h3>Detay (Son Calisma)</h3>
+      <table><thead><tr><th>Gorev</th><th>Durum</th><th>Sure</th><th>Hata</th></tr></thead>
+      <tbody id="cron-detail"></tbody></table>
+    </div>
+    <div class="card">
+      <h3>Son 24 Saat</h3>
+      <div class="cron-bar" id="cron-chart"></div>
+      <table><thead><tr><th>Zaman</th><th>Tarih</th><th>Basarili</th><th>Basarisiz</th><th>Sure</th></tr></thead>
+      <tbody id="cron-history"></tbody></table>
+    </div>
+  </div>
+
+  <!-- PLAYERS TAB -->
+  <div id="tab-players" class="panel">
+    <div class="card">
+      <h3>Oyuncular</h3>
+      <table><thead><tr><th>Kullanici</th><th>Kral</th><th>Irk</th><th>Taraf</th><th>Cag</th><th>Nufus</th><th>Altin</th><th>Koord</th></tr></thead>
+      <tbody id="players-list"></tbody></table>
+    </div>
+  </div>
+
+  <!-- LOGINS TAB -->
+  <div id="tab-logins" class="panel">
+    <div class="card">
+      <h3>Login Istatistikleri</h3>
+      <div id="login-stats" class="stat-grid"></div>
+    </div>
+    <div class="card">
+      <h3>Son Girisler</h3>
+      <table><thead><tr><th>Kullanici</th><th>Tarih</th><th>IP</th><th>Ulke</th><th>Sehir</th><th>Cihaz</th><th>OS</th><th>Tarayici</th><th>Ekran</th><th>Durum</th></tr></thead>
+      <tbody id="login-list"></tbody></table>
+    </div>
+  </div>
+
+  <!-- ACTIONS TAB -->
+  <div id="tab-actions" class="panel">
+    <div class="card">
+      <h3>Admin Islemleri</h3>
+      <div class="actions">
+        <button class="btn" onclick="triggerCron()">Cron Tetikle</button>
+        <button class="btn" onclick="koloniReset()">Koloni Reset</button>
+        <button class="btn btn-danger" onclick="if(confirm('TUM OYUN VERILERI SILINECEK! Emin misin?'))gameReset()">Oyun Reset</button>
+      </div>
+      <div id="status-msg"></div>
+    </div>
+    <div class="card">
+      <h3>Oyuncuya Kaynak Ekle</h3>
+      <input id="res-user" placeholder="Kullanici adi" style="padding:6px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;margin-right:6px">
+      <input id="res-amount" type="number" value="15000" style="padding:6px;width:80px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;margin-right:6px">
+      <button class="btn" onclick="addResources()">Ekle</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'https://palantis-backend-production.up.railway.app';
+let SECRET = '';
+
+function doLogin() {
+  SECRET = document.getElementById('secret-input').value;
+  fetch(API + '/api/admin/cron-status?secret=' + SECRET)
+    .then(r => r.json())
+    .then(d => {
+      if (d.ok) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('admin-panel').style.display = 'block';
+        loadCron();
+      } else {
+        document.getElementById('login-err').textContent = 'Yanlis secret!';
+      }
+    })
+    .catch(() => document.getElementById('login-err').textContent = 'Baglanti hatasi');
+}
+
+function switchTab(tab, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  if (tab === 'cron') loadCron();
+  if (tab === 'players') loadPlayers();
+  if (tab === 'logins') loadLogins();
+}
+
+function hdr() { return { 'x-admin-secret': SECRET, 'Content-Type': 'application/json' }; }
+function fmtDate(d) { if(!d)return'-'; const dt=new Date(d); return dt.toLocaleString('tr-TR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}); }
+
+async function loadCron() {
+  const d = await fetch(API + '/api/admin/cron-status?secret=' + SECRET).then(r=>r.json());
+  if (!d.ok) return;
+  const s = d.son_calisma;
+  document.getElementById('cron-summary').innerHTML = s ? `
+    <div class="stat"><div class="val">${fmtDate(s.zaman)}</div><div class="lbl">Son Calisma</div></div>
+    <div class="stat"><div class="val">${s.sure_ms}ms</div><div class="lbl">Sure</div></div>
+    <div class="stat"><div class="val ok">${s.basarili}</div><div class="lbl">Basarili</div></div>
+    <div class="stat"><div class="val ${s.basarisiz>0?'fail':''}">${s.basarisiz}</div><div class="lbl">Basarisiz</div></div>
+    <div class="stat"><div class="val">${s.palantis_tarih}</div><div class="lbl">Palantis</div></div>
+  ` : '<div class="stat"><div class="val">-</div><div class="lbl">Henuz calisma yok</div></div>';
+
+  const det = s?.detay || [];
+  document.getElementById('cron-detail').innerHTML = det.map(t => `
+    <tr><td>${t.name}</td><td class="${t.ok?'ok':'fail'}">${t.ok?'OK':'HATA'}</td><td>${t.ms}ms</td><td>${t.error||'-'}</td></tr>
+  `).join('');
+
+  const hist = d.gecmis || [];
+  document.getElementById('cron-chart').innerHTML = hist.slice(0,24).reverse().map(h => {
+    const pct = Math.max(5, Math.min(100, h.sure_ms / 50));
+    const color = h.basarisiz > 0 ? 'var(--red)' : 'var(--green)';
+    return `<div class="bar" style="height:${pct}%;background:${color}" title="${fmtDate(h.zaman)} ${h.sure_ms}ms"></div>`;
+  }).join('');
+
+  document.getElementById('cron-history').innerHTML = hist.map(h => `
+    <tr><td>${fmtDate(h.zaman)}</td><td>${h.palantis_tarih}</td>
+    <td class="ok">${h.basarili}</td><td class="${h.basarisiz>0?'fail':''}">${h.basarisiz}</td>
+    <td>${h.sure_ms}ms</td></tr>
+  `).join('');
+}
+
+async function loadPlayers() {
+  const d = await fetch(API + '/api/admin/players?secret=' + SECRET).then(r=>r.json());
+  if (!d.ok) return;
+  document.getElementById('players-list').innerHTML = d.oyuncular.map(p => `
+    <tr><td>${p.username||'-'}</td><td>${p.kral||'-'}</td><td>${p.irk||'-'}</td><td>${p.taraf||'-'}</td>
+    <td>${p.cag||'-'}</td><td>${p.nufus||0}</td><td>${(p.altin||0).toLocaleString()}</td>
+    <td>${p.koord_x||'-'},${p.koord_y||'-'}</td></tr>
+  `).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--muted)">Oyuncu yok</td></tr>';
+}
+
+async function loadLogins() {
+  const d = await fetch(API + '/api/admin/login-logs?secret=' + SECRET + '&limit=50').then(r=>r.json());
+  if (!d.ok) return;
+  const st = d.istatistik;
+  document.getElementById('login-stats').innerHTML = `
+    <div class="stat"><div class="val">${st.toplam_giris}</div><div class="lbl">Toplam Giris</div></div>
+    <div class="stat"><div class="val">${st.benzersiz_kullanici}</div><div class="lbl">Benzersiz</div></div>
+    <div class="stat"><div class="val ok">${st.basarili}</div><div class="lbl">Basarili</div></div>
+    <div class="stat"><div class="val fail">${st.basarisiz}</div><div class="lbl">Basarisiz</div></div>
+    <div class="stat"><div class="val">${st.mobil}</div><div class="lbl">Mobil</div></div>
+    <div class="stat"><div class="val">${st.desktop}</div><div class="lbl">Desktop</div></div>
+    <div class="stat"><div class="val">${st.ulke_sayisi}</div><div class="lbl">Ulke</div></div>
+  `;
+  document.getElementById('login-list').innerHTML = d.loglar.map(l => `
+    <tr><td>${l.kullanici}</td><td>${fmtDate(l.tarih)}</td><td>${l.ip}</td><td>${l.ulke}</td><td>${l.sehir}</td>
+    <td>${l.cihaz}</td><td>${l.os}</td><td>${l.tarayici}</td><td>${l.ekran}</td>
+    <td class="${l.basarili?'ok':'fail'}">${l.basarili?'OK':'FAIL'}</td></tr>
+  `).join('');
+}
+
+async function triggerCron() {
+  const r = await fetch(API+'/api/admin/cron/trigger',{method:'POST',headers:hdr()}).then(r=>r.json());
+  document.getElementById('status-msg').textContent = r.skipped ? 'Son 30dk icinde calismis, atlandi.' : 'Cron tetiklendi!';
+  setTimeout(loadCron, 2000);
+}
+async function koloniReset() {
+  const r = await fetch(API+'/api/admin/koloni-reset',{method:'POST',headers:hdr()}).then(r=>r.json());
+  document.getElementById('status-msg').textContent = `Koloni reset: ${r.slotlar} slot, ${r.koloniler} koloni`;
+}
+async function gameReset() {
+  const r = await fetch(API+'/api/admin/reset',{method:'POST',headers:hdr()}).then(r=>r.json());
+  document.getElementById('status-msg').textContent = r.mesaj || 'Reset tamamlandi';
+}
+async function addResources() {
+  const user = document.getElementById('res-user').value;
+  const amount = parseInt(document.getElementById('res-amount').value) || 15000;
+  const r = await fetch(API+'/api/admin/resources',{method:'POST',headers:hdr(),body:JSON.stringify({username:user,amount})}).then(r=>r.json());
+  document.getElementById('status-msg').textContent = r.ok ? `Kaynak eklendi: ${JSON.stringify(r.kaynaklar)}` : (r.error||'Hata');
+}
+</script>
+</body>
+</html>
