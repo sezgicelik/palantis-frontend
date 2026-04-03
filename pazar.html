@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palantis – Oyuncu Pazari</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div id="hudbar-mount"></div>
+<div class="layout">
+  <div id="sidebar-mount"></div>
+  <div class="main-content">
+
+    <h2 style="color:#c8a96e;font-family:'Cinzel',serif;margin:0 0 8px;font-size:clamp(16px,4vw,22px)">🏪 Oyuncu Pazari</h2>
+    <p style="color:#666;font-size:11px;margin-bottom:16px">Kervanin pazarda olmali. Kaynak sat, baska oyunculardan satin al.</p>
+
+    <!-- Sekmeler -->
+    <div class="army-tabs" style="margin-bottom:16px">
+      <button class="atab on" onclick="pazarTab('ilanlar',this)">Tum Ilanlar</button>
+      <button class="atab" onclick="pazarTab('sat',this)">Ilan Ver</button>
+      <button class="atab" onclick="pazarTab('benim',this)">Ilanlarim</button>
+    </div>
+
+    <!-- TUM ILANLAR -->
+    <div id="ptab-ilanlar">
+      <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+        <select id="pz-filtre" onchange="loadIlanlar()" style="padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">
+          <option value="">Tum Kaynaklar</option>
+          <option value="odun">Odun</option><option value="tas">Tas</option><option value="metal">Metal</option>
+          <option value="altin">Altin</option><option value="kereste">Kereste</option><option value="islenmis">Islenmis</option>
+          <option value="bugday">Bugday</option><option value="balik">Balik</option>
+        </select>
+        <button class="btn-action" onclick="loadIlanlar()" style="padding:4px 10px;font-size:10px;width:auto">Yenile</button>
+      </div>
+      <div id="pz-ilanlar-liste"></div>
+    </div>
+
+    <!-- ILAN VER -->
+    <div id="ptab-sat" style="display:none">
+      <div class="card" style="padding:14px">
+        <h3 style="color:#c8a96e;font-size:13px;margin-bottom:10px">Yeni Ilan</h3>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px">
+          <label style="font-size:11px;color:#888">Kervan:</label>
+          <select id="pz-kervan" style="padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px;min-width:150px">
+            <option value="">-- Kervan sec --</option>
+          </select>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px">
+          <label style="font-size:11px;color:#888">Satiyorum:</label>
+          <input id="pz-sat-miktar" type="number" value="100" min="1" style="padding:4px;width:70px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">
+          <select id="pz-sat-kaynak" style="padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">
+            <option value="odun">Odun</option><option value="tas">Tas</option><option value="metal">Metal</option>
+            <option value="kereste">Kereste</option><option value="islenmis">Islenmis</option>
+            <option value="bugday">Bugday</option><option value="balik">Balik</option><option value="cig_et">Cig Et</option>
+            <option value="ekmek">Ekmek</option><option value="pismis">Pismis</option><option value="pismis_et">Pismis Et</option>
+          </select>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px">
+          <label style="font-size:11px;color:#888">Karsiliginda:</label>
+          <input id="pz-istek-miktar" type="number" value="500" min="1" style="padding:4px;width:70px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">
+          <select id="pz-istek-kaynak" style="padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">
+            <option value="altin">Altin</option><option value="odun">Odun</option><option value="tas">Tas</option>
+            <option value="metal">Metal</option><option value="kereste">Kereste</option><option value="islenmis">Islenmis</option>
+          </select>
+        </div>
+        <button class="btn-action" onclick="pzIlanVer()" style="padding:6px 16px;font-size:12px;width:auto">Ilan Ver</button>
+        <div id="pz-ilan-msg" style="font-size:11px;margin-top:6px;min-height:14px"></div>
+      </div>
+    </div>
+
+    <!-- ILANLARIM -->
+    <div id="ptab-benim" style="display:none">
+      <div id="pz-benim-liste"></div>
+    </div>
+
+  </div>
+</div>
+<div id="toast"></div>
+<div id="building-modal-mount"></div>
+
+<script src="js/constants.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/game-data.js"></script>
+<script src="js/hud.js"></script>
+<script src="js/layout.js"></script>
+<script>
+const TARAF_RENK = { iyi:'#f1c40f', kotu:'#3498db' };
+
+function pazarTab(tab, el) {
+  document.getElementById('ptab-ilanlar').style.display = tab==='ilanlar' ? 'block' : 'none';
+  document.getElementById('ptab-sat').style.display = tab==='sat' ? 'block' : 'none';
+  document.getElementById('ptab-benim').style.display = tab==='benim' ? 'block' : 'none';
+  document.querySelectorAll('.army-tabs .atab').forEach(b => b.classList.remove('on'));
+  if (el) el.classList.add('on');
+  if (tab === 'ilanlar') loadIlanlar();
+  if (tab === 'sat') loadKervanlarPazar();
+  if (tab === 'benim') loadBenimIlanlar();
+}
+
+async function loadIlanlar() {
+  const token = getToken(); if (!token) return;
+  const filtre = document.getElementById('pz-filtre').value;
+  let url = API_BASE + '/api/pazar/ilanlar';
+  if (filtre) url += '?kaynak=' + filtre;
+  try {
+    const resp = await fetch(url, { headers: { 'Authorization': 'Bearer ' + token } });
+    const data = await resp.json();
+    if (!data.ok) return;
+
+    const el = document.getElementById('pz-ilanlar-liste');
+    if (data.ilanlar.length === 0) {
+      el.innerHTML = '<div style="text-align:center;color:#555;padding:30px">Aktif ilan yok</div>';
+      return;
+    }
+
+    el.innerHTML = data.ilanlar.map(i => `
+      <div class="card" style="padding:10px;margin-bottom:4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div style="min-width:100px">
+          <div style="color:${TARAF_RENK[i.satici_taraf]||'#888'};font-weight:bold;font-size:12px">${i.satici_kral}</div>
+        </div>
+        <div style="flex:1;min-width:200px">
+          <span style="color:#2ecc71;font-weight:bold">${i.satis_miktar.toLocaleString()} ${i.satis_kaynak}</span>
+          <span style="color:#555;margin:0 6px">→</span>
+          <span style="color:#f1c40f;font-weight:bold">${i.istek_miktar.toLocaleString()} ${i.istek_kaynak}</span>
+        </div>
+        ${i.benim_mi
+          ? '<span style="color:#555;font-size:10px">Senin ilanin</span>'
+          : `<button class="btn-action" onclick="pzSatinAl(${i.id})" style="padding:4px 12px;font-size:10px;width:auto">Satin Al</button>`
+        }
+      </div>
+    `).join('');
+  } catch(e) { console.error(e); }
+}
+
+let PZ_KERVANLAR = [];
+
+async function loadKervanlarPazar() {
+  const token = getToken(); if (!token) return;
+  try {
+    const resp = await fetch(API_BASE + '/api/kervan/liste', { headers: { 'Authorization': 'Bearer ' + token } });
+    const data = await resp.json();
+    PZ_KERVANLAR = (data.kervanlar || []).filter(k => k.durum === 'pazarda');
+    const sel = document.getElementById('pz-kervan');
+    sel.innerHTML = '<option value="">-- Kervan sec --</option>' +
+      PZ_KERVANLAR.map(k => `<option value="${k.id}">${k.isim} (${k.toplam_yuk.toLocaleString()}/${k.kapasite.toLocaleString()})</option>`).join('');
+    if (PZ_KERVANLAR.length === 0) {
+      document.getElementById('pz-ilan-msg').innerHTML = '<span style="color:#e74c3c">Pazarda kervan yok! Once kervan sayfasindan bir kervan gonderin.</span>';
+    }
+  } catch(e) {}
+}
+
+async function pzIlanVer() {
+  const token = getToken(); if (!token) return;
+  const kervan_id = parseInt(document.getElementById('pz-kervan').value);
+  if (!kervan_id) { document.getElementById('pz-ilan-msg').innerHTML = '<span style="color:#e74c3c">Kervan secin</span>'; return; }
+  const body = {
+    kervan_id,
+    satis_kaynak: document.getElementById('pz-sat-kaynak').value,
+    satis_miktar: parseInt(document.getElementById('pz-sat-miktar').value) || 0,
+    istek_kaynak: document.getElementById('pz-istek-kaynak').value,
+    istek_miktar: parseInt(document.getElementById('pz-istek-miktar').value) || 0,
+  };
+  const resp = await fetch(API_BASE+'/api/pazar/ilan-ver',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(body)}).then(r=>r.json());
+  document.getElementById('pz-ilan-msg').innerHTML = resp.ok ? `<span style="color:#2ecc71">${resp.mesaj}</span>` : `<span style="color:#e74c3c">${resp.error||'Hata'}</span>`;
+}
+
+async function pzSatinAl(ilanId) {
+  const token = getToken(); if (!token) return;
+  // Pazardaki kervanimi bul
+  if (PZ_KERVANLAR.length === 0) await loadKervanlarPazar();
+  if (PZ_KERVANLAR.length === 0) { showToast('Pazarda kervanin yok!','error'); return; }
+  const kervanId = PZ_KERVANLAR[0].id; // ilk pazardaki kervani kullan
+  if (!confirm('Bu ilani satin almak istiyor musunuz?')) return;
+
+  const resp = await fetch(API_BASE+'/api/pazar/satin-al',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({ilan_id:ilanId,kervan_id:kervanId})}).then(r=>r.json());
+  if (resp.ok) { showToast(resp.mesaj,'success'); loadIlanlar(); }
+  else showToast(resp.error||'Hata','error');
+}
+
+async function loadBenimIlanlar() {
+  const token = getToken(); if (!token) return;
+  try {
+    const resp = await fetch(API_BASE+'/api/pazar/benim',{headers:{'Authorization':'Bearer '+token}});
+    const data = await resp.json();
+    const el = document.getElementById('pz-benim-liste');
+    if (!data.ok || data.ilanlar.length === 0) { el.innerHTML = '<div style="text-align:center;color:#555;padding:30px">Henuz ilan vermediniz</div>'; return; }
+
+    el.innerHTML = data.ilanlar.map(i => {
+      const durumRenk = i.durum==='aktif'?'#2ecc71':i.durum==='satildi'?'#3498db':'#e74c3c';
+      return `<div class="card" style="padding:10px;margin-bottom:4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div style="min-width:180px">
+          <span style="color:#2ecc71">${i.satis_miktar} ${i.satis_kaynak}</span>
+          <span style="color:#555"> → </span>
+          <span style="color:#f1c40f">${i.istek_miktar} ${i.istek_kaynak}</span>
+        </div>
+        <span style="color:${durumRenk};font-size:11px;font-weight:bold">${i.durum.toUpperCase()}</span>
+        ${i.alici_kral ? `<span style="color:#888;font-size:10px">Alici: ${i.alici_kral}</span>` : ''}
+        ${i.durum==='aktif' ? `<button class="btn-action" onclick="pzIptal(${i.id})" style="padding:3px 10px;font-size:10px;width:auto;border-color:#e74c3c;color:#e74c3c">Iptal</button>` : ''}
+      </div>`;
+    }).join('');
+  } catch(e) {}
+}
+
+async function pzIptal(ilanId) {
+  if (!confirm('Ilan iptal edilecek, kaynak kervana donecek. Emin misiniz?')) return;
+  const token = getToken();
+  const resp = await fetch(API_BASE+'/api/pazar/iptal',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({ilan_id:ilanId})}).then(r=>r.json());
+  if (resp.ok) { showToast(resp.mesaj,'success'); loadBenimIlanlar(); }
+  else showToast(resp.error||'Hata','error');
+}
+
+document.addEventListener('DOMContentLoaded', () => { setTimeout(()=>{ loadIlanlar(); loadKervanlarPazar(); }, 1500); });
+</script>
+</body>
+</html>
