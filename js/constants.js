@@ -590,6 +590,8 @@ const ACTIVITY_ICONS = {
   festival:      '🎉',
   sehir_morali:  '😊',
   kacis:         '😤',
+  admin:         '👑',
+  vergi:         '🏛️',
 };
 
 const SAF_LIMITS = [3, 3, 5, 3]; // 14 total slots

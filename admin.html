@@ -140,6 +140,37 @@
       </div>
       <button class="btn" onclick="addResources()">Kaynak Ekle</button>
     </div>
+
+    <div class="card">
+      <h3>Oyuncuya Bina Ekle</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+        <input id="bld-user" placeholder="Kullanici adi" style="padding:6px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;width:130px">
+        <select id="bld-id" style="padding:6px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:11px">
+          <option value="ev">Ev</option><option value="koy">Koy</option><option value="kasaba">Kasaba</option>
+          <option value="tarla">Tarla</option><option value="balikci">Balikci</option><option value="ocak">Ocak</option><option value="firin">Firin</option>
+          <option value="oduncu">Oduncu (Kereste)</option><option value="isleme">Isleme (Metal)</option>
+          <option value="kisla">Kisla</option><option value="ahir">Ahir</option><option value="lonca">Lonca</option><option value="buyulu_tarla">Buyulu Tarla</option>
+          <option value="pazar">Pazar</option><option value="akademi">Akademi</option><option value="surlar">Surlar</option>
+          <option value="arena">Arena</option><option value="taverna">Taverna</option>
+        </select>
+        <input id="bld-sev" type="number" value="1" min="1" style="padding:6px;width:50px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px">
+        <button class="btn" onclick="addBuilding()">Bina Ekle</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Oyuncuya Unite Ekle (Taraf Kontrollu)</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+        <input id="unit-user" placeholder="Kullanici adi" style="padding:6px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;width:130px">
+        <select id="unit-id" style="padding:6px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:11px">
+          <optgroup label="Aydinlik" id="unit-iyi"></optgroup>
+          <optgroup label="Karanlik" id="unit-kotu"></optgroup>
+        </select>
+        <input id="unit-adet" type="number" value="10" min="1" style="padding:6px;width:60px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px">
+        <button class="btn" onclick="addUnits()">Unite Ekle</button>
+      </div>
+      <div style="font-size:10px;color:var(--muted);margin-top:6px">Karsi taraf unitesi eklenirse backend reddeder.</div>
+    </div>
   </div>
 </div>
 
@@ -156,6 +187,7 @@ function doLogin() {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('admin-panel').style.display = 'block';
         loadCron();
+        loadUnitDropdown();
       } else {
         document.getElementById('login-err').textContent = 'Yanlis secret!';
       }
@@ -349,7 +381,36 @@ async function addResources() {
   });
   if(Object.keys(kaynaklar).length===0){document.getElementById('status-msg').textContent='En az bir kaynak gir!';return;}
   const r = await fetch(API+'/api/admin/resources',{method:'POST',headers:hdr(),body:JSON.stringify({username:user,kaynaklar})}).then(r=>r.json());
-  document.getElementById('status-msg').textContent = r.ok ? 'Kaynaklar eklendi!' : (r.error||'Hata');
+  document.getElementById('status-msg').textContent = r.ok ? 'Kaynaklar eklendi! (Oyuncuya bildirim gitti)' : (r.error||'Hata');
+}
+
+async function addBuilding() {
+  const user = document.getElementById('bld-user').value;
+  const bina_id = document.getElementById('bld-id').value;
+  const seviye = parseInt(document.getElementById('bld-sev').value) || 1;
+  if(!user){document.getElementById('status-msg').textContent='Kullanici adi gir!';return;}
+  const r = await fetch(API+'/api/admin/add-building',{method:'POST',headers:hdr(),body:JSON.stringify({username:user,bina_id,seviye})}).then(r=>r.json());
+  document.getElementById('status-msg').textContent = r.ok ? r.mesaj+' (Oyuncuya bildirim gitti)' : (r.error||'Hata');
+}
+
+async function addUnits() {
+  const user = document.getElementById('unit-user').value;
+  const unite_id = document.getElementById('unit-id').value;
+  const adet = parseInt(document.getElementById('unit-adet').value) || 1;
+  if(!user){document.getElementById('status-msg').textContent='Kullanici adi gir!';return;}
+  const r = await fetch(API+'/api/admin/add-units',{method:'POST',headers:hdr(),body:JSON.stringify({username:user,unite_id,adet})}).then(r=>r.json());
+  document.getElementById('status-msg').textContent = r.ok ? r.mesaj+' (Oyuncuya bildirim gitti)' : (r.error||'Hata');
+}
+
+async function loadUnitDropdown(){
+  try {
+    const d = await fetch(API+'/api/admin/unit-list?secret='+SECRET).then(r=>r.json());
+    if(!d.ok) return;
+    const iyiEl = document.getElementById('unit-iyi');
+    const kotuEl = document.getElementById('unit-kotu');
+    if(iyiEl) iyiEl.innerHTML = d.iyi.map(u=>`<option value="${u.id}">${u.id} (T${u.tier})</option>`).join('');
+    if(kotuEl) kotuEl.innerHTML = d.kotu.map(u=>`<option value="${u.id}">${u.id} (T${u.tier})</option>`).join('');
+  }catch(e){}
 }
 </script>
 </body>
