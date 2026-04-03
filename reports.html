@@ -52,9 +52,14 @@
 
     <!-- Koloni Raporları -->
     <div id="rtab-koloni" class="report-section" style="display:none">
-      <div class="card" style="text-align:center;color:#888;padding:40px">
-        <h3>🏰 Koloni Raporları</h3>
-        <p>Koloni fethi ve kaynak akışı raporları burada görünecek.</p>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+        <h2 style="color:#c8a96e;font-family:'Cinzel',serif;margin:0;font-size:clamp(16px,4vw,22px)">🏰 Koloni Raporları</h2>
+        <button class="btn-action" onclick="loadFilteredReport('koloni')" style="padding:4px 14px;font-size:11px;width:auto">↻ Yenile</button>
+      </div>
+      <div id="koloni-loading" style="color:#888;font-size:13px;text-align:center;padding:40px">Yükleniyor...</div>
+      <div id="koloni-list" style="display:none"></div>
+      <div id="koloni-empty" style="display:none;color:#777;font-size:13px;text-align:center;padding:40px">
+        Henüz koloni kaydı yok.<br><small style="color:#555">Koloni fethi, çekilme ve kaynak akışı raporları burada görünür.</small>
       </div>
     </div>
 
@@ -89,6 +94,7 @@
     const REPORT_EVENT_TYPES = {
       sehir: ['bina_tamam','nufus','kacis','yemek','sehir_morali','festival','admin','arazi','essek','kervan'],
       askeri: ['egitim_tamam','maas','admin'],
+      koloni: ['koloni_fetih','koloni_cekil','koloni_kaynak','admin'],
       ekonomi: ['isci_uretim','ekonomi','pisirme','bolge_bonus','irk_bonus','mana_uretim','vergi','admin'],
       ticaret: ['market_satis','buyu_alisveris','pazar_ilan','pazar_alisveris','admin']
     };
@@ -104,7 +110,7 @@
         if (typeof loadFilteredReport === 'function') loadFilteredReport('sehir');
         else if (typeof loadActivity === 'function') loadActivity();
       }
-      if (tab === 'askeri' || tab === 'ekonomi' || tab === 'ticaret') loadFilteredReport(tab);
+      if (tab === 'askeri' || tab === 'ekonomi' || tab === 'ticaret' || tab === 'koloni') loadFilteredReport(tab);
     }
 
     async function loadFilteredReport(tab) {

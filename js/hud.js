@@ -210,9 +210,13 @@ function updateCityStats(){
   const toplamAlan = window._palantisToplamAlan || 0;
   const alanBox = document.getElementById('hud-alan-box');
   if(alanBox) alanBox.textContent = usedArea + '/' + toplamAlan;
-  // Sehir Degeri: her binanin deger * adet toplami
-  const sehirDegeri = Object.values(BLDGS).reduce((s,b) => s + (b.lv || 0) * (b.deger || 0), 0);
-  setText('hud-sehir-deger', sehirDegeri);
+  // Sehir Degeri: bina degeri + ordu gucu (ATK+DEF)/2
+  const binaDegeri = Object.values(BLDGS).reduce((s,b) => s + (b.lv || 0) * (b.deger || 0), 0);
+  const orduAtk = parseInt(document.getElementById('as-atk')?.textContent?.replace(/\D/g,'')) || 0;
+  const orduDef = parseInt(document.getElementById('as-def')?.textContent?.replace(/\D/g,'')) || 0;
+  const orduDegeri = Math.floor((orduAtk + orduDef) / 2);
+  const sehirDegeri = binaDegeri + orduDegeri;
+  setText('hud-sehir-deger', sehirDegeri.toLocaleString());
   // Ana ekran hızlı stats
   const bEl=document.getElementById('hs-bina'); if(bEl) bEl.textContent=active;
   const aEl=document.getElementById('hs-alan'); if(aEl) aEl.textContent=usedArea+'/'+landVal;

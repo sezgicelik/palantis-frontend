@@ -599,6 +599,9 @@ const ACTIVITY_ICONS = {
   buyu_alisveris:'🔮',
   pazar_ilan:    '📢',
   pazar_alisveris:'🤝',
+  koloni_fetih:  '🏰',
+  koloni_cekil:  '🏳️',
+  koloni_kaynak: '📦',
 };
 
 const SAF_LIMITS = [3, 3, 5, 3]; // 14 total slots
