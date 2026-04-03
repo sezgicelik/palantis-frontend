@@ -125,9 +125,9 @@
     <div class="card">
       <h3>Admin Islemleri</h3>
       <div class="actions">
-        <button class="btn" onclick="triggerCron()">Cron Tetikle</button>
-        <button class="btn" onclick="koloniReset()">Koloni Reset</button>
-        <button class="btn btn-danger" onclick="if(confirm('TUM OYUN VERILERI SILINECEK! Emin misin?'))gameReset()">Oyun Reset</button>
+        <button class="btn" onclick="confirmAction('Cron tetiklenecek. Emin misiniz?',triggerCron)">Cron Tetikle</button>
+        <button class="btn" onclick="confirmAction('Tum koloniler silinip yeniden olusturulacak. Emin misiniz?',koloniReset)">Koloni Reset</button>
+        <button class="btn btn-danger" onclick="confirmAction('TUM OYUN VERILERI SILINECEK! Bu islem geri alinamaz. Emin misiniz?',gameReset)">Oyun Reset</button>
       </div>
       <div id="status-msg"></div>
     </div>
@@ -170,6 +170,27 @@
         <button class="btn" onclick="addUnits()">Unite Ekle</button>
       </div>
       <div style="font-size:10px;color:var(--muted);margin-top:6px">Karsi taraf unitesi eklenirse backend reddeder.</div>
+    </div>
+
+    <div class="card">
+      <h3>Koloni Ayarlari</h3>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+        <button class="btn" onclick="loadKoloniStats()">Yenile</button>
+        <button class="btn" onclick="confirmAction('Koloni oranlari kaydedilecek ve mevcut koloniler yeniden olusturulacak. Emin misiniz?',saveKoloniConfig)">Kaydet &amp; Uygula</button>
+      </div>
+      <div id="koloni-stats" style="margin-bottom:12px"></div>
+      <div style="margin-bottom:8px;font-size:11px;color:var(--muted)">Kaynak dagılım oranları (toplam %100 olmali):</div>
+      <div id="koloni-oranlar" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px;margin-bottom:12px"></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px">
+        <div style="display:flex;align-items:center;gap:4px">
+          <label style="font-size:10px;color:var(--muted);width:80px">Min Bonus %</label>
+          <input type="number" id="kol-bonus-min" value="15" min="1" max="100" style="padding:4px;width:50px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:11px">
+        </div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <label style="font-size:10px;color:var(--muted);width:80px">Max Bonus %</label>
+          <input type="number" id="kol-bonus-max" value="25" min="1" max="100" style="padding:4px;width:50px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:11px">
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -340,6 +361,10 @@ async function loadLogins() {
   `).join('');
 }
 
+function confirmAction(msg, fn) {
+  if (confirm(msg)) fn();
+}
+
 async function triggerCron() {
   const r = await fetch(API+'/api/admin/cron/trigger',{method:'POST',headers:hdr()}).then(r=>r.json());
   document.getElementById('status-msg').textContent = r.skipped ? 'Son 30dk icinde calismis, atlandi.' : 'Cron tetiklendi!';
@@ -352,6 +377,63 @@ async function koloniReset() {
 async function gameReset() {
   const r = await fetch(API+'/api/admin/reset',{method:'POST',headers:hdr()}).then(r=>r.json());
   document.getElementById('status-msg').textContent = r.mesaj || 'Reset tamamlandi';
+}
+
+// ── Koloni Ayarlari ──
+const KOL_KAYNAKLAR = ['odun','tas','metal','altin','bugday','balik'];
+
+async function loadKoloniStats() {
+  const d = await fetch(API+'/api/admin/koloni-stats?secret='+SECRET).then(r=>r.json());
+  if(!d.ok) { document.getElementById('koloni-stats').innerHTML='<span style="color:var(--red)">Yukleme hatasi</span>'; return; }
+
+  // Istatistikler
+  document.getElementById('koloni-stats').innerHTML = `
+    <div class="stat-grid">
+      <div class="stat"><div class="val">${d.toplam_slot}</div><div class="lbl">Toplam Slot</div></div>
+      <div class="stat"><div class="val">${d.toplam_koloni}</div><div class="lbl">Aktif Koloni</div></div>
+      <div class="stat"><div class="val ok">${d.bos_koloni}</div><div class="lbl">Bos</div></div>
+      <div class="stat"><div class="val" style="color:var(--blue)">${d.sahipli_koloni}</div><div class="lbl">Sahipli</div></div>
+    </div>
+    <table style="margin-top:10px"><thead><tr><th>Kaynak</th><th>Adet</th><th>Oran</th><th>Ort Bonus</th></tr></thead>
+    <tbody>${d.dagilim.map(r=>`<tr><td>${r.kaynak}</td><td>${r.adet}</td><td>%${r.oran}</td><td>%${r.ort_bonus}</td></tr>`).join('')}</tbody></table>
+  `;
+
+  // Oran inputlari
+  document.getElementById('koloni-oranlar').innerHTML = KOL_KAYNAKLAR.map(k => {
+    const mevcut = d.config?.oranlar?.[k] || Math.round(100/KOL_KAYNAKLAR.length);
+    return `<div style="display:flex;align-items:center;gap:4px">
+      <label style="font-size:10px;color:var(--muted);width:50px">${k}</label>
+      <input type="number" id="kol-oran-${k}" value="${mevcut}" min="0" max="100"
+        style="padding:4px;width:50px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:11px">
+      <span style="font-size:9px;color:var(--muted)">%</span>
+    </div>`;
+  }).join('');
+
+  if(d.config) {
+    document.getElementById('kol-bonus-min').value = d.config.bonus_min || 15;
+    document.getElementById('kol-bonus-max').value = d.config.bonus_max || 25;
+  }
+}
+
+async function saveKoloniConfig() {
+  const oranlar = {};
+  let toplam = 0;
+  KOL_KAYNAKLAR.forEach(k => {
+    const v = parseInt(document.getElementById('kol-oran-'+k).value) || 0;
+    oranlar[k] = v;
+    toplam += v;
+  });
+  if(toplam !== 100) {
+    document.getElementById('status-msg').textContent = `Oranlar toplami %${toplam} — %100 olmali!`;
+    return;
+  }
+  const bonus_min = parseInt(document.getElementById('kol-bonus-min').value) || 15;
+  const bonus_max = parseInt(document.getElementById('kol-bonus-max').value) || 25;
+
+  const r = await fetch(API+'/api/admin/koloni-config',{method:'POST',headers:hdr(),
+    body:JSON.stringify({oranlar, bonus_min, bonus_max})}).then(r=>r.json());
+  document.getElementById('status-msg').textContent = r.ok ? r.mesaj : (r.error||'Hata');
+  if(r.ok) setTimeout(loadKoloniStats, 2000);
 }
 const RES_LIST = [
   {id:'odun',label:'Odun'},{id:'tas',label:'Tas'},{id:'metal',label:'Metal'},{id:'altin',label:'Altin'},
