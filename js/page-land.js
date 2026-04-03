@@ -49,11 +49,12 @@ function applyLandCapRules(){
   }
 }
 
+// Arazi borsasi her 4 Palantis gunu (= 4 gercek saat) yenilenir
 function getCycleKey(now){
   const d = new Date(now);
   d.setMinutes(0,0,0);
   const h = now.getHours();
-  d.setHours(h%2===0 ? h : h-1);
+  d.setHours(h - (h % 4)); // 4 saatlik bloklar: 0,4,8,12,16,20
   return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}T${pad2(d.getHours())}`;
 }
 
@@ -61,7 +62,7 @@ function next2h(now){
   const t = new Date(now);
   t.setMinutes(0,0,0);
   const h = now.getHours();
-  const nh = (h%2===0) ? h+2 : h+1;
+  const nh = h + (4 - (h % 4)); // sonraki 4 saatlik blok
   t.setHours(nh);
   return t;
 }
