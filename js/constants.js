@@ -599,6 +599,7 @@ const ACTIVITY_ICONS = {
   buyu_alisveris:'🔮',
   pazar_ilan:    '📢',
   pazar_alisveris:'🤝',
+  ekonomi:       '🏭',
   koloni_fetih:  '🏰',
   koloni_cekil:  '🏳️',
   koloni_kaynak: '📦',
