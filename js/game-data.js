@@ -131,6 +131,8 @@ async function loadGameData() {
       window._palantisReyting = armyData.reyting || 0;
       // Essek bilgisi
       setText('hud-essek', res.essek || 0);
+      // Sehir degeri ordu ile guncelle
+      if (typeof updateCityStats === 'function') updateCityStats();
     } catch(e) {}
 
     // Arazi verisi guncelle

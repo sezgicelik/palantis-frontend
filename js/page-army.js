@@ -367,10 +367,11 @@ function renderOrduListe(){
           <button class="btn ghost" style="font-size:10px;padding:3px 8px;border-color:#c0392b;color:#c0392b" onclick="orduSil(${o.id})">Dagit</button>
         </div>
       </div>
-      <div style="display:flex;gap:12px;font-size:11px;color:#aaa;margin-bottom:6px">
+      <div style="display:flex;gap:8px;font-size:11px;color:#aaa;margin-bottom:6px;flex-wrap:wrap">
         <span style="color:#e74c3c">ATK: ${(o.atk||0).toLocaleString()}</span>
         <span style="color:#3498db">DEF: ${(o.def||0).toLocaleString()}</span>
         <span>👥 ${o.total_units||0}</span>
+        <span style="color:#f1c40f;font-weight:bold">%${window._palantisReyting||0}</span>
       </div>
       <div style="flex:1">
         ${unitsHTML || '<div style="color:#555;font-size:11px">Unite yok</div>'}
