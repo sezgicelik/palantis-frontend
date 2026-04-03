@@ -331,7 +331,7 @@ function renderOrduListe(){
   const side = OYUNCU && OYUNCU.taraf === 'kotu' ? 'dark' : 'light';
   const playerUnits = Object.values(UNITS).filter(u => u.side === side && u.producible !== false);
 
-  el.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px">' + ORDULAR.map(o => {
+  el.innerHTML = ORDULAR.map(o => {
     // Ordudaki üniteleri dikey listele
     const unitsHTML = (o.units||[]).filter(u=>u.adet>0).map(u => {
       const def = UNITS[u.unite_id];
@@ -359,7 +359,7 @@ function renderOrduListe(){
       </div>` : '';
 
     return `
-    <div class="card" style="padding:12px;border-left:3px solid #d4af37;display:flex;flex-direction:column">
+    <div class="card" style="padding:14px;margin-bottom:12px;border-left:3px solid #d4af37">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:8px">
         <div style="font-size:14px;font-weight:bold;color:#d4af37">${o.isim}</div>
         <div style="display:flex;gap:4px">
@@ -367,18 +367,18 @@ function renderOrduListe(){
           <button class="btn ghost" style="font-size:10px;padding:3px 8px;border-color:#c0392b;color:#c0392b" onclick="orduSil(${o.id})">Dagit</button>
         </div>
       </div>
-      <div style="display:flex;gap:8px;font-size:11px;color:#aaa;margin-bottom:6px;flex-wrap:wrap">
-        <span style="color:#e74c3c">ATK: ${(o.atk||0).toLocaleString()}</span>
-        <span style="color:#3498db">DEF: ${(o.def||0).toLocaleString()}</span>
-        <span>👥 ${o.total_units||0}</span>
-        <span style="color:#f1c40f;font-weight:bold">%${o.reyting||0}</span>
+      <div style="display:flex;gap:12px;font-size:12px;color:#aaa;margin-bottom:8px;flex-wrap:wrap">
+        <span style="color:#e74c3c">⚔️ ATK: ${(o.atk||0).toLocaleString()}</span>
+        <span style="color:#3498db">🛡️ DEF: ${(o.def||0).toLocaleString()}</span>
+        <span>👥 ${o.total_units||0} unite</span>
+        ${o.total_units > 0 ? `<span style="color:#f1c40f;font-weight:bold">Reyting: %${o.reyting||0}</span>` : ''}
       </div>
       <div style="flex:1">
         ${unitsHTML || '<div style="color:#555;font-size:11px">Unite yok</div>'}
       </div>
       ${poolHTML}
     </div>`;
-  }).join('') + '</div>';
+  }).join('');
 }
 
 async function orduUniteEkle(armyId, uniteId, adet){
@@ -759,15 +759,14 @@ function renderFormationPool() {
   armyUnits.filter(au => au.adet > 0).forEach(function(au){
     const uid = au.unite_id;
     if (!UNITS[uid] || UNITS[uid].side !== side) return;
-    // Kaç tanesi zaten saflarda?
-    let placed = 0;
-    FORMATION_STATE.forEach(row => row.forEach(u => { if (u === uid) placed++; }));
-    const kalan = au.adet - placed;
+    // Bu tip zaten saflarda mi?
+    let zatenYerlesti = false;
+    FORMATION_STATE.forEach(row => row.forEach(u => { if (u === uid) zatenYerlesti = true; }));
     const chip = document.createElement('div');
     chip.className = 'formation-unit-chip';
-    chip.style.opacity = kalan > 0 ? '1' : '0.3';
-    chip.textContent = (UNITS[uid].icon || '') + ' ' + UNITS[uid].name + ' (' + kalan + '/' + au.adet + ')';
-    if (kalan > 0) {
+    chip.style.opacity = zatenYerlesti ? '0.3' : '1';
+    chip.textContent = (UNITS[uid].icon || '') + ' ' + UNITS[uid].name + (zatenYerlesti ? ' ✓' : '');
+    if (!zatenYerlesti) {
       (function(u){ chip.onclick = function(){ placeUnitInSaf(u); }; })(uid);
     }
     pool.appendChild(chip);
@@ -775,17 +774,12 @@ function renderFormationPool() {
 }
 
 function placeUnitInSaf(unitId) {
-  // Ordudaki bu üniteden kaç tane var?
-  const army = ORDULAR.find(o => o.id === FORMATION_ARMY_ID);
-  const armyUnit = army ? (army.units || []).find(u => u.unite_id === unitId) : null;
-  const ordudaVar = armyUnit ? armyUnit.adet : 0;
+  // Her ünite tipi 1 kere yerleştirilebilir
+  let zatenVar = false;
+  FORMATION_STATE.forEach(row => row.forEach(uid => { if (uid === unitId) zatenVar = true; }));
 
-  // Saflarda kaç tane zaten yerleştirilmiş?
-  let yerlestirilen = 0;
-  FORMATION_STATE.forEach(row => row.forEach(uid => { if (uid === unitId) yerlestirilen++; }));
-
-  if (yerlestirilen >= ordudaVar) {
-    toast(`${UNITS[unitId]?.name || unitId}: orduda ${ordudaVar} adet var, hepsi yerleştirilmiş!`);
+  if (zatenVar) {
+    toast(`${UNITS[unitId]?.name || unitId} zaten saflarda! Her tip 1 kere yerleşir.`);
     return;
   }
 
