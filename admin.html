@@ -586,7 +586,12 @@ async function saveMapConfig() {
   const x = parseInt(document.getElementById('map-x').value);
   const y = parseInt(document.getElementById('map-y').value);
   const r = await fetch(API+'/api/admin/map-config',{method:'POST',headers:hdr(),body:JSON.stringify({harita_x:x,harita_y:y})}).then(r=>r.json());
-  document.getElementById('map-msg').textContent = r.ok ? r.mesaj : (r.error||'Hata');
+  let msg = r.ok ? r.mesaj : (r.error||'Hata');
+  if (r.tasinan_oyuncular && r.tasinan_oyuncular.length > 0) {
+    msg += '\nTasinan: ' + r.tasinan_oyuncular.map(o => `${o.username} (${o.eski} → ${o.yeni})`).join(', ');
+  }
+  document.getElementById('map-msg').textContent = msg;
+  document.getElementById('map-msg').style.whiteSpace = 'pre-line';
   if(r.ok) setTimeout(loadMapConfig, 2000);
 }
 
