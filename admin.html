@@ -60,6 +60,7 @@
     <button onclick="switchTab('logins',this)">Login Loglar</button>
     <button onclick="switchTab('actions',this)">Islemler</button>
     <button onclick="switchTab('premium',this)">Premium</button>
+    <button onclick="switchTab('sezon',this)">Sezon</button>
     <button onclick="switchTab('market-cfg',this)">Market Ayar</button>
     <button onclick="switchTab('buyu',this)">Buyu Dukkani</button>
     <button onclick="switchTab('irklar',this)">Irk Bonuslari</button>
@@ -225,6 +226,26 @@
     </div>
   </div>
 
+  <!-- SEZON TAB -->
+  <div id="tab-sezon" class="panel">
+    <div class="card">
+      <h3>Aktif Sezon</h3>
+      <div id="sezon-info" class="stat-grid" style="margin-bottom:12px"></div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px">
+        <input id="sezon-aciklama" placeholder="Yeni sezon aciklamasi" style="padding:6px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;width:200px;font-size:11px">
+        <button class="btn btn-danger" onclick="confirmAction('YENi SEZON BASLATILACAK! Tum oyun verileri silinir, rozetler verilir. Emin misiniz?',yeniSezon)">Yeni Sezon Baslat</button>
+      </div>
+      <div id="sezon-msg" style="color:var(--green);font-size:11px;margin-top:6px"></div>
+    </div>
+    <div class="card">
+      <h3>Sezon Rozetleri</h3>
+      <div style="overflow-x:auto">
+        <table><thead><tr><th>Kullanici</th><th>Sezon</th><th>Taraf</th><th>Irk</th><th>Cag</th><th>Kral</th><th>Tarih</th></tr></thead>
+        <tbody id="sezon-rozetler"></tbody></table>
+      </div>
+    </div>
+  </div>
+
   <!-- MARKET AYAR TAB -->
   <div id="tab-market-cfg" class="panel">
     <div class="card">
@@ -356,6 +377,7 @@ function switchTab(tab, el) {
   if (tab === 'map') loadMapConfig();
   if (tab === 'actions') loadKoloniStats();
   if (tab === 'premium') loadPremium();
+  if (tab === 'sezon') loadSezon();
   if (tab === 'market-cfg') loadMarketConfig();
   if (tab === 'buyu') loadBuyuConfig();
   if (tab === 'irklar') loadIrkBonuslari();
@@ -706,6 +728,32 @@ async function premiumIptal() {
   const r = await fetch(API+'/api/admin/premium-iptal',{method:'POST',headers:hdr(),body:JSON.stringify({username})}).then(r=>r.json());
   document.getElementById('prem-msg').textContent = r.ok ? r.mesaj : (r.error||'Hata');
   if(r.ok) setTimeout(loadPremium, 1000);
+}
+
+// ── Sezon ──
+async function loadSezon() {
+  const d = await fetch(API+'/api/admin/sezon?secret='+SECRET).then(r=>r.json());
+  if(!d.ok) return;
+  const s = d.sezon;
+  document.getElementById('sezon-info').innerHTML = `
+    <div class="stat"><div class="val">${s.aktif_sezon||1}</div><div class="lbl">Aktif Sezon</div></div>
+    <div class="stat"><div class="val">${s.baslangic?fmtDate(s.baslangic):'-'}</div><div class="lbl">Baslangic</div></div>
+    <div class="stat"><div class="val">${s.aciklama||'-'}</div><div class="lbl">Aciklama</div></div>
+    <div class="stat"><div class="val">${d.rozetler.length}</div><div class="lbl">Toplam Rozet</div></div>
+  `;
+  const TARAF_R = {iyi:'#f1c40f',kotu:'#3498db'};
+  document.getElementById('sezon-rozetler').innerHTML = d.rozetler.map(r =>
+    `<tr><td>${r.username}</td><td>S${r.sezon_no}</td>
+    <td style="color:${TARAF_R[r.taraf]||'#888'}">${r.taraf==='iyi'?'Aydinlik':'Karanlik'}</td>
+    <td>${r.irk||'-'}</td><td>${r.cag}. Cag</td><td>${r.kral||'-'}</td><td>${fmtDate(r.bitis_tarihi)}</td></tr>`
+  ).join('') || '<tr><td colspan="7" style="color:var(--muted);text-align:center">Henuz rozet yok</td></tr>';
+}
+
+async function yeniSezon() {
+  const aciklama = document.getElementById('sezon-aciklama').value;
+  const r = await fetch(API+'/api/admin/sezon/yeni',{method:'POST',headers:hdr(),body:JSON.stringify({aciklama})}).then(r=>r.json());
+  document.getElementById('sezon-msg').textContent = r.ok ? r.mesaj : (r.error||'Hata');
+  if(r.ok) setTimeout(loadSezon, 2000);
 }
 
 // ── Market Satilabilir Ayarlari ──

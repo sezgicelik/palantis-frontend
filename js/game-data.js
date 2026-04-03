@@ -401,6 +401,24 @@ function obApplyPlayer(p) {
     if (el) el.style.display = 'none';
   }
 
+  // Sezon rozetleri
+  const rozetContainer = document.getElementById('home-rozetler');
+  if (rozetContainer && p.rozetler && p.rozetler.length > 0) {
+    const TARAF_RENK = { iyi:'#f1c40f', kotu:'#3498db' };
+    const TARAF_ISIM = { iyi:'Aydınlık', kotu:'Karanlık' };
+    const CAG_ROMA = ['','I','II','III','IV','V'];
+    rozetContainer.style.display = 'flex';
+    rozetContainer.innerHTML = p.rozetler.map(r => {
+      const renk = TARAF_RENK[r.taraf] || '#888';
+      const bg = r.taraf === 'iyi' ? 'rgba(241,196,15,0.15)' : 'rgba(52,152,219,0.15)';
+      return `<div title="Sezon ${r.sezon_no}: ${TARAF_ISIM[r.taraf]||r.taraf} ${CAG_ROMA[r.cag]||r.cag}. Çağ"
+        style="padding:2px 8px;border-radius:12px;font-size:8px;font-weight:bold;
+        border:1px solid ${renk};color:${renk};background:${bg};white-space:nowrap;cursor:default">
+        S${r.sezon_no} ${r.taraf==='iyi'?'☀️':'🌙'} Ç${r.cag}
+      </div>`;
+    }).join('');
+  }
+
   // Premium rozeti
   const premBadge = document.getElementById('home-premium-badge');
   const premInfo = document.getElementById('home-premium-info');
