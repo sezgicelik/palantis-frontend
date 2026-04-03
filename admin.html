@@ -214,10 +214,22 @@
       <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
         <select id="kol-filtre-kaynak" onchange="loadKoloniList()" style="padding:4px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:11px">
           <option value="">Tum Kaynaklar</option>
-          <option value="odun">Odun</option><option value="tas">Tas</option><option value="metal">Metal</option>
-          <option value="altin">Altin</option><option value="bugday">Bugday</option><option value="balik">Balik</option>
-          <option value="kereste">Kereste</option><option value="islenmis">Islenmis Metal</option>
-          <option value="ekmek">Ekmek</option><option value="pismis">Pismis</option>
+          <optgroup label="Hammadde">
+            <option value="odun">Odun</option><option value="tas">Tas</option><option value="metal">Metal</option>
+            <option value="altin">Altin</option><option value="bugday">Bugday</option><option value="balik">Balik</option>
+          </optgroup>
+          <optgroup label="Islenmis">
+            <option value="kereste">Kereste</option><option value="islenmis">Islenmis Metal</option>
+            <option value="ekmek">Ekmek</option><option value="pismis">Pismis</option>
+          </optgroup>
+          <optgroup label="Mana">
+            <option value="mana_beyaz">Beyaz Mana</option><option value="mana_kirmizi">Kirmizi Mana</option>
+            <option value="mana_mavi">Mavi Mana</option><option value="mana_yesil">Yesil Mana</option>
+          </optgroup>
+          <optgroup label="Ozel">
+            <option value="at">At</option><option value="kurt">Kurt</option>
+            <option value="gizlilik">Gizlilik</option><option value="buyulu_yumurta">Buyulu Yumurta</option>
+          </optgroup>
         </select>
         <select id="kol-filtre-durum" onchange="loadKoloniList()" style="padding:4px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:11px">
           <option value="">Tum Durumlar</option>
@@ -421,7 +433,16 @@ async function gameReset() {
 }
 
 // ── Koloni Ayarlari ──
-const KOL_KAYNAKLAR = ['odun','tas','metal','altin','bugday','balik','kereste','islenmis','ekmek','pismis'];
+// Koloni kaynak kategorileri — admin istedigini acar
+const KOL_KATEGORILER = {
+  'Hammadde':  ['odun','tas','metal','altin','bugday','balik'],
+  'Islenmis':  ['kereste','islenmis','ekmek','pismis','pismis_et'],
+  'Mana':      ['mana_beyaz','mana_kirmizi','mana_mavi','mana_yesil'],
+  'Ozel':      ['at','kurt','gizlilik','buyulu_yumurta'],
+};
+// Varsayilan aktif olanlar
+const KOL_VARSAYILAN = { odun:25, kereste:20, metal:20, islenmis:15, altin:20 };
+const KOL_KAYNAKLAR = Object.values(KOL_KATEGORILER).flat();
 
 async function loadKoloniStats() {
   const d = await fetch(API+'/api/admin/koloni-stats?secret='+SECRET).then(r=>r.json());
@@ -439,16 +460,25 @@ async function loadKoloniStats() {
     <tbody>${d.dagilim.map(r=>`<tr><td>${r.kaynak}</td><td>${r.adet}</td><td>%${r.oran}</td><td>%${r.ort_bonus}</td></tr>`).join('')}</tbody></table>
   `;
 
-  // Oran inputlari
-  document.getElementById('koloni-oranlar').innerHTML = KOL_KAYNAKLAR.map(k => {
-    const mevcut = d.config?.oranlar?.[k] || Math.round(100/KOL_KAYNAKLAR.length);
-    return `<div style="display:flex;align-items:center;gap:4px">
-      <label style="font-size:10px;color:var(--muted);width:50px">${k}</label>
-      <input type="number" id="kol-oran-${k}" value="${mevcut}" min="0" max="100"
-        style="padding:4px;width:50px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:11px">
-      <span style="font-size:9px;color:var(--muted)">%</span>
-    </div>`;
-  }).join('');
+  // Oran inputlari — kategorili
+  let oranHTML = '';
+  for (const [kat, kaynaklar] of Object.entries(KOL_KATEGORILER)) {
+    oranHTML += `<div style="margin-bottom:8px"><div style="font-size:10px;color:var(--gold);margin-bottom:4px;font-weight:bold">${kat}</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:4px">`;
+    for (const k of kaynaklar) {
+      const mevcut = d.config?.oranlar?.[k] ?? (KOL_VARSAYILAN[k] || 0);
+      const aktif = mevcut > 0;
+      oranHTML += `<div style="display:flex;align-items:center;gap:4px;opacity:${aktif?1:0.5}">
+        <label style="font-size:10px;color:var(--muted);width:65px">${k}</label>
+        <input type="number" id="kol-oran-${k}" value="${mevcut}" min="0" max="100"
+          style="padding:3px;width:45px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:11px"
+          oninput="this.parentElement.style.opacity=this.value>0?1:0.5">
+        <span style="font-size:9px;color:var(--muted)">%</span>
+      </div>`;
+    }
+    oranHTML += `</div></div>`;
+  }
+  document.getElementById('koloni-oranlar').innerHTML = oranHTML;
 
   if(d.config) {
     document.getElementById('kol-bonus-min').value = d.config.bonus_min || 15;
