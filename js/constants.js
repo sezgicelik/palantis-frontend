@@ -593,6 +593,8 @@ const ACTIVITY_ICONS = {
   admin:         '👑',
   vergi:         '🏛️',
   arazi:         '🌍',
+  essek:         '🫏',
+  kervan:        '🐪',
 };
 
 const SAF_LIMITS = [3, 3, 5, 3]; // 14 total slots
