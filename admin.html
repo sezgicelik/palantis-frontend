@@ -60,6 +60,7 @@
     <button onclick="switchTab('logins',this)">Login Loglar</button>
     <button onclick="switchTab('actions',this)">Islemler</button>
     <button onclick="switchTab('premium',this)">Premium</button>
+    <button onclick="switchTab('market-cfg',this)">Market Ayar</button>
     <button onclick="switchTab('buyu',this)">Buyu Dukkani</button>
     <button onclick="switchTab('irklar',this)">Irk Bonuslari</button>
     <button onclick="switchTab('map',this)">Harita & Koloni</button>
@@ -223,6 +224,17 @@
     </div>
   </div>
 
+  <!-- MARKET AYAR TAB -->
+  <div id="tab-market-cfg" class="panel">
+    <div class="card">
+      <h3>Satilabilir Hammaddeler</h3>
+      <p style="font-size:10px;color:var(--muted);margin-bottom:10px">Tikla = aktif/pasif. Aktif olanlar oyuncu marketinde satilabiilir.</p>
+      <div id="mc-liste" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"></div>
+      <button class="btn" onclick="confirmAction('Satilabilir kaynaklar kaydedilecek. Emin misiniz?',saveMarketConfig)">Kaydet</button>
+      <div id="mc-msg" style="color:var(--green);font-size:11px;margin-top:6px"></div>
+    </div>
+  </div>
+
   <!-- BUYU DUKKANI ADMIN TAB -->
   <div id="tab-buyu" class="panel">
     <div class="card">
@@ -343,6 +355,7 @@ function switchTab(tab, el) {
   if (tab === 'map') loadMapConfig();
   if (tab === 'actions') loadKoloniStats();
   if (tab === 'premium') loadPremium();
+  if (tab === 'market-cfg') loadMarketConfig();
   if (tab === 'buyu') loadBuyuConfig();
   if (tab === 'irklar') loadIrkBonuslari();
 }
@@ -689,6 +702,50 @@ async function premiumIptal() {
   const r = await fetch(API+'/api/admin/premium-iptal',{method:'POST',headers:hdr(),body:JSON.stringify({username})}).then(r=>r.json());
   document.getElementById('prem-msg').textContent = r.ok ? r.mesaj : (r.error||'Hata');
   if(r.ok) setTimeout(loadPremium, 1000);
+}
+
+// ── Market Satilabilir Ayarlari ──
+let MC_AKTIF = [];
+let MC_TUM = [];
+
+async function loadMarketConfig() {
+  const d = await fetch(API+'/api/admin/satilabilir?secret='+SECRET).then(r=>r.json());
+  if(!d.ok) return;
+  MC_TUM = d.tum_kaynaklar;
+  MC_AKTIF = new Set(d.aktif);
+
+  const KAT = {
+    'Market Hammadde': ['gumus','bakir','mitril','kalay','kehribar','obsidyen','yakut','zumrut','ejderha_tasi','elmas'],
+    'Temel Kaynak': ['odun','tas','metal','altin','bugday','balik'],
+    'Islenmis': ['kereste','islenmis','ekmek','pismis','pismis_et','cig_et'],
+    'Mana': ['mana_beyaz','mana_kirmizi','mana_mavi','mana_yesil'],
+    'Ozel': ['at','kurt','gizlilik','buyulu_yumurta','ates_tozu','ay_cigi','golgeler_otu','ejderha_goz_damla']
+  };
+
+  let html = '';
+  for (const [kat, kaynaklar] of Object.entries(KAT)) {
+    html += `<div style="width:100%;margin-bottom:6px"><div style="font-size:10px;color:var(--gold);margin-bottom:3px;font-weight:bold">${kat}</div><div style="display:flex;flex-wrap:wrap;gap:4px">`;
+    for (const k of kaynaklar) {
+      const aktif = MC_AKTIF.has(k);
+      html += `<button id="mc-${k}" onclick="mcToggle('${k}')" style="padding:4px 10px;font-size:10px;border-radius:4px;border:1px solid ${aktif?'#2ecc71':'#333'};background:${aktif?'rgba(46,204,113,0.15)':'#1a1a1a'};color:${aktif?'#2ecc71':'#666'};cursor:pointer">${k}</button>`;
+    }
+    html += '</div></div>';
+  }
+  document.getElementById('mc-liste').innerHTML = html;
+}
+
+function mcToggle(k) {
+  if (MC_AKTIF.has(k)) MC_AKTIF.delete(k); else MC_AKTIF.add(k);
+  const el = document.getElementById('mc-'+k);
+  const aktif = MC_AKTIF.has(k);
+  el.style.borderColor = aktif ? '#2ecc71' : '#333';
+  el.style.background = aktif ? 'rgba(46,204,113,0.15)' : '#1a1a1a';
+  el.style.color = aktif ? '#2ecc71' : '#666';
+}
+
+async function saveMarketConfig() {
+  const r = await fetch(API+'/api/admin/satilabilir',{method:'POST',headers:hdr(),body:JSON.stringify({aktif:[...MC_AKTIF]})}).then(r=>r.json());
+  document.getElementById('mc-msg').textContent = r.ok ? r.mesaj : (r.error||'Hata');
 }
 
 // ── Buyu Dukkani Config ──
