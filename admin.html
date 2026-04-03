@@ -216,6 +216,8 @@
           <option value="">Tum Kaynaklar</option>
           <option value="odun">Odun</option><option value="tas">Tas</option><option value="metal">Metal</option>
           <option value="altin">Altin</option><option value="bugday">Bugday</option><option value="balik">Balik</option>
+          <option value="kereste">Kereste</option><option value="islenmis">Islenmis Metal</option>
+          <option value="ekmek">Ekmek</option><option value="pismis">Pismis</option>
         </select>
         <select id="kol-filtre-durum" onchange="loadKoloniList()" style="padding:4px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:11px">
           <option value="">Tum Durumlar</option>
@@ -261,6 +263,7 @@ function switchTab(tab, el) {
   if (tab === 'players') loadPlayers();
   if (tab === 'logins') loadLogins();
   if (tab === 'map') loadMapConfig();
+  if (tab === 'actions') loadKoloniStats();
 }
 
 function hdr() { return { 'x-admin-secret': SECRET, 'Content-Type': 'application/json' }; }
@@ -410,6 +413,7 @@ async function triggerCron() {
 async function koloniReset() {
   const r = await fetch(API+'/api/admin/koloni-reset',{method:'POST',headers:hdr()}).then(r=>r.json());
   document.getElementById('status-msg').textContent = `Koloni reset: ${r.slotlar} slot, ${r.koloniler} koloni`;
+  setTimeout(()=>{ loadKoloniStats(); loadKoloniList(); }, 2000);
 }
 async function gameReset() {
   const r = await fetch(API+'/api/admin/reset',{method:'POST',headers:hdr()}).then(r=>r.json());
@@ -417,7 +421,7 @@ async function gameReset() {
 }
 
 // ── Koloni Ayarlari ──
-const KOL_KAYNAKLAR = ['odun','tas','metal','altin','bugday','balik'];
+const KOL_KAYNAKLAR = ['odun','tas','metal','altin','bugday','balik','kereste','islenmis','ekmek','pismis'];
 
 async function loadKoloniStats() {
   const d = await fetch(API+'/api/admin/koloni-stats?secret='+SECRET).then(r=>r.json());
@@ -559,8 +563,10 @@ async function saveMapConfig() {
 const KAYNAK_RENK = {odun:'#8B4513',tas:'#888',metal:'#607d8b',altin:'var(--gold)',bugday:'#daa520',balik:'#4fc3f7'};
 
 async function loadKoloniList() {
-  const kaynak = document.getElementById('kol-filtre-kaynak').value;
-  const durum = document.getElementById('kol-filtre-durum').value;
+  const bodyEl = document.getElementById('koloni-list-body');
+  if (!bodyEl) return; // Harita sekmesi henuz acilmamis
+  const kaynak = document.getElementById('kol-filtre-kaynak')?.value || '';
+  const durum = document.getElementById('kol-filtre-durum')?.value || '';
   let url = API+'/api/admin/koloni-list?secret='+SECRET+'&limit=300';
   if(kaynak) url += '&kaynak='+kaynak;
   if(durum) url += '&durum='+durum;
