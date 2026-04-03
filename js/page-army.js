@@ -331,48 +331,53 @@ function renderOrduListe(){
   const side = OYUNCU && OYUNCU.taraf === 'kotu' ? 'dark' : 'light';
   const playerUnits = Object.values(UNITS).filter(u => u.side === side && u.producible !== false);
 
-  el.innerHTML = ORDULAR.map(o => {
-    // Ordudaki üniteleri listele
+  el.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px">' + ORDULAR.map(o => {
+    // Ordudaki üniteleri dikey listele
     const unitsHTML = (o.units||[]).filter(u=>u.adet>0).map(u => {
       const def = UNITS[u.unite_id];
-      return `<span style="display:inline-flex;align-items:center;gap:4px;background:#1a1a0a;border:1px solid #333;border-radius:6px;padding:3px 8px;font-size:11px;color:#ccc">
-        ${def?.icon||'?'} ${def?.name||u.unite_id} ×${u.adet}
-        <button style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:13px;padding:0 2px" onclick="orduUniteCircar(${o.id},'${u.unite_id}',1)" title="1 çıkar">−</button>
-      </span>`;
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:3px 0;border-bottom:1px solid #1a1a1a">
+        <span style="font-size:11px;color:#ccc">${def?.icon||'?'} ${def?.name||u.unite_id}</span>
+        <span style="display:flex;align-items:center;gap:4px">
+          <span style="font-size:11px;color:#d4af37;font-weight:bold">×${u.adet}</span>
+          <button style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:12px;padding:0 2px" onclick="orduUniteCircar(${o.id},'${u.unite_id}',1)" title="1 çıkar">−</button>
+        </span>
+      </div>`;
     }).join('');
 
     // Havuzdan eklenebilir üniteler
     const poolUnits = playerUnits.filter(u => u.count > 0);
     const poolHTML = poolUnits.length > 0 ? `
-      <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
-        <span style="color:#888;font-size:11px">Havuzdan ekle:</span>
+      <div style="margin-top:6px;border-top:1px solid #222;padding-top:6px">
+        <div style="color:#888;font-size:9px;margin-bottom:4px">Havuzdan ekle:</div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap">
         ${poolUnits.map(u => `
-          <button class="btn ghost" style="font-size:10px;padding:3px 8px" onclick="orduUniteEkle(${o.id},'${u.id}',1)">
+          <button class="btn ghost" style="font-size:9px;padding:2px 6px" onclick="orduUniteEkle(${o.id},'${u.id}',1)">
             ${u.icon} ${u.name} (${u.count})
           </button>
         `).join('')}
+        </div>
       </div>` : '';
 
     return `
-    <div class="card" style="margin-bottom:12px;border-left:3px solid #d4af37">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-        <div>
-          <div style="font-size:16px;font-weight:bold;color:#d4af37">${o.isim}</div>
-          <div style="color:#aaa;font-size:13px;margin-top:4px">
-            <span style="color:#e74c3c">⚔️ ATK: ${(o.atk||0).toLocaleString()}</span> &nbsp;|&nbsp;
-            <span style="color:#3498db">🛡️ DEF: ${(o.def||0).toLocaleString()}</span> &nbsp;|&nbsp;
-            👥 ${o.total_units||0} ünite
-          </div>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn ghost" style="font-size:12px;padding:5px 12px" onclick="armyTab('formation');document.getElementById('formation-army-select').value='${o.id}';loadFormationForArmy()">Dizilim</button>
-          <button class="btn ghost" style="font-size:12px;padding:5px 12px;border-color:#c0392b;color:#c0392b" onclick="orduSil(${o.id})">Dağıt</button>
+    <div class="card" style="padding:12px;border-left:3px solid #d4af37;display:flex;flex-direction:column">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:8px">
+        <div style="font-size:14px;font-weight:bold;color:#d4af37">${o.isim}</div>
+        <div style="display:flex;gap:4px">
+          <button class="btn ghost" style="font-size:10px;padding:3px 8px" onclick="armyTab('formation');document.getElementById('formation-army-select').value='${o.id}';loadFormationForArmy()">Dizilim</button>
+          <button class="btn ghost" style="font-size:10px;padding:3px 8px;border-color:#c0392b;color:#c0392b" onclick="orduSil(${o.id})">Dagit</button>
         </div>
       </div>
-      ${unitsHTML ? `<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">${unitsHTML}</div>` : '<div style="margin-top:8px;color:#555;font-size:12px">Henüz ünite atanmamış.</div>'}
+      <div style="display:flex;gap:12px;font-size:11px;color:#aaa;margin-bottom:6px">
+        <span style="color:#e74c3c">ATK: ${(o.atk||0).toLocaleString()}</span>
+        <span style="color:#3498db">DEF: ${(o.def||0).toLocaleString()}</span>
+        <span>👥 ${o.total_units||0}</span>
+      </div>
+      <div style="flex:1">
+        ${unitsHTML || '<div style="color:#555;font-size:11px">Unite yok</div>'}
+      </div>
       ${poolHTML}
     </div>`;
-  }).join('');
+  }).join('') + '</div>';
 }
 
 async function orduUniteEkle(armyId, uniteId, adet){
