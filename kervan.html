@@ -55,7 +55,8 @@
 <script src="js/hud.js"></script>
 <script src="js/layout.js"></script>
 <script>
-const DURUM_ISIM = { sehirde:'Sehirde', yolda_gidis:'Yolda (Gidis)', yolda_donus:'Yolda (Donus)', pazarda:'Pazarda', buyu_dukkaninda:'Buyu Dukkaninda' };
+const DURUM_ISIM = { sehirde:'Sehirde', yolda_gidis:'Yolda', yolda_donus:'Donuyor', pazarda:'Pazarda', buyu_dukkaninda:'Buyu Dukkaninda' };
+const HEDEF_ISIM = { pazar:'Pazar', buyu_dukkani:'Buyu Dukkani' };
 const DURUM_RENK = { sehirde:'#2ecc71', yolda_gidis:'#f39c12', yolda_donus:'#f39c12', pazarda:'#3498db', buyu_dukkaninda:'#9b59b6' };
 const KAYNAKLAR = ['altin','odun','tas','metal','islenmis','kereste','bugday','balik','cig_et','ekmek','pismis','pismis_et'];
 let KV_DATA = null;
@@ -87,7 +88,7 @@ function renderKervanlar() {
     return;
   }
 
-  liste.innerHTML = KV_DATA.kervanlar.map(k => {
+  liste.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px">' + KV_DATA.kervanlar.map(k => {
     const pct = k.kapasite > 0 ? Math.round(k.toplam_yuk / k.kapasite * 100) : 0;
     const durumRenk = DURUM_RENK[k.durum] || '#888';
     const sehirde = k.durum === 'sehirde';
@@ -124,11 +125,11 @@ function renderKervanlar() {
       aksiyonHTML = `<div style="margin-top:6px;font-size:10px;color:#f39c12">Varis: ${varisStr}</div>`;
     }
 
-    return `<div class="card" style="padding:14px;margin-bottom:8px">
+    return `<div class="card" style="padding:12px">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
         <div>
           <span style="font-weight:bold;color:#d4af37;font-size:13px">${k.isim}</span>
-          <span style="color:${durumRenk};font-size:11px;margin-left:8px">${DURUM_ISIM[k.durum]||k.durum}</span>
+          <span style="color:${durumRenk};font-size:11px;margin-left:8px">${DURUM_ISIM[k.durum]||k.durum}${k.hedef?' → '+(HEDEF_ISIM[k.hedef]||k.hedef):''}</span>
         </div>
         <div style="font-size:10px;color:#888">${k.essek_sayisi} essek | ${k.toplam_yuk.toLocaleString()} / ${k.kapasite.toLocaleString()} (%${pct})</div>
       </div>
@@ -137,7 +138,7 @@ function renderKervanlar() {
       ${aksiyonHTML}
       <div id="kv-msg-${k.id}" style="font-size:10px;margin-top:4px;min-height:12px"></div>
     </div>`;
-  }).join('');
+  }).join('') + '</div>';
 }
 
 async function kvOlustur() {
