@@ -278,8 +278,8 @@ body{
   border-bottom:2px solid rgba(200,169,110,0.3);
   box-shadow:0 4px 24px rgba(0,0,0,0.6),inset 0 -1px 0 rgba(200,169,110,0.08);
 }
-/* Body padding-top: HUD yuksekligi kadar bosluk birak */
-body{padding-top:95px;}
+/* Body padding-top: HUD yuksekligi kadar bosluk birak (4 satir HUD) */
+body{padding-top:130px;}
 
 .hud-row-wrap{
   display:flex;
@@ -925,7 +925,7 @@ body{padding-top:95px;}
   .layout{flex-direction:column;}
 
   /* HUD bar */
-  body{padding-top:100px;}
+  body{padding-top:140px;}
   .hudbar{font-size:11px;}
   .hud-row-lbl{min-width:32px;font-size:7px;padding:0 3px;}
   .stat-box{padding:3px 6px;gap:3px;}
@@ -999,7 +999,7 @@ body{padding-top:95px;}
   .ob-step-label{font-size:.55rem !important;}
 
   /* HUD bar daha da kompakt */
-  body{padding-top:85px;}
+  body{padding-top:135px;}
   .hud-row-wrap{min-height:26px;}
   .hud-row-lbl{min-width:24px;font-size:6px;padding:0 2px;}
   .stat-box{padding:2px 4px;gap:2px;}
@@ -1051,7 +1051,7 @@ body{padding-top:95px;}
    RESPONSIVE — Fold/küçük ekran (360px)
 ═══════════════════════════════════════ */
 @media (max-width: 360px) {
-  body{padding-top:75px;}
+  body{padding-top:125px;}
   .main-content{padding:10px 8px;}
   .card{padding:12px;}
   .stat-box{padding:1px 3px;}
