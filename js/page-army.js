@@ -666,6 +666,10 @@ function updateArmyStats(){
   setText('as-def', Math.round(totalDef).toLocaleString());
   setText('as-units', totalUnits.toLocaleString());
   setText('as-maas', totalMaas.toLocaleString());
+  // Reyting (backend'den gelir)
+  if (window._palantisReyting !== undefined) {
+    setText('as-reyting', '%' + window._palantisReyting);
+  }
 }
 
 /* -- SAF DİZİLİMİ (4 saf: 3-3-5-3) -- */

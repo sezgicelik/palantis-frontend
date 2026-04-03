@@ -128,6 +128,7 @@ async function loadGameData() {
       const armyData = armyRes.ok ? await armyRes.json() : {};
       window._palantisToplamAtk = armyData.toplam_atk || 0;
       window._palantisToplamDef = armyData.toplam_def || 0;
+      window._palantisReyting = armyData.reyting || 0;
       // Essek bilgisi
       setText('hud-essek', res.essek || 0);
     } catch(e) {}
