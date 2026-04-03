@@ -795,6 +795,12 @@ function placeUnitInSaf(unitId) {
     }
     return;
   }
+  // Onceki saf dolu mu kontrol et
+  if (PICKING_SAF > 0 && FORMATION_STATE[PICKING_SAF-1].length < SAF_LIMITS[PICKING_SAF-1]) {
+    toast(`Onceki saf (${PICKING_SAF}. saf) dolu degil! Once onu doldur.`);
+    PICKING_SAF = null; PICKING_SLOT = null;
+    return;
+  }
   FORMATION_STATE[PICKING_SAF][PICKING_SLOT] = unitId;
   PICKING_SAF = null;
   PICKING_SLOT = null;

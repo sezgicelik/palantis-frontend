@@ -362,7 +362,7 @@ function mapSecHucre(x, y) {
       (koloni.sahip_kral ? '<div><div style="color:#555;font-size:9px">İşgalci</div><div style="color:' + (TARAF_RENK[koloni.sahip_taraf]||'#888') + '">' + koloni.sahip_kral + '</div></div>' : '') +
       '<div><div style="color:#555;font-size:9px">Mesafe</div><div>' + (koloni.mesafe??'—') + '</div></div>' +
       '<div style="grid-column:1/-1;margin-top:8px;text-align:center">' +
-        (bos ? '<button class="btn-action" onclick="koloniFethet('+koloni.id+')" style="padding:6px 16px;font-size:12px;width:auto">⚔️ Fethet</button>' : '') +
+        (bos ? '<select id="koloni-ordu-sec" style="padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:10px;margin-right:4px"><option value="">Ordu sec</option><option value="ordu_1">Ordu 1</option><option value="ordu_2">Ordu 2</option><option value="ordu_3">Ordu 3</option><option value="ordu_4">Ordu 4</option><option value="ordu_5">Ordu 5</option></select><button class="btn-action" onclick="koloniFethet('+koloni.id+')" style="padding:6px 16px;font-size:12px;width:auto">⚔️ Fethet</button>' : '') +
         (benimMi ? '<button class="btn-action" onclick="koloniCekil('+koloni.id+')" style="padding:6px 16px;font-size:12px;width:auto;border-color:#e74c3c;color:#e74c3c">🏳️ Çekil</button>' : '') +
       '</div>' +
       '<div id="koloni-msg" style="grid-column:1/-1;font-size:11px;text-align:center;min-height:16px"></div>';
@@ -380,10 +380,14 @@ async function koloniFethet(koloniId) {
   const token = getToken();
   if (!token) return;
   const msgEl = document.getElementById('koloni-msg');
+  const orduSel = document.getElementById('koloni-ordu-sec');
+  const orduId = orduSel ? orduSel.value : '';
+  if (!orduId) { if (msgEl) msgEl.innerHTML = '<span style="color:#e74c3c">Once ordu secin!</span>'; return; }
   try {
     const resp = await fetch(API_BASE + '/api/koloni/' + koloniId + '/fethet', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ orduId })
     });
     const data = await resp.json();
     if (resp.ok) {
