@@ -667,9 +667,9 @@ function updateArmyStats(){
   setText('as-def', Math.round(totalDef).toLocaleString());
   setText('as-units', totalUnits.toLocaleString());
   setText('as-maas', totalMaas.toLocaleString());
-  // Reyting (backend'den gelir)
-  if (window._palantisReyting !== undefined) {
-    setText('as-reyting', '%' + window._palantisReyting);
+  // Ordu morali
+  if (window._palantisOrduMorali !== undefined) {
+    setText('as-moral', window._palantisOrduMorali);
   }
 }
 
