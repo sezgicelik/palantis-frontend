@@ -171,8 +171,10 @@ function render2D() {
   const canvas = document.getElementById('map-canvas');
   if (!canvas || !MAP_DATA) return;
   const ctx = canvas.getContext('2d');
-  const T = TILE_SIZE;
+  // Grid oranina uygun tile boyutu — 10 kolon x 50 satir
   const cols = 10, rows = 50;
+  const maxW = Math.min(800, window.innerWidth - 300);
+  const T = Math.max(12, Math.floor(maxW / cols));
   const padL = 20, padT = 16;
   canvas.width = padL + cols * T;
   canvas.height = padT + rows * T;
