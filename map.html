@@ -44,6 +44,12 @@
       <button class="btn ghost" style="color:#2ecc71;padding:3px 8px;font-size:10px" onclick="mapSayfa(MAP_BENIM_SAYFA)">🏠 Evim</button>
     </div>
 
+    <!-- Bilgi Paneli (ÜSTTE) -->
+    <div id="map-info" style="margin-bottom:8px;background:#111;border:1px solid #222;border-radius:6px;padding:10px;display:none">
+      <h3 style="color:#c8a96e;margin:0 0 6px;font-size:12px" id="map-info-title">📋 Seçili Hücre</h3>
+      <div id="map-info-content" style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px"></div>
+    </div>
+
     <!-- 2D Canvas Harita -->
     <div id="map-2d-wrap" style="background:#080808;border-radius:6px;padding:4px;overflow:auto;max-height:600px">
       <canvas id="map-canvas" width="530" height="2450"></canvas>
@@ -52,12 +58,6 @@
     <!-- Grid Tablo -->
     <div id="map-grid-wrap" style="background:#0d0d00;border:1px solid #222;border-radius:6px;padding:4px;overflow:auto;display:none;max-height:600px">
       <div id="map-grid"></div>
-    </div>
-
-    <!-- Bilgi Paneli -->
-    <div id="map-info" style="margin-top:8px;background:#111;border:1px solid #222;border-radius:6px;padding:10px;display:none">
-      <h3 style="color:#c8a96e;margin:0 0 6px;font-size:12px" id="map-info-title">📋 Seçili Hücre</h3>
-      <div id="map-info-content" style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px"></div>
     </div>
 
     <!-- Açıklama -->
@@ -171,10 +171,10 @@ function render2D() {
   const canvas = document.getElementById('map-canvas');
   if (!canvas || !MAP_DATA) return;
   const ctx = canvas.getContext('2d');
-  // Grid oranina uygun tile boyutu — 10 kolon x 50 satir
+  // Grid haritadaki en-boy oraniyla ayni kare tile
   const cols = 10, rows = 50;
-  const maxW = Math.min(800, window.innerWidth - 300);
-  const T = Math.max(12, Math.floor(maxW / cols));
+  const maxH = Math.min(600, window.innerHeight - 200);
+  const T = Math.max(8, Math.floor(maxH / rows)); // Y'ye gore tile boyutu
   const padL = 20, padT = 16;
   canvas.width = padL + cols * T;
   canvas.height = padT + rows * T;
