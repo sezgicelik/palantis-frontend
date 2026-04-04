@@ -183,12 +183,14 @@ async function bdSatinAl(urunId, miktar) {
     body:JSON.stringify({kervan_id:BD_KERVAN_ID, urun_id:urunId, miktar})}).then(r=>r.json());
   const el = document.getElementById('bd-msg');
   if (r.ok) {
-    el.innerHTML = `<span style="color:#2ecc71">${r.mesaj}</span>`;
+    el.innerHTML = `<div style="padding:10px;background:rgba(46,204,113,0.15);border:1px solid #2ecc71;border-radius:6px;color:#2ecc71;font-size:14px;font-weight:bold">✅ ${r.mesaj}</div>`;
     showToast(r.mesaj, 'success');
     loadBuyuDukkani();
     if(typeof loadGameData==='function')loadGameData();
+    setTimeout(() => { if(el) el.innerHTML = ''; }, 4000);
   } else {
-    el.innerHTML = `<span style="color:#e74c3c">${r.error||'Hata'}</span>`;
+    el.innerHTML = `<div style="padding:10px;background:rgba(231,76,60,0.15);border:1px solid #e74c3c;border-radius:6px;color:#e74c3c;font-size:13px">❌ ${r.error||'Hata'}</div>`;
+    setTimeout(() => { if(el) el.innerHTML = ''; }, 5000);
   }
 }
 
