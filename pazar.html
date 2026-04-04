@@ -52,7 +52,8 @@
             <option value="">-- Kervan sec --</option>
           </select>
         </div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px">
+        <div id="pz-kervan-yuk" style="margin-bottom:10px;display:flex;flex-wrap:wrap;gap:4px"></div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px">
           <label style="font-size:11px;color:#888">Satiyorum:</label>
           <input id="pz-sat-miktar" type="number" value="100" min="1" style="padding:4px;width:70px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">
           <select id="pz-sat-kaynak" style="padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">
@@ -162,6 +163,20 @@ async function loadKervanlarPazar() {
     if (PZ_KERVANLAR.length === 0) {
       document.getElementById('pz-ilan-msg').innerHTML = '<span style="color:#e74c3c">Pazarda kervan yok! Once kervan sayfasindan bir kervan gonderin.</span>';
     }
+    // Kervan secildiginde yukunu goster
+    sel.onchange = function() {
+      const kid = parseInt(this.value);
+      const yukEl = document.getElementById('pz-kervan-yuk');
+      if (!yukEl) return;
+      const k = PZ_KERVANLAR.find(x => x.id === kid);
+      if (!k || !k.yuk || Object.keys(k.yuk).length === 0) {
+        yukEl.innerHTML = '<span style="color:#555;font-size:11px">Kervanda yuk yok</span>';
+        return;
+      }
+      yukEl.innerHTML = Object.entries(k.yuk).filter(([,v])=>v>0).map(([key,val]) =>
+        `<span style="background:#1a1a1a;padding:3px 8px;border-radius:4px;font-size:11px;color:#bbb;border:1px solid #333">${key}: ${val.toLocaleString()}</span>`
+      ).join(' ');
+    };
   } catch(e) {}
 }
 
