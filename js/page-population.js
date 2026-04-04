@@ -272,10 +272,62 @@ async function vergiKaydet() {
   }
 }
 
+function bonusEtkileriGuncelle() {
+  // Irk
+  const irkEl = document.getElementById('bonus-irk-detay');
+  if (irkEl && OYUNCU?.irkData) {
+    const p = localStorage.getItem('palantis_player');
+    try {
+      const pd = JSON.parse(p);
+      if (pd?.irk_bonuslari) {
+        const parts = Object.entries(pd.irk_bonuslari).map(([k,v]) => `${k} +%${v}`);
+        irkEl.textContent = parts.length > 0 ? parts.join(', ') : 'Bonus yok';
+      }
+    } catch(e) {}
+  }
+  // Bolge
+  const bolgeEl = document.getElementById('bonus-bolge-detay');
+  if (bolgeEl) {
+    try {
+      const pd = JSON.parse(localStorage.getItem('palantis_player'));
+      if (pd?.bolge_bilgi) {
+        const parts = Object.entries(pd.bolge_bilgi.bonuslar||{}).map(([k,v]) => `${k} +%${v}`);
+        bolgeEl.textContent = `${pd.bolge_bilgi.ad}: ${parts.join(', ') || 'Bonus yok'}`;
+      }
+    } catch(e) {}
+  }
+  // Moral
+  const moralEl = document.getElementById('bonus-moral-detay');
+  if (moralEl) {
+    const m = parseInt(document.getElementById('hud-sehir-moral')?.textContent) || 0;
+    if (m >= 50) moralEl.textContent = 'Normal (%100 üretim)';
+    else moralEl.textContent = `Düşük! Üretim: %${Math.round(m/50*100)}`;
+    moralEl.style.color = m >= 50 ? '#2ecc71' : '#e74c3c';
+  }
+  // Premium
+  const premEl = document.getElementById('bonus-prem-detay');
+  if (premEl) {
+    try {
+      const pd = JSON.parse(localStorage.getItem('palantis_player'));
+      if (pd?.premium?.aktif) premEl.textContent = `${pd.premium.paket} paketi aktif`;
+      else premEl.textContent = 'Aktif değil';
+    } catch(e) {}
+  }
+  // Isci/Limit
+  const isciLimitEl = document.getElementById('pop-isci-limit');
+  if (isciLimitEl) {
+    const isci = (population.wood||0)+(population.stone||0)+(population.iron||0)+(population.farm||0)+(population.fish||0)+(population.merchant||0);
+    const cag = OYUNCU?.cag || 1;
+    const CAG_ISCI_LIMIT = {1:200, 2:400, 3:600, 4:800, 5:1000};
+    isciLimitEl.textContent = `${isci} / ${CAG_ISCI_LIMIT[cag]||200}`;
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   updatePopulationUI();
   loadPisirme();
   updatePisirmeUI();
   kesimInit();
   vergiYukle();
+  setTimeout(bonusEtkileriGuncelle, 2000);
 });

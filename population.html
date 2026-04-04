@@ -19,8 +19,9 @@
     <div class="city-stats" style="margin-bottom:12px">
       <div class="cstat" title="Toplam nüfus = Köylü + İşçi + Ünite"><span class="snum" id="pop-total">—</span><span class="slbl">TOPLAM NÜFUS</span></div>
       <div class="cstat" title="Nüfus sınırı (ev/köy/kasaba)"><span class="snum" id="pop-max">—</span><span class="slbl">SINIR</span></div>
-      <div class="cstat" title="Boşta duran (görev verilmemiş) köylüler"><span class="snum" id="pop-free">—</span><span class="slbl">KÖYLÜ (BOŞTA)</span></div>
-      <div class="cstat" title="Eğitilmiş ve orduda bulunan birimler"><span class="snum" id="pop-unite">—</span><span class="slbl">ÜNİTE</span></div>
+      <div class="cstat" title="Mevcut işçi / Çağ limiti"><span class="snum" id="pop-isci-limit">—</span><span class="slbl">İŞÇİ / LİMİT</span></div>
+      <div class="cstat" title="Boşta duran köylüler"><span class="snum" id="pop-free">—</span><span class="slbl">KÖYLÜ (BOŞTA)</span></div>
+      <div class="cstat" title="Eğitilmiş birimler"><span class="snum" id="pop-unite">—</span><span class="slbl">ÜNİTE</span></div>
     </div>
     <!-- Nüfus dağılım barı -->
     <div style="margin-bottom:20px;padding:0 2px">
@@ -38,7 +39,41 @@
       </div>
     </div>
 
-    <!-- Pişirme Oranı -->
+    <!-- 1. SIRADA: Hammadde Bonus Etkileri -->
+    <div class="card" style="padding:18px;margin-bottom:16px">
+      <h2>📊 Hammadde Bonus Etkileri</h2>
+      <p style="font-size:13px;color:#555;line-height:1.9;margin-bottom:12px">
+        Hammadde üretimine etki eden faktörler:
+      </p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px" id="bonus-etki-grid">
+        <div style="padding:10px;background:#0d0d0d;border-radius:6px;border-left:2px solid var(--race-color,#c8a96e)">
+          <div style="font-size:11px;color:var(--race-color,#c8a96e);font-weight:bold">🏹 Irk Etkisi</div>
+          <div style="font-size:10px;color:#888;margin-top:3px" id="bonus-irk-detay">Yükleniyor...</div>
+        </div>
+        <div style="padding:10px;background:#0d0d0d;border-radius:6px;border-left:2px solid #3498db">
+          <div style="font-size:11px;color:#3498db;font-weight:bold">🌍 Bölge Etkisi</div>
+          <div style="font-size:10px;color:#888;margin-top:3px" id="bonus-bolge-detay">Yükleniyor...</div>
+        </div>
+        <div style="padding:10px;background:#0d0d0d;border-radius:6px;border-left:2px solid #2ecc71">
+          <div style="font-size:11px;color:#2ecc71;font-weight:bold">😊 Mutluluk Etkisi</div>
+          <div style="font-size:10px;color:#888;margin-top:3px" id="bonus-moral-detay">Moral &lt; 50 → üretim düşer</div>
+        </div>
+        <div style="padding:10px;background:#0d0d0d;border-radius:6px;border-left:2px solid #f1c40f">
+          <div style="font-size:11px;color:#f1c40f;font-weight:bold">💎 Premium Etkisi</div>
+          <div style="font-size:10px;color:#888;margin-top:3px" id="bonus-prem-detay">Aktif değil</div>
+        </div>
+        <div style="padding:10px;background:#0d0d0d;border-radius:6px;border-left:2px solid #9b59b6">
+          <div style="font-size:11px;color:#9b59b6;font-weight:bold">📈 Şehir Geliştirme</div>
+          <div style="font-size:10px;color:#888;margin-top:3px" id="bonus-gel-detay">Kademe bonusu</div>
+        </div>
+        <div style="padding:10px;background:#0d0d0d;border-radius:6px;border-left:2px solid #e74c3c">
+          <div style="font-size:11px;color:#e74c3c;font-weight:bold">👥 Popülasyon Etkisi</div>
+          <div style="font-size:10px;color:#888;margin-top:3px">⚠ Popülasyon arttıkça hammadde geliri düşer</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. SIRADA: Pişirme Oranı -->
     <div class="card" style="padding:20px;margin-bottom:16px">
       <h2>🔥 Ocak / Fırın Pişirme Oranı</h2>
       <p style="color:#555;font-size:12px;margin-bottom:14px">
@@ -83,7 +118,7 @@
     <!-- İşçi dağılımı -->
     <div class="card" style="padding:20px;margin-bottom:16px">
       <h2>👥 İşçi Dağılımı</h2>
-      <p style="color:#555;font-size:13px;margin-bottom:18px">Nüfus sınırına göre değişir (ev/köy/kasaba).</p>
+      <p style="color:#555;font-size:13px;margin-bottom:18px">İşçi dağılımı bulunduğu çağdaki limite göre değişir.</p>
 
       <div class="worker-row">
         <span class="wr-lbl">🌳 Oduncu</span>
@@ -142,7 +177,7 @@
         <b id="w-merchant">0</b>
         <button type="button" onclick="assignWorker('merchant',1)">+</button>
         <button type="button" onclick="assignWorker('merchant',10)">+10</button>
-        <span class="info">(+<span id="p-merchant">0</span> altın/gün)</span>
+        <span class="info" style="color:#555;font-size:10px">(market hammaddesi toplar)</span>
       </div>
 
       <button class="btn" type="button" onclick="saveWorkers()" style="margin-top:14px;width:100%">💾 Dağılımı Kaydet</button>
@@ -220,16 +255,6 @@
       <div id="vergi-sonuc" style="margin-top:8px;font-size:13px;color:#888;min-height:20px"></div>
     </div>
 
-    <!-- Mutluluk & Nüfus etkileri -->
-    <div class="card" style="padding:18px">
-      <h3 style="margin-bottom:12px">📊 Hammadde Bonus Etkileri</h3>
-      <p style="font-size:13px;color:#555;line-height:1.9">
-        Hammadde üretimine etki eden faktörler:<br>
-        <span style="color:#888">🏹 Irk etkisi &nbsp;·&nbsp; 🌟 Çağ etkisi &nbsp;·&nbsp; 😊 Mutluluk etkisi</span><br>
-        <span style="color:#888">👥 Popülasyon etkisi &nbsp;·&nbsp; 🔮 Büyü etkisi &nbsp;·&nbsp; 💎 Premium etkisi</span><br>
-        <span style="color:#e67e22;font-size:12px">⚠ Popülasyon arttıkça hammadde geliri düşer.</span>
-      </p>
-    </div>
 
   </div>
 </div>
