@@ -34,22 +34,6 @@
         <label style="font-size:10px;color:#888">Ne ariyorsun:</label>
         <select id="pz-filtre" onchange="loadIlanlar()" style="padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">
           <option value="">Tum Hammaddeler</option>
-          <optgroup label="Hammadde">
-            <option value="odun">Odun</option><option value="tas">Tas</option><option value="metal">Metal</option>
-            <option value="altin">Altin</option><option value="bugday">Bugday</option><option value="balik">Balik</option>
-          </optgroup>
-          <optgroup label="Islenmis">
-            <option value="kereste">Kereste</option><option value="islenmis">Islenmis Metal</option>
-            <option value="ekmek">Ekmek</option><option value="pismis">Pismis Balik</option><option value="pismis_et">Pismis Et</option>
-          </optgroup>
-          <optgroup label="Mana">
-            <option value="mana_beyaz">Beyaz Mana</option><option value="mana_kirmizi">Kirmizi Mana</option>
-            <option value="mana_mavi">Mavi Mana</option><option value="mana_yesil">Yesil Mana</option>
-          </optgroup>
-          <optgroup label="Ozel">
-            <option value="at">At</option><option value="kurt">Kurt</option>
-            <option value="ates_tozu">Ates Tozu</option><option value="ay_cigi">Ay Cicegi</option>
-          </optgroup>
         </select>
         <button class="btn-action" onclick="loadIlanlar()" style="padding:4px 10px;font-size:10px;width:auto">Ara</button>
       </div>
@@ -254,8 +238,23 @@ async function pzIptal(ilanId) {
   else showToast(resp.error||'Hata','error');
 }
 
+async function loadSatilabilirFiltre() {
+  try {
+    const resp = await fetch(API_BASE + '/api/game/market', { headers: { 'Authorization': 'Bearer ' + getToken() } });
+    if (!resp.ok) return;
+    const data = await resp.json();
+    // Sadece marketteki hammaddeler + temel kaynaklar
+    const temel = ['odun','tas','metal','altin','bugday','balik','kereste','islenmis','ekmek','pismis','pismis_et'];
+    const sel = document.getElementById('pz-filtre');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">Tum Hammaddeler</option>' +
+      temel.map(k => `<option value="${k}">${k}</option>`).join('');
+  } catch(e) {}
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(async ()=>{
+    await loadSatilabilirFiltre();
     await loadKervanlarPazar();
     const uyari = document.getElementById('pz-kervan-uyari');
     if (PZ_KERVANLAR.length === 0 && uyari) uyari.style.display = 'block';
