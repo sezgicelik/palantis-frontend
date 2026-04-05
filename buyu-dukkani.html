@@ -29,13 +29,14 @@
 
     <p style="color:#666;font-size:11px;margin-bottom:16px">Stoklar her 2 saatte yenilenir. Kervanindaki altinla satin al.</p>
 
-    <!-- Kervan secimi -->
+    <!-- Kervan secimi + icerik -->
     <div class="card" style="padding:14px;margin-bottom:16px">
       <h3 style="color:#9b59b6;font-size:13px;margin-bottom:8px">Kervan Sec</h3>
       <select id="bd-kervan" onchange="bdKervanSec()" style="padding:6px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:12px;min-width:200px">
         <option value="">-- Kervan sec --</option>
       </select>
       <div id="bd-kervan-info" style="font-size:10px;color:#888;margin-top:4px"></div>
+      <div id="bd-kervan-yuk" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:3px"></div>
     </div>
 
     <!-- Buyu Malzemeleri (uste) -->
@@ -74,12 +75,13 @@ const BOYUT_ISIM = { kucuk:'Kucuk', orta:'Orta', buyuk:'Buyuk' };
 const MANA_RENKLERI = ['beyaz','kirmizi','mavi','yesil'];
 let BD_STOK = null;
 let BD_KERVAN_ID = null;
+let buyuKervanlar = [];
 
 async function loadBuyuDukkani() {
   const token = getToken(); if (!token) return;
 
   // Kervan listesi — dukkaninda olan var mi?
-  let buyuKervanlar = [];
+  buyuKervanlar = [];
   try {
     const kResp = await fetch(API_BASE + '/api/kervan/liste', { headers: { 'Authorization': 'Bearer ' + token } });
     if (kResp.ok) {
@@ -114,12 +116,24 @@ async function loadBuyuDukkani() {
 function bdKervanSec() {
   BD_KERVAN_ID = parseInt(document.getElementById('bd-kervan').value) || null;
   const info = document.getElementById('bd-kervan-info');
+  const yukEl = document.getElementById('bd-kervan-yuk');
   if (BD_KERVAN_ID) {
     info.innerHTML = '<span style="color:#2ecc71">Kervan secildi — satin alma aktif</span>';
+    // Kervan yukunu goster
+    if (yukEl) {
+      const k = buyuKervanlar.find(x => x.id === BD_KERVAN_ID);
+      if (k && k.yuk && Object.keys(k.yuk).length > 0) {
+        yukEl.innerHTML = Object.entries(k.yuk).filter(([,v])=>v>0).map(([key,val]) =>
+          `<span style="background:#1a1a1a;padding:2px 6px;border-radius:3px;font-size:10px;color:#bbb;border:1px solid #222">${key}: ${val.toLocaleString()}</span>`
+        ).join(' ');
+      } else {
+        yukEl.innerHTML = '<span style="color:#555;font-size:10px">Kervanda yuk yok</span>';
+      }
+    }
   } else {
     info.innerHTML = '';
+    if (yukEl) yukEl.innerHTML = '';
   }
-  // Butonlari guncelle (disabled/enabled)
   renderBuyuDukkani();
 }
 
