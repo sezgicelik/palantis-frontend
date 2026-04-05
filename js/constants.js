@@ -214,7 +214,7 @@ const BLDGS = {
     cost:l=>({odun:200,tas:200,altin:100}),time:l=>3600},
 
   pazar:{id:'pazar',cat:'sosyal',icon:'💰',name:'Pazar',bg:'#160e00',
-    desc:"Kervan, büyü dükkanı ve oyuncu pazarına erişim. Her saat eşşek bulma şansı.",
+    desc:"Kervan, büyü dükkanı ve oyuncu pazarına erişim. Her saat esek bulma sansi.",
     maxLv:100,lv:0,deger:85,
     cagLimit:{1:10,2:25,3:50,4:75,5:100},
     fx:l=>[{t:'pos',s:`${l*2} ticaret slotu`},{t:'pos',s:`Altın +${l*15}/gün`}],

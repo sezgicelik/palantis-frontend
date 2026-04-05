@@ -16,11 +16,11 @@
   <div class="main-content">
 
     <h2 style="color:#c8a96e;font-family:'Cinzel',serif;margin:0 0 8px;font-size:clamp(16px,4vw,22px)">🐪 Kervan Yonetimi</h2>
-    <p style="color:#666;font-size:11px;margin-bottom:16px">Eshsheklerinle kervan olustur, kaynak yukle, pazara veya buyu dukkanina gonder.</p>
+    <p style="color:#666;font-size:11px;margin-bottom:16px">Eseklerinle kervan olustur, kaynak yukle, pazara veya buyu dukkanina gonder.</p>
 
     <!-- Ozet -->
     <div class="city-stats" style="margin-bottom:16px">
-      <div class="cstat"><span class="snum" id="kv-essek">0</span><span class="slbl">ESSEK (Sehirde)</span></div>
+      <div class="cstat"><span class="snum" id="kv-essek">0</span><span class="slbl">ESEK (Sehirde)</span></div>
       <div class="cstat"><span class="snum" id="kv-count">0</span><span class="slbl">KERVAN</span></div>
       <div class="cstat"><span class="snum" id="kv-max">5</span><span class="slbl">MAX KERVAN</span></div>
     </div>
@@ -30,7 +30,7 @@
       <h3 style="color:#c8a96e;font-size:13px;margin-bottom:8px">Yeni Kervan Olustur</h3>
       <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
         <input id="kv-isim" placeholder="Kervan ismi" style="padding:6px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;width:120px;font-size:11px">
-        <label style="font-size:10px;color:#888">Essek:</label>
+        <label style="font-size:10px;color:#888">Esek:</label>
         <input id="kv-essek-sayi" type="number" value="1" min="1" max="500" style="padding:6px;width:60px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">
         <span style="font-size:9px;color:#555" id="kv-kap-info">= 5.000 kapasite</span>
         <button class="btn-action" onclick="kvOlustur()" style="padding:5px 14px;font-size:11px;width:auto">Olustur</button>
@@ -84,7 +84,7 @@ function renderKervanlar() {
 
   const liste = document.getElementById('kv-liste');
   if (KV_DATA.kervanlar.length === 0) {
-    liste.innerHTML = '<div class="card" style="text-align:center;color:#666;padding:30px">Henuz kervan yok. Essek ile kervan olusturabilirsiniz.</div>';
+    liste.innerHTML = '<div class="card" style="text-align:center;color:#666;padding:30px">Henuz kervan yok. Esek ile kervan olusturabilirsiniz.</div>';
     return;
   }
 
@@ -131,7 +131,7 @@ function renderKervanlar() {
           <span style="font-weight:bold;color:#d4af37;font-size:13px">${k.isim}</span>
           <span style="color:${durumRenk};font-size:11px;margin-left:8px">${DURUM_ISIM[k.durum]||k.durum}${k.hedef?' → '+(HEDEF_ISIM[k.hedef]||k.hedef):''}</span>
         </div>
-        <div style="font-size:10px;color:#888">${k.essek_sayisi} essek | ${k.toplam_yuk.toLocaleString()} / ${k.kapasite.toLocaleString()} (%${pct})</div>
+        <div style="font-size:10px;color:#888">${k.essek_sayisi} esek | ${k.toplam_yuk.toLocaleString()} / ${k.kapasite.toLocaleString()} (%${pct})</div>
       </div>
       <div style="height:3px;background:#222;border-radius:2px;margin-top:4px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${pct>80?'#e74c3c':pct>50?'#f39c12':'#2ecc71'};border-radius:2px"></div></div>
       ${yukHTML}
@@ -151,7 +151,7 @@ async function kvOlustur() {
 }
 
 async function kvSil(id) {
-  if (!confirm('Kervan silinecek, essekler ve yuk sehre donecek. Emin misiniz?')) return;
+  if (!confirm('Kervan silinecek, esekler ve yuk sehre donecek. Emin misiniz?')) return;
   const token = getToken();
   const r = await fetch(API_BASE+`/api/kervan/${id}/sil`,{method:'POST',headers:{'Authorization':'Bearer '+token}}).then(r=>r.json());
   showMsg(id, r); if(r.ok) { loadKervanlar(); if(typeof loadGameData==='function')loadGameData(); }
