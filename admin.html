@@ -59,6 +59,7 @@
     <button onclick="switchTab('players',this)">Oyuncular</button>
     <button onclick="switchTab('logins',this)">Login Loglar</button>
     <button onclick="switchTab('actions',this)">Islemler</button>
+    <button onclick="switchTab('binalar',this)">Binalar</button>
     <button onclick="switchTab('premium',this)">Premium</button>
     <button onclick="switchTab('sezon',this)">Sezon</button>
     <button onclick="switchTab('market-cfg',this)">Market Ayar</button>
@@ -208,6 +209,21 @@
           <input type="number" id="kol-bonus-max" value="25" min="1" max="100" style="padding:4px;width:50px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:11px">
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- BINA CONFIG TAB -->
+  <div id="tab-binalar" class="panel">
+    <div class="card">
+      <h3>Bina Ayarlari</h3>
+      <p style="font-size:10px;color:var(--muted);margin-bottom:10px">Hammadde maliyeti, yapim suresi, sehir degeri ve cag limitleri. Degistirdiginiz degerler DB'ye kaydedilir.</p>
+      <div style="overflow-x:auto">
+        <table style="font-size:11px" id="bina-config-table">
+          <thead><tr><th>Bina</th><th>Odun</th><th>Tas</th><th>Metal</th><th>Altin</th><th>Sure (sn)</th><th>Deger</th><th></th></tr></thead>
+          <tbody id="bina-config-body"></tbody>
+        </table>
+      </div>
+      <div id="bina-cfg-msg" style="color:var(--green);font-size:11px;margin-top:6px"></div>
     </div>
   </div>
 
@@ -391,6 +407,7 @@ function switchTab(tab, el) {
   if (tab === 'logins') loadLogins();
   if (tab === 'map') loadMapConfig();
   if (tab === 'actions') { loadKoloniStats(); loadUnitDropdown(); }
+  if (tab === 'binalar') loadBinaConfig();
   if (tab === 'premium') loadPremium();
   if (tab === 'sezon') loadSezon();
   if (tab === 'market-cfg') loadMarketConfig();
@@ -841,6 +858,40 @@ function mcToggle(k) {
 async function saveMarketConfig() {
   const r = await fetch(API+'/api/admin/satilabilir',{method:'POST',headers:hdr(),body:JSON.stringify({aktif:[...MC_AKTIF]})}).then(r=>r.json());
   document.getElementById('mc-msg').textContent = r.ok ? r.mesaj : (r.error||'Hata');
+}
+
+// ── Bina Config ──
+async function loadBinaConfig() {
+  const d = await fetch(API+'/api/admin/bina-config?secret='+SECRET).then(r=>r.json());
+  if(!d.ok) return;
+  const body = document.getElementById('bina-config-body');
+  body.innerHTML = d.binalar.map(b => {
+    const m = b.maliyet || {};
+    return `<tr>
+      <td style="color:var(--gold);font-weight:bold">${b.bina_id}</td>
+      <td><input type="number" id="bc-${b.bina_id}-odun" value="${m.odun||0}" style="width:50px;padding:2px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px;text-align:center"></td>
+      <td><input type="number" id="bc-${b.bina_id}-tas" value="${m.tas||0}" style="width:50px;padding:2px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px;text-align:center"></td>
+      <td><input type="number" id="bc-${b.bina_id}-metal" value="${m.metal||0}" style="width:50px;padding:2px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px;text-align:center"></td>
+      <td><input type="number" id="bc-${b.bina_id}-altin" value="${m.altin||0}" style="width:50px;padding:2px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px;text-align:center"></td>
+      <td><input type="number" id="bc-${b.bina_id}-sure" value="${b.sure_sn}" style="width:55px;padding:2px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px;text-align:center"></td>
+      <td><input type="number" id="bc-${b.bina_id}-deger" value="${b.deger}" style="width:45px;padding:2px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px;text-align:center"></td>
+      <td><button class="btn" style="padding:2px 8px;font-size:9px" onclick="saveBinaConfig('${b.bina_id}')">Kaydet</button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function saveBinaConfig(binaId) {
+  const g = id => parseInt(document.getElementById(id)?.value) || 0;
+  const maliyet = {};
+  if(g(`bc-${binaId}-odun`)>0) maliyet.odun = g(`bc-${binaId}-odun`);
+  if(g(`bc-${binaId}-tas`)>0) maliyet.tas = g(`bc-${binaId}-tas`);
+  if(g(`bc-${binaId}-metal`)>0) maliyet.metal = g(`bc-${binaId}-metal`);
+  if(g(`bc-${binaId}-altin`)>0) maliyet.altin = g(`bc-${binaId}-altin`);
+  const sure_sn = g(`bc-${binaId}-sure`) || 3600;
+  const deger = g(`bc-${binaId}-deger`) || 50;
+  const r = await fetch(API+'/api/admin/bina-config',{method:'POST',headers:hdr(),body:JSON.stringify({bina_id:binaId,maliyet,sure_sn,deger})}).then(r=>r.json());
+  document.getElementById('bina-cfg-msg').textContent = r.ok ? r.mesaj : (r.error||'Hata');
+  setTimeout(()=>document.getElementById('bina-cfg-msg').textContent='', 3000);
 }
 
 // ── Buyu Dukkani Config ──
