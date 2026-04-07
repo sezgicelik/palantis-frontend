@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palantis HUD Tasarım</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0a0a0a; color: #f0e8d8; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+
+  .hud-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: linear-gradient(180deg, #1a1400 0%, #0d0a00 100%);
+    border: 1px solid rgba(200,169,110,0.3);
+    border-radius: 8px;
+    padding: 8px 12px;
+  }
+
+  .hud-row {
+    display: flex;
+    align-items: center;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(200,169,110,0.08);
+  }
+  .hud-row:last-child { border-bottom: none; }
+
+  .hud-label {
+    width: 120px;
+    font-size: 10px;
+    color: #c8a96e;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  .hud-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    flex: 1;
+  }
+
+  .hud-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(200,169,110,0.1);
+    border-radius: 4px;
+    min-width: 90px;
+  }
+
+  .hud-icon { font-size: 14px; flex-shrink: 0; }
+
+  .hud-data {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+  }
+
+  .hud-value {
+    font-size: 12px;
+    font-weight: bold;
+    color: #f0e8d8;
+  }
+
+  .hud-name {
+    font-size: 8px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .hud-rate {
+    font-size: 9px;
+    font-weight: bold;
+  }
+  .rate-pos { color: #2ecc71; }
+  .rate-neg { color: #e74c3c; }
+
+  /* Renk vurgulari */
+  .hud-item.gold { border-color: rgba(241,196,15,0.3); }
+  .hud-item.gold .hud-value { color: #f1c40f; }
+
+  .hud-item.mana-red { border-color: rgba(231,76,60,0.3); }
+  .hud-item.mana-red .hud-value { color: #e74c3c; }
+
+  .hud-item.mana-blue { border-color: rgba(52,152,219,0.3); }
+  .hud-item.mana-blue .hud-value { color: #3498db; }
+
+  .hud-item.mana-green { border-color: rgba(46,204,113,0.3); }
+  .hud-item.mana-green .hud-value { color: #2ecc71; }
+
+  .hud-item.mana-white { border-color: rgba(236,240,241,0.3); }
+  .hud-item.mana-white .hud-value { color: #ecf0f1; }
+
+  .hud-item.danger .hud-value { color: #e74c3c; }
+  .hud-item.success .hud-value { color: #2ecc71; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hud-label { width: 80px; font-size: 8px; }
+    .hud-item { min-width: 70px; padding: 2px 5px; }
+    .hud-value { font-size: 10px; }
+    .hud-name { font-size: 7px; }
+  }
+
+  @media (max-width: 480px) {
+    .hud-label { width: 60px; font-size: 7px; }
+    .hud-item { min-width: 55px; padding: 2px 4px; }
+    .hud-value { font-size: 9px; }
+  }
+
+  h2 { color: #c8a96e; font-family: serif; text-align: center; margin-bottom: 16px; font-size: 18px; }
+  .note { color: #555; font-size: 11px; text-align: center; margin-top: 12px; }
+</style>
+</head>
+<body>
+
+<h2>Palantis HUD Tasarımı</h2>
+
+<div class="hud-container">
+
+  <!-- HAMMADDE -->
+  <div class="hud-row">
+    <div class="hud-label">Hammadde</div>
+    <div class="hud-items">
+      <div class="hud-item gold">
+        <span class="hud-icon">💰</span>
+        <div class="hud-data">
+          <span class="hud-value">210.210</span>
+          <span class="hud-name">Altın</span>
+        </div>
+        <span class="hud-rate rate-pos">+355</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-icon">🌳</span>
+        <div class="hud-data">
+          <span class="hud-value">529.753</span>
+          <span class="hud-name">Odun</span>
+        </div>
+        <span class="hud-rate rate-pos">+220</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-icon">🪵</span>
+        <div class="hud-data">
+          <span class="hud-value">121.926</span>
+          <span class="hud-name">Kereste</span>
+        </div>
+      </div>
+      <div class="hud-item">
+        <span class="hud-icon">⛏</span>
+        <div class="hud-data">
+          <span class="hud-value">302.163</span>
+          <span class="hud-name">Metal</span>
+        </div>
+        <span class="hud-rate rate-pos">+150</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-icon">⚙</span>
+        <div class="hud-data">
+          <span class="hud-value">4.817</span>
+          <span class="hud-name">İşlenmiş</span>
+        </div>
+      </div>
+      <div class="hud-item">
+        <span class="hud-icon">👤</span>
+        <div class="hud-data">
+          <span class="hud-value">36.207</span>
+          <span class="hud-name">Köylü</span>
+        </div>
+      </div>
+      <div class="hud-item">
+        <span class="hud-icon">⚔</span>
+        <div class="hud-data">
+          <span class="hud-value">5.077</span>
+          <span class="hud-name">Asker</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- YEMEK -->
+  <div class="hud-row">
+    <div class="hud-label">Yemek</div>
+    <div class="hud-items">
+      <div class="hud-item">
+        <span class="hud-icon">🌾</span>
+        <div class="hud-data">
+          <span class="hud-value">1.996.099</span>
+          <span class="hud-name">Buğday</span>
+        </div>
+        <span class="hud-rate rate-pos">+440</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-icon">🍞</span>
+        <div class="hud-data">
+          <span class="hud-value">154.453</span>
+          <span class="hud-name">Ekmek</span>
+        </div>
+      </div>
+      <div class="hud-item">
+        <span class="hud-icon">🐟</span>
+        <div class="hud-data">
+          <span class="hud-value">11.190</span>
+          <span class="hud-name">Çiğ Balık</span>
+        </div>
+        <span class="hud-rate rate-pos">+132</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-icon">🍳</span>
+        <div class="hud-data">
+          <span class="hud-value">29.868</span>
+          <span class="hud-name">Pişmiş Balık</span>
+        </div>
+      </div>
+      <div class="hud-item">
+        <span class="hud-icon">🥩</span>
+        <div class="hud-data">
+          <span class="hud-value">15.715</span>
+          <span class="hud-name">Çiğ Et</span>
+        </div>
+      </div>
+      <div class="hud-item">
+        <span class="hud-icon">🍖</span>
+        <div class="hud-data">
+          <span class="hud-value">173.415</span>
+          <span class="hud-name">Pişmiş Et</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ŞEHİR -->
+  <div class="hud-row">
+    <div class="hud-label">Şehir</div>
+    <div class="hud-items">
+      <div class="hud-item">
+        <span class="hud-icon">📐</span>
+        <div class="hud-data">
+          <span class="hud-value">10.807</span>
+          <span class="hud-name">Alan</span>
+        </div>
+      </div>
+      <div class="hud-item">
+        <span class="hud-icon">🏗</span>
+        <div class="hud-data">
+          <span class="hud-value">3.693</span>
+          <span class="hud-name">Bina Alanı</span>
+        </div>
+      </div>
+      <div class="hud-item">
+        <span class="hud-icon">👥</span>
+        <div class="hud-data">
+          <span class="hud-value">222.549</span>
+          <span class="hud-name">Popülasyon</span>
+        </div>
+      </div>
+      <div class="hud-item">
+        <span class="hud-icon">👥</span>
+        <div class="hud-data">
+          <span class="hud-value">127.415</span>
+          <span class="hud-name">Top. Pop</span>
+        </div>
+      </div>
+      <div class="hud-item">
+        <span class="hud-icon">🏰</span>
+        <div class="hud-data">
+          <span class="hud-value">3.807.308</span>
+          <span class="hud-name">Şehir Değeri</span>
+        </div>
+      </div>
+      <div class="hud-item danger">
+        <span class="hud-icon">⚔</span>
+        <div class="hud-data">
+          <span class="hud-value">3.210.497</span>
+          <span class="hud-name">ATK Puanı</span>
+        </div>
+      </div>
+      <div class="hud-item success">
+        <span class="hud-icon">🛡</span>
+        <div class="hud-data">
+          <span class="hud-value">3.241.598</span>
+          <span class="hud-name">DEF Puanı</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GENEL -->
+  <div class="hud-row">
+    <div class="hud-label">Genel</div>
+    <div class="hud-items">
+      <div class="hud-item">
+        <span class="hud-icon">😊</span>
+        <div class="hud-data">
+          <span class="hud-value">-1.941</span>
+          <span class="hud-name">Moral</span>
+        </div>
+      </div>
+      <div class="hud-item success">
+        <span class="hud-icon">💚</span>
+        <div class="hud-data">
+          <span class="hud-value">% 49</span>
+          <span class="hud-name">Mutluluk</span>
+        </div>
+      </div>
+      <div class="hud-item">
+        <span class="hud-icon">🔍</span>
+        <div class="hud-data">
+          <span class="hud-value">9.369</span>
+          <span class="hud-name">Gizlilik</span>
+        </div>
+      </div>
+      <div class="hud-item">
+        <span class="hud-icon">📈</span>
+        <div class="hud-data">
+          <span class="hud-value">4.233</span>
+          <span class="hud-name">Gelişim</span>
+        </div>
+      </div>
+      <div class="hud-item">
+        <span class="hud-icon">🎭</span>
+        <div class="hud-data">
+          <span class="hud-value">119</span>
+          <span class="hud-name">Kültür</span>
+        </div>
+      </div>
+      <div class="hud-item gold">
+        <span class="hud-icon">🏅</span>
+        <div class="hud-data">
+          <span class="hud-value">64</span>
+          <span class="hud-name">Cesaret</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BÜYÜ -->
+  <div class="hud-row">
+    <div class="hud-label">Büyü</div>
+    <div class="hud-items">
+      <div class="hud-item mana-red">
+        <span class="hud-icon">❤</span>
+        <div class="hud-data">
+          <span class="hud-value">65.578</span>
+          <span class="hud-name">Kırmızı Mana</span>
+        </div>
+        <span class="hud-rate rate-pos">+3</span>
+      </div>
+      <div class="hud-item mana-green">
+        <span class="hud-icon">💚</span>
+        <div class="hud-data">
+          <span class="hud-value">72.322</span>
+          <span class="hud-name">Yeşil Mana</span>
+        </div>
+        <span class="hud-rate rate-pos">+3</span>
+      </div>
+      <div class="hud-item mana-blue">
+        <span class="hud-icon">💙</span>
+        <div class="hud-data">
+          <span class="hud-value">188.782</span>
+          <span class="hud-name">Mavi Mana</span>
+        </div>
+        <span class="hud-rate rate-pos">+3</span>
+      </div>
+      <div class="hud-item mana-white">
+        <span class="hud-icon">🤍</span>
+        <div class="hud-data">
+          <span class="hud-value">162.389</span>
+          <span class="hud-name">Beyaz Mana</span>
+        </div>
+        <span class="hud-rate rate-pos">+3</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-icon">🫏</span>
+        <div class="hud-data">
+          <span class="hud-value">6 / 11</span>
+          <span class="hud-name">Eşek</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="note">Eski Palantis HUD tasarımından ilham alınmıştır. Responsive — mobilde küçülür.</p>
+
+</body>
+</html>
