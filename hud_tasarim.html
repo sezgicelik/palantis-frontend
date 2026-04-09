@@ -3,391 +3,248 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Palantis HUD Tasarım</title>
+<title>Palantis HUD — 4 Alternatif</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: #0a0a0a; color: #f0e8d8; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+  h1 { color: #c8a96e; font-family: serif; text-align: center; margin-bottom: 30px; }
+  h2 { color: #c8a96e; font-family: serif; margin: 30px 0 12px; font-size: 16px; border-bottom: 1px solid #222; padding-bottom: 6px; }
+  .sep { height: 2px; background: linear-gradient(90deg, transparent, #c8a96e33, transparent); margin: 40px 0; }
 
-  .hud-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    background: linear-gradient(180deg, #1a1400 0%, #0d0a00 100%);
-    border: 1px solid rgba(200,169,110,0.3);
-    border-radius: 8px;
-    padding: 8px 12px;
-  }
+  /* V1: TABLO */
+  .v1 { width: 100%; border-collapse: collapse; font-size: 11px; max-width: 1100px; margin: 0 auto; }
+  .v1 th { background: #1a1400; color: #c8a96e; padding: 4px 6px; text-align: left; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; border: 1px solid #222; width: 90px; }
+  .v1 td { padding: 3px 4px; border: 1px solid #1a1a1a; background: #0d0d0d; text-align: center; }
+  .v1 .v { font-weight: bold; color: #f0e8d8; font-size: 12px; display: block; }
+  .v1 .l { color: #555; font-size: 7px; text-transform: uppercase; display: block; }
+  .v1 .r { font-size: 8px; font-weight: bold; }
+  .pos { color: #2ecc71; } .neg { color: #e74c3c; }
 
-  .hud-row {
-    display: flex;
-    align-items: center;
-    padding: 4px 0;
-    border-bottom: 1px solid rgba(200,169,110,0.08);
-  }
-  .hud-row:last-child { border-bottom: none; }
+  /* V2: KOMPAKT */
+  .v2 { max-width: 1100px; margin: 0 auto; background: #0d0a00; border: 1px solid #222; border-radius: 6px; padding: 6px 10px; }
+  .v2r { display: flex; align-items: center; padding: 3px 0; border-bottom: 1px solid #111; }
+  .v2r:last-child { border-bottom: none; }
+  .v2l { width: 80px; font-size: 9px; color: #c8a96e; font-weight: bold; flex-shrink: 0; }
+  .v2i { display: flex; flex-wrap: wrap; gap: 2px; flex: 1; }
+  .v2t { display: inline-flex; align-items: center; gap: 3px; padding: 2px 6px; background: #111; border-radius: 3px; font-size: 10px; }
 
-  .hud-label {
-    width: 120px;
-    font-size: 10px;
-    color: #c8a96e;
-    font-weight: bold;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    flex-shrink: 0;
-  }
+  /* V3: PARŞÖMEN */
+  .v3 { max-width: 1100px; margin: 0 auto; background: linear-gradient(180deg, #2a2010, #1a1400); border: 2px solid #8b7355; border-radius: 4px; padding: 6px 8px; }
+  .v3r { display: flex; align-items: center; padding: 4px 0; border-bottom: 1px solid #3a2a10; }
+  .v3r:last-child { border-bottom: none; }
+  .v3l { width: 100px; font-size: 10px; color: #d4af37; font-weight: bold; font-family: serif; flex-shrink: 0; text-shadow: 1px 1px 2px #000; }
+  .v3i { display: flex; flex-wrap: wrap; gap: 3px; flex: 1; }
+  .v3t { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; background: rgba(0,0,0,0.5); border: 1px solid #5a4a30; border-radius: 3px; }
+  .v3t .n { font-weight: bold; color: #f5e6c8; font-size: 12px; font-family: 'Courier New', monospace; }
+  .v3t .s { color: #8b7355; font-size: 7px; text-transform: uppercase; }
 
-  .hud-items {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    flex: 1;
-  }
+  /* V4: MİNİMAL */
+  .v4 { max-width: 1100px; margin: 0 auto; }
+  .v4r { display: flex; align-items: center; padding: 2px 0; }
+  .v4l { width: 16px; font-size: 8px; color: #c8a96e; flex-shrink: 0; }
+  .v4i { display: flex; flex-wrap: wrap; gap: 1px; flex: 1; border-bottom: 1px solid #111; padding-bottom: 2px; }
+  .v4t { display: inline-flex; align-items: baseline; gap: 2px; padding: 1px 5px; font-size: 10px; }
+  .v4t b { color: #ddd; }
+  .v4t small { color: #555; font-size: 7px; }
+  .bar { color: #333; }
 
-  .hud-item {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 3px 8px;
-    background: rgba(0,0,0,0.4);
-    border: 1px solid rgba(200,169,110,0.1);
-    border-radius: 4px;
-    min-width: 90px;
-  }
-
-  .hud-icon { font-size: 14px; flex-shrink: 0; }
-
-  .hud-data {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.2;
-  }
-
-  .hud-value {
-    font-size: 12px;
-    font-weight: bold;
-    color: #f0e8d8;
-  }
-
-  .hud-name {
-    font-size: 8px;
-    color: #666;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .hud-rate {
-    font-size: 9px;
-    font-weight: bold;
-  }
-  .rate-pos { color: #2ecc71; }
-  .rate-neg { color: #e74c3c; }
-
-  /* Renk vurgulari */
-  .hud-item.gold { border-color: rgba(241,196,15,0.3); }
-  .hud-item.gold .hud-value { color: #f1c40f; }
-
-  .hud-item.mana-red { border-color: rgba(231,76,60,0.3); }
-  .hud-item.mana-red .hud-value { color: #e74c3c; }
-
-  .hud-item.mana-blue { border-color: rgba(52,152,219,0.3); }
-  .hud-item.mana-blue .hud-value { color: #3498db; }
-
-  .hud-item.mana-green { border-color: rgba(46,204,113,0.3); }
-  .hud-item.mana-green .hud-value { color: #2ecc71; }
-
-  .hud-item.mana-white { border-color: rgba(236,240,241,0.3); }
-  .hud-item.mana-white .hud-value { color: #ecf0f1; }
-
-  .hud-item.danger .hud-value { color: #e74c3c; }
-  .hud-item.success .hud-value { color: #2ecc71; }
-
-  /* Responsive */
-  @media (max-width: 768px) {
-    .hud-label { width: 80px; font-size: 8px; }
-    .hud-item { min-width: 70px; padding: 2px 5px; }
-    .hud-value { font-size: 10px; }
-    .hud-name { font-size: 7px; }
-  }
-
-  @media (max-width: 480px) {
-    .hud-label { width: 60px; font-size: 7px; }
-    .hud-item { min-width: 55px; padding: 2px 4px; }
-    .hud-value { font-size: 9px; }
-  }
-
-  h2 { color: #c8a96e; font-family: serif; text-align: center; margin-bottom: 16px; font-size: 18px; }
-  .note { color: #555; font-size: 11px; text-align: center; margin-top: 12px; }
+  @media(max-width:768px) { .v1 { font-size: 9px; } .v2l,.v3l { width: 60px; font-size: 8px; } }
 </style>
 </head>
 <body>
 
-<h2>Palantis HUD Tasarımı</h2>
+<h1>Palantis HUD — 4 Alternatif Tasarim</h1>
 
-<div class="hud-container">
+<!-- V1: TABLO -->
+<h2>V1: Tablo (En okunabilir)</h2>
+<table class="v1">
+<tr><th>Hammadde</th>
+  <td><span class="v" style="color:#f1c40f">210.210</span><span class="l">Altin</span><span class="r pos">+355</span></td>
+  <td><span class="v">529.753</span><span class="l">Odun</span><span class="r pos">+220</span></td>
+  <td><span class="v">121.926</span><span class="l">Kereste</span></td>
+  <td><span class="v">302.163</span><span class="l">Metal</span><span class="r pos">+150</span></td>
+  <td><span class="v">4.817</span><span class="l">Islenmis</span></td>
+  <td><span class="v">36.207</span><span class="l">Koylu</span></td>
+  <td><span class="v">5.077</span><span class="l">Asker</span></td></tr>
+<tr><th>Yemek</th>
+  <td><span class="v">1.996.099</span><span class="l">Bugday</span><span class="r pos">+440</span></td>
+  <td><span class="v">154.453</span><span class="l">Ekmek</span></td>
+  <td><span class="v">11.190</span><span class="l">C.Balik</span><span class="r pos">+132</span></td>
+  <td><span class="v">29.868</span><span class="l">P.Balik</span></td>
+  <td><span class="v">15.715</span><span class="l">C.Et</span></td>
+  <td><span class="v">173.415</span><span class="l">P.Et</span></td>
+  <td></td></tr>
+<tr><th>Sehir</th>
+  <td><span class="v">10.807</span><span class="l">Alan</span></td>
+  <td><span class="v">3.693</span><span class="l">Bina Alani</span></td>
+  <td><span class="v">222.549</span><span class="l">Populasyon</span></td>
+  <td><span class="v">127.415</span><span class="l">Top. Pop</span></td>
+  <td><span class="v">3.807.308</span><span class="l">S. Degeri</span></td>
+  <td><span class="v" style="color:#e74c3c">3.210.497</span><span class="l">ATK</span></td>
+  <td><span class="v" style="color:#3498db">3.241.598</span><span class="l">DEF</span></td></tr>
+<tr><th>Genel</th>
+  <td><span class="v">-1.941</span><span class="l">Moral</span></td>
+  <td><span class="v" style="color:#2ecc71">%49</span><span class="l">Mutluluk</span></td>
+  <td><span class="v">9.369</span><span class="l">Gizlilik</span></td>
+  <td><span class="v">4.233</span><span class="l">Gelisim</span></td>
+  <td><span class="v">119</span><span class="l">Kultur</span></td>
+  <td><span class="v" style="color:#f1c40f">64</span><span class="l">Cesaret</span></td>
+  <td></td></tr>
+<tr><th>Buyu</th>
+  <td><span class="v" style="color:#e74c3c">65.578</span><span class="l">K.Mana</span><span class="r pos">+3</span></td>
+  <td><span class="v" style="color:#2ecc71">72.322</span><span class="l">Y.Mana</span><span class="r pos">+3</span></td>
+  <td><span class="v" style="color:#3498db">188.782</span><span class="l">M.Mana</span><span class="r pos">+3</span></td>
+  <td><span class="v" style="color:#ecf0f1">162.389</span><span class="l">B.Mana</span><span class="r pos">+3</span></td>
+  <td><span class="v">6/11</span><span class="l">Esek</span></td>
+  <td></td><td></td></tr>
+</table>
 
-  <!-- HAMMADDE -->
-  <div class="hud-row">
-    <div class="hud-label">Hammadde</div>
-    <div class="hud-items">
-      <div class="hud-item gold">
-        <span class="hud-icon">💰</span>
-        <div class="hud-data">
-          <span class="hud-value">210.210</span>
-          <span class="hud-name">Altın</span>
-        </div>
-        <span class="hud-rate rate-pos">+355</span>
-      </div>
-      <div class="hud-item">
-        <span class="hud-icon">🌳</span>
-        <div class="hud-data">
-          <span class="hud-value">529.753</span>
-          <span class="hud-name">Odun</span>
-        </div>
-        <span class="hud-rate rate-pos">+220</span>
-      </div>
-      <div class="hud-item">
-        <span class="hud-icon">🪵</span>
-        <div class="hud-data">
-          <span class="hud-value">121.926</span>
-          <span class="hud-name">Kereste</span>
-        </div>
-      </div>
-      <div class="hud-item">
-        <span class="hud-icon">⛏</span>
-        <div class="hud-data">
-          <span class="hud-value">302.163</span>
-          <span class="hud-name">Metal</span>
-        </div>
-        <span class="hud-rate rate-pos">+150</span>
-      </div>
-      <div class="hud-item">
-        <span class="hud-icon">⚙</span>
-        <div class="hud-data">
-          <span class="hud-value">4.817</span>
-          <span class="hud-name">İşlenmiş</span>
-        </div>
-      </div>
-      <div class="hud-item">
-        <span class="hud-icon">👤</span>
-        <div class="hud-data">
-          <span class="hud-value">36.207</span>
-          <span class="hud-name">Köylü</span>
-        </div>
-      </div>
-      <div class="hud-item">
-        <span class="hud-icon">⚔</span>
-        <div class="hud-data">
-          <span class="hud-value">5.077</span>
-          <span class="hud-name">Asker</span>
-        </div>
-      </div>
-    </div>
-  </div>
+<div class="sep"></div>
 
-  <!-- YEMEK -->
-  <div class="hud-row">
-    <div class="hud-label">Yemek</div>
-    <div class="hud-items">
-      <div class="hud-item">
-        <span class="hud-icon">🌾</span>
-        <div class="hud-data">
-          <span class="hud-value">1.996.099</span>
-          <span class="hud-name">Buğday</span>
-        </div>
-        <span class="hud-rate rate-pos">+440</span>
-      </div>
-      <div class="hud-item">
-        <span class="hud-icon">🍞</span>
-        <div class="hud-data">
-          <span class="hud-value">154.453</span>
-          <span class="hud-name">Ekmek</span>
-        </div>
-      </div>
-      <div class="hud-item">
-        <span class="hud-icon">🐟</span>
-        <div class="hud-data">
-          <span class="hud-value">11.190</span>
-          <span class="hud-name">Çiğ Balık</span>
-        </div>
-        <span class="hud-rate rate-pos">+132</span>
-      </div>
-      <div class="hud-item">
-        <span class="hud-icon">🍳</span>
-        <div class="hud-data">
-          <span class="hud-value">29.868</span>
-          <span class="hud-name">Pişmiş Balık</span>
-        </div>
-      </div>
-      <div class="hud-item">
-        <span class="hud-icon">🥩</span>
-        <div class="hud-data">
-          <span class="hud-value">15.715</span>
-          <span class="hud-name">Çiğ Et</span>
-        </div>
-      </div>
-      <div class="hud-item">
-        <span class="hud-icon">🍖</span>
-        <div class="hud-data">
-          <span class="hud-value">173.415</span>
-          <span class="hud-name">Pişmiş Et</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ŞEHİR -->
-  <div class="hud-row">
-    <div class="hud-label">Şehir</div>
-    <div class="hud-items">
-      <div class="hud-item">
-        <span class="hud-icon">📐</span>
-        <div class="hud-data">
-          <span class="hud-value">10.807</span>
-          <span class="hud-name">Alan</span>
-        </div>
-      </div>
-      <div class="hud-item">
-        <span class="hud-icon">🏗</span>
-        <div class="hud-data">
-          <span class="hud-value">3.693</span>
-          <span class="hud-name">Bina Alanı</span>
-        </div>
-      </div>
-      <div class="hud-item">
-        <span class="hud-icon">👥</span>
-        <div class="hud-data">
-          <span class="hud-value">222.549</span>
-          <span class="hud-name">Popülasyon</span>
-        </div>
-      </div>
-      <div class="hud-item">
-        <span class="hud-icon">👥</span>
-        <div class="hud-data">
-          <span class="hud-value">127.415</span>
-          <span class="hud-name">Top. Pop</span>
-        </div>
-      </div>
-      <div class="hud-item">
-        <span class="hud-icon">🏰</span>
-        <div class="hud-data">
-          <span class="hud-value">3.807.308</span>
-          <span class="hud-name">Şehir Değeri</span>
-        </div>
-      </div>
-      <div class="hud-item danger">
-        <span class="hud-icon">⚔</span>
-        <div class="hud-data">
-          <span class="hud-value">3.210.497</span>
-          <span class="hud-name">ATK Puanı</span>
-        </div>
-      </div>
-      <div class="hud-item success">
-        <span class="hud-icon">🛡</span>
-        <div class="hud-data">
-          <span class="hud-value">3.241.598</span>
-          <span class="hud-name">DEF Puanı</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- GENEL -->
-  <div class="hud-row">
-    <div class="hud-label">Genel</div>
-    <div class="hud-items">
-      <div class="hud-item">
-        <span class="hud-icon">😊</span>
-        <div class="hud-data">
-          <span class="hud-value">-1.941</span>
-          <span class="hud-name">Moral</span>
-        </div>
-      </div>
-      <div class="hud-item success">
-        <span class="hud-icon">💚</span>
-        <div class="hud-data">
-          <span class="hud-value">% 49</span>
-          <span class="hud-name">Mutluluk</span>
-        </div>
-      </div>
-      <div class="hud-item">
-        <span class="hud-icon">🔍</span>
-        <div class="hud-data">
-          <span class="hud-value">9.369</span>
-          <span class="hud-name">Gizlilik</span>
-        </div>
-      </div>
-      <div class="hud-item">
-        <span class="hud-icon">📈</span>
-        <div class="hud-data">
-          <span class="hud-value">4.233</span>
-          <span class="hud-name">Gelişim</span>
-        </div>
-      </div>
-      <div class="hud-item">
-        <span class="hud-icon">🎭</span>
-        <div class="hud-data">
-          <span class="hud-value">119</span>
-          <span class="hud-name">Kültür</span>
-        </div>
-      </div>
-      <div class="hud-item gold">
-        <span class="hud-icon">🏅</span>
-        <div class="hud-data">
-          <span class="hud-value">64</span>
-          <span class="hud-name">Cesaret</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- BÜYÜ -->
-  <div class="hud-row">
-    <div class="hud-label">Büyü</div>
-    <div class="hud-items">
-      <div class="hud-item mana-red">
-        <span class="hud-icon">❤</span>
-        <div class="hud-data">
-          <span class="hud-value">65.578</span>
-          <span class="hud-name">Kırmızı Mana</span>
-        </div>
-        <span class="hud-rate rate-pos">+3</span>
-      </div>
-      <div class="hud-item mana-green">
-        <span class="hud-icon">💚</span>
-        <div class="hud-data">
-          <span class="hud-value">72.322</span>
-          <span class="hud-name">Yeşil Mana</span>
-        </div>
-        <span class="hud-rate rate-pos">+3</span>
-      </div>
-      <div class="hud-item mana-blue">
-        <span class="hud-icon">💙</span>
-        <div class="hud-data">
-          <span class="hud-value">188.782</span>
-          <span class="hud-name">Mavi Mana</span>
-        </div>
-        <span class="hud-rate rate-pos">+3</span>
-      </div>
-      <div class="hud-item mana-white">
-        <span class="hud-icon">🤍</span>
-        <div class="hud-data">
-          <span class="hud-value">162.389</span>
-          <span class="hud-name">Beyaz Mana</span>
-        </div>
-        <span class="hud-rate rate-pos">+3</span>
-      </div>
-      <div class="hud-item">
-        <span class="hud-icon">🫏</span>
-        <div class="hud-data">
-          <span class="hud-value">6 / 11</span>
-          <span class="hud-name">Eşek</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
+<!-- V2: KOMPAKT -->
+<h2>V2: Kompakt Grid (Dengeli)</h2>
+<div class="v2">
+  <div class="v2r"><div class="v2l">Hammadde</div><div class="v2i">
+    <span class="v2t">💰 <b style="color:#f1c40f">210.210</b> <small class="pos">+355</small></span>
+    <span class="v2t">🌳 <b>529.753</b> <small class="pos">+220</small></span>
+    <span class="v2t">🪵 <b>121.926</b></span>
+    <span class="v2t">⛏ <b>302.163</b> <small class="pos">+150</small></span>
+    <span class="v2t">⚙ <b>4.817</b></span>
+    <span class="v2t">👤 <b>36.207</b></span>
+    <span class="v2t">⚔ <b>5.077</b></span>
+  </div></div>
+  <div class="v2r"><div class="v2l">Yemek</div><div class="v2i">
+    <span class="v2t">🌾 <b>1.996.099</b> <small class="pos">+440</small></span>
+    <span class="v2t">🍞 <b>154.453</b></span>
+    <span class="v2t">🐟 <b>11.190</b></span>
+    <span class="v2t">🍳 <b>29.868</b></span>
+    <span class="v2t">🥩 <b>15.715</b></span>
+    <span class="v2t">🍖 <b>173.415</b></span>
+  </div></div>
+  <div class="v2r"><div class="v2l">Sehir</div><div class="v2i">
+    <span class="v2t">📐 <b>10.807</b> <small style="color:#555">alan</small></span>
+    <span class="v2t">🏗 <b>3.693</b> <small style="color:#555">bina</small></span>
+    <span class="v2t">👥 <b>222.549</b> <small style="color:#555">pop</small></span>
+    <span class="v2t">🏰 <b>3.807.308</b></span>
+    <span class="v2t">⚔ <b style="color:#e74c3c">3.210.497</b></span>
+    <span class="v2t">🛡 <b style="color:#3498db">3.241.598</b></span>
+  </div></div>
+  <div class="v2r"><div class="v2l">Genel</div><div class="v2i">
+    <span class="v2t">😊 <b>-1.941</b></span>
+    <span class="v2t">💚 <b style="color:#2ecc71">%49</b></span>
+    <span class="v2t">🔍 <b>9.369</b></span>
+    <span class="v2t">📈 <b>4.233</b></span>
+    <span class="v2t">🎭 <b>119</b></span>
+    <span class="v2t">🏅 <b style="color:#f1c40f">64</b></span>
+  </div></div>
+  <div class="v2r"><div class="v2l">Buyu</div><div class="v2i">
+    <span class="v2t">❤ <b style="color:#e74c3c">65.578</b></span>
+    <span class="v2t">💚 <b style="color:#2ecc71">72.322</b></span>
+    <span class="v2t">💙 <b style="color:#3498db">188.782</b></span>
+    <span class="v2t">🤍 <b style="color:#ecf0f1">162.389</b></span>
+    <span class="v2t">🫏 <b>6/11</b></span>
+  </div></div>
 </div>
 
-<p class="note">Eski Palantis HUD tasarımından ilham alınmıştır. Responsive — mobilde küçülür.</p>
+<div class="sep"></div>
+
+<!-- V3: PARŞÖMEN -->
+<h2>V3: Eski Palantis (Parsomen tema)</h2>
+<div class="v3">
+  <div class="v3r"><div class="v3l">Hammadde</div><div class="v3i">
+    <div class="v3t">💰<div><span class="n" style="color:#f1c40f">210.210</span><span class="s">Altin</span></div></div>
+    <div class="v3t">🌳<div><span class="n">529.753</span><span class="s">Odun</span></div></div>
+    <div class="v3t">🪵<div><span class="n">121.926</span><span class="s">Kereste</span></div></div>
+    <div class="v3t">⛏<div><span class="n">302.163</span><span class="s">Metal</span></div></div>
+    <div class="v3t">⚙<div><span class="n">4.817</span><span class="s">Islenmis</span></div></div>
+    <div class="v3t">👤<div><span class="n">36.207</span><span class="s">Koylu</span></div></div>
+    <div class="v3t">⚔<div><span class="n">5.077</span><span class="s">Asker</span></div></div>
+  </div></div>
+  <div class="v3r"><div class="v3l">Yemek</div><div class="v3i">
+    <div class="v3t">🌾<div><span class="n">1.996.099</span><span class="s">Bugday</span></div></div>
+    <div class="v3t">🍞<div><span class="n">154.453</span><span class="s">Ekmek</span></div></div>
+    <div class="v3t">🐟<div><span class="n">11.190</span><span class="s">C.Balik</span></div></div>
+    <div class="v3t">🍳<div><span class="n">29.868</span><span class="s">P.Balik</span></div></div>
+    <div class="v3t">🥩<div><span class="n">15.715</span><span class="s">C.Et</span></div></div>
+    <div class="v3t">🍖<div><span class="n">173.415</span><span class="s">P.Et</span></div></div>
+  </div></div>
+  <div class="v3r"><div class="v3l">Sehir</div><div class="v3i">
+    <div class="v3t">📐<div><span class="n">10.807</span><span class="s">Alan</span></div></div>
+    <div class="v3t">🏗<div><span class="n">3.693</span><span class="s">Bina</span></div></div>
+    <div class="v3t">👥<div><span class="n">222.549</span><span class="s">Pop</span></div></div>
+    <div class="v3t">👥<div><span class="n">127.415</span><span class="s">Max</span></div></div>
+    <div class="v3t">🏰<div><span class="n">3.807.308</span><span class="s">Deger</span></div></div>
+    <div class="v3t">⚔<div><span class="n" style="color:#e74c3c">3.210.497</span><span class="s">ATK</span></div></div>
+    <div class="v3t">🛡<div><span class="n" style="color:#3498db">3.241.598</span><span class="s">DEF</span></div></div>
+  </div></div>
+  <div class="v3r"><div class="v3l">Genel</div><div class="v3i">
+    <div class="v3t">😊<div><span class="n">-1.941</span><span class="s">Moral</span></div></div>
+    <div class="v3t">💚<div><span class="n" style="color:#2ecc71">%49</span><span class="s">Mutlu</span></div></div>
+    <div class="v3t">🔍<div><span class="n">9.369</span><span class="s">Gizli</span></div></div>
+    <div class="v3t">📈<div><span class="n">4.233</span><span class="s">Gelisim</span></div></div>
+    <div class="v3t">🎭<div><span class="n">119</span><span class="s">Kultur</span></div></div>
+    <div class="v3t">🏅<div><span class="n" style="color:#f1c40f">64</span><span class="s">Cesaret</span></div></div>
+  </div></div>
+  <div class="v3r"><div class="v3l">Buyu</div><div class="v3i">
+    <div class="v3t">❤<div><span class="n" style="color:#e74c3c">65.578</span><span class="s">K.Mana</span></div></div>
+    <div class="v3t">💚<div><span class="n" style="color:#2ecc71">72.322</span><span class="s">Y.Mana</span></div></div>
+    <div class="v3t">💙<div><span class="n" style="color:#3498db">188.782</span><span class="s">M.Mana</span></div></div>
+    <div class="v3t">🤍<div><span class="n" style="color:#ecf0f1">162.389</span><span class="s">B.Mana</span></div></div>
+    <div class="v3t">🫏<div><span class="n">6/11</span><span class="s">Esek</span></div></div>
+  </div></div>
+</div>
+
+<div class="sep"></div>
+
+<!-- V4: MİNİMAL -->
+<h2>V4: Minimal (En az yer)</h2>
+<div class="v4">
+  <div class="v4r"><div class="v4l">H</div><div class="v4i">
+    <span class="v4t">💰<b style="color:#f1c40f">210K</b></span>
+    <span class="v4t">🌳<b>529K</b></span>
+    <span class="v4t">🪵<b>121K</b></span>
+    <span class="v4t">⛏<b>302K</b></span>
+    <span class="v4t">⚙<b>4.8K</b></span>
+    <span class="bar">|</span>
+    <span class="v4t">👤<b>36K</b></span>
+    <span class="v4t">⚔<b>5K</b></span>
+  </div></div>
+  <div class="v4r"><div class="v4l">Y</div><div class="v4i">
+    <span class="v4t">🌾<b>1.9M</b></span>
+    <span class="v4t">🍞<b>154K</b></span>
+    <span class="v4t">🐟<b>11K</b></span>
+    <span class="v4t">🍳<b>29K</b></span>
+    <span class="v4t">🥩<b>15K</b></span>
+    <span class="v4t">🍖<b>173K</b></span>
+  </div></div>
+  <div class="v4r"><div class="v4l">S</div><div class="v4i">
+    <span class="v4t"><b>10.8K</b><small>alan</small></span>
+    <span class="v4t"><b>3.7K</b><small>bina</small></span>
+    <span class="v4t"><b>222K</b><small>pop</small></span>
+    <span class="v4t">🏰<b>3.8M</b></span>
+    <span class="bar">|</span>
+    <span class="v4t"><b style="color:#e74c3c">3.2M</b><small>atk</small></span>
+    <span class="v4t"><b style="color:#3498db">3.2M</b><small>def</small></span>
+  </div></div>
+  <div class="v4r"><div class="v4l">G</div><div class="v4i">
+    <span class="v4t"><b>-1.9K</b><small>moral</small></span>
+    <span class="v4t"><b style="color:#2ecc71">%49</b></span>
+    <span class="v4t"><b>9.3K</b><small>gizli</small></span>
+    <span class="v4t"><b>4.2K</b><small>gel</small></span>
+    <span class="v4t"><b>119</b><small>kul</small></span>
+    <span class="v4t"><b style="color:#f1c40f">64</b><small>ces</small></span>
+    <span class="bar">|</span>
+    <span class="v4t" style="color:#e74c3c">❤65K</span>
+    <span class="v4t" style="color:#2ecc71">💚72K</span>
+    <span class="v4t" style="color:#3498db">💙188K</span>
+    <span class="v4t" style="color:#ecf0f1">🤍162K</span>
+    <span class="v4t">🫏6/11</span>
+  </div></div>
+</div>
+
+<p style="color:#555;font-size:11px;text-align:center;margin-top:30px">
+  V1: Tablo — en okunabilir | V2: Kompakt — dengeli | V3: Parsomen — nostaljik | V4: Minimal — en az yer
+</p>
 
 </body>
 </html>
