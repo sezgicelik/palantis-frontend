@@ -59,6 +59,7 @@
     <button onclick="switchTab('players',this)">Oyuncular</button>
     <button onclick="switchTab('logins',this)">Login Loglar</button>
     <button onclick="switchTab('actions',this)">Islemler</button>
+    <button onclick="switchTab('uniteler',this)">Uniteler</button>
     <button onclick="switchTab('binalar',this)">Binalar</button>
     <button onclick="switchTab('premium',this)">Premium</button>
     <button onclick="switchTab('sezon',this)">Sezon</button>
@@ -209,6 +210,29 @@
           <input type="number" id="kol-bonus-max" value="25" min="1" max="100" style="padding:4px;width:50px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:11px">
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- UNITE DURUM TAB -->
+  <div id="tab-uniteler" class="panel">
+    <div class="card">
+      <h3>Oyuncu Unite Durumu</h3>
+      <p style="font-size:10px;color:var(--muted);margin-bottom:10px">Tum oyuncularin unite havuzu ve ordulari. Eslesik uniteler yan yana gosterilir.</p>
+      <!-- Eslesik unite basliklari -->
+      <div style="display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap;font-size:9px;color:var(--muted)">
+        <span style="padding:2px 6px;background:#1a1a0a;border:1px solid #333;border-radius:3px">Aydinlik ↔ Karanlik</span>
+        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Piyade ↔ Iskelet</span>
+        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Baltaci ↔ Goblin</span>
+        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Okcu ↔ Isk.Okcu</span>
+        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Savasci ↔ Ogre</span>
+        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Sovalye ↔ Troll</span>
+        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Suvari ↔ Ork</span>
+        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Paladin ↔ Golem</span>
+        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Kolcu ↔ K.Sovalye</span>
+        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Buyucu ↔ K.Elf</span>
+        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Isin S. ↔ Golge S.</span>
+      </div>
+      <div id="unite-durum-body" style="overflow-x:auto"></div>
     </div>
   </div>
 
@@ -407,6 +431,7 @@ function switchTab(tab, el) {
   if (tab === 'logins') loadLogins();
   if (tab === 'map') loadMapConfig();
   if (tab === 'actions') { loadKoloniStats(); loadUnitDropdown(); }
+  if (tab === 'uniteler') loadUniteDurum();
   if (tab === 'binalar') loadBinaConfig();
   if (tab === 'premium') loadPremium();
   if (tab === 'sezon') loadSezon();
@@ -858,6 +883,72 @@ function mcToggle(k) {
 async function saveMarketConfig() {
   const r = await fetch(API+'/api/admin/satilabilir',{method:'POST',headers:hdr(),body:JSON.stringify({aktif:[...MC_AKTIF]})}).then(r=>r.json());
   document.getElementById('mc-msg').textContent = r.ok ? r.mesaj : (r.error||'Hata');
+}
+
+// ── Unite Durum ──
+const ESLESIK = [
+  {iyi:'piyade',kotu:'iskelet',isim:'Piyade/Iskelet'},
+  {iyi:'baltaci',kotu:'goblin',isim:'Baltaci/Goblin'},
+  {iyi:'okcu',kotu:'iskelet_okcu',isim:'Okcu/Isk.Okcu'},
+  {iyi:'savasci',kotu:'ogre',isim:'Savasci/Ogre'},
+  {iyi:'sovalye',kotu:'troll',isim:'Sovalye/Troll'},
+  {iyi:'suvari',kotu:'ork',isim:'Suvari/Ork'},
+  {iyi:'paladin',kotu:'golem',isim:'Paladin/Golem'},
+  {iyi:'kolcu',kotu:'kara_sovalye',isim:'Kolcu/K.Sovalye'},
+  {iyi:'buyucu',kotu:'kara_elf',isim:'Buyucu/K.Elf'},
+  {iyi:'isin_savasci',kotu:'golge_savasci',isim:'IsinS/GolgeS'},
+  {iyi:'mavi_ejderha',kotu:'kirmizi_ejderha',isim:'M.Ejd/K.Ejd'},
+  {iyi:'altin_ejderha',kotu:'siyah_ejderha',isim:'A.Ejd/S.Ejd'},
+];
+
+async function loadUniteDurum() {
+  const d = await fetch(API+'/api/admin/unite-durum?secret='+SECRET).then(r=>r.json());
+  if(!d.ok) return;
+  const body = document.getElementById('unite-durum-body');
+
+  // Tablo baslik
+  let html = '<table style="font-size:10px;border-collapse:collapse;width:100%"><thead><tr>';
+  html += '<th style="text-align:left;padding:4px;color:var(--gold);border-bottom:1px solid var(--border)">Oyuncu</th>';
+  html += '<th style="padding:4px;color:var(--muted);border-bottom:1px solid var(--border)">Taraf</th>';
+  ESLESIK.forEach(e => {
+    html += `<th style="padding:4px;color:var(--muted);border-bottom:1px solid var(--border);text-align:center;font-size:8px">${e.isim}</th>`;
+  });
+  html += '<th style="padding:4px;color:var(--muted);border-bottom:1px solid var(--border)">Toplam</th>';
+  html += '<th style="padding:4px;color:var(--muted);border-bottom:1px solid var(--border)">Ordular</th>';
+  html += '</tr></thead><tbody>';
+
+  for (const oy of d.oyuncular) {
+    const havuzMap = {};
+    (oy.havuz||[]).forEach(u => havuzMap[u.unite_id] = u.adet);
+    const tarafRenk = oy.taraf === 'iyi' ? '#f1c40f' : '#3498db';
+    const tarafIsim = oy.taraf === 'iyi' ? 'Aydinlik' : 'Karanlik';
+
+    html += `<tr style="border-bottom:1px solid #111">`;
+    html += `<td style="padding:4px;font-weight:bold;color:var(--gold)">${oy.kral}</td>`;
+    html += `<td style="padding:4px;color:${tarafRenk};text-align:center;font-size:9px">${tarafIsim}</td>`;
+
+    let toplam = 0;
+    ESLESIK.forEach(e => {
+      const uniteId = oy.taraf === 'iyi' ? e.iyi : e.kotu;
+      const adet = havuzMap[uniteId] || 0;
+      toplam += adet;
+      const renk = adet > 0 ? '#ddd' : '#333';
+      html += `<td style="padding:4px;text-align:center;color:${renk};font-weight:${adet>0?'bold':'normal'}">${adet > 0 ? adet.toLocaleString() : '-'}</td>`;
+    });
+
+    html += `<td style="padding:4px;text-align:center;font-weight:bold;color:var(--gold)">${toplam.toLocaleString()}</td>`;
+
+    // Ordular
+    const orduParts = Object.values(oy.ordular||{}).map(o => {
+      const uSay = (o.uniteler||[]).reduce((s,u) => s + u.adet, 0);
+      return `${o.isim}(${uSay})`;
+    });
+    html += `<td style="padding:4px;font-size:9px;color:#888">${orduParts.join(', ') || '-'}</td>`;
+    html += '</tr>';
+  }
+
+  html += '</tbody></table>';
+  body.innerHTML = html;
 }
 
 // ── Bina Config ──
