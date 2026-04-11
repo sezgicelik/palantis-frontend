@@ -298,6 +298,35 @@ async function loadDurum() {
       kalanHak = data.kalan_hak;
       renderHak();
       renderHistory(data.gecmis);
+
+      // Gecmisten acilmis sandik sayisini grid'e yansit
+      const acilanSayi = data.gecmis ? data.gecmis.length : 0;
+      chests = Array.from({length:TOTAL_CHESTS}, (_, i) => {
+        if (i < acilanSayi) {
+          const g = data.gecmis[acilanSayi - 1 - i]; // sondan basa
+          return { id: i, opened: true, rarity: g.rarity };
+        }
+        return { id: i, opened: false, rarity: null };
+      });
+      selectedChest = null;
+      buildGrid();
+
+      // Son odulu goster
+      if (data.gecmis && data.gecmis.length > 0) {
+        const son = data.gecmis[0]; // en son acilan
+        const ri = RARITY_INFO[son.rarity] || {};
+        const rewards = typeof son.rewards === 'string' ? JSON.parse(son.rewards) : (son.rewards || []);
+        const buff = son.buff ? (typeof son.buff === 'string' ? JSON.parse(son.buff) : son.buff) : null;
+        document.getElementById('sdLastReward').innerHTML = `
+          <div class="reward-card r-${son.rarity}">
+            <span class="reward-icon">${ri.icon||'?'}</span>
+            <div class="reward-name">${ri.title||son.rarity}</div>
+            <div class="reward-items">
+              ${rewards.map(r => `<div class="reward-item"><span>${KAYNAK_ISIM[r.kaynak]||r.kaynak}</span><span class="reward-item-val">+${r.miktar.toLocaleString()}</span></div>`).join('')}
+              ${buff ? `<div class="reward-buff">✨ ${buff.text}</div>` : ''}
+            </div>
+          </div>`;
+      }
     }
   } catch(e) { console.error('sandik loadDurum:', e); }
 }
