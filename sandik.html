@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palantis - Kader Sandiklari</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<style>
+  .sd-grid { display:grid; grid-template-columns:1fr 240px; gap:14px; margin-top:12px }
+  @media(max-width:700px){ .sd-grid{grid-template-columns:1fr} }
+
+  .chest-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; padding:12px }
+  .chest { background:rgba(20,15,30,0.9); border:1px solid #2a2040; border-radius:6px; padding:10px 6px; text-align:center; cursor:pointer; transition:0.2s; min-height:70px; position:relative }
+  .chest:hover:not(.opened) { border-color:#c9a84c; transform:translateY(-1px) }
+  .chest.selected { border-color:#c9a84c; box-shadow:0 0 12px rgba(201,168,76,0.3) }
+  .chest.opened { opacity:0.5; cursor:default }
+  .chest.opened.r-curuk { border-color:#6a6a7a } .chest.opened.r-siradan { border-color:#8a6040 }
+  .chest.opened.r-nadide { border-color:#3060c0 } .chest.opened.r-efsanevi { border-color:#8030c0 }
+  .chest.opened.r-kutsal { border-color:#c09010 }
+  .chest-icon { font-size:24px; display:block; margin:4px 0 }
+  .chest-num { font-size:8px; color:#4a3870; font-family:'Cinzel',serif }
+  .chest-label { font-size:8px; color:#9a88c0 }
+  .rarity-badge { font-size:7px; padding:1px 4px; border-radius:3px; display:inline-block; margin-top:2px }
+  .r-curuk .rarity-badge { background:rgba(106,106,122,0.2); color:#6a6a7a }
+  .r-siradan .rarity-badge { background:rgba(138,96,64,0.2); color:#8a6040 }
+  .r-nadide .rarity-badge { background:rgba(48,96,192,0.2); color:#3060c0 }
+  .r-efsanevi .rarity-badge { background:rgba(128,48,192,0.2); color:#8030c0 }
+  .r-kutsal .rarity-badge { background:rgba(192,144,16,0.2); color:#c09010 }
+
+  .open-btn { width:100%; padding:10px; background:linear-gradient(180deg,rgba(201,168,76,0.15),rgba(201,168,76,0.05)); border:1px solid #7a5820; color:#c9a84c; font-family:'Cinzel',serif; font-size:12px; letter-spacing:2px; cursor:pointer; border-radius:4px; text-transform:uppercase; margin-top:8px }
+  .open-btn:hover:not(:disabled) { border-color:#c9a84c; box-shadow:0 0 12px rgba(201,168,76,0.2) }
+  .open-btn:disabled { opacity:0.3; cursor:not-allowed }
+
+  .sd-panel { background:rgba(20,18,14,0.9); border:1px solid rgba(212,162,87,0.15); border-radius:8px; padding:12px; margin-bottom:10px }
+  .sd-panel h3 { font-family:'Cinzel',serif; font-size:12px; color:#9a88c0; margin-bottom:8px }
+
+  .reward-card { padding:10px; border-radius:6px; text-align:center }
+  .reward-card.r-curuk { background:rgba(106,106,122,0.1); border:1px solid #6a6a7a33 }
+  .reward-card.r-siradan { background:rgba(138,96,64,0.1); border:1px solid #8a604033 }
+  .reward-card.r-nadide { background:rgba(48,96,192,0.1); border:1px solid #3060c033 }
+  .reward-card.r-efsanevi { background:rgba(128,48,192,0.1); border:1px solid #8030c033 }
+  .reward-card.r-kutsal { background:rgba(192,144,16,0.1); border:1px solid #c0901033 }
+  .reward-icon { font-size:32px; display:block; margin:6px 0 }
+  .reward-name { font-size:11px; color:#c9a84c; font-weight:700 }
+  .reward-items { margin-top:6px }
+  .reward-item { display:flex; justify-content:space-between; font-size:10px; padding:2px 0; color:#9a88c0 }
+  .reward-item-val { color:#f0d080; font-family:monospace }
+  .reward-buff { font-size:9px; color:#c9a84c; margin-top:4px; padding:3px 6px; background:rgba(201,168,76,0.08); border-radius:3px }
+
+  .hak-bar { display:flex; gap:4px; justify-content:center; margin-bottom:8px }
+  .hak-dot { width:14px; height:14px; border-radius:50%; border:2px solid #2a2040 }
+  .hak-dot.available { background:rgba(128,48,192,0.3); border-color:#8030c0; box-shadow:0 0 6px rgba(128,48,192,0.3) }
+  .hak-dot.used { background:#2a2040; border-color:#3a3050 }
+
+  .hist-entry { display:flex; align-items:center; gap:6px; padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.03); font-size:10px }
+  .he-icon { font-size:14px }
+  .he-name { flex:1; color:#4a3870; font-size:9px }
+
+  /* Opening overlay */
+  .sd-overlay { position:fixed; inset:0; background:rgba(8,6,14,0.92); display:none; align-items:center; justify-content:center; z-index:100 }
+  .sd-overlay.show { display:flex }
+  .sd-opening { text-align:center; animation:sdPulse 0.6s ease infinite alternate }
+  @keyframes sdPulse { from{transform:scale(1);opacity:0.7} to{transform:scale(1.1);opacity:1} }
+  .sd-opening-icon { font-size:60px; display:block }
+  .sd-opening-text { font-family:'Cinzel',serif; font-size:14px; color:#9a88c0; margin-top:8px; letter-spacing:2px }
+
+  /* Reveal overlay */
+  .sd-reveal { position:fixed; inset:0; background:rgba(8,6,14,0.92); display:none; align-items:center; justify-content:center; z-index:100 }
+  .sd-reveal.show { display:flex }
+  .reveal-box { text-align:center; padding:30px 40px; background:rgba(20,15,30,0.98); border:2px solid #c9a84c; border-radius:12px; max-width:360px }
+  .reveal-rarity { font-family:'Cinzel',serif; font-size:10px; letter-spacing:4px; color:#4a3870; text-transform:uppercase; margin-bottom:6px }
+  .reveal-icon-big { font-size:50px; display:block; margin-bottom:8px }
+  .reveal-name { font-family:'Cinzel',serif; font-size:18px; font-weight:900; color:#f0d080; margin-bottom:14px }
+  .reveal-items { margin-bottom:12px }
+  .reveal-item { display:flex; justify-content:space-between; font-size:11px; padding:3px 0; color:#9a88c0 }
+  .reveal-item-val { color:#f0d080; font-family:monospace }
+  .reveal-buff-box { font-size:10px; color:#c9a84c; padding:6px; background:rgba(201,168,76,0.08); border-radius:4px; margin-bottom:12px }
+  .reveal-close { background:linear-gradient(180deg,rgba(42,32,64,0.8),rgba(20,15,30,0.9)); border:1px solid #7a5820; color:#c9a84c; font-family:'Cinzel',serif; font-size:11px; letter-spacing:2px; padding:8px 24px; cursor:pointer; border-radius:4px; text-transform:uppercase }
+  .reveal-close:hover { border-color:#c9a84c }
+</style>
+</head>
+<body>
+<div id="hudbar-mount"></div>
+<div class="layout">
+  <div id="sidebar-mount"></div>
+  <div class="main-content">
+
+    <h2 style="color:#9a88c0;font-family:'Cinzel',serif;margin:0 0 4px;font-size:clamp(16px,4vw,22px)">📦 Kader Sandiklari</h2>
+    <p style="color:#555;font-size:10px;margin-bottom:4px;font-style:italic">Vorthaan Hazine Odasi — Kaderin ne getirdigi belli olmaz</p>
+
+    <div style="text-align:center;margin-bottom:8px">
+      <div class="hak-bar" id="sdHakBar"></div>
+      <div style="font-size:9px;color:#4a3870" id="sdHakText">Kalan hak: 4/4</div>
+    </div>
+
+    <div class="sd-grid">
+      <div>
+        <div style="background:rgba(20,15,30,0.9);border:1px solid #2a2040;border-radius:8px;padding:4px">
+          <div class="chest-grid" id="chestGrid"></div>
+          <div style="padding:0 12px 12px">
+            <button class="open-btn" id="openBtn" onclick="sdOpen()" disabled>SANDIGI AC</button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="sd-panel">
+          <h3>Son Odul</h3>
+          <div id="sdLastReward"><div style="color:#4a3870;font-size:10px;text-align:center;font-style:italic">Henuz sandik acmadin</div></div>
+        </div>
+        <div class="sd-panel">
+          <h3>Gecmis</h3>
+          <div id="sdHistory"><div style="color:#4a3870;font-size:10px;text-align:center;font-style:italic">Gecmis yok</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Opening animation -->
+<div class="sd-overlay" id="sdOpening">
+  <div class="sd-opening">
+    <span class="sd-opening-icon">📦</span>
+    <div class="sd-opening-text">Sandik Aciliyor...</div>
+  </div>
+</div>
+
+<!-- Reveal -->
+<div class="sd-reveal" id="sdReveal">
+  <div class="reveal-box" id="sdRevealBox">
+    <div class="reveal-rarity" id="sdRevRarity"></div>
+    <span class="reveal-icon-big" id="sdRevIcon"></span>
+    <div class="reveal-name" id="sdRevName"></div>
+    <div class="reveal-items" id="sdRevItems"></div>
+    <div class="reveal-buff-box" id="sdRevBuff" style="display:none"></div>
+    <button class="reveal-close" onclick="sdCloseReveal()">Topla ve Kapat</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script src="js/constants.js"></script>
+<script src="js/utils.js?v=2"></script>
+<script src="js/auth.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/game-data.js"></script>
+<script src="js/hud.js"></script>
+<script src="js/layout.js"></script>
+<script>
+const API = window.API_BASE || 'https://palantis-backend-production.up.railway.app';
+const TOTAL_CHESTS = 25;
+const RARITY_INFO = {
+  curuk: { label:'Curuk', icon:'🗑️', title:'Bozuk Kutu' },
+  siradan: { label:'Siradan', icon:'📦', title:'Standart Ikmal' },
+  nadide: { label:'Nadide', icon:'💠', title:'Nadide Hazine' },
+  efsanevi: { label:'Efsanevi', icon:'🔮', title:'Efsanevi Sandik' },
+  kutsal: { label:'Kutsal', icon:'👑', title:'Kutsal Ferman' },
+};
+const KAYNAK_ISIM = { altin:'Altin', odun:'Odun', metal:'Metal', bugday:'Bugday', balik:'Balik', kereste:'Kereste', islenmis:'Isl.Metal' };
+
+let kalanHak = 4;
+let selectedChest = null;
+let chests = Array.from({length:TOTAL_CHESTS}, (_, i) => ({ id:i, opened:false, rarity:null }));
+
+function buildGrid() {
+  const grid = document.getElementById('chestGrid');
+  grid.innerHTML = '';
+  chests.forEach(ch => {
+    const el = document.createElement('div');
+    el.className = 'chest' + (ch.opened ? ` opened r-${ch.rarity}` : '') + (selectedChest === ch.id && !ch.opened ? ' selected' : '');
+    el.onclick = () => selectChest(ch.id);
+    if (ch.opened) {
+      const ri = RARITY_INFO[ch.rarity] || {};
+      el.innerHTML = `<span class="chest-num">#${ch.id+1}</span><span class="chest-icon">${ri.icon||'?'}</span><div class="rarity-badge">${ri.label||''}</div>`;
+    } else {
+      el.innerHTML = `<span class="chest-num">#${ch.id+1}</span><span class="chest-icon">📦</span><div class="chest-label">${kalanHak > 0 ? 'Sec' : 'Kilitli'}</div>`;
+    }
+    grid.appendChild(el);
+  });
+}
+
+function selectChest(id) {
+  if (chests[id].opened || kalanHak <= 0) return;
+  selectedChest = id;
+  buildGrid();
+  document.getElementById('openBtn').disabled = false;
+}
+
+async function sdOpen() {
+  if (selectedChest === null || kalanHak <= 0) return;
+  document.getElementById('openBtn').disabled = true;
+
+  // Opening animation
+  document.getElementById('sdOpening').classList.add('show');
+
+  try {
+    const token = localStorage.getItem('token');
+    const r = await fetch(`${API}/api/sandik/ac`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', Authorization:`Bearer ${token}` },
+      body: JSON.stringify({})
+    });
+    const data = await r.json();
+
+    setTimeout(() => {
+      document.getElementById('sdOpening').classList.remove('show');
+
+      if (!data.ok) {
+        showToast(data.error || 'Hata', 'error');
+        document.getElementById('openBtn').disabled = false;
+        return;
+      }
+
+      // Sandigi ac
+      chests[selectedChest].opened = true;
+      chests[selectedChest].rarity = data.rarity.key;
+      kalanHak = Math.max(0, kalanHak - 1);
+
+      // Reveal goster
+      showReveal(data);
+      buildGrid();
+      renderHak();
+      renderLastReward(data);
+
+      selectedChest = null;
+      if (typeof loadGameData === 'function') loadGameData();
+    }, 1500);
+  } catch(e) {
+    document.getElementById('sdOpening').classList.remove('show');
+    showToast('Sunucu hatasi', 'error');
+    document.getElementById('openBtn').disabled = false;
+  }
+}
+
+function showReveal(data) {
+  const ri = RARITY_INFO[data.rarity.key] || {};
+  document.getElementById('sdRevRarity').textContent = (ri.label || '').toUpperCase();
+  document.getElementById('sdRevIcon').textContent = ri.icon || '?';
+  document.getElementById('sdRevName').textContent = ri.title || 'Sandik';
+  document.getElementById('sdRevItems').innerHTML = (data.rewards || []).map(r =>
+    `<div class="reveal-item"><span>${KAYNAK_ISIM[r.kaynak]||r.kaynak}</span><span class="reveal-item-val">+${r.miktar.toLocaleString()}</span></div>`
+  ).join('');
+  const buffEl = document.getElementById('sdRevBuff');
+  if (data.buff) { buffEl.style.display = 'block'; buffEl.textContent = '✨ ' + data.buff.text; }
+  else { buffEl.style.display = 'none'; }
+  document.getElementById('sdReveal').classList.add('show');
+}
+
+function sdCloseReveal() {
+  document.getElementById('sdReveal').classList.remove('show');
+  loadDurum();
+}
+
+function renderLastReward(data) {
+  const ri = RARITY_INFO[data.rarity.key] || {};
+  document.getElementById('sdLastReward').innerHTML = `
+    <div class="reward-card r-${data.rarity.key}">
+      <span class="reward-icon">${ri.icon}</span>
+      <div class="reward-name">${ri.title}</div>
+      <div class="reward-items">
+        ${(data.rewards||[]).map(r => `<div class="reward-item"><span>${KAYNAK_ISIM[r.kaynak]||r.kaynak}</span><span class="reward-item-val">+${r.miktar.toLocaleString()}</span></div>`).join('')}
+        ${data.buff ? `<div class="reward-buff">✨ ${data.buff.text}</div>` : ''}
+      </div>
+    </div>`;
+}
+
+function renderHak() {
+  const bar = document.getElementById('sdHakBar');
+  bar.innerHTML = [0,1,2,3].map(i => `<div class="hak-dot ${i < kalanHak ? 'available' : 'used'}"></div>`).join('');
+  document.getElementById('sdHakText').textContent = `Kalan hak: ${kalanHak}/4`;
+}
+
+function renderHistory(gecmis) {
+  const el = document.getElementById('sdHistory');
+  if (!gecmis || !gecmis.length) { el.innerHTML = '<div style="color:#4a3870;font-size:10px;text-align:center;font-style:italic">Gecmis yok</div>'; return; }
+  el.innerHTML = gecmis.map(h => {
+    const ri = RARITY_INFO[h.rarity] || {};
+    return `<div class="hist-entry"><span class="he-icon">${ri.icon||'?'}</span><span class="he-name">${ri.title||h.rarity}</span><span style="font-size:8px;color:#4a3870">${ri.label||''}</span></div>`;
+  }).join('');
+}
+
+async function loadDurum() {
+  try {
+    const token = localStorage.getItem('token');
+    const r = await fetch(`${API}/api/sandik/durum`, { headers: { Authorization:`Bearer ${token}` } });
+    const data = await r.json();
+    if (data.ok) {
+      kalanHak = data.kalan_hak;
+      renderHak();
+      renderHistory(data.gecmis);
+    }
+  } catch(e) { console.error('sandik loadDurum:', e); }
+}
+
+buildGrid();
+renderHak();
+document.addEventListener('DOMContentLoaded', () => { setTimeout(loadDurum, 500); });
+</script>
+</body>
+</html>

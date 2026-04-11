@@ -44,8 +44,8 @@ function renderSidebar(){
       </div>
 
       <a href="home.html" class="menu-item${isActive('home.html')}">🏠 Ana Ekran</a>
-      <a href="population.html" class="menu-item${isActive('population.html')||isActive('market.html')||isActive('cag.html')||isActive('festival.html')||isActive('kervan.html')||isActive('buyu-dukkani.html')||isActive('pazar.html')||isActive('bocek-yarisi.html')}">👥 Nüfus & İşçiler</a>
-      <div class="submenu" id="submenu-population" style="display:${page==='population.html'||page==='market.html'||page==='cag.html'||page==='festival.html'||page==='kervan.html'||page==='buyu-dukkani.html'||page==='pazar.html'||page==='bocek-yarisi.html'?'block':'none'}">
+      <a href="population.html" class="menu-item${isActive('population.html')||isActive('market.html')||isActive('cag.html')||isActive('festival.html')||isActive('kervan.html')||isActive('buyu-dukkani.html')||isActive('pazar.html')||isActive('bocek-yarisi.html')||isActive('sandik.html')}">👥 Nüfus & İşçiler</a>
+      <div class="submenu" id="submenu-population" style="display:${page==='population.html'||page==='market.html'||page==='cag.html'||page==='festival.html'||page==='kervan.html'||page==='buyu-dukkani.html'||page==='pazar.html'||page==='bocek-yarisi.html'||page==='sandik.html'?'block':'none'}">
         <a href="population.html" class="menu-item sub-item${isActive('population.html')}">👷 İşçi Dağılımı</a>
         <a href="market.html" class="menu-item sub-item${isActive('market.html')}">🏪 Market</a>
         <a href="kervan.html" class="menu-item sub-item${isActive('kervan.html')}">🐪 Kervan</a>
@@ -54,6 +54,8 @@ function renderSidebar(){
         <a href="cag.html" class="menu-item sub-item${isActive('cag.html')}">⬆️ Çağ Atla</a>
         <a href="festival.html" class="menu-item sub-item${isActive('festival.html')}">🎉 Festival</a>
         <a href="bocek-yarisi.html" class="menu-item sub-item${isActive('bocek-yarisi.html')}">🪲 Böcek Yarışı</a>
+        <a href="sandik.html" class="menu-item sub-item${isActive('sandik.html')}">📦 Kader Sandıkları</a>
+        <a href="simulator.html" class="menu-item sub-item${isActive('simulator.html')}" target="_blank">⚔️ Savaş Simülatörü</a>
       </div>
 
       <a href="city.html" class="menu-item${isActive('city.html')}">🏙️ Şehrim</a>
