@@ -84,8 +84,40 @@ let BD_STOK = null;
 let BD_KERVAN_ID = null;
 let buyuKervanlar = [];
 
+// Parsomen tanimlari (frontend fallback — backend'den gelmezse kullanilir)
+const PARSOMEN_LISTESI = [
+  { id:'parsomen_dogum', buyu_id:'dogum', isim:'Dogum', cag:1, mana_renk:'yesil', tip:'ekonomi', kategori:'kendine', aciklama:'Gunluk dogan koylu sayisini artirir', fiyat:500 },
+  { id:'parsomen_beceri', buyu_id:'beceri', isim:'Beceri', cag:1, mana_renk:'yesil', tip:'ekonomi', kategori:'kendine', aciklama:'Koyluleri aninda isciye cevirir', fiyat:500 },
+  { id:'parsomen_ejderha_korkusu', buyu_id:'ejderha_korkusu', isim:'Ejderha Korkusu', cag:2, mana_renk:'kirmizi', tip:'saldiri', kategori:'dusmana', aciklama:'Dusman moralini dusurur', fiyat:2000 },
+  { id:'parsomen_ejderha_sevinci', buyu_id:'ejderha_sevinci', isim:'Ejderha Sevinci', cag:2, mana_renk:'beyaz', tip:'destek', kategori:'kendine', aciklama:'Kendi moralini artirir', fiyat:2000 },
+  { id:'parsomen_kesif', buyu_id:'kesif', isim:'Kesif', cag:2, mana_renk:'yesil', tip:'destek', kategori:'kendine', aciklama:'Izcilerin buldugu alan artar', fiyat:2000 },
+  { id:'parsomen_motivasyon_h', buyu_id:'motivasyon_h', isim:'Motivasyon (Hammadde)', cag:2, mana_renk:'yesil', tip:'ekonomi', kategori:'kendine', aciklama:'Altin, odun, metal uretimi artar', fiyat:2000 },
+  { id:'parsomen_motivasyon_y', buyu_id:'motivasyon_y', isim:'Motivasyon (Yiyecek)', cag:2, mana_renk:'yesil', tip:'ekonomi', kategori:'kendine', aciklama:'Bugday, balik, et uretimi artar', fiyat:2000 },
+  { id:'parsomen_olum_sisi', buyu_id:'olum_sisi', isim:'Olum Sisi', cag:2, mana_renk:'kirmizi', tip:'saldiri', kategori:'dusmana', aciklama:'Dusman koyluleri oldurur', fiyat:2000 },
+  { id:'parsomen_sessizlik', buyu_id:'sessizlik', isim:'Sessizlik', cag:2, mana_renk:'mavi', tip:'anti_buyu', kategori:'dusmana', aciklama:'Dusman buyu yapamaz', fiyat:2000 },
+  { id:'parsomen_koruma', buyu_id:'koruma', isim:'Koruma', cag:3, mana_renk:'beyaz', tip:'savunma', kategori:'kendine', aciklama:'Sehre saldiri engellenir', fiyat:5000 },
+  { id:'parsomen_kum_firtinasi', buyu_id:'kum_firtinasi', isim:'Kum Firtinasi', cag:3, mana_renk:'kirmizi', tip:'saldiri', kategori:'dusmana', aciklama:'Dusman ordulari hareket edemez', fiyat:5000 },
+  { id:'parsomen_mana_yak', buyu_id:'mana_yak', isim:'Mana Yak', cag:3, mana_renk:'mavi', tip:'saldiri', kategori:'dusmana', aciklama:'Dusman kirmizi manasini yakar', fiyat:5000 },
+  { id:'parsomen_sadakat', buyu_id:'sadakat', isim:'Sadakat', cag:3, mana_renk:'beyaz', tip:'ekonomi', kategori:'kendine', aciklama:'Koloni kaynak bonusu artar', fiyat:5000 },
+  { id:'parsomen_kabus', buyu_id:'kabus', isim:'Kabus', cag:3, mana_renk:'mavi', tip:'savunma', kategori:'kendine', aciklama:'Dusman casus basarisi azalir', fiyat:5000 },
+  { id:'parsomen_bilgelik_dokunusu', buyu_id:'bilgelik_dokunusu', isim:'Bilgelik Dokunusu', cag:4, mana_renk:'mavi', tip:'destek', kategori:'kendine', aciklama:'Kultur puani kazanir', fiyat:12000 },
+  { id:'parsomen_deprem', buyu_id:'deprem', isim:'Deprem', cag:4, mana_renk:'kirmizi', tip:'saldiri', kategori:'dusmana', aciklama:'Dusman binalarina hasar', fiyat:12000 },
+  { id:'parsomen_hiz', buyu_id:'hiz', isim:'Hiz', cag:4, mana_renk:'yesil', tip:'destek', kategori:'kendine', aciklama:'Ordulara hiz bonusu', fiyat:12000 },
+  { id:'parsomen_mistik_defans', buyu_id:'mistik_defans', isim:'Mistik Defans', cag:4, mana_renk:'beyaz', tip:'savunma', kategori:'kendine', aciklama:'DEF artisi, ATK dususu', fiyat:12000 },
+  { id:'parsomen_onarim', buyu_id:'onarim', isim:'Onarim', cag:4, mana_renk:'beyaz', tip:'destek', kategori:'kendine', aciklama:'Hasarli binalari tamir eder', fiyat:12000 },
+  { id:'parsomen_serap', buyu_id:'serap', isim:'Serap', cag:4, mana_renk:'mavi', tip:'savunma', kategori:'kendine', aciklama:'Toprak korumasi', fiyat:12000 },
+];
+
+let BD_OYUNCU_CAG = 1;
+
 async function loadBuyuDukkani() {
   const token = getToken(); if (!token) return;
+
+  // Oyuncunun cagini al
+  try {
+    const pResp = await fetch(API_BASE + '/api/player/me', { headers: { 'Authorization': 'Bearer ' + token } });
+    if (pResp.ok) { const pData = await pResp.json(); BD_OYUNCU_CAG = pData.player?.cag || pData.cag || 1; }
+  } catch(e) {}
 
   // Kervan listesi — dukkaninda olan var mi?
   buyuKervanlar = [];
@@ -149,13 +181,14 @@ function renderBuyuDukkani() {
 
   // Buyu malzemeleri (uste)
   const malEl = document.getElementById('bd-malzeme-liste');
-  const MAL_IKON = { ates_tozu:'🔥', ay_cigi:'🌙', golgeler_otu:'🌿', ejderha_goz_damla:'🐉' };
+  const MAL_IKON = { ates_tozu:'💎', ay_cigi:'🌙', golgeler_otu:'⚗️', ejderha_goz_damla:'🐉' };
+  const MAL_ISIM = { ates_tozu:'Kristal Tozu', ay_cigi:'Ay Tasi', golgeler_otu:'Karanlik Esans', ejderha_goz_damla:'Ejderha Pulu' };
   malEl.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:6px">' +
     BD_STOK.malzemeler.map(m => `
       <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:#111;border:1px solid #222;border-radius:4px">
         <span style="font-size:18px">${MAL_IKON[m.id]||'📦'}</span>
         <div style="flex:1">
-          <div style="font-size:11px;font-weight:bold;color:#d4af37">${m.isim}</div>
+          <div style="font-size:11px;font-weight:bold;color:#d4af37">${MAL_ISIM[m.id]||m.isim}</div>
           <div style="font-size:9px;color:#888">${m.fiyat.toLocaleString()} altin | Stok: <span style="color:${m.stok>0?'#2ecc71':'#e74c3c'}">${m.stok}/${m.max_stok}</span></div>
         </div>
         <input type="number" id="bd-mal-${m.id}" value="1" min="1" max="${m.stok}" style="padding:2px;width:35px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px;font-size:10px;text-align:center">
@@ -164,13 +197,18 @@ function renderBuyuDukkani() {
       </div>
     `).join('') + '</div>';
 
-  // Parsomenler
+  // Parsomenler — backend'den gelirse onu kullan, yoksa lokal listeyi kullan
   const parEl = document.getElementById('bd-parsomen-liste');
-  if (BD_STOK.parsomenler && BD_STOK.parsomenler.length > 0) {
+  let parsomenList = BD_STOK.parsomenler;
+  if (!parsomenList || parsomenList.length === 0) {
+    // Fallback: lokal listeden caga gore filtrele
+    parsomenList = PARSOMEN_LISTESI.filter(p => p.cag <= BD_OYUNCU_CAG);
+  }
+  if (parsomenList && parsomenList.length > 0) {
     const RENK_DOT = { beyaz:'#f0e6d2', kirmizi:'#e74c3c', mavi:'#3498db', yesil:'#2ecc71' };
     const KAT_IKON = { ekonomi:'\u{1F4B0}', destek:'\u{1F6E1}\uFE0F', savunma:'\u{1F3F0}', saldiri:'\u2694\uFE0F', ozel:'\u2728', anti_buyu:'\u{1F52E}' };
     parEl.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:6px">' +
-      BD_STOK.parsomenler.map(p => `
+      parsomenList.map(p => `
         <div style="background:#111;border:1px solid #2d1f4e;border-radius:6px;padding:10px;border-left:3px solid ${RENK_DOT[p.mana_renk]||'#888'}">
           <div style="font-size:12px;font-weight:bold;color:#8e44ad">${KAT_IKON[p.tip]||''} ${p.isim}</div>
           <div style="font-size:9px;color:#888;margin:2px 0">Cag ${p.cag} | <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${RENK_DOT[p.mana_renk]};vertical-align:middle"></span> ${RENK_ISIM[p.mana_renk]} | ${p.kategori==='dusmana'?'Ofansif':'Kendine'}</div>
