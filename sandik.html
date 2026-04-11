@@ -204,7 +204,7 @@ async function sdOpen() {
   document.getElementById('sdOpening').classList.add('show');
 
   try {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     const r = await fetch(`${API}/api/sandik/ac`, {
       method: 'POST',
       headers: { 'Content-Type':'application/json', Authorization:`Bearer ${token}` },
@@ -291,7 +291,7 @@ function renderHistory(gecmis) {
 
 async function loadDurum() {
   try {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     const r = await fetch(`${API}/api/sandik/durum`, { headers: { Authorization:`Bearer ${token}` } });
     const data = await r.json();
     if (data.ok) {

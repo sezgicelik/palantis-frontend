@@ -235,7 +235,7 @@ async function startRace() {
 
   // Backend'e POST — sonucu al
   try {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     const r = await fetch(`${API}/api/bocek-yarisi/baslat`, {
       method: 'POST',
       headers: { 'Content-Type':'application/json', Authorization:`Bearer ${token}` },
@@ -388,7 +388,7 @@ function triggerConfetti() {
 
 async function loadDurum() {
   try {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     const r = await fetch(`${API}/api/bocek-yarisi/durum`, { headers: { Authorization:`Bearer ${token}` } });
     const data = await r.json();
     if (data.ok) {

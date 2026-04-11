@@ -137,7 +137,7 @@ let selectedHedef = null;
 
 async function bkLoad() {
   try {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     const r = await fetch(`${API}/api/buyucu-kulesi/durum`, { headers: { Authorization: `Bearer ${token}` } });
     const data = await r.json();
     if (!data.ok) return;
@@ -269,7 +269,7 @@ function bkRenderBuyuYap() {
 async function bkHedefAra(q) {
   if (q.length < 2) { document.getElementById('bk-hedef-list').innerHTML = ''; return; }
   try {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     const r = await fetch(`${API}/api/buyucu-kulesi/oyuncu-ara?q=${encodeURIComponent(q)}`, { headers: { Authorization: `Bearer ${token}` } });
     const data = await r.json();
     if (!data.ok) return;
@@ -287,7 +287,7 @@ function bkSelectHedef(id, kral, taraf) {
 
 async function bkBuyuYap(buyuId) {
   try {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     const body = { buyu_id: buyuId };
     if (selectedHedef) body.hedef_id = selectedHedef.id;
     const r = await fetch(`${API}/api/buyucu-kulesi/buyu-yap`, {
@@ -333,7 +333,7 @@ function bkRenderParsomenler() {
 
 async function bkParsomenOku(buyuId) {
   try {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     const r = await fetch(`${API}/api/buyucu-kulesi/parsomen-oku`, {
       method: 'POST', headers: { 'Content-Type':'application/json', Authorization:`Bearer ${token}` },
       body: JSON.stringify({ buyu_id: buyuId })
@@ -388,7 +388,7 @@ function bkRenderCooldownlar() {
 // ═══ LOG ═══
 async function bkLoadLog() {
   try {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     const r = await fetch(`${API}/api/buyucu-kulesi/log`, { headers: { Authorization: `Bearer ${token}` } });
     const data = await r.json();
     if (!data.ok) return;
