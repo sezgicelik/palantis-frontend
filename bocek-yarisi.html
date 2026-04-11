@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palantis - Bocek Yarisi</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<style>
+  .race-container { max-width:100% }
+  .race-grid { display:grid; grid-template-columns:1fr 260px; gap:14px; margin-top:12px }
+  @media(max-width:700px){ .race-grid{grid-template-columns:1fr} .race-side{order:-1} }
+
+  .race-track { position:relative; background:linear-gradient(180deg,#0e1a0a,#0a1208); border:1px solid #2a3a1a; border-radius:6px; padding:8px 0; overflow:hidden }
+  .lane { display:flex; align-items:center; height:32px; padding:0 8px; border-bottom:1px solid rgba(42,58,26,0.3); cursor:pointer; transition:0.15s; position:relative }
+  .lane:hover { background:rgba(201,168,76,0.05) }
+  .lane.selected { background:rgba(201,168,76,0.1); box-shadow:inset 3px 0 0 #c9a84c }
+  .lane-num { width:18px; font-size:9px; color:#555; font-family:'Cinzel',serif; text-align:center }
+  .bug-wrap { position:absolute; left:30px; transition:left 0.05s linear; font-size:20px; line-height:1 }
+  .bug-run { animation:bugBounce 0.15s ease infinite alternate }
+  @keyframes bugBounce { from{transform:translateY(-1px)} to{transform:translateY(1px)} }
+  .bug-winner { animation:bugWin 0.3s ease infinite alternate; filter:drop-shadow(0 0 6px gold) }
+  @keyframes bugWin { from{transform:scale(1) rotate(-5deg)} to{transform:scale(1.15) rotate(5deg)} }
+  .lane-name { position:absolute; right:8px; font-size:9px; color:#5a5030; font-family:'Cinzel',serif }
+  .finish-line { position:absolute; right:16px; top:0; bottom:0; width:3px; background:repeating-linear-gradient(180deg,#c9a84c 0,#c9a84c 4px,transparent 4px,transparent 8px); opacity:0.4 }
+
+  .status-bar { margin-top:8px; padding:6px 12px; background:rgba(0,0,0,0.3); border:1px solid #3a2e1a; border-radius:4px; font-family:'Cinzel',serif; font-size:10px; color:#7a6840; text-align:center }
+  .status-bar.racing { color:#c9a84c; animation:pulse 0.8s ease infinite alternate }
+  @keyframes pulse { from{opacity:0.6} to{opacity:1} }
+
+  .race-panel { background:rgba(20,18,14,0.9); border:1px solid rgba(212,162,87,0.15); border-radius:8px; padding:12px; margin-bottom:10px }
+  .race-panel h3 { font-family:'Cinzel',serif; font-size:12px; color:#c9a84c; margin-bottom:8px }
+
+  .bal-row { display:flex; justify-content:space-between; font-size:11px; padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.03) }
+  .bal-lbl { color:#7a6840 } .bal-val { color:#c8b87a; font-family:monospace }
+
+  .sel-display { display:flex; align-items:center; gap:8px; padding:8px; background:rgba(0,0,0,0.2); border-radius:6px; margin-bottom:8px; min-height:44px }
+  .sel-bug { font-size:28px }
+  .sel-name { font-size:12px; color:#c9a84c; font-weight:700 }
+  .sel-hint { font-size:9px; color:#7a6840 }
+
+  .bet-input { width:100%; padding:6px 8px 6px 28px; background:rgba(0,0,0,0.3); border:1px solid #3a2e1a; border-radius:4px; color:#c8b87a; font-size:12px; font-family:monospace }
+  .bet-input:focus { border-color:#c9a84c; outline:none }
+  .bet-wrap { position:relative; margin-bottom:6px }
+  .bet-icon { position:absolute; left:8px; top:50%; transform:translateY(-50%); font-size:12px }
+
+  .quick-bets { display:flex; gap:4px; margin-bottom:8px }
+  .quick-btn { flex:1; padding:4px; background:rgba(58,46,26,0.3); border:1px solid #3a2e1a; border-radius:3px; color:#c9a84c; font-size:10px; cursor:pointer; font-family:'Cinzel',serif }
+  .quick-btn:hover { background:rgba(201,168,76,0.15); border-color:#c9a84c }
+
+  .payout-info { font-size:10px; color:#7a6840; text-align:center; margin-bottom:8px }
+  .payout-amt { color:#c9a84c; font-weight:700 }
+
+  .race-btn { width:100%; padding:10px; background:linear-gradient(180deg,#3a2a10,#1a1008); border:1px solid #8a6820; color:#c9a84c; font-family:'Cinzel',serif; font-size:12px; letter-spacing:2px; cursor:pointer; border-radius:4px; text-transform:uppercase }
+  .race-btn:hover:not(:disabled) { background:linear-gradient(180deg,#6a4a20,#3a2010); border-color:#c9a84c }
+  .race-btn:disabled { opacity:0.3; cursor:not-allowed }
+
+  .hist-item { display:flex; align-items:center; gap:6px; padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.03); font-size:10px }
+  .hist-bug { font-size:14px } .hist-name { flex:1; color:#7a6840; font-size:9px }
+  .hist-win { color:#5ad05a } .hist-lose { color:#d05a5a }
+
+  .hak-bar { display:flex; gap:4px; margin-bottom:8px; justify-content:center }
+  .hak-dot { width:16px; height:16px; border-radius:50%; border:2px solid #3a2e1a; transition:0.3s }
+  .hak-dot.used { background:#3a2e1a; border-color:#555 }
+  .hak-dot.available { background:rgba(201,168,76,0.3); border-color:#c9a84c; box-shadow:0 0 6px rgba(201,168,76,0.3) }
+
+  /* Result overlay */
+  .result-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.85); display:none; align-items:center; justify-content:center; z-index:100 }
+  .result-overlay.show { display:flex }
+  .result-box { text-align:center; padding:30px 40px; background:rgba(26,22,16,0.98); border:2px solid #c9a84c; border-radius:12px; max-width:360px; position:relative }
+  .result-bug-big { font-size:50px; display:block; margin-bottom:10px }
+  .result-title { font-family:'Cinzel',serif; font-size:10px; letter-spacing:4px; color:#7a6840; text-transform:uppercase; margin-bottom:6px }
+  .result-winner { font-family:'Cinzel',serif; font-size:22px; font-weight:900; color:#f0d080; margin-bottom:16px }
+  .result-outcome { font-family:'Cinzel',serif; font-size:20px; font-weight:700; margin-bottom:4px }
+  .result-outcome.win { color:#5ad05a } .result-outcome.lose { color:#d05a5a }
+  .result-sub { font-size:12px; color:#7a6840; margin-bottom:20px }
+  .result-close { background:linear-gradient(180deg,#3a2a10,#1a1008); border:1px solid #8a6820; color:#c9a84c; font-family:'Cinzel',serif; font-size:11px; letter-spacing:2px; padding:8px 24px; cursor:pointer; border-radius:4px; text-transform:uppercase }
+  .result-close:hover { background:linear-gradient(180deg,#6a4a20,#3a2010); border-color:#c9a84c }
+
+  .confetti-box { position:fixed; inset:0; pointer-events:none; z-index:101; overflow:hidden }
+  .confetti-p { position:absolute; top:-10px; width:8px; height:8px; border-radius:1px; animation:cFall linear forwards }
+  @keyframes cFall { 0%{transform:translateY(0) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+</style>
+</head>
+<body>
+<div id="hudbar-mount"></div>
+<div class="layout">
+  <div id="sidebar-mount"></div>
+  <div class="main-content">
+
+    <h2 style="color:#c9a84c;font-family:'Cinzel',serif;margin:0 0 4px;font-size:clamp(16px,4vw,22px)">🪲 Bocek Yarisi</h2>
+    <p style="color:#666;font-size:10px;margin-bottom:4px;font-style:italic">Vorthaan Eglence Cadiri — On iki yaratik, bir kazanan</p>
+
+    <!-- Hak gosterimi -->
+    <div style="text-align:center;margin-bottom:8px">
+      <div class="hak-bar" id="hakBar"></div>
+      <div style="font-size:9px;color:#7a6840" id="hakText">Kalan hak: 3/3</div>
+    </div>
+
+    <div class="race-grid">
+      <!-- Pist -->
+      <div>
+        <div class="race-track" id="raceTrack">
+          <div class="finish-line"></div>
+        </div>
+        <div class="status-bar" id="statusBar">Bir bocek sec ve bahsini koy</div>
+      </div>
+
+      <!-- Sag panel -->
+      <div class="race-side">
+        <div class="race-panel">
+          <h3>Kese</h3>
+          <div class="bal-row"><span class="bal-lbl">Altin</span><span class="bal-val" id="balVal">0</span></div>
+          <div class="bal-row"><span class="bal-lbl">Toplam Kazanc</span><span class="bal-val" id="totWin" style="color:#5ad05a">0</span></div>
+          <div class="bal-row"><span class="bal-lbl">Toplam Kayip</span><span class="bal-val" id="totLoss" style="color:#d05a5a">0</span></div>
+        </div>
+
+        <div class="race-panel">
+          <h3>Bahis</h3>
+          <div class="sel-display" id="selDisplay">
+            <div style="font-size:24px;opacity:0.3">?</div>
+            <div><div class="sel-hint">Pistten bir bocek sec</div></div>
+          </div>
+          <label style="font-size:9px;color:#7a6840">Bahis Miktari</label>
+          <div class="bet-wrap"><span class="bet-icon">🪙</span><input class="bet-input" type="number" id="betInput" placeholder="Miktar..." min="1" max="10000"></div>
+          <div class="quick-bets">
+            <button class="quick-btn" onclick="qBet(10)">10</button>
+            <button class="quick-btn" onclick="qBet(50)">50</button>
+            <button class="quick-btn" onclick="qBet(100)">100</button>
+            <button class="quick-btn" onclick="qBet(500)">500</button>
+          </div>
+          <div class="payout-info">Kazanirsan: <span class="payout-amt" id="payoutAmt">--</span></div>
+          <button class="race-btn" id="raceBtn" onclick="startRace()" disabled>YARISI BASLAT</button>
+        </div>
+
+        <div class="race-panel">
+          <h3>Gecmis</h3>
+          <div id="histPanel"><div style="color:#7a6840;font-size:10px;text-align:center;font-style:italic">Henuz yaris yok</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="result-overlay" id="resultOverlay">
+  <div class="result-box">
+    <span class="result-bug-big" id="resBug"></span>
+    <div class="result-title">Kazanan</div>
+    <div class="result-winner" id="resWinner"></div>
+    <div class="result-outcome" id="resOutcome"></div>
+    <div class="result-sub" id="resSub"></div>
+    <button class="result-close" onclick="closeResult()">Devam Et</button>
+  </div>
+</div>
+<div class="confetti-box" id="confettiBox"></div>
+
+<div id="toast"></div>
+<script src="js/constants.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/game-data.js"></script>
+<script src="js/hud.js"></script>
+<script src="js/layout.js"></script>
+<script>
+const API = window.API_BASE || 'https://palantis-backend-production.up.railway.app';
+const BUGS = [
+  { emoji:'🪲', name:'Demir Bocegi', speed:1.00 },
+  { emoji:'🐛', name:'Tirtil', speed:0.82 },
+  { emoji:'🦟', name:'Sitma Sivrisinegi', speed:1.15 },
+  { emoji:'🦗', name:'Cekirge', speed:1.08 },
+  { emoji:'🐜', name:'Kizil Karinca', speed:1.12 },
+  { emoji:'🕷️', name:'Orumcek', speed:0.95 },
+  { emoji:'🦂', name:'Akrep', speed:0.78 },
+  { emoji:'🐝', name:'Balarisi', speed:1.20 },
+  { emoji:'🦋', name:'Kelebek', speed:0.90 },
+  { emoji:'🐞', name:'Ugur Bocegi', speed:1.05 },
+  { emoji:'🦎', name:'Kertenkele', speed:1.10 },
+  { emoji:'🐢', name:'Kaplumbaga', speed:0.60 },
+];
+const PAYOUT = 11;
+const RACE_MS = 3500;
+
+let balance = 0, totWin = 0, totLoss = 0;
+let selBug = null, isRacing = false, kalanHak = 3;
+let raceResult = null; // backend'den gelen sonuc
+
+function buildTrack() {
+  const t = document.getElementById('raceTrack');
+  t.innerHTML = '<div class="finish-line"></div>';
+  BUGS.forEach((b, i) => {
+    const lane = document.createElement('div');
+    lane.className = 'lane'; lane.id = `lane-${i}`;
+    lane.onclick = () => selectBug(i);
+    lane.innerHTML = `<div class="lane-num">${i+1}</div><div class="bug-wrap" id="bw-${i}" style="left:30px"><span class="bug" id="bug-${i}">${b.emoji}</span></div><div class="lane-name">${b.name}</div>`;
+    t.appendChild(lane);
+  });
+}
+
+function selectBug(i) {
+  if (isRacing) return;
+  selBug = i;
+  document.querySelectorAll('.lane').forEach(l => l.classList.remove('selected'));
+  document.getElementById(`lane-${i}`).classList.add('selected');
+  document.getElementById('selDisplay').innerHTML = `<div class="sel-bug">${BUGS[i].emoji}</div><div><div class="sel-name">${BUGS[i].name}</div><div class="sel-hint">Kazanirsan ${PAYOUT}x alirsn</div></div>`;
+  updatePayout(); checkReady();
+}
+
+function qBet(n) { document.getElementById('betInput').value = n; updatePayout(); checkReady(); }
+
+document.getElementById('betInput').addEventListener('input', () => { updatePayout(); checkReady(); });
+
+function updatePayout() {
+  const bet = parseInt(document.getElementById('betInput').value) || 0;
+  document.getElementById('payoutAmt').textContent = bet > 0 ? (bet * PAYOUT).toLocaleString() + ' altin' : '--';
+}
+
+function checkReady() {
+  const bet = parseInt(document.getElementById('betInput').value) || 0;
+  document.getElementById('raceBtn').disabled = !(selBug !== null && bet > 0 && bet <= balance && !isRacing && kalanHak > 0);
+}
+
+async function startRace() {
+  const bet = parseInt(document.getElementById('betInput').value);
+  if (!bet || selBug === null || isRacing || kalanHak <= 0) return;
+
+  isRacing = true;
+  document.getElementById('raceBtn').disabled = true;
+  document.getElementById('statusBar').textContent = '🏁 YARIS BASLADI!';
+  document.getElementById('statusBar').className = 'status-bar racing';
+
+  // Backend'e POST — sonucu al
+  try {
+    const token = localStorage.getItem('token');
+    const r = await fetch(`${API}/api/bocek-yarisi/baslat`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', Authorization:`Bearer ${token}` },
+      body: JSON.stringify({ bahis: bet, secilen_bocek: selBug })
+    });
+    const data = await r.json();
+    if (!data.ok) {
+      isRacing = false;
+      document.getElementById('statusBar').textContent = data.error || 'Hata';
+      document.getElementById('statusBar').className = 'status-bar';
+      checkReady();
+      showToast(data.error || 'Hata', 'error');
+      return;
+    }
+    raceResult = data;
+    balance = data.yeni_altin;
+
+    // Animasyonu baslat — pozisyonlar backend'den geldi
+    animateRace(data.pozisyonlar, data.kazanan_bocek, bet, data);
+  } catch(e) {
+    isRacing = false;
+    document.getElementById('statusBar').textContent = 'Sunucu hatasi';
+    document.getElementById('statusBar').className = 'status-bar';
+    showToast('Sunucu hatasi', 'error');
+    checkReady();
+  }
+}
+
+function animateRace(finalPos, winner, bet, data) {
+  // Bocekleri kosutur
+  document.querySelectorAll('.bug').forEach(b => b.classList.add('bug-run'));
+
+  const track = document.getElementById('raceTrack');
+  const TRACK_PX = track.clientWidth - 50 - 20;
+  const startTime = performance.now();
+
+  function animate(now) {
+    const elapsed = now - startTime;
+    const t = Math.min(elapsed / RACE_MS, 1);
+    const ease = t < 0.5 ? 2*t*t : -1 + (4-2*t)*t;
+
+    finalPos.forEach((fp, i) => {
+      const pos = ease * fp;
+      document.getElementById(`bw-${i}`).style.left = (30 + pos * TRACK_PX) + 'px';
+    });
+
+    if (t < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      // Final pozisyonlar
+      finalPos.forEach((fp, i) => {
+        document.getElementById(`bw-${i}`).style.left = (30 + fp * TRACK_PX) + 'px';
+      });
+      endRace(winner, bet, data);
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
+function endRace(winner, bet, data) {
+  isRacing = false;
+  document.querySelectorAll('.bug').forEach((b, i) => {
+    b.classList.remove('bug-run');
+    if (i === winner) b.classList.add('bug-winner');
+  });
+  document.getElementById('statusBar').className = 'status-bar';
+
+  const won = data.kazandinMi;
+  if (won) {
+    totWin += data.kazanc - bet;
+    triggerConfetti();
+  } else {
+    totLoss += bet;
+  }
+  updateUI();
+  kalanHak = Math.max(0, kalanHak - 1);
+  renderHak();
+
+  setTimeout(() => showResult(winner, won, bet, data.kazanc), 600);
+  document.getElementById('statusBar').textContent = won
+    ? `🏆 ${BUGS[winner].name} kazandi — SEN KAZANDIN!`
+    : `${BUGS[winner].name} kazandi — Kaybettin`;
+}
+
+function showResult(winner, won, bet, kazanc) {
+  document.getElementById('resBug').textContent = BUGS[winner].emoji;
+  document.getElementById('resWinner').textContent = BUGS[winner].name;
+  if (won) {
+    document.getElementById('resOutcome').textContent = `+${kazanc.toLocaleString()} altin`;
+    document.getElementById('resOutcome').className = 'result-outcome win';
+    document.getElementById('resSub').textContent = `Bahis: ${bet} → Kazanc: ${kazanc} (${PAYOUT}x)`;
+  } else {
+    document.getElementById('resOutcome').textContent = `-${bet.toLocaleString()} altin`;
+    document.getElementById('resOutcome').className = 'result-outcome lose';
+    document.getElementById('resSub').textContent = `Senin bocegin: ${BUGS[selBug].emoji} ${BUGS[selBug].name}`;
+  }
+  document.getElementById('resultOverlay').classList.add('show');
+}
+
+function closeResult() {
+  document.getElementById('resultOverlay').classList.remove('show');
+  document.querySelectorAll('.bug').forEach(b => { b.classList.remove('bug-winner'); });
+  document.querySelectorAll('.bug-wrap').forEach(w => { w.style.transition = 'left 0.4s ease'; w.style.left = '30px'; setTimeout(() => w.style.transition = 'left 0.05s linear', 500); });
+  checkReady();
+  document.getElementById('statusBar').textContent = kalanHak > 0 ? 'Bir bocek sec ve bahsini koy' : 'Gunluk yaris hakkiniz doldu!';
+  document.getElementById('statusBar').className = 'status-bar';
+  // Refresh durum
+  loadDurum();
+}
+
+function updateUI() {
+  document.getElementById('balVal').textContent = balance.toLocaleString() + ' 🪙';
+  document.getElementById('totWin').textContent = '+' + totWin.toLocaleString() + ' 🪙';
+  document.getElementById('totLoss').textContent = '-' + totLoss.toLocaleString() + ' 🪙';
+}
+
+function renderHak() {
+  const bar = document.getElementById('hakBar');
+  bar.innerHTML = [0,1,2].map(i => `<div class="hak-dot ${i < kalanHak ? 'available' : 'used'}"></div>`).join('');
+  document.getElementById('hakText').textContent = `Kalan hak: ${kalanHak}/3`;
+}
+
+function renderHistory(gecmis) {
+  const p = document.getElementById('histPanel');
+  if (!gecmis || gecmis.length === 0) { p.innerHTML = '<div style="color:#7a6840;font-size:10px;text-align:center;font-style:italic">Henuz yaris yok</div>'; return; }
+  p.innerHTML = gecmis.slice(0, 6).map(h => `
+    <div class="hist-item">
+      <span class="hist-bug">${h.kazanan_emoji}</span>
+      <span class="hist-name">${h.kazanan_isim}</span>
+      <span class="${h.kazandi ? 'hist-win' : 'hist-lose'}">${h.kazandi ? '+' + h.kazanc.toLocaleString() : '-' + h.bahis.toLocaleString()} 🪙</span>
+    </div>
+  `).join('');
+}
+
+function triggerConfetti() {
+  const c = document.getElementById('confettiBox');
+  const colors = ['#c9a84c','#f0d080','#5ad05a','#fff','#d4a030'];
+  for (let i = 0; i < 50; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-p';
+    p.style.left = Math.random()*100+'vw';
+    p.style.background = colors[Math.floor(Math.random()*colors.length)];
+    p.style.width = (6+Math.random()*6)+'px'; p.style.height = (6+Math.random()*6)+'px';
+    p.style.animationDuration = (1.5+Math.random()*2)+'s';
+    p.style.animationDelay = (Math.random()*0.8)+'s';
+    c.appendChild(p);
+    setTimeout(() => p.remove(), 4000);
+  }
+}
+
+async function loadDurum() {
+  try {
+    const token = localStorage.getItem('token');
+    const r = await fetch(`${API}/api/bocek-yarisi/durum`, { headers: { Authorization:`Bearer ${token}` } });
+    const data = await r.json();
+    if (data.ok) {
+      balance = data.altin;
+      kalanHak = data.kalan_hak;
+      updateUI(); renderHak(); renderHistory(data.gecmis);
+      checkReady();
+    }
+  } catch(e) { console.error('loadDurum:', e); }
+}
+
+buildTrack();
+document.addEventListener('DOMContentLoaded', () => { setTimeout(loadDurum, 500); });
+</script>
+</body>
+</html>
