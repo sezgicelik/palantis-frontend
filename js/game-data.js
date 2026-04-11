@@ -448,55 +448,10 @@ function obApplyPlayer(p) {
         <div style="font-size:11px;color:#bbb;margin-top:3px">${Math.max(0,Math.ceil((new Date(p.premium.bitis)-new Date())/(1000*60*60*24)))} gun kaldi</div>
       </div>`;
     }
-    // Aktif buyu bonuslari
-    try {
-      const bToken = getToken();
-      if (bToken) {
-        const bResp = await fetch(API_BASE + '/api/buyucu-kulesi/aktif', { headers: { Authorization: 'Bearer ' + bToken } });
-        if (bResp.ok) {
-          const bData = await bResp.json();
-          if (bData.ok && bData.aktifler && bData.aktifler.length > 0) {
-            const BUYU_ISIM = {
-              motivasyon_h:'Motivasyon (H)', motivasyon_y:'Motivasyon (Y)', ejderha_sevinci:'Ejderha Sevinci',
-              koruma:'Koruma', sessizlik:'Sessizlik', kum_firtinasi:'Kum Firtinasi', hiz:'Hiz',
-              mistik_defans:'Mistik Defans', mistik_atak:'Mistik Atak', serap:'Serap',
-              buyu_kalkani:'Buyu Kalkani', hipnoz:'Hipnoz', sadakat:'Sadakat', yakaris:'Yakaris', kabus:'Kabus'
-            };
-            const aktifHTML = bData.aktifler.map(a => {
-              const isim = BUYU_ISIM[a.buyu_id] || a.buyu_id;
-              const kalan = Math.max(0, new Date(a.bitis) - new Date());
-              const saat = Math.floor(kalan / 3600000);
-              const dk = Math.floor((kalan % 3600000) / 60000);
-              const kalanStr = saat > 0 ? `${saat}s ${dk}dk` : `${dk}dk`;
-              let etkiStr = '';
-              if (a.etki) {
-                if (a.etki.uretim_bonus) etkiStr = `Uretim +%${a.etki.uretim_bonus}`;
-                else if (a.etki.moral_bonus) etkiStr = `Moral +${a.etki.moral_bonus}`;
-                else if (a.etki.koruma) etkiStr = 'Saldiri engeli';
-                else if (a.etki.buyu_kalkan) etkiStr = 'Tum buyuler etkisiz';
-                else if (a.etki.maas_muaf) etkiStr = 'Maas muafiyeti';
-                else if (a.etki.koloni_bonus) etkiStr = `Koloni +%${a.etki.koloni_bonus}`;
-                else if (a.etki.mana_carpan) etkiStr = `Mana x${a.etki.mana_carpan}`;
-                else if (a.etki.hiz_bonus) etkiStr = `Hiz +%${a.etki.hiz_bonus}`;
-                else if (a.etki.def_bonus) etkiStr = `DEF +${a.etki.def_bonus}`;
-                else if (a.etki.atk_bonus) etkiStr = `ATK +${a.etki.atk_bonus}`;
-                else if (a.etki.casus_engel) etkiStr = `Casus -%${a.etki.casus_engel}`;
-              }
-              return `<div style="display:flex;justify-content:space-between;font-size:11px;color:#bbb;margin-top:2px">
-                <span>🔮 ${isim} (K${a.kademe}) ${etkiStr ? '— ' + etkiStr : ''}</span>
-                <span style="color:#8e44ad;font-size:10px">${kalanStr}</span>
-              </div>`;
-            }).join('');
-            html += `<div style="padding:8px;background:#111;border-radius:4px;border-left:2px solid #8e44ad">
-              <div style="font-size:10px;color:#8e44ad;font-weight:bold">🔮 Aktif Buyuler</div>
-              ${aktifHTML}
-            </div>`;
-          }
-        }
-      }
-    } catch(e) {}
     if (!html) html = '<div style="color:#555;font-size:11px">Aktif bonus yok</div>';
     bonusEl.innerHTML = html;
+    // Aktif buyu bonuslarini async olarak ekle (obApplyPlayer sync oldugu icin)
+    _loadAktifBuyuBonus(bonusEl, html);
   }
 
   // Sezon rozetleri
@@ -623,3 +578,50 @@ let FORMATION_STATE = [[], [], [], []];
 let FORMATION_ARMY_ID = null;
 let PICKING_SAF = null;
 let PICKING_SLOT = null;
+
+/* -- Aktif buyu bonuslarini async yukle (bonus ozet kartina ekler) -- */
+function _loadAktifBuyuBonus(bonusEl, baseHtml) {
+  try {
+    const bToken = getToken();
+    if (!bToken || !bonusEl) return;
+    fetch(API_BASE + '/api/buyucu-kulesi/aktif', { headers: { Authorization: 'Bearer ' + bToken } })
+      .then(r => r.ok ? r.json() : null)
+      .then(bData => {
+        if (!bData || !bData.ok || !bData.aktifler || !bData.aktifler.length) return;
+        const BUYU_ISIM = {
+          motivasyon_h:'Motivasyon (H)', motivasyon_y:'Motivasyon (Y)', ejderha_sevinci:'Ejderha Sevinci',
+          koruma:'Koruma', sessizlik:'Sessizlik', kum_firtinasi:'Kum Firtinasi', hiz:'Hiz',
+          mistik_defans:'Mistik Defans', mistik_atak:'Mistik Atak', serap:'Serap',
+          buyu_kalkani:'Buyu Kalkani', hipnoz:'Hipnoz', sadakat:'Sadakat', yakaris:'Yakaris', kabus:'Kabus'
+        };
+        const aktifHTML = bData.aktifler.map(a => {
+          const isim = BUYU_ISIM[a.buyu_id] || a.buyu_id;
+          const kalan = Math.max(0, new Date(a.bitis) - new Date());
+          const saat = Math.floor(kalan / 3600000);
+          const dk = Math.floor((kalan % 3600000) / 60000);
+          const kalanStr = saat > 0 ? saat + 's ' + dk + 'dk' : dk + 'dk';
+          let etkiStr = '';
+          if (a.etki) {
+            if (a.etki.uretim_bonus) etkiStr = 'Uretim +%' + a.etki.uretim_bonus;
+            else if (a.etki.moral_bonus) etkiStr = 'Moral +' + a.etki.moral_bonus;
+            else if (a.etki.koruma) etkiStr = 'Saldiri engeli';
+            else if (a.etki.buyu_kalkan) etkiStr = 'Tum buyuler etkisiz';
+            else if (a.etki.maas_muaf) etkiStr = 'Maas muafiyeti';
+            else if (a.etki.koloni_bonus) etkiStr = 'Koloni +%' + a.etki.koloni_bonus;
+            else if (a.etki.mana_carpan) etkiStr = 'Mana x' + a.etki.mana_carpan;
+            else if (a.etki.hiz_bonus) etkiStr = 'Hiz +%' + a.etki.hiz_bonus;
+            else if (a.etki.def_bonus) etkiStr = 'DEF +' + a.etki.def_bonus;
+            else if (a.etki.atk_bonus) etkiStr = 'ATK +' + a.etki.atk_bonus;
+            else if (a.etki.casus_engel) etkiStr = 'Casus -%' + a.etki.casus_engel;
+          }
+          return '<div style="display:flex;justify-content:space-between;font-size:11px;color:#bbb;margin-top:2px">' +
+            '<span>\u{1F52E} ' + isim + ' (K' + a.kademe + ')' + (etkiStr ? ' \u2014 ' + etkiStr : '') + '</span>' +
+            '<span style="color:#8e44ad;font-size:10px">' + kalanStr + '</span></div>';
+        }).join('');
+        const buyuDiv = '<div style="padding:8px;background:#111;border-radius:4px;border-left:2px solid #8e44ad">' +
+          '<div style="font-size:10px;color:#8e44ad;font-weight:bold">\u{1F52E} Aktif Buyuler</div>' +
+          aktifHTML + '</div>';
+        bonusEl.innerHTML = (baseHtml || '') + buyuDiv;
+      }).catch(() => {});
+  } catch(e) {}
+}
