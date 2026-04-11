@@ -77,7 +77,11 @@ function renderSidebar(){
         <div class="menu-item sub-item army-sub" data-atab="upgrades" onclick="armyTab('upgrades',this)">📈 Geliştirmeler</div>
       </div>
 
-      <a href="magic.html" class="menu-item${isActive('magic.html')}">🧙 Büyüler</a>
+      <a href="magic.html" class="menu-item${isActive('magic.html')||isActive('buyucu-kulesi.html')}">🧙 Büyüler</a>
+      <div class="submenu" id="submenu-magic" style="display:${page==='magic.html'||page==='buyucu-kulesi.html'?'block':'none'}">
+        <a href="magic.html" class="menu-item sub-item${isActive('magic.html')}">🕯️ Tapınak & Mana</a>
+        <a href="buyucu-kulesi.html" class="menu-item sub-item${isActive('buyucu-kulesi.html')}">🗼 Büyücü Kulesi</a>
+      </div>
       <a href="guild.html" class="menu-item${isActive('guild.html')}">🏰 Guild</a>
 
       <a href="reports.html" class="menu-item${isActive('reports.html')||isActive('activity.html')}">📜 Raporlar</a>

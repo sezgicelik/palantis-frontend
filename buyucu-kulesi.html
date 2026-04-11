@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palantis - Buyucu Kulesi</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<style>
+.bk-tabs { display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap }
+.bk-tab { padding:7px 16px; border-radius:6px; border:1px solid rgba(212,162,87,0.2); background:rgba(20,18,14,0.8); color:#c9a84c; cursor:pointer; font-family:'Cinzel',serif; font-size:12px; transition:0.2s }
+.bk-tab.active, .bk-tab:hover { background:rgba(212,162,87,0.15); border-color:#c9a84c }
+.bk-panel { display:none } .bk-panel.active { display:block }
+
+.buyu-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px }
+.buyu-card { background:rgba(20,18,14,0.9); border:1px solid rgba(212,162,87,0.15); border-radius:8px; padding:12px; cursor:pointer; transition:0.2s }
+.buyu-card:hover { border-color:#c9a84c; transform:translateY(-1px) }
+.buyu-card.selected { border-color:#c9a84c; box-shadow:0 0 12px rgba(212,162,87,0.2) }
+.buyu-card .buyu-isim { font-size:13px; font-weight:700; color:#c9a84c; margin-bottom:4px }
+.buyu-card .buyu-meta { font-size:10px; color:#888; font-family:'Crimson Pro',serif }
+.buyu-card .buyu-kademe { font-size:11px; color:#d4a257; margin-top:4px }
+
+.mana-dot { display:inline-block; width:14px; height:14px; border-radius:50%; vertical-align:middle; margin-right:3px }
+.mana-beyaz { background:radial-gradient(#f0e6d2,#f0e6d266); border:1px solid #f0e6d288 }
+.mana-kirmizi { background:radial-gradient(#e74c3c,#e74c3c66); border:1px solid #e74c3c88 }
+.mana-mavi { background:radial-gradient(#3498db,#3498db66); border:1px solid #3498db88 }
+.mana-yesil { background:radial-gradient(#2ecc71,#2ecc7166); border:1px solid #2ecc7188 }
+
+.aktif-card { background:rgba(20,18,14,0.9); border:1px solid rgba(46,204,113,0.3); border-radius:8px; padding:10px; margin-bottom:8px }
+.aktif-card .buyu-isim { color:#2ecc71 }
+.cd-card { background:rgba(20,18,14,0.9); border:1px solid rgba(231,76,60,0.3); border-radius:8px; padding:8px; margin-bottom:6px }
+
+.buyu-yap-panel { background:rgba(20,18,14,0.95); border:1px solid rgba(212,162,87,0.25); border-radius:10px; padding:18px; margin-top:14px }
+.buyu-yap-panel h3 { color:#c9a84c; margin-bottom:10px; font-size:15px }
+.buyu-detail-row { display:flex; justify-content:space-between; padding:4px 0; font-size:12px; font-family:'Crimson Pro',serif; border-bottom:1px solid rgba(255,255,255,0.04) }
+.buyu-detail-row .lbl { color:#888 } .buyu-detail-row .val { color:#e8dcc8 }
+
+.hedef-input { background:rgba(0,0,0,0.3); border:1px solid rgba(212,162,87,0.2); border-radius:6px; padding:6px 10px; color:#e8dcc8; font-size:12px; width:100% }
+.hedef-input:focus { border-color:#c9a84c; outline:none }
+.hedef-list { list-style:none; padding:0; margin:4px 0 0; max-height:120px; overflow-y:auto }
+.hedef-list li { padding:5px 8px; font-size:11px; cursor:pointer; border-radius:4px; color:#ccc }
+.hedef-list li:hover { background:rgba(212,162,87,0.1); color:#c9a84c }
+
+.parsomen-card { background:rgba(20,18,14,0.9); border:1px solid rgba(142,68,173,0.25); border-radius:8px; padding:10px; display:flex; justify-content:space-between; align-items:center; margin-bottom:6px }
+.parsomen-card .p-isim { font-size:12px; color:#8e44ad; font-weight:700 }
+.parsomen-card .p-adet { font-size:11px; color:#c9a84c }
+
+.log-row { display:flex; gap:8px; padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.03); font-size:11px; font-family:'Crimson Pro',serif; align-items:center }
+.log-row .log-icon { font-size:14px }
+.log-row .log-zaman { color:#666; min-width:60px; font-size:10px }
+.log-row .log-mesaj { color:#ccc; flex:1 }
+.log-row.basarisiz .log-mesaj { color:#e74c3c }
+</style>
+</head>
+<body>
+<div id="hudbar-mount"></div>
+<div class="layout">
+  <div id="sidebar-mount"></div>
+  <div class="main-content">
+
+    <!-- Kaynak Ozeti -->
+    <div class="city-stats" style="margin-bottom:16px">
+      <div class="cstat" style="border-left:3px solid #f0e8d8"><span class="snum" id="bk-mana-beyaz" style="color:#f0e8d8">0</span><span class="slbl">Beyaz Mana</span></div>
+      <div class="cstat" style="border-left:3px solid #e74c3c"><span class="snum" id="bk-mana-kirmizi" style="color:#e74c3c">0</span><span class="slbl">Kirmizi Mana</span></div>
+      <div class="cstat" style="border-left:3px solid #3498db"><span class="snum" id="bk-mana-mavi" style="color:#3498db">0</span><span class="slbl">Mavi Mana</span></div>
+      <div class="cstat" style="border-left:3px solid #2ecc71"><span class="snum" id="bk-mana-yesil" style="color:#2ecc71">0</span><span class="slbl">Yesil Mana</span></div>
+    </div>
+    <div class="city-stats" style="margin-bottom:16px">
+      <div class="cstat"><span class="snum" id="bk-ates">0</span><span class="slbl">Ates Tozu</span></div>
+      <div class="cstat"><span class="snum" id="bk-ay">0</span><span class="slbl">Ay Cicegi</span></div>
+      <div class="cstat"><span class="snum" id="bk-golge">0</span><span class="slbl">Golgeler Otu</span></div>
+      <div class="cstat"><span class="snum" id="bk-ejderha">0</span><span class="slbl">Ejderha Goz D.</span></div>
+    </div>
+
+    <!-- Sekmeler -->
+    <div class="bk-tabs">
+      <button class="bk-tab active" onclick="bkSwitchTab('kitap')">Buyu Kitabi</button>
+      <button class="bk-tab" onclick="bkSwitchTab('parsomen')">Parsomenler</button>
+      <button class="bk-tab" onclick="bkSwitchTab('aktif')">Aktif Buyuler</button>
+      <button class="bk-tab" onclick="bkSwitchTab('cooldown')">Cooldownlar</button>
+      <button class="bk-tab" onclick="bkSwitchTab('log')">Gecmis</button>
+    </div>
+
+    <!-- Buyu Kitabi -->
+    <div id="tab-kitap" class="bk-panel active">
+      <div id="bk-kitap-grid" class="buyu-grid"></div>
+      <div id="bk-buyu-yap-panel" class="buyu-yap-panel" style="display:none"></div>
+    </div>
+
+    <!-- Parsomenler -->
+    <div id="tab-parsomen" class="bk-panel">
+      <p style="color:#888;font-size:12px;margin-bottom:10px">Okunmamis parsomenler. "Oku" butonuyla buyuyu ogren veya kademe artir.</p>
+      <div id="bk-parsomen-list"></div>
+      <div id="bk-parsomen-empty" style="color:#666;font-size:12px;text-align:center;padding:30px">Parsomen envanteriniz bos. Buyu dukkanindan parsomen satin alin.</div>
+    </div>
+
+    <!-- Aktif Buyuler -->
+    <div id="tab-aktif" class="bk-panel">
+      <div id="bk-aktif-list"></div>
+      <div id="bk-aktif-empty" style="color:#666;font-size:12px;text-align:center;padding:30px">Aktif buyunuz yok.</div>
+    </div>
+
+    <!-- Cooldownlar -->
+    <div id="tab-cooldown" class="bk-panel">
+      <div id="bk-cd-list"></div>
+      <div id="bk-cd-empty" style="color:#666;font-size:12px;text-align:center;padding:30px">Cooldown'da buyu yok.</div>
+    </div>
+
+    <!-- Gecmis -->
+    <div id="tab-log" class="bk-panel">
+      <div id="bk-log-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<script src="js/constants.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/game-data.js"></script>
+<script src="js/hud.js"></script>
+<script src="js/layout.js"></script>
+<script>
+const API = window.API_BASE || 'https://palantis-backend-production.up.railway.app';
+const MANA_RENK_ISIM = { beyaz:'Beyaz', kirmizi:'Kirmizi', mavi:'Mavi', yesil:'Yesil' };
+const MANA_RENK_RENK = { beyaz:'#f0e6d2', kirmizi:'#e74c3c', mavi:'#3498db', yesil:'#2ecc71' };
+const MALZEME_ISIM = { ates_tozu:'Ates Tozu', ay_cigi:'Ay Cicegi', golgeler_otu:'Golgeler Otu', ejderha_goz_damla:'Ejderha Goz D.' };
+const TIP_IKON = { ekonomi:'\u{1F4B0}', destek:'\u{1F6E1}\uFE0F', savunma:'\u{1F3F0}', saldiri:'\u2694\uFE0F', ozel:'\u2728', anti_buyu:'\u{1F52E}' };
+
+let bkData = null;
+let selectedBuyu = null;
+let selectedHedef = null;
+
+async function bkLoad() {
+  try {
+    const token = localStorage.getItem('token');
+    const r = await fetch(`${API}/api/buyucu-kulesi/durum`, { headers: { Authorization: `Bearer ${token}` } });
+    const data = await r.json();
+    if (!data.ok) return;
+    bkData = data;
+    bkUpdateKaynaklar();
+    bkRenderKitap();
+    bkRenderParsomenler();
+    bkRenderAktifler();
+    bkRenderCooldownlar();
+    bkLoadLog();
+  } catch(e) { console.error('bkLoad hata:', e); }
+}
+
+function bkUpdateKaynaklar() {
+  if (!bkData?.kaynaklar) return;
+  const k = bkData.kaynaklar;
+  document.getElementById('bk-mana-beyaz').textContent = Math.floor(k.mana_beyaz || 0);
+  document.getElementById('bk-mana-kirmizi').textContent = Math.floor(k.mana_kirmizi || 0);
+  document.getElementById('bk-mana-mavi').textContent = Math.floor(k.mana_mavi || 0);
+  document.getElementById('bk-mana-yesil').textContent = Math.floor(k.mana_yesil || 0);
+  document.getElementById('bk-ates').textContent = k.ates_tozu || 0;
+  document.getElementById('bk-ay').textContent = k.ay_cigi || 0;
+  document.getElementById('bk-golge').textContent = k.golgeler_otu || 0;
+  document.getElementById('bk-ejderha').textContent = k.ejderha_goz_damla || 0;
+}
+
+function bkSwitchTab(tab) {
+  document.querySelectorAll('.bk-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.bk-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.bk-tab[onclick*="${tab}"]`).classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+// ═══ BUYU KITABI ═══
+function bkRenderKitap() {
+  const grid = document.getElementById('bk-kitap-grid');
+  if (!bkData?.buyuler?.length) { grid.innerHTML = '<p style="color:#666;font-size:12px">Henuz buyu ogrenmediniz.</p>'; return; }
+
+  const kitapMap = {};
+  (bkData.kitap || []).forEach(k => kitapMap[k.buyu_id] = k.kademe);
+
+  grid.innerHTML = bkData.buyuler.map(b => {
+    const kademe = kitapMap[b.id] || 0;
+    const ogrenildi = kademe > 0;
+    return `<div class="buyu-card ${selectedBuyu === b.id ? 'selected' : ''}" onclick="bkSelectBuyu('${b.id}')" style="opacity:${ogrenildi ? 1 : 0.4}">
+      <div class="buyu-isim">${TIP_IKON[b.tip]||''} ${b.isim}</div>
+      <div class="buyu-meta">
+        <span class="mana-dot mana-${b.mana_renk}"></span>
+        ${MANA_RENK_ISIM[b.mana_renk]} | Cag ${b.cag} | ${b.kategori === 'dusmana' ? 'Ofansif' : 'Kendine'}
+      </div>
+      <div class="buyu-kademe">${ogrenildi ? `Kademe ${kademe}/10` : 'Ogrenilmedi'}</div>
+      <div class="buyu-meta" style="margin-top:2px">${b.aciklama || ''}</div>
+    </div>`;
+  }).join('');
+
+  if (selectedBuyu) bkRenderBuyuYap();
+}
+
+function bkSelectBuyu(buyuId) {
+  selectedBuyu = selectedBuyu === buyuId ? null : buyuId;
+  selectedHedef = null;
+  bkRenderKitap();
+  if (!selectedBuyu) document.getElementById('bk-buyu-yap-panel').style.display = 'none';
+}
+
+function bkRenderBuyuYap() {
+  const panel = document.getElementById('bk-buyu-yap-panel');
+  const buyu = bkData.buyuler.find(b => b.id === selectedBuyu);
+  if (!buyu) { panel.style.display = 'none'; return; }
+
+  const kitapMap = {};
+  (bkData.kitap || []).forEach(k => kitapMap[k.buyu_id] = k.kademe);
+  const kademe = kitapMap[buyu.id] || 0;
+
+  if (kademe === 0) {
+    panel.style.display = 'block';
+    panel.innerHTML = `<h3>${buyu.isim}</h3><p style="color:#888;font-size:12px">Bu buyuyu henuz ogrenmedisiniz. Once parsomen okuyun.</p>`;
+    return;
+  }
+
+  const kd = buyu.kademeler[kademe - 1];
+  const k = bkData.kaynaklar;
+  const manaKey = 'mana_' + buyu.mana_renk;
+  const mevcutMana = Math.floor(k[manaKey] || 0);
+  const mevcutMalzeme = k[buyu.malzeme] || 0;
+  const yeterliMana = mevcutMana >= (kd.mana || 0);
+  const yeterliMalzeme = mevcutMalzeme >= (kd.malzeme || 0);
+
+  // Cooldown kontrolu
+  const cdBuyu = (bkData.cooldownlar || []).find(c => c.buyu_id === buyu.id);
+  const cdAktif = cdBuyu ? new Date(cdBuyu.bitis) > new Date() : false;
+
+  const isOfansif = buyu.kategori === 'dusmana';
+
+  let hedefHtml = '';
+  if (isOfansif) {
+    hedefHtml = `
+      <div style="margin:10px 0">
+        <label style="font-size:11px;color:#888">Hedef Oyuncu:</label>
+        <input class="hedef-input" id="bk-hedef-input" type="text" placeholder="Kral adi ara..." oninput="bkHedefAra(this.value)">
+        <ul class="hedef-list" id="bk-hedef-list"></ul>
+        ${selectedHedef ? `<div style="font-size:11px;color:#2ecc71;margin-top:4px">Secili: ${selectedHedef.kral} (${selectedHedef.taraf})</div>` : ''}
+      </div>`;
+  }
+
+  panel.style.display = 'block';
+  panel.innerHTML = `
+    <h3>${TIP_IKON[buyu.tip]||''} ${buyu.isim} (Kademe ${kademe})</h3>
+    <p style="color:#888;font-size:11px;margin-bottom:10px">${buyu.aciklama}</p>
+    <div class="buyu-detail-row"><span class="lbl">Mana Maliyeti</span><span class="val" style="color:${yeterliMana ? MANA_RENK_RENK[buyu.mana_renk] : '#e74c3c'}">${kd.mana} ${MANA_RENK_ISIM[buyu.mana_renk]} (mevcut: ${mevcutMana})</span></div>
+    <div class="buyu-detail-row"><span class="lbl">Malzeme</span><span class="val" style="color:${yeterliMalzeme ? '#e8dcc8' : '#e74c3c'}">${kd.malzeme} ${MALZEME_ISIM[buyu.malzeme]||buyu.malzeme} (mevcut: ${mevcutMalzeme})</span></div>
+    <div class="buyu-detail-row"><span class="lbl">Basari Sansi</span><span class="val">%${kd.basari}</span></div>
+    ${kd.sure > 0 ? `<div class="buyu-detail-row"><span class="lbl">Sure</span><span class="val">${kd.sure} PG</span></div>` : ''}
+    <div class="buyu-detail-row"><span class="lbl">Cooldown</span><span class="val">${buyu.cooldown} PG</span></div>
+    <div class="buyu-detail-row"><span class="lbl">Etki</span><span class="val">${kd.etki}${kd.etki2 ? ' / ' + kd.etki2 : ''}</span></div>
+    ${hedefHtml}
+    <div style="margin-top:12px;text-align:center">
+      ${cdAktif
+        ? `<button class="btn" disabled style="opacity:0.4">Cooldown (${bkFormatKalan(cdBuyu.bitis)})</button>`
+        : `<button class="btn gold" onclick="bkBuyuYap('${buyu.id}')" ${(!yeterliMana || !yeterliMalzeme || (isOfansif && !selectedHedef)) ? 'disabled style="opacity:0.5"' : ''}>Buyu Yap</button>`
+      }
+    </div>
+    ${!yeterliMana ? '<p style="color:#e74c3c;font-size:10px;text-align:center;margin-top:4px">Yetersiz mana!</p>' : ''}
+    ${!yeterliMalzeme ? '<p style="color:#e74c3c;font-size:10px;text-align:center;margin-top:4px">Yetersiz malzeme!</p>' : ''}
+    ${isOfansif && !selectedHedef ? '<p style="color:#f39c12;font-size:10px;text-align:center;margin-top:4px">Hedef oyuncu secin</p>' : ''}
+  `;
+}
+
+async function bkHedefAra(q) {
+  if (q.length < 2) { document.getElementById('bk-hedef-list').innerHTML = ''; return; }
+  try {
+    const token = localStorage.getItem('token');
+    const r = await fetch(`${API}/api/buyucu-kulesi/oyuncu-ara?q=${encodeURIComponent(q)}`, { headers: { Authorization: `Bearer ${token}` } });
+    const data = await r.json();
+    if (!data.ok) return;
+    const list = document.getElementById('bk-hedef-list');
+    list.innerHTML = data.oyuncular.map(o =>
+      `<li onclick="bkSelectHedef(${o.id},'${o.kral}','${o.taraf}')">${o.kral} (${o.taraf} ${o.irk} C${o.cag})</li>`
+    ).join('');
+  } catch(e) {}
+}
+
+function bkSelectHedef(id, kral, taraf) {
+  selectedHedef = { id, kral, taraf };
+  bkRenderBuyuYap();
+}
+
+async function bkBuyuYap(buyuId) {
+  try {
+    const token = localStorage.getItem('token');
+    const body = { buyu_id: buyuId };
+    if (selectedHedef) body.hedef_id = selectedHedef.id;
+    const r = await fetch(`${API}/api/buyucu-kulesi/buyu-yap`, {
+      method: 'POST', headers: { 'Content-Type':'application/json', Authorization:`Bearer ${token}` },
+      body: JSON.stringify(body)
+    });
+    const data = await r.json();
+    if (data.ok) {
+      if (data.basarili) {
+        showToast(data.mesaj, 'success');
+      } else {
+        showToast(data.mesaj, 'warning');
+      }
+      selectedBuyu = null; selectedHedef = null;
+      await bkLoad();
+    } else {
+      showToast(data.error || 'Hata', 'error');
+    }
+  } catch(e) { showToast('Sunucu hatasi', 'error'); }
+}
+
+// ═══ PARSOMENLER ═══
+function bkRenderParsomenler() {
+  const list = document.getElementById('bk-parsomen-list');
+  const empty = document.getElementById('bk-parsomen-empty');
+  const parsomenler = bkData?.parsomenler || [];
+  if (!parsomenler.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+
+  list.innerHTML = parsomenler.map(p => {
+    const buyu = (bkData.buyuler || []).find(b => b.id === p.buyu_id);
+    const isim = buyu ? buyu.isim : p.buyu_id;
+    const renk = buyu ? buyu.mana_renk : 'beyaz';
+    return `<div class="parsomen-card">
+      <div>
+        <div class="p-isim"><span class="mana-dot mana-${renk}"></span> ${isim}</div>
+        <div class="p-adet">${p.adet} adet</div>
+      </div>
+      <button class="btn gold" style="font-size:11px;padding:4px 12px" onclick="bkParsomenOku('${p.buyu_id}')">Oku</button>
+    </div>`;
+  }).join('');
+}
+
+async function bkParsomenOku(buyuId) {
+  try {
+    const token = localStorage.getItem('token');
+    const r = await fetch(`${API}/api/buyucu-kulesi/parsomen-oku`, {
+      method: 'POST', headers: { 'Content-Type':'application/json', Authorization:`Bearer ${token}` },
+      body: JSON.stringify({ buyu_id: buyuId })
+    });
+    const data = await r.json();
+    if (data.ok) {
+      showToast(data.mesaj, 'success');
+      await bkLoad();
+    } else {
+      showToast(data.error || 'Hata', 'error');
+    }
+  } catch(e) { showToast('Sunucu hatasi', 'error'); }
+}
+
+// ═══ AKTIF BUYULER ═══
+function bkRenderAktifler() {
+  const list = document.getElementById('bk-aktif-list');
+  const empty = document.getElementById('bk-aktif-empty');
+  const aktifler = bkData?.aktifler || [];
+  if (!aktifler.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+
+  list.innerHTML = aktifler.map(a => {
+    const buyu = (bkData.buyuler || []).find(b => b.id === a.buyu_id);
+    const isim = buyu ? buyu.isim : a.buyu_id;
+    const kalan = bkFormatKalan(a.bitis);
+    return `<div class="aktif-card">
+      <div class="buyu-isim">${isim} (K${a.kademe})</div>
+      <div style="font-size:11px;color:#888">Kalan: ${kalan}</div>
+    </div>`;
+  }).join('');
+}
+
+// ═══ COOLDOWNLAR ═══
+function bkRenderCooldownlar() {
+  const list = document.getElementById('bk-cd-list');
+  const empty = document.getElementById('bk-cd-empty');
+  const cds = bkData?.cooldownlar || [];
+  if (!cds.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+
+  list.innerHTML = cds.map(c => {
+    const buyu = (bkData.buyuler || []).find(b => b.id === c.buyu_id);
+    const isim = buyu ? buyu.isim : c.buyu_id;
+    return `<div class="cd-card">
+      <span style="font-size:12px;color:#e74c3c">${isim}</span>
+      <span style="font-size:10px;color:#888;float:right">${bkFormatKalan(c.bitis)}</span>
+    </div>`;
+  }).join('');
+}
+
+// ═══ LOG ═══
+async function bkLoadLog() {
+  try {
+    const token = localStorage.getItem('token');
+    const r = await fetch(`${API}/api/buyucu-kulesi/log`, { headers: { Authorization: `Bearer ${token}` } });
+    const data = await r.json();
+    if (!data.ok) return;
+    const list = document.getElementById('bk-log-list');
+    if (!data.loglar?.length) { list.innerHTML = '<p style="color:#666;font-size:12px;text-align:center;padding:30px">Henuz buyu yapmamissiniz.</p>'; return; }
+    list.innerHTML = data.loglar.map(l => {
+      const tarih = new Date(l.created_at).toLocaleString('tr-TR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+      return `<div class="log-row ${l.basarili ? '' : 'basarisiz'}">
+        <span class="log-icon">${l.basarili ? '\u2705' : '\u274C'}</span>
+        <span class="log-zaman">${tarih}</span>
+        <span class="log-mesaj">${l.buyu_id} (K${l.kademe}) — ${l.detay || (l.basarili ? 'Basarili' : 'Basarisiz')}</span>
+      </div>`;
+    }).join('');
+  } catch(e) {}
+}
+
+function bkFormatKalan(bitisTarih) {
+  const kalan = new Date(bitisTarih) - new Date();
+  if (kalan <= 0) return 'Bitti';
+  const saat = Math.floor(kalan / 3600000);
+  const dk = Math.floor((kalan % 3600000) / 60000);
+  return saat > 0 ? `${saat}s ${dk}dk` : `${dk}dk`;
+}
+
+// Sayfa yuklenince
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(bkLoad, 500);
+  // Her 30 saniyede guncelle (aktif buyuler countdown)
+  setInterval(() => {
+    if (bkData) {
+      bkRenderAktifler();
+      bkRenderCooldownlar();
+    }
+  }, 30000);
+});
+</script>
+</body>
+</html>

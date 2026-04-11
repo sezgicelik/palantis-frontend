@@ -45,6 +45,13 @@
       <div id="bd-malzeme-liste"></div>
     </div>
 
+    <!-- Parsomenler -->
+    <div class="card" style="padding:14px;margin-bottom:16px">
+      <h3 style="color:#8e44ad;font-size:13px;margin-bottom:10px">Parsomenler (Buyu Ogren)</h3>
+      <p style="font-size:10px;color:#666;margin-bottom:8px">Parsomen satin al, sehre goturdukten sonra Buyucu Kulesinde oku.</p>
+      <div id="bd-parsomen-liste"></div>
+    </div>
+
     <!-- Mana Tupleri (renk bazli satirlar) -->
     <div class="card" style="padding:14px;margin-bottom:16px">
       <h3 style="color:#9b59b6;font-size:13px;margin-bottom:10px">Mana Tupleri</h3>
@@ -156,6 +163,29 @@ function renderBuyuDukkani() {
           style="padding:2px 8px;font-size:9px;width:auto;${!BD_KERVAN_ID?'opacity:0.3':''}">Al</button>
       </div>
     `).join('') + '</div>';
+
+  // Parsomenler
+  const parEl = document.getElementById('bd-parsomen-liste');
+  if (BD_STOK.parsomenler && BD_STOK.parsomenler.length > 0) {
+    const RENK_DOT = { beyaz:'#f0e6d2', kirmizi:'#e74c3c', mavi:'#3498db', yesil:'#2ecc71' };
+    const KAT_IKON = { ekonomi:'\u{1F4B0}', destek:'\u{1F6E1}\uFE0F', savunma:'\u{1F3F0}', saldiri:'\u2694\uFE0F', ozel:'\u2728', anti_buyu:'\u{1F52E}' };
+    parEl.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:6px">' +
+      BD_STOK.parsomenler.map(p => `
+        <div style="background:#111;border:1px solid #2d1f4e;border-radius:6px;padding:10px;border-left:3px solid ${RENK_DOT[p.mana_renk]||'#888'}">
+          <div style="font-size:12px;font-weight:bold;color:#8e44ad">${KAT_IKON[p.tip]||''} ${p.isim}</div>
+          <div style="font-size:9px;color:#888;margin:2px 0">Cag ${p.cag} | <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${RENK_DOT[p.mana_renk]};vertical-align:middle"></span> ${RENK_ISIM[p.mana_renk]} | ${p.kategori==='dusmana'?'Ofansif':'Kendine'}</div>
+          <div style="font-size:10px;color:#aaa;margin:4px 0">${p.aciklama||''}</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+            <span style="font-size:10px;color:#d4af37">${p.fiyat.toLocaleString()} altin</span>
+            <span style="flex:1"></span>
+            <button class="btn-action" onclick="bdSatinAl('${p.id}',1)" ${!BD_KERVAN_ID?'disabled':''}
+              style="padding:3px 10px;font-size:9px;width:auto;${!BD_KERVAN_ID?'opacity:0.3':''}">Al</button>
+          </div>
+        </div>
+      `).join('') + '</div>';
+  } else {
+    parEl.innerHTML = '<div style="color:#666;font-size:11px">Caginiza uygun parsomen yok.</div>';
+  }
 
   // Mana tupleri — renk bazli satirlar, her satirda K-O-B yan yana
   const manaEl = document.getElementById('bd-mana-liste');
