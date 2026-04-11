@@ -84,6 +84,23 @@ let BD_STOK = null;
 let BD_KERVAN_ID = null;
 let buyuKervanlar = [];
 
+// Kaynak isim cevirici (kervan yukunde guzel gosterim)
+const BD_KAYNAK_ISIM = {
+  altin:'Altin', odun:'Odun', tas:'Tas', metal:'Metal', islenmis:'Isl.Metal', kereste:'Kereste',
+  bugday:'Bugday', balik:'Balik', cig_et:'Cig Et', ekmek:'Ekmek', pismis:'Pismis', pismis_et:'Pismis Et',
+  mana_beyaz:'Beyaz Mana', mana_kirmizi:'Kirmizi Mana', mana_mavi:'Mavi Mana', mana_yesil:'Yesil Mana',
+  ates_tozu:'Kristal Tozu', ay_cigi:'Ay Tasi', golgeler_otu:'Karanlik Esans', ejderha_goz_damla:'Ejderha Pulu',
+};
+function bdKaynakIsim(key) {
+  if (BD_KAYNAK_ISIM[key]) return BD_KAYNAK_ISIM[key];
+  if (key.startsWith('parsomen_')) {
+    const buyuId = key.replace('parsomen_','');
+    const p = PARSOMEN_LISTESI.find(x => x.buyu_id === buyuId);
+    return (p ? p.isim : buyuId) + ' Pars.';
+  }
+  return key;
+}
+
 // Parsomen tanimlari (frontend fallback — backend'den gelmezse kullanilir)
 const PARSOMEN_LISTESI = [
   { id:'parsomen_dogum', buyu_id:'dogum', isim:'Dogum', cag:1, mana_renk:'yesil', tip:'ekonomi', kategori:'kendine', aciklama:'Gunluk dogan koylu sayisini artirir', fiyat:500 },
@@ -107,6 +124,30 @@ const PARSOMEN_LISTESI = [
   { id:'parsomen_onarim', buyu_id:'onarim', isim:'Onarim', cag:4, mana_renk:'beyaz', tip:'destek', kategori:'kendine', aciklama:'Hasarli binalari tamir eder', fiyat:12000 },
   { id:'parsomen_serap', buyu_id:'serap', isim:'Serap', cag:4, mana_renk:'mavi', tip:'savunma', kategori:'kendine', aciklama:'Toprak korumasi', fiyat:12000 },
 ];
+
+// Kademe bilgileri (kademe 1,5,10 gosterimi icin)
+const PARSOMEN_KADEME = {
+  dogum: [{etki:1,sure:0,mana:0,malzeme:0,basari:100},{etki:2,sure:0,mana:0,malzeme:0,basari:100},{etki:3,sure:0,mana:0,malzeme:0,basari:100},{etki:4,sure:0,mana:0,malzeme:0,basari:100},{etki:5,sure:0,mana:0,malzeme:0,basari:100},{etki:6,sure:0,mana:0,malzeme:0,basari:100},{etki:7,sure:0,mana:0,malzeme:0,basari:100},{etki:8,sure:0,mana:0,malzeme:0,basari:100},{etki:9,sure:0,mana:0,malzeme:0,basari:100},{etki:10,sure:0,mana:0,malzeme:0,basari:100}],
+  beceri: [{etki:10,sure:0,mana:3,malzeme:1,basari:95},{etki:20,sure:0,mana:5,malzeme:1,basari:93},{etki:35,sure:0,mana:8,malzeme:2,basari:91},{etki:50,sure:0,mana:11,malzeme:2,basari:89},{etki:70,sure:0,mana:15,malzeme:3,basari:87},{etki:95,sure:0,mana:20,malzeme:4,basari:85},{etki:125,sure:0,mana:26,malzeme:5,basari:82},{etki:160,sure:0,mana:33,malzeme:7,basari:79},{etki:200,sure:0,mana:41,malzeme:9,basari:76},{etki:250,sure:0,mana:50,malzeme:11,basari:73}],
+  ejderha_korkusu: [{etki:20,sure:0,mana:5,malzeme:1,basari:85},{etki:35,sure:0,mana:8,malzeme:2,basari:82},{etki:50,sure:0,mana:12,malzeme:3,basari:79},{etki:70,sure:0,mana:17,malzeme:4,basari:76},{etki:95,sure:0,mana:23,malzeme:5,basari:73},{etki:125,sure:0,mana:30,malzeme:7,basari:70},{etki:160,sure:0,mana:38,malzeme:9,basari:66},{etki:200,sure:0,mana:47,malzeme:11,basari:62},{etki:250,sure:0,mana:57,malzeme:14,basari:58},{etki:310,sure:0,mana:68,malzeme:17,basari:54}],
+  ejderha_sevinci: [{etki:25,sure:0,mana:5,malzeme:1,basari:90},{etki:45,sure:0,mana:8,malzeme:2,basari:87},{etki:65,sure:0,mana:12,malzeme:3,basari:84},{etki:90,sure:0,mana:17,malzeme:4,basari:81},{etki:120,sure:0,mana:23,malzeme:5,basari:78},{etki:155,sure:0,mana:30,malzeme:7,basari:75},{etki:195,sure:0,mana:38,malzeme:9,basari:71},{etki:240,sure:0,mana:47,malzeme:11,basari:67},{etki:290,sure:0,mana:57,malzeme:14,basari:63},{etki:350,sure:0,mana:68,malzeme:17,basari:59}],
+  kesif: [{etki:1,sure:0,mana:4,malzeme:1,basari:90},{etki:1,sure:0,mana:7,malzeme:2,basari:87},{etki:2,sure:0,mana:10,malzeme:3,basari:84},{etki:2,sure:0,mana:14,malzeme:4,basari:81},{etki:3,sure:0,mana:19,malzeme:5,basari:78},{etki:3,sure:0,mana:25,malzeme:6,basari:74},{etki:4,sure:0,mana:32,malzeme:8,basari:70},{etki:4,sure:0,mana:40,malzeme:10,basari:66},{etki:5,sure:0,mana:49,malzeme:12,basari:62},{etki:6,sure:0,mana:59,malzeme:15,basari:58}],
+  motivasyon_h: [{etki:15,sure:6,mana:6,malzeme:1,basari:88},{etki:20,sure:7,mana:10,malzeme:2,basari:85},{etki:25,sure:8,mana:15,malzeme:3,basari:82},{etki:30,sure:9,mana:21,malzeme:4,basari:79},{etki:35,sure:10,mana:28,malzeme:5,basari:76},{etki:38,sure:11,mana:36,malzeme:7,basari:72},{etki:42,sure:12,mana:45,malzeme:9,basari:68},{etki:45,sure:13,mana:55,malzeme:11,basari:64},{etki:48,sure:14,mana:66,malzeme:14,basari:60},{etki:50,sure:16,mana:78,malzeme:17,basari:56}],
+  motivasyon_y: [{etki:15,sure:6,mana:6,malzeme:1,basari:88},{etki:20,sure:7,mana:10,malzeme:2,basari:85},{etki:25,sure:8,mana:15,malzeme:3,basari:82},{etki:30,sure:9,mana:21,malzeme:4,basari:79},{etki:35,sure:10,mana:28,malzeme:5,basari:76},{etki:38,sure:11,mana:36,malzeme:7,basari:72},{etki:42,sure:12,mana:45,malzeme:9,basari:68},{etki:45,sure:13,mana:55,malzeme:11,basari:64},{etki:48,sure:14,mana:66,malzeme:14,basari:60},{etki:50,sure:16,mana:78,malzeme:17,basari:56}],
+  olum_sisi: [{etki:50,sure:0,mana:8,malzeme:2,basari:80},{etki:100,sure:0,mana:13,malzeme:3,basari:77},{etki:170,sure:0,mana:19,malzeme:4,basari:74},{etki:260,sure:0,mana:26,malzeme:6,basari:71},{etki:370,sure:0,mana:34,malzeme:8,basari:68},{etki:500,sure:0,mana:43,malzeme:10,basari:64},{etki:660,sure:0,mana:53,malzeme:13,basari:60},{etki:850,sure:0,mana:64,malzeme:16,basari:56},{etki:1080,sure:0,mana:76,malzeme:20,basari:52},{etki:1350,sure:0,mana:90,malzeme:25,basari:48}],
+  sessizlik: [{etki:2,sure:2,mana:8,malzeme:2,basari:75},{etki:3,sure:3,mana:13,malzeme:3,basari:72},{etki:4,sure:4,mana:19,malzeme:4,basari:69},{etki:5,sure:5,mana:26,malzeme:6,basari:66},{etki:6,sure:6,mana:34,malzeme:8,basari:63},{etki:7,sure:7,mana:43,malzeme:10,basari:59},{etki:9,sure:9,mana:53,malzeme:13,basari:55},{etki:11,sure:11,mana:64,malzeme:16,basari:51},{etki:13,sure:13,mana:76,malzeme:20,basari:47},{etki:16,sure:16,mana:90,malzeme:25,basari:43}],
+  koruma: [{etki:1,sure:6,mana:10,malzeme:3,basari:80},{etki:1,sure:8,mana:16,malzeme:4,basari:77},{etki:1,sure:10,mana:23,malzeme:5,basari:74},{etki:1,sure:13,mana:31,malzeme:7,basari:71},{etki:1,sure:16,mana:40,malzeme:9,basari:68},{etki:1,sure:20,mana:50,malzeme:12,basari:64},{etki:1,sure:24,mana:61,malzeme:15,basari:60},{etki:1,sure:30,mana:73,malzeme:18,basari:56},{etki:1,sure:36,mana:86,malzeme:22,basari:52},{etki:1,sure:44,mana:100,malzeme:27,basari:48}],
+  kum_firtinasi: [{etki:3,sure:3,mana:12,malzeme:3,basari:75},{etki:4,sure:4,mana:19,malzeme:4,basari:72},{etki:5,sure:5,mana:27,malzeme:6,basari:69},{etki:7,sure:7,mana:36,malzeme:8,basari:66},{etki:9,sure:9,mana:46,malzeme:10,basari:63},{etki:11,sure:11,mana:57,malzeme:13,basari:59},{etki:14,sure:14,mana:69,malzeme:16,basari:55},{etki:17,sure:17,mana:82,malzeme:20,basari:51},{etki:21,sure:21,mana:96,malzeme:24,basari:47},{etki:26,sure:26,mana:112,malzeme:29,basari:43}],
+  mana_yak: [{etki:5,sure:0,mana:6,malzeme:1,basari:85},{etki:8,sure:0,mana:10,malzeme:2,basari:82},{etki:11,sure:0,mana:15,malzeme:3,basari:79},{etki:14,sure:0,mana:21,malzeme:4,basari:76},{etki:18,sure:0,mana:28,malzeme:5,basari:73},{etki:22,sure:0,mana:36,malzeme:7,basari:69},{etki:27,sure:0,mana:45,malzeme:9,basari:65},{etki:32,sure:0,mana:55,malzeme:11,basari:61},{etki:38,sure:0,mana:66,malzeme:14,basari:57},{etki:45,sure:0,mana:78,malzeme:17,basari:53}],
+  sadakat: [{etki:3,sure:12,mana:8,malzeme:2,basari:85},{etki:4,sure:14,mana:13,malzeme:3,basari:82},{etki:5,sure:16,mana:19,malzeme:4,basari:79},{etki:6,sure:18,mana:26,malzeme:6,basari:76},{etki:7,sure:20,mana:34,malzeme:8,basari:73},{etki:8,sure:22,mana:43,malzeme:10,basari:69},{etki:8,sure:24,mana:53,malzeme:13,basari:65},{etki:9,sure:26,mana:64,malzeme:16,basari:61},{etki:9,sure:28,mana:76,malzeme:20,basari:57},{etki:10,sure:30,mana:90,malzeme:25,basari:53}],
+  kabus: [{etki:8,sure:12,mana:8,malzeme:2,basari:85},{etki:10,sure:14,mana:13,malzeme:3,basari:82},{etki:12,sure:16,mana:19,malzeme:4,basari:79},{etki:13,sure:18,mana:26,malzeme:6,basari:76},{etki:15,sure:20,mana:34,malzeme:8,basari:73},{etki:16,sure:22,mana:43,malzeme:10,basari:69},{etki:17,sure:24,mana:53,malzeme:13,basari:65},{etki:18,sure:26,mana:64,malzeme:16,basari:61},{etki:19,sure:28,mana:76,malzeme:20,basari:57},{etki:20,sure:30,mana:90,malzeme:25,basari:53}],
+  bilgelik_dokunusu: [{etki:1,sure:0,mana:15,malzeme:3,basari:50},{etki:1,sure:0,mana:22,malzeme:4,basari:55},{etki:1,sure:0,mana:30,malzeme:6,basari:60},{etki:1,sure:0,mana:39,malzeme:8,basari:64},{etki:1,sure:0,mana:49,malzeme:10,basari:68},{etki:2,sure:0,mana:60,malzeme:13,basari:55},{etki:2,sure:0,mana:72,malzeme:16,basari:59},{etki:2,sure:0,mana:85,malzeme:20,basari:63},{etki:3,sure:0,mana:99,malzeme:24,basari:50},{etki:3,sure:0,mana:115,malzeme:29,basari:54}],
+  deprem: [{etki:3,sure:0,mana:15,malzeme:4,basari:75},{etki:4,sure:0,mana:23,malzeme:5,basari:72},{etki:5,sure:0,mana:32,malzeme:7,basari:69},{etki:6,sure:0,mana:42,malzeme:9,basari:66},{etki:7,sure:0,mana:53,malzeme:11,basari:63},{etki:9,sure:0,mana:65,malzeme:14,basari:59},{etki:11,sure:0,mana:78,malzeme:17,basari:55},{etki:13,sure:0,mana:92,malzeme:21,basari:51},{etki:15,sure:0,mana:107,malzeme:25,basari:47},{etki:18,sure:0,mana:124,malzeme:30,basari:43}],
+  hiz: [{etki:10,sure:2,mana:10,malzeme:2,basari:88},{etki:14,sure:2,mana:16,malzeme:3,basari:85},{etki:18,sure:2,mana:23,malzeme:4,basari:82},{etki:22,sure:3,mana:31,malzeme:6,basari:79},{etki:26,sure:3,mana:40,malzeme:8,basari:76},{etki:30,sure:3,mana:50,malzeme:10,basari:72},{etki:34,sure:4,mana:61,malzeme:13,basari:68},{etki:38,sure:4,mana:73,malzeme:16,basari:64},{etki:44,sure:5,mana:86,malzeme:20,basari:60},{etki:50,sure:5,mana:100,malzeme:25,basari:56}],
+  mistik_defans: [{etki:2,sure:12,mana:12,malzeme:3,basari:85},{etki:3,sure:14,mana:19,malzeme:4,basari:82},{etki:4,sure:16,mana:27,malzeme:5,basari:79},{etki:4,sure:18,mana:36,malzeme:7,basari:76},{etki:5,sure:20,mana:46,malzeme:9,basari:73},{etki:5,sure:22,mana:57,malzeme:11,basari:69},{etki:6,sure:24,mana:69,malzeme:14,basari:65},{etki:6,sure:26,mana:82,malzeme:17,basari:61},{etki:6,sure:28,mana:96,malzeme:20,basari:57},{etki:6,sure:30,mana:112,malzeme:24,basari:53}],
+  onarim: [{etki:5,sure:0,mana:8,malzeme:2,basari:90},{etki:8,sure:0,mana:13,malzeme:3,basari:87},{etki:11,sure:0,mana:19,malzeme:4,basari:84},{etki:15,sure:0,mana:26,malzeme:6,basari:81},{etki:19,sure:0,mana:34,malzeme:8,basari:78},{etki:24,sure:0,mana:43,malzeme:10,basari:74},{etki:29,sure:0,mana:53,malzeme:13,basari:70},{etki:35,sure:0,mana:64,malzeme:16,basari:66},{etki:42,sure:0,mana:76,malzeme:20,basari:62},{etki:50,sure:0,mana:90,malzeme:25,basari:58}],
+  serap: [{etki:10,sure:12,mana:12,malzeme:3,basari:80},{etki:13,sure:14,mana:19,malzeme:4,basari:77},{etki:16,sure:16,mana:27,malzeme:5,basari:74},{etki:19,sure:18,mana:36,malzeme:7,basari:71},{etki:22,sure:20,mana:46,malzeme:9,basari:68},{etki:24,sure:22,mana:57,malzeme:11,basari:64},{etki:26,sure:24,mana:69,malzeme:14,basari:60},{etki:28,sure:26,mana:82,malzeme:17,basari:56},{etki:29,sure:28,mana:96,malzeme:20,basari:52},{etki:30,sure:30,mana:112,malzeme:24,basari:48}],
+};
 
 let BD_OYUNCU_CAG = 1;
 
@@ -163,7 +204,7 @@ function bdKervanSec() {
       const k = buyuKervanlar.find(x => x.id === BD_KERVAN_ID);
       if (k && k.yuk && Object.keys(k.yuk).length > 0) {
         yukEl.innerHTML = Object.entries(k.yuk).filter(([,v])=>v>0).map(([key,val]) =>
-          `<span style="background:#1a1a1a;padding:2px 6px;border-radius:3px;font-size:10px;color:#bbb;border:1px solid #222">${key}: ${val.toLocaleString()}</span>`
+          `<span style="background:#1a1a1a;padding:2px 6px;border-radius:3px;font-size:10px;color:#bbb;border:1px solid #222">${bdKaynakIsim(key)}: ${val.toLocaleString()}</span>`
         ).join(' ');
       } else {
         yukEl.innerHTML = '<span style="color:#555;font-size:10px">Kervanda yuk yok</span>';
@@ -207,20 +248,36 @@ function renderBuyuDukkani() {
   if (parsomenList && parsomenList.length > 0) {
     const RENK_DOT = { beyaz:'#f0e6d2', kirmizi:'#e74c3c', mavi:'#3498db', yesil:'#2ecc71' };
     const KAT_IKON = { ekonomi:'\u{1F4B0}', destek:'\u{1F6E1}\uFE0F', savunma:'\u{1F3F0}', saldiri:'\u2694\uFE0F', ozel:'\u2728', anti_buyu:'\u{1F52E}' };
-    parEl.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:6px">' +
-      parsomenList.map(p => `
+    const MAL_MAP = { ekonomi:'Kristal Tozu', destek:'Kristal Tozu', savunma:'Ay Tasi', saldiri:'Karanlik Esans', ozel:'Ejderha Pulu', anti_buyu:'Ejderha Pulu' };
+    parEl.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px">' +
+      parsomenList.map(p => {
+        const kd = p.kademeler || PARSOMEN_KADEME[p.buyu_id];
+        const k1 = kd ? kd[0] : null;
+        const k5 = kd ? kd[4] : null;
+        const k10 = kd ? kd[9] : null;
+        return `
         <div style="background:#111;border:1px solid #2d1f4e;border-radius:6px;padding:10px;border-left:3px solid ${RENK_DOT[p.mana_renk]||'#888'}">
           <div style="font-size:12px;font-weight:bold;color:#8e44ad">${KAT_IKON[p.tip]||''} ${p.isim}</div>
           <div style="font-size:9px;color:#888;margin:2px 0">Cag ${p.cag} | <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${RENK_DOT[p.mana_renk]};vertical-align:middle"></span> ${RENK_ISIM[p.mana_renk]} | ${p.kategori==='dusmana'?'Ofansif':'Kendine'}</div>
-          <div style="font-size:10px;color:#aaa;margin:4px 0">${p.aciklama||''}</div>
+          <div style="font-size:10px;color:#aaa;margin:3px 0">${p.aciklama||''}</div>
+          <div style="font-size:9px;color:#666;margin:2px 0">Malzeme: ${MAL_MAP[p.tip]||'?'}</div>
+          ${k1 ? `<div style="margin-top:5px;border-top:1px solid #222;padding-top:4px">
+            <div style="font-size:8px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Kademe Detay</div>
+            <table style="width:100%;font-size:9px;color:#999;border-collapse:collapse">
+              <tr style="color:#666"><td>Kd</td><td>Etki</td><td>Mana</td><td>Mlz</td><td>Basari</td>${k1.sure?'<td>Sure</td>':''}</tr>
+              <tr style="color:#aaa"><td style="color:#8e44ad">1</td><td>${k1.etki}</td><td>${k1.mana}</td><td>${k1.malzeme}</td><td>%${k1.basari}</td>${k1.sure?`<td>${k1.sure}PG</td>`:''}</tr>
+              ${k5?`<tr style="color:#aaa"><td style="color:#8e44ad">5</td><td>${k5.etki}</td><td>${k5.mana}</td><td>${k5.malzeme}</td><td>%${k5.basari}</td>${k5.sure?`<td>${k5.sure}PG</td>`:''}</tr>`:''}
+              ${k10?`<tr style="color:#aaa"><td style="color:#8e44ad">10</td><td>${k10.etki}</td><td>${k10.mana}</td><td>${k10.malzeme}</td><td>%${k10.basari}</td>${k10.sure?`<td>${k10.sure}PG</td>`:''}</tr>`:''}
+            </table>
+          </div>` : ''}
           <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
             <span style="font-size:10px;color:#d4af37">${p.fiyat.toLocaleString()} altin</span>
             <span style="flex:1"></span>
             <button class="btn-action" onclick="bdSatinAl('${p.id}',1)" ${!BD_KERVAN_ID?'disabled':''}
               style="padding:3px 10px;font-size:9px;width:auto;${!BD_KERVAN_ID?'opacity:0.3':''}">Al</button>
           </div>
-        </div>
-      `).join('') + '</div>';
+        </div>`;
+      }).join('') + '</div>';
   } else {
     parEl.innerHTML = '<div style="color:#666;font-size:11px">Caginiza uygun parsomen yok.</div>';
   }

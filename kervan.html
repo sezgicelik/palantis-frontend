@@ -59,6 +59,26 @@ const DURUM_ISIM = { sehirde:'Sehirde', yolda_gidis:'Yolda', yolda_donus:'Donuyo
 const HEDEF_ISIM = { pazar:'Pazar', buyu_dukkani:'Buyu Dukkani' };
 const DURUM_RENK = { sehirde:'#2ecc71', yolda_gidis:'#f39c12', yolda_donus:'#f39c12', pazarda:'#3498db', buyu_dukkaninda:'#9b59b6' };
 const KAYNAKLAR = ['altin','odun','tas','metal','islenmis','kereste','bugday','balik','cig_et','ekmek','pismis','pismis_et'];
+const KAYNAK_ISIM = {
+  altin:'Altin', odun:'Odun', tas:'Tas', metal:'Metal', islenmis:'Isl.Metal', kereste:'Kereste',
+  bugday:'Bugday', balik:'Balik', cig_et:'Cig Et', ekmek:'Ekmek', pismis:'Pismis', pismis_et:'Pismis Et',
+  mana_beyaz:'Beyaz Mana', mana_kirmizi:'Kirmizi Mana', mana_mavi:'Mavi Mana', mana_yesil:'Yesil Mana',
+  ates_tozu:'Kristal Tozu', ay_cigi:'Ay Tasi', golgeler_otu:'Karanlik Esans', ejderha_goz_damla:'Ejderha Pulu',
+};
+const PARSOMEN_ISIM = {
+  dogum:'Dogum', beceri:'Beceri', ejderha_korkusu:'Ejderha Korkusu', ejderha_sevinci:'Ejderha Sevinci',
+  kesif:'Kesif', motivasyon_h:'Motivasyon (H)', motivasyon_y:'Motivasyon (Y)', olum_sisi:'Olum Sisi',
+  sessizlik:'Sessizlik', koruma:'Koruma', kum_firtinasi:'Kum Firtinasi', mana_yak:'Mana Yak',
+  sadakat:'Sadakat', kabus:'Kabus', bilgelik_dokunusu:'Bilgelik Dokunusu', deprem:'Deprem',
+  hiz:'Hiz', mistik_defans:'Mistik Defans', onarim:'Onarim', serap:'Serap',
+  buyu_kalkani:'Buyu Kalkani', dispel:'Dispel', ejderha_cagir:'Ejderha Cagir', hipnoz:'Hipnoz',
+  koruma_kaldir:'Koruma Kaldir', meteor_yagmuru:'Meteor Yagmuru', mistik_atak:'Mistik Atak', yakaris:'Yakaris',
+};
+function kvKaynakIsim(key) {
+  if (KAYNAK_ISIM[key]) return KAYNAK_ISIM[key];
+  if (key.startsWith('parsomen_')) return (PARSOMEN_ISIM[key.replace('parsomen_','')] || key.replace('parsomen_','')) + ' Parsomeni';
+  return key;
+}
 let KV_DATA = null;
 
 document.getElementById('kv-essek-sayi').addEventListener('input', function() {
@@ -99,7 +119,7 @@ function renderKervanlar() {
     let yukHTML = '';
     if (Object.keys(k.yuk).length > 0) {
       yukHTML = '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">' +
-        Object.entries(k.yuk).filter(([,v])=>v>0).map(([key,val])=>`<span style="background:#1a1a1a;padding:2px 6px;border-radius:3px;font-size:10px;color:#bbb">${key}: ${val.toLocaleString()}</span>`).join('') +
+        Object.entries(k.yuk).filter(([,v])=>v>0).map(([key,val])=>`<span style="background:#1a1a1a;padding:2px 6px;border-radius:3px;font-size:10px;color:#bbb">${kvKaynakIsim(key)}: ${val.toLocaleString()}</span>`).join('') +
         '</div>';
     }
 
