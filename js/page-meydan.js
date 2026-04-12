@@ -9,6 +9,35 @@ function meydanTab(tab) {
   if (tab === 'ozel') loadOzelMesajlar();
 }
 
+function ozelSubTab(sub) {
+  document.getElementById('ozel-mesajlar').style.display = sub === 'gelen' ? 'block' : 'none';
+  document.getElementById('ozel-gonderilenler').style.display = sub === 'giden' ? 'block' : 'none';
+  document.getElementById('ozel-sub-gelen').className = 'atab' + (sub === 'gelen' ? ' on' : '');
+  document.getElementById('ozel-sub-giden').className = 'atab' + (sub === 'giden' ? ' on' : '');
+  if (sub === 'gelen') loadOzelMesajlar();
+  if (sub === 'giden') loadGonderilenler();
+}
+
+async function loadGonderilenler() {
+  var token = getToken(); if (!token) return;
+  var el = document.getElementById('ozel-gonderilenler');
+  try {
+    var resp = await fetch(API_BASE + '/api/meydan/ozel/gonderilenler', { headers: { 'Authorization': 'Bearer ' + token } });
+    var data = await resp.json();
+    if (!data.length) { el.innerHTML = '<div style="color:#555;font-size:11px">Gonderilegn mesaj yok.</div>'; return; }
+    el.innerHTML = data.map(function(m) {
+      var tarih = new Date(m.created_at).toLocaleString('tr-TR');
+      return '<div class="card" style="padding:8px 10px;margin-bottom:4px">' +
+        '<div style="display:flex;justify-content:space-between;font-size:10px">' +
+          '<span>📤 Kime: <b>' + (m.alan_adi||'?') + '</b>' + (m.baslik ? ' — ' + m.baslik : '') + '</span>' +
+          '<span style="color:#555">' + tarih + '</span>' +
+        '</div>' +
+        '<div style="font-size:10px;color:#ccc;margin-top:3px">' + escapeHtml(m.mesaj).substring(0, 200) + '</div>' +
+      '</div>';
+    }).join('');
+  } catch(e) { el.innerHTML = '<div style="color:#e74c3c">Hata</div>'; }
+}
+
 async function loadMeydanMesajlar() {
   var token = getToken(); if (!token) return;
   var el = document.getElementById('meydan-mesajlar');
@@ -51,10 +80,12 @@ async function meydanYaz() {
   } catch(e) { alert('Baglanti hatasi: ' + e.message); }
 }
 
-// Enter ile gonder
+// Enter ile gonder + sayfa init
 document.addEventListener('DOMContentLoaded', function() {
-  var inp = document.getElementById('meydan-inp');
-  if (inp) inp.addEventListener('keydown', function(e) { if (e.key === 'Enter') meydanYaz(); });
+  setTimeout(function() {
+    var inp = document.getElementById('meydan-inp');
+    if (inp) inp.addEventListener('keyup', function(e) { if (e.key === 'Enter') { e.preventDefault(); meydanYaz(); } });
+  }, 500);
 });
 
 async function loadOzelMesajlar() {
@@ -65,6 +96,10 @@ async function loadOzelMesajlar() {
     var data = await resp.json();
     var mesajlar = data.mesajlar || [];
     var okunmamis = data.okunmamis || 0;
+
+    // Badge guncelle
+    var badge = document.getElementById('ozel-badge');
+    if (badge) { if (okunmamis > 0) { badge.style.display='inline'; badge.textContent=okunmamis; } else badge.style.display='none'; }
 
     el.innerHTML =
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +

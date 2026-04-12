@@ -14,7 +14,7 @@
   <div class="main-content">
     <div style="display:flex;gap:8px;margin-bottom:12px">
       <button class="atab on" id="tab-meydan" onclick="meydanTab('meydan')">💬 Sehir Meydani</button>
-      <button class="atab" id="tab-ozel" onclick="meydanTab('ozel')">✉️ Ozel Mesajlar</button>
+      <button class="atab" id="tab-ozel" onclick="meydanTab('ozel')">✉️ Ozel Mesajlar <span id="ozel-badge" style="display:none;background:#e74c3c;color:#fff;font-size:8px;padding:1px 5px;border-radius:8px"></span></button>
     </div>
     <div id="meydan-tab" style="display:block">
       <div id="meydan-mesajlar" style="background:#0a0a0a;border:1px solid #222;border-radius:8px;padding:10px;height:400px;overflow-y:auto;margin-bottom:8px;font-size:11px"></div>
@@ -24,7 +24,12 @@
       </div>
     </div>
     <div id="ozel-tab" style="display:none">
+      <div style="display:flex;gap:6px;margin-bottom:8px">
+        <button class="atab on" id="ozel-sub-gelen" onclick="ozelSubTab('gelen')">📩 Gelenler</button>
+        <button class="atab" id="ozel-sub-giden" onclick="ozelSubTab('giden')">📤 Gonderilenler</button>
+      </div>
       <div id="ozel-mesajlar">Yukleniyor...</div>
+      <div id="ozel-gonderilenler" style="display:none">Yukleniyor...</div>
     </div>
   </div>
 </div>
