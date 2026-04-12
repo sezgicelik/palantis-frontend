@@ -39,7 +39,8 @@ function renderAyarlar(el, data) {
             '<div style="font-size:11px;color:#2ecc71;font-weight:bold">Telegram Bagli</div>' +
             '<div style="font-size:10px;color:#888">@' + (tg.kullanici_adi || '?') + '</div>' +
           '</div>' +
-          '<button class="btn-action" style="width:auto;padding:4px 12px;font-size:9px;background:#333;color:#e74c3c;margin-left:auto" onclick="telegramKopar()">Baglantiyi Kes</button>' +
+          '<button class="btn-action" style="width:auto;padding:4px 12px;font-size:9px;background:#27ae60;color:#fff;margin-left:8px" onclick="telegramTest()">Test Gonder</button>' +
+          '<button class="btn-action" style="width:auto;padding:4px 12px;font-size:9px;background:#333;color:#e74c3c;margin-left:4px" onclick="telegramKopar()">Baglantiyi Kes</button>' +
         '</div>'
       :
         '<div style="margin-bottom:8px">' +
@@ -86,6 +87,16 @@ async function telegramBagla() {
     var data = await resp.json();
     if (resp.ok) { toast('Baglanti kodu olusturuldu!'); loadAyarlar(); }
     else alert(data.error);
+  } catch(e) { alert('Hata'); }
+}
+
+async function telegramTest() {
+  var token = getToken(); if (!token) return;
+  try {
+    var resp = await fetch(API_BASE + '/api/ayarlar/telegram/test', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } });
+    var data = await resp.json();
+    if (resp.ok) toast('Test bildirimi gonderildi! Telegram\'i kontrol edin.');
+    else alert(data.error || 'Hata');
   } catch(e) { alert('Hata'); }
 }
 
