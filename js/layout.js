@@ -88,6 +88,9 @@ function renderSidebar(){
         <a href="buyucu-kulesi.html" class="menu-item sub-item${isActive('buyucu-kulesi.html')}">🗼 Büyücü Kulesi</a>
       </div>
       <a href="guild.html" class="menu-item${isActive('guild.html')}">🏰 Guild</a>
+      <a href="casus.html" class="menu-item${isActive('casus.html')}">🕵️ Casuslar</a>
+      <a href="artifact.html" class="menu-item${isActive('artifact.html')}">🧰 Artifactlar</a>
+      <a href="meydan.html" class="menu-item${isActive('meydan.html')}">💬 Sehir Meydani</a>
 
       <a href="reports.html" class="menu-item${isActive('reports.html')||isActive('activity.html')}">📜 Raporlar</a>
       <div class="submenu" id="submenu-reports" style="display:${page==='reports.html'||page==='activity.html'?'block':'none'}">

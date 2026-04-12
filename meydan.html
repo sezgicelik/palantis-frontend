@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palantis – Sehir Meydani</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div id="hudbar-mount"></div>
+<div class="layout">
+  <div id="sidebar-mount"></div>
+  <div class="main-content">
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <button class="atab on" id="tab-meydan" onclick="meydanTab('meydan')">💬 Sehir Meydani</button>
+      <button class="atab" id="tab-ozel" onclick="meydanTab('ozel')">✉️ Ozel Mesajlar</button>
+    </div>
+    <div id="meydan-tab" style="display:block">
+      <div id="meydan-mesajlar" style="background:#0a0a0a;border:1px solid #222;border-radius:8px;padding:10px;height:400px;overflow-y:auto;margin-bottom:8px;font-size:11px"></div>
+      <div style="display:flex;gap:6px">
+        <input id="meydan-inp" maxlength="500" placeholder="Mesajinizi yazin..." style="flex:1;padding:6px 10px;background:#111;border:1px solid #333;color:#ddd;border-radius:6px;font-size:11px">
+        <button class="btn-action" style="width:auto;padding:6px 14px;font-size:10px" onclick="meydanYaz()">Gonder</button>
+      </div>
+    </div>
+    <div id="ozel-tab" style="display:none">
+      <div id="ozel-mesajlar">Yukleniyor...</div>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+<script src="js/constants.js"></script><script src="js/utils.js"></script><script src="js/auth.js"></script>
+<script src="js/toast.js"></script><script src="js/theme.js"></script><script src="js/game-data.js"></script>
+<script src="js/hud.js"></script><script src="js/layout.js"></script><script src="js/page-meydan.js"></script>
+</body></html>
