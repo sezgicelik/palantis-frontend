@@ -588,7 +588,7 @@ async function loadArmyPool(){
         total_units: a.total_units || 0,
         atk: a.atk || 0,
         def: a.def || 0,
-        dizilim: { saflar: [a.formation?.on_saf || [], a.formation?.arka_saf || [], [], []] }
+        dizilim: { saflar: [a.formation?.saf_1 || a.formation?.on_saf || [], a.formation?.saf_2 || [], a.formation?.saf_3 || [], a.formation?.saf_4 || a.formation?.arka_saf || []] }
       }));
     }
 
@@ -827,8 +827,10 @@ async function saveFormation() {
       method: 'PUT',
       headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        on_saf: [...FORMATION_STATE[0], ...FORMATION_STATE[1]],
-        arka_saf: [...FORMATION_STATE[2], ...FORMATION_STATE[3]]
+        saf_1: FORMATION_STATE[0].slice(),
+        saf_2: FORMATION_STATE[1].slice(),
+        saf_3: FORMATION_STATE[2].slice(),
+        saf_4: FORMATION_STATE[3].slice()
       })
     });
     const data = await resp.json();

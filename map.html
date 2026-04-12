@@ -86,6 +86,7 @@
 <script src="js/game-data.js"></script>
 <script src="js/hud.js"></script>
 <script src="js/layout.js"></script>
+<script src="js/savas-rapor.js"></script>
 <script src="js/map-tiles.js"></script>
 <script>
 let MAP_SAYFA = 1;
@@ -366,11 +367,12 @@ function mapSecHucre(x, y) {
       (koloni.sahip_kral ? '<div><div style="color:#555;font-size:9px">İşgalci</div><div style="color:' + (TARAF_RENK[koloni.sahip_taraf]||'#888') + '">' + koloni.sahip_kral + '</div></div>' : '') +
       '<div><div style="color:#555;font-size:9px">Mesafe</div><div>' + (koloni.mesafe??'—') + '</div></div>' +
       '<div style="grid-column:1/-1;margin-top:8px;text-align:center">' +
-        (bos ? '<select id="koloni-ordu-sec" style="padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:10px;margin-right:4px"><option value="">Ordu sec...</option></select><button class="btn-action" onclick="koloniFethet('+koloni.id+')" style="padding:6px 16px;font-size:12px;width:auto">⚔️ Fethet</button>' : '') +
+        (bos ? '<select id="koloni-ordu-sec" style="padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:10px;margin-right:4px"><option value="">Ordu sec...</option></select><button class="btn-action" onclick="koloniFethet('+koloni.id+',false)" style="padding:6px 16px;font-size:12px;width:auto">⚔️ Fethet</button>' : '') +
+        (!bos && !benimMi ? '<select id="koloni-ordu-sec" style="padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:10px;margin-right:4px"><option value="">Ordu sec...</option></select><button class="btn-action" onclick="koloniFethet('+koloni.id+',true)" style="padding:6px 16px;font-size:12px;width:auto;border-color:#e74c3c;color:#ff6b6b">⚔️ Saldır</button>' : '') +
         (benimMi ? '<button class="btn-action" onclick="koloniCekil('+koloni.id+')" style="padding:6px 16px;font-size:12px;width:auto;border-color:#e74c3c;color:#e74c3c">🏳️ Çekil</button>' : '') +
       '</div>' +
       '<div id="koloni-msg" style="grid-column:1/-1;font-size:11px;text-align:center;min-height:16px"></div>';
-    if (bos) setTimeout(koloniOrdulariYukle, 100);
+    if (bos || (!bos && !benimMi)) setTimeout(koloniOrdulariYukle, 100);
   } else {
     const bolge = getBolge(x, y);
     title.textContent = '📋 Boş Alan (' + x + ':' + y + ')';
@@ -400,29 +402,61 @@ async function koloniOrdulariYukle() {
   } catch(e) {}
 }
 
-async function koloniFethet(koloniId) {
+async function koloniFethet(koloniId, sahipli) {
   const token = getToken();
   if (!token) return;
   const msgEl = document.getElementById('koloni-msg');
   const orduSel = document.getElementById('koloni-ordu-sec');
   const orduId = orduSel ? orduSel.value : '';
   if (!orduId) { if (msgEl) msgEl.innerHTML = '<span style="color:#e74c3c">Once ordu secin!</span>'; return; }
+
+  // Sahipli koloni → savas API, bos koloni → direkt fetih
+  const endpoint = sahipli
+    ? API_BASE + '/api/savas/koloni'
+    : API_BASE + '/api/koloni/' + koloniId + '/fethet';
+
+  // orduId "ordu_3" formatinda → savas API icin armies tablosundaki gercek id gerekli
+  let bodyData;
+  if (sahipli) {
+    // ORDULAR dizisinden gercek army id'yi bul
+    const orduIdx = parseInt(orduId.replace('ordu_', '')) - 1;
+    const army = (typeof ORDULAR !== 'undefined' && ORDULAR[orduIdx]) ? ORDULAR[orduIdx] : null;
+    if (!army) { if (msgEl) msgEl.innerHTML = '<span style="color:#e74c3c">Ordu bulunamadi!</span>'; return; }
+    bodyData = { orduId: army.id, koloniId: koloniId };
+  } else {
+    bodyData = { orduId: orduId };
+  }
+
   try {
-    const resp = await fetch(API_BASE + '/api/koloni/' + koloniId + '/fethet', {
+    const resp = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ orduId })
+      body: JSON.stringify(bodyData)
     });
     const data = await resp.json();
     if (resp.ok) {
-      if (msgEl) msgEl.innerHTML = '<span style="color:#2ecc71">Koloni fethedildi!</span>';
-      if (typeof showToast === 'function') showToast('Koloni fethedildi!', 'success');
-      setTimeout(() => loadMapData(), 1500);
+      if (sahipli && data.tur_detay) {
+        // Savas sonucu — rapor goster
+        showSavasRapor(data, 'saldiran', {
+          saldiranAdi: (typeof OYUNCU !== 'undefined' ? OYUNCU.kral : 'Sen'),
+          savunanAdi: 'Koloni Sahibi',
+          tip: 'koloni'
+        });
+        if (data.kazanan === 'saldiran') {
+          if (msgEl) msgEl.innerHTML = '<span style="color:#2ecc71">Savas kazanildi! Koloni fethedildi!</span>';
+        } else {
+          if (msgEl) msgEl.innerHTML = '<span style="color:#e74c3c">Savas kaybedildi!</span>';
+        }
+      } else {
+        if (msgEl) msgEl.innerHTML = '<span style="color:#2ecc71">Koloni fethedildi!</span>';
+        if (typeof showToast === 'function') showToast('Koloni fethedildi!', 'success');
+      }
+      setTimeout(function() { loadMapData(); }, 2000);
     } else {
       if (msgEl) msgEl.innerHTML = '<span style="color:#e74c3c">' + (data.error || 'Hata') + '</span>';
     }
   } catch(e) {
-    if (msgEl) msgEl.innerHTML = '<span style="color:#e74c3c">Bağlantı hatası</span>';
+    if (msgEl) msgEl.innerHTML = '<span style="color:#e74c3c">Baglanti hatasi</span>';
   }
 }
 
