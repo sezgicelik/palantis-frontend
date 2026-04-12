@@ -98,24 +98,27 @@ async function loadGameData() {
   const token = getToken();
   if (!token) return;
   try {
-    // Her yüklemede player verisini API'den çek ve localStorage'ı güncelle
+    // Tum API cagrilari paralel — hiz icin
+    const authH = { 'Authorization': 'Bearer ' + token };
+    const [pResp, resRes, prodRes, workRes, alanRes, takvimRes, armyRes, kvResp] = await Promise.all([
+      fetch(API_BASE + '/api/player/me',        { headers: authH }).catch(() => null),
+      fetch(API_BASE + '/api/game/resources',    { headers: authH }),
+      fetch(API_BASE + '/api/game/production',   { headers: authH }),
+      fetch(API_BASE + '/api/game/workers',      { headers: authH }),
+      fetch(API_BASE + '/api/game/alan',         { headers: authH }),
+      fetch(API_BASE + '/api/takvim'),
+      fetch(API_BASE + '/api/army/state',        { headers: authH }),
+      fetch(API_BASE + '/api/kervan/liste',      { headers: authH }).catch(() => null),
+    ]);
+
+    // Player verisi
     try {
-      const pResp = await fetch(API_BASE + '/api/player/me', { headers: { 'Authorization': 'Bearer ' + token } });
-      if (pResp.ok) {
+      if (pResp && pResp.ok) {
         const pData = await pResp.json();
         savePlayer(pData);
         obApplyPlayer(pData);
       }
     } catch(e) {}
-
-    const [resRes, prodRes, workRes, alanRes, takvimRes, armyRes] = await Promise.all([
-      fetch(API_BASE + '/api/game/resources', { headers: { 'Authorization': 'Bearer ' + token } }),
-      fetch(API_BASE + '/api/game/production', { headers: { 'Authorization': 'Bearer ' + token } }),
-      fetch(API_BASE + '/api/game/workers',    { headers: { 'Authorization': 'Bearer ' + token } }),
-      fetch(API_BASE + '/api/game/alan',       { headers: { 'Authorization': 'Bearer ' + token } }),
-      fetch(API_BASE + '/api/takvim'),
-      fetch(API_BASE + '/api/army/state',      { headers: { 'Authorization': 'Bearer ' + token } }),
-    ]);
     const res  = resRes.ok  ? await resRes.json()  : {};
     const prodData = prodRes.ok ? await prodRes.json() : {};
     const prod = prodData.toplam || prodData;
@@ -134,8 +137,7 @@ async function loadGameData() {
       const sehirEssek = parseInt(res.essek) || 0;
       let kervanEssek = 0;
       try {
-        const kvResp = await fetch(API_BASE + '/api/kervan/liste', { headers: { 'Authorization': 'Bearer ' + token } });
-        if (kvResp.ok) { const kvData = await kvResp.json(); kervanEssek = (kvData.kervanlar || []).reduce((s,k) => s + (k.essek_sayisi || 0), 0); }
+        if (kvResp && kvResp.ok) { const kvData = await kvResp.json(); kervanEssek = (kvData.kervanlar || []).reduce((s,k) => s + (k.essek_sayisi || 0), 0); }
       } catch(e) {}
       setText('hud-essek', sehirEssek + ' / ' + (sehirEssek + kervanEssek));
       // Sehir degeri ordu ile guncelle
