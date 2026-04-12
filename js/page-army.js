@@ -325,60 +325,119 @@ function renderOrduListe(){
   const yeniBtn = document.getElementById('ordu-yeni-btn');
   if(yeniBtn) yeniBtn.style.display = ORDULAR.length >= 5 ? 'none' : 'inline-block';
   if(ORDULAR.length === 0){
-    el.innerHTML = '<div class="card" style="text-align:center;color:#555;padding:32px">Henüz ordu kurulmamış. Önce askere köylü çevir, sonra ordu kur.</div>';
+    el.innerHTML = '<div class="card" style="text-align:center;color:#555;padding:32px">Henuz ordu kurulmamis. Once askere koylu cevir, sonra ordu kur.</div>';
     return;
   }
   const side = OYUNCU && OYUNCU.taraf === 'kotu' ? 'dark' : 'light';
-  const playerUnits = Object.values(UNITS).filter(u => u.side === side);
+  const playerUnits = Object.values(UNITS).filter(function(u){ return u.side === side && u.tier < 4; });
+  const fmt = function(n){ return (n||0).toLocaleString('tr-TR'); };
 
-  el.innerHTML = ORDULAR.map(o => {
-    // Ordudaki üniteleri dikey listele
-    const unitsHTML = (o.units||[]).filter(u=>u.adet>0).map(u => {
-      const def = UNITS[u.unite_id];
-      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:3px 0;border-bottom:1px solid #1a1a1a">
-        <span style="font-size:11px;color:#ccc">${def?.icon||'?'} ${def?.name||u.unite_id}</span>
-        <span style="display:flex;align-items:center;gap:4px">
-          <span style="font-size:11px;color:#d4af37;font-weight:bold">×${u.adet}</span>
-          <button style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:12px;padding:0 2px" onclick="orduUniteCircar(${o.id},'${u.unite_id}',1)" title="1 çıkar">−</button>
-        </span>
-      </div>`;
+  el.innerHTML = ORDULAR.map(function(o){
+    // Tum unite tipleri listesi (taraf bazli)
+    var allUnits = playerUnits.slice();
+    // Ejderhalar da ekle
+    var dragonUnits = Object.values(UNITS).filter(function(u){ return u.side === side && u.tier === 4; });
+    allUnits = allUnits.concat(dragonUnits);
+
+    // Ordudaki unite map
+    var unitMap = {};
+    (o.units||[]).forEach(function(u){ unitMap[u.unite_id] = u.adet; });
+
+    // Sag taraf: tum uniteler listesi
+    var uniteListeHTML = allUnits.map(function(u){
+      var adet = unitMap[u.id] || 0;
+      var renk = adet > 0 ? '#d4af37' : '#444';
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:2px 0;font-size:11px">' +
+        '<span style="color:' + (adet > 0 ? '#ccc' : '#555') + '">' + u.icon + ' ' + u.name + '</span>' +
+        '<span style="color:' + renk + ';font-weight:' + (adet > 0 ? 'bold' : 'normal') + '">' + fmt(adet) + '</span>' +
+      '</div>';
     }).join('');
 
-    // Havuzdan eklenebilir üniteler
-    const poolUnits = playerUnits.filter(u => u.count > 0);
-    const poolHTML = poolUnits.length > 0 ? `
-      <div style="margin-top:6px;border-top:1px solid #222;padding-top:6px">
-        <div style="color:#888;font-size:9px;margin-bottom:4px">Havuzdan ekle:</div>
-        <div style="display:flex;gap:4px;flex-wrap:wrap">
-        ${poolUnits.map(u => `
-          <button class="btn ghost" style="font-size:9px;padding:2px 6px" onclick="orduUniteEkle(${o.id},'${u.id}',1)">
-            ${u.icon} ${u.name} (${u.count})
-          </button>
-        `).join('')}
-        </div>
-      </div>` : '';
+    // Ordu maasi hesapla
+    var toplamMaas = 0;
+    (o.units||[]).forEach(function(u){
+      var def = UNITS[u.unite_id];
+      if(def) toplamMaas += (def.maas||0) * u.adet;
+    });
 
-    return `
-    <div class="card" style="padding:14px;margin-bottom:12px;border-left:3px solid #d4af37">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:8px">
-        <div style="font-size:14px;font-weight:bold;color:#d4af37">${o.isim}</div>
-        <div style="display:flex;gap:4px">
-          <button class="btn ghost" style="font-size:10px;padding:3px 8px" onclick="armyTab('formation');document.getElementById('formation-army-select').value='${o.id}';loadFormationForArmy()">Dizilim</button>
-          <button class="btn ghost" style="font-size:10px;padding:3px 8px;border-color:#c0392b;color:#c0392b" onclick="orduSil(${o.id})">Dagit</button>
-        </div>
-      </div>
-      <div style="display:flex;gap:12px;font-size:12px;color:#aaa;margin-bottom:8px;flex-wrap:wrap">
-        <span style="color:#e74c3c">⚔️ ATK: ${(o.atk||0).toLocaleString()}</span>
-        <span style="color:#3498db">🛡️ DEF: ${(o.def||0).toLocaleString()}</span>
-        <span>👥 ${o.total_units||0} unite</span>
-        ${o.total_units > 0 ? `<span style="color:#f1c40f;font-weight:bold">Reyting: %${o.reyting||0}</span>` : ''}
-      </div>
-      <div style="flex:1">
-        ${unitsHTML || '<div style="color:#555;font-size:11px">Unite yok</div>'}
-      </div>
-      ${poolHTML}
-    </div>`;
+    // Havuzdan eklenebilir uniteler
+    var poolUnits = playerUnits.filter(function(u){ return u.count > 0; });
+    var poolDragons = dragonUnits.filter(function(u){ return u.count > 0; });
+    var allPool = poolUnits.concat(poolDragons);
+
+    return '<div class="card" style="padding:0;margin-bottom:14px;border:1px solid #333;border-radius:8px;overflow:hidden">' +
+      // Baslik bar
+      '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(212,175,55,.08);border-bottom:1px solid #333">' +
+        '<div style="font-family:Cinzel,serif;font-size:14px;font-weight:bold;color:#d4af37">' + o.isim + '</div>' +
+        '<div style="font-size:11px;color:#aaa">ATK: <span style="color:#e74c3c">' + fmt(o.atk) + '</span> - DEF: <span style="color:#3498db">' + fmt(o.def) + '</span></div>' +
+        '<div style="font-size:11px;color:#aaa">Toplam Asker: <span style="color:#d4af37">' + fmt(o.total_units) + '</span></div>' +
+      '</div>' +
+      // Icerik: 3 sutun
+      '<div style="display:grid;grid-template-columns:1fr auto 1fr;gap:0">' +
+        // Sol: Ordu Bilgileri
+        '<div style="padding:10px 12px;border-right:1px solid #222">' +
+          '<div style="font-size:10px;color:#888;margin-bottom:6px;font-weight:bold">Ordu Bilgileri</div>' +
+          '<div style="font-size:11px;color:#ccc;line-height:1.8">' +
+            '<div>⚔️ ATK: <span style="color:#e74c3c;font-weight:bold">' + fmt(o.atk) + '</span></div>' +
+            '<div>🛡️ DEF: <span style="color:#3498db;font-weight:bold">' + fmt(o.def) + '</span></div>' +
+            '<div>👥 Toplam Asker: <span style="color:#d4af37">' + fmt(o.total_units) + '</span></div>' +
+            '<div>💰 Maas/Gun: <span style="color:#f1c40f">' + fmt(toplamMaas) + '</span></div>' +
+            '<div>📍 Yer: <span style="color:#2ecc71">Sehirde</span></div>' +
+            '<div>📊 Reyting: <span style="color:#f1c40f">%' + (o.reyting||0) + '</span></div>' +
+          '</div>' +
+          // Aksiyonlar
+          '<div style="margin-top:10px;display:flex;flex-direction:column;gap:4px">' +
+            '<button class="btn ghost" style="font-size:10px;padding:4px 8px;width:100%" onclick="orduSil(' + o.id + ')">Ordumu Sil</button>' +
+          '</div>' +
+        '</div>' +
+        // Orta: Aksiyon butonlari
+        '<div style="padding:10px 12px;border-right:1px solid #222;min-width:130px">' +
+          '<div style="font-size:10px;color:#888;margin-bottom:6px;font-weight:bold">Islemler</div>' +
+          '<div style="display:flex;flex-direction:column;gap:6px">' +
+            '<button class="btn ghost" style="font-size:10px;padding:5px 8px" onclick="armyTab(\'formation\');document.getElementById(\'formation-army-select\').value=\'' + o.id + '\';loadFormationForArmy()">⚔️ Ordu Dizilimi</button>' +
+            '<button class="btn ghost" style="font-size:10px;padding:5px 8px" onclick="toggleUniteYonetimi(' + o.id + ')">🗡️ Unite Yonetimi</button>' +
+          '</div>' +
+        '</div>' +
+        // Sag: Unite listesi
+        '<div style="padding:10px 12px">' +
+          '<div style="font-size:10px;color:#888;margin-bottom:6px;font-weight:bold">Uniteler</div>' +
+          uniteListeHTML +
+        '</div>' +
+      '</div>' +
+      // Alt: Unite yonetimi (gizli, toggle ile acilir)
+      '<div id="unite-yon-' + o.id + '" style="display:none;padding:10px 12px;border-top:1px solid #333;background:rgba(0,0,0,.2)">' +
+        '<div style="font-size:10px;color:#888;margin-bottom:6px;font-weight:bold">Havuzdan Unite Ekle / Cikar</div>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:4px">' +
+          allPool.map(function(u){
+            return '<div style="display:flex;align-items:center;gap:2px;background:#111;border:1px solid #333;border-radius:4px;padding:2px 6px">' +
+              '<span style="font-size:10px;color:#ccc">' + u.icon + ' ' + u.name + ' (' + u.count + ')</span>' +
+              '<button style="background:none;border:none;color:#2ecc71;cursor:pointer;font-size:14px;padding:0 2px" onclick="orduUniteEkle(' + o.id + ',\'' + u.id + '\',1)" title="1 ekle">+</button>' +
+              '<button style="background:none;border:none;color:#2ecc71;cursor:pointer;font-size:10px;padding:0 2px" onclick="orduUniteEkle(' + o.id + ',\'' + u.id + '\',' + u.count + ')" title="Tumunu ekle">++</button>' +
+            '</div>';
+          }).join('') +
+          (allPool.length === 0 ? '<span style="color:#555;font-size:10px">Havuzda unite yok</span>' : '') +
+        '</div>' +
+        // Ordudaki uniteleri cikarma
+        ((o.units||[]).filter(function(u){return u.adet>0;}).length > 0 ?
+          '<div style="margin-top:8px;font-size:10px;color:#888;margin-bottom:4px">Ordudan Cikar:</div>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:4px">' +
+            (o.units||[]).filter(function(u){return u.adet>0;}).map(function(u){
+              var def = UNITS[u.unite_id];
+              return '<div style="display:flex;align-items:center;gap:2px;background:#111;border:1px solid #333;border-radius:4px;padding:2px 6px">' +
+                '<span style="font-size:10px;color:#ccc">' + (def?.icon||'') + ' ' + (def?.name||u.unite_id) + ' (' + u.adet + ')</span>' +
+                '<button style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:14px;padding:0 2px" onclick="orduUniteCircar(' + o.id + ',\'' + u.unite_id + '\',1)" title="1 cikar">-</button>' +
+                '<button style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:10px;padding:0 2px" onclick="orduUniteCircar(' + o.id + ',\'' + u.unite_id + '\',' + u.adet + ')" title="Tumunu cikar">--</button>' +
+              '</div>';
+            }).join('') +
+          '</div>' : '') +
+      '</div>' +
+    '</div>';
   }).join('');
+}
+
+function toggleUniteYonetimi(armyId) {
+  var el = document.getElementById('unite-yon-' + armyId);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 
 async function orduUniteEkle(armyId, uniteId, adet){
