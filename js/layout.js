@@ -87,7 +87,7 @@ function renderSidebar(){
         <a href="magic.html" class="menu-item sub-item${isActive('magic.html')}">🕯️ Tapınak & Mana</a>
         <a href="buyucu-kulesi.html" class="menu-item sub-item${isActive('buyucu-kulesi.html')}">🗼 Büyücü Kulesi</a>
       </div>
-      <a href="gorev.html" class="menu-item${isActive('gorev.html')}">📜 Gorevler</a>
+      <a href="gorev.html" class="menu-item${isActive('gorev.html')}">📜 Gorevler <span id="gorev-badge" style="display:none;background:#e74c3c;color:#fff;font-size:8px;padding:1px 5px;border-radius:8px;margin-left:4px"></span></a>
       <a href="guild.html" class="menu-item${isActive('guild.html')}">🏰 Guild</a>
       <a href="casus.html" class="menu-item${isActive('casus.html')}">🕵️ Casuslar</a>
       <a href="artifact.html" class="menu-item${isActive('artifact.html')}">🧰 Artifactlar</a>

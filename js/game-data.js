@@ -293,6 +293,20 @@ async function loadGameData() {
     if(typeof loadTrainingQueue === 'function') await loadTrainingQueue();
     if(typeof loadArmyPool === 'function') await loadArmyPool();
 
+    // Gorev badge kontrolu
+    try {
+      var gResp = await fetch(API_BASE + '/api/gorev/liste', { headers: authH });
+      if (gResp.ok) {
+        var gData = await gResp.json();
+        var bekleyen = (gData.gorevler || []).filter(function(g){ return g.durum === 'tamamlandi'; }).length;
+        var badge = document.getElementById('gorev-badge');
+        if (badge) {
+          if (bekleyen > 0) { badge.style.display = 'inline'; badge.textContent = bekleyen; }
+          else badge.style.display = 'none';
+        }
+      }
+    } catch(e){}
+
   } catch(e) {
     console.error('[loadGameData]', e);
   }
