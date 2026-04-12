@@ -1,33 +1,37 @@
 :root{
-  --race-color:#f1c40f;
-  --dark-bg:#0b0b0b;
-  --card-bg:#161616;
-  --sidebar-bg:#111111;
-  --hud-bg:#0d0d0d;
+  --race-color:#d4a257;
+  --dark-bg:#0a0a0f;
+  --card-bg:rgba(18,18,28,0.82);
+  --sidebar-bg:rgba(15,15,22,0.95);
+  --hud-bg:rgba(4,4,8,0.96);
   --sidebar-w:260px;
-  --theme-glow: rgba(241,196,15,0.08);
+  --theme-glow: rgba(212,162,87,0.08);
   --glass-tint: rgba(255,255,255,0.03);
+  --text:#e8dcc8;
+  --text-dim:rgba(232,220,200,0.4);
+  --border:rgba(255,255,255,0.06);
+  --gold:#d4a257;
 }
 
-/* ===== TEMALAR: AYDINLIK TARAF — Sarı ana ton, ırk bazlı farklı vurgu ===== */
-/* İnsan: Saf altın sarısı */
-body.theme-insan   { --dark-bg:#0d0a00; --card-bg:rgba(26,20,0,0.75); --sidebar-bg:rgba(20,15,0,0.92); --hud-bg:rgba(16,12,0,0.88); --race-color:#f1c40f; --theme-glow:rgba(241,196,15,0.12); --glass-tint:rgba(241,196,15,0.04); }
-/* Elf: Zümrüt yeşili-altın */
-body.theme-elf     { --dark-bg:#060a00; --card-bg:rgba(14,22,0,0.75); --sidebar-bg:rgba(10,17,0,0.92); --hud-bg:rgba(7,13,0,0.88); --race-color:#8cc63f; --theme-glow:rgba(140,198,63,0.12); --glass-tint:rgba(140,198,63,0.04); }
-/* Cüce: Bakır/bronz */
-body.theme-cuce    { --dark-bg:#0d0600; --card-bg:rgba(28,14,0,0.75); --sidebar-bg:rgba(22,10,0,0.92); --hud-bg:rgba(16,8,0,0.88); --race-color:#cd7f32; --theme-glow:rgba(205,127,50,0.12); --glass-tint:rgba(205,127,50,0.04); }
-/* Bucukluk: Gül altını / sıcak amber */
-body.theme-bucukluk{ --dark-bg:#0d0400; --card-bg:rgba(26,10,4,0.75); --sidebar-bg:rgba(20,8,2,0.92); --hud-bg:rgba(15,6,1,0.88); --race-color:#e8a87c; --theme-glow:rgba(232,168,124,0.12); --glass-tint:rgba(232,168,124,0.04); }
+/* ===== TEMALAR: AYDINLIK TARAF ===== */
+/* Insan: Altin — dengeli, klasik */
+body.theme-insan   { --dark-bg:#1a1608; --card-bg:rgba(26,22,8,0.82); --sidebar-bg:rgba(20,16,4,0.95); --hud-bg:rgba(12,10,4,0.96); --race-color:#d4a257; --theme-glow:rgba(212,162,87,0.12); --glass-tint:rgba(212,162,87,0.04); }
+/* Elf: Orman yesili */
+body.theme-elf     { --dark-bg:#0a160a; --card-bg:rgba(10,22,10,0.82); --sidebar-bg:rgba(6,16,6,0.95); --hud-bg:rgba(4,12,4,0.96); --race-color:#4CAF50; --theme-glow:rgba(76,175,80,0.12); --glass-tint:rgba(76,175,80,0.04); }
+/* Cuce: Turuncu — madenci, dayanikli */
+body.theme-cuce    { --dark-bg:#1a1205; --card-bg:rgba(26,18,5,0.82); --sidebar-bg:rgba(20,14,3,0.95); --hud-bg:rgba(14,10,2,0.96); --race-color:#FF9800; --theme-glow:rgba(255,152,0,0.12); --glass-tint:rgba(255,152,0,0.04); }
+/* Bucukluk: Acik yesil — becerikli, sinsi */
+body.theme-bucukluk{ --dark-bg:#0f1608; --card-bg:rgba(15,22,8,0.82); --sidebar-bg:rgba(10,16,4,0.95); --hud-bg:rgba(7,12,3,0.96); --race-color:#8BC34A; --theme-glow:rgba(139,195,74,0.12); --glass-tint:rgba(139,195,74,0.04); }
 
-/* ===== TEMALAR: KARANLIK TARAF — Lacivert ana ton, ırk bazlı farklı vurgu ===== */
-/* Kara Elf: Mor-lacivert (büyü) */
-body.theme-kara_elf { --dark-bg:#060418; --card-bg:rgba(12,8,40,0.78); --sidebar-bg:rgba(8,5,32,0.92); --hud-bg:rgba(6,3,24,0.90); --race-color:#9370f7; --theme-glow:rgba(147,112,247,0.16); --glass-tint:rgba(147,112,247,0.05); }
-/* Ork: Zehir yeşili-lacivert */
-body.theme-ork      { --dark-bg:#000a12; --card-bg:rgba(0,16,32,0.78); --sidebar-bg:rgba(0,12,26,0.92); --hud-bg:rgba(0,8,20,0.90); --race-color:#3dc4b0; --theme-glow:rgba(61,196,176,0.16); --glass-tint:rgba(61,196,176,0.05); }
-/* Ogre: Çelik mavisi */
-body.theme-ogre_irk { --dark-bg:#040810; --card-bg:rgba(8,16,34,0.78); --sidebar-bg:rgba(5,12,28,0.92); --hud-bg:rgba(3,8,20,0.90); --race-color:#6b9fd4; --theme-glow:rgba(107,159,212,0.16); --glass-tint:rgba(107,159,212,0.05); }
-/* Undead: Buz mavisi */
-body.theme-undead   { --dark-bg:#020812; --card-bg:rgba(4,14,32,0.78); --sidebar-bg:rgba(2,10,26,0.92); --hud-bg:rgba(1,7,20,0.90); --race-color:#8ab4f8; --theme-glow:rgba(138,180,248,0.16); --glass-tint:rgba(138,180,248,0.05); }
+/* ===== TEMALAR: KARANLIK TARAF ===== */
+/* Kara Elf: Mor — mistik, buyu odakli */
+body.theme-kara_elf { --dark-bg:#140a16; --card-bg:rgba(20,10,22,0.82); --sidebar-bg:rgba(14,6,16,0.95); --hud-bg:rgba(10,4,12,0.96); --race-color:#9C27B0; --theme-glow:rgba(156,39,176,0.14); --glass-tint:rgba(156,39,176,0.05); }
+/* Ork: Kirmizi — agresif, saldirgan */
+body.theme-ork      { --dark-bg:#1a0a08; --card-bg:rgba(26,10,8,0.82); --sidebar-bg:rgba(20,6,4,0.95); --hud-bg:rgba(14,4,3,0.96); --race-color:#f44336; --theme-glow:rgba(244,67,54,0.14); --glass-tint:rgba(244,67,54,0.05); }
+/* Ogre: Kahverengi — devasa, tank */
+body.theme-ogre_irk { --dark-bg:#160f0a; --card-bg:rgba(22,15,10,0.82); --sidebar-bg:rgba(16,10,6,0.95); --hud-bg:rgba(12,8,4,0.96); --race-color:#795548; --theme-glow:rgba(121,85,72,0.14); --glass-tint:rgba(121,85,72,0.05); }
+/* Undead: Gri-mavi — olumlu, soguk */
+body.theme-undead   { --dark-bg:#0a0f14; --card-bg:rgba(10,15,20,0.82); --sidebar-bg:rgba(6,10,16,0.95); --hud-bg:rgba(4,8,12,0.96); --race-color:#607D8B; --theme-glow:rgba(96,125,139,0.14); --glass-tint:rgba(96,125,139,0.05); }
 
 /* ===== GENEL ===== */
 body{
