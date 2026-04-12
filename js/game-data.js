@@ -232,12 +232,12 @@ async function loadGameData() {
     setText('hud-mana-kirmizi', Math.floor(RES.mana_kirmizi || 0));
     setText('hud-mana-mavi',    Math.floor(RES.mana_mavi || 0));
     setText('hud-mana-yesil',   Math.floor(RES.mana_yesil || 0));
-    // Mana rate: her worshipper 0.1/gün
+    // Mana rate: production API'den gelen toplam degeri kullan (buyu+irk+gel carpanlari dahil)
     if(typeof setRate==='function') {
-      setRate('hud-mana-beyaz-g',   (parseInt(work?.worshipper_beyaz)||0) * 0.1);
-      setRate('hud-mana-kirmizi-g', (parseInt(work?.worshipper_kirmizi)||0) * 0.1);
-      setRate('hud-mana-mavi-g',    (parseInt(work?.worshipper_mavi)||0) * 0.1);
-      setRate('hud-mana-yesil-g',   (parseInt(work?.worshipper_yesil)||0) * 0.1);
+      setRate('hud-mana-beyaz-g',   prod.mana_beyaz ?? (parseInt(work?.worshipper_beyaz)||0) * 0.1);
+      setRate('hud-mana-kirmizi-g', prod.mana_kirmizi ?? (parseInt(work?.worshipper_kirmizi)||0) * 0.1);
+      setRate('hud-mana-mavi-g',    prod.mana_mavi ?? (parseInt(work?.worshipper_mavi)||0) * 0.1);
+      setRate('hud-mana-yesil-g',   prod.mana_yesil ?? (parseInt(work?.worshipper_yesil)||0) * 0.1);
     }
 
     // Nufus & Isciler
