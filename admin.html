@@ -67,6 +67,7 @@
     <button onclick="switchTab('buyu',this)">Buyu Dukkani</button>
     <button onclick="switchTab('irklar',this)">Irk Bonuslari</button>
     <button onclick="switchTab('map',this)">Harita & Koloni</button>
+    <button onclick="switchTab('artifact',this)">Artifactlar</button>
   </div>
 
   <!-- CRON TAB -->
@@ -355,6 +356,40 @@
   </div>
 
   <!-- MAP & KOLONI TAB -->
+  <!-- ARTIFACT TAB -->
+  <div id="tab-artifact" class="panel">
+    <div class="card">
+      <h3>Oyuncuya Artifact Ver</h3>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+        <label style="font-size:11px;color:#888">Player ID:</label>
+        <input id="art-player-id" type="number" style="width:80px;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">
+        <label style="font-size:11px;color:#888">Adet:</label>
+        <input id="art-adet" type="number" value="3" style="width:60px;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">
+        <button onclick="adminArtifactHepsiniVer()" style="padding:5px 14px;background:#d4af37;color:#000;border:none;border-radius:4px;cursor:pointer;font-size:11px;font-weight:bold">TUM ARTIFACTLARI VER</button>
+        <span id="art-ver-msg" style="font-size:11px;min-width:100px"></span>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+        <label style="font-size:11px;color:#888">Tek Artifact:</label>
+        <select id="art-tek-select" style="padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:10px">
+          <option value="">Artifact sec...</option>
+        </select>
+        <button onclick="adminArtifactTekVer()" style="padding:5px 14px;background:#27ae60;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:11px">Ver</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Artifact Tanimlari — Cag Bazli Etkiler</h3>
+      <div id="art-tanimlar" style="font-size:10px">Yukleniyor...</div>
+    </div>
+    <div class="card">
+      <h3>Oyuncu Envanteri</h3>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+        <input id="art-env-pid" type="number" placeholder="Player ID" style="width:80px;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">
+        <button onclick="adminArtifactEnvanter()" style="padding:5px 12px;background:#333;color:#ddd;border:1px solid #555;border-radius:4px;cursor:pointer;font-size:11px">Goster</button>
+      </div>
+      <div id="art-envanter" style="font-size:10px"></div>
+    </div>
+  </div>
+
   <div id="tab-map" class="panel">
     <div class="card">
       <h3>Harita Boyutu</h3>
@@ -442,6 +477,7 @@ function switchTab(tab, el) {
   if (tab === 'market-cfg') loadMarketConfig();
   if (tab === 'buyu') loadBuyuConfig();
   if (tab === 'irklar') loadIrkBonuslari();
+  if (tab === 'artifact') loadArtifactAdmin();
 }
 
 function hdr() { return { 'x-admin-secret': SECRET, 'Content-Type': 'application/json' }; }
@@ -1175,6 +1211,103 @@ async function loadKoloniList() {
       <td>${k.sahip_kral||'-'}</td><td>${bitis}</td>
     </tr>`;
   }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--muted)">Koloni yok</td></tr>';
+}
+
+// ═══ ARTIFACT ADMIN ═══
+async function loadArtifactAdmin() {
+  try {
+    const resp = await fetch(API + '/api/admin/artifact-tanimlar', { headers: hdr() });
+    const data = await resp.json();
+    const tanimlar = data.tanimlar || {};
+    const carpanlar = data.cag_carpanlar || {};
+
+    // Dropdown doldur
+    const sel = document.getElementById('art-tek-select');
+    sel.innerHTML = '<option value="">Artifact sec...</option>' +
+      Object.entries(tanimlar).map(([id, t]) => '<option value="' + id + '">' + t.ikon + ' ' + t.isim + '</option>').join('');
+
+    // Cag bazli tablo
+    const el = document.getElementById('art-tanimlar');
+    el.innerHTML = '<div style="margin-bottom:8px;color:#888">Cag carpanlari: ' +
+      Object.entries(carpanlar).map(([c, v]) => 'C' + c + '=x' + v).join(', ') + '</div>' +
+      '<table style="width:100%;border-collapse:collapse;font-size:10px">' +
+        '<thead><tr style="background:#1a1a1a">' +
+          '<th style="padding:4px 6px;text-align:left;border:1px solid #333">Artifact</th>' +
+          '<th style="padding:4px;border:1px solid #333">Sure</th>' +
+          '<th style="padding:4px;border:1px solid #333;color:#e74c3c">C1 (x0.2)</th>' +
+          '<th style="padding:4px;border:1px solid #333;color:#e67e22">C2 (x0.4)</th>' +
+          '<th style="padding:4px;border:1px solid #333;color:#f1c40f">C3 (x0.6)</th>' +
+          '<th style="padding:4px;border:1px solid #333;color:#2ecc71">C4 (x0.8)</th>' +
+          '<th style="padding:4px;border:1px solid #333;color:#3498db">C5 (x1.0)</th>' +
+        '</tr></thead><tbody>' +
+        Object.entries(tanimlar).map(([id, t]) => {
+          var etkiCols = '';
+          for (var c = 1; c <= 5; c++) {
+            var ce = t.cag_etkileri[c] || {};
+            var eStr = Object.entries(ce).map(([k,v]) => typeof v === 'number' ? k + ':' + v.toLocaleString('tr-TR') : k).join(', ');
+            etkiCols += '<td style="padding:3px 4px;border:1px solid #222;color:#ccc">' + eStr + '</td>';
+          }
+          return '<tr>' +
+            '<td style="padding:3px 6px;border:1px solid #222">' + t.ikon + ' ' + t.isim + '</td>' +
+            '<td style="padding:3px 4px;border:1px solid #222;text-align:center">' + (t.sure > 0 ? t.sure + ' PG' : 'Anlik') + '</td>' +
+            etkiCols +
+          '</tr>';
+        }).join('') +
+      '</tbody></table>';
+  } catch(e) {
+    document.getElementById('art-tanimlar').innerHTML = '<span style="color:#e74c3c">Hata: ' + e.message + '</span>';
+  }
+}
+
+async function adminArtifactHepsiniVer() {
+  var pid = document.getElementById('art-player-id').value;
+  var adet = document.getElementById('art-adet').value || 3;
+  var msg = document.getElementById('art-ver-msg');
+  if (!pid) { msg.innerHTML = '<span style="color:#e74c3c">Player ID girin</span>'; return; }
+  try {
+    var resp = await fetch(API + '/api/admin/artifact-hepsini-ver', {
+      method: 'POST', headers: hdr(),
+      body: JSON.stringify({ player_id: parseInt(pid), adet: parseInt(adet) })
+    });
+    var data = await resp.json();
+    msg.innerHTML = '<span style="color:#2ecc71">' + (data.mesaj || 'OK') + '</span>';
+  } catch(e) { msg.innerHTML = '<span style="color:#e74c3c">Hata</span>'; }
+}
+
+async function adminArtifactTekVer() {
+  var pid = document.getElementById('art-player-id').value;
+  var artId = document.getElementById('art-tek-select').value;
+  var adet = document.getElementById('art-adet').value || 1;
+  var msg = document.getElementById('art-ver-msg');
+  if (!pid || !artId) { msg.innerHTML = '<span style="color:#e74c3c">Player ID ve artifact secin</span>'; return; }
+  try {
+    var resp = await fetch(API + '/api/admin/artifact-ver', {
+      method: 'POST', headers: hdr(),
+      body: JSON.stringify({ player_id: parseInt(pid), artifact_id: artId, adet: parseInt(adet) })
+    });
+    var data = await resp.json();
+    msg.innerHTML = '<span style="color:#2ecc71">' + (data.mesaj || 'OK') + '</span>';
+  } catch(e) { msg.innerHTML = '<span style="color:#e74c3c">Hata</span>'; }
+}
+
+async function adminArtifactEnvanter() {
+  var pid = document.getElementById('art-env-pid').value;
+  var el = document.getElementById('art-envanter');
+  if (!pid) { el.innerHTML = '<span style="color:#e74c3c">Player ID girin</span>'; return; }
+  try {
+    var resp = await fetch(API + '/api/admin/artifact-envanter/' + pid, { headers: hdr() });
+    var data = await resp.json();
+    if (!data.length) { el.innerHTML = '<span style="color:#888">Bu oyuncuda artifact yok</span>'; return; }
+    el.innerHTML = '<table style="width:100%;border-collapse:collapse">' +
+      '<thead><tr style="background:#1a1a1a"><th style="padding:3px 6px;border:1px solid #333;text-align:left">Artifact</th><th style="padding:3px;border:1px solid #333">Adet</th><th style="padding:3px;border:1px solid #333">Aktif</th><th style="padding:3px;border:1px solid #333">Bitis</th></tr></thead><tbody>' +
+      data.map(function(a) {
+        return '<tr><td style="padding:3px 6px;border:1px solid #222">' + a.artifact_id + '</td>' +
+          '<td style="padding:3px;border:1px solid #222;text-align:center;color:#d4af37">' + a.adet + '</td>' +
+          '<td style="padding:3px;border:1px solid #222;text-align:center">' + (a.aktif ? '✅' : '—') + '</td>' +
+          '<td style="padding:3px;border:1px solid #222;text-align:center;font-size:9px">' + (a.aktif_bitis ? new Date(a.aktif_bitis).toLocaleString('tr-TR') : '—') + '</td></tr>';
+      }).join('') +
+    '</tbody></table>';
+  } catch(e) { el.innerHTML = '<span style="color:#e74c3c">Hata</span>'; }
 }
 </script>
 </body>
