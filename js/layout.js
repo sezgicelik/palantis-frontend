@@ -101,6 +101,8 @@ function renderSidebar(){
         <a href="reports.html?tab=ekonomi" class="menu-item sub-item">💰 Ekonomi Raporları</a>
       </div>
 
+      <a href="ayarlar.html" class="menu-item${isActive('ayarlar.html')}">⚙️ Ayarlar</a>
+
       <!-- Logout -->
       <div style="margin-top:auto;padding:12px 10px;border-top:1px solid #1a1a1a">
         <button onclick="logoutGame()" style="width:100%;padding:9px;background:#1a0a0a;border:1px solid #3a1a1a;color:#c0392b;border-radius:4px;cursor:pointer;font-size:13px;letter-spacing:0.5px;transition:background .2s"
