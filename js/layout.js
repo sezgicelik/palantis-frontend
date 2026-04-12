@@ -80,6 +80,8 @@ function renderSidebar(){
         <div class="menu-item sub-item army-sub" data-atab="upgrades" onclick="armyTab('upgrades',this)">📈 Geliştirmeler</div>
       </div>
 
+      <a href="mezarlik.html" class="menu-item${isActive('mezarlik.html')}">💀 Mezarlık</a>
+
       <a href="magic.html" class="menu-item${isActive('magic.html')||isActive('buyucu-kulesi.html')}">🧙 Büyüler</a>
       <div class="submenu" id="submenu-magic" style="display:${page==='magic.html'||page==='buyucu-kulesi.html'?'block':'none'}">
         <a href="magic.html" class="menu-item sub-item${isActive('magic.html')}">🕯️ Tapınak & Mana</a>
