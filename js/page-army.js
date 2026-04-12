@@ -3,6 +3,13 @@
    Extracted from index.html
 ══════════════════════════════════ */
 
+// Unite gorsel helper: resim varsa img, yoksa emoji
+function unitIcon(u, size) {
+  size = size || 32;
+  if (u && u.img) return '<img src="' + u.img + '" alt="' + (u.name||'') + '" style="width:' + size + 'px;height:' + size + 'px;object-fit:cover;border-radius:4px;vertical-align:middle">';
+  return '<span style="font-size:' + size + 'px;line-height:1">' + (u ? u.icon || '?' : '?') + '</span>';
+}
+
 /* -- ORDU SEKMESi -- */
 function armyTab(tab, el){
   document.querySelectorAll('.army-section').forEach(s=>s.style.display='none');
@@ -348,7 +355,7 @@ function renderOrduListe(){
       var adet = unitMap[u.id] || 0;
       var renk = adet > 0 ? '#d4af37' : '#444';
       return '<div style="display:flex;justify-content:space-between;align-items:center;padding:2px 0;font-size:11px">' +
-        '<span style="color:' + (adet > 0 ? '#ccc' : '#555') + '">' + u.icon + ' ' + u.name + '</span>' +
+        '<span style="display:flex;align-items:center;gap:4px;color:' + (adet > 0 ? '#ccc' : '#555') + '">' + unitIcon(u, 20) + ' ' + u.name + '</span>' +
         '<span style="color:' + renk + ';font-weight:' + (adet > 0 ? 'bold' : 'normal') + '">' + fmt(adet) + '</span>' +
       '</div>';
     }).join('');
@@ -410,7 +417,7 @@ function renderOrduListe(){
         '<div style="display:flex;flex-wrap:wrap;gap:4px">' +
           allPool.map(function(u){
             return '<div style="display:flex;align-items:center;gap:2px;background:#111;border:1px solid #333;border-radius:4px;padding:2px 6px">' +
-              '<span style="font-size:10px;color:#ccc">' + u.icon + ' ' + u.name + ' (' + u.count + ')</span>' +
+              '<span style="display:flex;align-items:center;gap:2px;font-size:10px;color:#ccc">' + unitIcon(u, 16) + ' ' + u.name + ' (' + u.count + ')</span>' +
               '<button style="background:none;border:none;color:#2ecc71;cursor:pointer;font-size:14px;padding:0 2px" onclick="orduUniteEkle(' + o.id + ',\'' + u.id + '\',1)" title="1 ekle">+</button>' +
               '<button style="background:none;border:none;color:#2ecc71;cursor:pointer;font-size:10px;padding:0 2px" onclick="orduUniteEkle(' + o.id + ',\'' + u.id + '\',' + u.count + ')" title="Tumunu ekle">++</button>' +
             '</div>';
@@ -424,7 +431,7 @@ function renderOrduListe(){
             (o.units||[]).filter(function(u){return u.adet>0;}).map(function(u){
               var def = UNITS[u.unite_id];
               return '<div style="display:flex;align-items:center;gap:2px;background:#111;border:1px solid #333;border-radius:4px;padding:2px 6px">' +
-                '<span style="font-size:10px;color:#ccc">' + (def?.icon||'') + ' ' + (def?.name||u.unite_id) + ' (' + u.adet + ')</span>' +
+                '<span style="display:flex;align-items:center;gap:2px;font-size:10px;color:#ccc">' + unitIcon(def, 16) + ' ' + (def?.name||u.unite_id) + ' (' + u.adet + ')</span>' +
                 '<button style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:14px;padding:0 2px" onclick="orduUniteCircar(' + o.id + ',\'' + u.unite_id + '\',1)" title="1 cikar">-</button>' +
                 '<button style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:10px;padding:0 2px" onclick="orduUniteCircar(' + o.id + ',\'' + u.unite_id + '\',' + u.adet + ')" title="Tumunu cikar">--</button>' +
               '</div>';
@@ -516,7 +523,7 @@ function renderUnitGrid(side, gridId){
     div.addEventListener('dragend', ()=>div.style.opacity='1');
 
     div.innerHTML = `
-      <div class="uico" style="background:${bgCol};width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${u.icon}</div>
+      <div class="uico" style="background:${bgCol};width:42px;height:42px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">${unitIcon(u, 42)}</div>
       <div style="min-width:140px;flex-shrink:0">
         <div style="font-family:'Cinzel',serif;font-size:12px;color:#eee;font-weight:600">
           ${u.name} ${u.saldiriCarpan>1?`<span style="color:#e74c3c;font-size:10px">\u00d7${u.saldiriCarpan}</span>`:''}
@@ -777,7 +784,7 @@ function renderFormationGrid() {
         const unitData = typeof UNITS !== 'undefined' ? UNITS[unitId] : null;
         const adet = unitAdetMap[unitId] || 0;
         slot.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;cursor:pointer">' +
-          '<div style="font-size:28px;line-height:1">' + (unitData ? unitData.icon : '?') + '</div>' +
+          '<div style="line-height:1">' + unitIcon(unitData, 52) + '</div>' +
           '<div style="font-size:9px;color:#d4af37;font-weight:bold;margin-top:2px">(' + adet.toLocaleString('tr-TR') + ')</div>' +
           '<div style="font-size:8px;color:#aaa;margin-top:1px">' + (unitData ? unitData.name : unitId) + '</div>' +
         '</div>';
@@ -868,7 +875,7 @@ function renderFormationPool() {
     const chip = document.createElement('div');
     chip.className = 'formation-unit-chip';
     chip.style.opacity = zatenYerlesti ? '0.3' : '1';
-    chip.textContent = (UNITS[uid].icon || '') + ' ' + UNITS[uid].name + (zatenYerlesti ? ' ✓' : '');
+    chip.innerHTML = unitIcon(UNITS[uid], 20) + ' ' + UNITS[uid].name + (zatenYerlesti ? ' ✓' : '');
     if (!zatenYerlesti) {
       (function(u){ chip.onclick = function(){ placeUnitInSaf(u); }; })(uid);
     }

@@ -331,7 +331,7 @@ const RICONS={odun:'🌳',metal:_METAL_SVG,bugday:'🌾',balik:'🎣',tas:'🪨'
 
 const UNITS = {
   /* ═══════════ AYDINLIK ═══════════ */
-  piyade:{id:'piyade',side:'light',icon:'🗡️',name:'Piyade',role:'Hafif Piyade',tier:1,trainDays:2,
+  piyade:{id:'piyade',side:'light',icon:'🗡️',img:'img/units/piyade.png',name:'Piyade',role:'Hafif Piyade',tier:1,trainDays:2,
     baseAtk:2,baseDef:10,zirh:20,iska:10,maas:20,
     atkGelArtis:0.5,defGelArtis:0.5,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[4,5,6],
