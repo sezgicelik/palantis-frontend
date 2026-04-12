@@ -329,7 +329,7 @@ function renderOrduListe(){
     return;
   }
   const side = OYUNCU && OYUNCU.taraf === 'kotu' ? 'dark' : 'light';
-  const playerUnits = Object.values(UNITS).filter(u => u.side === side && u.producible !== false);
+  const playerUnits = Object.values(UNITS).filter(u => u.side === side);
 
   el.innerHTML = ORDULAR.map(o => {
     // Ordudaki üniteleri dikey listele
