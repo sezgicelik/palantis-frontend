@@ -68,6 +68,7 @@
     <button onclick="switchTab('irklar',this)">Irk Bonuslari</button>
     <button onclick="switchTab('map',this)">Harita & Koloni</button>
     <button onclick="switchTab('artifact',this)">Artifactlar</button>
+    <button onclick="switchTab('gorevler',this)">Gorevler</button>
   </div>
 
   <!-- CRON TAB -->
@@ -356,6 +357,34 @@
   </div>
 
   <!-- MAP & KOLONI TAB -->
+  <!-- GOREVLER TAB -->
+  <div id="tab-gorevler" class="panel">
+    <div class="card">
+      <h3>Yeni Gorev Tanimla</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;margin-bottom:8px">
+        <div><label style="color:#888;font-size:10px">Tip</label><select id="gv-tip" style="width:100%;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px"><option value="ana">Ana (Sirayla)</option><option value="yan">Yan (Serbest)</option></select></div>
+        <div><label style="color:#888;font-size:10px">Sira (ana icin)</label><input id="gv-sira" type="number" value="0" style="width:100%;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px"></div>
+        <div style="grid-column:1/-1"><label style="color:#888;font-size:10px">Baslik</label><input id="gv-baslik" maxlength="100" placeholder="orn: Ilk oduncu binani yap" style="width:100%;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px"></div>
+        <div style="grid-column:1/-1"><label style="color:#888;font-size:10px">Aciklama</label><input id="gv-aciklama" placeholder="orn: Sehrine bir oduncu binasi insa et" style="width:100%;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px"></div>
+        <div><label style="color:#888;font-size:10px">Kosul Tipi</label><select id="gv-kosul-tipi" style="width:100%;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px">
+          <option value="bina_yap">Bina Yap</option><option value="isci_ata">Isci Ata</option><option value="unite_egit">Unite Egit</option>
+          <option value="ordu_kur">Ordu Kur</option><option value="cag_atla">Cag Atla</option><option value="koloni_fethet">Koloni Fethet</option>
+          <option value="savas_kazan">Savas Kazan</option><option value="altin_biriktir">Altin Biriktir</option>
+          <option value="guild_katil">Guilde Katil</option><option value="nufus_ulas">Nufusa Ulas</option><option value="kaynak_biriktir">Kaynak Biriktir</option>
+        </select></div>
+        <div><label style="color:#888;font-size:10px">Kosul Deger</label><input id="gv-kosul-deger" placeholder="orn: oduncu:3" style="width:100%;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px"></div>
+        <div><label style="color:#888;font-size:10px">Odul (JSON)</label><input id="gv-odul" placeholder='{"altin":5000,"odun":1000}' style="width:100%;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px"></div>
+        <div><label style="color:#888;font-size:10px">Cag Min-Max</label><div style="display:flex;gap:4px"><input id="gv-cag-min" type="number" value="1" min="1" max="5" style="width:40px;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px"><span style="color:#666">—</span><input id="gv-cag-max" type="number" value="5" min="1" max="5" style="width:40px;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px"></div></div>
+      </div>
+      <button onclick="adminGorevEkle()" style="padding:5px 16px;background:#d4af37;color:#000;border:none;border-radius:4px;cursor:pointer;font-size:11px;font-weight:bold">Gorev Ekle</button>
+      <span id="gv-msg" style="font-size:11px;margin-left:8px"></span>
+    </div>
+    <div class="card">
+      <h3>Tanimli Gorevler</h3>
+      <div id="gv-liste" style="font-size:10px">Yukleniyor...</div>
+    </div>
+  </div>
+
   <!-- ARTIFACT TAB -->
   <div id="tab-artifact" class="panel">
     <div class="card">
@@ -478,6 +507,7 @@ function switchTab(tab, el) {
   if (tab === 'buyu') loadBuyuConfig();
   if (tab === 'irklar') loadIrkBonuslari();
   if (tab === 'artifact') loadArtifactAdmin();
+  if (tab === 'gorevler') loadGorevlerAdmin();
 }
 
 function hdr() { return { 'x-admin-secret': SECRET, 'Content-Type': 'application/json' }; }
@@ -1308,6 +1338,81 @@ async function adminArtifactEnvanter() {
       }).join('') +
     '</tbody></table>';
   } catch(e) { el.innerHTML = '<span style="color:#e74c3c">Hata</span>'; }
+}
+
+// ═══ GOREV ADMIN ═══
+async function loadGorevlerAdmin() {
+  try {
+    var resp = await fetch(API + '/api/admin/gorevler', { headers: hdr() });
+    var data = await resp.json();
+    var el = document.getElementById('gv-liste');
+    if (!data.length) { el.innerHTML = '<span style="color:#888">Henuz gorev tanimlanmamis.</span>'; return; }
+    el.innerHTML = '<table style="width:100%;border-collapse:collapse">' +
+      '<thead><tr style="background:#1a1a1a">' +
+        '<th style="padding:4px 6px;border:1px solid #333;text-align:left">ID</th>' +
+        '<th style="padding:4px;border:1px solid #333">Tip</th>' +
+        '<th style="padding:4px;border:1px solid #333">Sira</th>' +
+        '<th style="padding:4px 6px;border:1px solid #333;text-align:left">Baslik</th>' +
+        '<th style="padding:4px;border:1px solid #333">Kosul</th>' +
+        '<th style="padding:4px;border:1px solid #333">Odul</th>' +
+        '<th style="padding:4px;border:1px solid #333">Cag</th>' +
+        '<th style="padding:4px;border:1px solid #333">Aktif</th>' +
+        '<th style="padding:4px;border:1px solid #333">Sil</th>' +
+      '</tr></thead><tbody>' +
+      data.map(function(g) {
+        var odulStr = '';
+        try { odulStr = Object.entries(g.odul_json).map(function(e){return e[0]+':'+e[1]}).join(', '); } catch(e){}
+        return '<tr>' +
+          '<td style="padding:3px 6px;border:1px solid #222">' + g.id + '</td>' +
+          '<td style="padding:3px;border:1px solid #222;text-align:center;color:' + (g.tip==='ana'?'#f1c40f':'#3498db') + '">' + g.tip + '</td>' +
+          '<td style="padding:3px;border:1px solid #222;text-align:center">' + g.sira + '</td>' +
+          '<td style="padding:3px 6px;border:1px solid #222">' + g.baslik + '</td>' +
+          '<td style="padding:3px;border:1px solid #222;font-size:9px">' + g.kosul_tipi + ':' + (g.kosul_deger||'') + '</td>' +
+          '<td style="padding:3px;border:1px solid #222;color:#d4af37;font-size:9px">' + odulStr + '</td>' +
+          '<td style="padding:3px;border:1px solid #222;text-align:center">' + g.cag_min + '-' + g.cag_max + '</td>' +
+          '<td style="padding:3px;border:1px solid #222;text-align:center">' + (g.aktif ? '✅' : '❌') + '</td>' +
+          '<td style="padding:3px;border:1px solid #222;text-align:center"><button onclick="adminGorevSil(' + g.id + ')" style="background:none;border:none;color:#e74c3c;cursor:pointer">🗑</button></td>' +
+        '</tr>';
+      }).join('') +
+    '</tbody></table>';
+  } catch(e) {
+    document.getElementById('gv-liste').innerHTML = '<span style="color:#e74c3c">Hata</span>';
+  }
+}
+
+async function adminGorevEkle() {
+  var msg = document.getElementById('gv-msg');
+  var odulStr = document.getElementById('gv-odul').value;
+  var odul;
+  try { odul = JSON.parse(odulStr); } catch(e) { msg.innerHTML = '<span style="color:#e74c3c">Odul JSON hatali! orn: {"altin":5000}</span>'; return; }
+
+  try {
+    var resp = await fetch(API + '/api/admin/gorev-ekle', {
+      method: 'POST', headers: hdr(),
+      body: JSON.stringify({
+        tip: document.getElementById('gv-tip').value,
+        sira: parseInt(document.getElementById('gv-sira').value) || 0,
+        baslik: document.getElementById('gv-baslik').value,
+        aciklama: document.getElementById('gv-aciklama').value,
+        kosul_tipi: document.getElementById('gv-kosul-tipi').value,
+        kosul_deger: document.getElementById('gv-kosul-deger').value,
+        odul_json: odul,
+        cag_min: parseInt(document.getElementById('gv-cag-min').value) || 1,
+        cag_max: parseInt(document.getElementById('gv-cag-max').value) || 5,
+      })
+    });
+    var data = await resp.json();
+    if (data.ok) { msg.innerHTML = '<span style="color:#2ecc71">Gorev eklendi!</span>'; loadGorevlerAdmin(); }
+    else msg.innerHTML = '<span style="color:#e74c3c">' + (data.error||'Hata') + '</span>';
+  } catch(e) { msg.innerHTML = '<span style="color:#e74c3c">Hata</span>'; }
+}
+
+async function adminGorevSil(id) {
+  if (!confirm('Gorevi silmek istediginize emin misiniz?')) return;
+  try {
+    await fetch(API + '/api/admin/gorev/' + id, { method: 'DELETE', headers: hdr() });
+    loadGorevlerAdmin();
+  } catch(e) {}
 }
 </script>
 </body>

@@ -604,6 +604,7 @@ const ACTIVITY_ICONS = {
   koloni_cekil:  '🏳️',
   koloni_kaynak: '📦',
   artifact:      '🧰',
+  gorev:         '📜',
   savas:         '⚔️',
   casus:         '🕵️',
 };
