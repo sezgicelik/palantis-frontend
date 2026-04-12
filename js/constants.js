@@ -341,7 +341,7 @@ const UNITS = {
     trainTime:60,maxCount:99999,count:0,
     desc:"Temel piyade. Ucuz, hızlı üretilir. 4-5-6. turlarda savaşır."},
 
-  baltaci:{id:'baltaci',side:'light',icon:'🪓',name:'Baltacı',role:'Hafif Saldırgan',tier:1,trainDays:2,
+  baltaci:{id:'baltaci',side:'light',icon:'🪓',img:'img/units/baltaci.png',name:'Baltacı',role:'Hafif Saldırgan',tier:1,trainDays:2,
     baseAtk:2,baseDef:7,zirh:15,iska:20,maas:15,
     atkGelArtis:0.5,defGelArtis:0.5,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[4,5,6],
@@ -351,7 +351,7 @@ const UNITS = {
     trainTime:90,maxCount:99999,count:0,
     desc:"Ucuz saldırı birimi. 4-5-6. turlarda savaşır."},
 
-  okcu:{id:'okcu',side:'light',icon:'🏹',name:'Okçu',role:'Menzilli',tier:1,trainDays:4,
+  okcu:{id:'okcu',side:'light',icon:'🏹',img:'img/units/okcu.png',name:'Okçu',role:'Menzilli',tier:1,trainDays:4,
     baseAtk:5,baseDef:12,zirh:10,iska:20,maas:28,
     atkGelArtis:0.5,defGelArtis:0.5,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[1,2,3],
@@ -361,7 +361,7 @@ const UNITS = {
     trainTime:120,maxCount:99999,count:0,
     desc:"Menzilli saldırı. 1-2-3. turlarda savaşır."},
 
-  savasci:{id:'savasci',side:'light',icon:'⚔️',name:'Savaşçı',role:'Ağır Piyade',tier:2,trainDays:4,
+  savasci:{id:'savasci',side:'light',icon:'⚔️',img:'img/units/savasci.png',name:'Savaşçı',role:'Ağır Piyade',tier:2,trainDays:4,
     baseAtk:6,baseDef:18,zirh:25,iska:20,maas:32,
     atkGelArtis:0.5,defGelArtis:1,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[2,3,4,5,6],
@@ -371,7 +371,7 @@ const UNITS = {
     trainTime:180,maxCount:99999,count:0,
     desc:"Dengeli saldırı ve savunma. 2-3-4-5-6. turlarda savaşır."},
 
-  sovalye:{id:'sovalye',side:'light',icon:'🛡️',name:'Şovalye',role:'Zırhlı Tank',tier:2,trainDays:5,
+  sovalye:{id:'sovalye',side:'light',icon:'🛡️',img:'img/units/sovalye.png',name:'Şovalye',role:'Zırhlı Tank',tier:2,trainDays:5,
     baseAtk:6,baseDef:22,zirh:20,iska:15,maas:35,
     atkGelArtis:1,defGelArtis:1,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[3,4,5,6],
@@ -381,7 +381,7 @@ const UNITS = {
     trainTime:240,maxCount:99999,count:0,
     desc:"Ağır zırhlı savunma birimi. 3-4-5-6. turlarda savaşır."},
 
-  suvari:{id:'suvari',side:'light',icon:'🐴',name:'Süvari',role:'Atlı Saldırı',tier:2,trainDays:6,
+  suvari:{id:'suvari',side:'light',icon:'🐴',img:'img/units/suvari.png',name:'Süvari',role:'Atlı Saldırı',tier:2,trainDays:6,
     baseAtk:8,baseDef:26,zirh:20,iska:15,maas:40,
     atkGelArtis:1,defGelArtis:1,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[3,4,5,6],
@@ -391,7 +391,7 @@ const UNITS = {
     trainTime:300,maxCount:99999,count:0,
     desc:"Atlı saldırı birimi. 1 At gerektirir. 3-4-5-6. turlarda savaşır."},
 
-  paladin:{id:'paladin',side:'light',icon:'✨',name:'Paladin',role:'Kutsal Savaşçı',tier:3,trainDays:6,
+  paladin:{id:'paladin',side:'light',icon:'✨',img:'img/units/paladin.png',name:'Paladin',role:'Kutsal Savaşçı',tier:3,trainDays:6,
     baseAtk:9,baseDef:33,zirh:35,iska:20,maas:52,
     atkGelArtis:1,defGelArtis:2,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[2,3,4,5,6],
@@ -401,7 +401,7 @@ const UNITS = {
     trainTime:480,maxCount:99999,count:0,
     desc:"Aydınlığın elit savaşçısı. 1 At gerektirir. 3-4-5-6. turlarda savaşır."},
 
-  kolcu:{id:'kolcu',side:'light',icon:'🎯',name:'Kolcu',role:'Gizli Elit',tier:2,trainDays:6,
+  kolcu:{id:'kolcu',side:'light',icon:'🎯',img:'img/units/kolcu.png',name:'Kolcu',role:'Gizli Elit',tier:2,trainDays:6,
     baseAtk:10,baseDef:30,zirh:25,iska:20,maas:76,
     atkGelArtis:1,defGelArtis:2,atkGelMax:10,defGelMax:10,
     saldiriCarpan:2, savasTurlari:[2,3,4,5,6],
@@ -411,7 +411,7 @@ const UNITS = {
     trainTime:300,maxCount:99999,count:0,
     desc:"Her saldırısı x2 ile çarpılır. 1 Gizlilik Puanı gerektirir. 2-3-4-5-6. turlarda."},
 
-  buyucu:{id:'buyucu',side:'light',icon:'🔮',name:'Büyücü',role:'Büyü Saldırısı',tier:3,trainDays:10,
+  buyucu:{id:'buyucu',side:'light',icon:'🔮',img:'img/units/buyucu.png',name:'Büyücü',role:'Büyü Saldırısı',tier:3,trainDays:10,
     baseAtk:11,baseDef:18,zirh:20,iska:15,maas:120,
     atkGelArtis:1,defGelArtis:1,atkGelMax:10,defGelMax:10,
     saldiriCarpan:2, savasTurlari:[1,2,3],
@@ -421,7 +421,7 @@ const UNITS = {
     trainTime:600,maxCount:99999,count:0,
     desc:"Büyü saldırısı. Her saldırı x2. 5 Mana gerektirir. 1-2-3. turlarda."},
 
-  isin_savasci:{id:'isin_savasci',side:'light',icon:'⚡',name:'Işığın Savaşçısı',role:'Efsanevi',tier:3,trainDays:15,
+  isin_savasci:{id:'isin_savasci',side:'light',icon:'⚡',img:'img/units/isin_savasci.png',name:'Işığın Savaşçısı',role:'Efsanevi',tier:3,trainDays:15,
     baseAtk:40,baseDef:100,zirh:40,iska:10,maas:250,
     atkGelArtis:2,defGelArtis:2,atkGelMax:10,defGelMax:10,
     saldiriCarpan:3, savasTurlari:[1,2,3,4,5],
@@ -432,7 +432,7 @@ const UNITS = {
     desc:"Aydınlığın en güçlüsü. x3 çarpan. 1 Büyülü Yumurta gerekli. 1-2-3-4-5. turlarda."},
 
   /* ─── AYDINLIK EJDERHALAR (üretilemez) ─── */
-  mavi_ejderha:{id:'mavi_ejderha',side:'light',icon:'🐲',name:'Mavi Ejderha',role:'Ejderha',tier:4,
+  mavi_ejderha:{id:'mavi_ejderha',side:'light',icon:'🐲',img:'img/units/mavi_ejderha.png',name:'Mavi Ejderha',role:'Ejderha',tier:4,
     baseAtk:7500,baseDef:2500,zirh:70,iska:10,maas:0,
     atkGelArtis:0,defGelArtis:0,atkGelMax:0,defGelMax:0,
     saldiriCarpan:1, savasTurlari:[1,2,3,4,5,6],
@@ -441,7 +441,7 @@ const UNITS = {
     trainTime:0,maxCount:99999,count:0,producible:false,
     desc:"Mağaradan rastgele çıkar. Üretilemez. Her turda savaşır."},
 
-  altin_ejderha:{id:'altin_ejderha',side:'light',icon:'🐉',name:'Altın Ejderha',role:'Ejderha',tier:4,
+  altin_ejderha:{id:'altin_ejderha',side:'light',icon:'🐉',img:'img/units/altin_ejderha.png',name:'Altın Ejderha',role:'Ejderha',tier:4,
     baseAtk:10000,baseDef:5000,zirh:75,iska:10,maas:0,
     atkGelArtis:0,defGelArtis:0,atkGelMax:0,defGelMax:0,
     saldiriCarpan:1, savasTurlari:[1,2,3,4,5,6],
@@ -451,7 +451,7 @@ const UNITS = {
     desc:"Mağaradan çok nadir çıkar. Üretilemez. Her turda savaşır."},
 
   /* ═══════════ KARANLIK ═══════════ */
-  iskelet:{id:'iskelet',side:'dark',icon:'💀',name:'İskelet',role:'Hafif Piyade',tier:1,trainDays:2,
+  iskelet:{id:'iskelet',side:'dark',icon:'💀',img:'img/units/iskelet.png',name:'İskelet',role:'Hafif Piyade',tier:1,trainDays:2,
     baseAtk:1,baseDef:8,zirh:10,iska:10,maas:15,
     atkGelArtis:0.5,defGelArtis:0.5,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[4,5,6],
@@ -461,7 +461,7 @@ const UNITS = {
     trainTime:60,maxCount:99999,count:0,
     desc:"Ölümsüz piyade. Ucuz, hızlı üretilir. 4-5-6. turlarda savaşır."},
 
-  goblin:{id:'goblin',side:'dark',icon:'👺',name:'Goblin',role:'Hafif Saldırgan',tier:1,trainDays:2,
+  goblin:{id:'goblin',side:'dark',icon:'👺',img:'img/units/goblin.png',name:'Goblin',role:'Hafif Saldırgan',tier:1,trainDays:2,
     baseAtk:3,baseDef:9,zirh:25,iska:20,maas:20,
     atkGelArtis:0.5,defGelArtis:0.5,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[4,5,6],
@@ -471,7 +471,7 @@ const UNITS = {
     trainTime:90,maxCount:99999,count:0,
     desc:"Hızlı ve sinsi saldırgan. 4-5-6. turlarda savaşır."},
 
-  iskelet_okcu:{id:'iskelet_okcu',side:'dark',icon:'🏹',name:'İskelet Okçu',role:'Menzilli',tier:1,trainDays:4,
+  iskelet_okcu:{id:'iskelet_okcu',side:'dark',icon:'🏹',img:'img/units/iskelet_okcu.png',name:'İskelet Okçu',role:'Menzilli',tier:1,trainDays:4,
     baseAtk:6,baseDef:11,zirh:15,iska:25,maas:32,
     atkGelArtis:0.5,defGelArtis:0.5,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[1,2,3],
@@ -481,7 +481,7 @@ const UNITS = {
     trainTime:120,maxCount:99999,count:0,
     desc:"Ölümsüz menzilli. 1-2-3. turlarda savaşır."},
 
-  ogre:{id:'ogre',side:'dark',icon:'👹',name:'Ogre Savaşçı',role:'Ağır Piyade',tier:2,trainDays:4,
+  ogre:{id:'ogre',side:'dark',icon:'👹',img:'img/units/ogre.png',name:'Ogre Savaşçı',role:'Ağır Piyade',tier:2,trainDays:4,
     baseAtk:5,baseDef:19,zirh:20,iska:15,maas:28,
     atkGelArtis:0.5,defGelArtis:1,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[2,3,4,5,6],
@@ -491,7 +491,7 @@ const UNITS = {
     trainTime:180,maxCount:99999,count:0,
     desc:"Devasa saldırı gücü. 2-3-4-5-6. turlarda savaşır."},
 
-  troll:{id:'troll',side:'dark',icon:'🧌',name:'Troll',role:'Zırhlı Tank',tier:2,trainDays:5,
+  troll:{id:'troll',side:'dark',icon:'🧌',img:'img/units/troll.png',name:'Troll',role:'Zırhlı Tank',tier:2,trainDays:5,
     baseAtk:7,baseDef:21,zirh:25,iska:20,maas:35,
     atkGelArtis:1,defGelArtis:1,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[3,4,5,6],
@@ -501,7 +501,7 @@ const UNITS = {
     trainTime:360,maxCount:99999,count:0,
     desc:"Ağır zırhlı savunma. 3-4-5-6. turlarda savaşır."},
 
-  ork:{id:'ork',side:'dark',icon:'🐺',name:'Ork',role:'Kurtlu Saldırı',tier:2,trainDays:6,
+  ork:{id:'ork',side:'dark',icon:'🐺',img:'img/units/ork.png',name:'Ork',role:'Kurtlu Saldırı',tier:2,trainDays:6,
     baseAtk:8,baseDef:24,zirh:25,iska:15,maas:40,
     atkGelArtis:1,defGelArtis:1,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[3,4,5,6],
@@ -511,7 +511,7 @@ const UNITS = {
     trainTime:300,maxCount:99999,count:0,
     desc:"Kurtlu saldırı birimi. 1 Kurt gerektirir. 3-4-5-6. turlarda savaşır."},
 
-  golem:{id:'golem',side:'dark',icon:'🪨',name:'Golem',role:'Elite Tank',tier:3,trainDays:6,
+  golem:{id:'golem',side:'dark',icon:'🪨',img:'img/units/golem.png',name:'Golem',role:'Elite Tank',tier:3,trainDays:6,
     baseAtk:11,baseDef:29,zirh:30,iska:25,maas:80,
     atkGelArtis:1,defGelArtis:2,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[2,3,4,5,6],
@@ -521,7 +521,7 @@ const UNITS = {
     trainTime:900,maxCount:99999,count:0,
     desc:"Karanlığın elit tankı. 1 Kurt gerektirir. 3-4-5-6. turlarda savaşır."},
 
-  kara_sovalye:{id:'kara_sovalye',side:'dark',icon:'🖤',name:'Kara Şovalye',role:'Gizli Elit',tier:2,trainDays:6,
+  kara_sovalye:{id:'kara_sovalye',side:'dark',icon:'🖤',img:'img/units/kara_sovalye.png',name:'Kara Şovalye',role:'Gizli Elit',tier:2,trainDays:6,
     baseAtk:8,baseDef:36,zirh:25,iska:15,maas:48,
     atkGelArtis:1,defGelArtis:2,atkGelMax:10,defGelMax:10,
     saldiriCarpan:2, savasTurlari:[2,3,4,5,6],
@@ -531,7 +531,7 @@ const UNITS = {
     trainTime:480,maxCount:99999,count:0,
     desc:"Her saldırısı x2. 1 Gizlilik Puanı gerektirir. 2-3-4-5-6. turlarda."},
 
-  kara_elf:{id:'kara_elf',side:'dark',icon:'🧝',name:'Kara Elf',role:'Büyü Saldırısı',tier:3,trainDays:10,
+  kara_elf:{id:'kara_elf',side:'dark',icon:'🧝',img:'img/units/kara_elf.png',name:'Kara Elf',role:'Büyü Saldırısı',tier:3,trainDays:10,
     baseAtk:10,baseDef:19,zirh:15,iska:10,maas:120,
     atkGelArtis:1,defGelArtis:1,atkGelMax:10,defGelMax:10,
     saldiriCarpan:2, savasTurlari:[1,2,3],
@@ -541,7 +541,7 @@ const UNITS = {
     trainTime:720,maxCount:99999,count:0,
     desc:"Karanlık büyücü. Her saldırı x2. 5 Mana gerektirir. 1-2-3. turlarda."},
 
-  golge_savasci:{id:'golge_savasci',side:'dark',icon:'🌑',name:'Gölge Savaşçı',role:'Efsanevi',tier:3,trainDays:15,
+  golge_savasci:{id:'golge_savasci',side:'dark',icon:'🌑',img:'img/units/golge_savasci.png',name:'Gölge Savaşçı',role:'Efsanevi',tier:3,trainDays:15,
     baseAtk:40,baseDef:100,zirh:40,iska:10,maas:250,
     atkGelArtis:2,defGelArtis:2,atkGelMax:10,defGelMax:10,
     saldiriCarpan:3, savasTurlari:[1,2,3,4,5],
@@ -552,7 +552,7 @@ const UNITS = {
     desc:"Karanlığın en güçlüsü. x3 çarpan. 1 Büyülü Yumurta gerekli. 1-2-3-4-5. turlarda."},
 
   /* ─── KARANLIK EJDERHALAR (üretilemez) ─── */
-  kirmizi_ejderha:{id:'kirmizi_ejderha',side:'dark',icon:'🐲',name:'Kırmızı Ejderha',role:'Ejderha',tier:4,
+  kirmizi_ejderha:{id:'kirmizi_ejderha',side:'dark',icon:'🐲',img:'img/units/kirmizi_ejderha.png',name:'Kırmızı Ejderha',role:'Ejderha',tier:4,
     baseAtk:7500,baseDef:2500,zirh:70,iska:10,maas:0,
     atkGelArtis:0,defGelArtis:0,atkGelMax:0,defGelMax:0,
     saldiriCarpan:1, savasTurlari:[1,2,3,4,5,6],
@@ -561,7 +561,7 @@ const UNITS = {
     trainTime:0,maxCount:99999,count:0,producible:false,
     desc:"Mağaradan rastgele çıkar. Üretilemez. Her turda savaşır."},
 
-  siyah_ejderha:{id:'siyah_ejderha',side:'dark',icon:'🐉',name:'Siyah Ejderha',role:'Ejderha',tier:4,
+  siyah_ejderha:{id:'siyah_ejderha',side:'dark',icon:'🐉',img:'img/units/siyah_ejderha.png',name:'Siyah Ejderha',role:'Ejderha',tier:4,
     baseAtk:10000,baseDef:5000,zirh:75,iska:10,maas:0,
     atkGelArtis:0,defGelArtis:0,atkGelMax:0,defGelMax:0,
     saldiriCarpan:1, savasTurlari:[1,2,3,4,5,6],
