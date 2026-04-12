@@ -47,8 +47,8 @@ async function meydanYaz() {
     });
     var data = await resp.json();
     if (resp.ok) { inp.value = ''; loadMeydanMesajlar(); }
-    else { toast(data.error || 'Hata'); }
-  } catch(e) { toast('Baglanti hatasi'); }
+    else { alert('Meydan hatasi: ' + (data.error || 'Bilinmeyen hata')); }
+  } catch(e) { alert('Baglanti hatasi: ' + e.message); }
 }
 
 // Enter ile gonder
