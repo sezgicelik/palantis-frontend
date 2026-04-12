@@ -603,6 +603,9 @@ const ACTIVITY_ICONS = {
   koloni_fetih:  '🏰',
   koloni_cekil:  '🏳️',
   koloni_kaynak: '📦',
+  artifact:      '🧰',
+  savas:         '⚔️',
+  casus:         '🕵️',
 };
 
 const SAF_LIMITS = [3, 3, 5, 3]; // 14 total slots
