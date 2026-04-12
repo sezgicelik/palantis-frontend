@@ -784,7 +784,7 @@ function renderFormationGrid() {
         const unitData = typeof UNITS !== 'undefined' ? UNITS[unitId] : null;
         const adet = unitAdetMap[unitId] || 0;
         slot.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;cursor:pointer">' +
-          '<div style="line-height:1">' + unitIcon(unitData, 52) + '</div>' +
+          '<div style="line-height:1">' + unitIcon(unitData, 40) + '</div>' +
           '<div style="font-size:9px;color:#d4af37;font-weight:bold;margin-top:2px">(' + adet.toLocaleString('tr-TR') + ')</div>' +
           '<div style="font-size:8px;color:#aaa;margin-top:1px">' + (unitData ? unitData.name : unitId) + '</div>' +
         '</div>';
