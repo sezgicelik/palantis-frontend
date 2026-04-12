@@ -754,6 +754,10 @@ function loadFormationForArmy() {
 function renderFormationGrid() {
   const army = ORDULAR.find(o => o.id === FORMATION_ARMY_ID);
 
+  // Ordudaki unite adetleri (dizilim goruntuleme icin)
+  var unitAdetMap = {};
+  if (army) (army.units||[]).forEach(function(u){ unitAdetMap[u.unite_id] = u.adet; });
+
   for (let i = 0; i < 4; i++) {
     const container = document.getElementById('saf-' + (i+1));
     if (!container) continue;
@@ -771,7 +775,12 @@ function renderFormationGrid() {
       if (FORMATION_STATE[i][j]) {
         const unitId = FORMATION_STATE[i][j];
         const unitData = typeof UNITS !== 'undefined' ? UNITS[unitId] : null;
-        slot.innerHTML = '<div class="slot-unit">' + (unitData ? unitData.icon || unitId : unitId) + '<br><small>' + unitId + '</small></div>';
+        const adet = unitAdetMap[unitId] || 0;
+        slot.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;cursor:pointer">' +
+          '<div style="font-size:28px;line-height:1">' + (unitData ? unitData.icon : '?') + '</div>' +
+          '<div style="font-size:9px;color:#d4af37;font-weight:bold;margin-top:2px">(' + adet.toLocaleString('tr-TR') + ')</div>' +
+          '<div style="font-size:8px;color:#aaa;margin-top:1px">' + (unitData ? unitData.name : unitId) + '</div>' +
+        '</div>';
         (function(si, sj){ slot.onclick = function(){ removeFromSaf(si, sj); }; })(i, j);
       } else {
         slot.textContent = '+';
@@ -783,7 +792,42 @@ function renderFormationGrid() {
     }
   }
 
+  // Dizilim ozet bilgisi
+  renderFormationSummary(army, unitAdetMap);
   renderFormationPool();
+}
+
+function renderFormationSummary(army, unitAdetMap) {
+  var summaryEl = document.getElementById('formation-summary');
+  if (!summaryEl) {
+    // Olustur
+    var parent = document.getElementById('formation-units-pool');
+    if (!parent) return;
+    summaryEl = document.createElement('div');
+    summaryEl.id = 'formation-summary';
+    parent.parentNode.insertBefore(summaryEl, parent);
+  }
+  if (!army) { summaryEl.innerHTML = ''; return; }
+
+  var toplamUnite = 0, toplamAtk = 0, toplamDef = 0;
+  FORMATION_STATE.forEach(function(row){
+    row.forEach(function(uid){
+      if (!uid) return;
+      var adet = unitAdetMap[uid] || 0;
+      var u = UNITS[uid];
+      if (u && adet > 0) {
+        toplamUnite += adet;
+        toplamAtk += u.baseAtk * adet * (u.saldiriCarpan||1);
+        toplamDef += u.baseDef * adet;
+      }
+    });
+  });
+
+  summaryEl.innerHTML = '<div style="display:flex;justify-content:center;gap:16px;padding:8px;margin-bottom:8px;background:rgba(212,175,55,.06);border-radius:6px;font-size:11px">' +
+    '<span>⚔️ <span style="font-size:13px;font-weight:bold;color:#d4af37">' + toplamUnite.toLocaleString('tr-TR') + '</span> unite</span>' +
+    '<span>ATK: <span style="color:#e74c3c;font-weight:bold">' + toplamAtk.toLocaleString('tr-TR') + '</span></span>' +
+    '<span>DEF: <span style="color:#3498db;font-weight:bold">' + toplamDef.toLocaleString('tr-TR') + '</span></span>' +
+  '</div>';
 }
 
 function showUnitPicker(safIndex, slotIndex) {

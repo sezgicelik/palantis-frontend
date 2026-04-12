@@ -598,7 +598,7 @@ body{padding-top:130px;}
 .saf-row{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:12px;}
 .saf-row.locked{opacity:0.4;pointer-events:none;}
 .saf-label{color:#888;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
-.saf-slot{width:80px;height:80px;border:2px dashed #333;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#888;font-size:11px;cursor:pointer;transition:.2s;}
+.saf-slot{width:90px;height:90px;border:2px dashed #333;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#888;font-size:11px;cursor:pointer;transition:.2s;}
 .saf-slot:hover{border-color:var(--race-color);color:var(--race-color);}
 .saf-slot.filled{border-style:solid;border-color:var(--race-color);background:rgba(241,196,15,0.05);}
 .saf-slot.filled .slot-unit{text-align:center;}
