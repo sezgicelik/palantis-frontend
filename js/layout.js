@@ -33,6 +33,20 @@ function renderSidebar(){
     document.body.prepend(ov);
   }
 
+  // Submenu acik mi kontrol
+  const popPages = ['population.html','festival.html'];
+  const isPop = popPages.includes(page);
+  const ticPages = ['market.html','kervan.html','pazar.html','buyu-dukkani.html'];
+  const isTic = ticPages.includes(page);
+  const armyPages = ['army.html','mezarlik.html'];
+  const isArmy = armyPages.includes(page);
+  const magicPages = ['magic.html','buyucu-kulesi.html'];
+  const isMagic = magicPages.includes(page);
+  const repPages = ['reports.html','activity.html'];
+  const isRep = repPages.includes(page);
+  const funPages = ['bocek-yarisi.html','sandik.html'];
+  const isFun = funPages.includes(page);
+
   mount.innerHTML = `
     <div class="sidebar" id="sidebar">
       <div class="sidebar-header">PALANTIS</div>
@@ -44,21 +58,14 @@ function renderSidebar(){
       </div>
 
       <a href="home.html" class="menu-item${isActive('home.html')}">🏠 Ana Ekran</a>
-      <a href="population.html" class="menu-item${isActive('population.html')||isActive('market.html')||isActive('cag.html')||isActive('festival.html')||isActive('kervan.html')||isActive('buyu-dukkani.html')||isActive('pazar.html')||isActive('bocek-yarisi.html')||isActive('sandik.html')}">👥 Nüfus & İşçiler</a>
-      <div class="submenu" id="submenu-population" style="display:${page==='population.html'||page==='market.html'||page==='cag.html'||page==='festival.html'||page==='kervan.html'||page==='buyu-dukkani.html'||page==='pazar.html'||page==='bocek-yarisi.html'||page==='sandik.html'?'block':'none'}">
+
+      <a href="population.html" class="menu-item${isPop?' on':''}">👥 Nüfus & İşçiler</a>
+      <div class="submenu" style="display:${isPop?'block':'none'}">
         <a href="population.html" class="menu-item sub-item${isActive('population.html')}">👷 İşçi Dağılımı</a>
-        <a href="market.html" class="menu-item sub-item${isActive('market.html')}">🏪 Market</a>
-        <a href="kervan.html" class="menu-item sub-item${isActive('kervan.html')}">🐪 Kervan</a>
-        <a href="pazar.html" class="menu-item sub-item${isActive('pazar.html')}">🤝 Oyuncu Pazarı</a>
-        <a href="buyu-dukkani.html" class="menu-item sub-item${isActive('buyu-dukkani.html')}">🔮 Büyü Dükkanı</a>
-        <a href="cag.html" class="menu-item sub-item${isActive('cag.html')}">⬆️ Çağ Atla</a>
         <a href="festival.html" class="menu-item sub-item${isActive('festival.html')}">🎉 Festival</a>
-        <a href="bocek-yarisi.html" class="menu-item sub-item${isActive('bocek-yarisi.html')}">🪲 Böcek Yarışı</a>
-        <a href="sandik.html" class="menu-item sub-item${isActive('sandik.html')}">📦 Kader Sandıkları</a>
-        <a href="simulator.html" class="menu-item sub-item${isActive('simulator.html')}" target="_blank">⚔️ Savaş Simülatörü</a>
       </div>
 
-      <a href="city.html" class="menu-item${isActive('city.html')}">🏙️ Şehrim</a>
+      <a href="city.html" class="menu-item${isActive('city.html')}">🏗️ Şehrim</a>
       <div class="submenu" id="submenu-city" style="display:${page==='city.html'?'block':'none'}">
         <div class="menu-item sub-item" onclick="setFilter('all',this)" data-filter="all">🏛️ Tümü</div>
         <div class="menu-item sub-item" onclick="setFilter('uretim',this)" data-filter="uretim">⚒️ Üretim</div>
@@ -70,35 +77,54 @@ function renderSidebar(){
       </div>
 
       <a href="land.html" class="menu-item${isActive('land.html')}">🧭 Arazi</a>
-      <a href="map.html" class="menu-item${isActive('map.html')}">🗺️ Harita</a>
 
-      <a href="army.html" class="menu-item${isActive('army.html')}">⚔️ Ordu & Savaş</a>
-      <div class="submenu" id="submenu-army" style="display:${page==='army.html'?'block':'none'}">
+      <a href="army.html" class="menu-item${isArmy?' on':''}">⚔️ Ordu & Savaş</a>
+      <div class="submenu" id="submenu-army" style="display:${isArmy?'block':'none'}">
         <div class="menu-item sub-item army-sub on" data-atab="units" onclick="armyTab('units',this)">🗡️ Asker Eğitimi</div>
         <div class="menu-item sub-item army-sub" data-atab="armies" onclick="armyTab('armies',this)">🏕️ Ordu Yönetimi</div>
         <div class="menu-item sub-item army-sub" data-atab="formation" onclick="armyTab('formation',this)">⚔️ Saf Dizilimi</div>
         <div class="menu-item sub-item army-sub" data-atab="upgrades" onclick="armyTab('upgrades',this)">📈 Geliştirmeler</div>
+        <a href="mezarlik.html" class="menu-item sub-item${isActive('mezarlik.html')}">💀 Mezarlık</a>
       </div>
 
-      <a href="mezarlik.html" class="menu-item${isActive('mezarlik.html')}">💀 Mezarlık</a>
-
-      <a href="magic.html" class="menu-item${isActive('magic.html')||isActive('buyucu-kulesi.html')}">🧙 Büyüler</a>
-      <div class="submenu" id="submenu-magic" style="display:${page==='magic.html'||page==='buyucu-kulesi.html'?'block':'none'}">
+      <a href="magic.html" class="menu-item${isMagic?' on':''}">🔮 Büyücü Kulesi</a>
+      <div class="submenu" style="display:${isMagic?'block':'none'}">
         <a href="magic.html" class="menu-item sub-item${isActive('magic.html')}">🕯️ Tapınak & Mana</a>
-        <a href="buyucu-kulesi.html" class="menu-item sub-item${isActive('buyucu-kulesi.html')}">🗼 Büyücü Kulesi</a>
+        <a href="buyucu-kulesi.html" class="menu-item sub-item${isActive('buyucu-kulesi.html')}">🗼 Büyü Kitabı</a>
       </div>
-      <a href="gorev.html" class="menu-item${isActive('gorev.html')}">📜 Gorevler <span id="gorev-badge" style="display:none;background:#e74c3c;color:#fff;font-size:8px;padding:1px 5px;border-radius:8px;margin-left:4px"></span></a>
-      <a href="guild.html" class="menu-item${isActive('guild.html')}">🏰 Guild</a>
-      <a href="casus.html" class="menu-item${isActive('casus.html')}">🕵️ Casuslar</a>
-      <a href="artifact.html" class="menu-item${isActive('artifact.html')}">🧰 Artifactlar</a>
-      <a href="meydan.html" class="menu-item${isActive('meydan.html')}">💬 Sehir Meydani</a>
 
-      <a href="reports.html" class="menu-item${isActive('reports.html')||isActive('activity.html')}">📜 Raporlar</a>
-      <div class="submenu" id="submenu-reports" style="display:${page==='reports.html'||page==='activity.html'?'block':'none'}">
+      <a href="casus.html" class="menu-item${isActive('casus.html')}">🕵️ Casuslar</a>
+
+      <a href="market.html" class="menu-item${isTic?' on':''}">💰 Ticaret</a>
+      <div class="submenu" style="display:${isTic?'block':'none'}">
+        <a href="market.html" class="menu-item sub-item${isActive('market.html')}">🏪 Market</a>
+        <a href="kervan.html" class="menu-item sub-item${isActive('kervan.html')}">🐪 Kervan</a>
+        <a href="pazar.html" class="menu-item sub-item${isActive('pazar.html')}">🤝 Oyuncu Pazarı</a>
+        <a href="buyu-dukkani.html" class="menu-item sub-item${isActive('buyu-dukkani.html')}">🔮 Büyü Dükkanı</a>
+      </div>
+
+      <a href="guild.html" class="menu-item${isActive('guild.html')}">🏰 Guild</a>
+      <a href="map.html" class="menu-item${isActive('map.html')}">🗺️ Harita</a>
+
+      <a href="reports.html" class="menu-item${isRep?' on':''}">📊 Raporlar</a>
+      <div class="submenu" style="display:${isRep?'block':'none'}">
         <a href="activity.html" class="menu-item sub-item${isActive('activity.html')}">🏙️ Şehir Raporları</a>
         <a href="reports.html?tab=askeri" class="menu-item sub-item">⚔️ Askeri Raporlar</a>
         <a href="reports.html?tab=koloni" class="menu-item sub-item">🏰 Koloni Raporları</a>
         <a href="reports.html?tab=ekonomi" class="menu-item sub-item">💰 Ekonomi Raporları</a>
+      </div>
+
+      <a href="cag.html" class="menu-item${isActive('cag.html')}">📅 Çağ Atlama</a>
+      <a href="siralama.html" class="menu-item${isActive('siralama.html')}">🏆 Sıralamalar</a>
+      <a href="artifact.html" class="menu-item${isActive('artifact.html')}">🧰 Artifactlar</a>
+      <a href="gorev.html" class="menu-item${isActive('gorev.html')}">📜 Görevler <span id="gorev-badge" style="display:none;background:#e74c3c;color:#fff;font-size:8px;padding:1px 5px;border-radius:8px;margin-left:4px"></span></a>
+      <a href="meydan.html" class="menu-item${isActive('meydan.html')}">💬 Şehir Meydanı</a>
+
+      <a href="bocek-yarisi.html" class="menu-item${isFun?' on':''}">🪲 Eğlence</a>
+      <div class="submenu" style="display:${isFun?'block':'none'}">
+        <a href="bocek-yarisi.html" class="menu-item sub-item${isActive('bocek-yarisi.html')}">🪲 Böcek Yarışı</a>
+        <a href="sandik.html" class="menu-item sub-item${isActive('sandik.html')}">📦 Kader Sandıkları</a>
+        <a href="simulator.html" class="menu-item sub-item" target="_blank">⚔️ Savaş Simülatörü</a>
       </div>
 
       <a href="ayarlar.html" class="menu-item${isActive('ayarlar.html')}">⚙️ Ayarlar</a>

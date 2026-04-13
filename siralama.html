@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palantis – Sıralamalar</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<style>
+.sr-table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13px}
+.sr-table thead th{font-family:'Cinzel',serif;font-size:11px;color:var(--gold);text-align:left;padding:8px 10px;border-bottom:2px solid #2a2a2a;letter-spacing:.5px;white-space:nowrap}
+.sr-table tbody tr{background:#111;border:1px solid #1e1e1e;transition:background .15s}
+.sr-table tbody tr:nth-child(even){background:#0d0d0d}
+.sr-table tbody tr:hover{background:rgba(212,162,87,0.06)}
+.sr-table tbody tr.sr-me{background:rgba(212,162,87,0.12);border-color:var(--gold)}
+.sr-table tbody td{padding:7px 10px;color:#ccc;vertical-align:middle}
+.sr-rank{font-family:'Cinzel',serif;color:var(--gold);font-weight:700;font-size:14px;min-width:32px;text-align:center}
+.sr-rank-1{color:#ffd700;font-size:16px}
+.sr-rank-2{color:#c0c0c0;font-size:15px}
+.sr-rank-3{color:#cd7f32;font-size:15px}
+.sr-kral{font-weight:600}
+.sr-dim{color:rgba(232,220,200,0.5);font-size:11px}
+.sr-loading{text-align:center;color:var(--text-dim);padding:40px;font-size:13px}
+.sr-empty{text-align:center;color:#777;padding:40px;font-size:13px}
+</style>
+</head>
+<body>
+<div id="hudbar-mount"></div>
+<div class="layout">
+  <div id="sidebar-mount"></div>
+  <div class="main-content">
+
+    <h2 style="font-family:'Cinzel',serif;color:var(--gold);margin-bottom:16px">&#127942; Sıralamalar</h2>
+
+    <div class="army-tabs" style="margin-bottom:20px">
+      <button class="atab on" onclick="srTab('sehir_degeri',this)">&#127983; Şehir Değeri</button>
+      <button class="atab" onclick="srTab('ordu_gucu',this)">&#9876;&#65039; Ordu Gücü</button>
+      <button class="atab" onclick="srTab('guild',this)">&#128081; Guild</button>
+      <button class="atab" onclick="srTab('savas',this)">&#9876;&#65039; Savaş İstatistikleri</button>
+    </div>
+
+    <div id="sr-content">
+      <div class="sr-loading">Yükleniyor...</div>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast"></div>
+<script src="js/auth.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/constants.js"></script>
+<script src="js/game-data.js"></script>
+<script src="js/hud.js"></script>
+<script src="js/layout.js"></script>
+<script>
+(function(){
+  let currentTab = 'sehir_degeri';
+
+  window.srTab = function(tab, btn){
+    currentTab = tab;
+    document.querySelectorAll('.army-tabs .atab').forEach(b => b.classList.remove('on'));
+    if(btn) btn.classList.add('on');
+    loadLeaderboard(tab);
+  };
+
+  async function loadLeaderboard(tab){
+    const box = document.getElementById('sr-content');
+    box.innerHTML = '<div class="sr-loading">Yükleniyor...</div>';
+
+    try {
+      const token = getToken();
+      const resp = await fetch(API_BASE + '/api/game/siralama?tab=' + tab, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if(!resp.ok) throw new Error('HTTP ' + resp.status);
+      const data = await resp.json();
+
+      if(!data.list || data.list.length === 0){
+        box.innerHTML = '<div class="sr-empty">Henüz veri yok.</div>';
+        return;
+      }
+
+      box.innerHTML = renderTable(tab, data.list);
+    } catch(err){
+      console.error('Siralama yuklenemedi:', err);
+      box.innerHTML = '<div class="sr-empty">Sıralama yüklenemedi. <br><small style="color:#555">' + err.message + '</small></div>';
+    }
+  }
+
+  function renderTable(tab, list){
+    const cols = getColumns(tab);
+    let html = '<table class="sr-table"><thead><tr>';
+    cols.forEach(c => { html += '<th>' + c.label + '</th>'; });
+    html += '</tr></thead><tbody>';
+
+    const myKral = OYUNCU?.kral;
+
+    list.forEach((row, i) => {
+      const rank = i + 1;
+      const isMe = myKral && row.kral === myKral;
+      const rankCls = rank <= 3 ? ' sr-rank-' + rank : '';
+      html += '<tr class="' + (isMe ? 'sr-me' : '') + '">';
+      cols.forEach(c => {
+        if(c.key === 'rank'){
+          html += '<td class="sr-rank' + rankCls + '">' + rankMedal(rank) + '</td>';
+        } else {
+          html += '<td>' + c.render(row) + '</td>';
+        }
+      });
+      html += '</tr>';
+    });
+
+    html += '</tbody></table>';
+    return html;
+  }
+
+  function rankMedal(r){
+    if(r === 1) return '&#129351;';
+    if(r === 2) return '&#129352;';
+    if(r === 3) return '&#129353;';
+    return r;
+  }
+
+  function esc(s){ return s ? String(s).replace(/</g,'&lt;').replace(/>/g,'&gt;') : '-'; }
+  function num(n){ return n != null ? Number(n).toLocaleString('tr-TR') : '0'; }
+
+  function raceColor(irk){
+    const colors = {
+      insan:'#e8c87a', elf:'#7ae88a', cuce:'#e8a87a', ork:'#e87a7a',
+      undead:'#b87ae8', iblis:'#e87a9a', goblin:'#8ae87a', kara_elf:'#9a7ae8'
+    };
+    return colors[irk] || '#ccc';
+  }
+
+  function getColumns(tab){
+    switch(tab){
+      case 'sehir_degeri':
+        return [
+          { key:'rank', label:'#' },
+          { key:'kral', label:'Kral', render: r => '<span class="sr-kral" style="color:' + raceColor(r.irk) + '">' + esc(r.kral) + '</span>' },
+          { key:'deger', label:'Şehir Değeri', render: r => '<span style="color:var(--gold)">' + num(r.sehir_degeri) + '</span>' },
+          { key:'cag', label:'Çağ', render: r => '<span class="sr-dim">Çağ ' + (r.cag || 1) + '</span>' },
+          { key:'irk', label:'Irk', render: r => '<span style="color:' + raceColor(r.irk) + '">' + esc(r.irk) + '</span>' }
+        ];
+      case 'ordu_gucu':
+        return [
+          { key:'rank', label:'#' },
+          { key:'kral', label:'Kral', render: r => '<span class="sr-kral" style="color:' + raceColor(r.irk) + '">' + esc(r.kral) + '</span>' },
+          { key:'guc', label:'Toplam Güç', render: r => '<span style="color:var(--gold)">' + num(r.toplam_guc) + '</span>' },
+          { key:'ordu', label:'Ordu Sayısı', render: r => num(r.ordu_sayisi) }
+        ];
+      case 'guild':
+        return [
+          { key:'rank', label:'#' },
+          { key:'guild', label:'Guild Adı', render: r => '<span class="sr-kral" style="color:var(--gold)">' + esc(r.guild_adi) + '</span>' },
+          { key:'uye', label:'Üye Sayısı', render: r => num(r.uye_sayisi) },
+          { key:'guc', label:'Toplam Güç', render: r => '<span style="color:var(--gold)">' + num(r.toplam_guc) + '</span>' }
+        ];
+      case 'savas':
+        return [
+          { key:'rank', label:'#' },
+          { key:'kral', label:'Kral', render: r => '<span class="sr-kral" style="color:' + raceColor(r.irk) + '">' + esc(r.kral) + '</span>' },
+          { key:'cesaret', label:'Cesaret Puanı', render: r => '<span style="color:var(--gold)">' + num(r.cesaret_puani) + '</span>' },
+          { key:'kazanilan', label:'Kazanılan', render: r => '<span style="color:#5a5">' + num(r.kazanilan) + '</span>' },
+          { key:'kaybedilen', label:'Kaybedilen', render: r => '<span style="color:#a55">' + num(r.kaybedilen) + '</span>' }
+        ];
+      default:
+        return [];
+    }
+  }
+
+  // Initial load after game data is ready
+  const origInit = window.initLayout;
+  window.initLayout = function(){
+    if(origInit) origInit();
+    // Wait for game-data to load, then fetch leaderboard
+    const check = setInterval(function(){
+      if(typeof API_BASE !== 'undefined'){
+        clearInterval(check);
+        loadLeaderboard(currentTab);
+      }
+    }, 200);
+  };
+})();
+</script>
+<script>initLayout();</script>
+</body>
+</html>
