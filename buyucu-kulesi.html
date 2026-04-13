@@ -293,7 +293,7 @@ async function bkHedefAra(q) {
     if (!data.ok) return;
     const list = document.getElementById('bk-hedef-list');
     list.innerHTML = data.oyuncular.map(o =>
-      `<li onclick="bkSelectHedef(${o.id},'${o.kral}','${o.taraf}')">${o.kral} (${o.taraf} ${o.irk} C${o.cag})</li>`
+      `<li onclick="bkSelectHedef(${o.id},'${o.kral}','${o.taraf}')">${o.kral} (${o.taraf} ${o.irk} C${o.cag}) <span style="background:rgba(212,162,87,0.15);color:#d4a257;padding:1px 5px;border-radius:3px;font-size:10px;margin-left:4px">⚡ ${(o.sehir_degeri||0).toLocaleString()}</span></li>`
     ).join('');
   } catch(e) {}
 }
