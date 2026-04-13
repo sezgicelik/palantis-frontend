@@ -337,7 +337,7 @@ async function bkBuyuYap(buyuId) {
       // Sonucu buyu yap panelinde goster
       const panel = document.getElementById('bk-buyu-yap-panel');
       if (data.basarili) {
-        showToast(data.mesaj, 'success');
+        toast(data.mesaj, 'success');
         panel.innerHTML = `<div style="text-align:center;padding:20px">
           <div style="font-size:40px;margin-bottom:10px">✅</div>
           <div style="font-size:15px;font-weight:700;color:#2ecc71;margin-bottom:6px">BASARILI!</div>
@@ -346,7 +346,7 @@ async function bkBuyuYap(buyuId) {
           <button class="btn" onclick="selectedBuyu=null;bkLoad()" style="margin-top:14px;padding:6px 20px;font-size:11px">Tamam</button>
         </div>`;
       } else {
-        showToast(data.mesaj, 'warning');
+        toast(data.mesaj, 'warning');
         panel.innerHTML = `<div style="text-align:center;padding:20px">
           <div style="font-size:40px;margin-bottom:10px">❌</div>
           <div style="font-size:15px;font-weight:700;color:#e74c3c;margin-bottom:6px">BASARISIZ!</div>
@@ -360,9 +360,9 @@ async function bkBuyuYap(buyuId) {
         </div>`;
       }
     } else {
-      showToast(data.error || 'Hata', 'error');
+      toast(data.error || 'Hata', 'error');
     }
-  } catch(e) { showToast('Sunucu hatasi', 'error'); }
+  } catch(e) { toast('Sunucu hatasi', 'error'); }
 }
 
 // ═══ PARSOMENLER ═══
@@ -396,12 +396,12 @@ async function bkParsomenOku(buyuId) {
     });
     const data = await r.json();
     if (data.ok) {
-      showToast(data.mesaj, 'success');
+      toast(data.mesaj, 'success');
       await bkLoad();
     } else {
-      showToast(data.error || 'Hata', 'error');
+      toast(data.error || 'Hata', 'error');
     }
-  } catch(e) { showToast('Sunucu hatasi', 'error'); }
+  } catch(e) { toast('Sunucu hatasi', 'error'); }
 }
 
 // ═══ AKTIF BUYULER ═══
@@ -525,12 +525,12 @@ async function bilgeSec(renk) {
     });
     const data = await r.json();
     if (data.ok) {
-      showToast(data.mesaj, 'success');
+      toast(data.mesaj, 'success');
       await bilgeLoad();
     } else {
-      showToast(data.error || 'Hata', 'error');
+      toast(data.error || 'Hata', 'error');
     }
-  } catch(e) { showToast('Sunucu hatasi', 'error'); }
+  } catch(e) { toast('Sunucu hatasi', 'error'); }
 }
 
 // Sayfa yuklenince

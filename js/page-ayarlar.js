@@ -23,6 +23,8 @@ function renderAyarlar(el, data) {
     { key:'koloni_bitis', label:'Koloni suresi dolduğunda', icon:'🏰' },
     { key:'gorev_tamam', label:'Gorev tamamlandiginda', icon:'📜' },
     { key:'casus_rapor', label:'Casus raporu geldiginde', icon:'🕵️' },
+    { key:'casus_operasyon', label:'Sehrine casus operasyonu duzenlendiginde', icon:'🕵️‍♂️' },
+    { key:'buyu_saldiri', label:'Sehrine ofansif buyu atildiginda', icon:'🔮' },
     { key:'ozel_mesaj', label:'Ozel mesaj aldiginda', icon:'✉️' },
     { key:'maas_eksik', label:'Ordu maasi odenemediginde', icon:'💸' },
     { key:'guild_duyuru', label:'Guild duyurusu yapildiginda', icon:'🏰' },
