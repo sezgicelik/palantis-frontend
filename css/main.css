@@ -50,6 +50,9 @@ body{
   flex:1;
   display:flex;
   overflow:hidden;
+  max-width:960px;
+  margin:0 auto;
+  width:100%;
 }
 
 /* ===== SOL MENÜ (Glassmorphism) ===== */
@@ -133,9 +136,6 @@ body{
   flex:1;
   padding:14px 18px;
   overflow-y:auto;
-  max-width:960px;
-  margin:0 auto;
-  width:100%;
 }
 
 /* ===== SAYFA PANELLERİ ===== */
@@ -285,6 +285,8 @@ body{
   -webkit-backdrop-filter:blur(10px);
   border-bottom:2px solid rgba(200,169,110,0.3);
   box-shadow:0 4px 24px rgba(0,0,0,0.6),inset 0 -1px 0 rgba(200,169,110,0.08);
+  max-width:960px;
+  margin:0 auto;
 }
 /* Body padding-top: HUD yuksekligi kadar bosluk birak (4 satir HUD) */
 body{padding-top:130px;}
@@ -930,7 +932,9 @@ body{padding-top:130px;}
   }
   .sidebar.open{left:0;}
 
-  .main-content{padding:10px 8px;margin-left:0;max-width:none;}
+  .main-content{padding:10px 8px;margin-left:0;}
+  .layout{max-width:none;}
+  .hudbar{max-width:none;}
   .layout{flex-direction:column;}
 
   /* HUD bar */
@@ -1064,7 +1068,7 @@ body{padding-top:130px;}
 ═══════════════════════════════════════ */
 @media (max-width: 360px) {
   body{padding-top:125px;}
-  .main-content{padding:10px 8px;max-width:none;}
+  .main-content{padding:10px 8px;}
   .card{padding:12px;}
   .stat-box{padding:1px 3px;}
   .res-amount{font-size:9px;}
