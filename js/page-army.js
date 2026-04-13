@@ -598,7 +598,7 @@ async function trainUnit(id){
       }
       spendExtra(u.extraCost);
       await loadGameData();
-      setText('hud-w', RES.odun); setText('hud-m', RES.metal); setText('hud-t', RES.tas);
+      setText('hud-w', RES.odun); setText('hud-m', RES.metal);
       setText('hud-g', RES.altin); setText('hud-bu', RES.bugday); setText('hud-ba', RES.balik);
       u.count = 0;
       const inp = document.getElementById('cnt-'+id); if(inp) inp.value = 0;
@@ -614,7 +614,7 @@ async function trainUnit(id){
     const extraRc = {}; Object.entries(u.extraCost).forEach(([k,v])=>extraRc[k]=v*adet);
     spendCost(rc);
     spendExtra(extraRc);
-    setText('hud-w', RES.odun); setText('hud-m', RES.metal); setText('hud-t', RES.tas);
+    setText('hud-w', RES.odun); setText('hud-m', RES.metal);
     setText('hud-g', RES.altin); setText('hud-bu', RES.bugday); setText('hud-ba', RES.balik);
     u.count = 0;
     const inp = document.getElementById('cnt-'+id); if(inp) inp.value = 0;

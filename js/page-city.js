@@ -227,7 +227,7 @@ async function confirmBuild(){
     if(!backendSuccess) spendCost(totalCost);
   }
 
-  setText('hud-w', RES.odun); setText('hud-m', RES.metal); setText('hud-t', RES.tas);
+  setText('hud-w', RES.odun); setText('hud-m', RES.metal);
   setText('hud-g', RES.altin); setText('hud-bu', RES.bugday); setText('hud-ba', RES.balik);
 
   QUEUE.push({id:b.id,targetLv:b.lv+1,start:Date.now(),dur:b.time(1)*1000,kalanInsa:adet-1});

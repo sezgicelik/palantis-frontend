@@ -83,7 +83,7 @@ function startGame() {
 /* -- NUFUS -- */
 let population = {
   total: 10, free: 10, max: 1000,
-  wood: 0, stone: 0, iron: 0,
+  wood: 0, iron: 0,
   farm: 0, fish: 0, hunter: 0, merchant: 0,
   asker: 0, worshipper: 0, unite: 0,
   nufus_siniri: 1000, nufus_toplam: 10
@@ -184,7 +184,6 @@ async function loadGameData() {
 
     // Backend'den gelen kaynaklari RES objesine yaz
     if (res.odun !== undefined) RES.odun = parseInt(res.odun) || 0;
-    if (res.tas !== undefined) RES.tas = parseInt(res.tas) || 0;
     if (res.metal !== undefined) RES.metal = parseInt(res.metal) || 0;
     if (res.altin !== undefined) RES.altin = parseInt(res.altin) || 0;
     if (res.bugday !== undefined) RES.bugday = parseInt(res.bugday) || 0;
@@ -216,8 +215,6 @@ async function loadGameData() {
     if(typeof setRate==='function') setRate('hud-bug', prod.bugday ?? 0); else setText('hud-bug', prod.bugday ?? 0);
     setText('hud-ba',  RES.balik);
     if(typeof setRate==='function') setRate('hud-bag', prod.balik ?? 0); else setText('hud-bag', prod.balik ?? 0);
-    setText('hud-t',   RES.tas);
-    if(typeof setRate==='function') setRate('hud-tg', prod.tas ?? 0); else setText('hud-tg', prod.tas ?? 0);
     setText('hud-g',   RES.altin);
     if(typeof setRate==='function') setRate('hud-gg', prod.altin ?? 0); else setText('hud-gg', prod.altin ?? 0);
 
@@ -246,7 +243,6 @@ async function loadGameData() {
     if (work) {
       if (work.total !== undefined) population.total = parseInt(work.total) || 10;
       population.wood     = parseInt(work.oduncu)  || 0;
-      population.stone    = parseInt(work.tasci)   || 0;
       population.iron     = parseInt(work.madenci) || 0;
       population.farm     = parseInt(work.ciftci)  || 0;
       population.fish     = parseInt(work.balikci) || 0;
@@ -265,7 +261,7 @@ async function loadGameData() {
       if (work.free_koylu !== undefined) {
         population.free = parseInt(work.free_koylu) || 0;
       } else {
-        const atanan = population.wood + population.stone + population.iron + population.farm
+        const atanan = population.wood + population.iron + population.farm
                      + population.fish + population.merchant
                      + population.asker + population.worshipper;
         population.free = Math.max(0, population.total - atanan);
@@ -274,12 +270,12 @@ async function loadGameData() {
     }
 
     // Isci dagilimi guncelle
-    const isciMap = { oduncu:'w-oduncu', tasci:'w-tasci', madenci:'w-madenci', ciftci:'w-ciftci', balikci:'w-balikci', tuccar:'w-tuccar' };
+    const isciMap = { oduncu:'w-oduncu', madenci:'w-madenci', ciftci:'w-ciftci', balikci:'w-balikci', tuccar:'w-tuccar' };
     for (const [key, elId] of Object.entries(isciMap)) {
       const inp = document.getElementById(elId);
       if (inp && work[key] !== undefined) inp.value = work[key];
       const gainEl = document.getElementById('gain-' + elId.replace('w-',''));
-      if (gainEl) gainEl.textContent = '+' + (prod[key === 'oduncu' ? 'odun' : key === 'tasci' ? 'tas' : key === 'madenci' ? 'metal' : key === 'ciftci' ? 'bugday' : key === 'balikci' ? 'balik' : 'altin'] || 0) + '/s';
+      if (gainEl) gainEl.textContent = '+' + (prod[key === 'oduncu' ? 'odun' : key === 'madenci' ? 'metal' : key === 'ciftci' ? 'bugday' : key === 'balikci' ? 'balik' : 'altin'] || 0) + '/s';
     }
 
     // Asker sayisini worker tablosundan al
@@ -344,9 +340,8 @@ async function loadBuildingsFromBackend() {
       }
     }
     setText('hud-used', usedArea);
-    // Sehir Degeri hesapla ve HUD'a yaz
-    const sehirDegeri = Object.values(BLDGS).reduce((s,b) => s + (b.lv || 0) * (b.deger || 0), 0);
-    setText('hud-sehir-deger', sehirDegeri);
+    // Sehir Degeri hesapla ve HUD'a yaz (bina + ordu)
+    if (typeof updateCityStats === 'function') updateCityStats();
     // Alan box guncelle
     const alanBox = document.getElementById('hud-alan-box');
     const toplamAlanG = window._palantisToplamAlan || 0;
@@ -426,8 +421,7 @@ function obApplyPlayer(p) {
   set('sidebar-kral', p.kral);
   set('sidebar-irk', irkData ? irkData.icon + ' ' + irkData.name : p.irk);
   set('main-welcome', 'Hos geldin, ' + p.kral + '!');
-  // HUD Cag gosterimi
-  set('hud-limit', romanCag(p.cag || 1) + '. Cag');
+  // Sidebar Cag gosterimi
   set('sidebar-cag', romanCag(p.cag || 1) + '. Cag');
   // Koordinat sidebar'da göster
   if (p.koord_x) set('sidebar-koord', '📍 ' + p.koord_x + ':' + p.koord_y);
@@ -512,7 +506,7 @@ function logoutGame() {
   OYUNCU = { kral: null, sehir: null, irk: null, taraf: null, cag: 1 };
   QUEUE.length = 0;
   Object.values(BLDGS).forEach(b => b.lv = 0);
-  population = { total: 10, free: 10, max: 1000, wood:0, stone:0, iron:0,
+  population = { total: 10, free: 10, max: 1000, wood:0, iron:0,
     farm:0, fish:0, hunter:0, merchant:0, asker:0, worshipper:0, unite:0,
     nufus_siniri:1000, nufus_toplam:10 };
   window.location.href = 'index.html';

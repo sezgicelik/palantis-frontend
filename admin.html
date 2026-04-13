@@ -99,7 +99,7 @@
         <th>Kullanici</th><th>Kral</th><th>Irk</th><th>Taraf</th><th>Cag</th>
         <th>Nufus</th><th>Koylu</th><th>Asker</th><th>Alan</th>
         <th>ATK</th><th>DEF</th><th>Unite</th>
-        <th>Altin</th><th>Odun</th><th>Tas</th><th>Metal</th><th>Bugday</th><th>Balik</th>
+        <th>Altin</th><th>Odun</th><th>Metal</th><th>Bugday</th><th>Balik</th>
         <th>Kereste</th><th>Islenmis</th><th>Ekmek</th><th>Moral</th>
         <th>Premium</th><th>Paket</th><th>Bitis</th>
       </tr></thead>
@@ -249,7 +249,7 @@
       <p style="font-size:10px;color:var(--muted);margin-bottom:10px">Hammadde maliyeti, yapim suresi, sehir degeri ve cag limitleri. Degistirdiginiz degerler DB'ye kaydedilir.</p>
       <div style="overflow-x:auto">
         <table style="font-size:11px" id="bina-config-table">
-          <thead><tr><th>Bina</th><th>Odun</th><th>Tas</th><th>Metal</th><th>Altin</th><th>Sure (sn)</th><th>Deger</th><th></th></tr></thead>
+          <thead><tr><th>Bina</th><th>Odun</th><th>Metal</th><th>Altin</th><th>Sure (sn)</th><th>Deger</th><th></th></tr></thead>
           <tbody id="bina-config-body"></tbody>
         </table>
       </div>
@@ -445,7 +445,7 @@
         <select id="kol-filtre-kaynak" onchange="loadKoloniList()" style="padding:4px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:11px">
           <option value="">Tum Kaynaklar</option>
           <optgroup label="Hammadde">
-            <option value="odun">Odun</option><option value="tas">Tas</option><option value="metal">Metal</option>
+            <option value="odun">Odun</option><option value="metal">Metal</option>
             <option value="altin">Altin</option><option value="bugday">Bugday</option><option value="balik">Balik</option>
           </optgroup>
           <optgroup label="Islenmis">
@@ -573,7 +573,7 @@ async function loadPlayers() {
       <td>${fmt(p.nufus)}</td><td>${fmt(p.toplam_koylu)}</td><td>${fmt(p.asker)}</td>
       <td>${p.kullanilan_alan||0}/${p.toplam_alan||0}</td>
       <td style="color:var(--red)">${fmt(p.toplam_atak)}</td><td style="color:var(--blue)">${fmt(p.toplam_defans)}</td><td>${fmt(p.toplam_unite)}</td>
-      <td style="color:var(--gold)">${fmt(p.altin)}</td><td>${fmt(p.odun)}</td><td>${fmt(p.tas)}</td><td>${fmt(p.metal)}</td>
+      <td style="color:var(--gold)">${fmt(p.altin)}</td><td>${fmt(p.odun)}</td><td>${fmt(p.metal)}</td>
       <td>${fmt(p.bugday)}</td><td>${fmt(p.balik)}</td>
       <td>${fmt(p.kereste)}</td><td>${fmt(p.islenmis)}</td><td>${fmt(p.ekmek)}</td>
       <td>${p.sehir_morali||0}</td>
@@ -587,7 +587,7 @@ async function loadPlayers() {
 
 const HIST_COLS = [
   {k:'nufus',l:'Nufus'},{k:'toplam_koylu',l:'Koylu'},{k:'asker',l:'Asker'},
-  {k:'odun',l:'Odun'},{k:'tas',l:'Tas'},{k:'metal',l:'Metal'},{k:'altin',l:'Altin'},
+  {k:'odun',l:'Odun'},{k:'metal',l:'Metal'},{k:'altin',l:'Altin'},
   {k:'bugday',l:'Bugday'},{k:'balik',l:'Balik'},{k:'kereste',l:'Kereste'},{k:'islenmis',l:'Islenmis'},
   {k:'mana_beyaz',l:'B.Mana'},{k:'mana_kirmizi',l:'K.Mana'},{k:'mana_mavi',l:'M.Mana'},{k:'mana_yesil',l:'Y.Mana'},
 ];
@@ -690,7 +690,7 @@ async function doYeniSezon(isim, tarih) {
 // ── Koloni Ayarlari ──
 // Koloni kaynak kategorileri — admin istedigini acar
 const KOL_KATEGORILER = {
-  'Hammadde':  ['odun','tas','metal','altin','bugday','balik'],
+  'Hammadde':  ['odun','metal','altin','bugday','balik'],
   'Islenmis':  ['kereste','islenmis','ekmek','pismis','pismis_et'],
   'Mana':      ['mana_beyaz','mana_kirmizi','mana_mavi','mana_yesil'],
   'Ozel':      ['at','kurt','gizlilik','buyulu_yumurta'],
@@ -762,7 +762,7 @@ async function saveKoloniConfig() {
   if(r.ok) setTimeout(loadKoloniStats, 2000);
 }
 const RES_LIST = [
-  {id:'odun',label:'Odun'},{id:'tas',label:'Tas'},{id:'metal',label:'Metal'},{id:'altin',label:'Altin'},
+  {id:'odun',label:'Odun'},{id:'metal',label:'Metal'},{id:'altin',label:'Altin'},
   {id:'bugday',label:'Bugday'},{id:'balik',label:'Balik'},{id:'kereste',label:'Kereste'},{id:'islenmis',label:'Islenmis'},
   {id:'ekmek',label:'Ekmek'},{id:'pismis',label:'Pismis'},{id:'pismis_et',label:'Pismis Et'},{id:'cig_et',label:'Cig Et'},
   {id:'mana_beyaz',label:'B.Mana'},{id:'mana_kirmizi',label:'K.Mana'},{id:'mana_mavi',label:'M.Mana'},{id:'mana_yesil',label:'Y.Mana'},
@@ -930,7 +930,7 @@ async function loadMarketConfig() {
 
   const KAT = {
     'Market Hammadde': ['gumus','bakir','mitril','kalay','kehribar','obsidyen','yakut','zumrut','ejderha_tasi','elmas'],
-    'Temel Kaynak': ['odun','tas','metal','altin','bugday','balik'],
+    'Temel Kaynak': ['odun','metal','altin','bugday','balik'],
     'Islenmis': ['kereste','islenmis','ekmek','pismis','pismis_et','cig_et'],
     'Mana': ['mana_beyaz','mana_kirmizi','mana_mavi','mana_yesil'],
     'Ozel': ['at','kurt','gizlilik','buyulu_yumurta','ates_tozu','ay_cigi','golgeler_otu','ejderha_goz_damla']
@@ -1038,7 +1038,6 @@ async function loadBinaConfig() {
     return `<tr>
       <td style="color:var(--gold);font-weight:bold">${b.bina_id}</td>
       <td><input type="number" id="bc-${b.bina_id}-odun" value="${m.odun||0}" style="width:50px;padding:2px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px;text-align:center"></td>
-      <td><input type="number" id="bc-${b.bina_id}-tas" value="${m.tas||0}" style="width:50px;padding:2px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px;text-align:center"></td>
       <td><input type="number" id="bc-${b.bina_id}-metal" value="${m.metal||0}" style="width:50px;padding:2px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px;text-align:center"></td>
       <td><input type="number" id="bc-${b.bina_id}-altin" value="${m.altin||0}" style="width:50px;padding:2px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px;text-align:center"></td>
       <td><input type="number" id="bc-${b.bina_id}-sure" value="${b.sure_sn}" style="width:55px;padding:2px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px;text-align:center"></td>
@@ -1052,7 +1051,6 @@ async function saveBinaConfig(binaId) {
   const g = id => parseInt(document.getElementById(id)?.value) || 0;
   const maliyet = {};
   if(g(`bc-${binaId}-odun`)>0) maliyet.odun = g(`bc-${binaId}-odun`);
-  if(g(`bc-${binaId}-tas`)>0) maliyet.tas = g(`bc-${binaId}-tas`);
   if(g(`bc-${binaId}-metal`)>0) maliyet.metal = g(`bc-${binaId}-metal`);
   if(g(`bc-${binaId}-altin`)>0) maliyet.altin = g(`bc-${binaId}-altin`);
   const sure_sn = g(`bc-${binaId}-sure`) || 3600;
@@ -1102,7 +1100,7 @@ async function saveBuyuConfig() {
 // ── Irk Bonuslari ──
 const IRK_ISIM = { insan:'Insan', elf:'Elf', cuce:'Cuce', bucukluk:'Bucukluk', kara_elf:'Kara Elf', ork:'Ork', ogre_irk:'Ogre', undead:'Undead' };
 const BONUS_KAT = {
-  'Hammadde': ['odun','tas','metal','altin','bugday','balik'],
+  'Hammadde': ['odun','metal','altin','bugday','balik'],
   'Islenmis': ['kereste','islenmis','ekmek','pismis','pismis_et'],
   'Mana': ['mana_beyaz','mana_kirmizi','mana_mavi','mana_yesil'],
   'Ozel': ['at','kurt','gizlilik','buyulu_yumurta']
@@ -1225,7 +1223,7 @@ async function saveMapConfig() {
   if(r.ok) setTimeout(loadMapConfig, 2000);
 }
 
-const KAYNAK_RENK = {odun:'#8B4513',tas:'#888',metal:'#607d8b',altin:'var(--gold)',bugday:'#daa520',balik:'#4fc3f7'};
+const KAYNAK_RENK = {odun:'#8B4513',metal:'#607d8b',altin:'var(--gold)',bugday:'#daa520',balik:'#4fc3f7'};
 
 async function loadKoloniList() {
   const bodyEl = document.getElementById('koloni-list-body');

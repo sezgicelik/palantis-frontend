@@ -75,7 +75,7 @@
 const CAG_IKONLARI = { 1:'🏛️', 2:'⚔️', 3:'🏰', 4:'🐉', 5:'👑' };
 const CAG_MORAL_MAKS = { 1:1500, 2:2000, 3:2500, 4:3000, 5:3500 };
 const CAG_NUFUS_BONUS = { 1:0, 2:500, 3:1000, 4:1500, 5:2000 };
-const KAYNAK_IKON = { odun:'🌳', tas:'🪨', metal:'⛏️', altin:'💰', kereste:'🪵', islenmis:'🔩', ekmek:'🍞', pismis:'🍳', pismis_et:'🍖' };
+const KAYNAK_IKON = { odun:'🌳', metal:'⛏️', altin:'💰', kereste:'🪵', islenmis:'🔩', ekmek:'🍞', pismis:'🍳', pismis_et:'🍖' };
 
 let CAG_DATA = {};
 
@@ -122,7 +122,6 @@ function renderCag() {
   maliyetListe.innerHTML = Object.entries(maliyet).map(([kaynak, miktar]) => {
     const mevcut = kaynak === 'altin' ? (RES.altin||0) :
                    kaynak === 'odun' ? (RES.odun||0) :
-                   kaynak === 'tas' ? (RES.tas||0) :
                    kaynak === 'metal' ? (RES.metal||0) :
                    kaynak === 'kereste' ? (RES.kereste||0) :
                    kaynak === 'islenmis' ? (RES.islenmis||0) :

@@ -6,7 +6,6 @@
 // Isci tipi -> bina eslesmesi
 const ISCI_BINA_MAP = {
   wood:     { binaId: 'oduncu',       kapasite: 40, ad: 'Oduncu Kampı' },
-  stone:    { binaId: 'tas_ocagi',    kapasite: 30, ad: 'Taş Ocağı' },
   iron:     { binaId: 'demir_madeni', kapasite: 50, ad: 'Demir Madeni' },
   farm:     { binaId: 'tarla',        kapasite: 50, ad: 'Tarla' },
   fish:     { binaId: 'balikci',      kapasite: 20, ad: 'Balıkçı Limanı' },
@@ -124,7 +123,6 @@ async function saveWorkers(){
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
       body: JSON.stringify({
         oduncu: population.wood || 0,
-        tasci: population.stone || 0,
         madenci: population.iron || 0,
         ciftci: population.farm || 0,
         balikci: population.fish || 0,
@@ -316,7 +314,7 @@ function bonusEtkileriGuncelle() {
   // Isci/Limit
   const isciLimitEl = document.getElementById('pop-isci-limit');
   if (isciLimitEl) {
-    const isci = (population.wood||0)+(population.stone||0)+(population.iron||0)+(population.farm||0)+(population.fish||0)+(population.merchant||0);
+    const isci = (population.wood||0)+(population.iron||0)+(population.farm||0)+(population.fish||0)+(population.merchant||0);
     const cag = OYUNCU?.cag || 1;
     const CAG_ISCI_LIMIT = {1:1500, 2:2000, 3:2500, 4:3000, 5:3500};
     isciLimitEl.textContent = `${isci} / ${CAG_ISCI_LIMIT[cag]||200}`;

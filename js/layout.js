@@ -138,7 +138,7 @@ function renderHUD(){
 
   mount.innerHTML = `
   <div class="hudbar" id="hudbar">
-    <!-- HAM: Odun Metal Bugday Balik CigEt Tas Altin -->
+    <!-- HAM: Odun Metal Bugday Balik CigEt Altin -->
     <div class="hud-row-wrap">
       <div class="hud-row-lbl">HAM</div>
       <div class="hud-res-row hud-aligned">
@@ -147,7 +147,6 @@ function renderHUD(){
         ${sb('BUĞDAY','🌾','Buğday','hud-bu','hud-bug')}
         ${sb('BALIK','🎣','Balık','hud-ba','hud-bag')}
         ${sb('ÇİĞ ET','🥩','Çiğ Et','hud-ce',null)}
-        ${sb('TAŞ','🪨','Taş','hud-t','hud-tg')}
         ${sb('ALTIN','💰','Altın','hud-g','hud-gg')}
       </div>
     </div>
@@ -173,11 +172,9 @@ function renderHUD(){
         ${sb('AÇLIK','🍽️','Açlık','hud-hunger',null)}
         ${sb('NÜFUS','👥','Nüfus','hud-nufus-box',null)}
         ${sb('ALAN','📐','Alan','hud-alan-box',null)}
-        ${sb('ÇAĞ','🧱','Çağ','hud-limit',null)}
         ${sb('ŞEHİR','🏰','Ş.Değeri','hud-sehir-deger',null)}
         ${sb('TARİH','📅','Tarih','hud-takvim',null)}
         ${sb('SAAT','⏰','Saat','c-now',null)}
-        ${sb('P.G.','⏳','P.G.','c-next',null)}
       </div>
     </div>
     <!-- MANA -->

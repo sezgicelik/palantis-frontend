@@ -47,21 +47,14 @@ const BLDGS = {
     maxLv:999,lv:0,deger:45,kapasite:{tip:'oduncu',miktar:40},
     cagLimit:{1:60,2:100,3:140,4:200,5:260},
     fx:l=>[{t:'pos',s:`+${l*40} Odun/gün`},{t:'pos',s:`${l*40} oduncu kap.`}],
-    cost:l=>({odun:200,tas:100,altin:50}),time:l=>3600},
-
-  tas_ocagi:{id:'tas_ocagi',cat:'uretim',icon:'🪨',name:'Taş Ocağı',bg:'#16140a',
-    desc:"Taşçıların çalıştığı yer. Her bina 30 taşçı barındırır.",
-    maxLv:999,lv:0,deger:49,kapasite:{tip:'tasci',miktar:30},
-    cagLimit:{1:50,2:83,3:117,4:167,5:217},
-    fx:l=>[{t:'pos',s:`+${l*30} Taş/gün`},{t:'pos',s:`${l*30} taşçı kap.`}],
-    cost:l=>({odun:150,altin:80}),time:l=>3600},
+    cost:l=>({odun:200,altin:50}),time:l=>3600},
 
   demir_madeni:{id:'demir_madeni',cat:'uretim',icon:'⛏️',name:'Demir Madeni',bg:'#101018',
     desc:"Madencilerin çalıştığı yer. Her bina 50 madenci barındırır.",
     maxLv:999,lv:0,deger:75,kapasite:{tip:'madenci',miktar:50},
     cagLimit:{1:30,2:50,3:70,4:100,5:130},
     fx:l=>[{t:'pos',s:`+${l*25} Metal/gün`},{t:'pos',s:`${l*50} madenci kap.`}],
-    cost:l=>({odun:200,tas:150,altin:100}),time:l=>3600},
+    cost:l=>({odun:200,altin:100}),time:l=>3600},
 
   tarla:{id:'tarla',cat:'uretim',icon:'🌾',name:'Tarla',bg:'#161400',
     desc:"Çiftçilerin çalıştığı yer. Her bina 50 çiftçi barındırır.",
@@ -75,7 +68,7 @@ const BLDGS = {
     maxLv:999,lv:0,deger:86,kapasite:{tip:'balikci',miktar:20},
     cagLimit:{1:75,2:125,3:175,4:250,5:325},
     fx:l=>[{t:'pos',s:`+${l*20} Balık/gün`},{t:'pos',s:`${l*20} balıkçı kap.`}],
-    cost:l=>({odun:300,tas:200,altin:120}),time:l=>7200},
+    cost:l=>({odun:300,altin:120}),time:l=>7200},
 
   isleme:{id:'isleme',cat:'uretim',icon:'🔩',name:'İşleme Atölyesi',bg:'#141000',
     desc:"Ham metali işlenmiş metale çevirir. Her atölye 30 metal/gün işler.",
@@ -89,7 +82,7 @@ const BLDGS = {
     maxLv:999,lv:0,deger:75,
     cagLimit:{1:-1,2:-1,3:-1,4:-1,5:-1},
     fx:l=>[{t:'pos',s:`Pişirme (oran bazlı)`}],
-    cost:l=>({odun:200,tas:100,altin:150}),time:l=>3600},
+    cost:l=>({odun:200,altin:150}),time:l=>3600},
 
   firin:{id:'firin',cat:'uretim',icon:'🍞',name:'Fırın',bg:'#1a0a00',
     desc:"10 ocak birleştirince oluşur. 5 alan kaplar.",
@@ -104,21 +97,21 @@ const BLDGS = {
     maxLv:5,lv:0,deger:110,
     cagLimit:{1:5,2:5,3:5,4:5,5:5},
     fx:l=>[{t:'pos',s:`DEF +${l*12}%`},{t:'pos',s:`Hasar -%${l*3}`}],
-    cost:l=>({tas:400,metal:200,altin:100}),time:l=>14400},
+    cost:l=>({metal:200,altin:100}),time:l=>14400},
 
   okcu_kulesi:{id:'okcu_kulesi',cat:'askeri',icon:'🏹',name:'Okçu Kulesi',bg:'#180d00',
     desc:"Savaşlarda otomatik atış yapar.",
     maxLv:10,lv:0,deger:250,
     cagLimit:{1:10,2:10,3:10,4:10,5:10},
     fx:l=>[{t:'pos',s:`${l} Okçu/tur`},{t:'pos',s:`ATK ${l*50}`}],
-    cost:l=>({odun:500,tas:500,metal:300,altin:300}),time:l=>14400},
+    cost:l=>({odun:500,metal:300,altin:300}),time:l=>14400},
 
   mizrak_kulesi:{id:'mizrak_kulesi',cat:'askeri',icon:'🗼',name:'Mızrak Kulesi',bg:'#120a00',
     desc:"Savunma burcu. Saldıranlara hasar verir.",
     maxLv:15,lv:0,deger:200,
     cagLimit:{1:15,2:15,3:15,4:15,5:15},
     fx:l=>[{t:'pos',s:`${l*3} Mızrakçı/tur`},{t:'pos',s:`DEF +${l*30}`}],
-    cost:l=>({odun:400,tas:600,metal:200,altin:200}),time:l=>14400},
+    cost:l=>({odun:400,metal:200,altin:200}),time:l=>14400},
 
   balista_kulesi:{id:'balista_kulesi',cat:'askeri',icon:'🏹',name:'Balista Kulesi',bg:'#180800',
     desc:"Uzun menzilli savunma. Büyük hasar.",
@@ -160,7 +153,7 @@ const BLDGS = {
     maxLv:4,lv:0,deger:410,
     cagLimit:{1:0,2:0,3:3,4:3,5:4},
     fx:l=>[{t:'pos',s:`Ejderha şansı %${(l*0.01).toFixed(2)}`}],
-    cost:l=>({tas:500,metal:300,altin:1000}),time:l=>36000},
+    cost:l=>({metal:300,altin:1000}),time:l=>36000},
 
   buyulu_tarla:{id:'buyulu_tarla',cat:'askeri',icon:'🥚',name:'Büyülü Tarla',bg:'#140014',
     desc:"Büyülü Yumurta üretir. %0.001 şans/bina/saat.",
@@ -203,7 +196,7 @@ const BLDGS = {
     maxLv:1,lv:0,deger:115,
     cagLimit:{1:0,2:1,3:1,4:1,5:1},
     fx:l=>[{t:'pos',s:`Askeri geliştirme`},{t:'pos',s:`Eğitim +${l*8}%`}],
-    cost:l=>({odun:300,tas:200,metal:100,altin:150}),time:l=>14400},
+    cost:l=>({odun:300,metal:100,altin:150}),time:l=>14400},
 
   /* ═══ SOSYAL ═══ */
   sehir_meydani:{id:'sehir_meydani',cat:'sosyal',icon:'🏛️',name:'Şehir Meydanı',bg:'#141400',
@@ -211,7 +204,7 @@ const BLDGS = {
     maxLv:1,lv:0,deger:70,
     cagLimit:{1:1,2:1,3:1,4:1,5:1},
     fx:l=>[{t:'pos',s:`Moral +${l*5}`},{t:'pos',s:'Etkinlik slotu'}],
-    cost:l=>({odun:200,tas:200,altin:100}),time:l=>3600},
+    cost:l=>({odun:200,altin:100}),time:l=>3600},
 
   pazar:{id:'pazar',cat:'sosyal',icon:'💰',name:'Pazar',bg:'#160e00',
     desc:"Kervan, büyü dükkanı ve oyuncu pazarına erişim. Her saat esek bulma sansi.",
@@ -225,7 +218,7 @@ const BLDGS = {
     maxLv:1,lv:0,deger:250,
     cagLimit:{1:0,2:1,3:1,4:1,5:1},
     fx:l=>[{t:'pos',s:`${l*10} üye kapasitesi`},{t:'pos',s:`Guild bonus +${l*5}%`}],
-    cost:l=>({odun:600,tas:400,altin:500}),time:l=>14400},
+    cost:l=>({odun:600,altin:500}),time:l=>14400},
 
   palantis_hani:{id:'palantis_hani',cat:'sosyal',icon:'🍺',name:'Palantis Hanı',bg:'#160e00',
     desc:"Eğlence merkezi. Moral artırır. Max 1.",
@@ -247,7 +240,7 @@ const BLDGS = {
     maxLv:999,lv:0,deger:21,
     cagLimit:{1:-1,2:-1,3:-1,4:-1,5:-1},
     fx:l=>[{t:'pos',s:`+${l*50} Nüfus sınırı`}],
-    cost:l=>({odun:100,tas:50,altin:20}),time:l=>7200},
+    cost:l=>({odun:100,altin:20}),time:l=>7200},
 
   koy:{id:'koy',cat:'sehir',icon:'🏘️',name:'Köy',bg:'#1a1200',
     desc:"10 ev birleştirince oluşur. 5 alan kaplar. +500 nüfus.",
@@ -268,7 +261,7 @@ const BLDGS = {
     maxLv:999,lv:0,deger:75,
     cagLimit:{1:0,2:-1,3:-1,4:-1,5:-1},
     fx:l=>[{t:'pos',s:`Eğitim +${l*5}%`},{t:'pos',s:`Nüfus sınırı +${l*50}`}],
-    cost:l=>({odun:200,tas:100,altin:150}),time:l=>21600},
+    cost:l=>({odun:200,altin:150}),time:l=>21600},
 
   asma_bahceler:{id:'asma_bahceler',cat:'sehir',icon:'🌺',name:'Asma Bahçeler',bg:'#0a1400',
     desc:"Mutluluk ve moral artışı.",
@@ -282,14 +275,14 @@ const BLDGS = {
     maxLv:999,lv:0,deger:230,
     cagLimit:{1:0,2:0,3:-1,4:-1,5:-1},
     fx:l=>[{t:'pos',s:`Kültür +${l*10}%`},{t:'pos',s:`Prestij +${l*20}`}],
-    cost:l=>({odun:400,tas:400,altin:500}),time:l=>43200},
+    cost:l=>({odun:400,altin:500}),time:l=>43200},
 
   universite:{id:'universite',cat:'sehir',icon:'🎓',name:'Üniversite',bg:'#100a18',
     desc:"İleri araştırma ve teknoloji hızlanması.",
     maxLv:999,lv:0,deger:260,
     cagLimit:{1:0,2:0,3:-1,4:-1,5:-1},
     fx:l=>[{t:'pos',s:`Araştırma +${l*15}%`},{t:'pos',s:`Bilim +${l*10}`}],
-    cost:l=>({odun:500,tas:300,altin:600}),time:l=>43200},
+    cost:l=>({odun:500,altin:600}),time:l=>43200},
 
   tiyatro:{id:'tiyatro',cat:'sehir',icon:'🎭',name:'Tiyatro',bg:'#14000e',
     desc:"Eğlence ve mutluluk merkezi.",
@@ -303,7 +296,7 @@ const BLDGS = {
     maxLv:999,lv:0,deger:220,
     cagLimit:{1:0,2:0,3:0,4:-1,5:-1},
     fx:l=>[{t:'pos',s:`ATK eğitim +${l*5}%`},{t:'pos',s:`Moral +${l*5}`}],
-    cost:l=>({odun:400,tas:400,metal:200,altin:400}),time:l=>57600},
+    cost:l=>({odun:400,metal:200,altin:400}),time:l=>57600},
 
   kutuphane:{id:'kutuphane',cat:'sehir',icon:'📖',name:'Kütüphane',bg:'#0a1200',
     desc:"Üretim verimliliği ve araştırma hızlanması.",
@@ -324,10 +317,10 @@ const BINA_BIRLESTIRME_FE = {
   firin:  { source: 'ocak', miktar: 10 },
 };
 
-const RES={odun:2400,metal:1850,bugday:3200,balik:640,tas:1100,altin:5840,kereste:820,islenmis:310,ekmek:920,pismis:180,cig_et:0,pismis_et:0};
+const RES={odun:2400,metal:1850,bugday:3200,balik:640,altin:5840,kereste:820,islenmis:310,ekmek:920,pismis:180,cig_et:0,pismis_et:0};
 const _METAL_SVG = '<svg width="15" height="11" viewBox="0 0 15 11" style="display:inline-block;vertical-align:-1px"><path d="M2,1 L13,1 L11,10 L4,10 Z" fill="#8a8a8a" stroke="#666" stroke-width="0.5"/><path d="M4,3 L11,3 L9.5,8.5 L5.5,8.5 Z" fill="#b0b0b0"/></svg>';
 const _ISLENMIS_SVG = '<svg width="15" height="11" viewBox="0 0 15 11" style="display:inline-block;vertical-align:-1px"><path d="M2,1 L13,1 L11,10 L4,10 Z" fill="#2471a3" stroke="#1a5276" stroke-width="0.5"/><path d="M4,3 L11,3 L9.5,8.5 L5.5,8.5 Z" fill="#5dade2"/></svg>';
-const RICONS={odun:'🌳',metal:_METAL_SVG,bugday:'🌾',balik:'🎣',tas:'🪨',altin:'💰',kereste:'🪵',islenmis:_ISLENMIS_SVG,ekmek:'🍞',pismis:'🍳',cig_et:'🥩',pismis_et:'🍖',mana:'🔮',at:'🐴',kurt:'🐺',gizlilik:'🎯',buyulu_yumurta:'🥚'};
+const RICONS={odun:'🌳',metal:_METAL_SVG,bugday:'🌾',balik:'🎣',altin:'💰',kereste:'🪵',islenmis:_ISLENMIS_SVG,ekmek:'🍞',pismis:'🍳',cig_et:'🥩',pismis_et:'🍖',mana:'🔮',at:'🐴',kurt:'🐺',gizlilik:'🎯',buyulu_yumurta:'🥚'};
 
 const UNITS = {
   /* ═══════════ AYDINLIK ═══════════ */

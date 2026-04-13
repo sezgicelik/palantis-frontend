@@ -40,8 +40,6 @@ function updateTopTimers(){
     if(typeof loadGameData==='function') setTimeout(loadGameData, 5000);
   }
 
-  const cNext = document.getElementById('c-next');
-  if(cNext) cNext.innerText = `${(diff/3600000).toFixed(3)} P.G.`;
 }
 
 /* =====================================================
@@ -60,9 +58,6 @@ function setHUD(d){
 
   setText('hud-ba',d.ham.balik);
   setText('hud-bag',d.ham.balik_g);
-
-  setText('hud-t',d.ham.tas);
-  setText('hud-tg',d.ham.tas_g);
 
   setText('hud-g',d.ham.altin);
   setText('hud-gg',d.ham.altin_g);
@@ -100,7 +95,7 @@ function updatePopulationUI(){
   const set = (id, v) => { const e=document.getElementById(id); if(e) e.innerText=v; };
 
   // Nüfus hesabı: Köylü (boşta) + İşçi (atanmış) + Asker+Tapınak (sabit) + Ünite (orduda)
-  const isci   = (population.wood||0)+(population.stone||0)+(population.iron||0)+
+  const isci   = (population.wood||0)+(population.iron||0)+
                  (population.farm||0)+(population.fish||0)+(population.merchant||0);
   const sabit  = (population.asker||0)+(population.worshipper||0);
   const unite  = population.unite||0;
@@ -148,7 +143,6 @@ function updatePopulationUI(){
 
   // İşçi sayıları
   set('w-wood', population.wood);
-  set('w-stone', population.stone);
   set('w-iron', population.iron);
   set('w-farm', population.farm||0);
   set('w-fish', population.fish||0);
@@ -156,7 +150,6 @@ function updatePopulationUI(){
 
   // Saatlik üretim
   set('p-wood',     population.wood * 40);
-  set('p-stone',    population.stone * 30);
   set('p-iron',     population.iron * 25);
   set('p-farm',     (population.farm||0) * 50);
   set('p-fish',     (population.fish||0) * 20);
@@ -164,7 +157,7 @@ function updatePopulationUI(){
 
   // Bina kapasite gosterimi (sayfa icerisindeki isci satirlarina)
   if(typeof getWorkerCapacity === 'function') {
-    const kapTypes = ['wood','stone','iron','farm','fish'];
+    const kapTypes = ['wood','iron','farm','fish'];
     kapTypes.forEach(t => {
       const el = document.getElementById('kap-'+t);
       if(!el) return;
@@ -196,7 +189,6 @@ function updateCityStats(){
   const cag = OYUNCU?.cag || 1;
   const cagStr = roman[cag] + '. Çağ';
   const csAge=document.getElementById('cs-age');if(csAge)csAge.textContent=cagStr;
-  const hudLimit=document.getElementById('hud-limit');if(hudLimit)hudLimit.textContent=cagStr;
   const sidebarCag=document.getElementById('sidebar-cag');if(sidebarCag)sidebarCag.textContent=cagStr;
   // HUD alan
   const usedArea=Object.values(BLDGS).reduce((s,b)=>s+b.lv*binaAlanFE(b.id),0);
