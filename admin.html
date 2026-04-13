@@ -69,6 +69,10 @@
     <button onclick="switchTab('map',this)">Harita & Koloni</button>
     <button onclick="switchTab('artifact',this)">Artifactlar</button>
     <button onclick="switchTab('gorevler',this)">Gorevler</button>
+    <button onclick="switchTab('savas-cfg',this)">Savas Ayar</button>
+    <button onclick="switchTab('dayaniklilik-cfg',this)">Dayaniklilik</button>
+    <button onclick="switchTab('bilge-cfg',this)">Bilge</button>
+    <button onclick="switchTab('casus-cfg',this)">Casus Ayar</button>
   </div>
 
   <!-- CRON TAB -->
@@ -473,6 +477,38 @@
       </div>
     </div>
   </div>
+  <!-- ═══ SAVAS AYAR ═══ -->
+  <div id="tab-savas-cfg" class="panel" style="display:none">
+    <h3>Savas Ganimet Ayarlari</h3>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">Olen unite maliyet ganimeti + sehir yagmasi + alan transferi oranlari</p>
+    <div id="savas-cfg-content">Yukleniyor...</div>
+    <button class="act" onclick="savasCfgKaydet()">Kaydet</button>
+  </div>
+
+  <!-- ═══ DAYANIKLILIK ═══ -->
+  <div id="tab-dayaniklilik-cfg" class="panel" style="display:none">
+    <h3>Bina Dayaniklilik Ayarlari</h3>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">Dogal yipranma, savas hasari, kule, yikim sansi, tamir carpanlari</p>
+    <div id="dayaniklilik-cfg-content">Yukleniyor...</div>
+    <button class="act" onclick="dayaniklikCfgKaydet()">Kaydet</button>
+  </div>
+
+  <!-- ═══ BILGE ═══ -->
+  <div id="tab-bilge-cfg" class="panel" style="display:none">
+    <h3>Bilge Sistemi Ayarlari</h3>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">4 bilge, mana carpan, global dongu, degisim cooldown</p>
+    <div id="bilge-cfg-content">Yukleniyor...</div>
+    <button class="act" onclick="bilgeCfgKaydet()">Kaydet</button>
+  </div>
+
+  <!-- ═══ CASUS AYAR ═══ -->
+  <div id="tab-casus-cfg" class="panel" style="display:none">
+    <h3>Casus Sistemi Ayarlari</h3>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">11 gorev tipi: sure, gizlilik, basari, zorluk, olum riski</p>
+    <div id="casus-cfg-content">Yukleniyor...</div>
+    <button class="act" onclick="casusCfgKaydet()">Kaydet</button>
+  </div>
+
 </div>
 
 <script>
@@ -515,6 +551,10 @@ function switchTab(tab, el) {
   if (tab === 'irklar') loadIrkBonuslari();
   if (tab === 'artifact') loadArtifactAdmin();
   if (tab === 'gorevler') loadGorevlerAdmin();
+  if (tab === 'savas-cfg') loadSavasCfg();
+  if (tab === 'dayaniklilik-cfg') loadDayaniklikCfg();
+  if (tab === 'bilge-cfg') loadBilgeCfg();
+  if (tab === 'casus-cfg') loadCasusCfg();
 }
 
 function hdr() { return { 'x-admin-secret': SECRET, 'Content-Type': 'application/json' }; }
@@ -1460,6 +1500,145 @@ async function adminGorevSil(id) {
     await fetch(API + '/api/admin/gorev/' + id, { method: 'DELETE', headers: hdr() });
     loadGorevlerAdmin();
   } catch(e) {}
+}
+
+// ═══ SAVAS CONFIG ═══
+let _savasCfg = {};
+async function loadSavasCfg() {
+  const el = document.getElementById('savas-cfg-content');
+  try {
+    const r = await fetch(API + '/api/admin/savas-config', { headers: hdr() });
+    _savasCfg = await r.json();
+    const keys = Object.keys(_savasCfg).sort();
+    el.innerHTML = '<table><thead><tr><th>Parametre</th><th>Deger (%)</th></tr></thead><tbody>' +
+      keys.map(k => `<tr><td style="font-size:10px">${k}</td><td><input id="sc-${k}" type="number" value="${_savasCfg[k]}" min="0" max="100" style="width:60px;padding:2px;background:#111;border:1px solid #333;color:#ddd;text-align:center"></td></tr>`).join('') +
+      '</tbody></table>';
+  } catch(e) { el.innerHTML = '<div style="color:#e74c3c">Yukleme hatasi</div>'; }
+}
+async function savasCfgKaydet() {
+  const body = {};
+  Object.keys(_savasCfg).forEach(k => { body[k] = parseFloat(document.getElementById('sc-'+k)?.value) || 0; });
+  try {
+    await fetch(API + '/api/admin/savas-config', { method: 'POST', headers: hdr(), body: JSON.stringify(body) });
+    alert('Savas config kaydedildi!');
+  } catch(e) { alert('Hata: ' + e.message); }
+}
+
+// ═══ DAYANIKLILIK CONFIG ═══
+let _dayCfg = {};
+async function loadDayaniklikCfg() {
+  const el = document.getElementById('dayaniklilik-cfg-content');
+  try {
+    const r = await fetch(API + '/api/admin/dayaniklilik-config', { headers: hdr() });
+    _dayCfg = await r.json();
+    const flat = {};
+    for (const [k,v] of Object.entries(_dayCfg)) {
+      if (typeof v === 'object') flat[k] = JSON.stringify(v);
+      else flat[k] = v;
+    }
+    el.innerHTML = '<table><thead><tr><th>Parametre</th><th>Deger</th></tr></thead><tbody>' +
+      Object.entries(flat).map(([k,v]) => `<tr><td style="font-size:10px">${k}</td><td><input id="dc-${k}" value="${v}" style="width:180px;padding:2px;background:#111;border:1px solid #333;color:#ddd;font-size:10px"></td></tr>`).join('') +
+      '</tbody></table>';
+  } catch(e) { el.innerHTML = '<div style="color:#e74c3c">Yukleme hatasi</div>'; }
+}
+async function dayaniklikCfgKaydet() {
+  const body = {};
+  for (const [k,v] of Object.entries(_dayCfg)) {
+    const input = document.getElementById('dc-'+k)?.value;
+    if (!input) continue;
+    try { body[k] = JSON.parse(input); } catch(e) { body[k] = isNaN(parseFloat(input)) ? input : parseFloat(input); }
+  }
+  try {
+    await fetch(API + '/api/admin/dayaniklilik-config', { method: 'POST', headers: hdr(), body: JSON.stringify(body) });
+    alert('Dayaniklilik config kaydedildi!');
+  } catch(e) { alert('Hata: ' + e.message); }
+}
+
+// ═══ BILGE CONFIG ═══
+let _bilgeCfg = {};
+async function loadBilgeCfg() {
+  const el = document.getElementById('bilge-cfg-content');
+  try {
+    const r = await fetch(API + '/api/admin/bilge-config', { headers: hdr() });
+    _bilgeCfg = await r.json();
+    const bilgeler = _bilgeCfg.bilgeler || {};
+    const global = _bilgeCfg.global || {};
+    const cd = _bilgeCfg.degisim_cooldown || 168;
+    el.innerHTML =
+      '<div style="margin-bottom:10px"><b>Global Bilge:</b> ' + (global.aktif||'?') + ' | Sayac: ' + (global.sayac||0) + '/336</div>' +
+      '<div style="margin-bottom:10px"><b>Degisim Cooldown:</b> <input id="bg-cd" type="number" value="' + cd + '" style="width:60px;padding:2px;background:#111;border:1px solid #333;color:#ddd"> PG</div>' +
+      '<table><thead><tr><th>Bilge</th><th>Isim</th><th>Mana Carpan</th><th>Bonus</th></tr></thead><tbody>' +
+      Object.entries(bilgeler).map(([renk, b]) =>
+        `<tr><td style="color:${renk==='beyaz'?'#f0e6d2':renk==='kirmizi'?'#e74c3c':renk==='mavi'?'#3498db':'#2ecc71'}">${renk}</td>` +
+        `<td><input id="bg-${renk}-isim" value="${b.isim||''}" style="width:120px;padding:2px;background:#111;border:1px solid #333;color:#ddd;font-size:10px"></td>` +
+        `<td><input id="bg-${renk}-mc" type="number" step="0.1" value="${b.mana_carpan||2}" style="width:50px;padding:2px;background:#111;border:1px solid #333;color:#ddd"></td>` +
+        `<td><input id="bg-${renk}-bonus" value='${JSON.stringify(b.bonus||{})}' style="width:200px;padding:2px;background:#111;border:1px solid #333;color:#ddd;font-size:9px"></td></tr>`
+      ).join('') + '</tbody></table>';
+  } catch(e) { el.innerHTML = '<div style="color:#e74c3c">Yukleme hatasi</div>'; }
+}
+async function bilgeCfgKaydet() {
+  const bilgeler = {};
+  ['beyaz','kirmizi','mavi','yesil'].forEach(r => {
+    let bonus = {};
+    try { bonus = JSON.parse(document.getElementById('bg-'+r+'-bonus')?.value || '{}'); } catch(e) {}
+    bilgeler[r] = {
+      isim: document.getElementById('bg-'+r+'-isim')?.value || r,
+      mana_carpan: parseFloat(document.getElementById('bg-'+r+'-mc')?.value) || 2,
+      bonus
+    };
+  });
+  try {
+    await fetch(API + '/api/admin/bilge-config', { method: 'POST', headers: hdr(), body: JSON.stringify({
+      bilgeler,
+      degisim_cooldown: parseInt(document.getElementById('bg-cd')?.value) || 168
+    })});
+    alert('Bilge config kaydedildi!');
+  } catch(e) { alert('Hata: ' + e.message); }
+}
+
+// ═══ CASUS CONFIG ═══
+let _casusCfg = {};
+async function loadCasusCfg() {
+  const el = document.getElementById('casus-cfg-content');
+  try {
+    const r = await fetch(API + '/api/admin/casus-config', { headers: hdr() });
+    _casusCfg = await r.json();
+    const gorevler = _casusCfg.gorevler || {};
+    const genel = ['egitim_maliyet','iyilesme_hizi','deneyim_basari','deneyim_basarisiz','max_seviye','max_casus','premium_max_casus'];
+    el.innerHTML =
+      '<div style="margin-bottom:10px"><b>Genel Ayarlar:</b></div>' +
+      '<table><tbody>' + genel.map(k => `<tr><td style="font-size:10px">${k}</td><td><input id="cc-${k}" type="number" value="${_casusCfg[k]||0}" style="width:70px;padding:2px;background:#111;border:1px solid #333;color:#ddd"></td></tr>`).join('') + '</tbody></table>' +
+      '<div style="margin:10px 0"><b>Gorev Tipleri:</b></div>' +
+      '<table style="font-size:9px"><thead><tr><th>Gorev</th><th>Sure(PG)</th><th>Gizlilik</th><th>Baz Basari%</th><th>Zorluk</th><th>Olum Riski%</th></tr></thead><tbody>' +
+      Object.entries(gorevler).map(([tip, g]) =>
+        `<tr><td>${tip}</td>` +
+        `<td><input id="cg-${tip}-sure" type="number" value="${g.sure||3}" style="width:40px;padding:1px;background:#111;border:1px solid #333;color:#ddd"></td>` +
+        `<td><input id="cg-${tip}-giz" type="number" value="${g.gizlilik||1}" style="width:40px;padding:1px;background:#111;border:1px solid #333;color:#ddd"></td>` +
+        `<td><input id="cg-${tip}-bas" type="number" value="${g.baz_basari||60}" style="width:40px;padding:1px;background:#111;border:1px solid #333;color:#ddd"></td>` +
+        `<td><input id="cg-${tip}-zor" type="number" value="${g.zorluk||10}" style="width:40px;padding:1px;background:#111;border:1px solid #333;color:#ddd"></td>` +
+        `<td><input id="cg-${tip}-olm" type="number" value="${g.olum_riski||10}" style="width:40px;padding:1px;background:#111;border:1px solid #333;color:#ddd"></td></tr>`
+      ).join('') + '</tbody></table>';
+  } catch(e) { el.innerHTML = '<div style="color:#e74c3c">Yukleme hatasi</div>'; }
+}
+async function casusCfgKaydet() {
+  const gorevler = {};
+  Object.keys(_casusCfg.gorevler || {}).forEach(tip => {
+    gorevler[tip] = {
+      sure: parseInt(document.getElementById('cg-'+tip+'-sure')?.value) || 3,
+      gizlilik: parseInt(document.getElementById('cg-'+tip+'-giz')?.value) || 1,
+      baz_basari: parseInt(document.getElementById('cg-'+tip+'-bas')?.value) || 60,
+      zorluk: parseInt(document.getElementById('cg-'+tip+'-zor')?.value) || 10,
+      olum_riski: parseInt(document.getElementById('cg-'+tip+'-olm')?.value) || 10,
+    };
+  });
+  const genel = {};
+  ['egitim_maliyet','iyilesme_hizi','deneyim_basari','deneyim_basarisiz','max_seviye','max_casus','premium_max_casus'].forEach(k => {
+    genel[k] = parseInt(document.getElementById('cc-'+k)?.value) || 0;
+  });
+  try {
+    await fetch(API + '/api/admin/casus-config', { method: 'POST', headers: hdr(), body: JSON.stringify({ ...genel, gorevler }) });
+    alert('Casus config kaydedildi!');
+  } catch(e) { alert('Hata: ' + e.message); }
 }
 </script>
 </body>
