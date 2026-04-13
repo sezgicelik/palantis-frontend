@@ -231,10 +231,10 @@ function bkRenderKitap() {
           if (secili && kd) {
             yapBtn = '<div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(212,162,87,0.15)">' +
               '<div style="font-size:9px;color:#888;margin-bottom:3px">' +
-                '<span style="color:' + (yeterliMana ? MANA_RENK_RENK[b.mana_renk] : '#e74c3c') + '">' + (kd.mana||0) + ' mana</span>' +
-                ' · <span style="color:' + (yeterliMalzeme ? '#ccc' : '#e74c3c') + '">' + (kd.malzeme||0) + ' mlz</span>' +
-                ' · %' + (kd.basari||0) + ' sans' +
-                (kd.sure > 0 ? ' · ' + kd.sure + 'PG' : '') +
+                '<span style="color:' + (yeterliMana ? MANA_RENK_RENK[b.mana_renk] : '#e74c3c') + '">' + (kd.mana||0) + ' ' + MANA_RENK_ISIM[b.mana_renk] + ' Mana</span>' +
+                ' · <span style="color:' + (yeterliMalzeme ? '#ccc' : '#e74c3c') + '">' + (kd.malzeme||0) + ' ' + (MALZEME_ISIM[b.malzeme]||b.malzeme) + '</span>' +
+                ' · %' + (kd.basari||0) + ' basari' +
+                (kd.sure > 0 ? ' · ' + kd.sure + ' PG sure' : '') +
               '</div>' +
               (isOfansif && !selectedHedef ?
                 '<div style="margin-bottom:4px"><input id="bk-hedef-input" type="text" placeholder="Hedef ara..." style="width:100%;padding:3px 6px;background:#0a0a0a;border:1px solid #333;color:#ddd;border-radius:3px;font-size:10px" oninput="bkHedefAra(this.value)"><ul class="hedef-list" id="bk-hedef-list" style="max-height:60px"></ul></div>' : '') +
