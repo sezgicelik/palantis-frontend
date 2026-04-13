@@ -391,8 +391,11 @@
     <div class="card">
       <h3>Oyuncuya Artifact Ver</h3>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
-        <label style="font-size:11px;color:#888">Player ID:</label>
-        <input id="art-player-id" type="number" style="width:80px;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">
+        <label style="font-size:11px;color:#888">Oyuncu:</label>
+        <input id="art-player-isim" type="text" placeholder="Kral ismi ara..." style="width:120px;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">
+        <button onclick="adminOyuncuAra('art')" style="padding:4px 8px;background:#333;border:1px solid #555;color:#ddd;border-radius:4px;cursor:pointer;font-size:10px">Ara</button>
+        <div id="art-player-sonuc" style="font-size:10px"></div>
+        <input id="art-player-id" type="hidden">
         <label style="font-size:11px;color:#888">Adet:</label>
         <input id="art-adet" type="number" value="3" style="width:60px;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">
         <button onclick="adminArtifactHepsiniVer()" style="padding:5px 14px;background:#d4af37;color:#000;border:none;border-radius:4px;cursor:pointer;font-size:11px;font-weight:bold">TUM ARTIFACTLARI VER</button>
@@ -412,8 +415,11 @@
     </div>
     <div class="card">
       <h3>Oyuncu Envanteri</h3>
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
-        <input id="art-env-pid" type="number" placeholder="Player ID" style="width:80px;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
+        <input id="art-env-isim" type="text" placeholder="Kral ismi ara..." style="width:120px;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">
+        <button onclick="adminOyuncuAra('env')" style="padding:4px 8px;background:#333;border:1px solid #555;color:#ddd;border-radius:4px;cursor:pointer;font-size:10px">Ara</button>
+        <div id="env-player-sonuc" style="font-size:10px"></div>
+        <input id="art-env-pid" type="hidden">
         <button onclick="adminArtifactEnvanter()" style="padding:5px 12px;background:#333;color:#ddd;border:1px solid #555;border-radius:4px;cursor:pointer;font-size:11px">Goster</button>
       </div>
       <div id="art-envanter" style="font-size:10px"></div>
@@ -1242,6 +1248,27 @@ async function loadKoloniList() {
       <td>${k.sahip_kral||'-'}</td><td>${bitis}</td>
     </tr>`;
   }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--muted)">Koloni yok</td></tr>';
+}
+
+// ═══ ADMIN OYUNCU ARAMA (tum admin panelde kullanilir) ═══
+async function adminOyuncuAra(prefix) {
+  var isimInput = prefix === 'art' ? 'art-player-isim' : prefix === 'env' ? 'art-env-isim' : prefix + '-isim';
+  var sonucEl = prefix === 'art' ? 'art-player-sonuc' : prefix === 'env' ? 'env-player-sonuc' : prefix + '-sonuc';
+  var hiddenId = prefix === 'art' ? 'art-player-id' : prefix === 'env' ? 'art-env-pid' : prefix + '-id';
+  var isim = document.getElementById(isimInput)?.value?.trim();
+  var sonuc = document.getElementById(sonucEl);
+  if (!isim) { if(sonuc) sonuc.innerHTML = '<span style="color:#e74c3c">Isim girin</span>'; return; }
+  try {
+    var resp = await fetch(API + '/api/admin/players?secret=' + SECRET);
+    var data = await resp.json();
+    var oyuncular = (data.oyuncular || data || []).filter(function(p) {
+      return (p.kral || '').toLowerCase().includes(isim.toLowerCase());
+    });
+    if (!oyuncular.length) { if(sonuc) sonuc.innerHTML = '<span style="color:#e74c3c">Bulunamadi</span>'; return; }
+    if(sonuc) sonuc.innerHTML = oyuncular.slice(0,5).map(function(p) {
+      return '<span style="cursor:pointer;color:#d4af37;margin-right:6px;text-decoration:underline" onclick="document.getElementById(\'' + hiddenId + '\').value=\'' + p.player_id + '\';this.parentNode.innerHTML=\'<span style=color:#2ecc71>Secildi: ' + (p.kral||'?') + ' (ID:' + p.player_id + ')</span>\'">' + (p.kral||'?') + '</span>';
+    }).join('');
+  } catch(e) { if(sonuc) sonuc.innerHTML = '<span style="color:#e74c3c">Hata</span>'; }
 }
 
 // ═══ ARTIFACT ADMIN ═══
