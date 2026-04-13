@@ -1047,10 +1047,16 @@ async function loadUniteDurum() {
     html += `<td style="padding:4px;font-weight:bold;color:var(--gold)">${oy.kral}</td>`;
     html += `<td style="padding:4px;color:${tarafRenk};text-align:center;font-size:9px">${tarafIsim}</td>`;
 
+    // Ordulardaki uniteleri de havuzMap'e ekle (toplam hesap icin)
+    const birlesikMap = {...havuzMap};
+    Object.values(oy.ordular||{}).forEach(o => {
+      (o.uniteler||[]).forEach(u => { birlesikMap[u.unite_id] = (birlesikMap[u.unite_id]||0) + u.adet; });
+    });
+
     let toplam = 0;
     ESLESIK.forEach(e => {
       const uniteId = oy.taraf === 'iyi' ? e.iyi : e.kotu;
-      const adet = havuzMap[uniteId] || 0;
+      const adet = birlesikMap[uniteId] || 0;
       toplam += adet;
       const renk = adet > 0 ? '#ddd' : '#333';
       html += `<td style="padding:4px;text-align:center;color:${renk};font-weight:${adet>0?'bold':'normal'}">${adet > 0 ? adet.toLocaleString() : '-'}</td>`;
