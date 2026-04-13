@@ -373,35 +373,19 @@ async function bkBuyuYap(buyuId) {
     });
     const data = await r.json();
     if (data.ok) {
-      // Sonucu buyu yap panelinde goster
-      const panel = document.getElementById('bk-buyu-yap-panel');
       if (data.basarili) {
-        toast(data.mesaj, 'success');
-        panel.innerHTML = `<div style="text-align:center;padding:20px">
-          <div style="font-size:40px;margin-bottom:10px">✅</div>
-          <div style="font-size:15px;font-weight:700;color:#2ecc71;margin-bottom:6px">BASARILI!</div>
-          <div style="font-size:12px;color:#ccc;margin-bottom:10px">${data.mesaj}</div>
-          ${data.detay ? '<div style="font-size:10px;color:#888;background:rgba(46,204,113,0.08);padding:8px;border-radius:6px;border:1px solid rgba(46,204,113,0.2)">' + JSON.stringify(data.detay).replace(/[{}"]/g,'').replace(/,/g,', ') + '</div>' : ''}
-          <button class="btn" onclick="selectedBuyu=null;bkLoad()" style="margin-top:14px;padding:6px 20px;font-size:11px">Tamam</button>
-        </div>`;
+        toast('✅ ' + (data.mesaj || 'Basarili!'));
       } else {
-        toast(data.mesaj, 'warning');
-        panel.innerHTML = `<div style="text-align:center;padding:20px">
-          <div style="font-size:40px;margin-bottom:10px">❌</div>
-          <div style="font-size:15px;font-weight:700;color:#e74c3c;margin-bottom:6px">BASARISIZ!</div>
-          <div style="font-size:12px;color:#ccc;margin-bottom:6px">${data.mesaj}</div>
-          <div style="font-size:11px;color:#888">
-            <span style="color:#2ecc71">+${data.iade_mana || 0} mana iade</span> &nbsp;|&nbsp;
-            <span style="color:#e74c3c">-${data.kayip_malzeme || 0} malzeme kayip</span> &nbsp;|&nbsp;
-            <span style="color:#f39c12">Cooldown baslamadi (tekrar dene)</span>
-          </div>
-          <button class="btn" onclick="selectedBuyu=null;bkLoad()" style="margin-top:14px;padding:6px 20px;font-size:11px">Tamam</button>
-        </div>`;
+        toast('❌ ' + (data.mesaj || 'Basarisiz') + ' | +' + (data.iade_mana||0) + ' mana iade');
       }
+      // Sayfayı yenile — kart içi güncellenir
+      selectedBuyu = null;
+      selectedHedef = null;
+      await bkLoad();
     } else {
-      toast(data.error || 'Hata', 'error');
+      toast(data.error || 'Hata');
     }
-  } catch(e) { toast('Sunucu hatasi', 'error'); }
+  } catch(e) { toast('Sunucu hatasi'); }
 }
 
 // ═══ PARSOMENLER ═══
