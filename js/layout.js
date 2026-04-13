@@ -129,8 +129,8 @@ function renderSidebar(){
 
       <a href="ayarlar.html" class="menu-item${isActive('ayarlar.html')}">⚙️ Ayarlar</a>
 
-      <!-- Logout -->
-      <div style="margin-top:auto;padding:12px 10px;border-top:1px solid #1a1a1a">
+      <!-- Logout — sticky bottom -->
+      <div style="position:sticky;bottom:0;padding:10px;border-top:1px solid #1a1a1a;background:inherit;z-index:10">
         <button onclick="logoutGame()" style="width:100%;padding:9px;background:#1a0a0a;border:1px solid #3a1a1a;color:#c0392b;border-radius:4px;cursor:pointer;font-size:13px;letter-spacing:0.5px;transition:background .2s"
           onmouseover="this.style.background='#2a0d0d'" onmouseout="this.style.background='#1a0a0a'">
           🚪 Oyundan Çık
