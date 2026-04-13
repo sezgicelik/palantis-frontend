@@ -204,6 +204,7 @@ function bkRenderKitap() {
               <span class="mana-dot mana-${b.mana_renk}"></span>
               ${MANA_RENK_ISIM[b.mana_renk]} | ${b.kategori === 'dusmana' ? 'Ofansif' : 'Kendine'}
             </div>
+            <div class="buyu-aciklama" style="font-size:10px;color:#888;margin:4px 0;line-height:1.4">${b.aciklama || ''}</div>
             <div class="buyu-kademe">${ogrenildi ? 'K' + kademe + '/10' : '—'}</div>
           </div>`;
         }).join('')}

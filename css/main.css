@@ -136,6 +136,7 @@ body{
   flex:1;
   padding:14px 18px;
   overflow-y:auto;
+  overflow-x:hidden;
 }
 
 /* ===== SAYFA PANELLERİ ===== */
@@ -416,11 +417,8 @@ body{padding-top:130px;}
 .fbtn:hover,.fbtn.on{background:var(--race-color);color:#000;border-color:var(--race-color);font-weight:700;}
 
 /* Bina grid → satır listesi */
-.bg-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
+.bg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px;}
 .bg-grid .cag-baslik{grid-column:1/-1;}
-@media(max-width:1200px){.bg-grid{grid-template-columns:repeat(4,1fr);}}
-@media(max-width:900px){.bg-grid{grid-template-columns:repeat(3,1fr);}}
-@media(max-width:600px){.bg-grid{grid-template-columns:1fr 1fr;}}
 .brow{display:flex;flex-direction:column;align-items:center;gap:3px;background:#111;border:1px solid #1e1e1e;border-top:2px solid #333;border-radius:6px;padding:7px 6px;transition:.18s;position:relative;text-align:center;min-height:90px;}
 .brow:hover{border-color:#2a2a2a;background:#141414;}
 .brow.building{border-left-color:#2ecc71;background:#0b0f0b;}
