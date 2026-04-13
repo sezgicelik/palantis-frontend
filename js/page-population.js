@@ -311,6 +311,27 @@ function bonusEtkileriGuncelle() {
       else premEl.textContent = 'Aktif değil';
     } catch(e) {}
   }
+  // Artifact
+  const artifactEl = document.getElementById('bonus-artifact-detay');
+  if (artifactEl) {
+    try {
+      const aToken = getToken();
+      if (aToken) {
+        fetch(API_BASE + '/api/artifact/aktif-bonuslar', { headers: { Authorization: 'Bearer ' + aToken } })
+          .then(r => r.ok ? r.json() : null)
+          .then(data => {
+            if (!data || !data.artifactlar || !data.artifactlar.length) {
+              artifactEl.textContent = 'Aktif artifact yok';
+              return;
+            }
+            artifactEl.innerHTML = data.artifactlar.map(a => {
+              const etkiParts = Object.entries(a.etki || {}).map(([k, v]) => `${k} +%${v}`).join(', ');
+              return `<div>${a.ikon || '🧰'} ${a.isim || a.artifact_id}: ${etkiParts || '-'} <span style="color:#e67e22">(${a.kalan_pg || 0} PG)</span></div>`;
+            }).join('');
+          }).catch(() => {});
+      }
+    } catch(e) {}
+  }
   // Isci/Limit
   const isciLimitEl = document.getElementById('pop-isci-limit');
   if (isciLimitEl) {

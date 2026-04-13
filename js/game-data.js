@@ -462,6 +462,7 @@ function obApplyPlayer(p) {
     bonusEl.innerHTML = html;
     // Aktif buyu bonuslarini async olarak ekle (obApplyPlayer sync oldugu icin)
     _loadAktifBuyuBonus(bonusEl, html);
+    _loadArtifactBonus(bonusEl);
   }
 
   // Sezon rozetleri
@@ -632,6 +633,28 @@ function _loadAktifBuyuBonus(bonusEl, baseHtml) {
           '<div style="font-size:10px;color:#8e44ad;font-weight:bold">\u{1F52E} Aktif Buyuler</div>' +
           aktifHTML + '</div>';
         bonusEl.innerHTML = (baseHtml || '') + buyuDiv;
+      }).catch(() => {});
+  } catch(e) {}
+}
+
+function _loadArtifactBonus(bonusEl) {
+  try {
+    const aToken = getToken();
+    if (!aToken || !bonusEl) return;
+    fetch(API_BASE + '/api/artifact/aktif-bonuslar', { headers: { Authorization: 'Bearer ' + aToken } })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!data || !data.artifactlar || !data.artifactlar.length) return;
+        const artifactHTML = data.artifactlar.map(a => {
+          const etkiParts = Object.entries(a.etki || {}).map(([k, v]) => `${k} +%${v}`).join(', ');
+          return '<div style="display:flex;justify-content:space-between;font-size:11px;color:#bbb;margin-top:2px">' +
+            '<span>' + (a.ikon || '\u{1F9F0}') + ' ' + (a.isim || a.artifact_id) + (etkiParts ? ' \u2014 ' + etkiParts : '') + '</span>' +
+            '<span style="color:#e67e22;font-size:10px">' + (a.kalan_pg || 0) + ' PG kald\u0131</span></div>';
+        }).join('');
+        const artifactDiv = '<div style="padding:8px;background:#111;border-radius:4px;border-left:2px solid #e67e22">' +
+          '<div style="font-size:10px;color:#e67e22;font-weight:bold">\u{1F9F0} Artifact Bonuslar\u0131</div>' +
+          artifactHTML + '</div>';
+        bonusEl.innerHTML += artifactDiv;
       }).catch(() => {});
   } catch(e) {}
 }
