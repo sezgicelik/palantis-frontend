@@ -79,13 +79,14 @@
       });
       if(!resp.ok) throw new Error('HTTP ' + resp.status);
       const data = await resp.json();
+      const list = data.oyuncular || data.guildler || data.list || [];
 
-      if(!data.list || data.list.length === 0){
+      if(!list.length){
         box.innerHTML = '<div class="sr-empty">Henüz veri yok.</div>';
         return;
       }
 
-      box.innerHTML = renderTable(tab, data.list);
+      box.innerHTML = renderTable(tab, list);
     } catch(err){
       console.error('Siralama yuklenemedi:', err);
       box.innerHTML = '<div class="sr-empty">Sıralama yüklenemedi. <br><small style="color:#555">' + err.message + '</small></div>';
