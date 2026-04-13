@@ -84,6 +84,25 @@
       <button class="bk-tab" onclick="bkSwitchTab('aktif')">Aktif Buyuler</button>
       <button class="bk-tab" onclick="bkSwitchTab('cooldown')">Cooldownlar</button>
       <button class="bk-tab" onclick="bkSwitchTab('log')">Gecmis</button>
+      <button class="bk-tab" onclick="bkSwitchTab('bilge')">Bilge Secimi</button>
+    </div>
+
+    <!-- Bilge Secimi -->
+    <div id="tab-bilge" class="bk-panel">
+      <div style="max-width:600px">
+        <div id="bilge-global" style="background:rgba(20,18,14,0.9);border:1px solid rgba(212,162,87,0.2);border-radius:8px;padding:14px;margin-bottom:14px">
+          <div style="font-family:'Cinzel',serif;font-size:13px;color:#c9a84c;margin-bottom:6px">Hukum Suren Bilge</div>
+          <div id="bilge-global-isim" style="font-size:16px;font-weight:700;color:#f0c96a">—</div>
+          <div id="bilge-global-kalan" style="font-size:11px;color:#888;margin-top:4px">Degisime kalan: — PG</div>
+        </div>
+        <div id="bilge-kisisel" style="background:rgba(20,18,14,0.9);border:1px solid rgba(46,204,113,0.2);border-radius:8px;padding:14px;margin-bottom:14px">
+          <div style="font-family:'Cinzel',serif;font-size:13px;color:#2ecc71;margin-bottom:6px">Senin Bilgen</div>
+          <div id="bilge-kisisel-isim" style="font-size:16px;font-weight:700;color:#2ecc71">Secilmedi</div>
+          <div id="bilge-kisisel-cd" style="font-size:11px;color:#888;margin-top:4px"></div>
+        </div>
+        <div style="font-family:'Cinzel',serif;font-size:12px;color:#888;margin-bottom:10px">Bilge sec (secilen renk worshipperleri 2x mana uretir):</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="bilge-secenekler"></div>
+      </div>
     </div>
 
     <!-- Buyu Kitabi -->
@@ -450,9 +469,74 @@ function bkFormatKalan(bitisTarih) {
   return saat > 0 ? `${saat}s ${dk}dk` : `${dk}dk`;
 }
 
+// ═══ BİLGE SEÇİMİ ═══
+const BILGE_RENK = { beyaz:'#f0e6d2', kirmizi:'#e74c3c', mavi:'#3498db', yesil:'#2ecc71' };
+const BILGE_ICON = { beyaz:'🤍', kirmizi:'❤️', mavi:'💙', yesil:'💚' };
+
+async function bilgeLoad() {
+  try {
+    const token = getToken();
+    const r = await fetch(`${API}/api/buyucu-kulesi/bilge`, { headers: { Authorization: `Bearer ${token}` } });
+    const data = await r.json();
+    if (!data.ok) return;
+
+    // Global bilge
+    document.getElementById('bilge-global-isim').textContent = `${BILGE_ICON[data.global_bilge]||''} ${data.global_bilge_isim || data.global_bilge}`;
+    document.getElementById('bilge-global-isim').style.color = BILGE_RENK[data.global_bilge] || '#c9a84c';
+    document.getElementById('bilge-global-kalan').textContent = `Degisime kalan: ${Math.round(data.global_kalan_pg)} PG`;
+
+    // Kisisel
+    if (data.kisisel_bilge) {
+      document.getElementById('bilge-kisisel-isim').textContent = `${BILGE_ICON[data.kisisel_bilge]||''} ${data.kisisel_bilge_isim}`;
+      document.getElementById('bilge-kisisel-isim').style.color = BILGE_RENK[data.kisisel_bilge] || '#2ecc71';
+    } else {
+      document.getElementById('bilge-kisisel-isim').textContent = 'Secilmedi';
+    }
+    if (data.degisim_kalan_pg > 0) {
+      document.getElementById('bilge-kisisel-cd').textContent = `Degistirmeye kalan: ${Math.round(data.degisim_kalan_pg)} PG`;
+      document.getElementById('bilge-kisisel-cd').style.color = '#e74c3c';
+    } else {
+      document.getElementById('bilge-kisisel-cd').textContent = 'Degistirebilirsiniz';
+      document.getElementById('bilge-kisisel-cd').style.color = '#2ecc71';
+    }
+
+    // Secenekler
+    const bilgeler = data.bilgeler || {};
+    const el = document.getElementById('bilge-secenekler');
+    el.innerHTML = Object.entries(bilgeler).map(([renk, b]) => {
+      const secili = data.kisisel_bilge === renk;
+      const aktif = data.global_bilge === renk;
+      return `<div style="background:rgba(20,18,14,0.9);border:1px solid ${secili ? BILGE_RENK[renk] : 'rgba(212,162,87,0.15)'};border-radius:8px;padding:12px;cursor:pointer;transition:0.2s${secili ? ';box-shadow:0 0 12px '+BILGE_RENK[renk]+'33' : ''}" onclick="bilgeSec('${renk}')">
+        <div style="font-size:14px;font-weight:700;color:${BILGE_RENK[renk]}">${BILGE_ICON[renk]} ${b.isim}</div>
+        <div style="font-size:11px;color:#888;margin-top:4px">Mana carpan: x${b.mana_carpan}</div>
+        ${aktif ? '<div style="font-size:10px;color:#c9a84c;margin-top:3px">👑 Hukum suruyor</div>' : ''}
+        ${secili ? '<div style="font-size:10px;color:#2ecc71;margin-top:3px">✅ Secili</div>' : ''}
+      </div>`;
+    }).join('');
+  } catch(e) { console.error('bilgeLoad:', e); }
+}
+
+async function bilgeSec(renk) {
+  try {
+    const token = getToken();
+    const r = await fetch(`${API}/api/buyucu-kulesi/bilge-sec`, {
+      method: 'POST', headers: { 'Content-Type':'application/json', Authorization:`Bearer ${token}` },
+      body: JSON.stringify({ bilgeId: renk })
+    });
+    const data = await r.json();
+    if (data.ok) {
+      showToast(data.mesaj, 'success');
+      await bilgeLoad();
+    } else {
+      showToast(data.error || 'Hata', 'error');
+    }
+  } catch(e) { showToast('Sunucu hatasi', 'error'); }
+}
+
 // Sayfa yuklenince
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(bkLoad, 500);
+  setTimeout(bilgeLoad, 600);
   // Her 30 saniyede guncelle (aktif buyuler countdown)
   setInterval(() => {
     if (bkData) {
