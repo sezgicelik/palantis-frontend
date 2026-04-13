@@ -126,7 +126,7 @@
     </div>
     <div class="card">
       <h3>Son Girisler</h3>
-      <table><thead><tr><th>Kullanici</th><th>Tarih</th><th>IP</th><th>Ulke</th><th>Sehir</th><th>Cihaz</th><th>OS</th><th>Tarayici</th><th>Ekran</th><th>Durum</th></tr></thead>
+      <table><thead><tr><th>Kullanici</th><th>Tarih</th><th>IP</th><th>Ulke</th><th>Sehir</th><th>Cihaz</th><th>Model</th><th>OS</th><th>Tarayici</th><th>Ekran</th><th>Durum</th></tr></thead>
       <tbody id="login-list"></tbody></table>
     </div>
   </div>
@@ -650,7 +650,7 @@ async function loadLogins() {
   `;
   document.getElementById('login-list').innerHTML = d.loglar.map(l => `
     <tr><td>${l.kullanici}</td><td>${fmtDate(l.tarih)}</td><td>${l.ip}</td><td>${l.ulke}</td><td>${l.sehir}</td>
-    <td>${l.cihaz}</td><td>${l.os}</td><td>${l.tarayici}</td><td>${l.ekran}</td>
+    <td>${l.cihaz}</td><td>${l.model||'-'}</td><td>${l.os}</td><td>${l.tarayici}</td><td>${l.ekran}</td>
     <td class="${l.basarili?'ok':'fail'}">${l.basarili?'OK':'FAIL'}</td></tr>
   `).join('');
 }
