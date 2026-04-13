@@ -1,4 +1,24 @@
-/* page-casus.js — Casus sistemi frontend v1.4 */
+/* page-casus.js — Casus sistemi frontend v1.7.4 (11 operasyon) */
+
+var GOREV_TIPLERI = {};
+
+const GOREV_ISIMLERI = {
+  bolge_incele:'Bolge Incele', koloni_incele:'Koloni Incele', ordu_incele:'Ordu Incele',
+  yemek_hirsizligi:'Yemek Hirsizligi', ordu_saldiri_incele:'Saldiri Istihbarat',
+  kaynak_hirsizligi:'Kaynak Hirsizligi', kargasa:'Kargasa', bilim_hirsizligi:'Bilim Hirsizligi',
+  stratejik_bilgiler:'Stratejik Bilgiler', katliam:'Katliam', sabotaj:'Sabotaj'
+};
+const GOREV_IKONLARI = {
+  bolge_incele:'🗺️', koloni_incele:'🏰', ordu_incele:'⚔️', yemek_hirsizligi:'🍞',
+  ordu_saldiri_incele:'🎯', kaynak_hirsizligi:'💰', kargasa:'🔥', bilim_hirsizligi:'📚',
+  stratejik_bilgiler:'📊', katliam:'💀', sabotaj:'💣'
+};
+const GOREV_RENK = {
+  bolge_incele:'#3498db', koloni_incele:'#3498db', ordu_incele:'#3498db',
+  yemek_hirsizligi:'#f39c12', ordu_saldiri_incele:'#3498db',
+  kaynak_hirsizligi:'#f39c12', kargasa:'#e74c3c', bilim_hirsizligi:'#9b59b6',
+  stratejik_bilgiler:'#3498db', katliam:'#e74c3c', sabotaj:'#e74c3c'
+};
 
 async function loadCasus() {
   var token = getToken(); if (!token) return;
@@ -11,12 +31,13 @@ async function loadCasus() {
     var casuslar = data.casuslar || [];
     var maxSlot = data.max_slot || 1;
     var gizlilik = data.gizlilik || 0;
+    GOREV_TIPLERI = data.gorev_tipleri || {};
 
     el.innerHTML =
       '<div class="card">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
-          '<span style="font-size:11px;color:#888">Casuslar: ' + casuslar.length + ' / ' + maxSlot + ' | Gizlilik: ' + gizlilik.toFixed(1) + '</span>' +
-          (casuslar.length < maxSlot ? '<button class="btn-action" style="width:auto;padding:5px 14px;font-size:10px" onclick="casusEgit()">🕵️ Yeni Casus Egit (10K Altin)</button>' : '') +
+          '<span style="font-size:11px;color:#888">Casuslar: ' + casuslar.filter(c=>c.durum!=='oldu').length + ' / ' + maxSlot + ' | Gizlilik: ' + gizlilik.toFixed(1) + '</span>' +
+          (casuslar.filter(c=>c.durum!=='oldu').length < maxSlot ? '<button class="btn-action" style="width:auto;padding:5px 14px;font-size:10px" onclick="casusEgit()">🕵️ Yeni Casus Egit</button>' : '') +
         '</div>' +
         (casuslar.length === 0 ? '<div style="color:#555;font-size:11px">Henuz casusunuz yok. Lonca binasi yaparak gizlilik puani kazanin.</div>' :
           casuslar.map(function(c) {
@@ -27,11 +48,14 @@ async function loadCasus() {
               if (kalan > 0) kalanStr = ' (' + Math.ceil(kalan/3600000) + ' PG kaldi)';
               else kalanStr = ' (Donus bekleniyor)';
             }
-            return '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #1a1a1a">' +
-              '<div><span style="font-size:12px">🕵️</span> Casus #' + c.id + ' <span style="font-size:9px;color:#888">Sv.' + c.seviye + '</span></div>' +
-              '<div style="display:flex;align-items:center;gap:6px">' +
-                '<span style="font-size:10px;color:' + durumRenk + '">' + c.durum + kalanStr + '</span>' +
-                (c.durum === 'hazir' ? '<button class="btn-action" style="width:auto;padding:3px 8px;font-size:9px" onclick="casusGonderModal(' + c.id + ')">Goreve Gonder</button>' : '') +
+            var canBar = c.can !== undefined ? '<div style="font-size:8px;color:#888;margin-top:2px">❤️ ' + (c.can||0) + '/100 | XP: ' + (c.deneyim||0) + '</div>' : '';
+            return '<div style="padding:6px 0;border-bottom:1px solid #1a1a1a">' +
+              '<div style="display:flex;align-items:center;justify-content:space-between">' +
+                '<div><span style="font-size:12px">🕵️</span> Casus #' + c.id + ' <span style="font-size:9px;color:#888">Sv.' + (c.seviye||1) + '</span>' + canBar + '</div>' +
+                '<div style="display:flex;align-items:center;gap:6px">' +
+                  '<span style="font-size:10px;color:' + durumRenk + '">' + c.durum + kalanStr + '</span>' +
+                  (c.durum === 'hazir' ? '<button class="btn-action" style="width:auto;padding:3px 8px;font-size:9px" onclick="casusGonderModal(' + c.id + ')">Goreve Gonder</button>' : '') +
+                '</div>' +
               '</div>' +
             '</div>';
           }).join('')) +
@@ -55,19 +79,28 @@ async function casusEgit() {
 function casusGonderModal(casusId) {
   var m = document.getElementById('casus-gonder-modal');
   m.style.display = 'block';
+
+  // Dinamik görev butonları (backend'den gelen 11 görev tipi)
+  var butonlar = Object.entries(GOREV_TIPLERI).map(function(entry) {
+    var tip = entry[0], g = entry[1];
+    var isim = GOREV_ISIMLERI[tip] || tip;
+    var ikon = GOREV_IKONLARI[tip] || '🕵️';
+    var renk = GOREV_RENK[tip] || '#555';
+    return '<button style="padding:5px 10px;font-size:9px;background:' + renk + '22;border:1px solid ' + renk + '44;color:' + renk + ';border-radius:4px;cursor:pointer;font-family:Cinzel,serif;letter-spacing:0.5px" ' +
+      'onclick="casusGonder(' + casusId + ',\'' + tip + '\')" title="Sure: ' + g.sure + ' PG | Gizlilik: ' + g.gizlilik + ' | Basari: %' + g.baz_basari + '">' +
+      ikon + ' ' + isim + ' <span style="font-size:7px;color:#888">(' + g.sure + 'PG / ' + g.gizlilik + 'G)</span></button>';
+  }).join('');
+
   m.innerHTML = '<div class="card" style="margin-top:8px">' +
-    '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">Goreve Gonder — Casus #' + casusId + '</div>' +
-    '<div style="margin-bottom:6px"><label style="font-size:10px;color:#888">Hedef Oyuncu Adi</label>' +
+    '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:8px">Goreve Gonder — Casus #' + casusId + '</div>' +
+    '<div style="margin-bottom:8px"><label style="font-size:10px;color:#888">Hedef Oyuncu Adi</label>' +
       '<input id="casus-hedef-isim" type="text" placeholder="Kral ismi yazin..." style="width:160px;padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
       '<button onclick="casusHedefAra()" style="padding:4px 8px;background:#333;border:1px solid #555;color:#ddd;border-radius:4px;cursor:pointer;font-size:10px;margin-left:4px">Ara</button>' +
       '<div id="casus-hedef-sonuc" style="font-size:10px;margin-top:4px;min-height:16px"></div>' +
       '<input id="casus-hedef" type="hidden">' +
     '</div>' +
-    '<div style="display:flex;gap:4px;flex-wrap:wrap">' +
-      '<button class="btn-action" style="width:auto;padding:4px 10px;font-size:9px" onclick="casusGonder(' + casusId + ',\'kaynak_casusu\')">Kaynak Casusu (3PG)</button>' +
-      '<button class="btn-action" style="width:auto;padding:4px 10px;font-size:9px" onclick="casusGonder(' + casusId + ',\'ordu_casusu\')">Ordu Casusu (4PG)</button>' +
-      '<button class="btn-action" style="width:auto;padding:4px 10px;font-size:9px;background:#c0392b" onclick="casusGonder(' + casusId + ',\'sabotaj\')">Sabotaj (6PG)</button>' +
-    '</div>' +
+    '<div style="font-size:9px;color:#555;margin-bottom:6px">Gorev secin (hover ile detay gorun):</div>' +
+    '<div style="display:flex;gap:4px;flex-wrap:wrap">' + butonlar + '</div>' +
   '</div>';
 }
 
