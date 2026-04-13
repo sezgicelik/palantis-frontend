@@ -14,7 +14,10 @@
 .bk-tab.active, .bk-tab:hover { background:rgba(212,162,87,0.15); border-color:#c9a84c }
 .bk-panel { display:none } .bk-panel.active { display:block }
 
-.buyu-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px }
+.buyu-grid { display:flex; flex-direction:column; gap:14px }
+.buyu-cag-grup { display:grid; grid-template-columns:repeat(5,1fr); gap:8px }
+@media(max-width:900px) { .buyu-cag-grup { grid-template-columns:repeat(3,1fr); } }
+@media(max-width:600px) { .buyu-cag-grup { grid-template-columns:repeat(2,1fr); } }
 .buyu-card { background:rgba(20,18,14,0.9); border:1px solid rgba(212,162,87,0.15); border-radius:8px; padding:12px; cursor:pointer; transition:0.2s }
 .buyu-card:hover { border-color:#c9a84c; transform:translateY(-1px) }
 .buyu-card.selected { border-color:#c9a84c; box-shadow:0 0 12px rgba(212,162,87,0.2) }
@@ -179,17 +182,32 @@ function bkRenderKitap() {
   const kitapMap = {};
   (bkData.kitap || []).forEach(k => kitapMap[k.buyu_id] = k.kademe);
 
-  grid.innerHTML = bkData.buyuler.map(b => {
-    const kademe = kitapMap[b.id] || 0;
-    const ogrenildi = kademe > 0;
-    return `<div class="buyu-card ${selectedBuyu === b.id ? 'selected' : ''}" onclick="bkSelectBuyu('${b.id}')" style="opacity:${ogrenildi ? 1 : 0.4}">
-      <div class="buyu-isim">${TIP_IKON[b.tip]||''} ${b.isim}</div>
-      <div class="buyu-meta">
-        <span class="mana-dot mana-${b.mana_renk}"></span>
-        ${MANA_RENK_ISIM[b.mana_renk]} | Cag ${b.cag} | ${b.kategori === 'dusmana' ? 'Ofansif' : 'Kendine'}
+  // Caglara gore grupla
+  const caglar = {};
+  const CAG_ISIMLERI = {1:'1. Cag — Sonatas',2:'2. Cag — Heonteas',3:'3. Cag — Meridias',4:'4. Cag — Celestias',5:'5. Cag — Eternias'};
+  bkData.buyuler.forEach(b => {
+    const c = b.cag || 1;
+    if (!caglar[c]) caglar[c] = [];
+    caglar[c].push(b);
+  });
+
+  grid.innerHTML = Object.entries(caglar).sort((a,b) => a[0]-b[0]).map(([cag, buyuler]) => {
+    return `<div>
+      <div style="font-family:'Cinzel',serif;font-size:12px;color:var(--race-color);margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid rgba(212,162,87,0.15)">⚡ ${CAG_ISIMLERI[cag]||'Cag '+cag}</div>
+      <div class="buyu-cag-grup">
+        ${buyuler.map(b => {
+          const kademe = kitapMap[b.id] || 0;
+          const ogrenildi = kademe > 0;
+          return `<div class="buyu-card ${selectedBuyu === b.id ? 'selected' : ''}" onclick="bkSelectBuyu('${b.id}')" style="opacity:${ogrenildi ? 1 : 0.4}">
+            <div class="buyu-isim">${TIP_IKON[b.tip]||''} ${b.isim}</div>
+            <div class="buyu-meta">
+              <span class="mana-dot mana-${b.mana_renk}"></span>
+              ${MANA_RENK_ISIM[b.mana_renk]} | ${b.kategori === 'dusmana' ? 'Ofansif' : 'Kendine'}
+            </div>
+            <div class="buyu-kademe">${ogrenildi ? 'K' + kademe + '/10' : '—'}</div>
+          </div>`;
+        }).join('')}
       </div>
-      <div class="buyu-kademe">${ogrenildi ? `Kademe ${kademe}/10` : 'Ogrenilmedi'}</div>
-      <div class="buyu-meta" style="margin-top:2px">${b.aciklama || ''}</div>
     </div>`;
   }).join('');
 
