@@ -389,7 +389,9 @@ function renderOrduListe(){
             '<div>🛡️ DEF: <span style="color:#3498db;font-weight:bold">' + fmt(o.def) + '</span></div>' +
             '<div>👥 Toplam Asker: <span style="color:#d4af37">' + fmt(o.total_units) + '</span></div>' +
             '<div>💰 Maas/Gun: <span style="color:#f1c40f">' + fmt(toplamMaas) + '</span></div>' +
-            '<div>📍 Yer: <span style="color:#2ecc71">Sehirde</span></div>' +
+            '<div>📍 Yer: ' + (o.konum === 'kolonide' ?
+              '<span style="color:#e67e22">Kolonide (' + (o.koloni_bilgi ? o.koloni_bilgi.x + ':' + o.koloni_bilgi.y + ' %' + o.koloni_bilgi.bonus + ' ' + o.koloni_bilgi.kaynak : '?') + ')</span>' :
+              '<span style="color:#2ecc71">Sehirde</span>') + '</div>' +
             '<div>📊 Reyting: <span style="color:#f1c40f">%' + (o.reyting||0) + '</span></div>' +
           '</div>' +
           // Aksiyonlar
