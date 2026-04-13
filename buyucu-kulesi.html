@@ -15,10 +15,10 @@
 .bk-panel { display:none } .bk-panel.active { display:block }
 
 .buyu-grid { display:flex; flex-direction:column; gap:14px }
-.buyu-cag-grup { display:grid; grid-template-columns:repeat(5,1fr); gap:8px }
-@media(max-width:900px) { .buyu-cag-grup { grid-template-columns:repeat(3,1fr); } }
-@media(max-width:600px) { .buyu-cag-grup { grid-template-columns:repeat(2,1fr); } }
-.buyu-card { background:rgba(20,18,14,0.9); border:1px solid rgba(212,162,87,0.15); border-radius:8px; padding:12px; cursor:pointer; transition:0.2s }
+.buyu-cag-grup { display:grid; grid-template-columns:repeat(3,1fr); gap:10px }
+@media(max-width:900px) { .buyu-cag-grup { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:600px) { .buyu-cag-grup { grid-template-columns:1fr; } }
+.buyu-card { background:rgba(20,18,14,0.9); border:1px solid rgba(212,162,87,0.15); border-radius:8px; padding:14px; cursor:pointer; transition:0.2s }
 .buyu-card:hover { border-color:#c9a84c; transform:translateY(-1px) }
 .buyu-card.selected { border-color:#c9a84c; box-shadow:0 0 12px rgba(212,162,87,0.2) }
 .buyu-card .buyu-isim { font-size:13px; font-weight:700; color:#c9a84c; margin-bottom:4px }
@@ -247,13 +247,27 @@ function bkRenderKitap() {
             '</div>';
           }
 
+          // Maliyet bilgisi (her kartta göster)
+          let maliyetStr = '';
+          if (kd) {
+            maliyetStr = '<div style="font-size:9px;color:#666;margin-top:4px;line-height:1.5">' +
+              '<span class="mana-dot mana-' + b.mana_renk + '" style="width:8px;height:8px"></span> ' + (kd.mana||0) + ' ' + MANA_RENK_ISIM[b.mana_renk] +
+              ' · ' + (kd.malzeme||0) + ' ' + (MALZEME_ISIM[b.malzeme]||b.malzeme) +
+              (kd.sure > 0 ? ' · ⏱' + kd.sure + 'PG' : '') +
+              ' · CD:' + (b.cooldown||0) + 'PG' +
+              ' · %' + (kd.basari||0) + ' sans' +
+            '</div>';
+          }
+
           return `<div class="buyu-card ${secili ? 'selected' : ''}" onclick="bkSelectBuyu('${b.id}')" style="opacity:${ogrenildi ? 1 : 0.4}">
             <div class="buyu-isim">${TIP_IKON[b.tip]||''} ${b.isim}</div>
             <div class="buyu-meta">
               <span class="mana-dot mana-${b.mana_renk}"></span>
               ${MANA_RENK_ISIM[b.mana_renk]} | ${b.kategori === 'dusmana' ? 'Ofansif' : 'Kendine'}
             </div>
-            <div class="buyu-kademe">${ogrenildi ? 'K' + kademe + '/10' : '—'}</div>
+            <div style="font-size:10px;color:#888;margin:5px 0;line-height:1.5">${b.aciklama || ''}</div>
+            ${maliyetStr}
+            <div class="buyu-kademe" style="margin-top:4px">${ogrenildi ? 'Kademe ' + kademe + '/10' : 'Ogrenilmedi'}</div>
             ${yapBtn}
           </div>`;
         }).join('')}
