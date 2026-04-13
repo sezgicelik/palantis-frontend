@@ -249,7 +249,7 @@
       <p style="font-size:10px;color:var(--muted);margin-bottom:10px">Hammadde maliyeti, yapim suresi, sehir degeri ve cag limitleri. Degistirdiginiz degerler DB'ye kaydedilir.</p>
       <div style="overflow-x:auto">
         <table style="font-size:11px" id="bina-config-table">
-          <thead><tr><th>Bina</th><th>Odun</th><th>Metal</th><th>Altin</th><th>Sure (sn)</th><th>Deger</th><th></th></tr></thead>
+          <thead><tr><th>Bina</th><th>Odun</th><th>Metal</th><th>Altin</th><th>Süre (PG)</th><th>Değer</th><th>Ç1</th><th>Ç2</th><th>Ç3</th><th>Ç4</th><th>Ç5</th><th></th></tr></thead>
           <tbody id="bina-config-body"></tbody>
         </table>
       </div>
@@ -1033,16 +1033,24 @@ async function loadBinaConfig() {
   const d = await fetch(API+'/api/admin/bina-config?secret='+SECRET).then(r=>r.json());
   if(!d.ok) return;
   const body = document.getElementById('bina-config-body');
+  const inp = (id,val,w) => `<input type="number" id="${id}" value="${val}" style="width:${w||50}px;padding:2px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px;text-align:center">`;
   body.innerHTML = d.binalar.map(b => {
     const m = b.maliyet || {};
+    const cl = b.cag_limit || {};
+    const surePG = (b.sure_sn / 3600).toFixed(1);
     return `<tr>
-      <td style="color:var(--gold);font-weight:bold">${b.bina_id}</td>
-      <td><input type="number" id="bc-${b.bina_id}-odun" value="${m.odun||0}" style="width:50px;padding:2px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px;text-align:center"></td>
-      <td><input type="number" id="bc-${b.bina_id}-metal" value="${m.metal||0}" style="width:50px;padding:2px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px;text-align:center"></td>
-      <td><input type="number" id="bc-${b.bina_id}-altin" value="${m.altin||0}" style="width:50px;padding:2px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px;text-align:center"></td>
-      <td><input type="number" id="bc-${b.bina_id}-sure" value="${b.sure_sn}" style="width:55px;padding:2px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px;text-align:center"></td>
-      <td><input type="number" id="bc-${b.bina_id}-deger" value="${b.deger}" style="width:45px;padding:2px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px;text-align:center"></td>
-      <td><button class="btn" style="padding:2px 8px;font-size:9px" onclick="saveBinaConfig('${b.bina_id}')">Kaydet</button></td>
+      <td style="color:var(--gold);font-weight:bold;font-size:9px">${b.bina_id}</td>
+      <td>${inp('bc-'+b.bina_id+'-odun',m.odun||0,45)}</td>
+      <td>${inp('bc-'+b.bina_id+'-metal',m.metal||0,45)}</td>
+      <td>${inp('bc-'+b.bina_id+'-altin',m.altin||0,45)}</td>
+      <td>${inp('bc-'+b.bina_id+'-sure',b.sure_sn,50)}<div style="font-size:8px;color:#666;text-align:center">${surePG} PG</div></td>
+      <td>${inp('bc-'+b.bina_id+'-deger',b.deger,40)}</td>
+      <td>${inp('bc-'+b.bina_id+'-c1',cl[1]??999,35)}</td>
+      <td>${inp('bc-'+b.bina_id+'-c2',cl[2]??999,35)}</td>
+      <td>${inp('bc-'+b.bina_id+'-c3',cl[3]??999,35)}</td>
+      <td>${inp('bc-'+b.bina_id+'-c4',cl[4]??999,35)}</td>
+      <td>${inp('bc-'+b.bina_id+'-c5',cl[5]??999,35)}</td>
+      <td><button class="btn" style="padding:2px 8px;font-size:9px" onclick="saveBinaConfig('${b.bina_id}')">💾</button></td>
     </tr>`;
   }).join('');
 }
@@ -1055,7 +1063,8 @@ async function saveBinaConfig(binaId) {
   if(g(`bc-${binaId}-altin`)>0) maliyet.altin = g(`bc-${binaId}-altin`);
   const sure_sn = g(`bc-${binaId}-sure`) || 3600;
   const deger = g(`bc-${binaId}-deger`) || 50;
-  const r = await fetch(API+'/api/admin/bina-config',{method:'POST',headers:hdr(),body:JSON.stringify({bina_id:binaId,maliyet,sure_sn,deger})}).then(r=>r.json());
+  const cag_limit = {1:g(`bc-${binaId}-c1`),2:g(`bc-${binaId}-c2`),3:g(`bc-${binaId}-c3`),4:g(`bc-${binaId}-c4`),5:g(`bc-${binaId}-c5`)};
+  const r = await fetch(API+'/api/admin/bina-config',{method:'POST',headers:hdr(),body:JSON.stringify({bina_id:binaId,maliyet,sure_sn,deger,cag_limit})}).then(r=>r.json());
   document.getElementById('bina-cfg-msg').textContent = r.ok ? r.mesaj : (r.error||'Hata');
   setTimeout(()=>document.getElementById('bina-cfg-msg').textContent='', 3000);
 }
