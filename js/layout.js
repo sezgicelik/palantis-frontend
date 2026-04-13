@@ -191,6 +191,7 @@ function renderHUD(){
         ${sb('EŞEK','🫏','Eşek','hud-essek',null)}
       </div>
     </div>
+    <button class="hud-toggle-btn" onclick="document.getElementById('hudbar').classList.toggle('expanded');this.textContent=document.getElementById('hudbar').classList.contains('expanded')?'▲':'▼'">▼</button>
   </div>
   `;
 }

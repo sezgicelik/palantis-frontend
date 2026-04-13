@@ -285,6 +285,7 @@ body{
 }
 /* Body padding-top: HUD yuksekligi kadar bosluk birak (4 satir HUD) */
 body{padding-top:130px;}
+.hud-toggle-btn{display:none;position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);background:rgba(14,8,2,0.95);border:1px solid rgba(200,169,110,0.3);border-top:none;border-radius:0 0 8px 8px;padding:1px 12px;cursor:pointer;color:#c9a84c;font-size:10px;z-index:901;}
 
 .hud-row-wrap{
   display:flex;
@@ -1003,14 +1004,17 @@ body{padding-top:130px;}
   .ob-step-title{font-size:.85rem !important;}
   .ob-step-label{font-size:.55rem !important;}
 
-  /* HUD bar daha da kompakt */
-  body{padding-top:135px;}
-  .hud-row-wrap{min-height:26px;}
-  .hud-row-lbl{min-width:24px;font-size:6px;padding:0 2px;}
-  .stat-box{padding:2px 4px;gap:2px;}
-  .res-amount{font-size:10px;}
-  .res-rate{font-size:7px;}
-  .res-icon{font-size:10px;}
+  /* HUD bar mobil — sadece ilk 2 satir gorunur, geri kalanlar gizli */
+  body{padding-top:60px;}
+  .hudbar{overflow:hidden;max-height:58px;transition:max-height .3s;}
+  .hudbar.expanded{max-height:160px;}
+  .hud-row-wrap{min-height:22px;}
+  .hud-row-lbl{min-width:20px;font-size:5px;padding:0 1px;}
+  .stat-box{padding:1px 3px;gap:1px;}
+  .res-amount{font-size:9px;}
+  .res-rate{font-size:6px;display:none;}
+  .res-icon{font-size:9px;}
+  .hud-toggle-btn{display:block!important;}
 
   /* Şehir istatistik grid tek sütun */
   .city-stats{grid-template-columns:1fr 1fr;gap:6px;}
