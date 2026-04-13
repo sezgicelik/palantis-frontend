@@ -238,7 +238,15 @@ function bkSelectBuyu(buyuId) {
   selectedBuyu = selectedBuyu === buyuId ? null : buyuId;
   selectedHedef = null;
   bkRenderKitap();
-  if (!selectedBuyu) document.getElementById('bk-buyu-yap-panel').style.display = 'none';
+  if (!selectedBuyu) {
+    document.getElementById('bk-buyu-yap-panel').style.display = 'none';
+  } else {
+    // Paneli görünür yap ve otomatik scroll
+    setTimeout(() => {
+      const panel = document.getElementById('bk-buyu-yap-panel');
+      if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+  }
 }
 
 function bkRenderBuyuYap() {
