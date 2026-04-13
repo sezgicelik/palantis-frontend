@@ -217,21 +217,52 @@ function bkRenderKitap() {
         ${buyuler.map(b => {
           const kademe = kitapMap[b.id] || 0;
           const ogrenildi = kademe > 0;
-          return `<div class="buyu-card ${selectedBuyu === b.id ? 'selected' : ''}" onclick="bkSelectBuyu('${b.id}')" style="opacity:${ogrenildi ? 1 : 0.4}">
+          const secili = selectedBuyu === b.id && ogrenildi;
+          const kd = ogrenildi && b.kademeler ? b.kademeler[kademe - 1] : null;
+          const k = bkData?.kaynaklar || {};
+          const manaKey = 'mana_' + b.mana_renk;
+          const yeterliMana = kd ? (Math.floor(k[manaKey] || 0) >= (kd.mana || 0)) : false;
+          const yeterliMalzeme = kd ? ((k[b.malzeme] || 0) >= (kd.malzeme || 0)) : false;
+          const cdBuyu = (bkData?.cooldownlar || []).find(c => c.buyu_id === b.id);
+          const cdAktif = cdBuyu ? new Date(cdBuyu.bitis) > new Date() : false;
+          const isOfansif = b.kategori === 'dusmana';
+
+          let yapBtn = '';
+          if (secili && kd) {
+            yapBtn = '<div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(212,162,87,0.15)">' +
+              '<div style="font-size:9px;color:#888;margin-bottom:3px">' +
+                '<span style="color:' + (yeterliMana ? MANA_RENK_RENK[b.mana_renk] : '#e74c3c') + '">' + (kd.mana||0) + ' mana</span>' +
+                ' · <span style="color:' + (yeterliMalzeme ? '#ccc' : '#e74c3c') + '">' + (kd.malzeme||0) + ' mlz</span>' +
+                ' · %' + (kd.basari||0) + ' sans' +
+                (kd.sure > 0 ? ' · ' + kd.sure + 'PG' : '') +
+              '</div>' +
+              (isOfansif && !selectedHedef ?
+                '<div style="margin-bottom:4px"><input id="bk-hedef-input" type="text" placeholder="Hedef ara..." style="width:100%;padding:3px 6px;background:#0a0a0a;border:1px solid #333;color:#ddd;border-radius:3px;font-size:10px" oninput="bkHedefAra(this.value)"><ul class="hedef-list" id="bk-hedef-list" style="max-height:60px"></ul></div>' : '') +
+              (isOfansif && selectedHedef ? '<div style="font-size:9px;color:#2ecc71;margin-bottom:3px">Hedef: ' + selectedHedef.kral + '</div>' : '') +
+              (cdAktif ?
+                '<button class="btn" disabled style="opacity:0.4;font-size:9px;padding:4px 10px;width:100%">CD ' + bkFormatKalan(cdBuyu.bitis) + '</button>' :
+                '<button class="btn gold" style="font-size:10px;padding:5px 10px;width:100%" onclick="event.stopPropagation();bkBuyuYap(\'' + b.id + '\')" ' +
+                  ((!yeterliMana || !yeterliMalzeme || (isOfansif && !selectedHedef)) ? 'disabled style="opacity:0.4;font-size:10px;padding:5px 10px;width:100%"' : '') +
+                '>⚡ BÜYÜ YAP</button>') +
+            '</div>';
+          }
+
+          return `<div class="buyu-card ${secili ? 'selected' : ''}" onclick="bkSelectBuyu('${b.id}')" style="opacity:${ogrenildi ? 1 : 0.4}">
             <div class="buyu-isim">${TIP_IKON[b.tip]||''} ${b.isim}</div>
             <div class="buyu-meta">
               <span class="mana-dot mana-${b.mana_renk}"></span>
               ${MANA_RENK_ISIM[b.mana_renk]} | ${b.kategori === 'dusmana' ? 'Ofansif' : 'Kendine'}
             </div>
-            <div class="buyu-aciklama" style="font-size:10px;color:#888;margin:4px 0;line-height:1.4">${b.aciklama || ''}</div>
             <div class="buyu-kademe">${ogrenildi ? 'K' + kademe + '/10' : '—'}</div>
+            ${yapBtn}
           </div>`;
         }).join('')}
       </div>
     </div>`;
   }).join('');
 
-  if (selectedBuyu) bkRenderBuyuYap();
+  // Büyü Yap artık kart içinde, ayrı panel gereksiz
+  document.getElementById('bk-buyu-yap-panel').style.display = 'none';
 }
 
 function bkSelectBuyu(buyuId) {
