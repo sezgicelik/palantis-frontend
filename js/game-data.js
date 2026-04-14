@@ -369,6 +369,9 @@ async function loadBuildingsFromBackend() {
         } else {
           BLDGS[binaId].lv = data.seviye;
         }
+        // Dayanıklılık bilgisini aktar
+        BLDGS[binaId]._dayaniklilik = data.dayaniklilik ?? 100;
+        BLDGS[binaId]._repairQueue = data.repairQueue || false;
         usedArea += BLDGS[binaId].lv * binaAlanFE(binaId);
       }
     }

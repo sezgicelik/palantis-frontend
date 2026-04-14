@@ -57,6 +57,25 @@ setInterval(()=>{
   if(el) el.innerText=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
 }, 60000);
 
+// Duyurular yukle
+async function loadDuyurular() {
+  const el = document.getElementById('home-duyurular'); if (!el) return;
+  try {
+    const r = await fetch(API_BASE + '/api/game/duyurular');
+    const data = await r.json();
+    if (!data.length) { el.style.display = 'none'; return; }
+    el.style.display = 'block';
+    el.innerHTML = data.map(d =>
+      `<div style="background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-left:3px solid #c9a84c;border-radius:4px;padding:8px 12px;margin-bottom:6px">
+        <div style="font-family:Cinzel,serif;font-size:11px;color:#c9a84c;font-weight:bold">📢 ${d.baslik}</div>
+        <div style="font-size:10px;color:#999;margin-top:3px">${d.mesaj}</div>
+        <div style="font-size:8px;color:#555;margin-top:2px">${new Date(d.created_at).toLocaleString('tr-TR')}</div>
+      </div>`
+    ).join('');
+  } catch(e) { el.style.display = 'none'; }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   loadTakvimHome();
+  setTimeout(loadDuyurular, 400);
 });

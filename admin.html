@@ -75,6 +75,7 @@
     <button onclick="switchTab('casus-cfg',this)">Casus Ayar</button>
     <button onclick="switchTab('tatil-cfg',this)">Tatil & Ateskes</button>
     <button onclick="switchTab('anomali',this)">Anomali</button>
+    <button onclick="switchTab('duyuru',this)">Duyurular</button>
   </div>
 
   <!-- CRON TAB -->
@@ -479,6 +480,22 @@
       </div>
     </div>
   </div>
+  <!-- ═══ DUYURULAR ═══ -->
+  <div id="tab-duyuru" class="panel">
+    <h3>Duyuru Yonetimi</h3>
+    <div style="margin-bottom:12px;display:flex;gap:6px;flex-direction:column">
+      <input id="duyuru-baslik" placeholder="Baslik" style="padding:4px;background:#111;border:1px solid #333;color:#ddd;font-size:11px">
+      <textarea id="duyuru-mesaj" placeholder="Mesaj" rows="3" style="padding:4px;background:#111;border:1px solid #333;color:#ddd;font-size:11px;resize:vertical"></textarea>
+      <div style="display:flex;gap:6px">
+        <select id="duyuru-tip" style="padding:3px;background:#111;border:1px solid #333;color:#ddd;font-size:10px">
+          <option value="genel">Genel</option><option value="bakim">Bakim</option><option value="etkinlik">Etkinlik</option><option value="guncelleme">Guncelleme</option>
+        </select>
+        <button class="act" onclick="duyuruEkle()">Duyuru Ekle</button>
+      </div>
+    </div>
+    <div id="duyuru-list">Yukleniyor...</div>
+  </div>
+
   <!-- ═══ ANOMALİ ═══ -->
   <div id="tab-anomali" class="panel">
     <h3>Anomali & Guvenlik Loglari</h3>
@@ -577,6 +594,7 @@ function switchTab(tab, el) {
   if (tab === 'irklar') loadIrkBonuslari();
   if (tab === 'artifact') loadArtifactAdmin();
   if (tab === 'gorevler') loadGorevlerAdmin();
+  if (tab === 'duyuru') loadDuyuruAdmin();
   if (tab === 'anomali') loadAnomaliAdmin();
   if (tab === 'tatil-cfg') loadTatilAdmin();
   if (tab === 'savas-cfg') loadSavasCfg();
@@ -1534,6 +1552,34 @@ async function adminGorevSil(id) {
     await fetch(API + '/api/admin/gorev/' + id, { method: 'DELETE', headers: hdr() });
     loadGorevlerAdmin();
   } catch(e) {}
+}
+
+// ═══ DUYURULAR ═══
+async function loadDuyuruAdmin() {
+  const el = document.getElementById('duyuru-list');
+  try {
+    const r = await fetch(API+'/api/admin/duyurular',{headers:hdr()});
+    const d = await r.json();
+    if (!d.duyurular?.length) { el.innerHTML = '<span style="color:#555">Duyuru yok</span>'; return; }
+    el.innerHTML = '<table style="font-size:10px;width:100%"><thead><tr><th>Tarih</th><th>Tip</th><th>Baslik</th><th>Mesaj</th><th></th></tr></thead><tbody>' +
+      d.duyurular.map(dy => '<tr><td>'+fmtDate(dy.created_at)+'</td><td style="color:#c9a84c">'+dy.tip+'</td><td style="font-weight:bold">'+dy.baslik+'</td><td style="color:#888;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+dy.mesaj+'</td><td><button class="act" style="background:#c0392b;font-size:9px;padding:2px 6px" onclick="duyuruSil('+dy.id+')">Sil</button></td></tr>').join('') +
+      '</tbody></table>';
+  } catch(e) { el.innerHTML = '<span style="color:#e74c3c">Hata</span>'; }
+}
+async function duyuruEkle() {
+  const baslik = document.getElementById('duyuru-baslik')?.value?.trim();
+  const mesaj = document.getElementById('duyuru-mesaj')?.value?.trim();
+  const tip = document.getElementById('duyuru-tip')?.value || 'genel';
+  if (!baslik || !mesaj) { alert('Baslik ve mesaj gerekli'); return; }
+  await fetch(API+'/api/admin/duyuru-ekle',{method:'POST',headers:hdr(),body:JSON.stringify({baslik,mesaj,tip})});
+  document.getElementById('duyuru-baslik').value = '';
+  document.getElementById('duyuru-mesaj').value = '';
+  alert('Duyuru eklendi!'); loadDuyuruAdmin();
+}
+async function duyuruSil(id) {
+  if (!confirm('Duyuruyu silmek istediginize emin misiniz?')) return;
+  await fetch(API+'/api/admin/duyuru/'+id,{method:'DELETE',headers:hdr()});
+  loadDuyuruAdmin();
 }
 
 // ═══ ANOMALİ ═══

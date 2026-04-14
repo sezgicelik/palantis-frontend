@@ -95,6 +95,14 @@ function renderBinaRow(grid, b, inQ, oyuncuCag) {
         <div class="br-desc">${b.desc}</div>
       </div>
       <div class="br-lv">${b.lv} adet</div>
+      ${b.lv > 0 && b._dayaniklilik !== undefined && b._dayaniklilik < 100 ?
+        `<div style="display:flex;align-items:center;gap:4px;margin:2px 0">
+          <div style="flex:1;height:6px;background:#1a1a1a;border-radius:3px;overflow:hidden">
+            <div style="width:${b._dayaniklilik}%;height:100%;background:${b._dayaniklilik > 60 ? '#2ecc71' : b._dayaniklilik > 30 ? '#f39c12' : '#e74c3c'};border-radius:3px"></div>
+          </div>
+          <span style="font-size:8px;color:${b._dayaniklilik > 60 ? '#2ecc71' : b._dayaniklilik > 30 ? '#f39c12' : '#e74c3c'}">${b._dayaniklilik}%</span>
+          <button style="font-size:8px;padding:1px 6px;background:rgba(46,204,113,0.15);border:1px solid rgba(46,204,113,0.3);color:#2ecc71;border-radius:3px;cursor:pointer" onclick="tamirBina('${b.id}')">🔧 Tamir</button>
+        </div>` : ''}
       <div class="br-fx">${fx}</div>
       ${!isMergeOnly&&!inC?`<div class="br-cost">${costH}</div>`:'<div class="br-cost"></div>'}
       ${!isMergeOnly&&!inC?`<div class="br-time">\u23f1 ${surePG.toFixed(1)} P.G.</div>`:'<div class="br-time"></div>'}
@@ -238,6 +246,32 @@ async function confirmBuild(){
   closeModal();renderGrid();renderQueue();
   const adetMsg = adet > 1 ? ` (${adet} adet siralandi)` : '';
   toast(`${b.name} insaati basladi!${adetMsg}`);
+}
+
+// Tamir fonksiyonu
+async function tamirBina(binaId) {
+  const b = BLDGS[binaId];
+  if (!b || b._dayaniklilik >= 100) { alert('Bu bina tamir gerektirmiyor.'); return; }
+
+  const secim = confirm('Hızlı tamir (anında, pahalı) için OK\nNormal tamir (kuyrukta, ucuz) için İptal');
+  const endpoint = secim ? '/api/game/buildings/repair' : '/api/game/buildings/repair-queue';
+
+  try {
+    const token = getToken();
+    const resp = await fetch(API_BASE + endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ binaId })
+    });
+    const data = await resp.json();
+    if (resp.ok) {
+      toast(secim ? `Hizli tamir! ${data.maliyet} altin harcandi.` : `Tamir kuyruga alindi (${data.tamir_suresi_pg} PG)`);
+      if (typeof loadGameData === 'function') await loadGameData();
+      renderGrid();
+    } else {
+      alert(data.error || 'Tamir hatasi');
+    }
+  } catch(e) { alert('Sunucu hatasi'); }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
