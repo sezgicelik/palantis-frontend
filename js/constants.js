@@ -227,7 +227,7 @@ const BLDGS = {
     fx:l=>[{t:'pos',s:`${l*10} üye kapasitesi`},{t:'pos',s:`Guild bonus +${l*5}%`}],
     cost:l=>({odun:600,altin:500}),time:l=>14400},
 
-  palantis_hani:{id:'palantis_hani',cat:'sosyal',icon:'🍺',name:'Palantis Hanı',bg:'#160e00',
+  noxara_hani:{id:'noxara_hani',cat:'sosyal',icon:'🍺',name:'Noxara Hanı',bg:'#160e00',
     desc:"Eğlence merkezi. Moral artırır. Max 1.",
     maxLv:1,lv:0,deger:85,
     cagLimit:{1:1,2:1,3:1,4:1,5:1},

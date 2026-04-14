@@ -51,7 +51,7 @@ function renderFestival(data) {
   // Takvim
   const takvimEl = document.getElementById('fest-takvim');
   if (takvimEl && data.takvim) {
-    takvimEl.textContent = `Palantis Takvimi: ${data.takvim.gun}. gün, ${data.takvim.ay}. ay, ${data.takvim.yil}. yıl`;
+    takvimEl.textContent = `Noxara Takvimi: ${data.takvim.gun}. gün, ${data.takvim.ay}. ay, ${data.takvim.yil}. yıl`;
   }
 
   // Festival kartları
@@ -95,7 +95,7 @@ function renderFestival(data) {
         </button>
 
         <div style="font-size:10px;color:#444;margin-top:8px;text-align:center">
-          Cooldown: ${f.cooldown} Palantis günü
+          Cooldown: ${f.cooldown} Noxara günü
         </div>
       </div>
     `;

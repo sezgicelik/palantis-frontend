@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Palantis Admin</title>
+<title>Noxara Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root { --bg:#0a0a0a; --card:#151515; --border:#222; --gold:#c8a96e; --green:#2ecc71; --red:#e74c3c; --blue:#3498db; --text:#ddd; --muted:#666; }
@@ -44,7 +44,7 @@
 
 <!-- LOGIN -->
 <div id="login-screen" class="login-box">
-  <h1>Palantis Admin</h1>
+  <h1>Noxara Admin</h1>
   <input type="password" id="secret-input" placeholder="Admin Secret" onkeydown="if(event.key==='Enter')doLogin()">
   <button onclick="doLogin()">Giris</button>
   <div id="login-err" style="color:var(--red);font-size:11px;margin-top:8px"></div>
@@ -52,7 +52,7 @@
 
 <!-- PANEL -->
 <div id="admin-panel" style="display:none; max-width:1000px; margin:0 auto;">
-  <h1>Palantis Admin Paneli</h1>
+  <h1>Noxara Admin Paneli</h1>
 
   <div class="tabs">
     <button class="on" onclick="switchTab('cron',this)">Cron Durumu</button>
@@ -568,7 +568,7 @@
 </div>
 
 <script>
-const API = 'https://palantis-backend-production.up.railway.app';
+const API = typeof getApiBase === 'function' ? getApiBase() : 'https://palantis-backend-production.up.railway.app';
 let SECRET = '';
 
 function doLogin() {
@@ -629,7 +629,7 @@ async function loadCron() {
     <div class="stat"><div class="val">${s.sure_ms}ms</div><div class="lbl">Sure</div></div>
     <div class="stat"><div class="val ok">${s.basarili}</div><div class="lbl">Basarili</div></div>
     <div class="stat"><div class="val ${s.basarisiz>0?'fail':''}">${s.basarisiz}</div><div class="lbl">Basarisiz</div></div>
-    <div class="stat"><div class="val">${s.palantis_tarih}</div><div class="lbl">Palantis</div></div>
+    <div class="stat"><div class="val">${s.palantis_tarih}</div><div class="lbl">Noxara</div></div>
   ` : '<div class="stat"><div class="val">-</div><div class="lbl">Henuz calisma yok</div></div>';
 
   const det = s?.detay || [];

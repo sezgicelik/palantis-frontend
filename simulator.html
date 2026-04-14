@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Palantis — Savaş Simulatörü</title>
+<title>Noxara — Savaş Simulatörü</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Cinzel+Decorative:wght@700&family=IM+Fell+English:ital@0;1&display=swap');
 
@@ -178,7 +178,7 @@ header{text-align:center;padding:24px 20px 14px;border-bottom:1px solid var(--bo
 <div class="tt" id="tt"></div>
 
 <header>
-  <div class="title">⚔ PALANTIS SAVAŞ SİMÜLATÖRÜ</div>
+  <div class="title">⚔ NOXARA SAVAŞ SİMÜLATÖRÜ</div>
   <div class="subtitle">Saf Düzeni · Zırh & Iska · Kale & Kule · Irk Bonusu</div>
   <div id="premBadge"></div>
 </header>
@@ -324,7 +324,7 @@ header{text-align:center;padding:24px 20px 14px;border-bottom:1px solid var(--bo
 </div>
 
 <script>
-const API_BASE = 'https://palantis-backend-production.up.railway.app';
+const API_BASE = typeof getApiBase === 'function' ? getApiBase() : 'https://palantis-backend-production.up.railway.app';
 function getToken() { return localStorage.getItem('palantis_token'); }
 
 // ── ÜNİTE TANIMLARI (backend units.js ile eşleşmeli) ──
@@ -745,7 +745,7 @@ function openRapor() {
   document.getElementById('raporBox').innerHTML = `
     <button class="m-close" onclick="closeRapor()">KAPAT ✕</button>
     <div class="rp-title">⚔ SAVAŞ RAPORU</div>
-    <div class="rp-sub">Palantis Simülasyon — ${d.tur_sayisi} Tur</div>
+    <div class="rp-sub">Noxara Simülasyon — ${d.tur_sayisi} Tur</div>
     <div class="rp-result ${rc}">${rt}</div>
 
     <div class="rp-cards">
@@ -792,7 +792,7 @@ function openRapor() {
       </table>
     </div>
     <div class="rp-div"></div>
-    <div style="text-align:center;font-size:.5rem;color:var(--text-dim);font-style:italic">Palantis Savaş Simülatörü v1.7.3 — Backend Motor</div>
+    <div style="text-align:center;font-size:.5rem;color:var(--text-dim);font-style:italic">Noxara Savaş Simülatörü v1.7.3 — Backend Motor</div>
   `;
   document.getElementById('raporModal').classList.add('open');
 }

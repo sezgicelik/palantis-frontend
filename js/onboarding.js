@@ -1,7 +1,6 @@
 /* ══════════════════════════════════
-   ONBOARDING SiSTEMi
-   localStorage ile kayitli kullanici takibi
-   Extracted from index.html
+   NOXARA — ONBOARDING + LANDING
+   Landing → Sunucu Sec → Login → Taraf → Irk
 ══════════════════════════════════ */
 
 let obMode = 'login';
@@ -10,15 +9,87 @@ let obSelectedIrk = null;
 let obSelectedKral = '';
 let obSelectedSehir = '';
 let obSelectedPass = '';
+let _selectedServerId = null;
 
-/* -- Sayfa yuklenince kontrol -- */
+/* ── Landing: Sunucu kartlarini render et ── */
+function renderServerGrid() {
+  const grid = document.getElementById('server-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  SUNUCULAR.forEach(srv => {
+    const card = document.createElement('div');
+    card.className = 'server-card' + (srv.durum === 'yakinda' ? ' yakinda' : '') + (_selectedServerId === srv.id ? ' selected' : '');
+    card.innerHTML =
+      '<div class="server-card-icon">' + srv.ikon + '</div>' +
+      '<div class="server-card-name">' + srv.isim + '</div>' +
+      '<div class="server-card-status ' + srv.durum + '">' + (srv.durum === 'aktif' ? 'AKTIF' : 'YAKINDA') + '</div>' +
+      (srv.durum === 'aktif' ? '<div class="server-card-players" id="srv-players-' + srv.id + '"></div>' : '');
+    if (srv.durum === 'aktif') {
+      card.onclick = () => {
+        _selectedServerId = srv.id;
+        setSelectedServer(srv.id);
+        renderServerGrid();
+        document.getElementById('landing-cta').disabled = false;
+      };
+      // Oyuncu sayisini cek
+      fetchServerPlayerCount(srv);
+    }
+    grid.appendChild(card);
+  });
+}
+
+function fetchServerPlayerCount(srv) {
+  fetch(srv.url + '/api/stats/sides')
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      if (!data) return;
+      const el = document.getElementById('srv-players-' + srv.id);
+      if (el) el.textContent = ((data.iyi || 0) + (data.kotu || 0)) + ' oyuncu';
+    })
+    .catch(() => {});
+}
+
+/* ── Landing → Onboarding gecis ── */
+function landingEnter() {
+  if (!_selectedServerId) return;
+  document.getElementById('landing').classList.add('landing-hidden');
+  document.getElementById('ob-overlay').style.display = 'flex';
+  // Secili sunucu badge
+  const srv = getSelectedServer();
+  const badge = document.getElementById('ob-server-badge');
+  if (badge && srv) badge.textContent = srv.ikon + ' ' + srv.isim;
+  showObStep('login');
+}
+
+function landingGeri() {
+  document.getElementById('ob-overlay').style.display = 'none';
+  document.getElementById('landing').classList.remove('landing-hidden');
+}
+
+/* ── Sayfa yuklenince kontrol ── */
 (function obInit() {
+  // Sunucu gridini render et
+  renderServerGrid();
+
+  // Onceki secili sunucu varsa hatirlat
+  const prevSrv = getSelectedServer();
+  if (prevSrv) {
+    _selectedServerId = prevSrv.id;
+    renderServerGrid();
+    const ctaBtn = document.getElementById('landing-cta');
+    if (ctaBtn) ctaBtn.disabled = false;
+  }
+
   const params = new URLSearchParams(window.location.search);
   const urlToken = params.get('token');
   const urlSetup = params.get('setup');
+
   if (urlToken) {
     setToken(urlToken);
     window.history.replaceState({}, '', window.location.pathname);
+    // Google OAuth donusu — landing'i atla
+    document.getElementById('landing').classList.add('landing-hidden');
+    document.getElementById('ob-overlay').style.display = 'flex';
     if (urlSetup === 'false') {
       loadPlayerFromAPI().then(p => {
         if (p) obSelectedKral = p.username || p.kral || '';
@@ -32,7 +103,11 @@ let obSelectedPass = '';
     });
     return;
   }
-  if (getToken()) {
+
+  if (getToken() && prevSrv) {
+    // Kayitli kullanici + secili sunucu — direkt kontrol
+    document.getElementById('landing').classList.add('landing-hidden');
+    document.getElementById('ob-overlay').style.display = 'flex';
     loadPlayerFromAPI().then(p => {
       if (p && p.setup_done) {
         savePlayer(p);
@@ -42,6 +117,8 @@ let obSelectedPass = '';
         document.getElementById('ob-welcome-irk').textContent =
           (irkData ? irkData.icon + ' ' + irkData.name : p.irk) +
           ' \u00b7 ' + (p.taraf === 'iyi' ? '\u2600\ufe0f Aydinlik' : '\ud83c\udf11 Karanlik');
+        const badge = document.getElementById('ob-server-badge');
+        if (badge && prevSrv) badge.textContent = prevSrv.ikon + ' ' + prevSrv.isim;
         showObStep('welcome');
       } else if (p) {
         obSelectedKral = p.username || p.kral || '';
@@ -51,9 +128,8 @@ let obSelectedPass = '';
         showObStep('login');
       }
     });
-  } else {
-    showObStep('login');
   }
+  // Token yoksa veya sunucu secilmemisse → landing gosterilir (zaten default)
 })();
 
 function showObStep(step) {
@@ -126,8 +202,8 @@ function obLogin() {
     if (!email) { showObErr('E-mail adresi gir!'); return; }
     const emailRx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRx.test(email)) { showObErr('Gecerli bir e-mail adresi gir!'); return; }
-    if (password !== pass2) { showObErr('Sifreler eslesmiyorl'); return; }
-    if (password.length < 4) { showObErr('Sifre en az 4 karakter olmali!'); return; }
+    if (password !== pass2) { showObErr('Sifreler eslesmiyor!'); return; }
+    if (password.length < 8) { showObErr('Sifre en az 8 karakter olmali!'); return; }
     const davet_kodu = document.getElementById('ob-davet')?.value?.trim();
     if (!davet_kodu) { showObErr('Davet kodu gerekli!'); return; }
     fetch(API_BASE + '/api/auth/register', {
@@ -198,7 +274,6 @@ function obBakiciGiris() {
     if (data.error) { errEl.textContent = data.error; return; }
     if (data.basarili) {
       setToken(data.token);
-      // Bakıcı modu bilgisini localStorage'a kaydet
       localStorage.setItem('palantis_bakici_modu', JSON.stringify({
         aktif: true,
         izinler: data.izinler || {},
@@ -258,7 +333,6 @@ function renderObIrkGrid() {
 function obFinish() {
   if (!obSelectedIrk || !obSelectedSide) return;
   if (!obSelectedKral) {
-    console.warn('obFinish: obSelectedKral bos, API\'den cekiliyor...');
     loadPlayerFromAPI().then(p => {
       if (p) { obSelectedKral = p.username || p.kral || 'Kral'; }
       else { obSelectedKral = 'Kral'; }
@@ -303,7 +377,7 @@ function obGoTo(step) {
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter') {
     const overlay = document.getElementById('ob-overlay');
-    if (overlay && !overlay.classList.contains('ob-hidden')) {
+    if (overlay && overlay.style.display !== 'none') {
       const loginStep = document.getElementById('ob-step-login');
       if (loginStep && loginStep.style.display !== 'none') obLogin();
     }

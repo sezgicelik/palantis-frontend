@@ -137,7 +137,7 @@ function showSavasRapor(sonuc, benimTaraf, opts) {
   box.innerHTML =
     '<button class="sr-close" onclick="closeSavasRapor()">✕ KAPAT</button>' +
     '<div class="sr-title">⚔ SAVAŞ RAPORU</div>' +
-    '<div class="sr-sub">Palantis Muharebe Kayıtları — ' + tip + '</div>' +
+    '<div class="sr-sub">Noxara Muharebe Kayıtları — ' + tip + '</div>' +
     '<div class="sr-result ' + resultClass + '">' + resultIcon + ' ' + resultText + '</div>' +
 
     '<div class="sr-cards">' +

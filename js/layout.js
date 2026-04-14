@@ -49,7 +49,7 @@ function renderSidebar(){
 
   mount.innerHTML = `
     <div class="sidebar" id="sidebar">
-      <div class="sidebar-header">PALANTIS</div>
+      <div class="sidebar-header">NOXARA</div>
       <div style="padding:10px 14px;border-bottom:1px solid #1a1a1a;line-height:1.8">
         <div id="sidebar-kral" style="color:#ccc;font-family:'Cinzel',serif;font-size:12px">— Kral —</div>
         <div id="sidebar-irk" style="font-size:10px;color:#444">Irk seçilmedi</div>
@@ -393,7 +393,7 @@ function initDayTransition() {
       const titleEl = document.getElementById('dt-title');
       if (titleEl) { titleEl.textContent = '🌅 Gün Batıyor...'; titleEl.style.color = '#e67e22'; }
       const subEl = document.getElementById('dt-subtitle');
-      if (subEl) subEl.textContent = 'Palantis gecesi yaklaşıyor...';
+      if (subEl) subEl.textContent = 'Noxara gecesi yaklaşıyor...';
     }
 
     // XX:00 — GECE (geçiş anı)

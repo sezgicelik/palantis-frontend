@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Palantis – Giriş</title>
+<title>Noxara — Karanlik Caglarin Strateji Dunyasi</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
@@ -12,22 +12,67 @@
 <body>
 
   <!-- ═══════════════════════════════
+       LANDING PAGE
+  ═══════════════════════════════ -->
+  <div id="landing">
+    <div class="landing-inner">
+
+      <!-- Hero -->
+      <div class="landing-hero">
+        <div class="landing-rune">&#5798; &#5800; &#5791; &#5800; &#5822; &#5831; &#5825; &#5765;</div>
+        <h1 class="landing-title">NOXARA</h1>
+        <p class="landing-lore">Karanlik ve aydinlik arasinda, kaderini sen yazacaksin.<br>Ordularini topla, buyulerini hazirla, tahtini kur.</p>
+      </div>
+
+      <!-- Feature Cards -->
+      <div class="landing-features">
+        <div class="feature-card">
+          <div class="feature-icon">&#9876;&#65039;</div>
+          <div class="feature-title">Ordu & Savas</div>
+          <div class="feature-desc">24 unite tipi, 6 turlu savas motoru, 4 saf dizilimi. Ordularini yonet, dusmani ez.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#128302;</div>
+          <div class="feature-title">Buyu & Mana</div>
+          <div class="feature-desc">28 buyu, 4 mana rengi, Bilge secimi. Buyucu Kulesi'nden dusmanlarini mahvet.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#127984;</div>
+          <div class="feature-title">Sehir & Koloni</div>
+          <div class="feature-desc">50+ bina, kervan ticareti, koloni fethi. Imparatorlugunu kur ve genislet.</div>
+        </div>
+      </div>
+
+      <!-- Server Selection -->
+      <div class="server-section">
+        <div class="server-section-title">SUNUCU SEC</div>
+        <div class="server-grid" id="server-grid"></div>
+      </div>
+
+      <!-- CTA -->
+      <button class="landing-cta" id="landing-cta" onclick="landingEnter()" disabled>&#9876;&#65039; SAVASA KATIL</button>
+      <div class="landing-version">v1.9.0</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════
        ONBOARDING OVERLAY
   ═══════════════════════════════ -->
-  <div id="ob-overlay">
+  <div id="ob-overlay" style="display:none">
     <div class="ob-box">
 
       <!-- Logo -->
       <div class="ob-logo">
-        <div class="ob-rune">ᚦ ᚨ ᛚ ᚨ ᚾ ᛏ ᛁ ᛊ</div>
-        <div class="ob-title">PALANTIS</div>
+        <div class="ob-rune">&#5798; &#5800; &#5791; &#5800; &#5822; &#5831; &#5825; &#5765;</div>
+        <div class="ob-title">NOXARA</div>
         <div class="ob-sub">KARANLIK CAGLARIN STRATEJI DUNYASI</div>
+        <div id="ob-server-badge" class="ob-server-badge"></div>
       </div>
 
-      <!-- ── ADIM 1: GİRİŞ ── -->
+      <!-- ADIM 1: GIRIS -->
       <div id="ob-step-login" class="ob-card">
         <div class="ob-step-label">ADIM 1 / 3</div>
-        <div class="ob-step-title">Krallığına Giriş Yap</div>
+        <div class="ob-step-title">Kralligina Giris Yap</div>
         <div class="ob-steps">
           <div class="ob-dot ob-dot-on"></div>
           <div class="ob-line"></div>
@@ -36,64 +81,62 @@
           <div class="ob-dot"></div>
         </div>
 
-        <div class="ob-error" id="ob-login-err">Kullanıcı adı veya şifre hatalı.</div>
+        <div class="ob-error" id="ob-login-err">Kullanici adi veya sifre hatali.</div>
 
         <button class="ob-google" onclick="obGoogleLogin()">
           <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285f4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34a853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#fbbc05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#ea4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-          Google ile Giriş Yap
+          Google ile Giris Yap
         </button>
 
         <div class="ob-divider"><span>VEYA</span></div>
 
-        <!-- Sadece kayıt modunda görünür: e-mail -->
         <div class="ob-field" id="ob-email-wrap" style="display:none">
-          <label class="ob-label">E-MAİL ADRESİ</label>
+          <label class="ob-label">E-MAIL ADRESI</label>
           <input class="ob-input" id="ob-email" type="email" placeholder="ornek@mail.com" autocomplete="email">
         </div>
 
         <div class="ob-field">
           <label class="ob-label">KULLANICI ADI</label>
-          <input class="ob-input" id="ob-username" type="text" placeholder="Kral adınız..." autocomplete="username">
+          <input class="ob-input" id="ob-username" type="text" placeholder="Kral adiniz..." autocomplete="username">
         </div>
         <div class="ob-field">
-          <label class="ob-label">ŞİFRE</label>
+          <label class="ob-label">SIFRE</label>
           <input class="ob-input" id="ob-password" type="password" placeholder="••••••••" autocomplete="current-password">
         </div>
 
-        <!-- Sadece kayıt modunda görünür: davet kodu -->
         <div class="ob-field" id="ob-davet-wrap" style="display:none">
           <label class="ob-label">DAVET KODU</label>
           <input class="ob-input" id="ob-davet" type="text" placeholder="DAV-XXXXXX" style="font-family:monospace;letter-spacing:2px;text-transform:uppercase">
         </div>
 
-        <!-- Sadece kayıt modunda görünür: şifre tekrar -->
         <div class="ob-field" id="ob-pass2-wrap" style="display:none">
-          <label class="ob-label">ŞİFRE (TEKRAR)</label>
-          <input class="ob-input" id="ob-password2" type="password" placeholder="Şifreyi tekrar gir...">
+          <label class="ob-label">SIFRE (TEKRAR)</label>
+          <input class="ob-input" id="ob-password2" type="password" placeholder="Sifreyi tekrar gir...">
         </div>
 
-        <button class="ob-btn" id="ob-main-btn" onclick="obLogin()">⚔️ GİRİŞ YAP</button>
+        <button class="ob-btn" id="ob-main-btn" onclick="obLogin()">&#9876;&#65039; GIRIS YAP</button>
         <button class="ob-back" onclick="obToggleRegister()">
-          <span id="ob-toggle-txt">Hesabın yok mu? <u>Kayıt ol</u></span>
+          <span id="ob-toggle-txt">Hesabin yok mu? <u>Kayit ol</u></span>
         </button>
+        <button class="ob-back" onclick="landingGeri()" style="margin-top:8px;font-size:10px;color:#555">&#8592; Sunucu Secimi</button>
         <div style="border-top:1px solid rgba(212,162,87,0.15);margin-top:12px;padding-top:10px">
           <button class="ob-back" onclick="obBakiciToggle()" style="font-size:10px;color:#888">
-            🔑 <u>Bakıcı Girişi</u>
+            &#128273; <u>Bakici Girisi</u>
           </button>
           <div id="ob-bakici-form" style="display:none;margin-top:8px">
             <input class="ob-input" id="ob-bak-email" type="email" placeholder="E-mail adresiniz" style="margin-bottom:4px">
-            <input class="ob-input" id="ob-bak-pass" type="password" placeholder="Şifreniz" style="margin-bottom:4px">
-            <input class="ob-input" id="ob-bak-token" type="text" placeholder="Bakıcı Tokeni (BAK-xxxxx)" style="margin-bottom:6px;font-family:monospace;letter-spacing:1px">
-            <button class="ob-btn" onclick="obBakiciGiris()" style="background:rgba(46,204,113,0.2);border-color:rgba(46,204,113,0.4);font-size:11px">🔑 BAKICI GİRİŞİ</button>
+            <input class="ob-input" id="ob-bak-pass" type="password" placeholder="Sifreniz" style="margin-bottom:4px">
+            <input class="ob-input" id="ob-bak-token" type="text" placeholder="Bakici Tokeni (BAK-xxxxx)" style="margin-bottom:6px;font-family:monospace;letter-spacing:1px">
+            <button class="ob-btn" onclick="obBakiciGiris()" style="background:rgba(46,204,113,0.2);border-color:rgba(46,204,113,0.4);font-size:11px">&#128273; BAKICI GIRISI</button>
             <div id="ob-bak-err" style="font-size:10px;color:#e74c3c;margin-top:4px;min-height:14px"></div>
           </div>
         </div>
       </div>
 
-      <!-- ── ADIM 2: TARAF ── -->
+      <!-- ADIM 2: TARAF -->
       <div id="ob-step-side" class="ob-card" style="display:none">
         <div class="ob-step-label">ADIM 2 / 3</div>
-        <div class="ob-step-title">Tarafını Seç</div>
+        <div class="ob-step-title">Tarafini Sec</div>
         <div class="ob-steps">
           <div class="ob-dot ob-dot-done"></div>
           <div class="ob-line"></div>
@@ -102,33 +145,32 @@
           <div class="ob-dot"></div>
         </div>
 
-        <!-- Canlı istatistikler -->
         <div id="ob-side-stats" style="display:flex;justify-content:center;gap:24px;margin-bottom:16px;font-size:13px;color:#666;">
-          <span>☀️ Aydınlık: <b id="stat-iyi" style="color:#f0d070">—</b> oyuncu</span>
-          <span>🌑 Karanlık: <b id="stat-kotu" style="color:#9b6bdf">—</b> oyuncu</span>
+          <span>&#9728;&#65039; Aydinlik: <b id="stat-iyi" style="color:#f0d070">—</b> oyuncu</span>
+          <span>&#127761; Karanlik: <b id="stat-kotu" style="color:#9b6bdf">—</b> oyuncu</span>
         </div>
 
         <div class="ob-side-grid">
           <div class="ob-side-card light" id="ob-side-light" onclick="obSelectSide('iyi',this)">
-            <span class="ob-side-icon">☀️</span>
+            <span class="ob-side-icon">&#9728;&#65039;</span>
             <div class="ob-side-name">AYDINLIK</div>
-            <div class="ob-side-desc">İnsan, Elf, Cüce, Buçukluk — ışığın yolunda savaşanlar</div>
+            <div class="ob-side-desc">Insan, Elf, Cuce, Bucukluk — isigin yolunda savasanlar</div>
           </div>
           <div class="ob-side-card dark" id="ob-side-dark" onclick="obSelectSide('kotu',this)">
-            <span class="ob-side-icon">🌑</span>
+            <span class="ob-side-icon">&#127761;</span>
             <div class="ob-side-name">KARANLIK</div>
-            <div class="ob-side-desc">Kara Elf, Ork, Ogre, Undead — gölgenin efendileri</div>
+            <div class="ob-side-desc">Kara Elf, Ork, Ogre, Undead — golgenin efendileri</div>
           </div>
         </div>
 
-        <button class="ob-btn" id="ob-side-btn" onclick="obGoToIrk()" disabled>DEVAM ET →</button>
-        <button class="ob-back" onclick="obGoTo('login')">← Geri</button>
+        <button class="ob-btn" id="ob-side-btn" onclick="obGoToIrk()" disabled>DEVAM ET &#8594;</button>
+        <button class="ob-back" onclick="obGoTo('login')">&#8592; Geri</button>
       </div>
 
-      <!-- ── ADIM 3: IRK ── -->
+      <!-- ADIM 3: IRK -->
       <div id="ob-step-irk" class="ob-card" style="display:none">
         <div class="ob-step-label">ADIM 3 / 3</div>
-        <div class="ob-step-title">Irkını Seç</div>
+        <div class="ob-step-title">Irkini Sec</div>
         <div class="ob-steps">
           <div class="ob-dot ob-dot-done"></div>
           <div class="ob-line"></div>
@@ -139,18 +181,18 @@
 
         <div class="ob-irk-grid" id="ob-irk-grid"></div>
 
-        <button class="ob-btn" id="ob-irk-btn" onclick="obFinish()" disabled>⚔️ KRALLIMI KUR</button>
-        <button class="ob-back" onclick="obGoTo('side')">← Geri</button>
+        <button class="ob-btn" id="ob-irk-btn" onclick="obFinish()" disabled>&#9876;&#65039; KRALLIMI KUR</button>
+        <button class="ob-back" onclick="obGoTo('side')">&#8592; Geri</button>
       </div>
 
-      <!-- ── KAYITLI KULLANICI KARŞILAMA ── -->
+      <!-- KAYITLI KULLANICI KARSILAMA -->
       <div id="ob-step-welcome" class="ob-card" style="display:none">
-        <div class="ob-step-title" style="margin-bottom:20px">Tekrar Hoş Geldin!</div>
+        <div class="ob-step-title" style="margin-bottom:20px">Tekrar Hos Geldin!</div>
         <div class="ob-welcome">
           <div class="ob-welcome-name" id="ob-welcome-name">—</div>
           <div class="ob-welcome-irk" id="ob-welcome-irk">—</div>
         </div>
-        <button class="ob-btn" onclick="obEnterGame()">⚔️ OYUNA GİR</button>
+        <button class="ob-btn" onclick="obEnterGame()">&#9876;&#65039; OYUNA GIR</button>
       </div>
 
     </div>
@@ -161,6 +203,7 @@
 
 <script src="js/constants.js"></script>
 <script src="js/utils.js"></script>
+<script src="js/servers.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/toast.js"></script>
 <script src="js/theme.js"></script>
