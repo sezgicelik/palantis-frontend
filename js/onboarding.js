@@ -89,14 +89,17 @@ function obToggleRegister() {
   const pass2Wrap = document.getElementById('ob-pass2-wrap');
   const txt = document.getElementById('ob-toggle-txt');
   const btn = document.getElementById('ob-main-btn');
+  const davetWrap = document.getElementById('ob-davet-wrap');
   if (obMode === 'register') {
     if(emailWrap) emailWrap.style.display = 'block';
     if(pass2Wrap) pass2Wrap.style.display = 'block';
+    if(davetWrap) davetWrap.style.display = 'block';
     txt.innerHTML = 'Hesabin var mi? <u>Giris yap</u>';
     if(btn) btn.textContent = 'KAYIT OL';
   } else {
     if(emailWrap) emailWrap.style.display = 'none';
     if(pass2Wrap) pass2Wrap.style.display = 'none';
+    if(davetWrap) davetWrap.style.display = 'none';
     txt.innerHTML = 'Hesabin yok mu? <u>Kayit ol</u>';
     if(btn) btn.textContent = 'GIRIS YAP';
   }
@@ -125,10 +128,12 @@ function obLogin() {
     if (!emailRx.test(email)) { showObErr('Gecerli bir e-mail adresi gir!'); return; }
     if (password !== pass2) { showObErr('Sifreler eslesmiyorl'); return; }
     if (password.length < 4) { showObErr('Sifre en az 4 karakter olmali!'); return; }
+    const davet_kodu = document.getElementById('ob-davet')?.value?.trim();
+    if (!davet_kodu) { showObErr('Davet kodu gerekli!'); return; }
     fetch(API_BASE + '/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password, email, screen_width: screen.width, screen_height: screen.height })
+      body: JSON.stringify({ username, password, email, davet_kodu, screen_width: screen.width, screen_height: screen.height })
     })
     .then(r => r.json())
     .then(data => {
