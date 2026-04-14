@@ -220,6 +220,14 @@ header{text-align:center;padding:24px 20px 14px;border-bottom:1px solid var(--bo
       <div class="prem-row"><label>Moral:</label><input type="range" id="atkMoral" min="0" max="100" value="100"><span id="atkMoralVal">100%</span></div>
       <div class="prem-row"><label>Mistik Atak:</label><input type="checkbox" id="atkMistikA"><label>Mistik Defans:</label><input type="checkbox" id="atkMistikD"></div>
     </div>
+    <div class="prem-section">
+      <div class="prem-row"><label>Taraf:</label>
+        <select id="atkTaraf" onchange="clearAll('atk');buildList('atk')">
+          <option value="iyi">Aydınlık</option>
+          <option value="kotu">Karanlık</option>
+        </select>
+      </div>
+    </div>
     <div class="unit-picker">
       <div class="picker-tabs" id="atkTabs"></div>
       <div class="unit-list" id="atkList"></div>
@@ -276,6 +284,14 @@ header{text-align:center;padding:24px 20px 14px;border-bottom:1px solid var(--bo
       <div class="prem-row"><label>Mızrak Kulesi:</label><input type="number" id="kuleMizrak" value="0" min="0" max="50" style="width:50px"></div>
       <div class="prem-row"><label>Büyü Kulesi:</label><input type="number" id="kuleBuyu" value="0" min="0" max="50" style="width:50px"></div>
       <div class="prem-row"><label>Balista Kulesi:</label><input type="number" id="kuleBalista" value="0" min="0" max="50" style="width:50px"></div>
+    </div>
+    <div class="prem-section">
+      <div class="prem-row"><label>Taraf:</label>
+        <select id="defTaraf" onchange="clearAll('def');buildList('def')">
+          <option value="kotu">Karanlık</option>
+          <option value="iyi">Aydınlık</option>
+        </select>
+      </div>
     </div>
     <div class="unit-picker">
       <div class="picker-tabs" id="defTabs"></div>
@@ -481,8 +497,10 @@ function buildList(side) {
     te.appendChild(b);
   });
   const le = document.getElementById(side + 'List'); le.innerHTML = '';
-  // Her iki tarafın ünitelerini göster
-  ALL_UNITS.filter(u => TABS[ST[side].tab].includes(u.tier)).forEach(unit => {
+  // Seçilen tarafa göre filtrele
+  const taraf = document.getElementById(side + 'Taraf')?.value || 'iyi';
+  const tarafUniteleri = taraf === 'iyi' ? UNITS.iyi : UNITS.kotu;
+  tarafUniteleri.filter(u => TABS[ST[side].tab].includes(u.tier)).forEach(unit => {
     const used = isUsed(side, unit.id);
     const item = document.createElement('div');
     item.className = 'unit-item' + (ST[side].su === unit.id ? ' sel' : '') + (used ? ' used' : '');
@@ -505,7 +523,25 @@ function placeUnit(side) {
   if (isUsed(side, ST[side].su)) { alert('Bu birim zaten kullanılıyor!'); return; }
   const cnt = parseInt(document.getElementById(side + 'Cnt').value);
   if (!cnt || cnt < 1) { alert('Geçerli bir sayı girin!'); return; }
-  const u = ALL_UNITS.find(x => x.id === ST[side].su); if (!u) return;
+
+  // Saf sırası kontrolü: önceki saflar boşken sonraki safa koyulamaz
+  const selIdx = ST[side].sel;
+  let cumSlots = 0, selSaf = 0;
+  for (let s = 0; s < SAF.length; s++) { cumSlots += SAF[s]; if (selIdx < cumSlots) { selSaf = s; break; } }
+  if (selSaf > 0) {
+    // Önceki saflarda en az 1 ünite olmalı
+    let prevCum = 0;
+    for (let s = 0; s < selSaf; s++) {
+      let safDolu = false;
+      for (let i = prevCum; i < prevCum + SAF[s]; i++) { if (ST[side].sl[i]) { safDolu = true; break; } }
+      if (!safDolu) { alert((s+1) + '. saf boş! Önce önceki safları doldurun.'); return; }
+      prevCum += SAF[s];
+    }
+  }
+
+  const taraf = document.getElementById(side + 'Taraf')?.value || 'iyi';
+  const tarafUniteleri = taraf === 'iyi' ? UNITS.iyi : UNITS.kotu;
+  const u = tarafUniteleri.find(x => x.id === ST[side].su); if (!u) { alert('Ünite bulunamadı (taraf uyumsuz?)'); return; }
   ST[side].sl[ST[side].sel] = { ...u, count: cnt };
   buildF(side); buildList(side); updateOz(side);
 }
@@ -672,16 +708,29 @@ function openRapor() {
   const rc = win === 'saldiran' ? 'rr-dk' : win === 'savunan' ? 'rr-lt' : 'rr-dr';
   const rt = win === 'saldiran' ? '🏆 SALDIRAN GALİP' : win === 'savunan' ? '🏆 SAVUNAN GALİP' : '⚔ BERABERE';
 
+  // Tur bazlı ölen üniteleri göster
+  const olenListesi = (oldurulen) => {
+    if (!oldurulen || !Object.keys(oldurulen).length) return '';
+    return Object.entries(oldurulen).filter(([k,v]) => v > 0).map(([k,v]) => {
+      const u = ALL_UNITS.find(x => x.id === k);
+      return `<span style="color:#e74c3c;font-size:.46rem">${u?.name||k}: -${v}</span>`;
+    }).join(' · ');
+  };
+
   const turRows = turlar.map(t => `
     <tr>
-      <td class="td-t">${t.tur}</td>
+      <td class="td-t" rowspan="2">${t.tur}</td>
       <td class="td-b">${fmt(t.saldiran_atk)}</td>
       <td class="td-k">${fmt(t.saldiran_hasar)}</td>
       <td class="td-b">${fmt(t.saldiran_kalan)}</td>
-      <td class="td-sp"></td>
+      <td class="td-sp" rowspan="2"></td>
       <td class="td-b">${fmt(t.savunan_atk)}</td>
       <td class="td-k">${fmt(t.savunan_hasar)}</td>
       <td class="td-b">${fmt(t.savunan_kalan)}</td>
+    </tr>
+    <tr style="border-bottom:1px solid rgba(201,168,76,0.1)">
+      <td colspan="3" style="text-align:left;padding:1px 7px 4px;font-size:.46rem;color:#888">${olenListesi(t.saldiran_oldurulen) || '—'}</td>
+      <td colspan="3" style="text-align:left;padding:1px 7px 4px;font-size:.46rem;color:#888">${olenListesi(t.savunan_oldurulen) || '—'}</td>
     </tr>`).join('');
 
   // Kayıp tablosu
