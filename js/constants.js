@@ -120,6 +120,13 @@ const BLDGS = {
     fx:l=>[{t:'pos',s:`${l} Balista/tur`},{t:'pos',s:`Menzil hasar +${l*80}`}],
     cost:l=>({odun:600,metal:500,altin:400}),time:l=>14400},
 
+  buyu_kulesi:{id:'buyu_kulesi',cat:'askeri',icon:'🔮',name:'Büyü Kulesi',bg:'#0a001a',
+    desc:"Büyü savunması. Savaşta büyü hasarı verir.",
+    maxLv:10,lv:0,deger:320,
+    cagLimit:{1:10,2:10,3:10,4:10,5:10},
+    fx:l=>[{t:'pos',s:`${l} Büyücü/tur`},{t:'pos',s:`Büyü ATK +${l*120}`}],
+    cost:l=>({odun:400,metal:300,altin:900}),time:l=>5400},
+
   rathe_tapinagi:{id:'rathe_tapinagi',cat:'askeri',icon:'⚔️',name:'Rathe Tapınağı',bg:'#180000',
     desc:"Savaş tanrısı. 200 Kırmızı WS kapasitesi/bina. ATK artışı.",
     maxLv:100,lv:0,deger:270,kapasite:{tip:'ws_kirmizi',miktar:200},
