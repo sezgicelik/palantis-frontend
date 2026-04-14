@@ -166,6 +166,47 @@ function showObErr(msg) {
   el.classList.add('ob-show');
 }
 
+/* -- Bakici Girisi -- */
+function obBakiciToggle() {
+  const form = document.getElementById('ob-bakici-form');
+  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+function obBakiciGiris() {
+  const email = document.getElementById('ob-bak-email')?.value?.trim();
+  const password = document.getElementById('ob-bak-pass')?.value;
+  const bakiciToken = document.getElementById('ob-bak-token')?.value?.trim();
+  const errEl = document.getElementById('ob-bak-err');
+  errEl.textContent = '';
+
+  if (!email) { errEl.textContent = 'Email girin'; return; }
+  if (!password) { errEl.textContent = 'Sifre girin'; return; }
+  if (!bakiciToken) { errEl.textContent = 'Bakici tokeni girin (BAK-xxxxx)'; return; }
+
+  fetch(API_BASE + '/api/auth/bakici-giris', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password, bakici_token: bakiciToken })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) { errEl.textContent = data.error; return; }
+    if (data.basarili) {
+      setToken(data.token);
+      // Bakıcı modu bilgisini localStorage'a kaydet
+      localStorage.setItem('palantis_bakici_modu', JSON.stringify({
+        aktif: true,
+        izinler: data.izinler || {},
+        hesap_kral: data.hesap_kral,
+        token_id: data.bakici_token_id
+      }));
+      alert('Bakici girisi basarili! ' + (data.hesap_kral || '') + ' hesabina kisitli yetkilerle giriyorsunuz.');
+      window.location.href = 'home.html';
+    }
+  })
+  .catch(() => { errEl.textContent = 'Sunucuya baglanamadi'; });
+}
+
 /* -- Taraf secimi -- */
 function obSelectSide(side, el) {
   obSelectedSide = side;

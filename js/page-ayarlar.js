@@ -200,7 +200,14 @@ async function loadBakicilikDurum() {
         { key:'ayarlar', label:'Ayarlari degistirme', varsayilan:false },
       ];
       el.innerHTML =
-        '<div style="color:#888;margin-bottom:8px">Hesabinizi baska birine emanet edin. Yetkileri secin, token olusturun.</div>' +
+        '<div style="color:#888;margin-bottom:8px">Hesabinizi baska birine emanet edin. Bakici oyuncuyu secin, yetkileri belirleyin.</div>' +
+        '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">' +
+          '<label style="font-size:10px;color:#888">Bakici Oyuncu:</label>' +
+          '<input id="bakici-isim" type="text" placeholder="Kral adi ara..." style="width:140px;padding:3px 6px;background:#111;border:1px solid #333;color:#ddd;border-radius:3px;font-size:10px">' +
+          '<button onclick="bakiciAra()" style="padding:3px 8px;background:#333;border:1px solid #555;color:#ddd;border-radius:3px;cursor:pointer;font-size:9px">Ara</button>' +
+        '</div>' +
+        '<div id="bakici-sonuc" style="font-size:9px;margin-bottom:6px;min-height:14px"></div>' +
+        '<input id="bakici-hedef-id" type="hidden">' +
         '<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">' +
           '<label style="font-size:10px;color:#888">Sure (gun):</label>' +
           '<input id="bakici-gun" type="number" value="3" min="1" max="6" style="width:40px;padding:3px;background:#111;border:1px solid #333;color:#ddd;border-radius:3px">' +
@@ -219,7 +226,24 @@ async function loadBakicilikDurum() {
   } catch(e) { el.innerHTML = '<span style="color:#888">Bakicilik sistemi hazirlaniyor...</span>'; }
 }
 
+async function bakiciAra() {
+  var isim = document.getElementById('bakici-isim')?.value?.trim();
+  var sonuc = document.getElementById('bakici-sonuc');
+  if (!isim || isim.length < 2) { sonuc.innerHTML = '<span style="color:#e74c3c">En az 2 karakter girin</span>'; return; }
+  var token = getToken(); if (!token) return;
+  try {
+    var resp = await fetch(API_BASE + '/api/player/ara?isim=' + encodeURIComponent(isim), { headers: { 'Authorization': 'Bearer ' + token } });
+    var data = await resp.json();
+    if (!data.length) { sonuc.innerHTML = '<span style="color:#e74c3c">Oyuncu bulunamadi</span>'; return; }
+    sonuc.innerHTML = data.map(function(p) {
+      return '<span style="cursor:pointer;padding:2px 6px;border:1px solid #333;border-radius:3px;margin:1px;display:inline-block" onclick="document.getElementById(\'bakici-hedef-id\').value=\'' + p.id + '\';document.getElementById(\'bakici-sonuc\').innerHTML=\'<span style=color:#2ecc71>Secildi: ' + p.kullanici_adi + '</span>\'">' + p.kullanici_adi + ' <span style="color:#555;font-size:8px">(C' + (p.cag||1) + ')</span></span>';
+    }).join(' ');
+  } catch(e) { sonuc.innerHTML = '<span style="color:#e74c3c">Arama hatasi</span>'; }
+}
+
 async function bakiciTokenOlustur() {
+  var bakiciId = parseInt(document.getElementById('bakici-hedef-id')?.value);
+  if (!bakiciId) { alert('Once bakici olacak oyuncuyu secin!'); return; }
   var gun = parseInt(document.getElementById('bakici-gun')?.value) || 3;
   // İzinleri topla
   var izinler = {};
@@ -230,7 +254,7 @@ async function bakiciTokenOlustur() {
   try {
     var resp = await fetch(API_BASE + '/api/ayarlar/bakicilik/token-olustur', {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ gun: gun, izinler: izinler })
+      body: JSON.stringify({ gun: gun, izinler: izinler, bakici_id: bakiciId })
     });
     var data = await resp.json();
     if (resp.ok) { toast('Token olusturuldu!'); loadBakicilikDurum(); }

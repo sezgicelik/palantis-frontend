@@ -70,6 +70,18 @@
         <button class="ob-back" onclick="obToggleRegister()">
           <span id="ob-toggle-txt">Hesabın yok mu? <u>Kayıt ol</u></span>
         </button>
+        <div style="border-top:1px solid rgba(212,162,87,0.15);margin-top:12px;padding-top:10px">
+          <button class="ob-back" onclick="obBakiciToggle()" style="font-size:10px;color:#888">
+            🔑 <u>Bakıcı Girişi</u>
+          </button>
+          <div id="ob-bakici-form" style="display:none;margin-top:8px">
+            <input class="ob-input" id="ob-bak-email" type="email" placeholder="E-mail adresiniz" style="margin-bottom:4px">
+            <input class="ob-input" id="ob-bak-pass" type="password" placeholder="Şifreniz" style="margin-bottom:4px">
+            <input class="ob-input" id="ob-bak-token" type="text" placeholder="Bakıcı Tokeni (BAK-xxxxx)" style="margin-bottom:6px;font-family:monospace;letter-spacing:1px">
+            <button class="ob-btn" onclick="obBakiciGiris()" style="background:rgba(46,204,113,0.2);border-color:rgba(46,204,113,0.4);font-size:11px">🔑 BAKICI GİRİŞİ</button>
+            <div id="ob-bak-err" style="font-size:10px;color:#e74c3c;margin-top:4px;min-height:14px"></div>
+          </div>
+        </div>
       </div>
 
       <!-- ── ADIM 2: TARAF ── -->
