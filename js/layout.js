@@ -164,6 +164,9 @@ function renderHUD(){
 
   mount.innerHTML = `
   <div class="hudbar" id="hudbar">
+    <!-- Ateşkes / Tatil Banner -->
+    <div id="hud-ateskes-banner" style="display:none;background:rgba(231,76,60,0.15);border-bottom:1px solid rgba(231,76,60,0.3);padding:3px 10px;text-align:center;font-size:9px;color:#e74c3c;font-family:Cinzel,serif;letter-spacing:1px">⚔️ ATEŞKES AKTİF</div>
+    <div id="hud-tatil-banner" style="display:none;background:rgba(46,204,113,0.15);border-bottom:1px solid rgba(46,204,113,0.3);padding:3px 10px;text-align:center;font-size:9px;color:#2ecc71;font-family:Cinzel,serif;letter-spacing:1px">🏖️ TATİL MODU</div>
     <!-- HAM: Odun Metal Bugday Balik CigEt Altin -->
     <div class="hud-row-wrap">
       <div class="hud-row-lbl">HAM</div>
@@ -293,6 +296,10 @@ function initLayout(){
   // Oyun verisini yukle
   if(typeof loadGameData === 'function') loadGameData();
 
+  // Ateşkes + Tatil banner kontrolü
+  checkAteskesTatil();
+  setInterval(checkAteskesTatil, 120000); // 2 dakikada bir
+
   // Timer intervalleri
   if(typeof updateTopTimers === 'function'){
     setInterval(updateTopTimers, 1000);
@@ -316,6 +323,37 @@ function initLayout(){
    XX:59 — overlay göster, butonları kilitle
    XX:01 — overlay kaldır, veriyi yenile
 ═══════════════════════════════════════════ */
+// Ateşkes + Tatil banner kontrolü
+async function checkAteskesTatil() {
+  try {
+    // Ateşkes (public endpoint)
+    const atkR = await fetch((window.API_BASE||'https://palantis-backend-production.up.railway.app') + '/api/game/ateskes').catch(()=>null);
+    const atkBanner = document.getElementById('hud-ateskes-banner');
+    if (atkR && atkR.ok && atkBanner) {
+      const atk = await atkR.json();
+      if (atk.aktif && atk.bitis && new Date(atk.bitis) > new Date()) {
+        const kalan = Math.round((new Date(atk.bitis) - Date.now()) / 3600000);
+        atkBanner.textContent = '⚔️ ATEŞKES — ' + (atk.aciklama || 'Saldırılar durduruldu') + ' (' + kalan + ' PG kaldı)';
+        atkBanner.style.display = 'block';
+      } else { atkBanner.style.display = 'none'; }
+    }
+
+    // Tatil (auth gerekli)
+    const token = typeof getToken === 'function' ? getToken() : null;
+    const tatilBanner = document.getElementById('hud-tatil-banner');
+    if (token && tatilBanner) {
+      const tatR = await fetch((window.API_BASE||'https://palantis-backend-production.up.railway.app') + '/api/game/tatil', { headers: { 'Authorization': 'Bearer ' + token } }).catch(()=>null);
+      if (tatR && tatR.ok) {
+        const tat = await tatR.json();
+        if (tat.tatil_modu) {
+          tatilBanner.textContent = '🏖️ TATİL MODU — ' + Math.round(tat.kalan_pg) + ' PG kaldı';
+          tatilBanner.style.display = 'block';
+        } else { tatilBanner.style.display = 'none'; }
+      }
+    }
+  } catch(e) {}
+}
+
 function initDayTransition() {
   // Overlay HTML oluştur
   const overlay = document.createElement('div');

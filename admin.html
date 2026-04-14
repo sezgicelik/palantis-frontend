@@ -73,6 +73,7 @@
     <button onclick="switchTab('dayaniklilik-cfg',this)">Dayaniklilik</button>
     <button onclick="switchTab('bilge-cfg',this)">Bilge</button>
     <button onclick="switchTab('casus-cfg',this)">Casus Ayar</button>
+    <button onclick="switchTab('tatil-cfg',this)">Tatil & Ateskes</button>
   </div>
 
   <!-- CRON TAB -->
@@ -477,6 +478,17 @@
       </div>
     </div>
   </div>
+  <!-- ═══ TATİL & ATEŞKES ═══ -->
+  <div id="tab-tatil-cfg" class="panel">
+    <h3>Ateskes Yonetimi</h3>
+    <div id="ateskes-content">Yukleniyor...</div>
+    <h3 style="margin-top:16px">Tatildeki Oyuncular</h3>
+    <div id="tatil-oyuncular">Yukleniyor...</div>
+    <h3 style="margin-top:16px">Tatil Ayarlari</h3>
+    <div id="tatil-cfg-content">Yukleniyor...</div>
+    <button class="act" onclick="tatilCfgKaydet()">Tatil Ayar Kaydet</button>
+  </div>
+
   <!-- ═══ SAVAS AYAR ═══ -->
   <div id="tab-savas-cfg" class="panel">
     <h3>Savas Ganimet Ayarlari</h3>
@@ -551,6 +563,7 @@ function switchTab(tab, el) {
   if (tab === 'irklar') loadIrkBonuslari();
   if (tab === 'artifact') loadArtifactAdmin();
   if (tab === 'gorevler') loadGorevlerAdmin();
+  if (tab === 'tatil-cfg') loadTatilAdmin();
   if (tab === 'savas-cfg') loadSavasCfg();
   if (tab === 'dayaniklilik-cfg') loadDayaniklikCfg();
   if (tab === 'bilge-cfg') loadBilgeCfg();
@@ -1506,6 +1519,68 @@ async function adminGorevSil(id) {
     await fetch(API + '/api/admin/gorev/' + id, { method: 'DELETE', headers: hdr() });
     loadGorevlerAdmin();
   } catch(e) {}
+}
+
+// ═══ TATİL & ATEŞKES ═══
+async function loadTatilAdmin() {
+  // Ateşkes
+  const ae = document.getElementById('ateskes-content');
+  try {
+    const r = await fetch(API+'/api/admin/ateskes',{headers:hdr()});
+    const d = await r.json();
+    const aktif = d.aktif && d.bitis && new Date(d.bitis) > new Date();
+    const kalanPG = aktif ? Math.round((new Date(d.bitis)-Date.now())/3600000) : 0;
+    ae.innerHTML = '<div style="margin-bottom:8px;font-size:12px;color:'+(aktif?'#2ecc71':'#888')+'">' +
+      (aktif ? '✅ ATESKES AKTIF — '+d.aciklama+' ('+kalanPG+' PG kaldi, kapsam: '+d.kapsam+')' : '❌ Ateskes pasif') + '</div>' +
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">' +
+        '<select id="atk-kapsam" style="padding:3px;background:#111;border:1px solid #333;color:#ddd;font-size:10px"><option value="tam">Tam (hepsi durur)</option><option value="sadece_pvp">Sadece PvP</option><option value="hafif">Hafif (sadece saldiri)</option></select>' +
+        '<input id="atk-sure" type="number" value="48" min="1" max="720" style="width:50px;padding:3px;background:#111;border:1px solid #333;color:#ddd;font-size:10px" placeholder="PG">' +
+        '<input id="atk-aciklama" value="'+(d.aciklama||'')+'" placeholder="Aciklama..." style="flex:1;min-width:120px;padding:3px;background:#111;border:1px solid #333;color:#ddd;font-size:10px">' +
+        (aktif ?
+          '<button class="act" style="background:#c0392b" onclick="ateskesDurdur()">Ateşkesi Durdur</button>' :
+          '<button class="act" onclick="ateskesBaslat()">Ateşkes Başlat</button>') +
+      '</div>';
+    if (aktif && d.kapsam) document.getElementById('atk-kapsam').value = d.kapsam;
+  } catch(e) { ae.innerHTML = '<span style="color:#e74c3c">Hata</span>'; }
+
+  // Tatildeki oyuncular
+  const to = document.getElementById('tatil-oyuncular');
+  try {
+    const r2 = await fetch(API+'/api/admin/tatil-oyuncular',{headers:hdr()});
+    const d2 = await r2.json();
+    if (!d2.oyuncular?.length) { to.innerHTML = '<span style="color:#555">Tatilde kimse yok</span>'; }
+    else {
+      to.innerHTML = '<table style="font-size:10px"><thead><tr><th>Oyuncu</th><th>Irk</th><th>Taraf</th><th>Baslangic</th><th>Bitis</th></tr></thead><tbody>' +
+        d2.oyuncular.map(o => '<tr><td>'+o.kral+'</td><td>'+o.irk+'</td><td>'+o.taraf+'</td><td>'+fmtDate(o.tatil_baslangic)+'</td><td>'+fmtDate(o.tatil_bitis)+'</td></tr>').join('') +
+        '</tbody></table>';
+    }
+  } catch(e) { to.innerHTML = '<span style="color:#e74c3c">Hata</span>'; }
+
+  // Tatil config
+  const tc = document.getElementById('tatil-cfg-content');
+  try {
+    const r3 = await fetch(API+'/api/admin/tatil-config',{headers:hdr()});
+    const d3 = await r3.json();
+    tc.innerHTML = '<table><tbody>' +
+      Object.entries(d3).map(([k,v]) => '<tr><td style="font-size:10px">'+k+'</td><td><input id="tc-'+k+'" type="number" value="'+v+'" style="width:60px;padding:2px;background:#111;border:1px solid #333;color:#ddd"></td></tr>').join('') +
+      '</tbody></table>';
+  } catch(e) { tc.innerHTML = '<span style="color:#e74c3c">Hata</span>'; }
+}
+
+async function ateskesBaslat() {
+  const body = { aktif:true, kapsam:document.getElementById('atk-kapsam')?.value||'tam', sure_pg:parseInt(document.getElementById('atk-sure')?.value)||48, aciklama:document.getElementById('atk-aciklama')?.value||'' };
+  await fetch(API+'/api/admin/ateskes',{method:'POST',headers:hdr(),body:JSON.stringify(body)});
+  alert('Ateskes baslatildi!'); loadTatilAdmin();
+}
+async function ateskesDurdur() {
+  await fetch(API+'/api/admin/ateskes',{method:'POST',headers:hdr(),body:JSON.stringify({aktif:false})});
+  alert('Ateskes durduruldu!'); loadTatilAdmin();
+}
+async function tatilCfgKaydet() {
+  const body = {};
+  document.querySelectorAll('[id^="tc-"]').forEach(el => { body[el.id.replace('tc-','')] = parseInt(el.value)||0; });
+  await fetch(API+'/api/admin/tatil-config',{method:'POST',headers:hdr(),body:JSON.stringify(body)});
+  alert('Tatil config kaydedildi!');
 }
 
 // ═══ SAVAS CONFIG ═══

@@ -77,7 +77,137 @@ function renderAyarlar(el, data) {
           '</label>' +
         '</div>';
       }).join('') +
+    '</div>' +
+
+    // Tatil Modu
+    '<div class="card" style="margin-top:12px">' +
+      '<div style="font-size:12px;font-weight:bold;color:var(--race-color);margin-bottom:8px;font-family:Cinzel,serif">🏖️ Tatil Modu</div>' +
+      '<div id="tatil-content" style="font-size:11px;color:#888">Yukleniyor...</div>' +
+    '</div>' +
+
+    // Bakıcılık
+    '<div class="card" style="margin-top:12px">' +
+      '<div style="font-size:12px;font-weight:bold;color:var(--race-color);margin-bottom:8px;font-family:Cinzel,serif">🔑 Bakıcılık</div>' +
+      '<div id="bakicilik-content" style="font-size:11px;color:#888">Yukleniyor...</div>' +
     '</div>';
+
+  // Tatil ve bakıcılık durumunu yükle
+  setTimeout(loadTatilDurum, 300);
+  setTimeout(loadBakicilikDurum, 400);
+}
+
+// ═══ TATİL MODU ═══
+async function loadTatilDurum() {
+  var el = document.getElementById('tatil-content'); if (!el) return;
+  var token = getToken(); if (!token) return;
+  try {
+    var resp = await fetch(API_BASE + '/api/game/tatil', { headers: { 'Authorization': 'Bearer ' + token } });
+    var data = await resp.json();
+    if (data.tatil_modu) {
+      el.innerHTML = '<div style="background:rgba(46,204,113,0.1);border:1px solid rgba(46,204,113,0.3);border-radius:6px;padding:10px;margin-bottom:8px">' +
+        '<div style="color:#2ecc71;font-weight:bold;font-size:13px">🏖️ TATİL MODUNDASINIZ</div>' +
+        '<div style="color:#888;margin-top:4px">Kalan: <strong style="color:#f0e8d8">' + Math.round(data.kalan_pg) + ' PG</strong></div>' +
+        '<div style="color:#888;margin-top:2px">Bitis: ' + (data.tatil_bitis ? new Date(data.tatil_bitis).toLocaleString('tr-TR') : '-') + '</div>' +
+        '<button class="btn-action" style="margin-top:8px;width:auto;padding:5px 14px;font-size:10px;background:#c0392b" onclick="tatilIptal()">Tatili Iptal Et</button>' +
+        '<div style="font-size:9px;color:#666;margin-top:4px">(Iptal sonrasi ' + (data.config?.tatil_cooldown||48) + ' PG cooldown baslar)</div>' +
+      '</div>';
+    } else {
+      var cooldownMsg = data.cooldown_kalan > 0 ?
+        '<div style="color:#e74c3c;margin-bottom:6px">Cooldown: ' + Math.round(data.cooldown_kalan) + ' PG beklemeniz gerekiyor</div>' : '';
+      el.innerHTML = cooldownMsg +
+        '<div style="color:#888;margin-bottom:6px">Tatil modunda sehriniz korunur: saldiri/buyu/casus engellenir, uretim durur.</div>' +
+        '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">' +
+          '<label style="font-size:10px;color:#888">Sure (PG):</label>' +
+          '<input id="tatil-sure" type="number" value="' + (data.config?.tatil_min_sure||24) + '" min="' + (data.config?.tatil_min_sure||24) + '" max="' + (data.config?.tatil_max_sure||336) + '" style="width:60px;padding:3px;background:#111;border:1px solid #333;color:#ddd;border-radius:3px;font-size:11px">' +
+          '<span style="font-size:9px;color:#555">(' + (data.config?.tatil_min_sure||24) + '-' + (data.config?.tatil_max_sure||336) + ')</span>' +
+        '</div>' +
+        '<button class="btn-action" style="width:auto;padding:5px 14px;font-size:10px" onclick="tatilBaslat()" ' + (data.cooldown_kalan > 0 ? 'disabled style="opacity:0.4;width:auto;padding:5px 14px;font-size:10px"' : '') + '>🏖️ Tatil Modunu Baslat</button>';
+    }
+  } catch(e) { el.innerHTML = '<span style="color:#e74c3c">Yukleme hatasi</span>'; }
+}
+
+async function tatilBaslat() {
+  var sure = parseInt(document.getElementById('tatil-sure')?.value);
+  if (!sure) { alert('Sure girin'); return; }
+  if (!confirm('Tatil modunu ' + sure + ' PG icin aktiflestireceksiniz. Emin misiniz?')) return;
+  var token = getToken(); if (!token) return;
+  try {
+    var resp = await fetch(API_BASE + '/api/game/tatil', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ sure: sure })
+    });
+    var data = await resp.json();
+    if (resp.ok) { toast(data.mesaj || 'Tatil modu aktif!'); loadTatilDurum(); }
+    else alert(data.error || 'Hata');
+  } catch(e) { alert('Sunucu hatasi'); }
+}
+
+async function tatilIptal() {
+  if (!confirm('Tatili iptal etmek istediginize emin misiniz? Cooldown baslar.')) return;
+  var token = getToken(); if (!token) return;
+  try {
+    var resp = await fetch(API_BASE + '/api/game/tatil', {
+      method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token }
+    });
+    var data = await resp.json();
+    if (resp.ok) { toast(data.mesaj || 'Tatil iptal edildi'); loadTatilDurum(); }
+    else alert(data.error || 'Hata');
+  } catch(e) { alert('Sunucu hatasi'); }
+}
+
+// ═══ BAKICILIK ═══
+async function loadBakicilikDurum() {
+  var el = document.getElementById('bakicilik-content'); if (!el) return;
+  var token = getToken(); if (!token) return;
+  try {
+    var resp = await fetch(API_BASE + '/api/ayarlar/bakicilik', { headers: { 'Authorization': 'Bearer ' + token } });
+    if (!resp.ok) {
+      el.innerHTML = '<div style="color:#888">Bakicilik sistemi hazirlaniyor...</div>';
+      return;
+    }
+    var data = await resp.json();
+    if (data.aktif_token) {
+      el.innerHTML = '<div style="background:rgba(212,162,87,0.1);border:1px solid rgba(212,162,87,0.3);border-radius:6px;padding:10px">' +
+        '<div style="color:#c9a84c;font-weight:bold">🔑 Aktif Bakici Tokeni</div>' +
+        '<div style="font-family:monospace;font-size:14px;color:#f0e8d8;margin:6px 0;padding:6px;background:#111;border-radius:4px;text-align:center;letter-spacing:2px">' + data.aktif_token.token + '</div>' +
+        '<div style="font-size:9px;color:#888">Bitis: ' + new Date(data.aktif_token.bitis).toLocaleString('tr-TR') + '</div>' +
+        '<button class="btn-action" style="margin-top:6px;width:auto;padding:4px 10px;font-size:9px;background:#c0392b" onclick="bakicilikIptal()">Tokeni Iptal Et</button>' +
+      '</div>';
+    } else {
+      el.innerHTML =
+        '<div style="color:#888;margin-bottom:8px">Hesabinizi baska birine emanet edin. Token olusturun, bakiciya iletin.</div>' +
+        '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">' +
+          '<label style="font-size:10px;color:#888">Sure (gun):</label>' +
+          '<input id="bakici-gun" type="number" value="3" min="1" max="6" style="width:40px;padding:3px;background:#111;border:1px solid #333;color:#ddd;border-radius:3px">' +
+        '</div>' +
+        '<button class="btn-action" style="width:auto;padding:5px 14px;font-size:10px" onclick="bakiciTokenOlustur()">🔑 Bakici Tokeni Olustur</button>';
+    }
+  } catch(e) { el.innerHTML = '<span style="color:#888">Bakicilik sistemi hazirlaniyor...</span>'; }
+}
+
+async function bakiciTokenOlustur() {
+  var gun = parseInt(document.getElementById('bakici-gun')?.value) || 3;
+  var token = getToken(); if (!token) return;
+  try {
+    var resp = await fetch(API_BASE + '/api/ayarlar/bakicilik/token-olustur', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ gun: gun })
+    });
+    var data = await resp.json();
+    if (resp.ok) { toast('Token olusturuldu!'); loadBakicilikDurum(); }
+    else alert(data.error || 'Hata');
+  } catch(e) { alert('Sunucu hatasi'); }
+}
+
+async function bakicilikIptal() {
+  if (!confirm('Bakici tokenini iptal etmek istediginize emin misiniz?')) return;
+  var token = getToken(); if (!token) return;
+  try {
+    var resp = await fetch(API_BASE + '/api/ayarlar/bakicilik/iptal', {
+      method: 'POST', headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (resp.ok) { toast('Token iptal edildi'); loadBakicilikDurum(); }
+  } catch(e) { alert('Hata'); }
 }
 
 async function telegramBagla() {
