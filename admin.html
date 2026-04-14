@@ -74,6 +74,7 @@
     <button onclick="switchTab('bilge-cfg',this)">Bilge</button>
     <button onclick="switchTab('casus-cfg',this)">Casus Ayar</button>
     <button onclick="switchTab('tatil-cfg',this)">Tatil & Ateskes</button>
+    <button onclick="switchTab('anomali',this)">Anomali</button>
   </div>
 
   <!-- CRON TAB -->
@@ -478,6 +479,19 @@
       </div>
     </div>
   </div>
+  <!-- ═══ ANOMALİ ═══ -->
+  <div id="tab-anomali" class="panel">
+    <h3>Anomali & Guvenlik Loglari</h3>
+    <p style="font-size:10px;color:var(--muted);margin-bottom:10px">Harcamasiz uretim, hizli insaat, muhasebe denetimi sonuclari</p>
+    <div style="margin-bottom:10px;display:flex;gap:6px;align-items:center">
+      <span style="font-size:10px;color:var(--muted)">Muhasebe esik:</span>
+      <input id="muh-esik" type="number" value="30" min="1" max="100" style="width:50px;padding:2px;background:#111;border:1px solid #333;color:#ddd">
+      <span style="font-size:9px;color:#555">%</span>
+      <button class="act" onclick="muhasebeEsikKaydet()">Kaydet</button>
+    </div>
+    <div id="anomali-list">Yukleniyor...</div>
+  </div>
+
   <!-- ═══ TATİL & ATEŞKES ═══ -->
   <div id="tab-tatil-cfg" class="panel">
     <h3>Ateskes Yonetimi</h3>
@@ -563,6 +577,7 @@ function switchTab(tab, el) {
   if (tab === 'irklar') loadIrkBonuslari();
   if (tab === 'artifact') loadArtifactAdmin();
   if (tab === 'gorevler') loadGorevlerAdmin();
+  if (tab === 'anomali') loadAnomaliAdmin();
   if (tab === 'tatil-cfg') loadTatilAdmin();
   if (tab === 'savas-cfg') loadSavasCfg();
   if (tab === 'dayaniklilik-cfg') loadDayaniklikCfg();
@@ -1519,6 +1534,36 @@ async function adminGorevSil(id) {
     await fetch(API + '/api/admin/gorev/' + id, { method: 'DELETE', headers: hdr() });
     loadGorevlerAdmin();
   } catch(e) {}
+}
+
+// ═══ ANOMALİ ═══
+async function loadAnomaliAdmin() {
+  // Eşik yükle
+  try {
+    const er = await fetch(API+'/api/admin/muhasebe-esik',{headers:hdr()});
+    const ed = await er.json();
+    document.getElementById('muh-esik').value = ed.esik || 30;
+  } catch(e) {}
+
+  // Loglar
+  const el = document.getElementById('anomali-list');
+  try {
+    const r = await fetch(API+'/api/admin/anomali-loglar',{headers:hdr()});
+    const d = await r.json();
+    if (!d.loglar?.length) { el.innerHTML = '<span style="color:#555">Anomali kaydı yok — temiz!</span>'; return; }
+    el.innerHTML = '<table style="font-size:10px;width:100%"><thead><tr><th>Tarih</th><th>Oyuncu</th><th>Tip</th><th>Detay</th></tr></thead><tbody>' +
+      d.loglar.map(l => {
+        const tipRenk = l.event_type.includes('muhasebe') ? '#f39c12' : l.event_type.includes('hizli') ? '#e74c3c' : l.event_type.includes('uretim') ? '#9b59b6' : '#e67e22';
+        return '<tr><td>'+fmtDate(l.created_at)+'</td><td style="color:var(--gold)">'+(l.kral||l.username||'-')+'</td><td style="color:'+tipRenk+'">'+l.event_type+'</td><td style="color:#888;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+l.detail+'</td></tr>';
+      }).join('') +
+      '</tbody></table>';
+  } catch(e) { el.innerHTML = '<span style="color:#e74c3c">Yukleme hatasi</span>'; }
+}
+
+async function muhasebeEsikKaydet() {
+  const esik = parseInt(document.getElementById('muh-esik')?.value) || 30;
+  await fetch(API+'/api/admin/muhasebe-esik',{method:'POST',headers:hdr(),body:JSON.stringify({esik})});
+  alert('Muhasebe esik kaydedildi: %'+esik);
 }
 
 // ═══ TATİL & ATEŞKES ═══
