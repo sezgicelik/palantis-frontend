@@ -167,18 +167,52 @@ async function loadBakicilikDurum() {
     }
     var data = await resp.json();
     if (data.aktif_token) {
+      var izinGoster = '';
+      if (data.aktif_token.izinler) {
+        var iz = data.aktif_token.izinler;
+        izinGoster = '<div style="font-size:8px;color:#888;margin-top:4px;display:flex;flex-wrap:wrap;gap:3px">' +
+          Object.entries(iz).map(function(e) {
+            return '<span style="padding:1px 4px;border-radius:2px;background:' + (e[1] ? 'rgba(46,204,113,0.15);color:#2ecc71;border:1px solid rgba(46,204,113,0.3)' : 'rgba(231,76,60,0.1);color:#e74c3c;border:1px solid rgba(231,76,60,0.2)') + '">' + (e[1]?'✅':'❌') + ' ' + e[0] + '</span>';
+          }).join('') + '</div>';
+      }
       el.innerHTML = '<div style="background:rgba(212,162,87,0.1);border:1px solid rgba(212,162,87,0.3);border-radius:6px;padding:10px">' +
         '<div style="color:#c9a84c;font-weight:bold">🔑 Aktif Bakici Tokeni</div>' +
         '<div style="font-family:monospace;font-size:14px;color:#f0e8d8;margin:6px 0;padding:6px;background:#111;border-radius:4px;text-align:center;letter-spacing:2px">' + data.aktif_token.token + '</div>' +
         '<div style="font-size:9px;color:#888">Bitis: ' + new Date(data.aktif_token.bitis).toLocaleString('tr-TR') + '</div>' +
+        izinGoster +
         '<button class="btn-action" style="margin-top:6px;width:auto;padding:4px 10px;font-size:9px;background:#c0392b" onclick="bakicilikIptal()">Tokeni Iptal Et</button>' +
       '</div>';
     } else {
+      var izinListesi = [
+        { key:'bina_insaat', label:'Bina insaati baslatma', varsayilan:true },
+        { key:'isci_atama', label:'Isci atama/degistirme', varsayilan:true },
+        { key:'unite_egitim', label:'Unite egitimi', varsayilan:true },
+        { key:'festival', label:'Festival duzenleme', varsayilan:true },
+        { key:'savunma_buyu', label:'Kendine buyu yapma', varsayilan:true },
+        { key:'saldiri', label:'Ordu saldiri gonderme', varsayilan:false },
+        { key:'koloni_fetih', label:'Koloni fethi', varsayilan:false },
+        { key:'ofansif_buyu', label:'Ofansif buyu yapma', varsayilan:false },
+        { key:'ozel_mesaj', label:'Ozel mesaj okuma', varsayilan:false },
+        { key:'guild_kasa', label:'Guild kasa erisimi', varsayilan:false },
+        { key:'pazar_ticaret', label:'Pazar ticareti', varsayilan:false },
+        { key:'daragaci', label:'Daragaci kullanma', varsayilan:false },
+        { key:'vergi_degistir', label:'Vergi orani degistirme', varsayilan:false },
+        { key:'ayarlar', label:'Ayarlari degistirme', varsayilan:false },
+      ];
       el.innerHTML =
-        '<div style="color:#888;margin-bottom:8px">Hesabinizi baska birine emanet edin. Token olusturun, bakiciya iletin.</div>' +
-        '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">' +
+        '<div style="color:#888;margin-bottom:8px">Hesabinizi baska birine emanet edin. Yetkileri secin, token olusturun.</div>' +
+        '<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">' +
           '<label style="font-size:10px;color:#888">Sure (gun):</label>' +
           '<input id="bakici-gun" type="number" value="3" min="1" max="6" style="width:40px;padding:3px;background:#111;border:1px solid #333;color:#ddd;border-radius:3px">' +
+        '</div>' +
+        '<div style="font-size:10px;color:#c9a84c;margin-bottom:4px;font-family:Cinzel,serif">Bakici Yetkileri:</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:8px">' +
+          izinListesi.map(function(iz) {
+            var renk = iz.varsayilan ? '#2ecc71' : '#e74c3c';
+            return '<label style="font-size:9px;color:#888;display:flex;align-items:center;gap:4px;padding:2px 0;cursor:pointer">' +
+              '<input type="checkbox" id="bak-iz-' + iz.key + '" ' + (iz.varsayilan ? 'checked' : '') + ' style="accent-color:' + renk + '">' +
+              '<span>' + iz.label + '</span></label>';
+          }).join('') +
         '</div>' +
         '<button class="btn-action" style="width:auto;padding:5px 14px;font-size:10px" onclick="bakiciTokenOlustur()">🔑 Bakici Tokeni Olustur</button>';
     }
@@ -187,11 +221,16 @@ async function loadBakicilikDurum() {
 
 async function bakiciTokenOlustur() {
   var gun = parseInt(document.getElementById('bakici-gun')?.value) || 3;
+  // İzinleri topla
+  var izinler = {};
+  document.querySelectorAll('[id^="bak-iz-"]').forEach(function(cb) {
+    izinler[cb.id.replace('bak-iz-', '')] = cb.checked;
+  });
   var token = getToken(); if (!token) return;
   try {
     var resp = await fetch(API_BASE + '/api/ayarlar/bakicilik/token-olustur', {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ gun: gun })
+      body: JSON.stringify({ gun: gun, izinler: izinler })
     });
     var data = await resp.json();
     if (resp.ok) { toast('Token olusturuldu!'); loadBakicilikDurum(); }
