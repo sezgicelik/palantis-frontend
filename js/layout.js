@@ -296,9 +296,7 @@ function initLayout(){
   // Oyun verisini yukle
   if(typeof loadGameData === 'function') loadGameData();
 
-  // Ateşkes + Tatil banner kontrolü
-  checkAteskesTatil();
-  setInterval(checkAteskesTatil, 120000); // 2 dakikada bir
+  // Tatil + Ateşkes artık loadGameData içinde kontrol ediliyor (60sn aralık)
 
   // Timer intervalleri
   if(typeof updateTopTimers === 'function'){
@@ -323,37 +321,6 @@ function initLayout(){
    XX:59 — overlay göster, butonları kilitle
    XX:01 — overlay kaldır, veriyi yenile
 ═══════════════════════════════════════════ */
-// Ateşkes + Tatil banner kontrolü
-async function checkAteskesTatil() {
-  try {
-    // Ateşkes (public endpoint)
-    const atkR = await fetch((window.API_BASE||'https://palantis-backend-production.up.railway.app') + '/api/game/ateskes').catch(()=>null);
-    const atkBanner = document.getElementById('hud-ateskes-banner');
-    if (atkR && atkR.ok && atkBanner) {
-      const atk = await atkR.json();
-      if (atk.aktif && atk.bitis && new Date(atk.bitis) > new Date()) {
-        const kalan = Math.round((new Date(atk.bitis) - Date.now()) / 3600000);
-        atkBanner.textContent = '⚔️ ATEŞKES — ' + (atk.aciklama || 'Saldırılar durduruldu') + ' (' + kalan + ' PG kaldı)';
-        atkBanner.style.display = 'block';
-      } else { atkBanner.style.display = 'none'; }
-    }
-
-    // Tatil (auth gerekli)
-    const token = typeof getToken === 'function' ? getToken() : null;
-    const tatilBanner = document.getElementById('hud-tatil-banner');
-    if (token && tatilBanner) {
-      const tatR = await fetch((window.API_BASE||'https://palantis-backend-production.up.railway.app') + '/api/game/tatil', { headers: { 'Authorization': 'Bearer ' + token } }).catch(()=>null);
-      if (tatR && tatR.ok) {
-        const tat = await tatR.json();
-        if (tat.tatil_modu) {
-          tatilBanner.textContent = '🏖️ TATİL MODU — ' + Math.round(tat.kalan_pg) + ' PG kaldı';
-          tatilBanner.style.display = 'block';
-        } else { tatilBanner.style.display = 'none'; }
-      }
-    }
-  } catch(e) {}
-}
-
 function initDayTransition() {
   // Overlay HTML oluştur
   const overlay = document.createElement('div');

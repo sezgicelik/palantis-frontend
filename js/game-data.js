@@ -100,7 +100,7 @@ async function loadGameData() {
   try {
     // Tum API cagrilari paralel — hiz icin
     const authH = { 'Authorization': 'Bearer ' + token };
-    const [pResp, resRes, prodRes, workRes, alanRes, takvimRes, armyRes, kvResp] = await Promise.all([
+    const [pResp, resRes, prodRes, workRes, alanRes, takvimRes, armyRes, kvResp, tatilResp, ateskesResp] = await Promise.all([
       fetch(API_BASE + '/api/player/me',        { headers: authH }).catch(() => null),
       fetch(API_BASE + '/api/game/resources',    { headers: authH }),
       fetch(API_BASE + '/api/game/production',   { headers: authH }),
@@ -109,6 +109,8 @@ async function loadGameData() {
       fetch(API_BASE + '/api/takvim'),
       fetch(API_BASE + '/api/army/state',        { headers: authH }),
       fetch(API_BASE + '/api/kervan/liste',      { headers: authH }).catch(() => null),
+      fetch(API_BASE + '/api/game/tatil',        { headers: authH }).catch(() => null),
+      fetch(API_BASE + '/api/game/ateskes').catch(() => null),
     ]);
 
     // Player verisi
@@ -302,6 +304,37 @@ async function loadGameData() {
         }
       }
     } catch(e){}
+
+    // ── Tatil + Ateşkes global flag ──
+    try {
+      window.TATIL_AKTIF = false;
+      window.TATIL_KALAN_PG = 0;
+      window.ATESKES_AKTIF = false;
+      window.ATESKES_ACIKLAMA = '';
+
+      if (tatilResp && tatilResp.ok) {
+        const td = await tatilResp.json();
+        window.TATIL_AKTIF = !!td.tatil_modu;
+        window.TATIL_KALAN_PG = td.kalan_pg || 0;
+      }
+      if (ateskesResp && ateskesResp.ok) {
+        const ad = await ateskesResp.json();
+        window.ATESKES_AKTIF = !!(ad.aktif && ad.bitis && new Date(ad.bitis) > new Date());
+        window.ATESKES_ACIKLAMA = ad.aciklama || '';
+      }
+
+      // HUD banner güncelle
+      const atkB = document.getElementById('hud-ateskes-banner');
+      if (atkB) {
+        if (window.ATESKES_AKTIF) { atkB.textContent = '⚔️ ATEŞKES — ' + window.ATESKES_ACIKLAMA; atkB.style.display = 'block'; }
+        else atkB.style.display = 'none';
+      }
+      const tatB = document.getElementById('hud-tatil-banner');
+      if (tatB) {
+        if (window.TATIL_AKTIF) { tatB.textContent = '🏖️ TATİL MODU — ' + Math.round(window.TATIL_KALAN_PG) + ' PG kaldı'; tatB.style.display = 'block'; }
+        else tatB.style.display = 'none';
+      }
+    } catch(e) {}
 
   } catch(e) {
     console.error('[loadGameData]', e);
