@@ -1,7 +1,7 @@
 /* auth.js — Noxara authentication and player persistence */
 
 const STORAGE_KEY = 'palantis_player';
-const API_BASE = getApiBase();
+const API_BASE = (typeof getApiBase === 'function') ? getApiBase() : 'https://palantis-backend-production.up.railway.app';
 const SITE_URL = 'https://sezgicelik.github.io/palantis-frontend';
 function getToken() { return localStorage.getItem('palantis_token'); }
 function setToken(t) { localStorage.setItem('palantis_token', t); }
