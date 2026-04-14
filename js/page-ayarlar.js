@@ -89,6 +89,18 @@ function renderAyarlar(el, data) {
     '<div class="card" style="margin-top:12px">' +
       '<div style="font-size:12px;font-weight:bold;color:var(--race-color);margin-bottom:8px;font-family:Cinzel,serif">🔑 Bakıcılık</div>' +
       '<div id="bakicilik-content" style="font-size:11px;color:#888">Yukleniyor...</div>' +
+    '</div>' +
+
+    // Rehber
+    '<div class="card" style="margin-top:12px">' +
+      '<div style="font-size:12px;font-weight:bold;color:var(--race-color);margin-bottom:8px;font-family:Cinzel,serif">📜 Oyun Rehberi</div>' +
+      '<div style="font-size:10px;color:#888;margin-bottom:8px">Yeni oyuncu rehberini tekrar baslatabilirsiniz.</div>' +
+      (localStorage.getItem('noxara_rehber_tamamlandi') === '1'
+        ? '<div style="display:flex;align-items:center;gap:8px"><span style="color:#2ecc71;font-size:11px">✅ Rehber tamamlandi</span>' +
+          '<button class="btn-action" style="width:auto;padding:4px 12px;font-size:9px;background:#333" onclick="if(typeof rehberSifirla===\'function\'){rehberSifirla();loadAyarlar();}">🔄 Tekrar Baslat</button></div>'
+        : '<div style="display:flex;align-items:center;gap:8px"><span style="color:#f1c40f;font-size:11px">⏳ Rehber devam ediyor (Adim ' + (localStorage.getItem('noxara_rehber_adim')||'1') + ')</span>' +
+          '<button class="btn-action" style="width:auto;padding:4px 12px;font-size:9px;background:#333" onclick="if(typeof rehberSifirla===\'function\'){rehberSifirla();loadAyarlar();}">🔄 Sifirla</button></div>'
+      ) +
     '</div>';
 
   // Tatil ve bakıcılık durumunu yükle

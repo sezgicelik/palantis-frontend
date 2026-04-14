@@ -1,0 +1,207 @@
+/* rehber.css — Noxara Interaktif Rehber Sistemi v1.0 */
+
+/* ── Spotlight Overlay ── */
+.rehber-overlay {
+  position: fixed; inset: 0; z-index: 99998;
+  pointer-events: none;
+  transition: opacity .3s;
+}
+.rehber-overlay.aktif { pointer-events: auto; }
+
+.rehber-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.75);
+  z-index: 99998;
+  transition: opacity .3s;
+}
+
+/* Spotlight delik — CSS clip-path ile */
+.rehber-spotlight {
+  position: fixed; z-index: 99999;
+  border: 2px solid var(--race-color, #c8a96e);
+  border-radius: 6px;
+  box-shadow: 0 0 0 9999px rgba(0,0,0,.75), 0 0 20px rgba(200,169,110,.4);
+  pointer-events: none;
+  transition: all .4s ease;
+}
+
+/* ── Tooltip Balonu ── */
+.rehber-tooltip {
+  position: fixed; z-index: 100000;
+  background: linear-gradient(135deg, #1a1208 0%, #0d0a06 100%);
+  border: 1px solid rgba(200,169,110,.35);
+  border-radius: 8px;
+  padding: 16px 18px 14px;
+  max-width: 340px; min-width: 240px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.6), 0 0 12px rgba(200,169,110,.15);
+  font-family: 'Crimson Pro', serif;
+  animation: rehberFadeIn .3s ease;
+  pointer-events: auto;
+}
+
+@keyframes rehberFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Tooltip ok (üst/alt) */
+.rehber-tooltip::before {
+  content: ''; position: absolute;
+  width: 12px; height: 12px;
+  background: #1a1208;
+  border: 1px solid rgba(200,169,110,.35);
+  transform: rotate(45deg);
+}
+.rehber-tooltip.pos-bottom::before {
+  top: -7px; left: 24px;
+  border-right: none; border-bottom: none;
+}
+.rehber-tooltip.pos-top::before {
+  bottom: -7px; left: 24px;
+  border-left: none; border-top: none;
+}
+.rehber-tooltip.pos-left::before {
+  right: -7px; top: 16px;
+  border-left: none; border-bottom: none;
+}
+.rehber-tooltip.pos-right::before {
+  left: -7px; top: 16px;
+  border-right: none; border-top: none;
+}
+
+/* Tooltip icerigi */
+.rehber-adim-no {
+  font-size: 9px; letter-spacing: 2px;
+  color: var(--race-color, #c8a96e);
+  font-family: 'Cinzel', serif;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+.rehber-baslik {
+  font-size: 15px; font-weight: 700;
+  color: #f0e8d8;
+  font-family: 'Cinzel', serif;
+  margin-bottom: 6px;
+}
+.rehber-aciklama {
+  font-size: 12px; color: #a89878;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+/* Ödül gösterimi */
+.rehber-odul {
+  display: flex; gap: 4px; flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.rehber-odul-item {
+  font-size: 9px; padding: 2px 6px;
+  background: rgba(255,215,0,.08);
+  border: 1px solid rgba(255,215,0,.15);
+  border-radius: 3px; color: #ddd;
+}
+
+/* İlerleme bar */
+.rehber-progress {
+  height: 3px; background: #1a1a1a;
+  border-radius: 2px; margin-bottom: 12px;
+  overflow: hidden;
+}
+.rehber-progress-fill {
+  height: 100%; border-radius: 2px;
+  background: var(--race-color, #c8a96e);
+  transition: width .5s;
+}
+
+/* Butonlar */
+.rehber-buttons {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 8px;
+}
+.rehber-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 10px; letter-spacing: 1px;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid rgba(200,169,110,.3);
+  transition: all .2s;
+}
+.rehber-btn-atla {
+  background: transparent;
+  color: #666;
+}
+.rehber-btn-atla:hover { color: #999; }
+
+.rehber-btn-ileri {
+  background: linear-gradient(135deg, #c8a96e 0%, #a0884e 100%);
+  color: #0d0a06;
+  font-weight: 700;
+  border: none;
+}
+.rehber-btn-ileri:hover {
+  background: linear-gradient(135deg, #d4b97a 0%, #b09858 100%);
+  transform: translateY(-1px);
+}
+
+.rehber-btn-git {
+  background: rgba(200,169,110,.12);
+  color: var(--race-color, #c8a96e);
+}
+.rehber-btn-git:hover {
+  background: rgba(200,169,110,.2);
+}
+
+/* Adım nokta göstergesi */
+.rehber-dots {
+  display: flex; gap: 4px; justify-content: center;
+  margin-top: 10px;
+}
+.rehber-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #333;
+  transition: all .3s;
+}
+.rehber-dot.aktif { background: var(--race-color, #c8a96e); }
+.rehber-dot.tamamlandi { background: #2ecc71; }
+
+/* Sayfa yönlendirme banner */
+.rehber-banner {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 99997;
+  background: linear-gradient(90deg, rgba(200,169,110,.15) 0%, rgba(200,169,110,.05) 100%);
+  border-bottom: 1px solid rgba(200,169,110,.2);
+  padding: 8px 16px;
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: 'Cinzel', serif;
+  animation: rehberBannerIn .3s ease;
+}
+@keyframes rehberBannerIn {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+.rehber-banner-text {
+  font-size: 11px; color: var(--race-color, #c8a96e);
+  letter-spacing: 1px;
+}
+.rehber-banner-btn {
+  font-size: 9px; padding: 4px 10px;
+  background: rgba(200,169,110,.15);
+  border: 1px solid rgba(200,169,110,.25);
+  border-radius: 3px;
+  color: #c8a96e;
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .rehber-tooltip {
+    max-width: 280px; min-width: 200px;
+    padding: 12px 14px 10px;
+  }
+  .rehber-baslik { font-size: 13px; }
+  .rehber-aciklama { font-size: 11px; }
+}

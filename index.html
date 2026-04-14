@@ -26,20 +26,41 @@
 
       <!-- Feature Cards -->
       <div class="landing-features">
-        <div class="feature-card">
+        <div class="feature-card" onclick="featureToggle(this)">
           <div class="feature-icon">&#9876;&#65039;</div>
           <div class="feature-title">Ordu & Savas</div>
           <div class="feature-desc">24 unite tipi, 6 turlu savas motoru, 4 saf dizilimi. Ordularini yonet, dusmani ez.</div>
+          <div class="feature-detail">
+            <div class="feature-detail-item">&#9876;&#65039; <b>24 Unite Tipi</b> — Piyade, okcu, suvariden ejderhaya kadar</div>
+            <div class="feature-detail-item">&#128737;&#65039; <b>4 Saf Dizilimi</b> — Saf sirasina gore strateji kur</div>
+            <div class="feature-detail-item">&#127942; <b>6 Turlu Motor</b> — Zirh, iska, moral, kule savunma</div>
+            <div class="feature-detail-item">&#128128; <b>Mezarlik</b> — Kaybettigin unitelerin %30'unu dirilt</div>
+            <div class="feature-detail-hint">&#9757; Tikla: detaylari gizle</div>
+          </div>
         </div>
-        <div class="feature-card">
+        <div class="feature-card" onclick="featureToggle(this)">
           <div class="feature-icon">&#128302;</div>
           <div class="feature-title">Buyu & Mana</div>
           <div class="feature-desc">28 buyu, 4 mana rengi, Bilge secimi. Buyucu Kulesi'nden dusmanlarini mahvet.</div>
+          <div class="feature-detail">
+            <div class="feature-detail-item">&#128302; <b>28 Buyu</b> — Motivasyon, Yakaris, Hipnoz, Sadakat ve daha fazlasi</div>
+            <div class="feature-detail-item">&#10024; <b>4 Mana Rengi</b> — Beyaz, kirmizi, mavi, yesil mana</div>
+            <div class="feature-detail-item">&#128101; <b>Worshipper</b> — Koylulerden mana ureten ozel sinif</div>
+            <div class="feature-detail-item">&#129668; <b>Bilge Secimi</b> — 4 Bilge, 2x mana bonusu, global dongulerde</div>
+            <div class="feature-detail-hint">&#9757; Tikla: detaylari gizle</div>
+          </div>
         </div>
-        <div class="feature-card">
+        <div class="feature-card" onclick="featureToggle(this)">
           <div class="feature-icon">&#127984;</div>
           <div class="feature-title">Sehir & Koloni</div>
           <div class="feature-desc">50+ bina, kervan ticareti, koloni fethi. Imparatorlugunu kur ve genislet.</div>
+          <div class="feature-detail">
+            <div class="feature-detail-item">&#127984; <b>50+ Bina</b> — Oduncu, maden, kisla, buyucu kulesi...</div>
+            <div class="feature-detail-item">&#128042; <b>Kervan Ticareti</b> — 5 kervan, esek sistemi, P2P pazar</div>
+            <div class="feature-detail-item">&#127760; <b>200x50 Harita</b> — 300 koloni slotu, bolge bonuslari</div>
+            <div class="feature-detail-item">&#128081; <b>5 Cag</b> — Her cagda yeni binalar, uniteler ve buyuler</div>
+            <div class="feature-detail-hint">&#9757; Tikla: detaylari gizle</div>
+          </div>
         </div>
       </div>
 
@@ -209,5 +230,10 @@
 <script src="js/theme.js"></script>
 <script src="js/game-data.js"></script>
 <script src="js/onboarding.js"></script>
+<script>
+function featureToggle(el) {
+  el.classList.toggle('acik');
+}
+</script>
 </body>
 </html>
