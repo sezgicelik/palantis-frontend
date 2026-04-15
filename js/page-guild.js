@@ -245,7 +245,7 @@ function renderTabUyeler(el, data) {
   var g = data.guild;
   var uyeler = data.uyeler || [];
   var isLider = data.benim_rutbem === 'lider';
-  var myYetkiler = data.benim_yetkilerimim || {};
+  var myYetkiler = data.benim_yetkilerim || {};
 
   var uyeHTML = uyeler.map(function(u) {
     var rutbeIcon = u.rutbe === 'lider' ? '👑' : u.rutbe === 'yardimci' ? '⭐' : '🏅';
@@ -360,7 +360,7 @@ async function guildYetkiDegistir(guildId, playerId, yetki, deger) {
 function renderTabKasa(el, data) {
   var g = data.guild;
   var kasa = data.kasa || {};
-  var myYetkiler = data.benim_yetkilerimim || {};
+  var myYetkiler = data.benim_yetkilerim || {};
 
   // Kasa kaynaklari
   var kasaHTML = ['altin','odun','metal','bugday','balik','kereste','islenmis'].map(function(k) {
@@ -451,7 +451,7 @@ function renderTabIsciler(el, data) {
   var g = data.guild;
   var nufus = data.guild_nufus || { koylu:0, asker:0, worshipper:0 };
   var isciler = data.guild_isciler || { oduncu:0, madenci:0, ciftci:0, balikci:0 };
-  var myYetkiler = data.benim_yetkilerimim || {};
+  var myYetkiler = data.benim_yetkilerim || {};
   var toplam_isci = (isciler.oduncu||0) + (isciler.madenci||0) + (isciler.ciftci||0) + (isciler.balikci||0);
 
   var nufusHTML =
