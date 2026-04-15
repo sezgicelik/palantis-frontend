@@ -120,13 +120,15 @@ async function guildKatil(guildId) {
 //   TAB YAPISI
 // ═══════════════════════════════════
 var GUILD_TABS = [
-  { id: 'genel',  label: '🏰 Genel',    aktif: true },
-  { id: 'uyeler', label: '👥 Uyeler',    aktif: true },
-  { id: 'kasa',   label: '💰 Kasa',      aktif: true },
-  { id: 'isciler',label: '⚒️ Isciler',  aktif: true },
-  { id: 'market', label: '🏪 Market',    aktif: false },
-  { id: 'binalar',label: '🏗️ Binalar',  aktif: false },
-  { id: 'savas',  label: '⚔️ Savas Odasi', aktif: false }
+  { id: 'genel',   label: '🏰 Genel',       aktif: true },
+  { id: 'uyeler',  label: '👥 Uyeler',       aktif: true },
+  { id: 'kasa',    label: '💰 Kasa',         aktif: true },
+  { id: 'isciler', label: '⚒️ Isciler',     aktif: true },
+  { id: 'binalar', label: '🏗️ Binalar',     aktif: true },
+  { id: 'ordu',    label: '🛡️ Ordu',        aktif: true },
+  { id: 'market',  label: '🏪 Market',       aktif: true },
+  { id: 'savas',   label: '⚔️ Savas Odasi', aktif: false },
+  { id: 'raporlar',label: '📜 Raporlar',     aktif: true }
 ];
 
 function renderGuildTabs(el, data) {
@@ -155,11 +157,15 @@ function guildTabIcerikGoster(data) {
   var el = document.getElementById('guild-tab-content');
   if (!el) return;
   switch(GUILD_AKTIF_TAB) {
-    case 'genel':  renderTabGenel(el, data); break;
-    case 'uyeler': renderTabUyeler(el, data); break;
-    case 'kasa':   renderTabKasa(el, data); break;
-    case 'isciler':renderTabIsciler(el, data); break;
-    default:       el.innerHTML = '<div class="card" style="text-align:center;padding:30px;color:#555"><div style="font-size:30px;margin-bottom:8px">🔒</div><p style="font-size:12px">Bu ozellik Faz 2\'de aktif olacak.</p></div>';
+    case 'genel':   renderTabGenel(el, data); break;
+    case 'uyeler':  renderTabUyeler(el, data); break;
+    case 'kasa':    renderTabKasa(el, data); break;
+    case 'isciler': renderTabIsciler(el, data); break;
+    case 'binalar': renderTabBinalar(el, data); break;
+    case 'ordu':    renderTabOrdu(el, data); break;
+    case 'market':  renderTabMarket(el, data); break;
+    case 'raporlar':renderTabRaporlar(el, data); break;
+    default:        el.innerHTML = '<div class="card" style="text-align:center;padding:30px;color:#555"><div style="font-size:30px;margin-bottom:8px">🔒</div><p style="font-size:12px">Bu ozellik Faz 3\'te aktif olacak.</p></div>';
   }
 }
 
@@ -239,7 +245,7 @@ function renderTabUyeler(el, data) {
   var g = data.guild;
   var uyeler = data.uyeler || [];
   var isLider = data.benim_rutbem === 'lider';
-  var myYetkiler = data.benim_yetkilerim || {};
+  var myYetkiler = data.benim_yetkilerimim || {};
 
   var uyeHTML = uyeler.map(function(u) {
     var rutbeIcon = u.rutbe === 'lider' ? '👑' : u.rutbe === 'yardimci' ? '⭐' : '🏅';
@@ -354,7 +360,7 @@ async function guildYetkiDegistir(guildId, playerId, yetki, deger) {
 function renderTabKasa(el, data) {
   var g = data.guild;
   var kasa = data.kasa || {};
-  var myYetkiler = data.benim_yetkilerim || {};
+  var myYetkiler = data.benim_yetkilerimim || {};
 
   // Kasa kaynaklari
   var kasaHTML = ['altin','odun','metal','bugday','balik','kereste','islenmis'].map(function(k) {
@@ -445,7 +451,7 @@ function renderTabIsciler(el, data) {
   var g = data.guild;
   var nufus = data.guild_nufus || { koylu:0, asker:0, worshipper:0 };
   var isciler = data.guild_isciler || { oduncu:0, madenci:0, ciftci:0, balikci:0 };
-  var myYetkiler = data.benim_yetkilerim || {};
+  var myYetkiler = data.benim_yetkilerimim || {};
   var toplam_isci = (isciler.oduncu||0) + (isciler.madenci||0) + (isciler.ciftci||0) + (isciler.balikci||0);
 
   var nufusHTML =
@@ -704,6 +710,413 @@ async function guildTakviyeDurumYukle() {
     if (!html) html = '<span style="color:#555">Aktif takviye yok</span>';
     el.innerHTML = html;
   } catch(e) { el.innerHTML = '<span style="color:#555">Hata</span>'; }
+}
+
+// ═══════════════════════════════════
+//   TAB: BİNALAR
+// ═══════════════════════════════════
+var GUILD_BINA_DATA = null;
+
+async function renderTabBinalar(el, data) {
+  var gId = data.guild.id;
+  el.innerHTML = '<div style="text-align:center;padding:20px;color:#888">Yukleniyor...</div>';
+  try {
+    var resp = await fetch(API_BASE + '/api/guild/' + gId + '/binalar/config', { headers: guildHdr() });
+    var d = await resp.json();
+    if (!resp.ok) { el.innerHTML = '<div style="color:#e74c3c">' + (d.error || 'Hata') + '</div>'; return; }
+    GUILD_BINA_DATA = d;
+
+    var yetkiler = data.benim_yetkilerim || {};
+    var html = '<h3 style="font-family:Cinzel,serif;color:var(--race-color);margin-bottom:10px">🏗️ Guild Binalari</h3>';
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px">';
+
+    for (var binaId in d.binalar) {
+      var b = d.binalar[binaId];
+      var inQueue = b.in_queue;
+      var maliyetHtml = '';
+      for (var k in b.maliyet) {
+        maliyetHtml += '<span style="margin-right:6px">' + (KAYNAK_IKON[k]||'') + ' ' + fmt(b.maliyet[k]) + '</span>';
+      }
+      var surePG = Math.ceil(b.sure_sn / 3600);
+
+      var aksiyonHtml = '';
+      if (inQueue) {
+        var kalan = b.queue_end ? Math.max(0, Math.ceil((new Date(b.queue_end) - Date.now()) / 60000)) : 0;
+        aksiyonHtml = '<span style="color:#f39c12;font-size:10px">🔨 Insaatta (' + kalan + ' dk kaldi)</span>';
+      } else if (yetkiler.guild_bina_yap) {
+        aksiyonHtml = '<button class="btn-action" style="width:auto;padding:4px 12px;font-size:10px" onclick="guildBinaUpgrade(\'' + binaId + '\')">🏗️ INSA ET</button>';
+      }
+
+      html += '<div class="card" style="padding:10px">' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">' +
+          '<span style="font-size:20px">' + b.icon + '</span>' +
+          '<div><div style="font-family:Cinzel,serif;font-size:12px;color:var(--race-color)">' + b.isim + ' <span style="color:#888">Sv.' + b.seviye + '</span></div>' +
+          '<div style="font-size:10px;color:#666">' + b.aciklama + '</div></div>' +
+        '</div>' +
+        '<div style="font-size:10px;color:#aaa;margin-bottom:4px">Maliyet: ' + maliyetHtml + '</div>' +
+        '<div style="font-size:10px;color:#aaa;margin-bottom:6px">Sure: ' + surePG + ' P.G.</div>' +
+        aksiyonHtml +
+      '</div>';
+    }
+    html += '</div>';
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = '<div style="color:#e74c3c">Baglanti hatasi</div>';
+  }
+}
+
+async function guildBinaUpgrade(binaId) {
+  if (!GUILD_DATA) return;
+  try {
+    var resp = await fetch(API_BASE + '/api/guild/' + GUILD_DATA.guild.id + '/binalar/upgrade', {
+      method: 'POST', headers: guildHdr(), body: JSON.stringify({ binaId: binaId })
+    });
+    var d = await resp.json();
+    if (resp.ok) { toast(d.mesaj || 'Insa baslatildi'); loadGuild(); }
+    else toast(d.error || 'Hata', 'error');
+  } catch(e) { toast('Baglanti hatasi', 'error'); }
+}
+
+// ═══════════════════════════════════
+//   TAB: ORDU
+// ═══════════════════════════════════
+async function renderTabOrdu(el, data) {
+  var gId = data.guild.id;
+  el.innerHTML = '<div style="text-align:center;padding:20px;color:#888">Yukleniyor...</div>';
+  try {
+    var resp = await fetch(API_BASE + '/api/guild/' + gId + '/ordu', { headers: guildHdr() });
+    var d = await resp.json();
+    if (!resp.ok) { el.innerHTML = '<div style="color:#e74c3c">' + (d.error || 'Hata') + '</div>'; return; }
+
+    var yetkiler = data.benim_yetkilerim || {};
+    var html = '<h3 style="font-family:Cinzel,serif;color:var(--race-color);margin-bottom:10px">🛡️ Guild Ordusu</h3>';
+
+    // Nufus ozet
+    html += '<div class="card" style="padding:10px;margin-bottom:10px">' +
+      '<div style="font-size:11px;color:#aaa;margin-bottom:4px">Guild Nufus</div>' +
+      '<div style="display:flex;gap:12px;font-size:12px">' +
+        '<span>👤 Koylu: <b>' + fmt(d.nufus.koylu) + '</b></span>' +
+        '<span>⚔️ Asker: <b>' + fmt(d.nufus.asker) + '</b></span>' +
+        '<span>🙏 Worshipper: <b>' + fmt(d.nufus.worshipper) + '</b></span>' +
+      '</div>' +
+      '<div style="font-size:10px;color:#888;margin-top:4px">Lider Taraf: <b>' + d.lider_taraf + '</b> | Max ' + d.max_ordu + ' ordu</div>' +
+    '</div>';
+
+    // Egitim kuyrugu
+    if (d.kuyruk.length > 0) {
+      html += '<div class="card" style="padding:10px;margin-bottom:10px">' +
+        '<div style="font-size:11px;color:#f39c12;margin-bottom:4px">🔨 Egitim Kuyrugu</div>';
+      d.kuyruk.forEach(function(k) {
+        var kalan = Math.max(0, Math.ceil((new Date(k.queue_end) - Date.now()) / 60000));
+        html += '<div style="font-size:11px;color:#ccc">' + k.adet + 'x ' + k.unite_id + ' — ' + kalan + ' dk kaldi</div>';
+      });
+      html += '</div>';
+    }
+
+    // Havuz
+    if (d.havuz.length > 0) {
+      html += '<div class="card" style="padding:10px;margin-bottom:10px">' +
+        '<div style="font-size:11px;color:var(--race-color);margin-bottom:4px">📦 Unite Havuzu</div>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:8px">';
+      d.havuz.forEach(function(u) {
+        html += '<span style="font-size:11px;background:#1a1a1a;padding:3px 8px;border-radius:4px">' + u.unite_id + ': <b>' + fmt(u.adet) + '</b></span>';
+      });
+      html += '</div></div>';
+    }
+
+    // Ordular
+    html += '<div style="font-size:12px;color:var(--race-color);font-family:Cinzel,serif;margin:10px 0 6px">Ordular (' + d.ordular.length + '/' + d.max_ordu + ')</div>';
+    if (d.ordular.length === 0) {
+      html += '<div class="card" style="padding:15px;text-align:center;color:#555;font-size:11px">Henuz guild ordusu kurulmamis</div>';
+    }
+    d.ordular.forEach(function(ordu) {
+      html += '<div class="card" style="padding:10px;margin-bottom:8px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
+          '<span style="font-family:Cinzel,serif;font-size:12px;color:var(--race-color)">' + ordu.isim + '</span>' +
+          '<span style="font-size:10px;color:#888">' + fmt(ordu.toplam_unite) + ' unite';
+      if (d.atk_def_gorunur) {
+        html += ' | ATK:' + Number(ordu.toplam_atk).toFixed(0) + ' DEF:' + Number(ordu.toplam_def).toFixed(0);
+      }
+      html += '</span></div>';
+      if (ordu.uniteler && ordu.uniteler.length > 0) {
+        html += '<div style="display:flex;flex-wrap:wrap;gap:4px">';
+        ordu.uniteler.forEach(function(u) {
+          html += '<span style="font-size:10px;background:#111;padding:2px 6px;border-radius:3px">' + u.unite_id + ':' + fmt(u.adet) + '</span>';
+        });
+        html += '</div>';
+      }
+      if (yetkiler.guild_ordusu_kur) {
+        html += '<div style="margin-top:6px;display:flex;gap:4px">' +
+          '<button class="btn-action" style="width:auto;padding:3px 10px;font-size:9px;background:#333" onclick="guildOrduSil(' + ordu.id + ')">🗑️ Sil</button>' +
+        '</div>';
+      }
+      html += '</div>';
+    });
+
+    // Ordu kur butonu
+    if (yetkiler.guild_ordusu_kur && d.ordular.length < d.max_ordu) {
+      html += '<div style="margin-top:8px">' +
+        '<input id="guild-ordu-isim" placeholder="Ordu ismi" style="padding:4px 8px;border:1px solid #333;background:#111;color:#ccc;border-radius:4px;font-size:11px;width:150px"> ' +
+        '<button class="btn-action" style="width:auto;padding:4px 14px;font-size:10px" onclick="guildOrduKur()">+ Ordu Kur</button>' +
+      '</div>';
+    }
+
+    // Egitim formu
+    if (yetkiler.guild_unite_uret && d.nufus.asker > 0) {
+      html += '<div class="card" style="padding:10px;margin-top:10px">' +
+        '<div style="font-size:11px;color:var(--race-color);margin-bottom:6px">⚔️ Unite Egit</div>' +
+        '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
+          '<input id="guild-egit-unite" placeholder="unite_id (orn: piyade)" style="padding:4px 8px;border:1px solid #333;background:#111;color:#ccc;border-radius:4px;font-size:11px;width:140px">' +
+          '<input id="guild-egit-adet" type="number" min="1" value="10" style="padding:4px 8px;border:1px solid #333;background:#111;color:#ccc;border-radius:4px;font-size:11px;width:60px">' +
+          '<button class="btn-action" style="width:auto;padding:4px 14px;font-size:10px" onclick="guildOrduEgit()">EGIT</button>' +
+        '</div>' +
+        '<div style="font-size:9px;color:#555;margin-top:4px">Mevcut asker: ' + fmt(d.nufus.asker) + ' (her unite 1 asker harcar)</div>' +
+      '</div>';
+    }
+
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = '<div style="color:#e74c3c">Baglanti hatasi</div>';
+  }
+}
+
+async function guildOrduKur() {
+  if (!GUILD_DATA) return;
+  var isim = document.getElementById('guild-ordu-isim');
+  if (!isim || !isim.value.trim()) { toast('Ordu ismi girin', 'error'); return; }
+  try {
+    var resp = await fetch(API_BASE + '/api/guild/' + GUILD_DATA.guild.id + '/ordu/kur', {
+      method: 'POST', headers: guildHdr(), body: JSON.stringify({ isim: isim.value.trim() })
+    });
+    var d = await resp.json();
+    if (resp.ok) { toast('Ordu kuruldu'); loadGuild(); }
+    else toast(d.error || 'Hata', 'error');
+  } catch(e) { toast('Baglanti hatasi', 'error'); }
+}
+
+async function guildOrduSil(armyId) {
+  if (!GUILD_DATA || !confirm('Bu orduyu silmek istediginize emin misiniz? Uniteler havuza aktarilir.')) return;
+  try {
+    var resp = await fetch(API_BASE + '/api/guild/' + GUILD_DATA.guild.id + '/ordu/sil', {
+      method: 'POST', headers: guildHdr(), body: JSON.stringify({ army_id: armyId })
+    });
+    var d = await resp.json();
+    if (resp.ok) { toast('Ordu silindi'); loadGuild(); }
+    else toast(d.error || 'Hata', 'error');
+  } catch(e) { toast('Baglanti hatasi', 'error'); }
+}
+
+async function guildOrduEgit() {
+  if (!GUILD_DATA) return;
+  var unite = document.getElementById('guild-egit-unite');
+  var adet = document.getElementById('guild-egit-adet');
+  if (!unite || !unite.value.trim() || !adet || !adet.value) { toast('Unite ve adet girin', 'error'); return; }
+  try {
+    var resp = await fetch(API_BASE + '/api/guild/' + GUILD_DATA.guild.id + '/ordu/egit', {
+      method: 'POST', headers: guildHdr(), body: JSON.stringify({ unite_id: unite.value.trim(), adet: parseInt(adet.value) })
+    });
+    var d = await resp.json();
+    if (resp.ok) { toast(d.mesaj || 'Egitim baslatildi'); loadGuild(); }
+    else toast(d.error || 'Hata', 'error');
+  } catch(e) { toast('Baglanti hatasi', 'error'); }
+}
+
+// ═══════════════════════════════════
+//   TAB: MARKET
+// ═══════════════════════════════════
+async function renderTabMarket(el, data) {
+  var gId = data.guild.id;
+  el.innerHTML = '<div style="text-align:center;padding:20px;color:#888">Yukleniyor...</div>';
+  try {
+    var resp = await fetch(API_BASE + '/api/guild/' + gId + '/market', { headers: guildHdr() });
+    var d = await resp.json();
+    if (!resp.ok) { el.innerHTML = '<div style="color:#e74c3c">' + (d.error || 'Hata') + '</div>'; return; }
+
+    var yetkiler = data.benim_yetkilerim || {};
+    var html = '<h3 style="font-family:Cinzel,serif;color:var(--race-color);margin-bottom:10px">🏪 Guild Market</h3>';
+
+    if (d.pazar_seviye < 1) {
+      html += '<div class="card" style="padding:20px;text-align:center;color:#888">' +
+        '<div style="font-size:24px;margin-bottom:8px">🔒</div>' +
+        '<p style="font-size:12px">Market kullanmak icin oncelikle <b>Pazar</b> binasini insa edin (Binalar sekmesi).</p>' +
+      '</div>';
+      el.innerHTML = html;
+      return;
+    }
+
+    // Kurlar
+    var kurMap = {};
+    (d.kurlar || []).forEach(function(k) { kurMap[k.kaynak] = k.fiyat; });
+
+    // Kasa durumu
+    html += '<div class="card" style="padding:10px;margin-bottom:10px">' +
+      '<div style="font-size:11px;color:#aaa;margin-bottom:4px">Guild Kasa</div>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:8px;font-size:11px">';
+    var kaynaklar = ['odun','metal','bugday','balik','kereste','islenmis','altin'];
+    kaynaklar.forEach(function(k) {
+      html += '<span>' + (KAYNAK_IKON[k]||'') + ' ' + fmt(d.kasa[k]||0) + '</span>';
+    });
+    html += '</div></div>';
+
+    // Kasadan Sat
+    if (yetkiler.market_satis) {
+      html += '<div class="card" style="padding:10px;margin-bottom:10px">' +
+        '<div style="font-size:11px;color:#2ecc71;margin-bottom:6px">💰 Kasadan Sat (-%' + d.komisyon + ' komisyon)</div>' +
+        '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
+          '<select id="guild-market-sat-kaynak" style="padding:4px;border:1px solid #333;background:#111;color:#ccc;border-radius:4px;font-size:11px">';
+      ['odun','metal','bugday','balik','kereste','islenmis'].forEach(function(k) {
+        html += '<option value="' + k + '">' + (KAYNAK_IKON[k]||'') + ' ' + k + ' (kur: ' + (kurMap[k]||'?') + ')</option>';
+      });
+      html += '</select>' +
+          '<input id="guild-market-sat-miktar" type="number" min="1" value="100" style="padding:4px 8px;border:1px solid #333;background:#111;color:#ccc;border-radius:4px;font-size:11px;width:80px">' +
+          '<button class="btn-action" style="width:auto;padding:4px 14px;font-size:10px;background:#27ae60" onclick="guildMarketSat()">SAT</button>' +
+        '</div>' +
+      '</div>';
+    }
+
+    // Kasadan Al
+    html += '<div class="card" style="padding:10px;margin-bottom:10px">' +
+      '<div style="font-size:11px;color:#3498db;margin-bottom:6px">🛒 Kasadan Al (kendi altininla)</div>' +
+      '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
+        '<select id="guild-market-al-kaynak" style="padding:4px;border:1px solid #333;background:#111;color:#ccc;border-radius:4px;font-size:11px">';
+    ['odun','metal','bugday','balik','kereste','islenmis'].forEach(function(k) {
+      html += '<option value="' + k + '">' + (KAYNAK_IKON[k]||'') + ' ' + k + ' (kur: ' + (kurMap[k]||'?') + ')</option>';
+    });
+    html += '</select>' +
+        '<input id="guild-market-al-miktar" type="number" min="1" value="100" style="padding:4px 8px;border:1px solid #333;background:#111;color:#ccc;border-radius:4px;font-size:11px;width:80px">' +
+        '<button class="btn-action" style="width:auto;padding:4px 14px;font-size:10px;background:#2980b9" onclick="guildMarketAl()">AL</button>' +
+      '</div>' +
+    '</div>';
+
+    // Son islemler
+    if (d.islemler && d.islemler.length > 0) {
+      html += '<div class="card" style="padding:10px">' +
+        '<div style="font-size:11px;color:#aaa;margin-bottom:6px">Son Islemler</div>';
+      d.islemler.forEach(function(i) {
+        var renk = i.islem_tipi === 'satis' ? '#2ecc71' : '#3498db';
+        var ikon = i.islem_tipi === 'satis' ? '📤' : '📥';
+        var tarih = new Date(i.created_at).toLocaleString('tr-TR');
+        html += '<div style="font-size:10px;color:#999;margin-bottom:3px">' +
+          ikon + ' <span style="color:' + renk + '">' + (i.oyuncu_adi||'Sistem') + '</span> — ' +
+          fmt(i.miktar) + ' ' + i.kaynak + ' (' + fmt(i.altin) + ' altin) <span style="color:#444">' + tarih + '</span></div>';
+      });
+      html += '</div>';
+    }
+
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = '<div style="color:#e74c3c">Baglanti hatasi</div>';
+  }
+}
+
+async function guildMarketSat() {
+  if (!GUILD_DATA) return;
+  var kaynak = document.getElementById('guild-market-sat-kaynak')?.value;
+  var miktar = parseInt(document.getElementById('guild-market-sat-miktar')?.value);
+  if (!kaynak || !miktar) { toast('Kaynak ve miktar secin', 'error'); return; }
+  try {
+    var resp = await fetch(API_BASE + '/api/guild/' + GUILD_DATA.guild.id + '/market/sat', {
+      method: 'POST', headers: guildHdr(), body: JSON.stringify({ kaynak: kaynak, miktar: miktar })
+    });
+    var d = await resp.json();
+    if (resp.ok) { toast(d.mesaj || 'Satildi'); loadGuild(); }
+    else toast(d.error || 'Hata', 'error');
+  } catch(e) { toast('Baglanti hatasi', 'error'); }
+}
+
+async function guildMarketAl() {
+  if (!GUILD_DATA) return;
+  var kaynak = document.getElementById('guild-market-al-kaynak')?.value;
+  var miktar = parseInt(document.getElementById('guild-market-al-miktar')?.value);
+  if (!kaynak || !miktar) { toast('Kaynak ve miktar secin', 'error'); return; }
+  try {
+    var resp = await fetch(API_BASE + '/api/guild/' + GUILD_DATA.guild.id + '/market/al', {
+      method: 'POST', headers: guildHdr(), body: JSON.stringify({ kaynak: kaynak, miktar: miktar })
+    });
+    var d = await resp.json();
+    if (resp.ok) { toast(d.mesaj || 'Satin alindi'); loadGuild(); }
+    else toast(d.error || 'Hata', 'error');
+  } catch(e) { toast('Baglanti hatasi', 'error'); }
+}
+
+// ═══════════════════════════════════
+//   TAB: RAPORLAR
+// ═══════════════════════════════════
+var GUILD_RAPOR_KATEGORI = {
+  uretim:  { isim:'Uretim',  renk:'#2ecc71', tipler:['guild_isci_uretim','guild_bina_uretim','guild_nufus'] },
+  askeri:  { isim:'Askeri',   renk:'#e74c3c', tipler:['guild_egitim_tamam','guild_egitim_baslat','guild_ordu'] },
+  bina:    { isim:'Bina',     renk:'#f39c12', tipler:['guild_bina_tamam','guild_bina_baslat'] },
+  ticaret: { isim:'Ticaret',  renk:'#3498db', tipler:['guild_market_satis','guild_market_alis'] },
+  uye:     { isim:'Uye',      renk:'#9b59b6', tipler:['guild_bagis','guild_ambar','guild_katilim','guild_ayrilma'] }
+};
+var GUILD_RAPOR_FILTRE = 'hepsi';
+
+async function renderTabRaporlar(el, data) {
+  var gId = data.guild.id;
+  el.innerHTML = '<div style="text-align:center;padding:20px;color:#888">Yukleniyor...</div>';
+  try {
+    var resp = await fetch(API_BASE + '/api/guild/' + gId + '/raporlar', { headers: guildHdr() });
+    var d = await resp.json();
+    if (!resp.ok) { el.innerHTML = '<div style="color:#e74c3c">' + (d.error || 'Hata') + '</div>'; return; }
+
+    var html = '<h3 style="font-family:Cinzel,serif;color:var(--race-color);margin-bottom:10px">📜 Guild Raporlari</h3>';
+
+    // Filtre butonlari
+    html += '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">';
+    html += '<button onclick="guildRaporFiltre(\'hepsi\')" style="padding:3px 10px;border:none;border-radius:4px;font-size:10px;cursor:pointer;' +
+      (GUILD_RAPOR_FILTRE === 'hepsi' ? 'background:var(--race-color);color:#000' : 'background:#1a1a1a;color:#888') + '">Hepsi</button>';
+    for (var kat in GUILD_RAPOR_KATEGORI) {
+      var k = GUILD_RAPOR_KATEGORI[kat];
+      html += '<button onclick="guildRaporFiltre(\'' + kat + '\')" style="padding:3px 10px;border:none;border-radius:4px;font-size:10px;cursor:pointer;' +
+        (GUILD_RAPOR_FILTRE === kat ? 'background:' + k.renk + ';color:#000' : 'background:#1a1a1a;color:' + k.renk) + '">' + k.isim + '</button>';
+    }
+    html += '</div>';
+
+    // Raporlari filtrele
+    var raporlar = d.raporlar || [];
+    if (GUILD_RAPOR_FILTRE !== 'hepsi') {
+      var tipler = GUILD_RAPOR_KATEGORI[GUILD_RAPOR_FILTRE]?.tipler || [];
+      raporlar = raporlar.filter(function(r) { return tipler.indexOf(r.event_type) >= 0; });
+    }
+
+    if (raporlar.length === 0) {
+      html += '<div class="card" style="padding:20px;text-align:center;color:#555;font-size:11px">Rapor bulunamadi</div>';
+    } else {
+      // Tarih bazli gruplama
+      var gruplar = {};
+      raporlar.forEach(function(r) {
+        var tarih = r.palantis_gun + '/' + r.palantis_ay + '/' + r.palantis_yil;
+        if (!gruplar[tarih]) gruplar[tarih] = [];
+        gruplar[tarih].push(r);
+      });
+
+      for (var tarih in gruplar) {
+        html += '<div style="font-size:10px;color:#888;margin:8px 0 4px;border-bottom:1px solid #222;padding-bottom:2px">📅 ' + tarih + ' (' + gruplar[tarih].length + ' kayit)</div>';
+        gruplar[tarih].forEach(function(r) {
+          var renk = '#888';
+          for (var kat2 in GUILD_RAPOR_KATEGORI) {
+            if (GUILD_RAPOR_KATEGORI[kat2].tipler.indexOf(r.event_type) >= 0) { renk = GUILD_RAPOR_KATEGORI[kat2].renk; break; }
+          }
+          html += '<div style="font-size:10px;color:#aaa;padding:2px 0;border-left:2px solid ' + renk + ';padding-left:8px">' +
+            '<span style="color:' + renk + '">' + r.event_type + '</span> ' + r.mesaj +
+            (r.oyuncu_adi ? ' <span style="color:#555">(' + r.oyuncu_adi + ')</span>' : '') +
+          '</div>';
+        });
+      }
+    }
+
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = '<div style="color:#e74c3c">Baglanti hatasi</div>';
+  }
+}
+
+function guildRaporFiltre(filtre) {
+  GUILD_RAPOR_FILTRE = filtre;
+  if (GUILD_DATA) {
+    var el = document.getElementById('guild-tab-content');
+    if (el) renderTabRaporlar(el, GUILD_DATA);
+  }
 }
 
 // Init
