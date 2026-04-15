@@ -1933,6 +1933,7 @@ async function loadGuildCfg() {
         gcInput('gc-savas-kabul', 'Savas Kabul Suresi (PG)', _guildCfg.savas_kabul_suresi || 5, 1, 72) +
         gcInput('gc-ele-gecirme', 'Bina Ele Gecirme (PG)', _guildCfg.bina_ele_gecirme_suresi || 15, 1, 168) +
         gcInput('gc-yagma', 'Kaynak Yagma Orani (%)', _guildCfg.kaynak_yagma_orani || 10, 0, 100) +
+        gcInput('gc-max-tasima', 'Max Sehir Tasima Hakki', _guildCfg.max_tasima_hakki || 5, 0, 100) +
       '</div>';
 
     // Guild listesi
@@ -2011,7 +2012,8 @@ async function guildCfgKaydet() {
     baslangic_alan: parseInt(document.getElementById('gc-alan')?.value) || 5000,
     savas_kabul_suresi: parseInt(document.getElementById('gc-savas-kabul')?.value) || 5,
     bina_ele_gecirme_suresi: parseInt(document.getElementById('gc-ele-gecirme')?.value) || 15,
-    kaynak_yagma_orani: parseInt(document.getElementById('gc-yagma')?.value) || 10
+    kaynak_yagma_orani: parseInt(document.getElementById('gc-yagma')?.value) || 10,
+    max_tasima_hakki: parseInt(document.getElementById('gc-max-tasima')?.value) || 5
   };
   try {
     const r = await fetch(API + '/api/admin/guild-config', { method: 'POST', headers: hdr(), body: JSON.stringify(body) });

@@ -182,14 +182,32 @@ function renderTabGenel(el, data) {
       (isLider ? '<div style="margin-bottom:8px"><textarea id="guild-duyuru-inp" rows="2" style="width:100%;padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:10px" placeholder="Duyuru yaz...">' + (g.duyuru||'') + '</textarea><button class="btn-action" style="width:auto;padding:3px 10px;font-size:9px;margin-top:2px" onclick="guildDuyuruKaydet(' + g.id + ')">Kaydet</button></div>' : '') +
     '</div>' +
 
-    // Guild sehir bilgisi
+    // Guild sehir bilgisi + tasima
     '<div class="card">' +
       '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">🏰 Guild Sehri</div>' +
       (sehir ?
         '<div style="font-size:10px;display:grid;grid-template-columns:1fr 1fr;gap:4px">' +
           '<div>Konum: <span style="color:#d4af37">' + sehir.x + ':' + sehir.y + '</span></div>' +
           '<div>Alan: <span style="color:#d4af37">' + fmt(sehir.alan) + '</span></div>' +
-        '</div>' :
+        '</div>' +
+        (isLider ? (function() {
+          var maxT = (GUILD_CONFIG && GUILD_CONFIG.max_tasima_hakki) || 5;
+          var kullanilan = sehir.tasima_sayaci || 0;
+          var kalan = Math.max(0, maxT - kullanilan);
+          return '<div style="margin-top:8px;padding-top:8px;border-top:1px solid #222">' +
+            '<div style="font-size:10px;color:#888;margin-bottom:6px">Sehir Tasi <span style="color:' + (kalan > 0 ? '#2ecc71' : '#e74c3c') + '">(' + kalan + '/' + maxT + ' hak kaldi)</span></div>' +
+            (kalan > 0 ?
+              '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
+                '<span style="font-size:10px;color:#888">X:</span>' +
+                '<input id="guild-tasi-x" type="number" min="1" max="200" placeholder="' + sehir.x + '" style="width:55px;padding:3px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:10px">' +
+                '<span style="font-size:10px;color:#888">Y:</span>' +
+                '<input id="guild-tasi-y" type="number" min="1" max="50" placeholder="' + sehir.y + '" style="width:55px;padding:3px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:10px">' +
+                '<button class="btn-action" style="width:auto;padding:3px 12px;font-size:9px" onclick="guildSehirTasi(' + g.id + ')">Tasi</button>' +
+              '</div>' +
+              '<div id="guild-tasi-msg" style="font-size:10px;margin-top:4px;min-height:14px"></div>'
+            : '<div style="font-size:10px;color:#e74c3c">Tasima hakkiniz kalmadi.</div>') +
+          '</div>';
+        })() : '') :
         '<div style="font-size:10px;color:#555">Sehir bilgisi yok</div>') +
     '</div>' +
 
@@ -510,6 +528,22 @@ async function guildDuyuruKaydet(guildId) {
     });
     toast('Duyuru kaydedildi');
   } catch(e) {}
+}
+
+async function guildSehirTasi(guildId) {
+  var x = parseInt(document.getElementById('guild-tasi-x')?.value);
+  var y = parseInt(document.getElementById('guild-tasi-y')?.value);
+  var msg = document.getElementById('guild-tasi-msg');
+  if (!x || !y) { if(msg) msg.innerHTML = '<span style="color:#e74c3c">X ve Y gerekli</span>'; return; }
+  if (!confirm('Guild sehrini ' + x + ':' + y + ' konumuna tasimak istediginize emin misiniz?')) return;
+  try {
+    var resp = await fetch(API_BASE + '/api/guild/' + guildId + '/sehir-tasi', {
+      method: 'POST', headers: guildHdr(), body: JSON.stringify({ x: x, y: y })
+    });
+    var data = await resp.json();
+    if (resp.ok) { toast(data.mesaj); loadGuild(); }
+    else { if(msg) msg.innerHTML = '<span style="color:#e74c3c">' + (data.error||'Hata') + '</span>'; }
+  } catch(e) { if(msg) msg.innerHTML = '<span style="color:#e74c3c">Baglanti hatasi</span>'; }
 }
 
 async function guildBagis(guildId, kaynak) {
