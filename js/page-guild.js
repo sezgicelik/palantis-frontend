@@ -310,7 +310,8 @@ async function guildYetkilerYukle(guildId) {
       ambar_gor:'Ambar Gor', sehir_degeri_gor:'Sehir Degeri Gor', atk_def_gor:'ATK/DEF Gor',
       ambar_istek_onayla:'Istek Onayla', guild_ordusu_gonder:'Ordu Gonder', guild_ordusu_kur:'Ordu Kur',
       guild_unite_uret:'Unite Uret', isci_ata:'Isci Ata', market_satis:'Market Satis',
-      koylu_bagisi:'Koylu Bagisi', vergi_dagit:'Vergi Dagit', market_otosatis:'Oto Satis'
+      koylu_bagisi:'Koylu Bagisi', vergi_dagit:'Vergi Dagit', market_otosatis:'Oto Satis',
+      guild_bina_yap:'Bina Yap'
     };
 
     var html = '<div style="overflow-x:auto"><table style="width:100%;font-size:9px;border-collapse:collapse">' +
@@ -813,13 +814,22 @@ async function renderTabOrdu(el, data) {
       html += '</div>';
     }
 
-    // Havuz
+    // Havuz + ata butonlari
     if (d.havuz.length > 0) {
       html += '<div class="card" style="padding:10px;margin-bottom:10px">' +
         '<div style="font-size:11px;color:var(--race-color);margin-bottom:4px">📦 Unite Havuzu</div>' +
-        '<div style="display:flex;flex-wrap:wrap;gap:8px">';
+        '<div style="display:flex;flex-wrap:wrap;gap:6px">';
       d.havuz.forEach(function(u) {
-        html += '<span style="font-size:11px;background:#1a1a1a;padding:3px 8px;border-radius:4px">' + u.unite_id + ': <b>' + fmt(u.adet) + '</b></span>';
+        html += '<div style="font-size:11px;background:#1a1a1a;padding:4px 8px;border-radius:4px;display:flex;align-items:center;gap:4px">' +
+          '<span>' + u.unite_id + ': <b>' + fmt(u.adet) + '</b></span>';
+        if (yetkiler.guild_ordusu_kur && d.ordular.length > 0) {
+          html += '<select id="havuz-hedef-' + u.unite_id + '" style="font-size:9px;background:#222;color:#ccc;border:1px solid #444;border-radius:3px;padding:1px">';
+          d.ordular.forEach(function(o) { html += '<option value="' + o.id + '">' + o.isim + '</option>'; });
+          html += '</select>' +
+            '<input id="havuz-adet-' + u.unite_id + '" type="number" min="1" max="' + u.adet + '" value="' + Math.min(u.adet, 10) + '" style="width:40px;font-size:9px;background:#222;color:#ccc;border:1px solid #444;border-radius:3px;padding:1px">' +
+            '<button style="font-size:8px;padding:2px 6px;background:#2a5a2a;color:#ccc;border:none;border-radius:3px;cursor:pointer" onclick="guildOrduAta(\'' + u.unite_id + '\')">Ata</button>';
+        }
+        html += '</div>';
       });
       html += '</div></div>';
     }
@@ -841,7 +851,13 @@ async function renderTabOrdu(el, data) {
       if (ordu.uniteler && ordu.uniteler.length > 0) {
         html += '<div style="display:flex;flex-wrap:wrap;gap:4px">';
         ordu.uniteler.forEach(function(u) {
-          html += '<span style="font-size:10px;background:#111;padding:2px 6px;border-radius:3px">' + u.unite_id + ':' + fmt(u.adet) + '</span>';
+          html += '<div style="font-size:10px;background:#111;padding:2px 6px;border-radius:3px;display:inline-flex;align-items:center;gap:3px">' +
+            '<span>' + u.unite_id + ':' + fmt(u.adet) + '</span>';
+          if (yetkiler.guild_ordusu_kur) {
+            html += '<input id="cikar-adet-' + ordu.id + '-' + u.unite_id + '" type="number" min="1" max="' + u.adet + '" value="' + Math.min(u.adet, 10) + '" style="width:35px;font-size:8px;background:#222;color:#ccc;border:1px solid #444;border-radius:2px;padding:0 2px">' +
+              '<button style="font-size:7px;padding:1px 4px;background:#5a2a2a;color:#ccc;border:none;border-radius:2px;cursor:pointer" onclick="guildOrduCikar(' + ordu.id + ',\'' + u.unite_id + '\')">Cikar</button>';
+          }
+          html += '</div>';
         });
         html += '</div>';
       }
@@ -861,12 +877,18 @@ async function renderTabOrdu(el, data) {
       '</div>';
     }
 
-    // Egitim formu
+    // Egitim formu (dropdown ile lider tarafi uniteleri)
     if (yetkiler.guild_unite_uret && d.nufus.asker > 0) {
+      var uniteOpts = '';
+      if (d.taraf_uniteleri && d.taraf_uniteleri.length > 0) {
+        d.taraf_uniteleri.forEach(function(u) {
+          uniteOpts += '<option value="' + u.id + '">' + u.id + ' (T' + u.tier + ' | ATK:' + u.baseAtk + ' DEF:' + u.baseDef + ' | ' + u.trainDays + 'PG)</option>';
+        });
+      }
       html += '<div class="card" style="padding:10px;margin-top:10px">' +
-        '<div style="font-size:11px;color:var(--race-color);margin-bottom:6px">⚔️ Unite Egit</div>' +
+        '<div style="font-size:11px;color:var(--race-color);margin-bottom:6px">⚔️ Unite Egit (' + d.lider_taraf + ' tarafi)</div>' +
         '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
-          '<input id="guild-egit-unite" placeholder="unite_id (orn: piyade)" style="padding:4px 8px;border:1px solid #333;background:#111;color:#ccc;border-radius:4px;font-size:11px;width:140px">' +
+          '<select id="guild-egit-unite" style="padding:4px 8px;border:1px solid #333;background:#111;color:#ccc;border-radius:4px;font-size:11px;width:260px">' + uniteOpts + '</select>' +
           '<input id="guild-egit-adet" type="number" min="1" value="10" style="padding:4px 8px;border:1px solid #333;background:#111;color:#ccc;border-radius:4px;font-size:11px;width:60px">' +
           '<button class="btn-action" style="width:auto;padding:4px 14px;font-size:10px" onclick="guildOrduEgit()">EGIT</button>' +
         '</div>' +
@@ -917,6 +939,38 @@ async function guildOrduEgit() {
     });
     var d = await resp.json();
     if (resp.ok) { toast(d.mesaj || 'Egitim baslatildi'); loadGuild(); }
+    else toast(d.error || 'Hata', 'error');
+  } catch(e) { toast('Baglanti hatasi', 'error'); }
+}
+
+async function guildOrduAta(uniteId) {
+  if (!GUILD_DATA) return;
+  var hedef = document.getElementById('havuz-hedef-' + uniteId);
+  var adetEl = document.getElementById('havuz-adet-' + uniteId);
+  if (!hedef || !adetEl) { toast('Secim hatasi', 'error'); return; }
+  var adet = parseInt(adetEl.value);
+  if (!adet || adet < 1) { toast('Gecerli adet girin', 'error'); return; }
+  try {
+    var resp = await fetch(API_BASE + '/api/guild/' + GUILD_DATA.guild.id + '/ordu/ata', {
+      method: 'POST', headers: guildHdr(), body: JSON.stringify({ army_id: parseInt(hedef.value), unite_id: uniteId, adet: adet })
+    });
+    var d = await resp.json();
+    if (resp.ok) { toast(d.mesaj || 'Unite atandi'); loadGuild(); }
+    else toast(d.error || 'Hata', 'error');
+  } catch(e) { toast('Baglanti hatasi', 'error'); }
+}
+
+async function guildOrduCikar(armyId, uniteId) {
+  if (!GUILD_DATA) return;
+  var adetEl = document.getElementById('cikar-adet-' + armyId + '-' + uniteId);
+  var adet = adetEl ? parseInt(adetEl.value) : 0;
+  if (!adet || adet < 1) { toast('Gecerli adet girin', 'error'); return; }
+  try {
+    var resp = await fetch(API_BASE + '/api/guild/' + GUILD_DATA.guild.id + '/ordu/cikar', {
+      method: 'POST', headers: guildHdr(), body: JSON.stringify({ army_id: armyId, unite_id: uniteId, adet: adet })
+    });
+    var d = await resp.json();
+    if (resp.ok) { toast(d.mesaj || 'Unite havuza cikarildi'); loadGuild(); }
     else toast(d.error || 'Hata', 'error');
   } catch(e) { toast('Baglanti hatasi', 'error'); }
 }
