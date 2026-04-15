@@ -233,6 +233,9 @@ function rehberAdimGoster(adim) {
   let odulHTML = '';
   // Frontend'de odul gostermiyoruz — gorev sayfasinda gosterilir
 
+  // Gorev adimi mi (hedef var) yoksa bilgi adimi mi (merkez)?
+  const gorevAdimi = adim.ozelTip !== 'merkez' && adim.hedef;
+
   _tooltipEl.innerHTML =
     '<div class="rehber-adim-no">Adim ' + adim.adim + ' / ' + REHBER_ADIMLARI.length + '</div>' +
     '<div class="rehber-baslik">' + adim.baslik + '</div>' +
@@ -240,9 +243,11 @@ function rehberAdimGoster(adim) {
     odulHTML +
     '<div class="rehber-buttons">' +
       '<button class="rehber-btn rehber-btn-atla" onclick="rehberAtla()">Atla</button>' +
-      (adim.adim < REHBER_ADIMLARI.length
-        ? '<button class="rehber-btn rehber-btn-ileri" onclick="rehberIleri()">Anladim →</button>'
-        : '<button class="rehber-btn rehber-btn-ileri" onclick="rehberTamamla()">🎉 Tamamla</button>'
+      (adim.adim >= REHBER_ADIMLARI.length
+        ? '<button class="rehber-btn rehber-btn-ileri" onclick="rehberTamamla()">🎉 Tamamla</button>'
+        : gorevAdimi
+          ? '<button class="rehber-btn rehber-btn-ileri" onclick="rehberKapat()">👍 Tamam, Yapacagim!</button>'
+          : '<button class="rehber-btn rehber-btn-ileri" onclick="rehberIleri()">Anladim →</button>'
       ) +
     '</div>' +
     dotsHTML;
@@ -296,6 +301,38 @@ function tooltipPozisyonla(pozisyon, hedefEl) {
 
   _tooltipEl.style.left = left + 'px';
   _tooltipEl.style.top = top + 'px';
+}
+
+/* ── Overlay kapat, banner birak (gorev adimlari icin) ── */
+function rehberKapat() {
+  rehberTemizle();
+  const adim = REHBER_ADIMLARI.find(a => a.adim === _mevcutAdim);
+  if (adim) rehberGorevBanner(adim);
+}
+
+function rehberGorevBanner(adim) {
+  rehberBannerKaldir();
+  _bannerEl = document.createElement('div');
+  _bannerEl.className = 'rehber-banner';
+  _bannerEl.innerHTML =
+    '<span class="rehber-banner-text">📜 Adim ' + adim.adim + ': ' + adim.baslik + '</span>' +
+    '<div style="display:flex;gap:6px">' +
+      '<button class="rehber-banner-btn" onclick="rehberGorevTamamla()" style="background:rgba(46,204,113,.15);border-color:rgba(46,204,113,.3);color:#2ecc71">✓ Tamamladim</button>' +
+      '<button class="rehber-banner-btn" onclick="rehberBannerTekrarGoster()">📖 Tekrar Goster</button>' +
+      '<button class="rehber-banner-btn" onclick="rehberAtla()" style="color:#666;border-color:#333">Atla</button>' +
+    '</div>';
+  document.body.appendChild(_bannerEl);
+}
+
+function rehberGorevTamamla() {
+  rehberBannerKaldir();
+  rehberIleri();
+}
+
+function rehberBannerTekrarGoster() {
+  rehberBannerKaldir();
+  const adim = REHBER_ADIMLARI.find(a => a.adim === _mevcutAdim);
+  if (adim) rehberAdimGoster(adim);
 }
 
 /* ── Ilerleme Kontrolleri ── */
