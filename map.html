@@ -187,6 +187,9 @@ function render2D() {
   const cellMap = {};
   (MAP_DATA.oyuncular || []).forEach(o => { cellMap[o.x + ':' + o.y] = { tip: 'oyuncu', d: o }; });
   (MAP_DATA.koloniler || []).forEach(k => { cellMap[k.x + ':' + k.y] = { tip: 'koloni', d: k }; });
+  // v1.9.3: Konuşlanan ordular map
+  const konusMap = {};
+  (MAP_DATA.konuslananlar || []).forEach(t => { konusMap[t.x + ':' + t.y] = t; });
 
   // Arka plan
   ctx.fillStyle = '#050505';
@@ -245,6 +248,19 @@ function render2D() {
           ctx.textAlign = 'center';
           ctx.fillText('K', px + TW / 2, py + TH / 2 + 2);
         }
+      }
+
+      // v1.9.3: Konuşlanan ordu ikonu (küçük kalkan)
+      const konus = konusMap[x + ':' + y];
+      if (konus) {
+        ctx.fillStyle = 'rgba(155,89,182,0.8)';
+        ctx.beginPath();
+        ctx.arc(px + TW - 5, py + 2, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.font = '5px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('⛨', px + TW - 5, py + 4);
       }
     }
   }
@@ -306,6 +322,9 @@ function renderGrid() {
   const cellMap = {};
   (MAP_DATA.oyuncular || []).forEach(o => { cellMap[o.x + ':' + o.y] = { tip: 'oyuncu', d: o }; });
   (MAP_DATA.koloniler || []).forEach(k => { cellMap[k.x + ':' + k.y] = { tip: 'koloni', d: k }; });
+  // v1.9.3: Konuşlanan ordular
+  const konusMap2 = {};
+  (MAP_DATA.konuslananlar || []).forEach(t => { konusMap2[t.x + ':' + t.y] = t; });
 
   let html = '<table><thead><tr><th style="width:14px">Y</th>';
   for (let x = xMin; x <= xMax; x++) html += '<th>' + x + '</th>';
@@ -328,7 +347,9 @@ function renderGrid() {
           content = (KAYNAK_IKON[cell.d.kaynak_tipi]||'⛏');
         }
       }
-      html += '<td style="background:' + bg + ';color:' + color + '" onclick="mapSecHucre(' + x + ',' + y + ')">' + content + '</td>';
+      // v1.9.3: Konuşlanan ordu ikonu grid'de
+      var konusIkon = konusMap2[x + ':' + y] ? '<span style="color:#9b59b6;font-size:7px" title="Ordunuz konuslandi">⛨</span>' : '';
+      html += '<td style="background:' + bg + ';color:' + color + '" onclick="mapSecHucre(' + x + ',' + y + ')">' + content + konusIkon + '</td>';
     }
     html += '</tr>';
   }
@@ -342,6 +363,7 @@ function renderGrid() {
 function mapSecHucre(x, y) {
   const oyuncu = (MAP_DATA?.oyuncular || []).find(o => o.x === x && o.y === y);
   const koloni = (MAP_DATA?.koloniler || []).find(k => k.x === x && k.y === y);
+  const konuslanan = (MAP_DATA?.konuslananlar || []).find(t => t.x === x && t.y === y);
   const panel = document.getElementById('map-info');
   const title = document.getElementById('map-info-title');
   const content = document.getElementById('map-info-content');
@@ -381,6 +403,15 @@ function mapSecHucre(x, y) {
     const bolge = getBolge(x, y);
     title.textContent = '📋 Boş Alan (' + x + ':' + y + ')';
     content.innerHTML = '<div style="color:#555">' + (bolge ? bolge.id.replace(/_/g,' ') : 'Bilinmeyen') + ' bölgesi</div>';
+  }
+
+  // v1.9.3: Konuşlanan ordu bilgisi ekle
+  if (konuslanan) {
+    content.innerHTML += '<div style="grid-column:1/-1;margin-top:6px;padding:6px 8px;background:rgba(155,89,182,.1);border:1px solid #9b59b633;border-radius:4px">' +
+      '<span style="color:#9b59b6;font-size:10px;font-weight:bold">⛨ Ordunuz Konuslandi</span><br>' +
+      '<span style="color:#ccc;font-size:10px">' + (konuslanan.army_isim||'Ordu') + '</span>' +
+      (konuslanan.hedef_kral ? '<span style="color:#888;font-size:9px"> → ' + konuslanan.hedef_kral + '</span>' : '') +
+    '</div>';
   }
 }
 

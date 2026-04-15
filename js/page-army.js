@@ -372,12 +372,37 @@ function renderOrduListe(){
     var poolDragons = dragonUnits.filter(function(u){ return u.count > 0; });
     var allPool = poolUnits.concat(poolDragons);
 
+    // Konum bilgisi hesapla — v1.9.3: 3 durum: sehirde / yolda / korumada
+    var konumLabel = '';
+    var konumRenk = '#2ecc71';
+    var konumKoord = (typeof OYUNCU !== 'undefined' && OYUNCU ? (OYUNCU.koord_x||'?') + ':' + (OYUNCU.koord_y||'?') : '?:?');
+    var korumada = o.konum_tipi === 'korumada';
+    if (korumada && o.takviye) {
+      var tkLabel = o.takviye.hedef_kral ? o.takviye.hedef_kral + '\'de' : (o.takviye.koloni_isim ? o.takviye.koloni_isim + ' Ussu' : 'Konuslandi');
+      konumLabel = '📍 Korumada: ' + tkLabel;
+      konumKoord = o.takviye.konum_x + ':' + o.takviye.konum_y;
+      konumRenk = '#9b59b6';
+    } else if (korumada) {
+      konumLabel = '📍 Korumada';
+      konumRenk = '#9b59b6';
+    } else {
+      konumLabel = '🏠 Sehirde';
+      konumRenk = '#2ecc71';
+    }
+    var mesgulBadge = o.is_busy ? '<span style="background:#e74c3c22;color:#e74c3c;padding:1px 6px;border-radius:3px;font-size:9px;margin-left:6px">YOLDA</span>' : '';
+
     return '<div class="card" style="padding:0;margin-bottom:14px;border:1px solid #333;border-radius:8px;overflow:hidden">' +
       // Baslik bar
-      '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(212,175,55,.08);border-bottom:1px solid #333">' +
-        '<div style="font-family:Cinzel,serif;font-size:14px;font-weight:bold;color:#d4af37">' + o.isim + '</div>' +
-        '<div style="font-size:11px;color:#aaa">ATK: <span style="color:#e74c3c">' + fmt(o.atk) + '</span> - DEF: <span style="color:#3498db">' + fmt(o.def) + '</span></div>' +
-        '<div style="font-size:11px;color:#aaa">Toplam Asker: <span style="color:#d4af37">' + fmt(o.total_units) + '</span></div>' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(212,175,55,.08);border-bottom:1px solid #333;flex-wrap:wrap;gap:6px">' +
+        '<div style="display:flex;align-items:center;gap:8px">' +
+          '<span style="font-family:Cinzel,serif;font-size:14px;font-weight:bold;color:#d4af37">' + o.isim + '</span>' +
+          mesgulBadge +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:12px">' +
+          '<span style="font-size:10px;color:' + konumRenk + ';background:' + konumRenk + '15;padding:2px 8px;border-radius:4px;border:1px solid ' + konumRenk + '33">' + konumLabel + ' <b>' + konumKoord + '</b></span>' +
+          '<span style="font-size:11px;color:#aaa">ATK: <span style="color:#e74c3c">' + fmt(o.atk) + '</span> DEF: <span style="color:#3498db">' + fmt(o.def) + '</span></span>' +
+          '<span style="font-size:11px;color:#d4af37">' + fmt(o.total_units) + ' asker</span>' +
+        '</div>' +
       '</div>' +
       // Icerik: 3 sutun
       '<div style="display:grid;grid-template-columns:1fr auto 1fr;gap:0">' +
@@ -389,23 +414,24 @@ function renderOrduListe(){
             '<div>🛡️ DEF: <span style="color:#3498db;font-weight:bold">' + fmt(o.def) + '</span></div>' +
             '<div>👥 Toplam Asker: <span style="color:#d4af37">' + fmt(o.total_units) + '</span></div>' +
             '<div>💰 Maas/Gun: <span style="color:#f1c40f">' + fmt(toplamMaas) + '</span></div>' +
-            '<div>📍 Yer: ' + (o.konum === 'kolonide' ?
-              '<span style="color:#e67e22">Kolonide (' + (o.koloni_bilgi ? o.koloni_bilgi.x + ':' + o.koloni_bilgi.y + ' %' + o.koloni_bilgi.bonus + ' ' + o.koloni_bilgi.kaynak : '?') + ')</span>' :
-              '<span style="color:#2ecc71">Sehirde</span>') + '</div>' +
+            '<div>📍 Konum: <span style="color:' + konumRenk + '">' + konumLabel + ' ' + konumKoord + '</span></div>' +
             '<div>📊 Reyting: <span style="color:#f1c40f">%' + (o.reyting||0) + '</span></div>' +
           '</div>' +
-          // Aksiyonlar
-          '<div style="margin-top:10px;display:flex;flex-direction:column;gap:4px">' +
-            '<button class="btn ghost" style="font-size:10px;padding:4px 8px;width:100%" onclick="orduSil(' + o.id + ')">Ordumu Sil</button>' +
-          '</div>' +
         '</div>' +
-        // Orta: Aksiyon butonlari
+        // Orta: Aksiyon butonlari — v1.9.3 unified UX
         '<div style="padding:10px 12px;border-right:1px solid #222;min-width:130px">' +
           '<div style="font-size:10px;color:#888;margin-bottom:6px;font-weight:bold">Islemler</div>' +
           '<div style="display:flex;flex-direction:column;gap:6px">' +
             '<button class="btn ghost" style="font-size:10px;padding:5px 8px" onclick="armyTab(\'formation\');document.getElementById(\'formation-army-select\').value=\'' + o.id + '\';loadFormationForArmy()">⚔️ Ordu Dizilimi</button>' +
             '<button class="btn ghost" style="font-size:10px;padding:5px 8px" onclick="toggleUniteYonetimi(' + o.id + ')">🗡️ Unite Yonetimi</button>' +
+            (!o.is_busy && o.total_units >= 100 ?
+              '<button class="btn ghost" style="font-size:10px;padding:5px 8px;color:#d4af37;border-color:#d4af3744" onclick="toggleOrduGonderPanel(' + o.id + ',\'' + (korumada ? 'korumada' : 'sehir') + '\')">📤 Ordu Gonder</button>'
+            : '') +
+            (korumada && !o.is_busy ?
+              '<button class="btn ghost" style="font-size:10px;padding:5px 8px;color:#e74c3c;border-color:#e74c3c44" onclick="orduGeriCagir(' + o.id + ')">🏠 Geri Cagir</button>'
+            : '') +
           '</div>' +
+          '<div style="margin-top:10px"><button class="btn ghost" style="font-size:10px;padding:4px 8px;width:100%" onclick="orduSil(' + o.id + ')">Ordumu Sil</button></div>' +
         '</div>' +
         // Sag: Unite listesi
         '<div style="padding:10px 12px">' +
@@ -439,6 +465,53 @@ function renderOrduListe(){
               '</div>';
             }).join('') +
           '</div>' : '') +
+      '</div>' +
+      // v1.9.3: Yoldaki görev bilgi barı
+      (o.is_busy && o.aktif_gorev ? (function(){
+        var g = o.aktif_gorev;
+        var tipLabel = g.tip === 'saldiri' ? '⚔️ Saldiri' : g.tip === 'takviye' ? '🛡️ Takviye' :
+          g.tip === 'koloni_us' ? '🏰 Koloni Us' : g.tip === 'rolu_saldiri' ? '⚔️ Relay Saldiri' :
+          g.tip === 'donus' ? '🏠 Eve Donus' : g.tip === 'donus_takviye' ? '🏠 Eve Donus' :
+          g.tip === 'donus_koloni_us' ? '🏠 Eve Donus' : g.tip === 'donus_rolu' ? '📍 Konuslanmaya Donus' : '🚀 ' + g.tip;
+        var varisDate = g.varis ? new Date(g.varis) : null;
+        var kalanMs = varisDate ? varisDate.getTime() - Date.now() : 0;
+        var kalanStr = '';
+        if (kalanMs > 0) {
+          var kalanSaat = Math.floor(kalanMs / 3600000);
+          var kalanDk = Math.floor((kalanMs % 3600000) / 60000);
+          kalanStr = kalanSaat > 0 ? kalanSaat + 's ' + kalanDk + 'dk' : kalanDk + 'dk';
+        } else {
+          kalanStr = 'Variyor...';
+        }
+        return '<div style="padding:8px 12px;border-top:1px solid #e74c3c33;background:rgba(231,76,60,.06);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px">' +
+          '<div style="display:flex;align-items:center;gap:8px">' +
+            '<span style="color:#e74c3c;font-size:11px;font-weight:bold">' + tipLabel + '</span>' +
+            '<span style="color:#888;font-size:10px">' + (g.kaynak_x||'?') + ':' + (g.kaynak_y||'?') + ' → ' + (g.hedef_x||'?') + ':' + (g.hedef_y||'?') + '</span>' +
+          '</div>' +
+          '<div style="display:flex;align-items:center;gap:8px">' +
+            '<span style="color:#f39c12;font-size:10px">' + (g.efektif_sure||'?') + ' PG</span>' +
+            '<span style="color:#2ecc71;font-size:11px;font-weight:bold">⏱ ' + kalanStr + '</span>' +
+          '</div>' +
+        '</div>';
+      })() : '') +
+      // v1.9.3: Ordu Gonder paneli — koordinat girişli (gizli, toggle ile açılır)
+      '<div id="ordu-gonder-panel-' + o.id + '" style="display:none;padding:12px;border-top:1px solid #d4af3744;background:rgba(212,175,55,.04)">' +
+        '<div style="font-size:11px;color:#d4af37;font-weight:bold;margin-bottom:8px">📤 Ordu Gonder — ' + o.isim + '</div>' +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:8px">' +
+          '<div>' +
+            '<label style="color:#aaa;font-size:10px;display:block;margin-bottom:3px">X Koordinat</label>' +
+            '<input id="og-x-' + o.id + '" type="number" min="1" max="200" placeholder="X" ' +
+              'style="width:70px;background:#1a1a1a;border:1px solid #444;color:#eee;padding:6px 8px;border-radius:5px;font-size:12px;text-align:center">' +
+          '</div>' +
+          '<span style="color:#555;font-size:16px;padding-bottom:4px">:</span>' +
+          '<div>' +
+            '<label style="color:#aaa;font-size:10px;display:block;margin-bottom:3px">Y Koordinat</label>' +
+            '<input id="og-y-' + o.id + '" type="number" min="1" max="50" placeholder="Y" ' +
+              'style="width:70px;background:#1a1a1a;border:1px solid #444;color:#eee;padding:6px 8px;border-radius:5px;font-size:12px;text-align:center">' +
+          '</div>' +
+          '<button class="btn ghost" style="font-size:11px;padding:6px 14px;color:#d4af37;border-color:#d4af3744" onclick="orduGonderAra(' + o.id + ')">Ara</button>' +
+        '</div>' +
+        '<div id="og-sonuc-' + o.id + '" style="font-size:11px;color:#888;min-height:20px"></div>' +
       '</div>' +
     '</div>';
   }).join('');
@@ -983,3 +1056,225 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, 500);
 });
+
+// ═══════════════════════════════════
+//   v1.9.3: ORDU GONDER FONKSİYONLARI
+//   Koordinat girişli birleşik UX
+// ═══════════════════════════════════
+
+let _ogAramaSonuc = {}; // { armyId: { oyuncu, koloni, ... } }
+
+function toggleOrduGonderPanel(armyId, konumTipi) {
+  // Tüm diğer panelleri kapat
+  document.querySelectorAll('[id^="ordu-gonder-panel-"]').forEach(function(el) {
+    if (el.id !== 'ordu-gonder-panel-' + armyId) el.style.display = 'none';
+  });
+  var el = document.getElementById('ordu-gonder-panel-' + armyId);
+  if (!el) return;
+  var visible = el.style.display !== 'none';
+  el.style.display = visible ? 'none' : 'block';
+  if (!visible) {
+    _ogAramaSonuc[armyId] = null;
+    var sonucEl = document.getElementById('og-sonuc-' + armyId);
+    if (sonucEl) sonucEl.innerHTML = '<span style="color:#555">Koordinat girip "Ara" ya basin</span>';
+    // Store konum tipi for later use
+    el.dataset.konumTipi = konumTipi || 'sehir';
+  }
+}
+
+async function orduGonderAra(armyId) {
+  var xEl = document.getElementById('og-x-' + armyId);
+  var yEl = document.getElementById('og-y-' + armyId);
+  var sonucEl = document.getElementById('og-sonuc-' + armyId);
+  if (!xEl || !yEl || !sonucEl) return;
+
+  var x = parseInt(xEl.value);
+  var y = parseInt(yEl.value);
+  if (!x || !y || x < 1 || x > 200 || y < 1 || y > 50) {
+    sonucEl.innerHTML = '<span style="color:#e74c3c">Gecersiz koordinat! X: 1-200, Y: 1-50</span>';
+    return;
+  }
+
+  // Kendi koordinatına gönderemez
+  if (typeof OYUNCU !== 'undefined' && OYUNCU && x === OYUNCU.koord_x && y === OYUNCU.koord_y) {
+    sonucEl.innerHTML = '<span style="color:#e74c3c">Kendi sehrinize ordu gonderemezsiniz!</span>';
+    return;
+  }
+
+  sonucEl.innerHTML = '<span style="color:#888">Araniyor...</span>';
+  var token = getToken(); if (!token) return;
+
+  try {
+    var res = await fetch(API_BASE + '/api/map/ara?koord=' + x + ':' + y, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    var data = await res.json();
+    if (!res.ok) { sonucEl.innerHTML = '<span style="color:#e74c3c">' + (data.error || 'Hata') + '</span>'; return; }
+
+    _ogAramaSonuc[armyId] = data;
+    var panelEl = document.getElementById('ordu-gonder-panel-' + armyId);
+    var konumTipi = panelEl ? panelEl.dataset.konumTipi : 'sehir';
+    var isRelay = konumTipi === 'korumada';
+
+    var html = '';
+
+    if (data.oyuncu) {
+      var oy = data.oyuncu;
+      if (oy.ayni_guild) {
+        // Guild üyesi → takviye gönder
+        html += '<div style="background:#9b59b622;border:1px solid #9b59b644;border-radius:6px;padding:8px 12px;margin-top:6px">' +
+          '<div style="color:#9b59b6;font-size:12px">🛡️ <b>' + oy.kral + '</b> — Guild Uyeniz</div>' +
+          '<div style="color:#888;font-size:10px;margin:4px 0">' + oy.str + ' | ' + (oy.taraf||'') + ' | Cag ' + (oy.cag||1) + (data.mesafe ? ' | Mesafe: ' + data.mesafe : '') + '</div>' +
+          (isRelay ?
+            '<span style="color:#e74c3c;font-size:10px">Korumadaki ordu ile guild uyesine takviye gonderilemez. Once geri cagirin.</span>'
+          :
+            '<button class="btn" style="font-size:11px;padding:5px 14px;background:#9b59b6;margin-top:4px" onclick="orduGonderTakviye(' + armyId + ',' + oy.id + ')">🛡️ Takviye Gonder</button>'
+          ) +
+        '</div>';
+      } else {
+        // Düşman → saldırı gönder
+        html += '<div style="background:#e74c3c22;border:1px solid #e74c3c44;border-radius:6px;padding:8px 12px;margin-top:6px">' +
+          '<div style="color:#e74c3c;font-size:12px">⚔️ <b>' + oy.kral + '</b> — Dusman</div>' +
+          '<div style="color:#888;font-size:10px;margin:4px 0">' + oy.str + ' | ' + (oy.taraf||'') + ' | Cag ' + (oy.cag||1) + (data.mesafe ? ' | Mesafe: ' + data.mesafe : '') + '</div>' +
+          (isRelay ?
+            '<button class="btn" style="font-size:11px;padding:5px 14px;background:#e74c3c;margin-top:4px" onclick="orduGonderRelaySaldiri(' + armyId + ',' + oy.id + ')">⚔️ Saldiri Gonder</button>'
+          :
+            '<button class="btn" style="font-size:11px;padding:5px 14px;background:#e74c3c;margin-top:4px" onclick="orduGonderSaldiri(' + armyId + ',' + oy.id + ')">⚔️ Saldiri Gonder</button>'
+          ) +
+        '</div>';
+      }
+    }
+
+    if (data.koloni) {
+      var kol = data.koloni;
+      if (kol.benim) {
+        // Kendi kolonisi → üs kur
+        html += '<div style="background:#e67e2222;border:1px solid #e67e2244;border-radius:6px;padding:8px 12px;margin-top:6px">' +
+          '<div style="color:#e67e22;font-size:12px">🏰 <b>' + (kol.isim||'Koloni') + '</b> — Sizin Koloniniz</div>' +
+          (isRelay ?
+            '<span style="color:#e74c3c;font-size:10px">Korumadaki ordu ile us kurulamaz. Once geri cagirin.</span>'
+          :
+            '<button class="btn" style="font-size:11px;padding:5px 14px;background:#e67e22;margin-top:4px" onclick="orduGonderKoloni(' + armyId + ',' + kol.id + ')">🏰 Us Kur</button>'
+          ) +
+        '</div>';
+      } else {
+        // Başkasının kolonisi → baskın
+        html += '<div style="background:#e74c3c22;border:1px solid #e74c3c44;border-radius:6px;padding:8px 12px;margin-top:6px">' +
+          '<div style="color:#e74c3c;font-size:12px">⚔️ <b>' + (kol.isim||'Koloni') + '</b> — ' + (kol.sahip_kral||'Bilinmeyen') + ' Kolonisi</div>' +
+          '<div style="color:#888;font-size:10px;margin:2px 0">Koloni baskini: Savas yapilir, fetih icin 2 esek + 100 koylu gerekir.</div>' +
+          (isRelay ?
+            '<button class="btn" style="font-size:11px;padding:5px 14px;background:#e74c3c;margin-top:4px" onclick="orduGonderRelaySaldiri(' + armyId + ',' + kol.sahip_player_id + ')">⚔️ Baskin Gonder</button>'
+          :
+            '<button class="btn" style="font-size:11px;padding:5px 14px;background:#e74c3c;margin-top:4px" onclick="orduGonderSaldiri(' + armyId + ',' + kol.sahip_player_id + ')">⚔️ Baskin Gonder</button>'
+          ) +
+        '</div>';
+      }
+    }
+
+    if (!data.oyuncu && !data.koloni) {
+      html = '<div style="color:#555;font-size:11px;padding:4px">Bu koordinat bos. Kimse yok.</div>';
+    }
+
+    sonucEl.innerHTML = html;
+  } catch(e) {
+    console.error('Ordu gonder arama hata:', e);
+    sonucEl.innerHTML = '<span style="color:#e74c3c">Baglanti hatasi</span>';
+  }
+}
+
+// Takviye gönder (guild üyesine)
+async function orduGonderTakviye(armyId, hedefPlayerId) {
+  if (!confirm('Bu orduyu guild uyenize takviye olarak gondermek istiyor musunuz?')) return;
+  var token = getToken(); if (!token) return;
+  try {
+    var res = await fetch(API_BASE + '/api/takviye/gonder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ orduId: armyId, hedefPlayerId: hedefPlayerId })
+    });
+    var data = await res.json();
+    if (!res.ok) { showToast(data.error || 'Hata', 'error'); return; }
+    showToast(data.mesaj || 'Takviye yola cikti!', 'success');
+    if (typeof loadGameData === 'function') await loadGameData();
+    renderOrduListe();
+  } catch(e) { showToast('Baglanti hatasi', 'error'); }
+}
+
+// Saldırı gönder (şehirden)
+async function orduGonderSaldiri(armyId, hedefPlayerId) {
+  if (!confirm('Bu orduyu saldiriya gondermek istiyor musunuz?')) return;
+  var token = getToken(); if (!token) return;
+  try {
+    var res = await fetch(API_BASE + '/api/savas/saldir', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ orduId: armyId, hedefPlayerId: hedefPlayerId })
+    });
+    var data = await res.json();
+    if (!res.ok) {
+      if (data.guild_takviye) {
+        showToast('Ayni guildesiniz! Takviye gonderin.', 'error');
+      } else {
+        showToast(data.error || 'Hata', 'error');
+      }
+      return;
+    }
+    showToast(data.mesaj || 'Ordu saldiriya yola cikti!', 'success');
+    if (typeof loadGameData === 'function') await loadGameData();
+    renderOrduListe();
+  } catch(e) { showToast('Baglanti hatasi', 'error'); }
+}
+
+// Relay saldırı (korumadaki ordu ile)
+async function orduGonderRelaySaldiri(armyId, hedefPlayerId) {
+  if (!confirm('Bu orduyu konuslandigi yerden saldiriya gondermek istiyor musunuz?')) return;
+  var token = getToken(); if (!token) return;
+  try {
+    var res = await fetch(API_BASE + '/api/takviye/rolu-saldir', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ orduId: armyId, hedefPlayerId: hedefPlayerId })
+    });
+    var data = await res.json();
+    if (!res.ok) { showToast(data.error || 'Hata', 'error'); return; }
+    showToast(data.mesaj || 'Relay saldiri basladi!', 'success');
+    if (typeof loadGameData === 'function') await loadGameData();
+    renderOrduListe();
+  } catch(e) { showToast('Baglanti hatasi', 'error'); }
+}
+
+// Koloni üs kur
+async function orduGonderKoloni(armyId, koloniId) {
+  if (!confirm('Bu orduyu koloni ussune gondermek istiyor musunuz?')) return;
+  var token = getToken(); if (!token) return;
+  try {
+    var res = await fetch(API_BASE + '/api/takviye/koloni', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ orduId: armyId, koloniId: koloniId })
+    });
+    var data = await res.json();
+    if (!res.ok) { showToast(data.error || 'Hata', 'error'); return; }
+    showToast(data.mesaj || 'Ordu koloniye yola cikti!', 'success');
+    if (typeof loadGameData === 'function') await loadGameData();
+    renderOrduListe();
+  } catch(e) { showToast('Baglanti hatasi', 'error'); }
+}
+
+// Geri çağır (korumadaki ordu)
+async function orduGeriCagir(armyId) {
+  if (!confirm('Bu orduyu geri cagirmak istediginize emin misiniz? Ordu sehrinize donecektir.')) return;
+  var token = getToken(); if (!token) return;
+  try {
+    var res = await fetch(API_BASE + '/api/takviye/geri-cagir', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ orduId: armyId })
+    });
+    var data = await res.json();
+    if (!res.ok) { showToast(data.error || 'Hata', 'error'); return; }
+    showToast(data.mesaj || 'Ordu geri cagriliyor!', 'success');
+    if (typeof loadGameData === 'function') await loadGameData();
+    renderOrduListe();
+  } catch(e) { showToast('Baglanti hatasi', 'error'); }
+}

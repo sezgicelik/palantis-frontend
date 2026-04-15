@@ -124,8 +124,12 @@ function renderGuild(el, data) {
   var uyeHTML = uyeler.map(function(u) {
     var rutbeIcon = u.rutbe === 'lider' ? '👑' : u.rutbe === 'yardimci' ? '⭐' : '🏅';
     var aksiyonlar = '';
+    // v1.9.3: Takviye gonder butonu (kendine degil)
+    if (u.player_id !== data.benim_player_id) {
+      aksiyonlar += '<button style="background:none;border:1px solid #9b59b6;color:#9b59b6;cursor:pointer;font-size:9px;border-radius:3px;padding:1px 6px" onclick="guildTakviyeGonder(' + u.player_id + ',\'' + (u.kullanici_adi||'').replace(/'/g,'') + '\')">🛡️ Takviye</button>';
+    }
     if (isLider && u.player_id !== data.guild.lider_id) {
-      aksiyonlar = '<button style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:9px" onclick="guildAt(' + g.id + ',' + u.player_id + ')">At</button>' +
+      aksiyonlar += '<button style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:9px" onclick="guildAt(' + g.id + ',' + u.player_id + ')">At</button>' +
         '<select style="background:#111;border:1px solid #333;color:#ddd;font-size:9px;border-radius:3px;padding:1px" onchange="guildRutbe(' + g.id + ',' + u.player_id + ',this.value)">' +
           '<option value="uye"' + (u.rutbe==='uye'?' selected':'') + '>Uye</option>' +
           '<option value="yardimci"' + (u.rutbe==='yardimci'?' selected':'') + '>Yardimci</option>' +
@@ -178,7 +182,16 @@ function renderGuild(el, data) {
           var tipIcon = d.tip === 'savas' ? '⚔️' : '🤝';
           return '<div style="font-size:10px;padding:3px 0">' + tipIcon + ' [' + karsiTag + '] ' + karsi + ' — ' + d.tip + '</div>';
         }).join('')) +
+    '</div>' +
+
+    // v1.9.3: Takviye paneli
+    '<div class="card">' +
+      '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">🛡️ Takviye Orduları</div>' +
+      '<div id="guild-takviye-panel" style="font-size:10px;color:#555">Yukleniyor...</div>' +
     '</div>';
+
+  // Takviye durumunu yükle
+  guildTakviyeDurumYukle();
 }
 
 async function guildAyril(guildId) {
@@ -239,6 +252,102 @@ async function guildBagis(guildId, kaynak) {
     var data = await resp.json();
     if (resp.ok) { toast(data.mesaj); loadGuild(); } else alert(data.error);
   } catch(e) { alert('Hata'); }
+}
+
+// ═══════════════════════════════════
+//   v1.9.3: TAKVİYE SİSTEMİ
+// ═══════════════════════════════════
+
+async function guildTakviyeGonder(hedefPlayerId, hedefIsim) {
+  // Ordular listesi getir
+  var token = getToken(); if (!token) return;
+  try {
+    var resp = await fetch(API_BASE + '/api/army/state', { headers: { 'Authorization': 'Bearer ' + token } });
+    var data = await resp.json();
+    if (!resp.ok) { alert('Ordular yuklenemedi'); return; }
+    var armies = (data.armies || []).filter(function(a) { return !a.is_busy && a.konum_tipi === 'sehir' && a.total_units >= 100; });
+    if (armies.length === 0) { alert('Gonderilecek uygun ordu yok (min 100 unite, mesgul olmayan, evdeki)'); return; }
+
+    var opts = armies.map(function(a) { return a.isim + ' (' + a.total_units + ' unite)'; });
+    var secim = prompt('Takviye olarak gondermek icin ordu secin:\n' + armies.map(function(a, i) { return (i+1) + '. ' + opts[i]; }).join('\n') + '\n\nNumara girin:', '1');
+    if (!secim) return;
+    var idx = parseInt(secim) - 1;
+    if (idx < 0 || idx >= armies.length) { alert('Gecersiz secim'); return; }
+    var ordu = armies[idx];
+
+    if (!confirm(ordu.isim + ' ordusunu ' + hedefIsim + ' oyuncusuna takviye olarak gondermek istiyor musunuz?')) return;
+
+    var res = await fetch(API_BASE + '/api/takviye/gonder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ orduId: ordu.id, hedefPlayerId: hedefPlayerId })
+    });
+    var result = await res.json();
+    if (res.ok) {
+      if (typeof showToast === 'function') showToast(result.mesaj || 'Takviye yola cikti!', 'success');
+      else alert(result.mesaj || 'Takviye yola cikti!');
+      guildTakviyeDurumYukle();
+    } else {
+      alert(result.error || 'Hata');
+    }
+  } catch(e) { alert('Baglanti hatasi'); }
+}
+
+async function guildTakviyeDurumYukle() {
+  var el = document.getElementById('guild-takviye-panel');
+  if (!el) return;
+  var token = getToken(); if (!token) return;
+  try {
+    var resp = await fetch(API_BASE + '/api/takviye/durum', { headers: { 'Authorization': 'Bearer ' + token } });
+    if (!resp.ok) { el.innerHTML = '<span style="color:#555">Yuklenemedi</span>'; return; }
+    var data = await resp.json();
+
+    var html = '';
+
+    // Gonderilen
+    if (data.gonderilen.length > 0) {
+      html += '<div style="margin-bottom:8px"><div style="color:#9b59b6;font-weight:bold;margin-bottom:4px">Gonderilen Takviyeler</div>';
+      data.gonderilen.forEach(function(t) {
+        var durum = t.is_busy ? '<span style="color:#e67e22">Gorevde</span>' : '<span style="color:#2ecc71">Konuslanmis</span>';
+        html += '<div style="padding:3px 0;border-bottom:1px solid #1a1a1a">🛡️ ' + (t.army_isim||'Ordu') + ' → ' + (t.hedef_kral||'Bilinmeyen') + ' (' + t.konum_x + ':' + t.konum_y + ') — ' + durum + '</div>';
+      });
+      html += '</div>';
+    }
+
+    // Alinan
+    if (data.alinan.length > 0) {
+      html += '<div style="margin-bottom:8px"><div style="color:#27ae60;font-weight:bold;margin-bottom:4px">Gelen Takviyeler</div>';
+      data.alinan.forEach(function(t) {
+        html += '<div style="padding:3px 0;border-bottom:1px solid #1a1a1a">🛡️ ' + (t.gonderen_kral||'Bilinmeyen') + ' → ' + (t.army_isim||'Ordu') + ' (' + (t.toplam_unite||0) + ' unite)</div>';
+      });
+      html += '</div>';
+    }
+
+    // Koloni usleri
+    if (data.koloni_usleri.length > 0) {
+      html += '<div style="margin-bottom:8px"><div style="color:#e67e22;font-weight:bold;margin-bottom:4px">Koloni Usleri</div>';
+      data.koloni_usleri.forEach(function(t) {
+        html += '<div style="padding:3px 0;border-bottom:1px solid #1a1a1a">🏰 ' + (t.army_isim||'Ordu') + ' → ' + (t.koloni_isim||'Koloni') + ' (' + t.konum_x + ':' + t.konum_y + ')</div>';
+      });
+      html += '</div>';
+    }
+
+    // Yoldaki
+    if (data.yoldaki.length > 0) {
+      html += '<div><div style="color:#f39c12;font-weight:bold;margin-bottom:4px">Yoldaki Hareketler</div>';
+      data.yoldaki.forEach(function(t) {
+        var tipLabel = t.tip === 'takviye' ? 'Takviye' : t.tip === 'koloni_us' ? 'Koloni Us' :
+                       t.tip === 'rolu_saldiri' ? 'Relay Saldiri' : t.tip.startsWith('donus_') ? 'Donus' : t.tip;
+        html += '<div style="padding:3px 0;border-bottom:1px solid #1a1a1a">🚀 ' + tipLabel + ' — ' + (t.efektif_sure||'?') + ' PG</div>';
+      });
+      html += '</div>';
+    }
+
+    if (!html) html = '<span style="color:#555">Aktif takviye yok</span>';
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = '<span style="color:#555">Hata</span>';
+  }
 }
 
 // Init

@@ -1,16 +1,26 @@
 /* ═══════════════════════════════════════════════════════
-   NOXARA — SAVAŞ BAŞLAT SAYFA JS (v1.9.2)
+   NOXARA — SAVAŞ BAŞLAT SAYFA JS (v1.9.3)
    js/page-savas-baslat.js
+   v1.9.3: Relay saldırı desteği
 ═══════════════════════════════════════════════════════ */
 
 let _sbHedef = null;       // { id, kral, sehir, koord_x, koord_y }
 let _sbSure = null;        // { ham_sure, efektif_sure, hiz_bonus, mesafe }
 let _sbOrdular = [];       // armies listesi
 let _sbHareketTimer = null;
+let _sbRelayArmyId = null; // v1.9.3: relay saldırı için army ID
 
 // ── Sayfa init ──
 document.addEventListener('DOMContentLoaded', async () => {
   if (typeof loadGameData === 'function') await loadGameData();
+
+  // v1.9.3: Relay mode check (army.html'den yönlendirme)
+  const params = new URLSearchParams(window.location.search);
+  const relayId = params.get('relay');
+  if (relayId) {
+    _sbRelayArmyId = parseInt(relayId);
+  }
+
   sbOrdulariYukle();
   sbHareketleriYukle();
 
@@ -96,7 +106,14 @@ function sbHedefTemizle() {
 
 async function sbSureHesapla(hedefPlayerId) {
   try {
-    const res = await fetch(`${API_BASE}/api/savas/sure-hesapla?hedefPlayerId=${hedefPlayerId}`, {
+    // v1.9.3: Relay army ise kaynakX parametresi ekle
+    let url = `${API_BASE}/api/savas/sure-hesapla?hedefPlayerId=${hedefPlayerId}`;
+    const armyId = parseInt(document.getElementById('sb-ordu-select').value);
+    const ordu = _sbOrdular.find(a => a.id === armyId);
+    if (ordu && ordu.takviye && ordu.konum_tipi === 'korumada') {
+      url += `&kaynakX=${ordu.takviye.konum_x}`;
+    }
+    const res = await fetch(url, {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('palantis_token') }
     });
     if (!res.ok) {
@@ -137,12 +154,19 @@ async function sbOrdulariYukle() {
 
     _sbOrdular.forEach(a => {
       const busy = a.is_busy ? ' (Gorevde)' : '';
+      const konum = a.konum_tipi === 'korumada' ? ' [Korumada]' : '';
       const opt = document.createElement('option');
       opt.value = a.id;
-      opt.textContent = `${a.isim || 'Ordu #' + a.id} — ${a.total_units || 0} unite${busy}`;
+      opt.textContent = `${a.isim || 'Ordu #' + a.id} — ${a.total_units || 0} unite${konum}${busy}`;
       opt.disabled = a.is_busy;
       sel.appendChild(opt);
     });
+
+    // v1.9.3: Relay mode — otomatik ordu sec
+    if (_sbRelayArmyId) {
+      sel.value = _sbRelayArmyId;
+      sbOrduDegisti();
+    }
   } catch(e) {
     console.error('Ordulari yukle hata:', e);
   }
@@ -155,9 +179,14 @@ function sbOrduDegisti() {
   const detay = document.getElementById('sb-ordu-detay');
 
   if (ordu) {
+    let konumStr = '';
+    if (ordu.konum_tipi === 'korumada' && ordu.takviye) {
+      var tkLbl = ordu.takviye.hedef_kral || ordu.takviye.koloni_isim || 'Konuslandi';
+      konumStr = ` | <span style="color:#9b59b6">📍 Korumada: ${tkLbl} (${ordu.takviye.konum_x}:${ordu.takviye.konum_y})</span>`;
+    }
     detay.innerHTML = `<span style="color:#c8a96e">${ordu.total_units || 0}</span> unite | ` +
       `ATK: <span style="color:#e74c3c">${ordu.atk || 0}</span> | ` +
-      `DEF: <span style="color:#3498db">${ordu.def || 0}</span>`;
+      `DEF: <span style="color:#3498db">${ordu.def || 0}</span>${konumStr}`;
   } else {
     detay.innerHTML = '';
   }
@@ -171,6 +200,10 @@ function sbGonderBtnGuncelle() {
   const hazir = _sbHedef && ordu && !ordu.is_busy && _sbSure;
   btn.disabled = !hazir;
   btn.style.opacity = hazir ? '1' : '0.4';
+
+  // v1.9.3: Relay mode buton metni
+  const isRelay = ordu && ordu.konum_tipi === 'korumada';
+  btn.textContent = isRelay ? 'Relay Saldiri' : 'Orduyu Gonder';
 }
 
 // ══════════════════════════════════
@@ -186,8 +219,13 @@ async function sbOrduGonder() {
   btn.disabled = true;
   btn.textContent = 'Gonderiliyor...';
 
+  // v1.9.3: Konuşlanan ordu ise relay endpoint kullan
+  const ordu = _sbOrdular.find(a => a.id === armyId);
+  const isRelay = ordu && ordu.konum_tipi === 'korumada';
+  const endpoint = isRelay ? `${API_BASE}/api/takviye/rolu-saldir` : `${API_BASE}/api/savas/saldir`;
+
   try {
-    const res = await fetch(`${API_BASE}/api/savas/saldir`, {
+    const res = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -200,7 +238,7 @@ async function sbOrduGonder() {
     if (!res.ok) {
       showToast(data.error || 'Hata', 'error');
       btn.disabled = false;
-      btn.textContent = 'Orduyu Gonder';
+      btn.textContent = isRelay ? 'Relay Saldiri' : 'Orduyu Gonder';
       return;
     }
 
@@ -210,11 +248,11 @@ async function sbOrduGonder() {
     sbHedefTemizle();
     sbOrdulariYukle();
     sbHareketleriYukle();
-    btn.textContent = 'Orduyu Gonder';
+    btn.textContent = isRelay ? 'Relay Saldiri' : 'Orduyu Gonder';
   } catch(e) {
     showToast('Sunucu hatasi', 'error');
     btn.disabled = false;
-    btn.textContent = 'Orduyu Gonder';
+    btn.textContent = isRelay ? 'Relay Saldiri' : 'Orduyu Gonder';
   }
 }
 
