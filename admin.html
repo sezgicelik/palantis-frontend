@@ -77,6 +77,7 @@
     <button onclick="switchTab('anomali',this)">Anomali</button>
     <button onclick="switchTab('duyuru',this)">Duyurular</button>
     <button onclick="switchTab('davet',this)">Davet Kodlari</button>
+    <button onclick="switchTab('guild-cfg',this)">Guild Ayar</button>
   </div>
 
   <!-- CRON TAB -->
@@ -565,6 +566,22 @@
     <button class="act" onclick="casusCfgKaydet()">Kaydet</button>
   </div>
 
+  <!-- ═══ GUILD AYAR ═══ -->
+  <div id="tab-guild-cfg" class="panel">
+    <h3>Guild Kasa & Bagis Ayarlari</h3>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">Bagis izinli kaynaklar, yuzde/koylu limitleri, cooldown</p>
+    <div id="guild-cfg-content">Yukleniyor...</div>
+    <button class="act" onclick="guildCfgKaydet()" style="margin-top:8px">Ayarlari Kaydet</button>
+
+    <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">Guild Kasasina Dogrudan Ekle/Cikar</h3>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">Secilen guildin kasasina kaynak ekle (pozitif) veya cikar (negatif)</p>
+    <div id="guild-kasa-ekle-content">Yukleniyor...</div>
+
+    <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">Guild Sehri Tasi</h3>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">Secilen guildin sehir koordinatini degistir</p>
+    <div id="guild-tasi-content"></div>
+  </div>
+
 </div>
 
 <script src="js/servers.js"></script>
@@ -574,7 +591,7 @@ let SECRET = '';
 
 function doLogin() {
   SECRET = document.getElementById('secret-input').value;
-  fetch(API + '/api/admin/cron-status?secret=' + SECRET)
+  fetch(API + '/api/admin/cron-status', { headers: { 'x-admin-secret': SECRET } })
     .then(r => r.json())
     .then(d => {
       if (d.ok) {
@@ -616,13 +633,14 @@ function switchTab(tab, el) {
   if (tab === 'dayaniklilik-cfg') loadDayaniklikCfg();
   if (tab === 'bilge-cfg') loadBilgeCfg();
   if (tab === 'casus-cfg') loadCasusCfg();
+  if (tab === 'guild-cfg') loadGuildCfg();
 }
 
 function hdr() { return { 'x-admin-secret': SECRET, 'Content-Type': 'application/json' }; }
 function fmtDate(d) { if(!d)return'-'; const dt=new Date(d); return dt.toLocaleString('tr-TR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}); }
 
 async function loadCron() {
-  const d = await fetch(API + '/api/admin/cron-status?secret=' + SECRET).then(r=>r.json());
+  const d = await fetch(API + '/api/admin/cron-status', {headers:hdr()}).then(r=>r.json());
   if (!d.ok) return;
   const s = d.son_calisma;
   document.getElementById('cron-summary').innerHTML = s ? `
@@ -666,7 +684,7 @@ function diff(cur,prev) {
 }
 
 async function loadPlayers() {
-  const d = await fetch(API + '/api/admin/players?secret=' + SECRET).then(r=>r.json());
+  const d = await fetch(API + '/api/admin/players', {headers:hdr()}).then(r=>r.json());
   if (!d.ok) return;
   document.getElementById('players-list').innerHTML = d.oyuncular.map(p => `
     <tr>
@@ -695,7 +713,7 @@ const HIST_COLS = [
 
 async function loadHistory() {
   const gun = document.getElementById('hist-days').value || 7;
-  const d = await fetch(API+'/api/admin/players-history?secret='+SECRET+'&gun='+gun).then(r=>r.json());
+  const d = await fetch(API+'/api/admin/players-history?gun='+gun, {headers:hdr()}).then(r=>r.json());
   if (!d.ok || d.gun_sayisi === 0) {
     document.getElementById('history-container').innerHTML = '<p style="color:var(--muted);font-size:12px;text-align:center">Snapshot verisi yok</p>';
     return;
@@ -737,7 +755,7 @@ async function loadHistory() {
 }
 
 async function loadLogins() {
-  const d = await fetch(API + '/api/admin/login-logs?secret=' + SECRET + '&limit=50').then(r=>r.json());
+  const d = await fetch(API + '/api/admin/login-logs?limit=50', {headers:hdr()}).then(r=>r.json());
   if (!d.ok) return;
   const st = d.istatistik;
   document.getElementById('login-stats').innerHTML = `
@@ -801,7 +819,7 @@ const KOL_VARSAYILAN = { odun:25, kereste:20, metal:20, islenmis:15, altin:20 };
 const KOL_KAYNAKLAR = Object.values(KOL_KATEGORILER).flat();
 
 async function loadKoloniStats() {
-  const d = await fetch(API+'/api/admin/koloni-stats?secret='+SECRET).then(r=>r.json());
+  const d = await fetch(API+'/api/admin/koloni-stats', {headers:hdr()}).then(r=>r.json());
   if(!d.ok) { document.getElementById('koloni-stats').innerHTML='<span style="color:var(--red)">Yukleme hatasi</span>'; return; }
 
   // Istatistikler
@@ -932,7 +950,7 @@ const PREM_PAKET_RENK = { bronz:'#cd7f32', gumus:'#c0c0c0', altin_paket:'#f1c40f
 
 async function loadPremium() {
   // Config (3 paket)
-  const cfg = await fetch(API+'/api/admin/premium-config?secret='+SECRET).then(r=>r.json());
+  const cfg = await fetch(API+'/api/admin/premium-config', {headers:hdr()}).then(r=>r.json());
   if(cfg.ok) {
     let html = '<div style="overflow-x:auto"><table style="font-size:11px"><thead><tr><th>Bonus</th>';
     PREM_PAKETLER.forEach(p => html += `<th style="color:${PREM_PAKET_RENK[p]};text-align:center">${PREM_PAKET_ISIM[p]}</th>`);
@@ -951,7 +969,7 @@ async function loadPremium() {
   }
 
   // Players
-  const pl = await fetch(API+'/api/admin/premium-players?secret='+SECRET).then(r=>r.json());
+  const pl = await fetch(API+'/api/admin/premium-players', {headers:hdr()}).then(r=>r.json());
   if(pl.ok) {
     if(pl.oyuncular.length === 0) {
       document.getElementById('prem-players').innerHTML = '<p style="color:var(--muted);font-size:12px">Premium oyuncu yok</p>';
@@ -998,7 +1016,7 @@ async function premiumIptal() {
 
 // ── Sezon ──
 async function loadSezon() {
-  const d = await fetch(API+'/api/admin/sezon?secret='+SECRET).then(r=>r.json());
+  const d = await fetch(API+'/api/admin/sezon', {headers:hdr()}).then(r=>r.json());
   if(!d.ok) return;
   const s = d.sezon;
   document.getElementById('sezon-info').innerHTML = `
@@ -1027,7 +1045,7 @@ let MC_AKTIF = [];
 let MC_TUM = [];
 
 async function loadMarketConfig() {
-  const d = await fetch(API+'/api/admin/satilabilir?secret='+SECRET).then(r=>r.json());
+  const d = await fetch(API+'/api/admin/satilabilir', {headers:hdr()}).then(r=>r.json());
   if(!d.ok) return;
   MC_TUM = d.tum_kaynaklar;
   MC_AKTIF = new Set(d.aktif);
@@ -1083,7 +1101,7 @@ const ESLESIK = [
 ];
 
 async function loadUniteDurum() {
-  const d = await fetch(API+'/api/admin/unite-durum?secret='+SECRET).then(r=>r.json());
+  const d = await fetch(API+'/api/admin/unite-durum', {headers:hdr()}).then(r=>r.json());
   if(!d.ok) return;
   const body = document.getElementById('unite-durum-body');
 
@@ -1140,7 +1158,7 @@ async function loadUniteDurum() {
 
 // ── Bina Config ──
 async function loadBinaConfig() {
-  const d = await fetch(API+'/api/admin/bina-config?secret='+SECRET).then(r=>r.json());
+  const d = await fetch(API+'/api/admin/bina-config', {headers:hdr()}).then(r=>r.json());
   if(!d.ok) return;
   const body = document.getElementById('bina-config-body');
   const inp = (id,val,w) => `<input type="number" id="${id}" value="${val}" style="width:${w||50}px;padding:2px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px;text-align:center">`;
@@ -1184,7 +1202,7 @@ const BC_MALZEMELER = ['ates_tozu','ay_cigi','golgeler_otu','ejderha_goz_damla']
 const BC_MAL_ISIM = {ates_tozu:'Ates Tozu',ay_cigi:'Ay Cicegi',golgeler_otu:'Golgeler Otu',ejderha_goz_damla:'Ejderha Goz Damlasi'};
 
 async function loadBuyuConfig() {
-  const d = await fetch(API+'/api/admin/buyu-config?secret='+SECRET).then(r=>r.json());
+  const d = await fetch(API+'/api/admin/buyu-config', {headers:hdr()}).then(r=>r.json());
   if(!d.ok) return;
   const c = d.config;
   const mf = c.mana_fiyatlari||{}; const ms = c.mana_stok||{};
@@ -1228,7 +1246,7 @@ const BONUS_KAT = {
 let _irkData = null;
 
 async function loadIrkBonuslari() {
-  const d = await fetch(API+'/api/admin/irk-bonuslari?secret='+SECRET).then(r=>r.json());
+  const d = await fetch(API+'/api/admin/irk-bonuslari', {headers:hdr()}).then(r=>r.json());
   if(!d.ok) return;
   _irkData = d;
 
@@ -1277,7 +1295,7 @@ let _unitDebounce = null;
 
 async function loadUnitDropdown(){
   try {
-    _unitData = await fetch(API+'/api/admin/unit-list?secret='+SECRET).then(r=>r.json());
+    _unitData = await fetch(API+'/api/admin/unit-list', {headers:hdr()}).then(r=>r.json());
   }catch(e){}
 }
 
@@ -1292,7 +1310,7 @@ function unitUserChanged() {
     if (!_unitData?.ok) { badge.textContent = 'Unit data yuklenemedi'; return; }
 
     try {
-      const d = await fetch(API+'/api/admin/players?secret='+SECRET).then(r=>r.json());
+      const d = await fetch(API+'/api/admin/players', {headers:hdr()}).then(r=>r.json());
       if (!d.ok) { badge.textContent = 'API hatasi'; return; }
       // Case-insensitive arama
       const oyuncu = d.oyuncular?.find(p => p.username?.toLowerCase() === username.toLowerCase());
@@ -1315,7 +1333,7 @@ function unitUserChanged() {
 
 // ── Harita & Koloni ──
 async function loadMapConfig() {
-  const d = await fetch(API+'/api/admin/map-config?secret='+SECRET).then(r=>r.json());
+  const d = await fetch(API+'/api/admin/map-config', {headers:hdr()}).then(r=>r.json());
   if(!d.ok) return;
   document.getElementById('map-x').value = d.harita_x;
   document.getElementById('map-y').value = d.harita_y;
@@ -1349,10 +1367,10 @@ async function loadKoloniList() {
   if (!bodyEl) return; // Harita sekmesi henuz acilmamis
   const kaynak = document.getElementById('kol-filtre-kaynak')?.value || '';
   const durum = document.getElementById('kol-filtre-durum')?.value || '';
-  let url = API+'/api/admin/koloni-list?secret='+SECRET+'&limit=300';
+  let url = API+'/api/admin/koloni-list?limit=300';
   if(kaynak) url += '&kaynak='+kaynak;
   if(durum) url += '&durum='+durum;
-  const d = await fetch(url).then(r=>r.json());
+  const d = await fetch(url, {headers:hdr()}).then(r=>r.json());
   if(!d.ok) return;
   document.getElementById('koloni-list-body').innerHTML = d.koloniler.map(k => {
     const renk = KAYNAK_RENK[k.kaynak_tipi] || '#888';
@@ -1376,7 +1394,7 @@ async function adminOyuncuAra(prefix) {
   var sonuc = document.getElementById(sonucEl);
   if (!isim) { if(sonuc) sonuc.innerHTML = '<span style="color:#e74c3c">Isim girin</span>'; return; }
   try {
-    var resp = await fetch(API + '/api/admin/players?secret=' + SECRET);
+    var resp = await fetch(API + '/api/admin/players', {headers:hdr()});
     var data = await resp.json();
     var oyuncular = (data.oyuncular || data || []).filter(function(p) {
       return (p.kral || '').toLowerCase().includes(isim.toLowerCase());
@@ -1872,6 +1890,170 @@ async function casusCfgKaydet() {
   try {
     await fetch(API + '/api/admin/casus-config', { method: 'POST', headers: hdr(), body: JSON.stringify({ ...genel, gorevler }) });
     alert('Casus config kaydedildi!');
+  } catch(e) { alert('Hata: ' + e.message); }
+}
+
+// ════════════════════════════════════════════════════════
+//   GUILD AYAR TAB (v1.10)
+// ════════════════════════════════════════════════════════
+let _guildCfg = null;
+let _guildListe = null;
+const TUM_KAYNAKLAR = ['odun','metal','altin','bugday','balik','kereste','islenmis'];
+const KAYNAK_IKON = {altin:'💰',odun:'🌳',metal:'⛏️',bugday:'🌾',balik:'🐟',kereste:'🪵',islenmis:'🔩'};
+
+async function loadGuildCfg() {
+  const el = document.getElementById('guild-cfg-content');
+  const ekleEl = document.getElementById('guild-kasa-ekle-content');
+  const tasiEl = document.getElementById('guild-tasi-content');
+  try {
+    const r = await fetch(API + '/api/admin/guild-config', { headers: hdr() });
+    _guildCfg = await r.json();
+    const izinli = _guildCfg.izinli_kaynaklar || TUM_KAYNAKLAR;
+
+    el.innerHTML =
+      '<div class="card"><h4 style="margin-bottom:6px">Bagis Izinli Kaynaklar</h4>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:2px 12px">' +
+      TUM_KAYNAKLAR.map(k =>
+        '<label style="display:inline-flex;align-items:center;gap:4px;font-size:11px;cursor:pointer">' +
+          '<input type="checkbox" id="gc-' + k + '"' + (izinli.includes(k) ? ' checked' : '') + '> ' + (KAYNAK_IKON[k]||'') + ' ' + k +
+        '</label>'
+      ).join('') +
+      '</div></div>' +
+      '<div class="card" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
+        gcInput('gc-yuzde', 'Bagis Yuzde Limiti (%)', _guildCfg.bagis_yuzde_limit || 20, 1, 100) +
+        gcInput('gc-koylu-limit', 'Koylu Bagis Limiti', _guildCfg.koylu_bagis_limit || 100, 1, 10000) +
+        '<div><label style="font-size:10px;color:#888">Koylu Limit Tipi</label>' +
+          '<select id="gc-koylu-tip" style="display:block;width:100%;padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px;margin-top:2px">' +
+            '<option value="adet"' + (_guildCfg.koylu_bagis_tip==='adet'?' selected':'') + '>Adet</option>' +
+            '<option value="yuzde"' + (_guildCfg.koylu_bagis_tip==='yuzde'?' selected':'') + '>Yuzde (%)</option>' +
+          '</select></div>' +
+        gcInput('gc-hmadde-cd', 'Hammadde Bagis / 24PG', _guildCfg.hammadde_bagis_24pg || 3, 1, 50) +
+        gcInput('gc-koylu-cd', 'Koylu Bagis / 24PG', _guildCfg.koylu_bagis_24pg || 2, 1, 50) +
+        gcInput('gc-alan', 'Baslangic Alan', _guildCfg.baslangic_alan || 5000, 100, 100000) +
+        gcInput('gc-savas-kabul', 'Savas Kabul Suresi (PG)', _guildCfg.savas_kabul_suresi || 5, 1, 72) +
+        gcInput('gc-ele-gecirme', 'Bina Ele Gecirme (PG)', _guildCfg.bina_ele_gecirme_suresi || 15, 1, 168) +
+        gcInput('gc-yagma', 'Kaynak Yagma Orani (%)', _guildCfg.kaynak_yagma_orani || 10, 0, 100) +
+      '</div>';
+
+    // Guild listesi
+    const gR = await fetch(API + '/api/admin/guild-liste', { headers: hdr() });
+    const gData = await gR.json();
+    _guildListe = gData.guildler || [];
+    if (_guildListe.length === 0) {
+      ekleEl.innerHTML = '<div style="color:#888;font-size:11px">Henuz guild yok.</div>';
+      tasiEl.innerHTML = '';
+      return;
+    }
+
+    const selectHTML = '<select id="gc-guild-sec" onchange="gcGuildDegisti()" style="width:100%;padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;margin-bottom:8px;font-size:11px">' +
+      _guildListe.map(g => '<option value="' + g.id + '">[' + g.tag + '] ' + g.isim + ' (' + (g.uye_sayisi||0) + ' uye)</option>').join('') +
+    '</select>';
+
+    ekleEl.innerHTML =
+      '<div class="card">' + selectHTML +
+        '<div id="gc-kasa-durum" style="font-size:10px;color:#888;margin-bottom:8px"></div>' +
+        '<div id="gc-nufus-durum" style="font-size:10px;color:#888;margin-bottom:8px"></div>' +
+        '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px">' +
+          TUM_KAYNAKLAR.map(k =>
+            '<div style="display:flex;align-items:center;gap:4px">' +
+              '<span style="font-size:10px;color:#aaa;width:55px">' + (KAYNAK_IKON[k]||'') + k + ':</span>' +
+              '<input id="gc-ekle-' + k + '" type="number" value="0" style="width:70px;padding:3px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
+            '</div>'
+          ).join('') +
+        '</div>' +
+        '<div style="margin-top:8px;display:flex;gap:6px">' +
+          '<button class="act" onclick="guildKasaEkle()">Kasaya Uygula</button>' +
+        '</div>' +
+        '<div id="gc-ekle-msg" style="font-size:10px;margin-top:6px;min-height:14px"></div>' +
+      '</div>';
+
+    // Tasi paneli
+    tasiEl.innerHTML =
+      '<div class="card" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
+        '<span style="font-size:10px;color:#888">Guild:</span>' +
+        '<select id="gc-tasi-guild" style="padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
+          _guildListe.map(g => '<option value="' + g.id + '">[' + g.tag + '] ' + g.isim + ' (X:' + (g.x||'?') + ' Y:' + (g.y||'?') + ')</option>').join('') +
+        '</select>' +
+        '<span style="font-size:10px;color:#888">X:</span><input id="gc-tasi-x" type="number" min="1" max="200" style="width:50px;padding:3px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
+        '<span style="font-size:10px;color:#888">Y:</span><input id="gc-tasi-y" type="number" min="1" max="50" style="width:50px;padding:3px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
+        '<button class="act" onclick="guildTasi()">Tasi</button>' +
+      '</div>';
+
+    gcGuildDegisti();
+  } catch(e) { el.innerHTML = '<div style="color:#e74c3c">Yukleme hatasi: ' + e.message + '</div>'; }
+}
+
+function gcInput(id, label, val, min, max) {
+  return '<div><label style="font-size:10px;color:#888">' + label + '</label>' +
+    '<input id="' + id + '" type="number" min="' + min + '" max="' + max + '" value="' + val + '" ' +
+    'style="display:block;width:100%;padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px;margin-top:2px"></div>';
+}
+
+function gcGuildDegisti() {
+  const gId = document.getElementById('gc-guild-sec')?.value;
+  const g = (_guildListe || []).find(x => x.id == gId);
+  if (!g) return;
+  const durum = document.getElementById('gc-kasa-durum');
+  const nufus = document.getElementById('gc-nufus-durum');
+  if (durum) durum.innerHTML = 'Kasa: ' + TUM_KAYNAKLAR.map(k => (KAYNAK_IKON[k]||'') + k + ': ' + ((g[k]||0).toLocaleString('tr-TR'))).join(' | ');
+  if (nufus) nufus.innerHTML = 'Nufus: Koylu: ' + (g.guild_koylu||0) + ' | Asker: ' + (g.guild_asker||0) + ' | Worshipper: ' + (g.guild_worshipper||0) + ' | Alan: ' + (g.alan||0);
+}
+
+async function guildCfgKaydet() {
+  const izinli = TUM_KAYNAKLAR.filter(k => document.getElementById('gc-' + k)?.checked);
+  const body = {
+    izinli_kaynaklar: izinli,
+    bagis_yuzde_limit: parseInt(document.getElementById('gc-yuzde')?.value) || 20,
+    koylu_bagis_limit: parseInt(document.getElementById('gc-koylu-limit')?.value) || 100,
+    koylu_bagis_tip: document.getElementById('gc-koylu-tip')?.value || 'adet',
+    hammadde_bagis_24pg: parseInt(document.getElementById('gc-hmadde-cd')?.value) || 3,
+    koylu_bagis_24pg: parseInt(document.getElementById('gc-koylu-cd')?.value) || 2,
+    baslangic_alan: parseInt(document.getElementById('gc-alan')?.value) || 5000,
+    savas_kabul_suresi: parseInt(document.getElementById('gc-savas-kabul')?.value) || 5,
+    bina_ele_gecirme_suresi: parseInt(document.getElementById('gc-ele-gecirme')?.value) || 15,
+    kaynak_yagma_orani: parseInt(document.getElementById('gc-yagma')?.value) || 10
+  };
+  try {
+    const r = await fetch(API + '/api/admin/guild-config', { method: 'POST', headers: hdr(), body: JSON.stringify(body) });
+    const d = await r.json();
+    if (d.ok) alert('Guild ayarlari kaydedildi!');
+    else alert('Hata: ' + (d.error || 'Bilinmeyen'));
+  } catch(e) { alert('Hata: ' + e.message); }
+}
+
+async function guildKasaEkle() {
+  const gId = document.getElementById('gc-guild-sec')?.value;
+  if (!gId) return alert('Guild secin');
+  const kaynaklar = {};
+  TUM_KAYNAKLAR.forEach(k => {
+    const val = parseInt(document.getElementById('gc-ekle-' + k)?.value) || 0;
+    if (val !== 0) kaynaklar[k] = val;
+  });
+  if (Object.keys(kaynaklar).length === 0) return alert('En az bir kaynak degeri girin');
+  const msg = document.getElementById('gc-ekle-msg');
+  try {
+    const r = await fetch(API + '/api/admin/guild/' + gId + '/kasa-ekle', { method: 'POST', headers: hdr(), body: JSON.stringify({ kaynaklar }) });
+    const d = await r.json();
+    if (d.ok) {
+      if (msg) msg.innerHTML = '<span style="color:#2ecc71">Kasa guncellendi!</span>';
+      TUM_KAYNAKLAR.forEach(k => { const el = document.getElementById('gc-ekle-' + k); if(el) el.value = 0; });
+      loadGuildCfg();
+    } else {
+      if (msg) msg.innerHTML = '<span style="color:#e74c3c">' + (d.error || 'Hata') + '</span>';
+    }
+  } catch(e) { if (msg) msg.innerHTML = '<span style="color:#e74c3c">Baglanti hatasi</span>'; }
+}
+
+async function guildTasi() {
+  const gId = document.getElementById('gc-tasi-guild')?.value;
+  const x = parseInt(document.getElementById('gc-tasi-x')?.value);
+  const y = parseInt(document.getElementById('gc-tasi-y')?.value);
+  if (!gId || !x || !y) return alert('Guild, X ve Y gerekli');
+  try {
+    const r = await fetch(API + '/api/admin/guild/' + gId + '/tasi', { method: 'POST', headers: hdr(), body: JSON.stringify({ x, y }) });
+    const d = await r.json();
+    if (d.ok) { alert(d.mesaj); loadGuildCfg(); }
+    else alert('Hata: ' + (d.error || 'Bilinmeyen'));
   } catch(e) { alert('Hata: ' + e.message); }
 }
 </script>
