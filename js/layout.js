@@ -38,7 +38,7 @@ function renderSidebar(){
   const isPop = popPages.includes(page);
   const ticPages = ['market.html','kervan.html','pazar.html','buyu-dukkani.html'];
   const isTic = ticPages.includes(page);
-  const armyPages = ['army.html','mezarlik.html'];
+  const armyPages = ['army.html','mezarlik.html','savas-baslat.html'];
   const isArmy = armyPages.includes(page);
   const magicPages = ['magic.html','buyucu-kulesi.html'];
   const isMagic = magicPages.includes(page);
@@ -84,6 +84,7 @@ function renderSidebar(){
         <div class="menu-item sub-item army-sub" data-atab="armies" onclick="armyTab('armies',this)">🏕️ Ordu Yönetimi</div>
         <div class="menu-item sub-item army-sub" data-atab="formation" onclick="armyTab('formation',this)">⚔️ Saf Dizilimi</div>
         <div class="menu-item sub-item army-sub" data-atab="upgrades" onclick="armyTab('upgrades',this)">📈 Geliştirmeler</div>
+        <a href="savas-baslat.html" class="menu-item sub-item${isActive('savas-baslat.html')}">🏹 Savaş Başlat</a>
         <a href="mezarlik.html" class="menu-item sub-item${isActive('mezarlik.html')}">💀 Mezarlık</a>
       </div>
 
