@@ -363,6 +363,17 @@ async function loadBuildingsFromBackend() {
   const token = getToken();
   if (!token) return;
   try {
+    // v1.13.5: Bina aciklamalari admin panelinden degistirilebilir — backend'den al, BLDGS.desc override
+    try {
+      const mr = await fetch(API_BASE + '/api/game/bina-maliyetler', { headers: { 'Authorization': 'Bearer ' + token } });
+      if (mr.ok) {
+        const maliyetler = await mr.json();
+        for (const [id, m] of Object.entries(maliyetler)) {
+          if (BLDGS[id] && m.aciklama) BLDGS[id].desc = m.aciklama;
+        }
+      }
+    } catch(e) {}
+
     const resp = await fetch(API_BASE + '/api/game/buildings', {
       headers: { 'Authorization': 'Bearer ' + token }
     });

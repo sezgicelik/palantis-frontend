@@ -258,10 +258,10 @@
   <div id="tab-binalar" class="panel">
     <div class="card">
       <h3>Bina Ayarlari</h3>
-      <p style="font-size:10px;color:var(--muted);margin-bottom:10px">Hammadde maliyeti, yapim suresi, sehir degeri ve cag limitleri. Degistirdiginiz degerler DB'ye kaydedilir.</p>
+      <p style="font-size:10px;color:var(--muted);margin-bottom:10px">Hammadde maliyeti, yapim suresi, sehir degeri, cag limitleri ve <b>aciklama</b>. Degistirdiginiz degerler DB'ye kaydedilir. Aciklama bos ise frontend constants.js default gosterilir.</p>
       <div style="overflow-x:auto">
         <table style="font-size:11px" id="bina-config-table">
-          <thead><tr><th>Bina</th><th>Odun</th><th>Metal</th><th>Altin</th><th>Süre (PG)</th><th>Değer</th><th>Ç1</th><th>Ç2</th><th>Ç3</th><th>Ç4</th><th>Ç5</th><th></th></tr></thead>
+          <thead><tr><th>Bina</th><th>Odun</th><th>Metal</th><th>Altin</th><th>Süre (PG)</th><th>Değer</th><th>Ç1</th><th>Ç2</th><th>Ç3</th><th>Ç4</th><th>Ç5</th><th>Açıklama (oyuncuya görünür)</th><th></th></tr></thead>
           <tbody id="bina-config-body"></tbody>
         </table>
       </div>
@@ -1239,6 +1239,7 @@ async function loadBinaConfig() {
     const m = b.maliyet || {};
     const cl = b.cag_limit || {};
     const surePG = (b.sure_sn / 3600).toFixed(1);
+    const aciklamaEsc = (b.aciklama||'').replace(/"/g,'&quot;');
     return `<tr>
       <td style="color:var(--gold);font-weight:bold;font-size:9px">${b.bina_id}</td>
       <td>${inp('bc-'+b.bina_id+'-odun',m.odun||0,45)}</td>
@@ -1251,6 +1252,7 @@ async function loadBinaConfig() {
       <td>${inp('bc-'+b.bina_id+'-c3',cl[3]??999,35)}</td>
       <td>${inp('bc-'+b.bina_id+'-c4',cl[4]??999,35)}</td>
       <td>${inp('bc-'+b.bina_id+'-c5',cl[5]??999,35)}</td>
+      <td><input type="text" id="bc-${b.bina_id}-aciklama" value="${aciklamaEsc}" maxlength="200" style="width:280px;padding:2px 4px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px" placeholder="Oyuncunun gorecegi aciklama..."></td>
       <td><button class="btn" style="padding:2px 8px;font-size:9px" onclick="saveBinaConfig('${b.bina_id}')">💾</button></td>
     </tr>`;
   }).join('');
@@ -1265,7 +1267,8 @@ async function saveBinaConfig(binaId) {
   const sure_sn = g(`bc-${binaId}-sure`) || 3600;
   const deger = g(`bc-${binaId}-deger`) || 50;
   const cag_limit = {1:g(`bc-${binaId}-c1`),2:g(`bc-${binaId}-c2`),3:g(`bc-${binaId}-c3`),4:g(`bc-${binaId}-c4`),5:g(`bc-${binaId}-c5`)};
-  const r = await fetch(API+'/api/admin/bina-config',{method:'POST',headers:hdr(),body:JSON.stringify({bina_id:binaId,maliyet,sure_sn,deger,cag_limit})}).then(r=>r.json());
+  const aciklama = document.getElementById(`bc-${binaId}-aciklama`)?.value?.trim() || null;
+  const r = await fetch(API+'/api/admin/bina-config',{method:'POST',headers:hdr(),body:JSON.stringify({bina_id:binaId,maliyet,sure_sn,deger,cag_limit,aciklama})}).then(r=>r.json());
   document.getElementById('bina-cfg-msg').textContent = r.ok ? r.mesaj : (r.error||'Hata');
   setTimeout(()=>document.getElementById('bina-cfg-msg').textContent='', 3000);
 }
