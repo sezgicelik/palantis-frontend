@@ -372,6 +372,7 @@ async function loadBuildingsFromBackend() {
         // Dayanıklılık bilgisini aktar
         BLDGS[binaId]._dayaniklilik = data.dayaniklilik ?? 100;
         BLDGS[binaId]._repairQueue = data.repairQueue || false;
+        BLDGS[binaId]._repairGunKalan = data.repairGunKalan || 0;
         usedArea += BLDGS[binaId].lv * binaAlanFE(binaId);
       }
     }

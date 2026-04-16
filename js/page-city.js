@@ -101,7 +101,9 @@ function renderBinaRow(grid, b, inQ, oyuncuCag) {
             <div style="width:${b._dayaniklilik}%;height:100%;background:${b._dayaniklilik > 60 ? '#2ecc71' : b._dayaniklilik > 30 ? '#f39c12' : '#e74c3c'};border-radius:3px"></div>
           </div>
           <span style="font-size:8px;color:${b._dayaniklilik > 60 ? '#2ecc71' : b._dayaniklilik > 30 ? '#f39c12' : '#e74c3c'}">${b._dayaniklilik}%</span>
-          <button style="font-size:8px;padding:1px 6px;background:rgba(46,204,113,0.15);border:1px solid rgba(46,204,113,0.3);color:#2ecc71;border-radius:3px;cursor:pointer" onclick="tamirBina('${b.id}')">🔧 Tamir</button>
+          ${b._repairQueue
+            ? `<span style="font-size:8px;padding:1px 6px;color:#f39c12;border:1px solid rgba(243,156,18,0.3);border-radius:3px">🔧 Tamirde${b._repairGunKalan > 0 ? ' (' + b._repairGunKalan.toFixed(1) + ' PG)' : ''}</span>`
+            : `<button style="font-size:8px;padding:1px 6px;background:rgba(46,204,113,0.15);border:1px solid rgba(46,204,113,0.3);color:#2ecc71;border-radius:3px;cursor:pointer" onclick="tamirBina('${b.id}')">🔧 Tamir</button>`}
         </div>` : ''}
       <div class="br-fx">${fx}</div>
       ${!isMergeOnly&&!inC?`<div class="br-cost">${costH}</div>`:'<div class="br-cost"></div>'}
