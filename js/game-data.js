@@ -207,6 +207,7 @@ async function loadGameData() {
     if (res.kurt !== undefined) EXTRA_RES.kurt = parseInt(res.kurt) || 0;
     if (res.gizlilik !== undefined) EXTRA_RES.gizlilik = parseFloat(res.gizlilik) || 0;
     if (res.buyulu_yumurta !== undefined) EXTRA_RES.buyulu_yumurta = parseFloat(res.buyulu_yumurta) || 0;
+    if (res.besi_hayvani !== undefined) EXTRA_RES.besi_hayvani = parseInt(res.besi_hayvani) || 0;
 
     // HUD Ham kaynaklar (miktar + rate)
     setText('hud-w',   RES.odun);

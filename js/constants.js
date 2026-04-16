@@ -571,7 +571,7 @@ const UNITS = {
     desc:"Mağaradan çok nadir çıkar. Üretilemez. Her turda savaşır."},
 };
 
-let EXTRA_RES = { at: 0, kurt: 0, mana: 0, gizlilik: 0, buyulu_yumurta: 0, cig_et: 0 };
+let EXTRA_RES = { at: 0, kurt: 0, mana: 0, gizlilik: 0, buyulu_yumurta: 0, cig_et: 0, besi_hayvani: 0 };
 
 const GEL_MALIYET = 1000; // her kademe 1000 altin
 

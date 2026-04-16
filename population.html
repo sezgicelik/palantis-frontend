@@ -177,17 +177,26 @@
       <button class="btn" type="button" onclick="saveWorkers()" style="margin-top:14px;width:100%">💾 Dağılımı Kaydet</button>
     </div>
 
-    <!-- At/Kurt Kesim (Et Üretimi) -->
+    <!-- Hayvan Kesimi -->
     <div class="card" style="padding:20px;margin-bottom:16px">
-      <h2>🥩 At / Kurt Kesimi</h2>
+      <h2>🥩 Hayvan Kesimi</h2>
+
+      <!-- Sekme butonlari -->
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <button class="btn" id="kesim-tab-besi" onclick="kesimTabDegistir('besi')" style="flex:1;font-size:13px">🐄 Besi Hayvanı</button>
+        <button class="btn ghost" id="kesim-tab-askeri" onclick="kesimTabDegistir('at_kurt')" style="flex:1;font-size:13px">🐴 At / Kurt</button>
+      </div>
+
       <p style="color:#888;font-size:13px;margin-bottom:16px">
-        <span id="kesim-taraf-aciklama">Aydınlık taraf at, Karanlık taraf kurt keser.</span>
-        Her hayvan = <b style="color:#c8a96e">50 çiğ et</b> üretir. Geri dönüşü yoktur!
+        <span id="kesim-taraf-aciklama">Besi hayvanları çiftlikten gelir. Her besi hayvanı = 20 çiğ et.</span>
+        <span style="color:#e74c3c">Geri dönüşü yoktur!</span>
       </p>
+
       <div class="city-stats" style="margin-bottom:16px">
-        <div class="cstat"><span class="snum" id="kesim-hayvan">0</span><span class="slbl" id="kesim-hayvan-lbl">AT / KURT</span></div>
+        <div class="cstat"><span class="snum" id="kesim-hayvan">0</span><span class="slbl" id="kesim-hayvan-lbl">🐄 BESİ HAYVANI</span></div>
         <div class="cstat"><span class="snum" id="kesim-cig-et">0</span><span class="slbl">ÇİĞ ET</span></div>
       </div>
+
       <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
         <label style="color:#aaa;font-size:14px">Kesilecek miktar:</label>
         <div style="display:flex;align-items:center;gap:6px">
@@ -202,6 +211,9 @@
       <div id="kesim-sonuc" style="margin-top:8px;font-size:13px;color:#888;min-height:20px"></div>
       <div style="margin-top:12px;padding:10px;background:#0d0d0d;border-radius:6px;border:1px solid #1e1e1e;font-size:12px;color:#777">
         <span id="kesim-miktar-preview">0</span> hayvan kesilirse → <b style="color:#e67e22" id="kesim-et-preview">0</b> çiğ et üretilir
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:#555" id="kesim-oto-bilgi">
+        📅 Besi hayvanları her ayın 24. gününde otomatik kesilir. At/Kurt otomatik kesilmez.
       </div>
     </div>
 

@@ -134,27 +134,42 @@ async function saveWorkers(){
   } catch(e) { toast('Sunucu hatasi'); }
 }
 
-/* ── AT/KURT KESİM SİSTEMİ ── */
+/* ── HAYVAN KESİM SİSTEMİ (Besi + At/Kurt) ── */
 let KESIM_MIKTAR = 0;
+let KESIM_TIP = 'besi'; // 'besi' veya 'at_kurt'
+
+function kesimTabDegistir(tip) {
+  KESIM_TIP = tip;
+  KESIM_MIKTAR = 0;
+  // Sekme buton stilleri
+  const tabBesi = document.getElementById('kesim-tab-besi');
+  const tabAskeri = document.getElementById('kesim-tab-askeri');
+  if (tabBesi) { tabBesi.className = tip === 'besi' ? 'btn' : 'btn ghost'; }
+  if (tabAskeri) { tabAskeri.className = tip === 'at_kurt' ? 'btn' : 'btn ghost'; }
+  kesimInit();
+}
 
 function kesimInit() {
-  // Taraf bazli aciklama ve label
   const taraf = OYUNCU?.taraf || 'iyi';
   const isLight = taraf === 'iyi';
-  const hayvanAdi = isLight ? 'At' : 'Kurt';
-  const hayvanIcon = isLight ? '🐴' : '🐺';
-
   const lbl = document.getElementById('kesim-hayvan-lbl');
-  if (lbl) lbl.textContent = hayvanIcon + ' ' + hayvanAdi.toUpperCase();
-
   const aciklama = document.getElementById('kesim-taraf-aciklama');
-  if (aciklama) aciklama.textContent = isLight
-    ? '🐴 Aydınlık taraf at keser. Her at = 50 çiğ et.'
-    : '🐺 Karanlık taraf kurt keser. Her kurt = 50 çiğ et.';
 
-  // Mevcut hayvan ve et sayisi
-  const hayvanSayisi = isLight ? (EXTRA_RES.at || 0) : (EXTRA_RES.kurt || 0);
-  setText('kesim-hayvan', hayvanSayisi);
+  if (KESIM_TIP === 'besi') {
+    if (lbl) lbl.textContent = '🐄 BESİ HAYVANI';
+    if (aciklama) aciklama.textContent = 'Besi hayvanları çiftlikten gelir. Her besi hayvanı = 20 çiğ et.';
+    setText('kesim-hayvan', EXTRA_RES.besi_hayvani || 0);
+  } else {
+    const hayvanAdi = isLight ? 'At' : 'Kurt';
+    const hayvanIcon = isLight ? '🐴' : '🐺';
+    if (lbl) lbl.textContent = hayvanIcon + ' ' + hayvanAdi.toUpperCase();
+    if (aciklama) aciklama.textContent = isLight
+      ? '🐴 Aydınlık taraf at keser. Her at = 50 çiğ et.'
+      : '🐺 Karanlık taraf kurt keser. Her kurt = 50 çiğ et.';
+    const hayvanSayisi = isLight ? (EXTRA_RES.at || 0) : (EXTRA_RES.kurt || 0);
+    setText('kesim-hayvan', hayvanSayisi);
+  }
+
   setText('kesim-cig-et', RES.cig_et || 0);
   KESIM_MIKTAR = 0;
   setText('kesim-miktar', 0);
@@ -165,11 +180,17 @@ function kesimInit() {
 function kesimAdjust(delta) {
   const taraf = OYUNCU?.taraf || 'iyi';
   const isLight = taraf === 'iyi';
-  const max = isLight ? (EXTRA_RES.at || 0) : (EXTRA_RES.kurt || 0);
+  let max;
+  if (KESIM_TIP === 'besi') {
+    max = EXTRA_RES.besi_hayvani || 0;
+  } else {
+    max = isLight ? (EXTRA_RES.at || 0) : (EXTRA_RES.kurt || 0);
+  }
+  const etCarpan = KESIM_TIP === 'besi' ? 20 : 50;
   KESIM_MIKTAR = Math.max(0, Math.min(KESIM_MIKTAR + delta, max));
   setText('kesim-miktar', KESIM_MIKTAR);
   setText('kesim-miktar-preview', KESIM_MIKTAR);
-  setText('kesim-et-preview', KESIM_MIKTAR * 50);
+  setText('kesim-et-preview', KESIM_MIKTAR * etCarpan);
 }
 
 async function kesimYap() {
@@ -184,14 +205,15 @@ async function kesimYap() {
     const resp = await fetch(API_BASE + '/api/game/resources/slaughter', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ miktar: KESIM_MIKTAR })
+      body: JSON.stringify({ miktar: KESIM_MIKTAR, tip: KESIM_TIP })
     });
     const data = await resp.json();
     if (!resp.ok) {
       document.getElementById('kesim-sonuc').textContent = '⚠️ ' + (data.error || 'Hata');
       return;
     }
-    const uretilen = KESIM_MIKTAR * 50;
+    const etCarpan = KESIM_TIP === 'besi' ? 20 : 50;
+    const uretilen = KESIM_MIKTAR * etCarpan;
     document.getElementById('kesim-sonuc').textContent =
       '✅ ' + KESIM_MIKTAR + ' hayvan kesildi → ' + uretilen + ' çiğ et üretildi!';
     document.getElementById('kesim-sonuc').style.color = '#2ecc71';
@@ -200,6 +222,7 @@ async function kesimYap() {
       EXTRA_RES.at = data.extra_res.at || 0;
       EXTRA_RES.kurt = data.extra_res.kurt || 0;
     }
+    if (data.besi_hayvani !== undefined) EXTRA_RES.besi_hayvani = data.besi_hayvani;
     if (data.cig_et !== undefined) RES.cig_et = data.cig_et;
     KESIM_MIKTAR = 0;
     kesimInit();
