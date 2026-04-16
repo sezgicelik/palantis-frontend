@@ -80,6 +80,7 @@
     <button onclick="switchTab('guild-cfg',this)">Guild Ayar</button>
     <button onclick="switchTab('pazar-deger',this)">Pazar Deger</button>
     <button onclick="switchTab('kadim-cfg',this)">Kadim Sehir</button>
+    <button onclick="switchTab('ekonomi',this)" style="background:linear-gradient(135deg,#8e44ad 0%,#6c3483 100%);color:#fff">Ekonomi Ayar</button>
   </div>
 
   <!-- CRON TAB -->
@@ -640,6 +641,14 @@
     <div id="kadim-kasa-content">Yukleniyor...</div>
   </div>
 
+  <!-- EKONOMI AYAR TAB (v1.13.4) — 25 denge parametresi tek yerde -->
+  <div id="tab-ekonomi" class="panel">
+    <h3 style="color:#c8a96e">💰 Ekonomi Ayar — Denge Parametreleri</h3>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">25 hardcoded denge degeri artik buradan ayarlanir. Cache: 60 saniye (kaydet sonrasi hemen temizlenir).</p>
+    <div id="ekonomi-cfg-content">Yukleniyor...</div>
+    <button class="act" onclick="ekonomiCfgKaydet()" style="margin-top:12px;background:#27ae60">💾 Tum Ekonomi Ayarlarini Kaydet</button>
+  </div>
+
 </div>
 
 <script src="js/servers.js"></script>
@@ -694,6 +703,7 @@ function switchTab(tab, el) {
   if (tab === 'guild-cfg') { loadGuildCfg(); loadGuildDagitimCfg(); loadGuildMoraliCfg(); loadGuildWsCfg(); }
   if (tab === 'pazar-deger') loadPazarDegerCfg();
   if (tab === 'kadim-cfg') loadKadimCfg();
+  if (tab === 'ekonomi') loadEkonomiCfg();
 }
 
 function hdr() { return { 'x-admin-secret': SECRET, 'Content-Type': 'application/json' }; }
@@ -2474,6 +2484,150 @@ async function guildWsEkle() {
     const d = await fetch(API + '/api/admin/ws-ekle', { method:'POST', headers:hdr(), body:JSON.stringify({ guild_id: gId, renk, adet }) }).then(r=>r.json());
     msg.innerHTML = d.ok ? '<span style="color:#2ecc71">'+(d.mesaj||'OK')+'</span>' : '<span style="color:#e74c3c">'+(d.error||'Hata')+'</span>';
   } catch(e) { msg.innerHTML = '<span style="color:#e74c3c">Hata</span>'; }
+}
+
+// ═════════════════════════════════════════════════
+//   v1.13.4 — EKONOMI AYAR (25 denge parametresi)
+// ═════════════════════════════════════════════════
+let EKONOMI_CFG = null;
+async function loadEkonomiCfg() {
+  try {
+    const d = await fetch(API + '/api/admin/ekonomi-config', {headers:hdr()}).then(r=>r.json());
+    if (!d.ok) { document.getElementById('ekonomi-cfg-content').innerHTML = '<div style="color:#e74c3c">'+(d.error||'Hata')+'</div>'; return; }
+    EKONOMI_CFG = d.config;
+
+    const num = (id, val, step) => '<input type="number" id="eko-'+id+'" value="'+(val ?? 0)+'" step="'+(step||1)+'" style="width:110px;padding:3px 5px;background:#222;border:1px solid #444;color:#ddd;font-size:11px;border-radius:3px">';
+    const row = (lbl, id, val, step, aciklama) =>
+      '<tr><td style="padding:4px 8px"><b>'+lbl+'</b>'+(aciklama?'<div style="font-size:9px;color:#666">'+aciklama+'</div>':'')+'</td><td style="padding:4px">'+num(id, val, step)+'</td></tr>';
+
+    const c = EKONOMI_CFG;
+    const I = c.isci_uretim, O = c.ozel_kaynak, Y = c.yemek, M = c.moral, G = c.guild, K = c.kervan, S = c.savas, F = c.festival;
+
+    let html = `
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:16px">
+
+<div class="card" style="padding:12px">
+  <h4 style="color:#3498db;margin-bottom:8px">📦 Isci Uretim (saatlik)</h4>
+  <table style="width:100%;font-size:11px">
+    ${row('Oduncu → odun', 'isci_uretim.oduncu_odun', I.oduncu_odun, 0.5, 'Her oduncu/saat')}
+    ${row('Madenci → metal', 'isci_uretim.madenci_metal', I.madenci_metal, 0.5)}
+    ${row('Ciftci → bugday', 'isci_uretim.ciftci_bugday', I.ciftci_bugday, 0.5)}
+    ${row('Balikci → balik', 'isci_uretim.balikci_balik', I.balikci_balik, 0.5, 'Sadece 4-8-12-16-20-24. gunler')}
+    ${row('Tuccar min hammadde', 'isci_uretim.tuccar_min', I.tuccar_min, 50)}
+    ${row('Tuccar max hammadde', 'isci_uretim.tuccar_max', I.tuccar_max, 50)}
+    ${row('Worshipper → mana', 'isci_uretim.worshipper_mana', I.worshipper_mana, 0.01)}
+  </table>
+</div>
+
+<div class="card" style="padding:12px">
+  <h4 style="color:#9b59b6;margin-bottom:8px">🎲 Ozel Kaynaklar</h4>
+  <table style="width:100%;font-size:11px">
+    ${row('Ciftlik besi/saat', 'ozel_kaynak.ciftlik_besi_saatlik', O.ciftlik_besi_saatlik, 1)}
+    ${row('Ahir at/saat', 'ozel_kaynak.ahir_at_saatlik', O.ahir_at_saatlik, 1)}
+    ${row('Ahir kurt/saat', 'ozel_kaynak.ahir_kurt_saatlik', O.ahir_kurt_saatlik, 1)}
+    ${row('Lonca gizlilik/saat', 'ozel_kaynak.lonca_gizlilik_saatlik', O.lonca_gizlilik_saatlik, 0.01)}
+    ${row('Buyulu yumurta sans', 'ozel_kaynak.buyulu_tarla_yumurta_sans', O.buyulu_tarla_yumurta_sans, 0.000001, 'Bina basina %0.00001 = 0.00001')}
+    ${row('Magara ejderha normal', 'ozel_kaynak.magara_ejderha_normal', O.magara_ejderha_normal, 0.00001)}
+    ${row('Magara ejderha nadir', 'ozel_kaynak.magara_ejderha_nadir', O.magara_ejderha_nadir, 0.000001)}
+    ${row('Essek spawn sans', 'ozel_kaynak.essek_spawn_sans', O.essek_spawn_sans, 0.0001)}
+    ${row('Essek yem/saat', 'ozel_kaynak.essek_yem_saatlik', O.essek_yem_saatlik, 0.5)}
+  </table>
+</div>
+
+<div class="card" style="padding:12px">
+  <h4 style="color:#e74c3c;margin-bottom:8px">🍞 Yemek Sistemi</h4>
+  <table style="width:100%;font-size:11px">
+    ${row('Kisi basi yemek/saat', 'yemek.tuketim_kisi_saatlik', Y.tuketim_kisi_saatlik, 0.1, '1 bugday/nufus/saat default')}
+    ${row('Aclik ceza (dusuk)', 'yemek.aclik_ceza_dusuk', Y.aclik_ceza_dusuk, 1, 'Doyma < %50 \u2192 moral')}
+    ${row('Aclik ceza (orta)', 'yemek.aclik_ceza_orta', Y.aclik_ceza_orta, 1, 'Doyma < %70')}
+    ${row('Aclik bonus (dolu)', 'yemek.aclik_bonus_dolu', Y.aclik_bonus_dolu, 1, 'Doyma >= %100')}
+  </table>
+</div>
+
+<div class="card" style="padding:12px">
+  <h4 style="color:#f39c12;margin-bottom:8px">😊 Moral Caplari</h4>
+  <table style="width:100%;font-size:11px">
+    ${row('Cag 1 max', 'moral.max_cag_1', M.max_cag_1, 50)}
+    ${row('Cag 2 max', 'moral.max_cag_2', M.max_cag_2, 50)}
+    ${row('Cag 3 max', 'moral.max_cag_3', M.max_cag_3, 50)}
+    ${row('Cag 4 max', 'moral.max_cag_4', M.max_cag_4, 50)}
+    ${row('Cag 5 max', 'moral.max_cag_5', M.max_cag_5, 50)}
+    ${row('Kacis esigi', 'moral.kacis_esigi', M.kacis_esigi, 5, 'Moral < X \u2192 koylu kacar')}
+  </table>
+</div>
+
+<div class="card" style="padding:12px">
+  <h4 style="color:#2ecc71;margin-bottom:8px">🏰 Guild</h4>
+  <table style="width:100%;font-size:11px">
+    ${row('Guild kurma maliyeti', 'guild.kurma_maliyeti', G.kurma_maliyeti, 5000, 'Altin')}
+  </table>
+</div>
+
+<div class="card" style="padding:12px">
+  <h4 style="color:#16a085;margin-bottom:8px">🫏 Kervan</h4>
+  <table style="width:100%;font-size:11px">
+    ${row('Esek kapasitesi', 'kervan.esek_kapasite', K.esek_kapasite, 100, 'Birim/esek')}
+    ${row('Max esek/kervan', 'kervan.max_esek_per_kervan', K.max_esek_per_kervan, 10)}
+  </table>
+</div>
+
+<div class="card" style="padding:12px">
+  <h4 style="color:#c0392b;margin-bottom:8px">⚔️ Savas</h4>
+  <table style="width:100%;font-size:11px">
+    ${row('Min unite (savas icin)', 'savas.min_unite', S.min_unite, 5)}
+  </table>
+</div>
+
+<div class="card" style="padding:12px;grid-column:span 2">
+  <h4 style="color:#8e44ad;margin-bottom:8px">🎉 Festival (kullanilmiyorsa placeholder)</h4>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:11px">
+    <div><b>Kucuk</b><br>Altin: ${num('festival.kucuk_altin', F.kucuk_altin, 50)}<br>Ekmek: ${num('festival.kucuk_ekmek', F.kucuk_ekmek, 25)}<br>Moral: ${num('festival.kucuk_moral', F.kucuk_moral, 5)}</div>
+    <div><b>Buyuk</b><br>Altin: ${num('festival.buyuk_altin', F.buyuk_altin, 100)}<br>Ekmek: ${num('festival.buyuk_ekmek', F.buyuk_ekmek, 50)}<br>Moral: ${num('festival.buyuk_moral', F.buyuk_moral, 10)}</div>
+    <div><b>Kraliyet</b><br>Altin: ${num('festival.kraliyet_altin', F.kraliyet_altin, 500)}<br>Ekmek: ${num('festival.kraliyet_ekmek', F.kraliyet_ekmek, 100)}<br>Moral: ${num('festival.kraliyet_moral', F.kraliyet_moral, 20)}</div>
+  </div>
+</div>
+
+</div>
+`;
+    document.getElementById('ekonomi-cfg-content').innerHTML = html;
+  } catch(e) { document.getElementById('ekonomi-cfg-content').innerHTML = '<div style="color:#e74c3c">Hata: '+e.message+'</div>'; }
+}
+
+async function ekonomiCfgKaydet() {
+  if (!EKONOMI_CFG) return;
+  const cfg = JSON.parse(JSON.stringify(EKONOMI_CFG));
+  const setVal = (path) => {
+    const el = document.getElementById('eko-'+path);
+    if (!el) return;
+    const v = parseFloat(el.value);
+    if (isNaN(v)) return;
+    const parts = path.split('.');
+    let o = cfg;
+    for (let i = 0; i < parts.length - 1; i++) o = o[parts[i]];
+    o[parts[parts.length-1]] = v;
+  };
+  // Tum path'leri topla ve uygula
+  const paths = [
+    'isci_uretim.oduncu_odun','isci_uretim.madenci_metal','isci_uretim.ciftci_bugday','isci_uretim.balikci_balik',
+    'isci_uretim.tuccar_min','isci_uretim.tuccar_max','isci_uretim.worshipper_mana',
+    'ozel_kaynak.ciftlik_besi_saatlik','ozel_kaynak.ahir_at_saatlik','ozel_kaynak.ahir_kurt_saatlik',
+    'ozel_kaynak.lonca_gizlilik_saatlik','ozel_kaynak.buyulu_tarla_yumurta_sans',
+    'ozel_kaynak.magara_ejderha_normal','ozel_kaynak.magara_ejderha_nadir',
+    'ozel_kaynak.essek_spawn_sans','ozel_kaynak.essek_yem_saatlik',
+    'yemek.tuketim_kisi_saatlik','yemek.aclik_ceza_dusuk','yemek.aclik_ceza_orta','yemek.aclik_bonus_dolu',
+    'moral.max_cag_1','moral.max_cag_2','moral.max_cag_3','moral.max_cag_4','moral.max_cag_5','moral.kacis_esigi',
+    'guild.kurma_maliyeti','kervan.esek_kapasite','kervan.max_esek_per_kervan','savas.min_unite',
+    'festival.kucuk_altin','festival.kucuk_ekmek','festival.kucuk_moral',
+    'festival.buyuk_altin','festival.buyuk_ekmek','festival.buyuk_moral',
+    'festival.kraliyet_altin','festival.kraliyet_ekmek','festival.kraliyet_moral'
+  ];
+  paths.forEach(setVal);
+
+  try {
+    const d = await fetch(API + '/api/admin/ekonomi-config', { method:'POST', headers:hdr(), body:JSON.stringify({ config: cfg }) }).then(r=>r.json());
+    alert(d.ok ? (d.mesaj||'Kaydedildi') : (d.error||'Hata'));
+    if (d.ok) loadEkonomiCfg();
+  } catch(e) { alert('Hata: '+e.message); }
 }
 </script>
 </body>
