@@ -886,6 +886,7 @@ const RES_LIST = [
   {id:'ekmek',label:'Ekmek'},{id:'pismis',label:'Pismis'},{id:'pismis_et',label:'Pismis Et'},{id:'cig_et',label:'Cig Et'},
   {id:'mana_beyaz',label:'B.Mana'},{id:'mana_kirmizi',label:'K.Mana'},{id:'mana_mavi',label:'M.Mana'},{id:'mana_yesil',label:'Y.Mana'},
   {id:'at',label:'At'},{id:'kurt',label:'Kurt'},{id:'gizlilik',label:'Gizlilik'},{id:'buyulu_yumurta',label:'B.Yumurta'},{id:'essek',label:'Esek'},
+  {id:'alan',label:'Alan (+max)'},
 ];
 (function initResFields(){
   const c = document.getElementById('res-fields');
@@ -1898,8 +1899,8 @@ async function casusCfgKaydet() {
 // ════════════════════════════════════════════════════════
 let _guildCfg = null;
 let _guildListe = null;
-const TUM_KAYNAKLAR = ['odun','metal','altin','bugday','balik','kereste','islenmis'];
-const KAYNAK_IKON = {altin:'💰',odun:'🌳',metal:'⛏️',bugday:'🌾',balik:'🐟',kereste:'🪵',islenmis:'🔩'};
+const TUM_KAYNAKLAR = ['odun','metal','altin','bugday','balik','kereste','islenmis','cig_et'];
+const KAYNAK_IKON = {altin:'💰',odun:'🌳',metal:'⛏️',bugday:'🌾',balik:'🐟',kereste:'🪵',islenmis:'🔩',cig_et:'🥩'};
 
 async function loadGuildCfg() {
   const el = document.getElementById('guild-cfg-content');
@@ -1997,7 +1998,10 @@ function gcGuildDegisti() {
   const durum = document.getElementById('gc-kasa-durum');
   const nufus = document.getElementById('gc-nufus-durum');
   if (durum) durum.innerHTML = 'Kasa: ' + TUM_KAYNAKLAR.map(k => (KAYNAK_IKON[k]||'') + k + ': ' + ((g[k]||0).toLocaleString('tr-TR'))).join(' | ');
-  if (nufus) nufus.innerHTML = 'Nufus: Koylu: ' + (g.guild_koylu||0) + ' | Asker: ' + (g.guild_asker||0) + ' | Worshipper: ' + (g.guild_worshipper||0) + ' | Alan: ' + (g.alan||0);
+  if (nufus) nufus.innerHTML =
+    'Nufus — Koylu: ' + (g.guild_koylu||0) + ' | Asker: ' + (g.guild_asker||0) + ' | Worshipper: ' + (g.guild_worshipper||0) +
+    '<br>Isciler — Oduncu: ' + (g.guild_oduncu||0) + ' | Madenci: ' + (g.guild_madenci||0) + ' | Ciftci: ' + (g.guild_ciftci||0) + ' | Balikci: ' + (g.guild_balikci||0) +
+    '<br>Alan: ' + (g.alan||0).toLocaleString('tr-TR');
 }
 
 async function guildCfgKaydet() {
