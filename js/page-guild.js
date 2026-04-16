@@ -272,7 +272,7 @@ function renderTabGenel(el, data) {
     (function() {
       var binalar = data.guild_binalar_ozet || [];
       if (binalar.length === 0) return '';
-      var BINA_IKON = {oduncu:'🪓',demir_madeni:'⛏️',tarla:'🌾',balikci:'🎣',isleme:'🔩',ocak:'🔥',kisla:'🏛',surlar:'🏰',ev:'🏠',pazar:'🏪'};
+      var BINA_IKON = {oduncu:'🪓',demir_madeni:'⛏️',tarla:'🌾',balikci:'🎣',isleme:'🔩',ocak:'🔥',surlar:'🏰',ev:'🏠',pazar:'🏪'};
       return '<div class="card">' +
         '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">🏗 Binalar</div>' +
         '<div style="display:flex;flex-wrap:wrap;gap:4px">' +

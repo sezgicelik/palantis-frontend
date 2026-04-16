@@ -69,16 +69,6 @@ const REHBER_ADIMLARI = [
   },
   {
     adim: 6,
-    sayfa: 'city.html',
-    hedef: '[data-bina="kisla"],.bina-card[onclick*="kisla"],.bina-slot[data-id="kisla"]',
-    pozisyon: 'right',
-    baslik: 'Kisla Yap: Ordu Hazirla ⚔️',
-    aciklama: 'Kislada askerlerini egitirsin. Kisla olmadan unite basimina gecemezsin.',
-    kosulTipi: 'bina_yap',
-    kosulDeger: 'kisla:1'
-  },
-  {
-    adim: 7,
     sayfa: '/army',
     hedef: '.btn-unite-egit,.unite-card:first-child,#egitim-form',
     pozisyon: 'bottom',

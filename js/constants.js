@@ -71,17 +71,17 @@ const BLDGS = {
     cost:l=>({odun:300,altin:200}),time:l=>3600},
 
   balikci:{id:'balikci',cat:'uretim',icon:'🎣',name:'Balıkçı Limanı',bg:'#001616',
-    desc:"Balıkçıların çalıştığı yer. Her liman 20 balıkçı barındırır.",
+    desc:"Çiğ balık üretir. Her liman saatte seviye×15 çiğ balık getirir.",
     maxLv:999,lv:0,deger:86,kapasite:{tip:'balikci',miktar:20},
     cagLimit:{1:75,2:125,3:175,4:250,5:325},
-    fx:l=>[{t:'pos',s:`+${l*20} Balık/gün`},{t:'pos',s:`${l*20} balıkçı kap.`}],
+    fx:l=>[{t:'pos',s:`+${l*15} Çiğ balık/gün`},{t:'pos',s:`${l*20} balıkçı kap.`}],
     cost:l=>({odun:300,altin:120}),time:l=>7200},
 
   isleme:{id:'isleme',cat:'uretim',icon:'🔩',name:'İşleme Atölyesi',bg:'#141000',
-    desc:"Ham metali işlenmiş metale çevirir. Her atölye 30 metal/gün işler.",
+    desc:"Ham metali işlenmiş metale çevirir. Her atölye seviye×10 metal/gün işler.",
     maxLv:999,lv:0,deger:115,
     cagLimit:{1:-1,2:-1,3:-1,4:-1,5:-1},
-    fx:l=>[{t:'pos',s:`${l*30} Metal→İşl.Metal/gün`}],
+    fx:l=>[{t:'pos',s:`${l*10} Metal→İşl.Metal/gün`}],
     cost:l=>({odun:250,metal:150,altin:200}),time:l=>14400},
 
   ocak:{id:'ocak',cat:'uretim',icon:'🔥',name:'Ocak',bg:'#1a0800',
@@ -92,10 +92,10 @@ const BLDGS = {
     cost:l=>({odun:200,altin:150}),time:l=>3600},
 
   firin:{id:'firin',cat:'uretim',icon:'🍞',name:'Fırın',bg:'#1a0a00',
-    desc:"10 ocak birleştirince oluşur. 5 alan kaplar.",
+    desc:"10 ocak birleştirince oluşur. 5 alan kaplar. 2x ocak pişirme kapasitesi.",
     maxLv:999,lv:0,deger:0,mergeOnly:true,
     cagLimit:{1:0,2:-1,3:-1,4:-1,5:-1},
-    fx:l=>[{t:'pos',s:`${l*20} Ekmek/gün`},{t:'neg',s:`${l*20} Buğday tüketir`}],
+    fx:l=>[{t:'pos',s:`Pişirme 2x ocak kap.`},{t:'pos',s:`Buğday/Balık/Et pişirir`}],
     cost:l=>({}),time:l=>7200},
 
   /* ═══ ASKERİ ═══ */
@@ -135,31 +135,31 @@ const BLDGS = {
     cost:l=>({odun:400,metal:300,altin:900}),time:l=>5400},
 
   rathe_tapinagi:{id:'rathe_tapinagi',cat:'askeri',icon:'⚔️',name:'Rathe Tapınağı',bg:'#180000',
-    desc:"Savaş tanrısı. 200 Kırmızı WS kapasitesi/bina. ATK artışı.",
+    desc:"Savaş tanrısı. 200 Kırmızı WS kapasitesi/bina. Kırmızı mana üretir.",
     maxLv:100,lv:0,deger:270,kapasite:{tip:'ws_kirmizi',miktar:200},
     cagLimit:{1:10,2:20,3:40,4:80,5:100},
-    fx:l=>[{t:'pos',s:`ATK +${l*8}%`},{t:'pos',s:`${l*200} Kırm.WS kap.`}],
+    fx:l=>[{t:'pos',s:`${l*200} Kırm.WS kap.`},{t:'pos',s:`Kırmızı mana üretir`}],
     cost:l=>({odun:500,metal:400,altin:600}),time:l=>7200},
 
   xegony_tapinagi:{id:'xegony_tapinagi',cat:'askeri',icon:'💫',name:'Xegony Tapınağı',bg:'#000018',
-    desc:"Büyü tanrısı. 200 Mavi WS kapasitesi/bina.",
+    desc:"Büyü tanrısı. 200 Mavi WS kapasitesi/bina. Mavi mana üretir.",
     maxLv:100,lv:0,deger:300,kapasite:{tip:'ws_mavi',miktar:200},
     cagLimit:{1:10,2:20,3:40,4:80,5:100},
-    fx:l=>[{t:'pos',s:`Büyü ATK +${l*10}%`},{t:'pos',s:`${l*200} Mavi WS kap.`}],
+    fx:l=>[{t:'pos',s:`${l*200} Mavi WS kap.`},{t:'pos',s:`Mavi mana üretir`}],
     cost:l=>({metal:300,altin:800}),time:l=>7200},
 
   fennin_tapinagi:{id:'fennin_tapinagi',cat:'askeri',icon:'🔥',name:'Fennin Ro Tapınağı',bg:'#180800',
-    desc:"Ateş tanrısı. 200 Beyaz WS kapasitesi/bina.",
+    desc:"Ateş tanrısı. 200 Beyaz WS kapasitesi/bina. Beyaz mana üretir.",
     maxLv:100,lv:0,deger:290,kapasite:{tip:'ws_beyaz',miktar:200},
     cagLimit:{1:10,2:20,3:40,4:80,5:100},
-    fx:l=>[{t:'pos',s:`Ateş büyüsü +${l*12}%`},{t:'pos',s:`${l*200} Beyaz WS kap.`}],
+    fx:l=>[{t:'pos',s:`${l*200} Beyaz WS kap.`},{t:'pos',s:`Beyaz mana üretir`}],
     cost:l=>({metal:400,altin:700}),time:l=>7200},
 
   tunare_tapinagi:{id:'tunare_tapinagi',cat:'askeri',icon:'🌿',name:'Tunare Tapınağı',bg:'#001800',
-    desc:"Doğa tanrıçası. 200 Yeşil WS kapasitesi/bina.",
+    desc:"Doğa tanrıçası. 200 Yeşil WS kapasitesi/bina. Yeşil mana üretir.",
     maxLv:100,lv:0,deger:210,kapasite:{tip:'ws_yesil',miktar:200},
     cagLimit:{1:10,2:20,3:40,4:80,5:100},
-    fx:l=>[{t:'pos',s:`DEF +${l*8}%`},{t:'pos',s:`${l*200} Yeşil WS kap.`}],
+    fx:l=>[{t:'pos',s:`${l*200} Yeşil WS kap.`},{t:'pos',s:`Yeşil mana üretir`}],
     cost:l=>({odun:600,altin:500}),time:l=>7200},
 
   magara:{id:'magara',cat:'askeri',icon:'🐲',name:'Mağara',bg:'#1a0000',
@@ -205,20 +205,13 @@ const BLDGS = {
     fx:l=>[{t:'pos',s:`Eğitim puanı üretir`},{t:'pos',s:`Araştırma +${l*10}%`}],
     cost:l=>({odun:300,altin:300}),time:l=>14400},
 
-  kisla:{id:'kisla',cat:'gelisim',icon:'⚔️',name:'Kışla',bg:'#180a0a',
-    desc:"Askeri eğitim merkezi. Toplam max 1 adet.",
-    maxLv:1,lv:0,deger:115,
-    cagLimit:{1:0,2:1,3:1,4:1,5:1},
-    fx:l=>[{t:'pos',s:`Askeri geliştirme`},{t:'pos',s:`Eğitim +${l*8}%`}],
-    cost:l=>({odun:300,metal:100,altin:150}),time:l=>14400},
-
   /* ═══ SOSYAL ═══ */
   sehir_meydani:{id:'sehir_meydani',cat:'sosyal',icon:'🏛️',name:'Şehir Meydanı',bg:'#141400',
-    desc:"Moral ve mutluluk merkezi. Max 1.",
+    desc:"Şehir meydanına (genel chat) giriş için gerekli. Max 1.",
     maxLv:1,lv:0,deger:70,
     cagLimit:{1:1,2:1,3:1,4:1,5:1},
-    fx:l=>[{t:'pos',s:`Moral +${l*5}`},{t:'pos',s:'Etkinlik slotu'}],
-    cost:l=>({odun:200,altin:100}),time:l=>3600},
+    fx:l=>[{t:'pos',s:`Meydan erişimi`},{t:'pos',s:'Genel sohbet'}],
+    cost:l=>({odun:250,altin:200}),time:l=>3600},
 
   pazar:{id:'pazar',cat:'sosyal',icon:'💰',name:'Pazar',bg:'#160e00',
     desc:"Kervan, büyü dükkanı ve oyuncu pazarına erişim. Her saat esek bulma sansi.",
@@ -228,10 +221,10 @@ const BLDGS = {
     cost:l=>({odun:250,altin:200}),time:l=>7200},
 
   guild_binasi:{id:'guild_binasi',cat:'sosyal',icon:'🏰',name:'Guild Binası',bg:'#100018',
-    desc:"Guild kurma ve yönetim merkezi. Max 1.",
+    desc:"Guild kurmak için gerekli. Bu bina olmadan guild kurulamaz. Max 1.",
     maxLv:1,lv:0,deger:250,
     cagLimit:{1:0,2:1,3:1,4:1,5:1},
-    fx:l=>[{t:'pos',s:`${l*10} üye kapasitesi`},{t:'pos',s:`Guild bonus +${l*5}%`}],
+    fx:l=>[{t:'pos',s:`Guild kurma izni`}],
     cost:l=>({odun:600,altin:500}),time:l=>14400},
 
   noxara_hani:{id:'noxara_hani',cat:'sosyal',icon:'🍺',name:'Noxara Hanı',bg:'#160e00',
@@ -250,24 +243,24 @@ const BLDGS = {
 
   /* ═══ ŞEHİR ═══ */
   ev:{id:'ev',cat:'sehir',icon:'🏠',name:'Ev',bg:'#141414',
-    desc:"Nüfus sınırını artırır. 10 ev → 1 köy. +50 nüfus/ev.",
+    desc:"Nüfus sınırını artırır. 10 ev → 1 köy. +10 nüfus/ev.",
     maxLv:999,lv:0,deger:21,
     cagLimit:{1:-1,2:-1,3:-1,4:-1,5:-1},
-    fx:l=>[{t:'pos',s:`+${l*50} Nüfus sınırı`}],
+    fx:l=>[{t:'pos',s:`+${l*10} Nüfus sınırı`}],
     cost:l=>({odun:100,altin:20}),time:l=>7200},
 
   koy:{id:'koy',cat:'sehir',icon:'🏘️',name:'Köy',bg:'#1a1200',
-    desc:"10 ev birleştirince oluşur. 5 alan kaplar. +500 nüfus.",
+    desc:"10 ev birleştirince oluşur. 5 alan kaplar. +100 nüfus.",
     maxLv:999,lv:0,deger:0,mergeOnly:true,
     cagLimit:{1:0,2:-1,3:-1,4:-1,5:-1},
-    fx:l=>[{t:'pos',s:`+${l*500} Nüfus sınırı`}],
+    fx:l=>[{t:'pos',s:`+${l*100} Nüfus sınırı`}],
     cost:l=>({}),time:l=>14400},
 
   kasaba:{id:'kasaba',cat:'sehir',icon:'🏙️',name:'Kasaba',bg:'#1a1600',
-    desc:"10 köy birleştirince oluşur. 25 alan kaplar. +5000 nüfus.",
+    desc:"10 köy birleştirince oluşur. 25 alan kaplar. +250 nüfus.",
     maxLv:999,lv:0,deger:0,mergeOnly:true,
     cagLimit:{1:0,2:0,3:0,4:0,5:-1},
-    fx:l=>[{t:'pos',s:`+${l*5000} Nüfus sınırı`}],
+    fx:l=>[{t:'pos',s:`+${l*250} Nüfus sınırı`}],
     cost:l=>({}),time:l=>21600},
 
   okul:{id:'okul',cat:'sehir',icon:'🏫',name:'Okul',bg:'#0a1200',
