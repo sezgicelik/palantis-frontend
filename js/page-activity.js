@@ -7,7 +7,7 @@ const KATEGORI_MAP = {
   sehir: { isim:'Şehir', renk:'#c9a84c', tipler:['bina_tamam','nufus','kacis','yemek','sehir_morali','festival','arazi','essek','kervan'] },
   askeri: { isim:'Askeri', renk:'#e74c3c', tipler:['egitim_tamam','maas','savas','casus'] },
   ekonomi: { isim:'Ekonomi', renk:'#2ecc71', tipler:['isci_uretim','ekonomi','pisirme','bolge_bonus','irk_bonus','mana_uretim','vergi'] },
-  ticaret: { isim:'Ticaret', renk:'#3498db', tipler:['market_satis','buyu_alisveris','pazar_ilan','pazar_alisveris'] },
+  ticaret: { isim:'Ticaret', renk:'#3498db', tipler:['market_satis','buyu_alisveris','pazar_ilan','pazar_alisveris','guild_ambar','guild_bagis'] },
   koloni: { isim:'Koloni', renk:'#9b59b6', tipler:['koloni_fetih','koloni_cekil','koloni_kaynak'] },
   diger: { isim:'Diğer', renk:'#888', tipler:['admin','artifact','gorev'] },
 };

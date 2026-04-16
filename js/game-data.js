@@ -519,21 +519,11 @@ function obApplyPlayer(p) {
     }).join('');
   }
 
-  // Premium rozeti
+  // Premium rozeti — yalnizca gizli tutulur, bonus ozet panelinde gosteriliyor
   const premBadge = document.getElementById('home-premium-badge');
   const premInfo = document.getElementById('home-premium-info');
-  if (p.premium && p.premium.aktif) {
-    if (premBadge) { premBadge.style.display = 'inline'; premBadge.textContent = (p.premium.paket || 'PREMIUM').toUpperCase(); }
-    if (premInfo) {
-      const bitis = new Date(p.premium.bitis);
-      const kalanGun = Math.max(0, Math.ceil((bitis - new Date()) / (1000*60*60*24)));
-      premInfo.style.display = 'block';
-      premInfo.textContent = `${p.premium.paket} paketi · ${kalanGun} gun kaldi (${bitis.toLocaleDateString('tr-TR')})`;
-    }
-  } else {
-    if (premBadge) premBadge.style.display = 'none';
-    if (premInfo) premInfo.style.display = 'none';
-  }
+  if (premBadge) premBadge.style.display = 'none';
+  if (premInfo) premInfo.style.display = 'none';
 }
 
 /* -- Logout -- */

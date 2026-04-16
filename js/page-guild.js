@@ -120,15 +120,16 @@ async function guildKatil(guildId) {
 //   TAB YAPISI
 // ═══════════════════════════════════
 var GUILD_TABS = [
-  { id: 'genel',   label: '🏰 Genel',       aktif: true },
-  { id: 'uyeler',  label: '👥 Uyeler',       aktif: true },
-  { id: 'kasa',    label: '💰 Kasa',         aktif: true },
-  { id: 'isciler', label: '⚒️ Isciler',     aktif: true },
-  { id: 'binalar', label: '🏗️ Binalar',     aktif: true },
-  { id: 'ordu',    label: '🛡️ Ordu',        aktif: true },
-  { id: 'market',  label: '🏪 Market',       aktif: true },
-  { id: 'savas',   label: '⚔️ Savas Odasi', aktif: false },
-  { id: 'raporlar',label: '📜 Raporlar',     aktif: true }
+  { id: 'genel',    label: '🏰 Genel',       aktif: true },
+  { id: 'uyeler',   label: '👥 Uyeler',       aktif: true },
+  { id: 'kasa',     label: '💰 Kasa',         aktif: true },
+  { id: 'isciler',  label: '⚒️ Isciler',     aktif: true },
+  { id: 'binalar',  label: '🏗️ Binalar',     aktif: true },
+  { id: 'ordu',     label: '🛡️ Ordu',        aktif: true },
+  { id: 'market',   label: '🏪 Market',       aktif: true },
+  { id: 'mezarlik', label: '⚰️ Mezarlik',    aktif: true },
+  { id: 'savas',    label: '⚔️ Savas Odasi', aktif: false },
+  { id: 'raporlar', label: '📜 Raporlar',     aktif: true }
 ];
 
 function renderGuildTabs(el, data) {
@@ -161,10 +162,11 @@ function guildTabIcerikGoster(data) {
     case 'uyeler':  renderTabUyeler(el, data); break;
     case 'kasa':    renderTabKasa(el, data); break;
     case 'isciler': renderTabIsciler(el, data); break;
-    case 'binalar': renderTabBinalar(el, data); break;
-    case 'ordu':    renderTabOrdu(el, data); break;
-    case 'market':  renderTabMarket(el, data); break;
-    case 'raporlar':renderTabRaporlar(el, data); break;
+    case 'binalar':  renderTabBinalar(el, data); break;
+    case 'ordu':     renderTabOrdu(el, data); break;
+    case 'market':   renderTabMarket(el, data); break;
+    case 'mezarlik': renderTabMezarlik(el, data); break;
+    case 'raporlar': renderTabRaporlar(el, data); break;
     default:        el.innerHTML = '<div class="card" style="text-align:center;padding:30px;color:#555"><div style="font-size:30px;margin-bottom:8px">🔒</div><p style="font-size:12px">Bu ozellik Faz 3\'te aktif olacak.</p></div>';
   }
 }
@@ -187,6 +189,33 @@ function renderTabGenel(el, data) {
       (g.duyuru ? '<div style="background:#0a0a0a;border-left:2px solid var(--race-color);padding:6px 10px;font-size:10px;color:#ccc;margin-bottom:8px;border-radius:4px">📢 ' + g.duyuru + '</div>' : '') +
       (isLider ? '<div style="margin-bottom:8px"><textarea id="guild-duyuru-inp" rows="2" style="width:100%;padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:10px" placeholder="Duyuru yaz...">' + (g.duyuru||'') + '</textarea><button class="btn-action" style="width:auto;padding:3px 10px;font-size:9px;margin-top:2px" onclick="guildDuyuruKaydet(' + g.id + ')">Kaydet</button></div>' : '') +
     '</div>' +
+
+    // Guild nufus + isci ozet
+    (function() {
+      var n = data.guild_nufus || {};
+      var w = data.guild_isciler || {};
+      var toplamNufus = (n.koylu||0) + (n.asker||0) + (n.worshipper||0);
+      return '<div class="card">' +
+        '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">👥 Nufus & Isciler</div>' +
+        '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-size:10px;margin-bottom:6px">' +
+          '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center">' +
+            '<div style="color:#888;font-size:9px">Koylu</div><div style="color:#d4af37;font-weight:bold">' + fmt(n.koylu||0) + '</div>' +
+          '</div>' +
+          '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center">' +
+            '<div style="color:#888;font-size:9px">Asker</div><div style="color:#e74c3c;font-weight:bold">' + fmt(n.asker||0) + '</div>' +
+          '</div>' +
+          '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center">' +
+            '<div style="color:#888;font-size:9px">Toplam</div><div style="color:#2ecc71;font-weight:bold">' + fmt(toplamNufus) + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;font-size:9px;color:#777">' +
+          (w.oduncu ? '<span>🪓 Oduncu: ' + w.oduncu + '</span>' : '') +
+          (w.madenci ? '<span>⛏️ Madenci: ' + w.madenci + '</span>' : '') +
+          (w.ciftci ? '<span>🌾 Ciftci: ' + w.ciftci + '</span>' : '') +
+          (w.balikci ? '<span>🎣 Balikci: ' + w.balikci + '</span>' : '') +
+        '</div>' +
+      '</div>';
+    })() +
 
     // Guild sehir bilgisi + tasima
     '<div class="card">' +
@@ -790,18 +819,8 @@ async function renderTabOrdu(el, data) {
     if (!resp.ok) { el.innerHTML = '<div style="color:#e74c3c">' + (d.error || 'Hata') + '</div>'; return; }
 
     var yetkiler = data.benim_yetkilerim || {};
-    var html = '<h3 style="font-family:Cinzel,serif;color:var(--race-color);margin-bottom:10px">🛡️ Guild Ordusu</h3>';
-
-    // Nufus ozet
-    html += '<div class="card" style="padding:10px;margin-bottom:10px">' +
-      '<div style="font-size:11px;color:#aaa;margin-bottom:4px">Guild Nufus</div>' +
-      '<div style="display:flex;gap:12px;font-size:12px">' +
-        '<span>👤 Koylu: <b>' + fmt(d.nufus.koylu) + '</b></span>' +
-        '<span>⚔️ Asker: <b>' + fmt(d.nufus.asker) + '</b></span>' +
-        '<span>🙏 Worshipper: <b>' + fmt(d.nufus.worshipper) + '</b></span>' +
-      '</div>' +
-      '<div style="font-size:10px;color:#888;margin-top:4px">Lider Taraf: <b>' + d.lider_taraf + '</b> | Max ' + d.max_ordu + ' ordu</div>' +
-    '</div>';
+    var html = '<h3 style="font-family:Cinzel,serif;color:var(--race-color);margin-bottom:6px">🛡️ Guild Ordusu</h3>' +
+      '<div style="font-size:10px;color:#888;margin-bottom:10px">Lider Taraf: <b style="color:#ccc">' + d.lider_taraf + '</b> | Asker: <b style="color:#e74c3c">' + fmt(d.nufus.asker) + '</b> | Max ' + d.max_ordu + ' ordu</div>';
 
     // Egitim kuyrugu
     if (d.kuyruk.length > 0) {
@@ -1171,6 +1190,74 @@ function guildRaporFiltre(filtre) {
     var el = document.getElementById('guild-tab-content');
     if (el) renderTabRaporlar(el, GUILD_DATA);
   }
+}
+
+// ═══════════════════════════════════
+//   TAB: MEZARLIK
+// ═══════════════════════════════════
+async function renderTabMezarlik(el, data) {
+  var gId = data.guild.id;
+  el.innerHTML = '<div style="text-align:center;padding:20px;color:#888">Yukleniyor...</div>';
+  try {
+    var resp = await fetch(API_BASE + '/api/guild/' + gId + '/mezarlik', { headers: guildHdr() });
+    var d = await resp.json();
+    if (!resp.ok) { el.innerHTML = '<div style="color:#e74c3c">' + (d.error || 'Hata') + '</div>'; return; }
+
+    var yetkiler = data.benim_yetkilerim || {};
+    var html = '<h3 style="font-family:Cinzel,serif;color:var(--race-color);margin-bottom:10px">⚰️ Guild Mezarligi</h3>';
+
+    // Kasa altin
+    html += '<div style="font-size:10px;color:#888;margin-bottom:10px">Guild Kasasi: <b style="color:#d4af37">' + fmt(d.guild_altin) + ' altin</b></div>';
+
+    if (d.kayitlar.length === 0) {
+      html += '<div class="card" style="padding:20px;text-align:center;color:#555;font-size:12px">' +
+        '<div style="font-size:30px;margin-bottom:8px">⚰️</div>Savastan gelen kayip yok</div>';
+    } else {
+      d.kayitlar.forEach(function(k) {
+        var kalanDk = Math.max(0, Math.floor(k.kalan_sure_ms / 60000));
+        var kalanSaat = Math.floor(kalanDk / 60);
+        var kalanDkRem = kalanDk % 60;
+        var sureTxt = kalanSaat > 0 ? kalanSaat + 's ' + kalanDkRem + 'dk' : kalanDk + 'dk';
+        html += '<div class="card" style="padding:10px;margin-bottom:8px;border-left:2px solid #5a2a2a">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
+            '<span style="font-size:12px;color:#ccc">' + (k.unite_icon || '⚔️') + ' ' + (k.unite_adi || k.unite_id) + '</span>' +
+            '<span style="font-size:9px;color:#888">⏱ ' + sureTxt + ' kaldi</span>' +
+          '</div>' +
+          '<div style="font-size:10px;color:#aaa;margin-bottom:6px">' +
+            'Toplam: <b>' + k.adet + '</b> | ' +
+            'Diriltildi: <b style="color:#2ecc71">' + k.diriltilen + '</b> | ' +
+            'Kalan Hak: <b style="color:#e67e22">' + k.kalan_diriltme + '</b> | ' +
+            'Birim Maliyet: <b style="color:#d4af37">' + fmt(k.birim_maliyet) + ' altin</b>' +
+          '</div>';
+        if (yetkiler.guild_ordusu_kur && k.kalan_diriltme > 0) {
+          html += '<div style="display:flex;gap:6px;align-items:center">' +
+            '<input id="mez-adet-' + k.id + '" type="number" min="1" max="' + k.kalan_diriltme + '" value="' + Math.min(k.kalan_diriltme,5) + '" style="width:55px;padding:3px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:10px">' +
+            '<button class="btn-action" style="width:auto;padding:3px 10px;font-size:9px;background:#2a5a2a" onclick="guildMezarlikDirilt(' + gId + ',' + k.id + ')">Dirilt (' + fmt(k.birim_maliyet) + '/unit)</button>' +
+          '</div>';
+        }
+        html += '</div>';
+      });
+    }
+
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = '<div style="color:#e74c3c">Baglanti hatasi</div>';
+  }
+}
+
+async function guildMezarlikDirilt(guildId, mezId) {
+  var adetEl = document.getElementById('mez-adet-' + mezId);
+  var adet = parseInt(adetEl?.value);
+  if (!adet || adet <= 0) { toast('Gecerli adet girin', 'error'); return; }
+  if (!confirm(adet + ' unite diriltilecek. Altın kasadan kesilecek. Emin misiniz?')) return;
+  try {
+    var resp = await fetch(API_BASE + '/api/guild/' + guildId + '/mezarlik/' + mezId + '/dirilt', {
+      method: 'POST', headers: guildHdr(), body: JSON.stringify({ adet })
+    });
+    var d = await resp.json();
+    if (resp.ok) { toast(d.diriltilen + ' unite diriltildi. Maliyet: ' + fmt(d.maliyet) + ' altin'); loadGuild(); }
+    else toast(d.error || 'Hata', 'error');
+  } catch(e) { toast('Baglanti hatasi', 'error'); }
 }
 
 // Init
