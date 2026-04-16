@@ -207,6 +207,11 @@ function renderHUD(){
         ${sb('SAAT','⏰','Saat','c-now',null)}
       </div>
     </div>
+    <!-- GUILD (v1.13.2 — sadece guilddeyse goster) -->
+    <div class="hud-row-wrap" id="hud-guild-row" style="display:none">
+      <div class="hud-row-lbl">GUILD</div>
+      <div class="hud-res-row hud-aligned" id="hud-guild-stats"></div>
+    </div>
     <!-- MANA -->
     <div class="hud-row-wrap">
       <div class="hud-row-lbl">MANA</div>

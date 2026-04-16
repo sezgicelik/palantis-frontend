@@ -33,8 +33,11 @@ async function loadGuild() {
 
     if (!data.guild) {
       renderGuildYok(el);
+      const hudEl = document.getElementById('guild-page-hud');
+      if (hudEl) hudEl.innerHTML = '';
     } else {
       renderGuildTabs(el, data);
+      renderGuildPageHUD(data);
     }
   } catch(e) {
     el.innerHTML = '<div style="color:#e74c3c;padding:20px">Baglanti hatasi</div>';
@@ -132,6 +135,56 @@ var GUILD_TABS = [
   { id: 'savas',    label: '⚔️ Savas Odasi', aktif: false },
   { id: 'raporlar', label: '📜 Raporlar',     aktif: true }
 ];
+
+// v1.13.2: Guild sayfasi ust HUD seridi (tum tab'larda gorunur)
+function renderGuildPageHUD(data) {
+  const hudEl = document.getElementById('guild-page-hud');
+  if (!hudEl || !data.guild) return;
+
+  const g = data.guild;
+  const mevcut = data.mevcut_nufus ?? 0;
+  const siniri = data.nufus_siniri ?? 0;
+  const moral = data.ordu_morali ?? 100;
+  const alanT = (data.guild_alan && data.guild_alan.toplam) || 0;
+  const alanK = (data.guild_alan && data.guild_alan.kullanilan) || 0;
+  const n = data.guild_nufus || {};
+  const wsT = (parseInt(n.worshipper_beyaz)||0) + (parseInt(n.worshipper_kirmizi)||0)
+            + (parseInt(n.worshipper_mavi)||0) + (parseInt(n.worshipper_yesil)||0)
+            + (parseInt(n.worshipper)||0);
+  const kasa = data.kasa || {};
+  const mb = parseFloat(kasa.mana_beyaz)||0, mk = parseFloat(kasa.mana_kirmizi)||0,
+        mm = parseFloat(kasa.mana_mavi)||0, my = parseFloat(kasa.mana_yesil)||0;
+
+  const moralRenk = moral >= 70 ? '#2ecc71' : (moral >= 40 ? '#f39c12' : '#e74c3c');
+  const nufusYuzde = siniri > 0 ? Math.min(100, Math.round(mevcut / siniri * 100)) : 0;
+  const nufusRenk = nufusYuzde >= 95 ? '#e74c3c' : (nufusYuzde >= 80 ? '#f39c12' : '#2ecc71');
+  const alanYuzde = alanT > 0 ? Math.round(alanK / alanT * 100) : 0;
+  const alanRenk = alanYuzde >= 90 ? '#e74c3c' : (alanYuzde >= 75 ? '#f39c12' : '#d4af37');
+
+  hudEl.innerHTML = `
+    <div class="card" style="padding:8px 12px;margin-bottom:12px;background:linear-gradient(90deg,rgba(212,175,55,0.05),transparent);border-left:3px solid var(--race-color);display:flex;flex-wrap:wrap;align-items:center;gap:16px;font-size:11px">
+      <span style="font-family:Cinzel,serif;color:var(--race-color);font-weight:bold;font-size:13px">🏰 [${g.tag}] ${g.isim}</span>
+      <span style="color:#888">|</span>
+      <span>👥 Nüfus: <b style="color:${nufusRenk}">${mevcut}/${siniri}</b> <span style="color:#666">(%${nufusYuzde})</span></span>
+      <span style="color:#888">|</span>
+      <span>🎖 Moral: <b style="color:${moralRenk}">${moral}/100</b></span>
+      <span style="color:#888">|</span>
+      <span>📐 Alan: <b style="color:${alanRenk}">${alanK}/${alanT}</b> <span style="color:#666">(%${alanYuzde})</span></span>
+      <span style="color:#888">|</span>
+      <span>🙏 WS: <b style="color:#9b59b6">${wsT}</b></span>
+      ${mb+mk+mm+my > 0 ? `
+      <span style="color:#888">|</span>
+      <span>🔮 Mana:
+        <b style="color:#ecf0f1">${mb.toFixed(0)}</b>/
+        <b style="color:#e74c3c">${mk.toFixed(0)}</b>/
+        <b style="color:#3498db">${mm.toFixed(0)}</b>/
+        <b style="color:#2ecc71">${my.toFixed(0)}</b>
+      </span>` : ''}
+      <span style="color:#888">|</span>
+      <span style="color:#666;font-size:10px">Uye: ${data.uye_sayisi || 0}</span>
+    </div>
+  `;
+}
 
 function renderGuildTabs(el, data) {
   var tabBar = '<div style="display:flex;gap:2px;flex-wrap:wrap;margin-bottom:12px;border-bottom:1px solid #222;padding-bottom:8px">' +

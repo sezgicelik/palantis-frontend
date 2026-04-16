@@ -89,6 +89,56 @@ function setHUD(d){
 }
 
 /* =====================================================
+   setGuildHUD — v1.13.2 — Guild satirini HUD'da goster
+   Oyuncu guilddeyse: [TAG] | Nufus | Moral | Alan | Mana ozet
+===================================================== */
+function setGuildHUD(g){
+  const row = document.getElementById('hud-guild-row');
+  const stats = document.getElementById('hud-guild-stats');
+  if (!row || !stats || !g || !g.guild) return;
+  row.style.display = '';
+
+  const tag = g.guild.tag || '';
+  const isim = g.guild.isim || '';
+  const mevcut = g.mevcut_nufus ?? 0;
+  const siniri = g.nufus_siniri ?? 0;
+  const moral = g.ordu_morali ?? 100;
+  const alanT = (g.guild_alan && g.guild_alan.toplam) || 0;
+  const alanK = (g.guild_alan && g.guild_alan.kullanilan) || 0;
+  const kasa = g.kasa || {};
+  const mb = parseFloat(kasa.mana_beyaz)||0, mk = parseFloat(kasa.mana_kirmizi)||0,
+        mm = parseFloat(kasa.mana_mavi)||0, my = parseFloat(kasa.mana_yesil)||0;
+  const manaToplam = (mb+mk+mm+my).toFixed(0);
+
+  const moralRenk = moral >= 70 ? '#2ecc71' : (moral >= 40 ? '#f39c12' : '#e74c3c');
+  const nufusRenk = (siniri > 0 && mevcut/siniri >= 0.95) ? '#e74c3c' : '#d4af37';
+
+  // Kart seklinde 5 ozet kutusu
+  stats.innerHTML = `
+    <div class="stat-box" data-tip="GUILD" style="cursor:pointer" onclick="location.href='guild.html'">
+      <span class="res-icon">🏰</span>
+      <div class="res-details"><span class="res-label">${tag||'GUILD'}</span><span class="res-amount" style="font-size:10px">${isim}</span></div>
+    </div>
+    <div class="stat-box" data-tip="GUILD NUFUS">
+      <span class="res-icon">👥</span>
+      <div class="res-details"><span class="res-label">G.Nufus</span><span class="res-amount" style="color:${nufusRenk}">${mevcut}/${siniri}</span></div>
+    </div>
+    <div class="stat-box" data-tip="GUILD ORDU MORAL">
+      <span class="res-icon">🎖</span>
+      <div class="res-details"><span class="res-label">G.Moral</span><span class="res-amount" style="color:${moralRenk}">${moral}/100</span></div>
+    </div>
+    <div class="stat-box" data-tip="GUILD ALAN">
+      <span class="res-icon">📐</span>
+      <div class="res-details"><span class="res-label">G.Alan</span><span class="res-amount">${alanK}/${alanT}</span></div>
+    </div>
+    <div class="stat-box" data-tip="GUILD MANA (toplam)">
+      <span class="res-icon">🔮</span>
+      <div class="res-details"><span class="res-label">G.Mana</span><span class="res-amount">${manaToplam}</span></div>
+    </div>
+  `;
+}
+
+/* =====================================================
    updatePopulationUI — Nüfus & İşçi panelini günceller
 ===================================================== */
 function updatePopulationUI(){

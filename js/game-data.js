@@ -114,13 +114,29 @@ async function loadGameData() {
     ]);
 
     // Player verisi
+    let playerGuildId = null;
     try {
       if (pResp && pResp.ok) {
         const pData = await pResp.json();
         savePlayer(pData);
         obApplyPlayer(pData);
+        playerGuildId = pData.guild_id;
       }
     } catch(e) {}
+
+    // v1.13.2: Guild HUD (sadece guilddeyse)
+    if (playerGuildId) {
+      try {
+        const gResp = await fetch(API_BASE + '/api/guild/benim', { headers: authH });
+        if (gResp.ok) {
+          const gData = await gResp.json();
+          if (typeof setGuildHUD === 'function') setGuildHUD(gData);
+        }
+      } catch(e) {}
+    } else {
+      const gRow = document.getElementById('hud-guild-row');
+      if (gRow) gRow.style.display = 'none';
+    }
     const res  = resRes.ok  ? await resRes.json()  : {};
     const prodData = prodRes.ok ? await prodRes.json() : {};
     const prod = prodData.toplam || prodData;
