@@ -80,10 +80,13 @@
             <option value="mana_beyaz">Beyaz Mana</option><option value="mana_kirmizi">Kirmizi Mana</option>
             <option value="mana_mavi">Mavi Mana</option><option value="mana_yesil">Yesil Mana</option>
             <option value="at">At</option><option value="kurt">Kurt</option>
-            <option value="ates_tozu">Ates Tozu</option><option value="ay_cigi">Ay Cicegi</option>
+            <option value="ates_tozu">Kristal Tozu</option><option value="ay_cigi">Ay Tasi</option>
+            <option value="golgeler_otu">Karanlik Esans</option><option value="ejderha_goz_damla">Ejderha Pulu</option>
           </select>
         </div>
-        <button class="btn-action" onclick="pzIlanVer()" style="padding:6px 16px;font-size:12px;width:auto">Ilan Ver</button>
+        <!-- v1.13.1: Piyasa ipucu + sinir uyarisi -->
+        <div id="pz-piyasa-bilgi" style="font-size:11px;margin:4px 0 8px 0;padding:6px 10px;background:rgba(200,169,110,0.08);border-left:2px solid #c8a96e;border-radius:4px;color:#ccc"></div>
+        <button class="btn-action" id="pz-ilan-btn" onclick="pzIlanVer()" style="padding:6px 16px;font-size:12px;width:auto">Ilan Ver</button>
         <div id="pz-ilan-msg" style="font-size:11px;margin-top:6px;min-height:14px"></div>
       </div>
     </div>
@@ -305,7 +308,84 @@ async function pzIlanVer() {
   };
   const resp = await fetch(API_BASE+'/api/pazar/ilan-ver',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(body)}).then(r=>r.json());
   document.getElementById('pz-ilan-msg').innerHTML = resp.ok ? `<span style="color:#2ecc71">${resp.mesaj}</span>` : `<span style="color:#e74c3c">${resp.error||'Hata'}</span>`;
+  if (resp.ok) { loadKervanlarPazar(); loadIlanlar(); }
 }
+
+// v1.13.1: Piyasa deger cache + ipucu UI
+var PZ_KAYNAK_DEGERLERI = {}; // kaynak -> mevcut_altin_deger
+var PZ_SINIRLAR = { min_yuzde: 50, max_yuzde: 200 };
+
+async function pzKaynakDegerleriYukle() {
+  const token = getToken(); if (!token) return;
+  try {
+    const r = await fetch(API_BASE + '/api/pazar/kaynak-degerleri', { headers: { 'Authorization': 'Bearer ' + token } });
+    const d = await r.json();
+    if (d.kaynaklar) {
+      PZ_KAYNAK_DEGERLERI = {};
+      d.kaynaklar.forEach(k => { PZ_KAYNAK_DEGERLERI[k.kaynak] = parseFloat(k.mevcut_altin_deger) || 0; });
+      PZ_SINIRLAR = d.sinirlar || PZ_SINIRLAR;
+    }
+  } catch(e) {}
+}
+
+function pzPiyasaGuncelle() {
+  const satKaynak = document.getElementById('pz-sat-kaynak')?.value;
+  const istekKaynak = document.getElementById('pz-istek-kaynak')?.value;
+  const satMiktar = parseFloat(document.getElementById('pz-sat-miktar')?.value) || 0;
+  const istekMiktar = parseFloat(document.getElementById('pz-istek-miktar')?.value) || 0;
+  const bilgiEl = document.getElementById('pz-piyasa-bilgi');
+  const btnEl = document.getElementById('pz-ilan-btn');
+  if (!bilgiEl) return;
+
+  const satDeger = PZ_KAYNAK_DEGERLERI[satKaynak] || 0;
+  const istekDeger = PZ_KAYNAK_DEGERLERI[istekKaynak] || 0;
+  if (satDeger <= 0 || istekDeger <= 0) {
+    bilgiEl.innerHTML = '<span style="color:#999">Piyasa degeri yukleniyor...</span>';
+    if (btnEl) btnEl.disabled = false;
+    return;
+  }
+
+  // Hedef oran: 1 sat_kaynak = X istek_kaynak
+  const hedefOran = satDeger / istekDeger;
+  const altSinir = hedefOran * PZ_SINIRLAR.min_yuzde / 100;
+  const ustSinir = hedefOran * PZ_SINIRLAR.max_yuzde / 100;
+
+  let uyari = '';
+  let uyariRenk = '#c8a96e';
+  let disable = false;
+  if (satMiktar > 0 && istekMiktar > 0) {
+    const gercekOran = istekMiktar / satMiktar;
+    const yuzdeFark = ((gercekOran - hedefOran) / hedefOran * 100).toFixed(0);
+    if (gercekOran < altSinir) {
+      uyari = ` ⚠️ Cok dusuk! Min: ${altSinir.toFixed(2)} ${istekKaynak}/${satKaynak} (piyasa %${PZ_SINIRLAR.min_yuzde})`;
+      uyariRenk = '#e74c3c';
+      disable = true;
+    } else if (gercekOran > ustSinir) {
+      uyari = ` ⚠️ Cok yuksek! Max: ${ustSinir.toFixed(2)} ${istekKaynak}/${satKaynak} (piyasa %${PZ_SINIRLAR.max_yuzde})`;
+      uyariRenk = '#e74c3c';
+      disable = true;
+    } else {
+      uyari = ` ✓ Piyasa ile uyumlu (${yuzdeFark >= 0 ? '+' : ''}${yuzdeFark}%)`;
+      uyariRenk = '#2ecc71';
+    }
+  }
+
+  bilgiEl.style.borderLeftColor = uyariRenk;
+  bilgiEl.innerHTML =
+    `<div style="color:#aaa">💹 Piyasa: <b style="color:${uyariRenk}">1 ${satKaynak}</b> ≈ <b>${hedefOran.toFixed(2)} ${istekKaynak}</b></div>` +
+    `<div style="font-size:10px;color:#888">Izinli aralik: ${altSinir.toFixed(2)} — ${ustSinir.toFixed(2)} ${istekKaynak}/${satKaynak}</div>` +
+    (uyari ? `<div style="font-size:11px;color:${uyariRenk};margin-top:3px">${uyari}</div>` : '');
+  if (btnEl) btnEl.disabled = disable;
+}
+
+// Listener bagla (form input degisimleri)
+document.addEventListener('DOMContentLoaded', () => {
+  ['pz-sat-kaynak','pz-sat-miktar','pz-istek-kaynak','pz-istek-miktar'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.addEventListener('change', pzPiyasaGuncelle); el.addEventListener('input', pzPiyasaGuncelle); }
+  });
+  pzKaynakDegerleriYukle().then(pzPiyasaGuncelle);
+});
 
 async function pzSatinAl(ilanId) {
   const token = getToken(); if (!token) return;

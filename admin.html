@@ -1212,7 +1212,7 @@ async function saveBinaConfig(binaId) {
 
 // ── Buyu Dukkani Config ──
 const BC_MALZEMELER = ['ates_tozu','ay_cigi','golgeler_otu','ejderha_goz_damla'];
-const BC_MAL_ISIM = {ates_tozu:'Ates Tozu',ay_cigi:'Ay Cicegi',golgeler_otu:'Golgeler Otu',ejderha_goz_damla:'Ejderha Goz Damlasi'};
+const BC_MAL_ISIM = {ates_tozu:'Kristal Tozu',ay_cigi:'Ay Tasi',golgeler_otu:'Karanlik Esans',ejderha_goz_damla:'Ejderha Pulu'};
 
 async function loadBuyuConfig() {
   const d = await fetch(API+'/api/admin/buyu-config', {headers:hdr()}).then(r=>r.json());
