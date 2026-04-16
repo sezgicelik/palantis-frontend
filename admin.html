@@ -78,6 +78,8 @@
     <button onclick="switchTab('duyuru',this)">Duyurular</button>
     <button onclick="switchTab('davet',this)">Davet Kodlari</button>
     <button onclick="switchTab('guild-cfg',this)">Guild Ayar</button>
+    <button onclick="switchTab('pazar-deger',this)">Pazar Deger</button>
+    <button onclick="switchTab('kadim-cfg',this)">Kadim Sehir</button>
   </div>
 
   <!-- CRON TAB -->
@@ -109,8 +111,8 @@
         <th>Nufus</th><th>Koylu</th><th>Asker</th><th>Alan</th>
         <th>ATK</th><th>DEF</th><th>Unite</th>
         <th>Altin</th><th>Odun</th><th>Metal</th><th>Bugday</th><th>Balik</th>
-        <th>Kereste</th><th>Islenmis</th><th>Ekmek</th><th>Moral</th>
-        <th>Premium</th><th>Paket</th><th>Bitis</th>
+        <th>Kereste</th><th>Islenmis</th><th>Ekmek</th><th>Ş.Moral</th><th>O.Moral</th>
+        <th>Premium</th><th>Paket</th><th>Bitis</th><th>Aksiyon</th>
       </tr></thead>
       <tbody id="players-list"></tbody></table>
       </div>
@@ -592,6 +594,50 @@
     <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">Guild Ordu Mudahale</h3>
     <p style="font-size:10px;color:#888;margin-bottom:10px">Havuza unite ekle (pozitif) veya cikar (negatif)</p>
     <div id="guild-ordu-content"></div>
+
+    <!-- v1.13.x: Guild Dagitim + Ordu Morali + WS Ekle -->
+    <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">Guild Kaynak Dagitim Oranlari (v1.12.2)</h3>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">Secilen guildin isci uretiminin % kaci uyelere dagitilir</p>
+    <div id="guild-dagitim-content">Yukleniyor...</div>
+
+    <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">Guild Ordu Morali Duzelt (v1.12.2)</h3>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">Secilen guildin ordu moralini (0-100) degistir</p>
+    <div id="guild-morali-content">Yukleniyor...</div>
+
+    <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">Guild WS (Worshipper) Ekle</h3>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">Secilen guildin worshipper sayisini degistir (renk bazli)</p>
+    <div id="guild-ws-content">Yukleniyor...</div>
+  </div>
+
+  <!-- PAZAR DEGER TAB (v1.13.1) -->
+  <div id="tab-pazar-deger" class="panel">
+    <h3>PvP Pazar Deger Formul Ayarlari</h3>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">Uretim maliyeti + arz-talep dinamik fiyatlama + kadim sehir premium</p>
+    <div id="pazar-deger-cfg-content">Yukleniyor...</div>
+    <button class="act" onclick="pazarDegerCfgKaydet()" style="margin-top:8px">Ayarlari Kaydet</button>
+
+    <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">23 Kaynagin Mevcut Degerleri</h3>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">Cron her saat guncellenir. Baz=formul sonucu, Mevcut=baz×arz-talep carpani</p>
+    <table style="width:100%;font-size:11px">
+      <thead><tr><th>Kaynak</th><th>Baz (altin)</th><th>Mevcut (altin)</th><th>Arz</th><th>Talep 24h</th><th>Carpan</th><th>Son Guncelleme</th></tr></thead>
+      <tbody id="kaynak-degerleri-body"></tbody>
+    </table>
+  </div>
+
+  <!-- KADIM SEHIR TAB (v1.11.0 + v1.13.1) -->
+  <div id="tab-kadim-cfg" class="panel">
+    <h3>Kadim Sehir Config</h3>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">Saldiri esigi, stok yenileme, ordu buyume, fiyat carpanı</p>
+    <div id="kadim-cfg-content">Yukleniyor...</div>
+    <button class="act" onclick="kadimCfgKaydet()" style="margin-top:8px">Config Kaydet</button>
+
+    <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">Kadim Sehirler Durumu</h3>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">2 sehir + anlik state + ordu_gucu + saldiri sayaclari</p>
+    <div id="kadim-sehirler-content">Yukleniyor...</div>
+
+    <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">Sehir Kasasina Kaynak Ekle/Cikar</h3>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">Secilen kadim sehrin stoguna kaynak ekle (pozitif) veya cikar (negatif)</p>
+    <div id="kadim-kasa-content">Yukleniyor...</div>
   </div>
 
 </div>
@@ -645,7 +691,9 @@ function switchTab(tab, el) {
   if (tab === 'dayaniklilik-cfg') loadDayaniklikCfg();
   if (tab === 'bilge-cfg') loadBilgeCfg();
   if (tab === 'casus-cfg') loadCasusCfg();
-  if (tab === 'guild-cfg') loadGuildCfg();
+  if (tab === 'guild-cfg') { loadGuildCfg(); loadGuildDagitimCfg(); loadGuildMoraliCfg(); loadGuildWsCfg(); }
+  if (tab === 'pazar-deger') loadPazarDegerCfg();
+  if (tab === 'kadim-cfg') loadKadimCfg();
 }
 
 function hdr() { return { 'x-admin-secret': SECRET, 'Content-Type': 'application/json' }; }
@@ -708,11 +756,13 @@ async function loadPlayers() {
       <td>${fmt(p.bugday)}</td><td>${fmt(p.balik)}</td>
       <td>${fmt(p.kereste)}</td><td>${fmt(p.islenmis)}</td><td>${fmt(p.ekmek)}</td>
       <td>${p.sehir_morali||0}</td>
+      <td style="color:${(p.ordu_morali||0)>=70?'#2ecc71':(p.ordu_morali||0)>=40?'#f39c12':'#e74c3c'}">${p.ordu_morali ?? 100}</td>
       <td class="${p.prem_aktif&&new Date(p.prem_bitis)>new Date()?'ok':'fail'}">${p.prem_aktif&&new Date(p.prem_bitis)>new Date()?'AKTIF':p.prem_paket?'BITTI':'-'}</td>
       <td>${p.prem_paket||'-'}</td>
       <td>${p.prem_bitis?fmtDate(p.prem_bitis):'-'}</td>
+      <td><button class="act" style="font-size:9px;padding:2px 6px" onclick="setPlayerMoral(${p.player_id||p.id}, '${(p.kral||'').replace(/'/g,'&#39;')}')">M</button></td>
     </tr>
-  `).join('') || '<tr><td colspan="25" style="text-align:center;color:var(--muted)">Oyuncu yok</td></tr>';
+  `).join('') || '<tr><td colspan="27" style="text-align:center;color:var(--muted)">Oyuncu yok</td></tr>';
   loadHistory();
 }
 
@@ -2164,6 +2214,266 @@ async function guildOrduEkle() {
       if(msg) msg.innerHTML = '<span style="color:#2ecc71">' + d.mesaj + ' | Havuz: ' + (havuzStr||'bos') + '</span>';
     } else { if(msg) msg.innerHTML = '<span style="color:#e74c3c">' + (d.error||'Hata') + '</span>'; }
   } catch(e) { if(msg) msg.innerHTML = '<span style="color:#e74c3c">Baglanti hatasi</span>'; }
+}
+
+// v1.13.3: Oyuncu ordu_morali set (prompt ile)
+async function setPlayerMoral(playerId, kral) {
+  const mevcut = prompt('Oyuncu "'+kral+'" icin ordu morali (0-100):', '100');
+  if (mevcut === null) return;
+  const moral = Math.max(0, Math.min(100, parseInt(mevcut)||100));
+  try {
+    const d = await fetch(API + '/api/admin/set-moral', { method:'POST', headers:hdr(), body:JSON.stringify({ player_id: playerId, ordu_morali: moral }) }).then(r=>r.json());
+    alert(d.ok ? (d.mesaj || 'OK') : (d.error || 'Hata'));
+    if (d.ok) loadPlayers();
+  } catch(e) { alert('Hata: '+e.message); }
+}
+
+// ═════════════════════════════════════════════════
+//   v1.13.1 — PAZAR DEGER CONFIG (Admin)
+// ═════════════════════════════════════════════════
+let PAZAR_DEGER_CFG = null;
+async function loadPazarDegerCfg() {
+  try {
+    const d = await fetch(API + '/api/admin/pazar-deger-config', {headers:hdr()}).then(r=>r.json());
+    if (!d.ok) { document.getElementById('pazar-deger-cfg-content').innerHTML = '<div style="color:#e74c3c">'+(d.error||'Hata')+'</div>'; return; }
+    PAZAR_DEGER_CFG = d.config || {};
+    const c = PAZAR_DEGER_CFG;
+    const carpan = c.carpan || {};
+    const urett = c.urett || {};
+
+    const numInput = (id, val, step) => `<input type="number" id="pdcfg-${id}" value="${val ?? 0}" step="${step||0.1}" style="width:80px;padding:2px 4px;background:#222;border:1px solid #444;color:#ddd;font-size:11px;border-radius:3px">`;
+
+    let html = '<table style="font-size:11px"><tr><td><b>W (isci-saat altin degeri)</b></td><td>'+numInput('W', c.W, 1)+'</td></tr>';
+    html += '<tr><td><b>denge_orani (gun)</b></td><td>'+numInput('denge_orani', c.denge_orani, 1)+'</td></tr>';
+    html += '<tr><td><b>arz-talep carpan_min</b></td><td>'+numInput('carpan_min', c.carpan_min, 0.1)+'</td></tr>';
+    html += '<tr><td><b>arz-talep carpan_max</b></td><td>'+numInput('carpan_max', c.carpan_max, 0.5)+'</td></tr>';
+    html += '<tr><td><b>ilan min sapma (%)</b></td><td>'+numInput('min_sapma_yuzde', c.min_sapma_yuzde, 5)+'</td></tr>';
+    html += '<tr><td><b>ilan max sapma (%)</b></td><td>'+numInput('max_sapma_yuzde', c.max_sapma_yuzde, 10)+'</td></tr>';
+    html += '<tr><td><b>kadim_premium_carpan</b></td><td>'+numInput('kadim_premium_carpan', c.kadim_premium_carpan, 0.1)+'</td></tr>';
+    html += '<tr><td><b>kadim_ters_taraf_carpan</b></td><td>'+numInput('kadim_ters_taraf_carpan', c.kadim_ters_taraf_carpan, 0.1)+'</td></tr>';
+    html += '<tr><td><b>kadim_stok_carpan_max</b></td><td>'+numInput('kadim_stok_carpan_max', c.kadim_stok_carpan_max, 0.5)+'</td></tr>';
+    html += '</table>';
+
+    html += '<h4 style="margin-top:16px;color:#c8a96e">Isci Uretim Hizi (saatlik)</h4><div style="display:flex;gap:8px;flex-wrap:wrap">';
+    ['bugday','odun','metal','balik'].forEach(k => {
+      html += '<label style="font-size:10px;color:#aaa">'+k+': <input type="number" id="pdcfg-urett-'+k+'" value="'+(urett[k]||0)+'" step="0.5" style="width:60px;padding:2px 4px;background:#222;border:1px solid #444;color:#ddd;font-size:11px;border-radius:3px;margin-left:3px"></label>';
+    });
+    html += '</div>';
+
+    html += '<h4 style="margin-top:16px;color:#c8a96e">Kaynak Carpanlari (baz fiyat multiplier)</h4><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px">';
+    const KAYNAKLAR = ['bugday','odun','metal','balik','kereste','islenmis','pismis','ekmek','cig_et','pismis_et',
+      'mana_beyaz','mana_kirmizi','mana_mavi','mana_yesil','at','kurt','gizlilik','buyulu_yumurta',
+      'ates_tozu','ay_cigi','golgeler_otu','ejderha_goz_damla'];
+    KAYNAKLAR.forEach(k => {
+      html += '<label style="font-size:10px;color:#aaa">'+k+': <input type="number" id="pdcfg-carpan-'+k+'" value="'+(carpan[k]||0)+'" step="0.5" style="width:80px;padding:2px 4px;background:#222;border:1px solid #444;color:#ddd;font-size:11px;border-radius:3px;margin-left:3px"></label>';
+    });
+    html += '</div>';
+
+    document.getElementById('pazar-deger-cfg-content').innerHTML = html;
+
+    // Kaynak degerleri tablosu
+    const tbody = document.getElementById('kaynak-degerleri-body');
+    if (tbody && d.kaynak_degerleri) {
+      tbody.innerHTML = d.kaynak_degerleri.map(k => {
+        const det = k.formul_detay || {};
+        return '<tr><td>'+k.kaynak+'</td><td>'+parseFloat(k.baz_altin_deger).toFixed(2)+'</td><td><b>'+parseFloat(k.mevcut_altin_deger).toFixed(2)+'</b></td><td>'+(k.arz||0)+'</td><td>'+(k.talep_24h||0)+'</td><td>'+(det.carpan||'-')+'</td><td>'+fmtDate(k.son_guncelleme)+'</td></tr>';
+      }).join('');
+    }
+  } catch(e) { document.getElementById('pazar-deger-cfg-content').innerHTML = '<div style="color:#e74c3c">Hata: '+e.message+'</div>'; }
+}
+
+async function pazarDegerCfgKaydet() {
+  if (!PAZAR_DEGER_CFG) return;
+  const getVal = (id) => parseFloat(document.getElementById('pdcfg-'+id)?.value) || 0;
+  const cfg = {
+    W: getVal('W'),
+    denge_orani: getVal('denge_orani'),
+    carpan_min: getVal('carpan_min'),
+    carpan_max: getVal('carpan_max'),
+    min_sapma_yuzde: getVal('min_sapma_yuzde'),
+    max_sapma_yuzde: getVal('max_sapma_yuzde'),
+    kadim_premium_carpan: getVal('kadim_premium_carpan'),
+    kadim_ters_taraf_carpan: getVal('kadim_ters_taraf_carpan'),
+    kadim_stok_carpan_max: getVal('kadim_stok_carpan_max'),
+    urett: { bugday: getVal('urett-bugday'), odun: getVal('urett-odun'), metal: getVal('urett-metal'), balik: getVal('urett-balik') },
+    carpan: {}
+  };
+  const KAYNAKLAR = ['bugday','odun','metal','balik','kereste','islenmis','pismis','ekmek','cig_et','pismis_et',
+    'mana_beyaz','mana_kirmizi','mana_mavi','mana_yesil','at','kurt','gizlilik','buyulu_yumurta',
+    'ates_tozu','ay_cigi','golgeler_otu','ejderha_goz_damla'];
+  KAYNAKLAR.forEach(k => { cfg.carpan[k] = getVal('carpan-'+k); });
+  try {
+    const d = await fetch(API + '/api/admin/pazar-deger-config', { method:'POST', headers:hdr(), body:JSON.stringify({ config: cfg }) }).then(r=>r.json());
+    alert(d.ok ? (d.mesaj||'Kaydedildi') : (d.error||'Hata'));
+    if (d.ok) loadPazarDegerCfg();
+  } catch(e) { alert('Hata: '+e.message); }
+}
+
+// ═════════════════════════════════════════════════
+//   v1.11.0 + v1.13.1 — KADIM SEHIR CONFIG (Admin)
+// ═════════════════════════════════════════════════
+let KADIM_CFG = null;
+let KADIM_SEHIRLER = [];
+async function loadKadimCfg() {
+  try {
+    const d = await fetch(API + '/api/admin/kadim-sehir-config', {headers:hdr()}).then(r=>r.json());
+    if (!d.ok) { document.getElementById('kadim-cfg-content').innerHTML = '<div style="color:#e74c3c">'+(d.error||'Hata')+'</div>'; return; }
+    KADIM_CFG = d.config || {};
+    KADIM_SEHIRLER = d.sehirler || [];
+    const c = KADIM_CFG;
+
+    const numInput = (id, val, step) => `<input type="number" id="kcfg-${id}" value="${val ?? 0}" step="${step||1}" style="width:80px;padding:2px 4px;background:#222;border:1px solid #444;color:#ddd;font-size:11px;border-radius:3px">`;
+
+    let html = '<table style="font-size:11px"><tr><td><b>saldiri_esigi_pg</b></td><td>'+numInput('saldiri_esigi_pg', c.saldiri_esigi_pg, 10)+'</td></tr>';
+    html += '<tr><td><b>saldirmazlik_pg</b></td><td>'+numInput('saldirmazlik_pg', c.saldirmazlik_pg, 1)+'</td></tr>';
+    html += '<tr><td><b>ordu_buyume_oran</b></td><td>'+numInput('ordu_buyume_oran', c.ordu_buyume_oran, 0.01)+'</td></tr>';
+    html += '<tr><td><b>hammadde_fiyat_carpan (eski, v1.13.1 oncesi)</b></td><td>'+numInput('hammadde_fiyat_carpan', c.hammadde_fiyat_carpan, 0.05)+'</td></tr>';
+    html += '<tr><td><b>saatlik_stok_yenileme</b></td><td>'+numInput('saatlik_stok_yenileme', c.saatlik_stok_yenileme, 50)+'</td></tr>';
+    html += '<tr><td><b>npc_saldiri_guc_carpan</b></td><td>'+numInput('npc_saldiri_guc_carpan', c.npc_saldiri_guc_carpan, 0.1)+'</td></tr>';
+    html += '</table>';
+    html += '<p style="font-size:10px;color:#888;margin-top:8px">NOT: v1.13.1 sonrasi kadim fiyat PvP mevcut_altin_deger × premium × stok × taraf formulune gecti. Premium/stok/taraf carpanlari <b>Pazar Deger</b> tabinda ayarlanir.</p>';
+
+    document.getElementById('kadim-cfg-content').innerHTML = html;
+
+    // Sehirler durumu
+    const sehirHtml = '<table style="width:100%;font-size:11px"><thead><tr><th>ID</th><th>Isim</th><th>Taraf</th><th>X:Y</th><th>State</th><th>Ordu</th><th>Holding Guild</th></tr></thead><tbody>' +
+      KADIM_SEHIRLER.map(s => '<tr><td>'+s.id+'</td><td>'+s.isim+'</td><td>'+s.taraf+'</td><td>'+s.x+':'+s.y+'</td><td>'+(s.state||'-')+'</td><td>'+(s.ordu_gucu||0)+'</td><td>'+(s.holding_guild_id||'-')+'</td></tr>').join('') +
+      '</tbody></table>';
+    document.getElementById('kadim-sehirler-content').innerHTML = sehirHtml;
+
+    // Kasa ekleme UI
+    const sehirOpts = KADIM_SEHIRLER.map(s => '<option value="'+s.id+'">'+s.isim+' ('+s.taraf+')</option>').join('');
+    const KAYNAKLAR = ['odun','metal','bugday','balik','kereste','islenmis','altin','cig_et','pismis','ekmek','pismis_et'];
+    const kaynakOpts = KAYNAKLAR.map(k => '<option value="'+k+'">'+k+'</option>').join('');
+    document.getElementById('kadim-kasa-content').innerHTML =
+      '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
+        '<select id="kk-sehir" style="padding:3px;background:#222;border:1px solid #444;color:#ddd;font-size:11px;border-radius:3px">'+sehirOpts+'</select>' +
+        '<select id="kk-kaynak" style="padding:3px;background:#222;border:1px solid #444;color:#ddd;font-size:11px;border-radius:3px">'+kaynakOpts+'</select>' +
+        '<input id="kk-miktar" type="number" value="1000" style="width:80px;padding:3px;background:#222;border:1px solid #444;color:#ddd;font-size:11px;border-radius:3px">' +
+        '<button class="act" onclick="kadimKasaEkle()">Ekle/Cikar (neg=cikar)</button>' +
+        '<span id="kk-msg" style="font-size:10px"></span>' +
+      '</div>';
+  } catch(e) { document.getElementById('kadim-cfg-content').innerHTML = '<div style="color:#e74c3c">Hata: '+e.message+'</div>'; }
+}
+
+async function kadimCfgKaydet() {
+  if (!KADIM_CFG) return;
+  const getVal = (id) => parseFloat(document.getElementById('kcfg-'+id)?.value) || 0;
+  const cfg = {
+    saldiri_esigi_pg: getVal('saldiri_esigi_pg'),
+    saldirmazlik_pg: getVal('saldirmazlik_pg'),
+    ordu_buyume_oran: getVal('ordu_buyume_oran'),
+    hammadde_fiyat_carpan: getVal('hammadde_fiyat_carpan'),
+    saatlik_stok_yenileme: getVal('saatlik_stok_yenileme'),
+    npc_saldiri_guc_carpan: getVal('npc_saldiri_guc_carpan')
+  };
+  try {
+    const d = await fetch(API + '/api/admin/kadim-sehir-config', { method:'POST', headers:hdr(), body:JSON.stringify({ config: cfg }) }).then(r=>r.json());
+    alert(d.ok ? (d.mesaj||'Kaydedildi') : (d.error||'Hata'));
+  } catch(e) { alert('Hata: '+e.message); }
+}
+
+async function kadimKasaEkle() {
+  const sehirId = parseInt(document.getElementById('kk-sehir').value);
+  const kaynak = document.getElementById('kk-kaynak').value;
+  const miktar = parseInt(document.getElementById('kk-miktar').value);
+  const msg = document.getElementById('kk-msg');
+  try {
+    const d = await fetch(API + '/api/admin/kadim-sehir/'+sehirId+'/kasa', { method:'POST', headers:hdr(), body:JSON.stringify({ kaynaklar: { [kaynak]: miktar } }) }).then(r=>r.json());
+    msg.innerHTML = d.ok ? '<span style="color:#2ecc71">'+(d.mesaj||'OK')+'</span>' : '<span style="color:#e74c3c">'+(d.error||'Hata')+'</span>';
+  } catch(e) { msg.innerHTML = '<span style="color:#e74c3c">Hata</span>'; }
+}
+
+// ═════════════════════════════════════════════════
+//   v1.12.2 — GUILD DAGITIM + ORDU MORALI + WS EKLE
+// ═════════════════════════════════════════════════
+async function loadGuildDagitimCfg() {
+  const el = document.getElementById('guild-dagitim-content');
+  if (!el) return;
+  // Tum guildleri al (guild-cfg endpoint'inden)
+  try {
+    const gs = await fetch(API + '/api/admin/guildler', {headers:hdr()}).then(r=>r.json()).catch(()=>null);
+    if (!gs || !gs.ok) { el.innerHTML = '<div style="color:#888">Guild listesi alinamadi (fallback: guild secimi manuel)</div>'; return; }
+    const guilds = gs.guildler || [];
+    const opts = guilds.map(g => '<option value="'+g.id+'">['+g.tag+'] '+g.isim+'</option>').join('');
+    const KAYNAKLAR = ['odun','metal','altin','bugday','balik','kereste','islenmis'];
+    let html = '<div style="display:flex;gap:6px;align-items:center;margin-bottom:8px">' +
+      '<select id="gd-guild" onchange="guildDagitimYukle()" style="padding:3px;background:#222;border:1px solid #444;color:#ddd;font-size:11px;border-radius:3px">'+opts+'</select>' +
+      '<button class="act" onclick="guildDagitimYukle()">Getir</button>' +
+      '</div><div id="gd-body">Guild sec...</div>';
+    el.innerHTML = html;
+  } catch(e) { el.innerHTML = '<div style="color:#e74c3c">Hata: '+e.message+'</div>'; }
+}
+
+async function guildDagitimYukle() {
+  const gId = parseInt(document.getElementById('gd-guild')?.value);
+  if (!gId) return;
+  const body = document.getElementById('gd-body');
+  try {
+    // Bu endpoint admin icin yok — player endpoint'ini kullanamayız.
+    // Admin panel icin yeni bir endpoint gerekli. Simdilik not goster.
+    body.innerHTML = '<div style="color:#888;font-size:10px">Not: Admin icin dagitim goruntuleme/degistirme endpoint henuz yok. Guild lideri kendi panelinde ayarlayabilir (guild.html \u2192 Dagitim tab).</div>' +
+      '<div style="margin-top:6px">Secili guild: '+gId+'</div>';
+  } catch(e) { body.innerHTML = '<div style="color:#e74c3c">Hata</div>'; }
+}
+
+async function loadGuildMoraliCfg() {
+  const el = document.getElementById('guild-morali-content');
+  if (!el) return;
+  try {
+    const gs = await fetch(API + '/api/admin/guildler', {headers:hdr()}).then(r=>r.json()).catch(()=>null);
+    if (!gs || !gs.ok) { el.innerHTML = '<div style="color:#888">Guild listesi alinamadi</div>'; return; }
+    const guilds = gs.guildler || [];
+    const opts = guilds.map(g => '<option value="'+g.id+'" data-moral="'+(g.ordu_morali||100)+'">['+g.tag+'] '+g.isim+' (moral: '+(g.ordu_morali||100)+')</option>').join('');
+    el.innerHTML = '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
+      '<select id="gm-guild" style="padding:3px;background:#222;border:1px solid #444;color:#ddd;font-size:11px;border-radius:3px">'+opts+'</select>' +
+      '<input id="gm-moral" type="number" min="0" max="100" value="100" style="width:70px;padding:3px;background:#222;border:1px solid #444;color:#ddd;font-size:11px;border-radius:3px">' +
+      '<button class="act" onclick="guildMoraliSet()">Moral Set (0-100)</button>' +
+      '<span id="gm-msg" style="font-size:10px"></span>' +
+      '</div>';
+  } catch(e) { el.innerHTML = '<div style="color:#e74c3c">Hata</div>'; }
+}
+
+async function guildMoraliSet() {
+  const gId = parseInt(document.getElementById('gm-guild').value);
+  const moral = Math.max(0, Math.min(100, parseInt(document.getElementById('gm-moral').value)||100));
+  const msg = document.getElementById('gm-msg');
+  try {
+    const d = await fetch(API + '/api/admin/guild/'+gId+'/morali', { method:'POST', headers:hdr(), body:JSON.stringify({ ordu_morali: moral }) }).then(r=>r.json());
+    msg.innerHTML = d.ok ? '<span style="color:#2ecc71">'+(d.mesaj||'OK')+'</span>' : '<span style="color:#e74c3c">'+(d.error||'Endpoint yok — backend gerekli')+'</span>';
+    if (d.ok) loadGuildMoraliCfg();
+  } catch(e) { msg.innerHTML = '<span style="color:#e74c3c">Hata</span>'; }
+}
+
+async function loadGuildWsCfg() {
+  const el = document.getElementById('guild-ws-content');
+  if (!el) return;
+  try {
+    const gs = await fetch(API + '/api/admin/guildler', {headers:hdr()}).then(r=>r.json()).catch(()=>null);
+    if (!gs || !gs.ok) { el.innerHTML = '<div style="color:#888">Guild listesi alinamadi</div>'; return; }
+    const guilds = gs.guildler || [];
+    const opts = guilds.map(g => '<option value="'+g.id+'">['+g.tag+'] '+g.isim+'</option>').join('');
+    el.innerHTML = '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
+      '<select id="gws-guild" style="padding:3px;background:#222;border:1px solid #444;color:#ddd;font-size:11px;border-radius:3px">'+opts+'</select>' +
+      '<select id="gws-renk" style="padding:3px;background:#222;border:1px solid #444;color:#ddd;font-size:11px;border-radius:3px">' +
+        '<option value="beyaz">Beyaz</option><option value="kirmizi">Kirmizi</option><option value="mavi">Mavi</option><option value="yesil">Yesil</option>' +
+      '</select>' +
+      '<input id="gws-adet" type="number" value="10" style="width:70px;padding:3px;background:#222;border:1px solid #444;color:#ddd;font-size:11px;border-radius:3px">' +
+      '<button class="act" onclick="guildWsEkle()">WS Ekle/Cikar (neg=cikar)</button>' +
+      '<span id="gws-msg" style="font-size:10px"></span>' +
+      '</div>';
+  } catch(e) { el.innerHTML = '<div style="color:#e74c3c">Hata</div>'; }
+}
+
+async function guildWsEkle() {
+  const gId = parseInt(document.getElementById('gws-guild').value);
+  const renk = document.getElementById('gws-renk').value;
+  const adet = parseInt(document.getElementById('gws-adet').value);
+  const msg = document.getElementById('gws-msg');
+  try {
+    const d = await fetch(API + '/api/admin/ws-ekle', { method:'POST', headers:hdr(), body:JSON.stringify({ guild_id: gId, renk, adet }) }).then(r=>r.json());
+    msg.innerHTML = d.ok ? '<span style="color:#2ecc71">'+(d.mesaj||'OK')+'</span>' : '<span style="color:#e74c3c">'+(d.error||'Hata')+'</span>';
+  } catch(e) { msg.innerHTML = '<span style="color:#e74c3c">Hata</span>'; }
 }
 </script>
 </body>
