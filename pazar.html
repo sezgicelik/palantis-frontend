@@ -33,6 +33,7 @@
       <button class="atab on" onclick="pazarTab('ilanlar',this)">Tum Ilanlar</button>
       <button class="atab" onclick="pazarTab('sat',this)">Ilan Ver</button>
       <button class="atab" onclick="pazarTab('benim',this)">Ilanlarim</button>
+      <button class="atab" onclick="pazarTab('kadim',this)" style="background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.3)">🏛 Kadim Sehirler</button>
     </div>
 
     <!-- TUM ILANLAR -->
@@ -92,6 +93,13 @@
       <div id="pz-benim-liste"></div>
     </div>
 
+    <!-- KADIM SEHIRLER -->
+    <div id="ptab-kadim" style="display:none">
+      <div id="kadim-sehir-secim" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px"></div>
+      <div id="kadim-uyari" style="display:none;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);border-radius:6px;padding:10px;margin-bottom:12px;font-size:11px;color:#e74c3c;text-align:center"></div>
+      <div id="kadim-mallar"></div>
+    </div>
+
   </div>
 </div>
 <div id="toast"></div>
@@ -114,11 +122,108 @@ function pazarTab(tab, el) {
   document.getElementById('ptab-ilanlar').style.display = tab==='ilanlar' ? 'block' : 'none';
   document.getElementById('ptab-sat').style.display = tab==='sat' ? 'block' : 'none';
   document.getElementById('ptab-benim').style.display = tab==='benim' ? 'block' : 'none';
+  document.getElementById('ptab-kadim').style.display = tab==='kadim' ? 'block' : 'none';
   document.querySelectorAll('.army-tabs .atab').forEach(b => b.classList.remove('on'));
   if (el) el.classList.add('on');
   if (tab === 'ilanlar') loadIlanlar();
   if (tab === 'sat') loadKervanlarPazar();
   if (tab === 'benim') loadBenimIlanlar();
+  if (tab === 'kadim') loadKadimSehirler();
+}
+
+// ═══════ KADIM SEHIRLER ═══════
+const KADIM_IKON = {odun:'🌳',metal:'⛏️',bugday:'🌾',balik:'🐟',kereste:'🪵',islenmis:'🔩',cig_et:'🥩',ekmek:'🍞',pismis:'🐟',pismis_et:'🥩'};
+let _kadimSecili = null;
+
+async function loadKadimSehirler() {
+  const token = getToken(); if (!token) return;
+  try {
+    const resp = await fetch(API_BASE + '/api/kadim-sehir', { headers: { 'Authorization': 'Bearer ' + token } });
+    const data = await resp.json();
+    if (!data.ok) { toast(data.error || 'Hata'); return; }
+
+    const el = document.getElementById('kadim-sehir-secim');
+    el.innerHTML = data.sehirler.map(s => {
+      const renk = s.taraf === 'isik' ? '#f1c40f' : '#3498db';
+      const ikon = s.taraf === 'isik' ? '🌟' : '💀';
+      return `<div class="card" style="padding:14px;cursor:pointer;border:2px solid ${_kadimSecili===s.id ? renk : 'transparent'};text-align:center;transition:border 0.2s" onclick="kadimSec(${s.id})">
+        <div style="font-size:20px;margin-bottom:4px">${ikon}</div>
+        <div style="color:${renk};font-weight:bold;font-size:14px;font-family:'Cinzel',serif">${s.isim}</div>
+        <div style="font-size:10px;color:#888;margin-top:4px">${s.taraf === 'isik' ? 'Isik Sehri' : 'Karanlik Sehir'}</div>
+        <div style="font-size:10px;color:#555;margin-top:6px">Konum: ${s.x}:${s.y} | Ordu: ${s.ordu_gucu}</div>
+        <div style="font-size:10px;color:#d4af37;margin-top:4px">Ticaretiniz: ${s.toplam_ticaret.toLocaleString()} altin</div>
+        ${s.saldiri_planli ? '<div style="font-size:10px;color:#e74c3c;margin-top:4px">⚠️ Saldiri planlaniyor!</div>' : ''}
+      </div>`;
+    }).join('');
+
+    if (!_kadimSecili && data.sehirler.length > 0) return;
+    if (_kadimSecili) loadKadimPazar(_kadimSecili);
+  } catch(e) { toast('Sunucu hatasi'); }
+}
+
+function kadimSec(sehirId) {
+  _kadimSecili = sehirId;
+  loadKadimSehirler();
+  loadKadimPazar(sehirId);
+}
+
+async function loadKadimPazar(sehirId) {
+  const token = getToken(); if (!token) return;
+  try {
+    const resp = await fetch(API_BASE + '/api/kadim-sehir/' + sehirId + '/pazar', { headers: { 'Authorization': 'Bearer ' + token } });
+    const data = await resp.json();
+    if (!data.ok) { toast(data.error || 'Hata'); return; }
+
+    // Uyari
+    const uyariEl = document.getElementById('kadim-uyari');
+    if (data.uyari) { uyariEl.style.display = 'block'; uyariEl.textContent = '⚠️ ' + data.uyari; }
+    else { uyariEl.style.display = 'none'; }
+
+    // Mallar
+    const el = document.getElementById('kadim-mallar');
+    const renk = data.sehir.taraf === 'isik' ? '#f1c40f' : '#3498db';
+    el.innerHTML = '<h3 style="color:' + renk + ';font-size:13px;margin:0 0 10px;font-family:Cinzel,serif">' + data.sehir.isim + ' Pazari</h3>' +
+      data.mallar.filter(m => m.satista).map(m =>
+        `<div class="card" style="padding:8px;margin-bottom:4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <div style="min-width:110px">
+            <span style="font-size:14px">${KADIM_IKON[m.kaynak]||''}</span>
+            <span style="color:#ddd;font-weight:bold;font-size:12px">${m.isim}</span>
+          </div>
+          <div style="flex:1;font-size:10px;color:#888">
+            Stok: <span style="color:#2ecc71">${m.stok.toLocaleString()}</span> |
+            Fiyat: <span style="color:#d4af37">${m.fiyat} altin/adet</span>
+          </div>
+          <div style="display:flex;gap:4px;align-items:center">
+            <input type="number" id="kadim-miktar-${m.kaynak}" value="100" min="1" max="10000" style="width:65px;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px;font-size:11px">
+            <button class="btn-action" onclick="kadimSatinAl(${sehirId},'${m.kaynak}',${m.fiyat})" style="padding:4px 10px;font-size:10px;width:auto">Satin Al</button>
+          </div>
+        </div>`
+      ).join('') || '<div style="text-align:center;color:#555;padding:20px">Stok bos</div>';
+  } catch(e) { toast('Sunucu hatasi'); }
+}
+
+async function kadimSatinAl(sehirId, kaynak, birimFiyat) {
+  const token = getToken(); if (!token) return;
+  const miktarEl = document.getElementById('kadim-miktar-' + kaynak);
+  const miktar = parseInt(miktarEl?.value) || 0;
+  if (miktar <= 0) { toast('Gecerli miktar gir'); return; }
+
+  const toplam = miktar * birimFiyat;
+  if (!confirm(miktar + ' adet ' + kaynak + ' satin al?\nToplam: ' + toplam.toLocaleString() + ' altin')) return;
+
+  try {
+    const resp = await fetch(API_BASE + '/api/kadim-sehir/' + sehirId + '/satin-al', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ kaynak, miktar })
+    });
+    const data = await resp.json();
+    if (!resp.ok) { toast(data.error || 'Hata'); return; }
+    toast(data.mesaj);
+    loadKadimPazar(sehirId);
+    loadKadimSehirler();
+    if (typeof loadGameData === 'function') loadGameData();
+  } catch(e) { toast('Sunucu hatasi'); }
 }
 
 async function loadIlanlar() {
