@@ -246,6 +246,42 @@ function renderTabGenel(el, data) {
         '<div style="font-size:10px;color:#555">Sehir bilgisi yok</div>') +
     '</div>' +
 
+    // Guild VS (ATK/DEF) ozet
+    (function() {
+      var vs = data.guild_vs || {};
+      return '<div class="card">' +
+        '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">⚔️ Savas Gucu</div>' +
+        '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;font-size:10px">' +
+          '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center">' +
+            '<div style="color:#888;font-size:9px">Ordular</div><div style="color:#d4af37;font-weight:bold">' + (vs.ordu_sayisi||0) + '</div>' +
+          '</div>' +
+          '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center">' +
+            '<div style="color:#888;font-size:9px">Uniteler</div><div style="color:#2ecc71;font-weight:bold">' + fmt(vs.toplam_unite||0) + '</div>' +
+          '</div>' +
+          '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center">' +
+            '<div style="color:#888;font-size:9px">ATK</div><div style="color:#e74c3c;font-weight:bold">' + fmt(Math.floor(vs.toplam_atk||0)) + '</div>' +
+          '</div>' +
+          '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center">' +
+            '<div style="color:#888;font-size:9px">DEF</div><div style="color:#3498db;font-weight:bold">' + fmt(Math.floor(vs.toplam_def||0)) + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    })() +
+
+    // Guild binalar ozet
+    (function() {
+      var binalar = data.guild_binalar_ozet || [];
+      if (binalar.length === 0) return '';
+      var BINA_IKON = {oduncu:'🪓',demir_madeni:'⛏️',tarla:'🌾',balikci:'🎣',isleme:'🔩',ocak:'🔥',kisla:'🏛',surlar:'🏰',ev:'🏠',pazar:'🏪'};
+      return '<div class="card">' +
+        '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">🏗 Binalar</div>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:4px">' +
+        binalar.map(function(b) {
+          return '<span style="font-size:10px;background:#0a0a0a;padding:3px 8px;border-radius:4px">' + (BINA_IKON[b.bina_id]||'') + ' ' + b.bina_id + ' <span style="color:#d4af37">Lv' + b.seviye + '</span></span>';
+        }).join('') +
+        '</div></div>';
+    })() +
+
     // Diplomasi
     '<div class="card">' +
       '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">⚔️ Diplomasi</div>' +
