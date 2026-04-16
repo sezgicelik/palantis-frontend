@@ -580,6 +580,18 @@
     <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">Guild Sehri Tasi</h3>
     <p style="font-size:10px;color:#888;margin-bottom:10px">Secilen guildin sehir koordinatini degistir</p>
     <div id="guild-tasi-content"></div>
+
+    <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">Guild Nufus Duzelt</h3>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">Secilen guildin koylu/asker/worshipper sayisini degistir (mutlak deger)</p>
+    <div id="guild-nufus-content"></div>
+
+    <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">Guild Bina Seviye Set/Reset</h3>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">Secilen guildin binasini ekle/sil/seviye degistir (0 = sil)</p>
+    <div id="guild-bina-content"></div>
+
+    <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">Guild Ordu Mudahale</h3>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">Havuza unite ekle (pozitif) veya cikar (negatif)</p>
+    <div id="guild-ordu-content"></div>
   </div>
 
 </div>
@@ -1982,6 +1994,50 @@ async function loadGuildCfg() {
       '</div>';
 
     gcGuildDegisti();
+
+    // Nufus paneli
+    const nufusEl = document.getElementById('guild-nufus-content');
+    if (nufusEl) nufusEl.innerHTML =
+      '<div class="card" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
+        '<select id="gc-nufus-guild" style="padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
+          _guildListe.map(g => '<option value="' + g.id + '">[' + g.tag + '] ' + g.isim + ' (K:' + (g.guild_koylu||0) + ' A:' + (g.guild_asker||0) + ' W:' + (g.guild_worshipper||0) + ')</option>').join('') +
+        '</select>' +
+        '<span style="font-size:10px;color:#888">Koylu:</span><input id="gc-nufus-koylu" type="number" min="0" value="0" style="width:55px;padding:3px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
+        '<span style="font-size:10px;color:#888">Asker:</span><input id="gc-nufus-asker" type="number" min="0" value="0" style="width:55px;padding:3px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
+        '<span style="font-size:10px;color:#888">WS:</span><input id="gc-nufus-ws" type="number" min="0" value="0" style="width:55px;padding:3px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
+        '<button class="act" onclick="guildNufusDuzelt()">Uygula</button>' +
+        '<div id="gc-nufus-msg" style="font-size:10px;min-height:14px;width:100%"></div>' +
+      '</div>';
+
+    // Bina paneli
+    const binaEl = document.getElementById('guild-bina-content');
+    const GUILD_BINALARI = ['oduncu','demir_madeni','tarla','balikci','isleme','ocak','kisla','surlar','ev','pazar'];
+    if (binaEl) binaEl.innerHTML =
+      '<div class="card" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
+        '<select id="gc-bina-guild" style="padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
+          _guildListe.map(g => '<option value="' + g.id + '">[' + g.tag + '] ' + g.isim + '</option>').join('') +
+        '</select>' +
+        '<select id="gc-bina-id" style="padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
+          GUILD_BINALARI.map(b => '<option value="' + b + '">' + b + '</option>').join('') +
+        '</select>' +
+        '<span style="font-size:10px;color:#888">Seviye:</span><input id="gc-bina-sev" type="number" min="0" max="20" value="1" style="width:45px;padding:3px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
+        '<button class="act" onclick="guildBinaSet()">Uygula</button>' +
+        '<div id="gc-bina-msg" style="font-size:10px;min-height:14px;width:100%"></div>' +
+      '</div>';
+
+    // Ordu paneli
+    const orduEl = document.getElementById('guild-ordu-content');
+    if (orduEl) orduEl.innerHTML =
+      '<div class="card" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
+        '<select id="gc-ordu-guild" style="padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
+          _guildListe.map(g => '<option value="' + g.id + '">[' + g.tag + '] ' + g.isim + '</option>').join('') +
+        '</select>' +
+        '<input id="gc-ordu-unite" placeholder="unite_id (ornegin: piyadeler)" style="padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px;width:140px">' +
+        '<span style="font-size:10px;color:#888">Adet:</span><input id="gc-ordu-adet" type="number" value="10" style="width:60px;padding:3px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
+        '<button class="act" onclick="guildOrduEkle()">Uygula</button>' +
+        '<div id="gc-ordu-msg" style="font-size:10px;min-height:14px;width:100%"></div>' +
+      '</div>';
+
   } catch(e) { el.innerHTML = '<div style="color:#e74c3c">Yukleme hatasi: ' + e.message + '</div>'; }
 }
 
@@ -2061,6 +2117,53 @@ async function guildTasi() {
     if (d.ok) { alert(d.mesaj); loadGuildCfg(); }
     else alert('Hata: ' + (d.error || 'Bilinmeyen'));
   } catch(e) { alert('Hata: ' + e.message); }
+}
+
+async function guildNufusDuzelt() {
+  const gId = document.getElementById('gc-nufus-guild')?.value;
+  if (!gId) return alert('Guild secin');
+  const body = {
+    koylu: parseInt(document.getElementById('gc-nufus-koylu')?.value) || 0,
+    asker: parseInt(document.getElementById('gc-nufus-asker')?.value) || 0,
+    worshipper: parseInt(document.getElementById('gc-nufus-ws')?.value) || 0
+  };
+  const msg = document.getElementById('gc-nufus-msg');
+  try {
+    const r = await fetch(API + '/api/admin/guild/' + gId + '/nufus', { method: 'POST', headers: hdr(), body: JSON.stringify(body) });
+    const d = await r.json();
+    if (d.ok) { if(msg) msg.innerHTML = '<span style="color:#2ecc71">Nufus guncellendi! K:' + d.nufus.koylu + ' A:' + d.nufus.asker + ' W:' + d.nufus.worshipper + '</span>'; loadGuildCfg(); }
+    else { if(msg) msg.innerHTML = '<span style="color:#e74c3c">' + (d.error||'Hata') + '</span>'; }
+  } catch(e) { if(msg) msg.innerHTML = '<span style="color:#e74c3c">Baglanti hatasi</span>'; }
+}
+
+async function guildBinaSet() {
+  const gId = document.getElementById('gc-bina-guild')?.value;
+  const bina_id = document.getElementById('gc-bina-id')?.value;
+  const seviye = parseInt(document.getElementById('gc-bina-sev')?.value) || 0;
+  if (!gId || !bina_id) return alert('Guild ve bina secin');
+  const msg = document.getElementById('gc-bina-msg');
+  try {
+    const r = await fetch(API + '/api/admin/guild/' + gId + '/bina-set', { method: 'POST', headers: hdr(), body: JSON.stringify({ bina_id, seviye }) });
+    const d = await r.json();
+    if (d.ok) { if(msg) msg.innerHTML = '<span style="color:#2ecc71">' + d.mesaj + '</span>'; loadGuildCfg(); }
+    else { if(msg) msg.innerHTML = '<span style="color:#e74c3c">' + (d.error||'Hata') + '</span>'; }
+  } catch(e) { if(msg) msg.innerHTML = '<span style="color:#e74c3c">Baglanti hatasi</span>'; }
+}
+
+async function guildOrduEkle() {
+  const gId = document.getElementById('gc-ordu-guild')?.value;
+  const unite_id = document.getElementById('gc-ordu-unite')?.value?.trim();
+  const adet = parseInt(document.getElementById('gc-ordu-adet')?.value) || 0;
+  if (!gId || !unite_id || adet === 0) return alert('Guild, unite_id ve adet gerekli');
+  const msg = document.getElementById('gc-ordu-msg');
+  try {
+    const r = await fetch(API + '/api/admin/guild/' + gId + '/ordu-ekle', { method: 'POST', headers: hdr(), body: JSON.stringify({ unite_id, adet }) });
+    const d = await r.json();
+    if (d.ok) {
+      const havuzStr = d.havuz.map(h => h.unite_id + ':' + h.adet).join(', ');
+      if(msg) msg.innerHTML = '<span style="color:#2ecc71">' + d.mesaj + ' | Havuz: ' + (havuzStr||'bos') + '</span>';
+    } else { if(msg) msg.innerHTML = '<span style="color:#e74c3c">' + (d.error||'Hata') + '</span>'; }
+  } catch(e) { if(msg) msg.innerHTML = '<span style="color:#e74c3c">Baglanti hatasi</span>'; }
 }
 </script>
 </body>
