@@ -43,10 +43,10 @@ const IRKLAR = {
 const BLDGS = {
   /* ═══ ÜRETİM ═══ */
   oduncu:{id:'oduncu',cat:'uretim',icon:'🌳',name:'Oduncu Kampı',bg:'#0a160a',
-    desc:"Oduncuların çalıştığı yer. Her bina 40 oduncu barındırır.",
-    maxLv:999,lv:0,deger:45,kapasite:{tip:'oduncu',miktar:40},
+    desc:"Odun üretimine seviye başına +%2 bonus verir.",
+    maxLv:999,lv:0,deger:45,
     cagLimit:{1:60,2:100,3:140,4:200,5:260},
-    fx:l=>[{t:'pos',s:`+${l*40} Odun/gün`},{t:'pos',s:`${l*40} oduncu kap.`}],
+    fx:l=>[{t:'pos',s:`Odun üretimi +${l*2}%`}],
     cost:l=>({odun:200,altin:50}),time:l=>3600},
 
   kereste_atolyesi:{id:'kereste_atolyesi',cat:'uretim',icon:'🪚',name:'Kereste Atölyesi',bg:'#1a1208',
