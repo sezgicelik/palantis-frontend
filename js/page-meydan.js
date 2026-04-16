@@ -187,4 +187,9 @@ async function ozelOku(mesajId) {
 document.addEventListener('DOMContentLoaded', function() {
   var attempts = 0;
   var check = setInterval(function() { attempts++; if ((typeof OYUNCU !== 'undefined' && OYUNCU?.kral) || attempts > 20) { clearInterval(check); loadMeydanMesajlar(); } }, 500);
+  // Otomatik yenileme: 30 saniyede bir yeni mesajlari getir
+  setInterval(function() {
+    var meydanEl = document.getElementById('meydan-tab');
+    if (meydanEl && meydanEl.style.display !== 'none') loadMeydanMesajlar();
+  }, 30000);
 });
