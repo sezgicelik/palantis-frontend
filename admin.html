@@ -590,7 +590,7 @@ const API = typeof getApiBase === 'function' ? getApiBase() : 'https://palantis-
 let SECRET = '';
 
 function doLogin() {
-  SECRET = document.getElementById('secret-input').value;
+  SECRET = document.getElementById('secret-input').value.trim();
   fetch(API + '/api/admin/cron-status', { headers: { 'x-admin-secret': SECRET } })
     .then(r => r.json())
     .then(d => {
