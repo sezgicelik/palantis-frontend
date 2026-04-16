@@ -28,6 +28,8 @@ function renderAyarlar(el, data) {
     { key:'ozel_mesaj', label:'Ozel mesaj aldiginda', icon:'✉️' },
     { key:'maas_eksik', label:'Ordu maasi odenemediginde', icon:'💸' },
     { key:'guild_duyuru', label:'Guild duyurusu yapildiginda', icon:'🏰' },
+    { key:'bina_tamam', label:'Bina insaati tamamlandiginda', icon:'🏗️' },
+    { key:'pazar_satis', label:'Pazardaki ilanlarim satildiginda', icon:'🏪' },
   ];
 
   el.innerHTML =
@@ -77,6 +79,15 @@ function renderAyarlar(el, data) {
           '</label>' +
         '</div>';
       }).join('') +
+      // Pazar eşik seçici
+      '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;margin-top:4px">' +
+        '<span style="font-size:10px;color:#888">🏪 Pazar bildirim eşiği (ilanlarin kaçı satılınca?)</span>' +
+        '<select id="bil-pazar-esik" onchange="bildirimKaydet()" style="background:#1a1a1a;color:#ccc;border:1px solid #333;border-radius:4px;padding:2px 6px;font-size:10px">' +
+          [25,50,75,100].map(function(v) {
+            return '<option value="' + v + '"' + ((bil.pazar_satis_esik||100) === v ? ' selected' : '') + '>%' + v + '</option>';
+          }).join('') +
+        '</select>' +
+      '</div>' +
     '</div>' +
 
     // Tatil Modu
@@ -320,12 +331,15 @@ async function telegramKopar() {
 
 async function bildirimKaydet() {
   var token = getToken(); if (!token) return;
-  var keys = ['saldiri','koloni_bitis','gorev_tamam','casus_rapor','ozel_mesaj','maas_eksik','guild_duyuru'];
+  var keys = ['saldiri','koloni_bitis','gorev_tamam','casus_rapor','ozel_mesaj','maas_eksik','guild_duyuru','bina_tamam','pazar_satis'];
   var body = {};
   keys.forEach(function(k) {
     var cb = document.getElementById('bil-' + k);
     if (cb) body[k] = cb.checked;
   });
+  // Pazar eşik
+  var esikEl = document.getElementById('bil-pazar-esik');
+  if (esikEl) body.pazar_satis_esik = parseInt(esikEl.value) || 100;
   try {
     await fetch(API_BASE + '/api/ayarlar/bildirim', {
       method: 'PUT',
