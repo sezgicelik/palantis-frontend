@@ -392,8 +392,9 @@ function bkRenderKitap() {
               </div>
               <div style="font-size:9px;color:#666;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${b.aciklama || ''}</div>
               ${kd ? '<div style="font-size:8px;color:#555;margin-top:1px">' +
-                (kd.mana||0) + ' ' + MANA_RENK_ISIM[b.mana_renk] + ' · ' +
-                (kd.malzeme||0) + ' ' + (MALZEME_ISIM[b.malzeme]||b.malzeme) +
+                '<span style="color:' + (yeterliMana ? '#aaa' : '#e74c3c') + '">' + (kd.mana||0) + ' ' + MANA_RENK_ISIM[b.mana_renk] + '</span> · ' +
+                '<span style="color:' + (yeterliMalzeme ? '#aaa' : '#e74c3c') + '">' + (kd.malzeme||0) + ' ' + (MALZEME_ISIM[b.malzeme]||b.malzeme) + '</span>' +
+                ' · <span style="color:' + (yeterliKule ? '#2ecc71' : '#e74c3c') + ';font-weight:bold" title="' + b.cag + ' Buyucu Kulesi gerekli (mevcut: ' + kuleAdet + ')">🗼 ' + (yeterliKule ? b.cag + '/' + kuleAdet : b.cag + '≠' + kuleAdet) + '</span>' +
                 (kd.sure > 0 ? ' · ' + kd.sure + 'PG' : '') +
                 ' · CD:' + (b.cooldown||0) + 'PG · %' + (kd.basari||0) +
               '</div>' : ''}
