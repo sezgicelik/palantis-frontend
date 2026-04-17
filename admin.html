@@ -370,6 +370,7 @@
       <p style="font-size:10px;color:var(--muted);margin-bottom:10px">Tikla = aktif/pasif. Aktif olanlar oyuncu marketinde satilabiilir.</p>
       <div id="mc-liste" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"></div>
       <button class="btn" onclick="confirmAction('Satilabilir kaynaklar kaydedilecek. Emin misiniz?',saveMarketConfig)">Kaydet</button>
+      <button class="btn" onclick="mcVarsayilan()" style="background:#27ae60;color:#fff;margin-left:6px">🔄 Varsayilana Don (10 Market Hammadde)</button>
       <div id="mc-msg" style="color:var(--green);font-size:11px;margin-top:6px"></div>
     </div>
   </div>
@@ -1289,6 +1290,16 @@ function mcToggle(k) {
 async function saveMarketConfig() {
   const r = await fetch(API+'/api/admin/satilabilir',{method:'POST',headers:hdr(),body:JSON.stringify({aktif:[...MC_AKTIF]})}).then(r=>r.json());
   document.getElementById('mc-msg').textContent = r.ok ? r.mesaj : (r.error||'Hata');
+}
+
+async function mcVarsayilan() {
+  if (!confirm('10 market hammaddesi (gumus, mitril, bakir, obsidyen, ejderha_tasi, kalay, kehribar, yakut, zumrut, elmas) aktif olarak ayarlanacak. Emin misiniz?')) return;
+  const varsayilan = ['gumus','mitril','bakir','obsidyen','ejderha_tasi','kalay','kehribar','yakut','zumrut','elmas'];
+  const r = await fetch(API+'/api/admin/satilabilir',{method:'POST',headers:hdr(),body:JSON.stringify({aktif:varsayilan})}).then(r=>r.json());
+  const msg = document.getElementById('mc-msg');
+  msg.textContent = r.ok ? '✓ 10 market hammaddesi aktif edildi' : (r.error||'Hata');
+  msg.style.color = r.ok ? '#2ecc71' : '#e74c3c';
+  if (r.ok) loadMarketConfig();
 }
 
 // ── Unite Durum ──
