@@ -138,6 +138,7 @@ function renderKervanlar() {
           <input id="kv-miktar-${k.id}" type="number" value="100" min="1" style="padding:3px;width:60px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px;font-size:10px">
           <button class="btn-action" onclick="kvYukle(${k.id})" style="padding:3px 8px;font-size:10px;width:auto">Yukle</button>
           <button class="btn-action" onclick="kvBosalt(${k.id})" style="padding:3px 8px;font-size:10px;width:auto;border-color:#f39c12;color:#f39c12">Bosalt</button>
+          <button class="btn-action" onclick="kvBosaltHepsi(${k.id})" style="padding:3px 8px;font-size:10px;width:auto;border-color:#2ecc71;color:#2ecc71" title="Kervandaki tum yuku sehre aktar (parsomen envanter, diger resources)">Tumunu Bosalt</button>
         </div>
         <div style="display:flex;gap:4px;margin-top:6px">
           <button class="btn-action" onclick="kvGonder(${k.id},'pazar')" style="padding:4px 10px;font-size:10px;width:auto">Pazara Gonder</button>
@@ -195,6 +196,13 @@ async function kvBosalt(id) {
   const kaynak = document.getElementById('kv-kaynak-'+id).value;
   const miktar = parseInt(document.getElementById('kv-miktar-'+id).value) || 0;
   const r = await fetch(API_BASE+`/api/kervan/${id}/bosalt`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({kaynak,miktar})}).then(r=>r.json());
+  showMsg(id, r); if(r.ok) { loadKervanlar(); if(typeof loadGameData==='function')loadGameData(); }
+}
+
+async function kvBosaltHepsi(id) {
+  if (!confirm('Kervandaki tum yuk sehre bosaltilacak. Emin misiniz?')) return;
+  const token = getToken();
+  const r = await fetch(API_BASE+`/api/kervan/${id}/bosalt-hepsi`,{method:'POST',headers:{'Authorization':'Bearer '+token}}).then(r=>r.json());
   showMsg(id, r); if(r.ok) { loadKervanlar(); if(typeof loadGameData==='function')loadGameData(); }
 }
 
