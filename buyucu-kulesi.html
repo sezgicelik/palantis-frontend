@@ -204,6 +204,8 @@ function bkShowSonuc(basarili, data, buyuId) {
 
   const buyu = (bkData?.buyuler || []).find(b => b.id === buyuId);
   const buyuAdi = buyu?.isim || buyuId;
+  // v1.13.29: Kime yapildi bilgisi
+  const hedefLbl = selectedHedef ? ` → ${selectedHedef.kral}` : '';
 
   if (basarili) {
     el.style.background = 'linear-gradient(90deg, rgba(46,204,113,0.18), rgba(46,204,113,0.05))';
@@ -211,7 +213,7 @@ function bkShowSonuc(basarili, data, buyuId) {
     el.style.borderLeft = '5px solid #2ecc71';
     el.style.color = '#2ecc71';
     ikon.textContent = '✨';
-    baslik.textContent = `BASARILI: ${buyuAdi}`;
+    baslik.textContent = `BASARILI: ${buyuAdi}${hedefLbl}`;
     detay.style.color = '#aaa';
     detay.textContent = data.mesaj || 'Buyu basariyla yapildi';
   } else {
@@ -220,7 +222,7 @@ function bkShowSonuc(basarili, data, buyuId) {
     el.style.borderLeft = '5px solid #e74c3c';
     el.style.color = '#e74c3c';
     ikon.textContent = '💥';
-    baslik.textContent = `BASARISIZ: ${buyuAdi}`;
+    baslik.textContent = `BASARISIZ: ${buyuAdi}${hedefLbl}`;
     detay.style.color = '#aaa';
     const parcalar = [];
     if (data.mesaj) parcalar.push(data.mesaj);
@@ -350,6 +352,31 @@ function bkRenderKitap() {
             (!selectedHedef ? '<ul class="hedef-list" id="bk-hedef-list" style="max-height:50px;margin-top:2px"></ul>' : '');
           }
 
+          // v1.13.29: Kendine buyu + secili + guild uyesi varsa hedef dropdown
+          let kendineYapBtn = '';
+          if (secili && !isOfansif && kd) {
+            const uyeler = bkData?.guild_uyeler || [];
+            const benimId = bkData?.benim_player_id;
+            const digerUyeler = uyeler.filter(u => u.id !== benimId);
+            if (digerUyeler.length > 0) { // en az 1 baska uye varsa dropdown goster
+              const secDeger = selectedHedef?.id || 'kendim';
+              const rutbeLbl = (r) => r === 'lider' ? 'Lider' : (r === 'yardimci' ? 'Yard.' : 'Uye');
+              const secYapilabilir = yeterliMana && yeterliMalzeme && yeterliKule;
+              kendineYapBtn = '<div style="width:100%;margin-top:4px;padding-top:4px;border-top:1px solid rgba(212,162,87,0.1);display:flex;align-items:center;gap:6px" onclick="event.stopPropagation()">' +
+                '<span style="font-size:10px;color:#888">Hedef:</span>' +
+                '<select onchange="bkHedefSecim(this.value)" style="flex:1;padding:3px 6px;background:#0a0a0a;border:1px solid #333;color:#ddd;border-radius:3px;font-size:10px">' +
+                  '<option value="kendim"' + (secDeger === 'kendim' ? ' selected' : '') + '>🏠 Kendime</option>' +
+                  digerUyeler.map(u =>
+                    '<option value="' + u.id + '"' + (secDeger == u.id ? ' selected' : '') + '>👥 ' + u.kral + ' (' + rutbeLbl(u.rutbe) + ')</option>'
+                  ).join('') +
+                '</select>' +
+                '<button class="btn gold" style="font-size:9px;padding:4px 10px;flex-shrink:0" onclick="event.stopPropagation();bkBuyuYap(\'' + b.id + '\')" ' +
+                  (!secYapilabilir ? 'disabled style="opacity:0.3;font-size:9px;padding:4px 10px;flex-shrink:0"' : '') +
+                '>⚡ YAP</button>' +
+              '</div>';
+            }
+          }
+
           // Maliyet bilgisi (her kartta göster) + v1.13.28 Kule gereksinimi
           let maliyetStr = '';
           if (kd) {
@@ -399,8 +426,9 @@ function bkRenderKitap() {
                 ' · CD:' + (b.cooldown||0) + 'PG · %' + (kd.basari||0) +
               '</div>' : ''}
             </div>
-            ${(secili && isOfansif && kd) ? '' : inlineBtn}
+            ${(secili && kd && (isOfansif || (bkData?.guild_uyeler || []).filter(u => u.id !== bkData?.benim_player_id).length > 0)) ? '' : inlineBtn}
             ${yapBtn}
+            ${kendineYapBtn}
           </div>`;
 
           // Ofansif büyüler için hedef seçimi gerekiyorsa, seçim sonrası yapılır
@@ -515,7 +543,19 @@ function bkSelectHedef(id, kral, taraf) {
   bkRenderBuyuYap();
 }
 
-// Inline YAP butonu — kendine büyüyse direkt yap, ofansifse hedef sor
+// v1.13.29: Kendine buyu icin hedef secimi (dropdown onchange)
+function bkHedefSecim(value) {
+  if (value === 'kendim' || !value) {
+    selectedHedef = null;
+  } else {
+    const uye = (bkData?.guild_uyeler || []).find(u => String(u.id) === String(value));
+    if (uye) selectedHedef = { id: uye.id, kral: uye.kral };
+  }
+  // Not: bkRenderKitap() cagrilmiyor - select elementi zaten kendi state'ini tutar,
+  // YAP butonuna basilinca selectedHedef kullanilir
+}
+
+// Inline YAP butonu — kendine büyüyse (guild yoksa) direkt yap, ofansif veya guild uyesi varsa kart sec
 async function bkSelectAndCast(buyuId) {
   const buyu = bkData.buyuler.find(b => b.id === buyuId);
   if (!buyu) return;
@@ -526,7 +566,15 @@ async function bkSelectAndCast(buyuId) {
     bkRenderKitap();
     return;
   }
-  // Kendine: direkt yap
+  // v1.13.29: Kendine buyu — guild uyesi varsa kart sec (dropdown icin), yoksa direkt kendine
+  const digerUyeler = (bkData?.guild_uyeler || []).filter(u => u.id !== bkData?.benim_player_id);
+  if (digerUyeler.length > 0) {
+    selectedBuyu = buyuId;
+    selectedHedef = null; // default kendim
+    bkRenderKitap();
+    return;
+  }
+  // Guildsiz veya yalniz uye: direkt kendine yap
   await bkBuyuYap(buyuId);
 }
 
