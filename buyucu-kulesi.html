@@ -75,14 +75,14 @@
       <div class="cstat"><span class="snum" id="bk-ejderha">0</span><span class="slbl">Ejderha Pulu</span></div>
     </div>
 
-    <!-- v1.13.19: Son buyu sonucu — buyuk belirgin banner -->
-    <div id="bk-son-sonuc" style="display:none;border-radius:8px;padding:16px 20px;margin-bottom:14px;position:relative;animation:bk-flash 0.4s">
-      <button onclick="document.getElementById('bk-son-sonuc').style.display='none'" style="position:absolute;top:8px;right:12px;background:none;border:none;color:inherit;font-size:20px;cursor:pointer;opacity:0.6">✕</button>
-      <div id="bk-son-sonuc-icon" style="font-size:32px;float:left;margin-right:14px">✨</div>
-      <div id="bk-son-sonuc-baslik" style="font-family:'Cinzel',serif;font-size:16px;font-weight:bold;margin-bottom:4px">—</div>
-      <div id="bk-son-sonuc-detay" style="font-size:12px;opacity:0.9">—</div>
+    <!-- v1.13.27: Son buyu sonucu — FIXED position, ekranin uzerinde sabit kalir -->
+    <div id="bk-son-sonuc" style="display:none;position:fixed;top:auto;bottom:20px;left:50%;transform:translateX(-50%);max-width:480px;width:92vw;z-index:99998;border-radius:8px;padding:14px 18px;box-shadow:0 8px 30px rgba(0,0,0,0.8);animation:bk-flash 0.4s">
+      <button onclick="document.getElementById('bk-son-sonuc').style.display='none'" style="position:absolute;top:8px;right:12px;background:none;border:none;color:inherit;font-size:18px;cursor:pointer;opacity:0.7">✕</button>
+      <div id="bk-son-sonuc-icon" style="font-size:28px;float:left;margin-right:12px">✨</div>
+      <div id="bk-son-sonuc-baslik" style="font-family:'Cinzel',serif;font-size:15px;font-weight:bold;margin-bottom:4px">—</div>
+      <div id="bk-son-sonuc-detay" style="font-size:11px;opacity:0.9;line-height:1.4">—</div>
     </div>
-    <style>@keyframes bk-flash { 0% { transform:scale(0.9); opacity:0 } 100% { transform:scale(1); opacity:1 } }</style>
+    <style>@keyframes bk-flash { 0% { transform:translate(-50%,30px); opacity:0 } 100% { transform:translate(-50%,0); opacity:1 } }</style>
 
     <!-- v1.13.19: Sehirdeki kervanlarda bekleyen buyu malzemesi/parsomen uyarisi -->
     <div id="bk-kervan-uyari" style="display:none;background:rgba(243,156,18,0.08);border:1px solid rgba(243,156,18,0.3);border-left:4px solid #f39c12;border-radius:4px;padding:10px 14px;margin-bottom:14px">
@@ -229,12 +229,11 @@ function bkShowSonuc(basarili, data, buyuId) {
     detay.textContent = parcalar.join(' · ') || 'Buyu basarisiz oldu';
   }
   el.style.display = 'block';
-  // Sayfa ustune scroll et
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  // 30 saniye sonra otomatik kapat
+  // v1.13.27: Banner artik fixed position (ekran alt-ortasinda), scroll gerekmez
+  // 15 saniye sonra otomatik kapat
   setTimeout(() => {
     if (el.style.display === 'block') el.style.display = 'none';
-  }, 30000);
+  }, 15000);
 }
 
 // v1.13.19: Sehirdeki kervanlarda bekleyen buyu malzemesi varsa uyari goster
