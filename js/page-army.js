@@ -810,15 +810,36 @@ function renderTrainingQueue(queue){
   if(!wrap||!list) return;
   if(!queue.length){ wrap.style.display='none'; return; }
   wrap.style.display='block';
-  list.innerHTML = queue.map(q=>{
-    const gun = parseFloat(q.gunKalan)||0;
+
+  // v1.13.41.1: Ayni uniteId icin siralari birlestir (adet topla, en uzak queue_end'i al)
+  const merged = {};
+  for (const q of queue) {
+    const k = q.uniteId;
+    if (!merged[k]) {
+      merged[k] = { ...q, adetToplam: 0, parca: 0, maxSure: 0, minKalan: Infinity };
+    }
+    merged[k].adetToplam += parseInt(q.adet) || 0;
+    merged[k].parca += 1;
+    merged[k].maxSure = Math.max(merged[k].maxSure, parseFloat(q.surGun) || 0);
+    merged[k].minKalan = Math.min(merged[k].minKalan, parseFloat(q.gunKalan) || 0);
+    // Son bitis zamani (goruntulenen kalan sure) - en uzun bekleyen
+    if (!merged[k].sonKalan || parseFloat(q.gunKalan) > parseFloat(merged[k].sonKalan)) {
+      merged[k].sonKalan = parseFloat(q.gunKalan) || 0;
+    }
+  }
+
+  list.innerHTML = Object.values(merged).map(q => {
+    const kalan = parseFloat(q.sonKalan) || 0;        // Tum partilerin en uzak bitisi
+    const toplam = parseFloat(q.maxSure) || 0;        // Bir parti suresi (referans)
+    const yuzde = toplam > 0 ? Math.max(0, Math.min(100, Math.round((1 - (q.minKalan / toplam)) * 100))) : 0;
     const unitName = UNITS[q.uniteId]?.name || q.uniteId;
     const icon = UNITS[q.uniteId]?.icon || '\u2694\ufe0f';
+    const parcaInfo = q.parca > 1 ? ` <span style="color:#f39c12;font-size:10px">(${q.parca} parti birlesti)</span>` : '';
     return `<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #333">
       <span style="font-size:18px">${icon}</span>
-      <span style="min-width:120px;color:#d4af37;font-weight:bold">${unitName}</span>
-      <span style="color:#aaa">\u00d7${q.adet}</span>
-      <span style="margin-left:auto;color:#88aaff">\u23f1 ${gun > 0 ? fmtKalanSure(gun * 3600) : 'Tamamlanıyor'}</span>
+      <span style="min-width:140px;color:#d4af37;font-weight:bold">${unitName}${parcaInfo}</span>
+      <span style="color:#aaa">\u00d7${q.adetToplam.toLocaleString()}</span>
+      <span style="margin-left:auto;color:#88aaff">\u23f1 ${kalan.toFixed(1)} / ${toplam.toFixed(0)} P.G. <span style="color:#666">(%${yuzde})</span></span>
     </div>`;
   }).join('');
 }
@@ -837,19 +858,24 @@ function updateArmyStats(){
   if (window._palantisOrduMorali !== undefined) {
     setText('as-moral', window._palantisOrduMorali);
   }
-  // v1.13.41: Ekstra kaynak kart (at/kurt/yumurta/gizlilik/besi/cig_et/mana)
+  // v1.13.41.1: Ekstra kaynak kart — aydinlik=at, karanlik=kurt (taraf bazli tek gosterim)
   if (typeof EXTRA_RES !== 'undefined') {
-    setText('ax-at',     Math.floor(EXTRA_RES.at || 0).toLocaleString());
-    setText('ax-kurt',   Math.floor(EXTRA_RES.kurt || 0).toLocaleString());
+    var _tr = (typeof loadPlayer === 'function') ? (loadPlayer()?.taraf) : null;
+    // Binek
+    var binekAdet = _tr === 'kotu' ? (EXTRA_RES.kurt || 0) : (EXTRA_RES.at || 0);
+    var binekIkon = _tr === 'kotu' ? '🐺' : '🐎';
+    var binekAd   = _tr === 'kotu' ? 'Kurt' : 'At';
+    setText('ax-binek', Math.floor(binekAdet).toLocaleString());
+    setText('ax-binek-ikon', binekIkon);
+    setText('ax-binek-ad', binekAd);
+
     setText('ax-yumurta',(EXTRA_RES.buyulu_yumurta || 0).toLocaleString());
     setText('ax-gizli',  Math.floor(EXTRA_RES.gizlilik || 0).toLocaleString());
-    setText('ax-besi',   Math.floor(EXTRA_RES.besi_hayvani || 0).toLocaleString());
-    setText('ax-cigit',  Math.floor(EXTRA_RES.cig_et || 0).toLocaleString());
     setText('ax-mana',   Math.floor(EXTRA_RES.mana || 0).toLocaleString());
+
     // Mana renk ikonu + adi
     var _kisi = null;
     try { _kisi = localStorage.getItem('noxara_kisisel_bilge'); } catch {}
-    var _tr = (typeof loadPlayer === 'function') ? (loadPlayer()?.taraf) : null;
     var _renk = (_kisi && ['beyaz','kirmizi','mavi','yesil'].includes(_kisi)) ? _kisi
               : (_tr === 'kotu' ? 'kirmizi' : 'beyaz');
     var RENK_AD = { beyaz:'Beyaz', kirmizi:'Kırmızı', mavi:'Mavi', yesil:'Yeşil' };

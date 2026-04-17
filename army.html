@@ -26,14 +26,11 @@
 
     <!-- v1.13.41: Ekstra kaynaklar (unite extraCost icin gerekenler) -->
     <div class="card" style="margin-bottom:12px;padding:10px 14px">
-      <div style="font-size:11px;color:#888;margin-bottom:6px">📦 Ünite Eğitim Kaynakları (extraCost)</div>
+      <div style="font-size:11px;color:#888;margin-bottom:6px">📦 Ünite Eğitim Kaynakları</div>
       <div style="display:flex;flex-wrap:wrap;gap:14px;font-size:12px">
-        <span title="Atli asker / Atli okcu / Atli ok icin">🐎 At: <b id="ax-at" style="color:#d4af37">0</b></span>
-        <span title="Kurt savascisi icin">🐺 Kurt: <b id="ax-kurt" style="color:#888">0</b></span>
+        <span id="ax-binek-wrap" title="Binek hayvan (aydinlik=at, karanlik=kurt)"><span id="ax-binek-ikon">🐎</span> <span id="ax-binek-ad">At</span>: <b id="ax-binek" style="color:#d4af37">0</b></span>
         <span title="Ejderha cagirma + ejderha uniteleri icin">🥚 Büyülü Yumurta: <b id="ax-yumurta" style="color:#9b59b6">0</b></span>
         <span title="Casus ve gizli unite icin">🕵️ Gizlilik: <b id="ax-gizli" style="color:#3498db">0</b></span>
-        <span title="Besi hayvanlari (kesimde cig ete donusur)">🐄 Besi Hayvanı: <b id="ax-besi" style="color:#8e6e53">0</b></span>
-        <span title="Bazi unitelerin bakim/maas icin cig eti">🥩 Çiğ Et: <b id="ax-cigit" style="color:#e74c3c">0</b></span>
         <span title="Oyuncunun secili bilge rengine gore mana">🔮 Mana (<span id="ax-mana-renk">-</span>): <b id="ax-mana" style="color:#2ecc71">0</b></span>
       </div>
     </div>
@@ -197,5 +194,23 @@
 <script src="js/savas-rapor.js"></script>
 <script src="js/page-army.js"></script>
 <script src="js/bildirim-popup.js"></script>
+<script>
+// v1.13.41.1: EXTRA_RES game-data.js'den asenkron yuklenir, ilk render'da 0 gozukur
+// 1 sn sonra + her 5 sn'de bir kart ve mana rengi guncellenir
+setTimeout(() => typeof updateArmyStats === 'function' && updateArmyStats(), 1500);
+setInterval(() => typeof updateArmyStats === 'function' && updateArmyStats(), 5000);
+
+// Kisisel bilge yoksa endpoint'ten cek ve localStorage'a yaz (army sayfasinda da olsun)
+(async () => {
+  try {
+    if (localStorage.getItem('noxara_kisisel_bilge')) return;
+    const token = typeof getToken === 'function' ? getToken() : null;
+    if (!token) return;
+    const r = await fetch(API_BASE + '/api/buyucu-kulesi/bilge', { headers: { Authorization: 'Bearer ' + token } });
+    const d = await r.json();
+    if (d?.kisisel_bilge) localStorage.setItem('noxara_kisisel_bilge', d.kisisel_bilge);
+  } catch {}
+})();
+</script>
 </body>
 </html>
