@@ -594,6 +594,16 @@ function renderUnitGrid(side, gridId){
       const icons = {at:'\ud83d\udc34',kurt:'\ud83d\udc3a',mana:'\ud83d\udd2e',gizlilik:'\ud83c\udfaf',buyulu_yumurta:'\ud83e\udd5a'};
       const names = {at:'At',kurt:'Kurt',mana:'Mana',gizlilik:'Gizlilik',buyulu_yumurta:'B.Yumurta'};
       const have = EXTRA_RES[r]||0;
+      // v1.13.41: mana icin secili bilge rengini goster (orn. "5 Yesil Mana")
+      if (r === 'mana') {
+        var _kisi = null;
+        try { _kisi = localStorage.getItem('noxara_kisisel_bilge'); } catch {}
+        var _tr = (typeof loadPlayer === 'function') ? (loadPlayer()?.taraf) : null;
+        var _renk = (_kisi && ['beyaz','kirmizi','mavi','yesil'].includes(_kisi)) ? _kisi
+                  : (_tr === 'kotu' ? 'kirmizi' : 'beyaz');
+        var RENK_AD = { beyaz:'Beyaz', kirmizi:'Kırmızı', mavi:'Mavi', yesil:'Yeşil' };
+        return `<span class="ucost-i ${have>=a?'ok':'no'}" title="Secili bilge: ${_renk}">🔮 ${a} ${RENK_AD[_renk]} Mana</span>`;
+      }
       return `<span class="ucost-i ${have>=a?'ok':'no'}">${icons[r]||'\ud83d\udce6'} ${a} ${names[r]||r}</span>`;
     }).join('');
     const tierCl = u.tier===1?'tier1':u.tier===2?'tier2':u.tier===3?'tier3':'tier4';
@@ -826,6 +836,28 @@ function updateArmyStats(){
   // Ordu morali
   if (window._palantisOrduMorali !== undefined) {
     setText('as-moral', window._palantisOrduMorali);
+  }
+  // v1.13.41: Ekstra kaynak kart (at/kurt/yumurta/gizlilik/besi/cig_et/mana)
+  if (typeof EXTRA_RES !== 'undefined') {
+    setText('ax-at',     Math.floor(EXTRA_RES.at || 0).toLocaleString());
+    setText('ax-kurt',   Math.floor(EXTRA_RES.kurt || 0).toLocaleString());
+    setText('ax-yumurta',(EXTRA_RES.buyulu_yumurta || 0).toLocaleString());
+    setText('ax-gizli',  Math.floor(EXTRA_RES.gizlilik || 0).toLocaleString());
+    setText('ax-besi',   Math.floor(EXTRA_RES.besi_hayvani || 0).toLocaleString());
+    setText('ax-cigit',  Math.floor(EXTRA_RES.cig_et || 0).toLocaleString());
+    setText('ax-mana',   Math.floor(EXTRA_RES.mana || 0).toLocaleString());
+    // Mana renk ikonu + adi
+    var _kisi = null;
+    try { _kisi = localStorage.getItem('noxara_kisisel_bilge'); } catch {}
+    var _tr = (typeof loadPlayer === 'function') ? (loadPlayer()?.taraf) : null;
+    var _renk = (_kisi && ['beyaz','kirmizi','mavi','yesil'].includes(_kisi)) ? _kisi
+              : (_tr === 'kotu' ? 'kirmizi' : 'beyaz');
+    var RENK_AD = { beyaz:'Beyaz', kirmizi:'Kırmızı', mavi:'Mavi', yesil:'Yeşil' };
+    var RENK_RENK = { beyaz:'#f0e8d8', kirmizi:'#e74c3c', mavi:'#3498db', yesil:'#2ecc71' };
+    var el = document.getElementById('ax-mana-renk');
+    if (el) { el.textContent = RENK_AD[_renk]; el.style.color = RENK_RENK[_renk]; }
+    var ax = document.getElementById('ax-mana');
+    if (ax) ax.style.color = RENK_RENK[_renk];
   }
 }
 
