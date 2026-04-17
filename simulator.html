@@ -174,7 +174,7 @@ header{text-align:center;padding:24px 20px 14px;border-bottom:1px solid var(--bo
 @media(max-width:900px){.main{grid-template-columns:1fr;}.panel{border-right:none;border-bottom:1px solid var(--border);}.rp-cards{grid-template-columns:1fr;}.rp-vs{display:none;}}
 </style>
 </head>
-<body>
+<body style="visibility:hidden">
 <div class="tt" id="tt"></div>
 
 <header>
@@ -396,9 +396,12 @@ async function checkPremium() {
 
 function showNoPremium() {
   document.body.innerHTML = '<div style="text-align:center;padding:80px 20px"><div style="font-family:Cinzel Decorative,serif;font-size:1.5rem;color:#C9A84C;margin-bottom:20px">🔒 SAVAŞ SİMÜLATÖRÜ</div><div style="color:#7A6848;font-size:.8rem">Bu özellik sadece Premium oyunculara açıktır.</div><div style="margin-top:20px"><a href="home.html" style="color:#C9A84C;font-size:.7rem">← Ana Sayfaya Dön</a></div></div>';
+  document.body.style.visibility = 'visible'; // v1.13.6: hidden default, showNoPremium basladiginda goster
 }
 
 function applyPremium() {
+  // v1.13.6: Premium dogrulandi, sayfayi goster (hidden default)
+  document.body.style.visibility = 'visible';
   const badge = document.getElementById('premBadge');
   if (premiumPaket === 3) badge.innerHTML = '<span class="premium-badge pb-altin">ALTIN PAKET</span>';
   else if (premiumPaket === 2) badge.innerHTML = '<span class="premium-badge pb-gumus">GÜMÜŞ PAKET</span>';
