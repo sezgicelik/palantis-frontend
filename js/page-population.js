@@ -3,13 +3,13 @@
    Extracted from index.html
 ══════════════════════════════════ */
 
-// Isci tipi -> bina eslesmesi
+// Isci tipi -> bina eslesmesi (v1.13.15: demir_madeni kaldirildi, madenci artik serbest)
 const ISCI_BINA_MAP = {
   wood:     { binaId: 'oduncu',       kapasite: 40, ad: 'Oduncu Kampı' },
-  iron:     { binaId: 'demir_madeni', kapasite: 50, ad: 'Demir Madeni' },
+  // iron: bina kapasitesi YOK (v1.12.0'da demir_madeni kaldirildi) — madenci serbest ata
   farm:     { binaId: 'tarla',        kapasite: 50, ad: 'Tarla' },
   fish:     { binaId: 'balikci',      kapasite: 20, ad: 'Balıkçı Limanı' },
-  // merchant: Market binasi eklenince baglanacak — simdilik serbest
+  // merchant: Pazar binasi eklenince baglanacak — simdilik serbest
 };
 
 function getWorkerCapacity(type) {
