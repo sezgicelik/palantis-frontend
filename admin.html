@@ -297,6 +297,43 @@
       </div>
       <div id="prem-msg" style="color:var(--green);font-size:11px;margin-top:6px"></div>
     </div>
+
+    <!-- v1.13.9: Fiyat Ayarlari -->
+    <div class="card">
+      <h3>Premium Fiyatlari (TL) + Odeme Saglayici</h3>
+      <p style="font-size:10px;color:var(--muted);margin-bottom:10px">Oyuncular premium.html'den bu fiyatlari gorur + satin alma baslatir</p>
+      <div id="prem-fiyat-fields" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-bottom:10px"></div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+        <label style="font-size:11px;color:var(--muted)">Odeme Saglayici:</label>
+        <select id="prem-provider" style="padding:6px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:11px">
+          <option value="none">none (kapali, manuel onay)</option>
+          <option value="iyzico">iyzico</option>
+          <option value="stripe">Stripe</option>
+          <option value="paytr">PayTR</option>
+          <option value="manual">manuel (admin elle onaylar)</option>
+        </select>
+        <label style="font-size:11px;color:var(--muted)">Webhook Secret:</label>
+        <input id="prem-webhook-secret" type="password" placeholder="HMAC secret" style="padding:6px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:11px;width:180px">
+      </div>
+      <button class="btn" onclick="savePremiumFiyat()">Fiyatlari Kaydet</button>
+      <div id="prem-fiyat-msg" style="color:var(--green);font-size:11px;margin-top:6px"></div>
+    </div>
+
+    <!-- v1.13.9: Siparisler -->
+    <div class="card">
+      <h3>Premium Siparisleri</h3>
+      <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center">
+        <label style="font-size:11px;color:var(--muted)">Filtre:</label>
+        <select id="prem-sip-filter" onchange="loadPremiumSiparis()" style="padding:6px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:11px">
+          <option value="pending">Bekleyen (pending)</option>
+          <option value="completed">Tamamlanan</option>
+          <option value="cancelled">Iptal</option>
+          <option value="all">Tumu</option>
+        </select>
+        <button class="btn" onclick="loadPremiumSiparis()" style="padding:4px 10px;font-size:10px">Yenile</button>
+      </div>
+      <div id="prem-siparisler-tbl"><span style="color:var(--muted);font-size:11px">Yukleniyor...</span></div>
+    </div>
   </div>
 
   <!-- SEZON TAB -->
@@ -1086,6 +1123,96 @@ async function premiumIptal() {
   document.getElementById('prem-msg').textContent = r.ok ? r.mesaj : (r.error||'Hata');
   if(r.ok) setTimeout(loadPremium, 1000);
 }
+
+// ── v1.13.9: Premium Fiyatlari + Siparisler ──
+async function loadPremiumFiyat() {
+  const r = await fetch(API+'/api/admin/premium-fiyatlari', {headers:hdr()}).then(x=>x.json());
+  if(!r.ok) return;
+  const c = r.config || {};
+  let html = '';
+  PREM_PAKETLER.forEach(p => {
+    const pk = c[p] || {};
+    html += `<div style="background:#1a1a1a;border:1px solid var(--border);padding:10px;border-radius:4px">
+      <div style="color:${PREM_PAKET_RENK[p]};font-weight:bold;margin-bottom:6px">${PREM_PAKET_ISIM[p]}</div>
+      <div style="display:grid;grid-template-columns:70px 1fr;gap:4px;font-size:11px;align-items:center">
+        <label>Fiyat:</label>
+        <input type="number" id="pfy-${p}-fiyat" value="${pk.fiyat_try||0}" min="0" step="0.01" style="padding:4px;background:#111;border:1px solid var(--border);color:var(--text);border-radius:3px">
+        <label>Sure:</label>
+        <input type="number" id="pfy-${p}-sure" value="${pk.sure_gun||30}" min="1" style="padding:4px;background:#111;border:1px solid var(--border);color:var(--text);border-radius:3px">
+        <label>Aktif:</label>
+        <input type="checkbox" id="pfy-${p}-aktif" ${pk.aktif !== false ? 'checked' : ''}>
+      </div>
+    </div>`;
+  });
+  document.getElementById('prem-fiyat-fields').innerHTML = html;
+  document.getElementById('prem-provider').value = c.provider || 'none';
+  document.getElementById('prem-webhook-secret').value = c.webhook_secret || '';
+}
+
+async function savePremiumFiyat() {
+  const body = {};
+  PREM_PAKETLER.forEach(p => {
+    body[p] = {
+      fiyat_try: parseFloat(document.getElementById(`pfy-${p}-fiyat`).value) || 0,
+      sure_gun: parseInt(document.getElementById(`pfy-${p}-sure`).value) || 30,
+      aktif: document.getElementById(`pfy-${p}-aktif`).checked
+    };
+  });
+  body.provider = document.getElementById('prem-provider').value;
+  body.webhook_secret = document.getElementById('prem-webhook-secret').value;
+  const r = await fetch(API+'/api/admin/premium-fiyatlari',{method:'POST',headers:hdr(),body:JSON.stringify(body)}).then(x=>x.json());
+  document.getElementById('prem-fiyat-msg').textContent = r.ok ? '✓ Kaydedildi' : (r.error || 'Hata');
+  setTimeout(() => { document.getElementById('prem-fiyat-msg').textContent = ''; }, 3000);
+}
+
+async function loadPremiumSiparis() {
+  const f = document.getElementById('prem-sip-filter').value;
+  const r = await fetch(API+`/api/admin/premium-siparisler?status=${f}`, {headers:hdr()}).then(x=>x.json());
+  const wrap = document.getElementById('prem-siparisler-tbl');
+  if(!r.ok || !r.siparisler) { wrap.innerHTML = '<span style="color:var(--muted)">Yuklenemedi</span>'; return; }
+  if(!r.siparisler.length) { wrap.innerHTML = '<span style="color:var(--muted);font-size:11px">Siparis yok</span>'; return; }
+  const ST_COL = { pending:'#f39c12', completed:'#2ecc71', cancelled:'#777', failed:'#e74c3c', refunded:'#9b59b6' };
+  wrap.innerHTML = '<table><thead><tr><th>#</th><th>Kullanici</th><th>Kral</th><th>Paket</th><th>Fiyat</th><th>Sure</th><th>Provider</th><th>Durum</th><th>Tarih</th><th>Aksiyon</th></tr></thead><tbody>' +
+    r.siparisler.map(s => {
+      const fiyat = s.fiyat_try > 0 ? parseFloat(s.fiyat_try).toFixed(2)+' TL' : '—';
+      const onaylaBtn = s.status === 'pending' ? `<button class="btn" onclick="premiumOnayla(${s.id})" style="padding:3px 8px;font-size:10px">Onayla</button> <button class="btn btn-danger" onclick="premiumSipIptal(${s.id})" style="padding:3px 8px;font-size:10px">Iptal</button>` : '';
+      return `<tr>
+        <td>${s.id}</td>
+        <td>${s.username}</td>
+        <td>${s.kral}</td>
+        <td style="color:${PREM_PAKET_RENK[s.paket]||'#888'}">${PREM_PAKET_ISIM[s.paket]||s.paket}</td>
+        <td>${fiyat}</td>
+        <td>${s.sure_gun} gun</td>
+        <td>${s.provider}</td>
+        <td style="color:${ST_COL[s.status]||'#888'}">${s.status}</td>
+        <td>${fmtDate(s.created_at)}</td>
+        <td>${onaylaBtn}</td>
+      </tr>`;
+    }).join('') + '</tbody></table>';
+}
+
+async function premiumOnayla(siparisId) {
+  if(!confirm(`Siparis #${siparisId} onaylansin mi? (Premium aktif olacak)`)) return;
+  const r = await fetch(API+'/api/admin/premium-siparis-onayla',{method:'POST',headers:hdr(),body:JSON.stringify({siparis_id:siparisId})}).then(x=>x.json());
+  alert(r.ok ? r.mesaj : (r.error||'Hata'));
+  if(r.ok) { loadPremiumSiparis(); loadPremium(); }
+}
+
+async function premiumSipIptal(siparisId) {
+  const sebep = prompt('Iptal sebebi?', 'Admin iptal');
+  if(sebep === null) return;
+  const r = await fetch(API+'/api/admin/premium-siparis-iptal',{method:'POST',headers:hdr(),body:JSON.stringify({siparis_id:siparisId,sebep})}).then(x=>x.json());
+  alert(r.ok ? r.mesaj : (r.error||'Hata'));
+  if(r.ok) loadPremiumSiparis();
+}
+
+// loadPremium cagrildiginda fiyat+siparisler de yuklensin
+const _origLoadPremium = loadPremium;
+loadPremium = async function() {
+  await _origLoadPremium();
+  try { await loadPremiumFiyat(); } catch(e){}
+  try { await loadPremiumSiparis(); } catch(e){}
+};
 
 // ── Sezon ──
 async function loadSezon() {

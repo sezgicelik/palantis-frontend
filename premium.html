@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noxara – Premium</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/rehber.css">
+<style>
+.prem-paket {
+  background: linear-gradient(180deg, #0e0a06 0%, #140f08 100%);
+  border: 1px solid rgba(200,169,110,0.25);
+  border-radius: 6px;
+  padding: 20px;
+  position: relative;
+  transition: all .15s;
+  display: flex; flex-direction: column;
+}
+.prem-paket:hover { border-color: #c9a020; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201,160,32,0.15); }
+.prem-paket.bronz { border-top: 3px solid #cd7f32; }
+.prem-paket.gumus { border-top: 3px solid #c0c0c0; }
+.prem-paket.altin_paket { border-top: 3px solid #d4af37; box-shadow: 0 0 18px rgba(212,175,55,0.12); }
+.prem-paket .ribbon { position:absolute; top:-1px; right:-1px; background:#d4af37; color:#1a1005; font:bold 9px Cinzel,serif; padding:3px 8px; border-radius:0 4px 0 4px; letter-spacing:1px; }
+.prem-paket h2 { font-family:'Cinzel Decorative',serif; color:#d4af37; font-size:18px; margin-bottom:8px; letter-spacing:1px; }
+.prem-paket .fiyat { color:#f0e0b0; font-size:28px; font-family:'Cinzel',serif; font-weight:700; margin:10px 0 4px; }
+.prem-paket .sure { color:#888; font-size:11px; margin-bottom:14px; }
+.prem-paket .bonus { font-size:11px; color:#a88a5a; line-height:1.8; border-top:1px solid rgba(200,169,110,0.15); padding-top:10px; margin-bottom:12px; flex:1; }
+.prem-paket .bonus b { color:#c8a96e; }
+.prem-paket .btn-sat { padding:10px 20px; background:linear-gradient(145deg,#2e1a06,#1e1004); color:#d4af37; border:1px solid #7a5014; font:bold 11px Cinzel,serif; letter-spacing:1px; cursor:pointer; text-transform:uppercase; transition:all .15s; }
+.prem-paket .btn-sat:hover:not(:disabled) { background:linear-gradient(145deg,#3e2a10,#2e1a08); color:#f0d050; border-color:#d4af37; }
+.prem-paket .btn-sat:disabled { opacity:0.4; cursor:not-allowed; }
+.mevcut-prem { background:linear-gradient(90deg,rgba(212,175,55,0.1),rgba(212,175,55,0.03)); border:1px solid #d4af37; border-left:4px solid #d4af37; padding:14px 18px; border-radius:4px; margin-bottom:20px; }
+.mevcut-prem h3 { color:#d4af37; font-family:'Cinzel',serif; font-size:14px; margin-bottom:6px; }
+.siparis-tbl { width:100%; border-collapse:collapse; font-size:11px; }
+.siparis-tbl th { background:#0a0804; color:#c8a96e; padding:6px 8px; text-align:left; font:10px Cinzel,serif; letter-spacing:1px; border-bottom:1px solid rgba(200,169,110,0.2); }
+.siparis-tbl td { padding:6px 8px; border-bottom:1px solid rgba(200,169,110,0.08); color:#aaa; }
+.siparis-tbl .st-pending { color:#f39c12; }
+.siparis-tbl .st-completed { color:#2ecc71; }
+.siparis-tbl .st-cancelled { color:#777; }
+.siparis-tbl .st-failed { color:#e74c3c; }
+</style>
+</head>
+<body>
+<div id="hudbar-mount"></div>
+<div class="layout">
+  <div id="sidebar-mount"></div>
+  <div class="main-content">
+
+    <h2 style="color:#d4af37;font-family:'Cinzel Decorative',serif;margin:0 0 4px;font-size:clamp(16px,3.5vw,22px);letter-spacing:2px">⚜ Premium Uyelik</h2>
+    <p style="color:#666;font-size:12px;margin-bottom:18px">Imparatorlugunu guclendir — ekstra bonuslar ve ayricaliklar</p>
+
+    <div id="prem-mevcut-wrap"></div>
+
+    <div id="prem-paket-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-bottom:28px">
+      <div style="grid-column:1/-1;color:#555;font-size:12px;text-align:center;padding:30px">Yukleniyor...</div>
+    </div>
+
+    <div class="card" style="padding:18px;margin-bottom:20px">
+      <h3 style="font-family:'Cinzel',serif;color:#c8a96e;font-size:13px;margin-bottom:12px">📜 Siparis Gecmisim</h3>
+      <div id="prem-siparisler"><span style="color:#555;font-size:11px">Yukleniyor...</span></div>
+    </div>
+
+    <div class="card" style="padding:16px;border-left:3px solid #c8a96e">
+      <h3 style="color:#c8a96e;margin-bottom:8px;font-size:13px">ℹ️ Bilgi</h3>
+      <ul style="font-size:12px;color:#888;line-height:1.9;padding-left:18px">
+        <li>Odeme guvenligi: kart bilgisi sisteme kaydedilmez, provider (iyzico/Stripe) uzerinden islenir.</li>
+        <li>Premium aktivasyon odeme sonrasi otomatik veya admin onayi ile olur.</li>
+        <li>Mevcut premium varken yeni paket alirsan: sure eklenir (bitis uzar).</li>
+        <li>Sorun yasarsan <a href="ayarlar.html" style="color:#d4af37">iletisim</a>'dan bize ulas.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script src="js/constants.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/servers.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/game-data.js"></script>
+<script src="js/hud.js"></script>
+<script src="js/layout.js"></script>
+<script src="js/rehber.js"></script>
+<script src="js/page-premium.js"></script>
+<script src="js/bildirim-popup.js"></script>
+</body>
+</html>
