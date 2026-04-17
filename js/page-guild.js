@@ -133,6 +133,7 @@ var GUILD_TABS = [
   { id: 'market',   label: '🏪 Market',       aktif: true },
   { id: 'dagitim',  label: '📦 Dagitim',     aktif: true },
   { id: 'mezarlik', label: '⚰️ Mezarlik',    aktif: true },
+  { id: 'kusatma',  label: '⚔️ Kusatma',      aktif: true },  // v1.13.39 Faz 3b.0
   { id: 'savas',    label: '⚔️ Savas Odasi', aktif: false },
   { id: 'raporlar', label: '📜 Raporlar',     aktif: true }
 ];
@@ -233,8 +234,148 @@ function guildTabIcerikGoster(data) {
     case 'mezarlik': renderTabMezarlik(el, data); break;
     case 'raporlar': renderTabRaporlar(el, data); break;
     case 'uye-ozet': renderTabUyeOzet(el, data); break;
+    case 'kusatma':  renderTabKusatma(el, data); break;
     default:        el.innerHTML = '<div class="card" style="text-align:center;padding:30px;color:#555"><div style="font-size:30px;margin-bottom:8px">🔒</div><p style="font-size:12px">Bu ozellik Faz 3\'te aktif olacak.</p></div>';
   }
+}
+
+// ═══════════════════════════════════
+//   TAB: KUSATMA (v1.13.39 Faz 3b.0)
+// ═══════════════════════════════════
+var KUSATMA_DATA = null;
+
+async function renderTabKusatma(el, data) {
+  el.innerHTML = '<div class="card" style="padding:20px;text-align:center;color:#888">Kusatma durumu yukleniyor...</div>';
+  try {
+    var token = getToken();
+    var r = await fetch(API_BASE + '/api/guild/' + data.guild.id + '/kusatma-durum',
+      { headers: { Authorization: 'Bearer ' + token } }).then(function(r){ return r.json(); });
+    if (!r.ok) { el.innerHTML = '<div class="card" style="padding:20px;color:#e74c3c">Hata: ' + (r.error||'bilinmeyen') + '</div>'; return; }
+    KUSATMA_DATA = r;
+    renderKusatmaIcerik(el, data);
+  } catch(e) { el.innerHTML = '<div class="card" style="padding:20px;color:#e74c3c">Sunucu hatasi</div>'; }
+}
+
+function renderKusatmaIcerik(el, data) {
+  var r = KUSATMA_DATA;
+  var korumaRenk = r.korumali ? '#2ecc71' : '#666';
+  var korumaIkon = r.korumali ? '✅' : '⚪';
+  var korumaMetin = r.korumali ? 'KORUMA AKTIF (Kusatma devam ediyor — uye sehirleri saldiriya kapali)' : 'Koruma yok (kusatma aktif degil)';
+
+  // Ordu listesi (yetki kontrol)
+  var yetkiler = data.benim_yetkilerim || {};
+  var isLider = data.benim_rutbem === 'lider';
+  var gonderebilir = isLider || yetkiler.guild_ordusu_gonder;
+
+  // Mevcut guild ordulari (sehirde ve yeterli unite)
+  var minOrdu = (r.config && r.config.kusatma_min_ordu) || 500;
+  var orduListesi = (data.ordu_listesi || data.guild_ordular || []).filter(function(o) {
+    return (o.durum === 'sehirde' || !o.durum) && (o.toplam_unite || 0) >= minOrdu;
+  });
+
+  var kadimOpsiyonlar = (r.kadim_sehirler || []).map(function(s) {
+    var kilit = (s.kusatma_durumu === 'kusatmada' || s.kusatma_durumu === 'tutuluyor') && s.holding_guild_id && s.holding_guild_id !== data.guild.id;
+    return '<option value="' + s.id + '"' + (kilit?' disabled':'') + '>' + s.isim + ' (' + s.taraf + ') — ' + s.kusatma_durumu + (kilit?' [kapali]':'') + '</option>';
+  }).join('');
+
+  var orduOpsiyonlar = orduListesi.map(function(o) {
+    return '<option value="' + o.id + '">' + o.isim + ' (' + (o.toplam_unite||0) + ' unite)</option>';
+  }).join('');
+
+  var gonderForm = '';
+  if (gonderebilir) {
+    gonderForm =
+      '<div class="card" style="padding:12px;margin-bottom:10px">' +
+        '<h4 style="margin:0 0 8px;font-size:12px;color:#d4af37">⚔️ Kusatma Baslat</h4>' +
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">' +
+          '<select id="kus-sehir" style="padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;font-size:11px">' + kadimOpsiyonlar + '</select>' +
+          '<select id="kus-ordu" style="padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;font-size:11px">' +
+            (orduOpsiyonlar || '<option disabled>' + minOrdu + '+ unite ordu yok</option>') +
+          '</select>' +
+          '<button class="btn-action" onclick="kusatmaGonder(' + data.guild.id + ')" style="padding:4px 12px;font-size:11px;width:auto">Gonder</button>' +
+        '</div>' +
+        '<div style="font-size:10px;color:#666;margin-top:4px">Min ' + minOrdu + ' unite | Grace ' + (r.config.grace_periyot_pg) + ' PG | Holding ' + (r.config.holding_sure_pg) + ' PG</div>' +
+      '</div>';
+  }
+
+  var aktifOrdularHtml = '';
+  if (r.aktif_ordular && r.aktif_ordular.length > 0) {
+    aktifOrdularHtml = '<div class="card" style="padding:10px;margin-bottom:10px">' +
+      '<h4 style="margin:0 0 6px;font-size:12px;color:#d4af37">🚶 Aktif Ordular</h4>' +
+      r.aktif_ordular.map(function(o) {
+        var durumRenk = o.durum==='kusatmada'?'#e74c3c':(o.durum==='yolda_gidis'?'#f39c12':'#3498db');
+        var varis = o.varis_zamani ? 'Varis: ' + new Date(o.varis_zamani).toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}) : '';
+        var hedef = o.sehir_isim ? '→ ' + o.sehir_isim : '';
+        var geriCagir = o.durum === 'kusatmada' || o.durum === 'yolda_gidis' ?
+          ' <button class="btn-action" onclick="kusatmaGeriCagir(' + data.guild.id + ',' + o.id + ')" style="padding:2px 8px;font-size:9px;width:auto;border-color:#f39c12;color:#f39c12">Geri Cagir</button>' : '';
+        return '<div style="font-size:11px;padding:3px 0;border-top:1px solid #222">' +
+          '<b>' + o.isim + '</b> ' + hedef + ' <span style="color:' + durumRenk + '">[' + o.durum + ']</span> <span style="color:#666">' + (o.toplam_unite||0) + ' unite | ' + varis + '</span>' + geriCagir +
+        '</div>';
+      }).join('') +
+    '</div>';
+  }
+
+  var tutulanHtml = '';
+  if (r.tutulan_sehirler && r.tutulan_sehirler.length > 0) {
+    tutulanHtml = '<div class="card" style="padding:10px;margin-bottom:10px;border-left:3px solid #d4af37">' +
+      '<h4 style="margin:0 0 6px;font-size:12px;color:#d4af37">🏛️ Tuttugumuz Kadim Sehirler</h4>' +
+      r.tutulan_sehirler.map(function(s) {
+        var kalan = s.zafer_zamani ? Math.max(0, (new Date(s.zafer_zamani).getTime() - Date.now()) / 3600000) : 0;
+        var graceKalan = s.grace_bitis ? Math.max(0, (new Date(s.grace_bitis).getTime() - Date.now()) / 3600000) : 0;
+        return '<div style="font-size:11px;padding:3px 0">' +
+          '<b>' + s.isim + '</b> <span style="color:#2ecc71">[' + s.kusatma_durumu + ']</span> ' +
+          (s.kusatma_durumu === 'tutuluyor' ? '<span style="color:#f1c40f">Zafere ' + kalan.toFixed(1) + ' PG</span>' : '') +
+          (s.kusatma_durumu === 'grace' ? '<span style="color:#f39c12">Grace kalan: ' + graceKalan.toFixed(1) + ' PG</span>' : '') +
+        '</div>';
+      }).join('') +
+    '</div>';
+  }
+
+  var logHtml = '';
+  if (r.son_loglar && r.son_loglar.length > 0) {
+    logHtml = '<div class="card" style="padding:10px">' +
+      '<h4 style="margin:0 0 6px;font-size:12px;color:#888">📜 Son Olaylar</h4>' +
+      r.son_loglar.map(function(l) {
+        var t = new Date(l.created_at).toLocaleString('tr-TR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+        return '<div style="font-size:10px;color:#aaa;padding:2px 0;border-top:1px solid #222">' +
+          '<span style="color:#666">' + t + '</span> | <b>' + l.olay + '</b> ' + (l.sehir_isim||'') + '</div>';
+      }).join('') +
+    '</div>';
+  }
+
+  el.innerHTML =
+    '<div class="card" style="padding:10px;margin-bottom:10px;border-left:3px solid ' + korumaRenk + '">' +
+      '<div style="font-size:13px;color:' + korumaRenk + '">' + korumaIkon + ' ' + korumaMetin + '</div>' +
+    '</div>' +
+    gonderForm + aktifOrdularHtml + tutulanHtml + logHtml;
+}
+
+async function kusatmaGonder(guildId) {
+  var sehirEl = document.getElementById('kus-sehir');
+  var orduEl = document.getElementById('kus-ordu');
+  if (!sehirEl.value || !orduEl.value) { toast('Sehir ve ordu secin'); return; }
+  var token = getToken();
+  try {
+    var r = await fetch(API_BASE + '/api/guild/' + guildId + '/ordu/kusatma-gonder', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify({ army_id: parseInt(orduEl.value), hedef_sehir_id: parseInt(sehirEl.value) })
+    }).then(function(r){ return r.json(); });
+    if (r.ok) { toast(r.mesaj || 'Ordu yolda'); if (typeof loadGuildData==='function') loadGuildData(); }
+    else toast(r.error || 'Hata');
+  } catch(e) { toast('Sunucu hatasi'); }
+}
+
+async function kusatmaGeriCagir(guildId, armyId) {
+  if (!confirm('Ordu geri cagirilacak. Emin misiniz?')) return;
+  var token = getToken();
+  try {
+    var r = await fetch(API_BASE + '/api/guild/' + guildId + '/ordu/' + armyId + '/kusatma-geri-cagir', {
+      method: 'POST', headers: { Authorization: 'Bearer ' + token }
+    }).then(function(r){ return r.json(); });
+    if (r.ok) { toast(r.mesaj); if (typeof loadGuildData==='function') loadGuildData(); }
+    else toast(r.error || 'Hata');
+  } catch(e) { toast('Sunucu hatasi'); }
 }
 
 // ═══════════════════════════════════
