@@ -50,22 +50,22 @@ const REHBER_ADIMLARI = [
   {
     adim: 4,
     sayfa: 'city.html',
-    hedef: '[data-bina="maden"],.bina-card[onclick*="maden"],.bina-slot[data-id="maden"]',
+    hedef: '[data-bina="isleme"],.bina-card[onclick*="isleme"],.bina-slot[data-id="isleme"]',
     pozisyon: 'right',
-    baslik: 'Maden Ocagi Kur ⛏️',
-    aciklama: 'Metal uretimi icin maden ocagina ihtiyacin var. Ileri seviye binalar ve uniteler metal gerektirir.',
+    baslik: 'Metal Isleme Kur ⚙️',
+    aciklama: 'Isleme binasi metali islenmis metale cevirir. Tum gelismis binalar ve uniteler islenmis metal gerektirir.',
     kosulTipi: 'bina_yap',
-    kosulDeger: 'maden:1'
+    kosulDeger: 'isleme:2'
   },
   {
     adim: 5,
-    sayfa: 'city.html',
-    hedef: '[data-bina="ciftlik"],.bina-card[onclick*="ciftlik"],.bina-slot[data-id="ciftlik"]',
+    sayfa: 'population.html',
+    hedef: '#isci-madenci,.isci-row[data-tip="madenci"],.worker-card[data-job="madenci"]',
     pozisyon: 'right',
-    baslik: 'Ciftlik Yap: Halkini Doyur 🌾',
-    aciklama: 'Bugday halkin temel gidasi. Ciftlik olmadan aclik baslar, moral duser, koylulerin kacar!',
-    kosulTipi: 'bina_yap',
-    kosulDeger: 'ciftlik:1'
+    baslik: 'Madenci Ata ⛏️',
+    aciklama: 'Madenci iscileri saatte metal uretir. Starter pack 10 madenci atanmis veriyor, sen arttir.',
+    kosulTipi: 'isci_ata',
+    kosulDeger: 'madenci:15'
   },
   {
     adim: 6,
