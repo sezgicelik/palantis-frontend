@@ -140,10 +140,19 @@ function setGuildHUD(g){
 
 /* =====================================================
    updatePopulationUI — Nüfus & İşçi panelini günceller
+   v1.13.35: Eger nufus-render.js yuklendiyse ONA devret.
+   Aksi durumda eski (yerel hesap) fallback calissin.
 ===================================================== */
 function updatePopulationUI(){
   const set = (id, v) => { const e=document.getElementById(id); if(e) e.innerText=v; };
 
+  // v1.13.35: Tek dogruluk kaynagi — nufus-render.js
+  if (typeof window.loadNufus === 'function') {
+    window.loadNufus(); // backend'den cek, renderNufus icerideki tum UI'i gunceller
+    // Asagisi (uretim degerleri, bina kapasite) hala lokal hesap
+  }
+
+  // ─────────── ESKI FALLBACK (nufus-render.js yuklenmediyse) ───────────
   // Nüfus hesabı: Köylü (boşta) + İşçi (atanmış) + Asker+Tapınak (sabit) + Ünite (orduda)
   const isci   = (population.wood||0)+(population.iron||0)+
                  (population.farm||0)+(population.fish||0)+(population.merchant||0);
@@ -153,43 +162,41 @@ function updatePopulationUI(){
   const nufus  = population.nufus_toplam || (population.total + unite);
   const sinir  = population.nufus_siniri || population.max || 1000;
 
-  // Nüfus özet (Nüfus & İşçiler sayfası)
-  set('pop-total', nufus);
-  set('pop-free',  koylu);
-  set('pop-max',   sinir);
-  set('pop-unite', unite);
+  // Nufus render yuklu degilse eski yerel dagitim devrede
+  if (typeof window.renderNufus !== 'function') {
+    // Nüfus özet (Nüfus & İşçiler sayfası)
+    set('pop-total', nufus);
+    set('pop-free',  koylu);
+    set('pop-max',   sinir);
+    set('pop-unite', unite);
 
-  // Şehrim sayfası cs-pop
-  set('cs-pop', nufus);
+    // HUD nüfus
+    const atananKoylu = isci + sabit;
+    set('hud-nufus', atananKoylu);
+    set('hud-nufus-sinir', population.total || nufus);
+    const nufusBox = document.getElementById('hud-nufus-box');
+    if(nufusBox) {
+      nufusBox.textContent = nufus + '/' + sinir;
+      nufusBox.style.color = nufus > sinir ? '#e74c3c' : '';
+    }
+    try { set('sm-koylu', koylu); } catch(e) {}
 
-  // HUD nüfus: kullanılan (isci+asker+worshipper) / toplam köylü
-  const atananKoylu = isci + sabit;
-  set('hud-nufus', atananKoylu);
-  set('hud-nufus-sinir', population.total || nufus);
-  // Yeni stat-box: nufus/sinir — sinir asilmissa kirmizi
-  const nufusBox = document.getElementById('hud-nufus-box');
-  if(nufusBox) {
-    nufusBox.textContent = nufus + '/' + sinir;
-    nufusBox.style.color = nufus > sinir ? '#e74c3c' : '';
+    const topBar = nufus || 1;
+    const pct = v => (v/topBar*100).toFixed(1)+'%';
+    ['bar-koylu','bar-isci','bar-sabit','bar-unite'].forEach((id,i)=>{
+      const el=document.getElementById(id);
+      const vals=[koylu,isci,sabit,unite];
+      if(el) el.style.width=pct(vals[i]);
+    });
+    set('bar-koylu-lbl', koylu);
+    set('bar-isci-lbl',  isci);
+    set('bar-sabit-lbl', sabit);
+    set('bar-unite-lbl', unite);
   }
-  // Ana ekran hızlı stats
+
+  // Sehrim sayfasi cs-pop — iki durumda da guncellenir
+  set('cs-pop', nufus);
   const hn=document.getElementById('hs-nufus'); if(hn) hn.textContent=nufus;
-
-  // Boş köylü senkronu — ordu sayfasındaki sm-koylu aynı değeri göstersin
-  try { set('sm-koylu', koylu); } catch(e) {}
-
-  // Dağılım barı
-  const topBar = nufus || 1;
-  const pct = v => (v/topBar*100).toFixed(1)+'%';
-  ['bar-koylu','bar-isci','bar-sabit','bar-unite'].forEach((id,i)=>{
-    const el=document.getElementById(id);
-    const vals=[koylu,isci,sabit,unite];
-    if(el) el.style.width=pct(vals[i]);
-  });
-  set('bar-koylu-lbl', koylu);
-  set('bar-isci-lbl',  isci);
-  set('bar-sabit-lbl', sabit);
-  set('bar-unite-lbl', unite);
 
   // İşçi sayıları
   set('w-wood', population.wood);

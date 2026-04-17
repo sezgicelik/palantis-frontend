@@ -214,7 +214,12 @@ async function smConvert(){
         return;
       }
       const data = await resp.json();
-      ASKER_SAYISI = data.workers?.asker || (ASKER_SAYISI + SM_MIKTAR);
+      // v1.13.35: 0 falsy bug fix — asker 0 ise de dogru al
+      if (data.workers && typeof data.workers.asker !== 'undefined') {
+        ASKER_SAYISI = parseInt(data.workers.asker) || 0;
+      } else {
+        ASKER_SAYISI = ASKER_SAYISI + SM_MIKTAR;
+      }
       population.free = Math.max(0, (population.free || 0) - SM_MIKTAR);
     } catch(e) {
       ASKER_SAYISI += SM_MIKTAR;
@@ -230,6 +235,8 @@ async function smConvert(){
   renderSoldierPanel();
   updateArmyStats();
   if (typeof updateBars === 'function') updateBars();
+  // v1.13.35: Tek dogruluk kaynagi — backend'den yeniden cek
+  if (typeof loadNufus === 'function') loadNufus();
 }
 
 async function smRelease(){
@@ -250,7 +257,12 @@ async function smRelease(){
         return;
       }
       const data = await resp.json();
-      ASKER_SAYISI = data.workers?.asker || (ASKER_SAYISI - SM_MIKTAR);
+      // v1.13.35: 0 falsy bug fix
+      if (data.workers && typeof data.workers.asker !== 'undefined') {
+        ASKER_SAYISI = parseInt(data.workers.asker) || 0;
+      } else {
+        ASKER_SAYISI = ASKER_SAYISI - SM_MIKTAR;
+      }
       population.free = (population.free || 0) + SM_MIKTAR;
     } catch(e) {
       ASKER_SAYISI -= SM_MIKTAR;
@@ -266,6 +278,8 @@ async function smRelease(){
   renderSoldierPanel();
   updateArmyStats();
   if (typeof updateBars === 'function') updateBars();
+  // v1.13.35: Tek dogruluk kaynagi — backend'den yeniden cek
+  if (typeof loadNufus === 'function') loadNufus();
 }
 
 /* -- ORDU YONETIMi -- */
@@ -646,7 +660,8 @@ async function trainUnit(id){
   if(adet < 1){ toast('Egitilecek adet 0!'); return; }
   const baseCostOne = realCost(u.cost);
   const rc = {}; Object.entries(baseCostOne).forEach(([k,v])=>rc[k]=v*adet);
-  const askerGerekliToplam = ({ 1:1, 2:2, 3:3, 4:0 }[u.tier] || 0) * adet;
+  // v1.13.35: Backend SOLDIER_COST ile senkron — tier 2/3 de 1 asker/unit (eskiden yanlis 2 ve 3 yaziyordu)
+  const askerGerekliToplam = ({ 1:1, 2:1, 3:1, 4:0 }[u.tier] || 0) * adet;
   if(askerGerekliToplam > 0 && (population.asker || 0) < askerGerekliToplam){
     toast(`Yetersiz asker! ${askerGerekliToplam} asker gerekli, ${population.asker||0} var.`); return;
   }
