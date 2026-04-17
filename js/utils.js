@@ -29,6 +29,19 @@ const fmtT=sec=>{
   return `${gun.toFixed(3)} P.G.`;
 };
 
+// v1.13.23: Kalan sureyi daha okunur sekilde formatla (tamamlanma icin)
+// 2s 30dk = "2 P.G. 30dk" gibi
+function fmtKalanSure(sec){
+  sec = Math.max(0, Math.floor(sec));
+  if (sec <= 0) return 'Tamamlaniyor';
+  const pg = Math.floor(sec / 3600);
+  const dk = Math.floor((sec % 3600) / 60);
+  const sn = sec % 60;
+  if (pg >= 1) return dk > 0 ? `${pg} P.G. ${dk} dk` : `${pg} P.G.`;
+  if (dk >= 1) return `${dk} dk ${sn > 0 ? sn + ' sn' : ''}`.trim();
+  return `${sn} sn`;
+}
+
 function romanCag(n) {
   return ['','I','II','III','IV','V'][n] || n;
 }

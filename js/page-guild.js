@@ -923,8 +923,8 @@ async function renderTabBinalar(el, data) {
 
       var aksiyonHtml = '';
       if (inQueue) {
-        var kalan = b.queue_end ? Math.max(0, Math.ceil((new Date(b.queue_end) - Date.now()) / 60000)) : 0;
-        aksiyonHtml = '<span style="color:#f39c12;font-size:10px">🔨 Insaatta (' + kalan + ' dk kaldi)</span>';
+        var kalanSn = b.queue_end ? Math.max(0, Math.floor((new Date(b.queue_end) - Date.now()) / 1000)) : 0;
+        aksiyonHtml = '<span style="color:#f39c12;font-size:10px">🔨 Insaatta (' + fmtKalanSure(kalanSn) + ')</span>';
       } else if (yetkiler.guild_bina_yap) {
         aksiyonHtml = '<button class="btn-action" style="width:auto;padding:4px 12px;font-size:10px" onclick="guildBinaUpgrade(\'' + binaId + '\')">+1 ' + b.isim + '</button>';
       }
@@ -981,8 +981,8 @@ async function renderTabOrdu(el, data) {
       html += '<div class="card" style="padding:10px;margin-bottom:10px">' +
         '<div style="font-size:11px;color:#f39c12;margin-bottom:4px">🔨 Egitim Kuyrugu</div>';
       d.kuyruk.forEach(function(k) {
-        var kalan = Math.max(0, Math.ceil((new Date(k.queue_end) - Date.now()) / 60000));
-        html += '<div style="font-size:11px;color:#ccc">' + k.adet + 'x ' + k.unite_id + ' — ' + kalan + ' dk kaldi</div>';
+        var kalanSn = Math.max(0, Math.floor((new Date(k.queue_end) - Date.now()) / 1000));
+        html += '<div style="font-size:11px;color:#ccc">' + k.adet + 'x ' + k.unite_id + ' — ' + fmtKalanSure(kalanSn) + '</div>';
       });
       html += '</div>';
     }
