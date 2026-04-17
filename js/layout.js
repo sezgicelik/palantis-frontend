@@ -344,6 +344,11 @@ function initLayout(){
   loadGelenOrdular();
   setInterval(loadGelenOrdular, 30000);
 
+  // v1.13.30: Kuyruk widget mount + polling (60sn)
+  renderKuyrukMount();
+  loadKuyrukOzet();
+  setInterval(loadKuyrukOzet, 60000);
+
   // v1.2.0: Gün geçişi sistemi
   initDayTransition();
 }
@@ -554,6 +559,113 @@ function hizliMenuSirala(href, yon) {
   if (j < 0 || j >= list.length) return;
   [list[i], list[j]] = [list[j], list[i]];
   setHizliMenu(list);
+}
+
+/* ═══════════════════════════════════════════
+   KUYRUK WIDGET (v1.13.30) — Yuzen guncel is listesi
+═══════════════════════════════════════════ */
+let KUYRUK_CACHE = null;
+
+async function loadKuyrukOzet() {
+  const token = getToken && getToken();
+  if (!token || typeof API_BASE === 'undefined') return;
+  try {
+    const r = await fetch(API_BASE + '/api/game/kuyruk-ozet', { headers: { Authorization: 'Bearer ' + token } });
+    if (!r.ok) return;
+    KUYRUK_CACHE = await r.json();
+    renderKuyrukWidget();
+  } catch(e) {}
+}
+
+function renderKuyrukWidget() {
+  if (!KUYRUK_CACHE) return;
+  const d = KUYRUK_CACHE;
+  const toplam = d.toplam || 0;
+  const toplamEl = document.getElementById('kuyruk-toplam');
+  const aciciSayi = document.getElementById('kuyruk-acici-sayi');
+  if (toplamEl) toplamEl.textContent = toplam;
+  if (aciciSayi) aciciSayi.textContent = toplam;
+
+  // Kategori sırası + icon
+  const cats = [
+    { key:'bina',        label:'🏗️ Binalar',       link:'city.html' },
+    { key:'tamir',       label:'🔧 Tamir',          link:'city.html' },
+    { key:'unite',       label:'⚔️ Üniteler',       link:'army.html' },
+    { key:'guild_bina',  label:'🏰 Guild Bina',     link:'guild.html' },
+    { key:'guild_unite', label:'🛡️ Guild Ordu',    link:'guild.html' },
+    { key:'kervan',      label:'🐪 Kervan',         link:'kervan.html' },
+    { key:'ordu',        label:'⚔️ Ordu Görevi',   link:'army.html' },
+    { key:'casus',       label:'🕵️ Casus',         link:'casus.html' },
+    { key:'buyu',        label:'✨ Aktif Büyü',    link:'buyucu-kulesi.html' }
+  ];
+
+  const icerik = document.getElementById('kuyruk-icerik');
+  if (!icerik) return;
+
+  let html = '';
+  for (const c of cats) {
+    const liste = (d.kategoriler || {})[c.key] || [];
+    if (liste.length === 0) continue;
+    html += '<a href="' + c.link + '" style="display:block;padding:8px 4px;border-bottom:1px solid rgba(200,169,110,0.1);text-decoration:none;color:inherit">' +
+      '<div style="color:#c8a96e;font-size:11px;font-weight:bold;margin-bottom:4px">' + c.label + ' (' + liste.length + ')</div>';
+    for (const it of liste.slice(0, 3)) {
+      const kalanFmt = (typeof fmtKalanSure === 'function') ? fmtKalanSure(it.kalan_sn) : (it.kalan_sn + ' sn');
+      html += '<div style="font-size:10px;color:#999;padding:2px 0;display:flex;justify-content:space-between;gap:8px">' +
+        '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + it.ad + '</span>' +
+        '<span style="color:#d4af37;flex-shrink:0">' + kalanFmt + '</span>' +
+      '</div>';
+    }
+    if (liste.length > 3) {
+      html += '<div style="font-size:9px;color:#555;text-align:right">+' + (liste.length - 3) + ' daha…</div>';
+    }
+    html += '</a>';
+  }
+  if (!html) html = '<div style="color:#555;font-size:11px;text-align:center;padding:20px">Bekleyen iş yok.</div>';
+  icerik.innerHTML = html;
+}
+
+function kuyrukWidgetToggle() {
+  const ic = document.getElementById('kuyruk-icerik');
+  if (!ic) return;
+  ic.style.display = ic.style.display === 'none' ? 'block' : 'none';
+}
+
+function kuyrukWidgetKapat() {
+  localStorage.setItem('noxara_kuyruk_gizli', '1');
+  const w = document.getElementById('kuyruk-widget');
+  const a = document.getElementById('kuyruk-acici');
+  if (w) w.style.display = 'none';
+  if (a) a.style.display = 'flex';
+}
+
+function kuyrukWidgetAc() {
+  localStorage.removeItem('noxara_kuyruk_gizli');
+  const w = document.getElementById('kuyruk-widget');
+  const a = document.getElementById('kuyruk-acici');
+  if (w) w.style.display = 'flex';
+  if (a) a.style.display = 'none';
+}
+
+function renderKuyrukMount() {
+  if (document.getElementById('kuyruk-widget')) return; // zaten var
+  const wrap = document.createElement('div');
+  wrap.innerHTML =
+    '<div id="kuyruk-widget" style="position:fixed;bottom:10px;right:10px;width:300px;max-width:calc(100vw - 20px);max-height:65vh;background:linear-gradient(180deg,#1a140a,#120c06);border:1px solid #c8a96e;border-radius:8px;box-shadow:0 6px 25px rgba(0,0,0,0.75);z-index:9998;font-family:Cinzel,serif;color:#f0e8d8;flex-direction:column;display:none">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid #3a3020;background:#0f0a06;border-radius:8px 8px 0 0">' +
+        '<span style="color:#c8a96e;font-size:12px;font-weight:bold">⏳ Kuyruğum <span id="kuyruk-toplam" style="color:#d4af37">0</span></span>' +
+        '<div style="display:flex;gap:2px">' +
+          '<button onclick="kuyrukWidgetToggle()" style="background:none;border:1px solid #3a3020;color:#888;font-size:14px;cursor:pointer;width:24px;height:22px;border-radius:3px" title="Sımarla/Aç">−</button>' +
+          '<button onclick="kuyrukWidgetKapat()" style="background:none;border:1px solid #3a3020;color:#888;font-size:14px;cursor:pointer;width:24px;height:22px;border-radius:3px" title="Kapat">✕</button>' +
+        '</div>' +
+      '</div>' +
+      '<div id="kuyruk-icerik" style="max-height:55vh;overflow-y:auto;padding:4px 12px"></div>' +
+    '</div>' +
+    '<button id="kuyruk-acici" onclick="kuyrukWidgetAc()" style="position:fixed;bottom:10px;right:10px;z-index:9997;background:linear-gradient(145deg,#1a140a,#0f0a06);border:1px solid #c8a96e;color:#c8a96e;padding:8px 14px;border-radius:20px;cursor:pointer;font-family:Cinzel,serif;font-size:12px;font-weight:bold;box-shadow:0 4px 12px rgba(0,0,0,0.6);display:none;align-items:center;gap:6px" title="Kuyruğu aç">⏳ <span id="kuyruk-acici-sayi">0</span></button>';
+  document.body.appendChild(wrap);
+  // Baslangic durumu: gizli mi?
+  const gizli = localStorage.getItem('noxara_kuyruk_gizli') === '1';
+  if (gizli) kuyrukWidgetKapat();
+  else kuyrukWidgetAc();
 }
 
 /* ═══════════════════════════════════════════

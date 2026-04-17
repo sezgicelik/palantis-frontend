@@ -793,7 +793,7 @@ function renderTrainingQueue(queue){
       <span style="font-size:18px">${icon}</span>
       <span style="min-width:120px;color:#d4af37;font-weight:bold">${unitName}</span>
       <span style="color:#aaa">\u00d7${q.adet}</span>
-      <span style="margin-left:auto;color:#88aaff">\u23f1 ${gun > 0 ? gun.toFixed(2)+' P.G.' : 'Tamamlandi'}</span>
+      <span style="margin-left:auto;color:#88aaff">\u23f1 ${gun > 0 ? fmtKalanSure(gun * 3600) : 'Tamamlanıyor'}</span>
     </div>`;
   }).join('');
 }

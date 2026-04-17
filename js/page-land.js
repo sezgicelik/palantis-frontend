@@ -188,7 +188,8 @@ function landTick(){
   const diff = target - now;
   const tEl = document.getElementById('land-timer');
   const gunKalan = diff / 3600000;
-  if(tEl) tEl.innerText = gunKalan > 0 ? `${gunKalan.toFixed(2)} P.G.` : '\u2014';
+  const kalanSn = Math.max(0, Math.floor(diff / 1000));
+  if(tEl) tEl.innerText = kalanSn > 0 ? fmtKalanSure(kalanSn) : '\u2014';
 }
 
 setInterval(landTick, 1000);
