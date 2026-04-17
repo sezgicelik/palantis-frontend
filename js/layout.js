@@ -33,19 +33,27 @@ function renderSidebar(){
     document.body.prepend(ov);
   }
 
-  // Submenu acik mi kontrol
-  const popPages = ['population.html','festival.html'];
-  const isPop = popPages.includes(page);
-  const ticPages = ['market.html','kervan.html','pazar.html','buyu-dukkani.html'];
-  const isTic = ticPages.includes(page);
-  const armyPages = ['army.html','mezarlik.html','savas-baslat.html'];
-  const isArmy = armyPages.includes(page);
-  const magicPages = ['magic.html','buyucu-kulesi.html'];
-  const isMagic = magicPages.includes(page);
-  const repPages = ['reports.html','activity.html'];
-  const isRep = repPages.includes(page);
-  const funPages = ['bocek-yarisi.html','sandik.html'];
-  const isFun = funPages.includes(page);
+  // v1.13.13: 6 ana grup (Kralligim / Savas / Ticaret / Dunya / Aktivite / Eglence)
+  const krallikPages = ['city.html','population.html','festival.html','land.html'];
+  const savasPages   = ['army.html','savas-baslat.html','mezarlik.html','casus.html','magic.html','buyucu-kulesi.html'];
+  const ticPages     = ['market.html','kervan.html','pazar.html','buyu-dukkani.html'];
+  const dunyaPages   = ['map.html','guild.html','cag.html'];
+  const aktivitePages= ['gorev.html','reports.html','activity.html','siralama.html','artifact.html','meydan.html'];
+  const funPages     = ['bocek-yarisi.html','sandik.html'];
+
+  const isKrallik  = krallikPages.includes(page);
+  const isSavas    = savasPages.includes(page);
+  const isTic      = ticPages.includes(page);
+  const isDunya    = dunyaPages.includes(page);
+  const isAktivite = aktivitePages.includes(page);
+  const isFun      = funPages.includes(page);
+
+  // Hizli Erisim pinli menuler (localStorage, max 5)
+  let hizliMenuler = [];
+  try {
+    const raw = localStorage.getItem('noxara_hizli_menu');
+    if (raw) hizliMenuler = (JSON.parse(raw) || []).slice(0, 5);
+  } catch(e) {}
 
   mount.innerHTML = `
     <div class="sidebar" id="sidebar">
@@ -59,42 +67,29 @@ function renderSidebar(){
 
       <a href="home.html" class="menu-item${isActive('home.html')}">🏠 Ana Ekran</a>
 
-      <a href="population.html" class="menu-item${isPop?' on':''}">👥 Nüfus & İşçiler</a>
-      <div class="submenu" style="display:${isPop?'block':'none'}">
-        <a href="population.html" class="menu-item sub-item${isActive('population.html')}">👷 İşçi Dağılımı</a>
+      ${hizliMenuler.length > 0 ? `
+      <div style="padding:6px 14px 4px;font-size:9px;color:#666;letter-spacing:1.5px;border-top:1px solid #1a1a1a;margin-top:4px">★ HIZLI ERİŞİM</div>
+      ${hizliMenuler.map(h => `<a href="${h.href}" class="menu-item${isActive(h.href)}" style="padding-left:18px;border-left:2px solid #d4af37;font-size:12px">${h.icon||'⭐'} ${h.label}</a>`).join('')}
+      <div style="border-bottom:1px solid #1a1a1a;margin:4px 0"></div>
+      ` : ''}
+
+      <a href="city.html" class="menu-item${isKrallik?' on':''}">🏰 Krallığım</a>
+      <div class="submenu" style="display:${isKrallik?'block':'none'}">
+        <a href="city.html" class="menu-item sub-item${isActive('city.html')}">🏗️ Şehrim</a>
+        <a href="population.html" class="menu-item sub-item${isActive('population.html')}">👥 Nüfus & İşçiler</a>
+        <a href="land.html" class="menu-item sub-item${isActive('land.html')}">🧭 Arazi</a>
         <a href="festival.html" class="menu-item sub-item${isActive('festival.html')}">🎉 Festival</a>
       </div>
 
-      <a href="city.html" class="menu-item${isActive('city.html')}">🏗️ Şehrim</a>
-      <div class="submenu" id="submenu-city" style="display:${page==='city.html'?'block':'none'}">
-        <div class="menu-item sub-item" onclick="setFilter('all',this)" data-filter="all">🏛️ Tümü</div>
-        <div class="menu-item sub-item" onclick="setFilter('uretim',this)" data-filter="uretim">⚒️ Üretim</div>
-        <div class="menu-item sub-item" onclick="setFilter('askeri',this)" data-filter="askeri">⚔️ Askeri</div>
-        <div class="menu-item sub-item" onclick="setFilter('gelisim',this)" data-filter="gelisim">📚 Gelişim</div>
-        <div class="menu-item sub-item" onclick="setFilter('sosyal',this)" data-filter="sosyal">🏛️ Sosyal</div>
-        <div class="menu-item sub-item" onclick="setFilter('sehir',this)" data-filter="sehir">🏙️ Şehir</div>
-        <div class="menu-item sub-item" onclick="setFilter('ozel',this)" data-filter="ozel">✨ Özel</div>
-      </div>
-
-      <a href="land.html" class="menu-item${isActive('land.html')}">🧭 Arazi</a>
-
-      <a href="army.html" class="menu-item${isArmy?' on':''}">⚔️ Ordu & Savaş</a>
-      <div class="submenu" id="submenu-army" style="display:${isArmy?'block':'none'}">
-        <div class="menu-item sub-item army-sub on" data-atab="units" onclick="armyTab('units',this)">🗡️ Asker Eğitimi</div>
-        <div class="menu-item sub-item army-sub" data-atab="armies" onclick="armyTab('armies',this)">🏕️ Ordu Yönetimi</div>
-        <div class="menu-item sub-item army-sub" data-atab="formation" onclick="armyTab('formation',this)">⚔️ Saf Dizilimi</div>
-        <div class="menu-item sub-item army-sub" data-atab="upgrades" onclick="armyTab('upgrades',this)">📈 Geliştirmeler</div>
+      <a href="army.html" class="menu-item${isSavas?' on':''}">⚔️ Savaş & Askeri</a>
+      <div class="submenu" style="display:${isSavas?'block':'none'}">
+        <a href="army.html" class="menu-item sub-item${isActive('army.html')}">🗡️ Ordu</a>
         <a href="savas-baslat.html" class="menu-item sub-item${isActive('savas-baslat.html')}">🏹 Savaş Başlat</a>
         <a href="mezarlik.html" class="menu-item sub-item${isActive('mezarlik.html')}">💀 Mezarlık</a>
-      </div>
-
-      <a href="magic.html" class="menu-item${isMagic?' on':''}">🔮 Büyücü Kulesi</a>
-      <div class="submenu" style="display:${isMagic?'block':'none'}">
+        <a href="casus.html" class="menu-item sub-item${isActive('casus.html')}">🕵️ Casuslar</a>
         <a href="magic.html" class="menu-item sub-item${isActive('magic.html')}">🕯️ Tapınak & Mana</a>
-        <a href="buyucu-kulesi.html" class="menu-item sub-item${isActive('buyucu-kulesi.html')}">🗼 Büyü Kitabı</a>
+        <a href="buyucu-kulesi.html" class="menu-item sub-item${isActive('buyucu-kulesi.html')}">🗼 Büyücü Kulesi</a>
       </div>
-
-      <a href="casus.html" class="menu-item${isActive('casus.html')}">🕵️ Casuslar</a>
 
       <a href="market.html" class="menu-item${isTic?' on':''}">💰 Ticaret</a>
       <div class="submenu" style="display:${isTic?'block':'none'}">
@@ -104,22 +99,24 @@ function renderSidebar(){
         <a href="buyu-dukkani.html" class="menu-item sub-item${isActive('buyu-dukkani.html')}">🔮 Büyü Dükkanı</a>
       </div>
 
-      <a href="guild.html" class="menu-item${isActive('guild.html')}">🏰 Guild</a>
-      <a href="map.html" class="menu-item${isActive('map.html')}">🗺️ Harita</a>
+      <a href="map.html" class="menu-item${isDunya?' on':''}">🌍 Dünya</a>
+      <div class="submenu" style="display:${isDunya?'block':'none'}">
+        <a href="map.html" class="menu-item sub-item${isActive('map.html')}">🗺️ Harita</a>
+        <a href="guild.html" class="menu-item sub-item${isActive('guild.html')}">🏰 Guild</a>
+        <a href="cag.html" class="menu-item sub-item${isActive('cag.html')}">📅 Çağ Atlama</a>
+      </div>
 
-      <a href="reports.html" class="menu-item${isRep?' on':''}">📊 Raporlar</a>
-      <div class="submenu" style="display:${isRep?'block':'none'}">
+      <a href="gorev.html" class="menu-item${isAktivite?' on':''}">📊 Aktivite</a>
+      <div class="submenu" style="display:${isAktivite?'block':'none'}">
+        <a href="gorev.html" class="menu-item sub-item${isActive('gorev.html')}">📜 Görevler <span id="gorev-badge" style="display:none;background:#e74c3c;color:#fff;font-size:8px;padding:1px 5px;border-radius:8px;margin-left:4px"></span></a>
         <a href="activity.html" class="menu-item sub-item${isActive('activity.html')}">🏙️ Şehir Raporları</a>
         <a href="reports.html?tab=askeri" class="menu-item sub-item">⚔️ Askeri Raporlar</a>
         <a href="reports.html?tab=koloni" class="menu-item sub-item">🏰 Koloni Raporları</a>
         <a href="reports.html?tab=ekonomi" class="menu-item sub-item">💰 Ekonomi Raporları</a>
+        <a href="siralama.html" class="menu-item sub-item${isActive('siralama.html')}">🏆 Sıralamalar</a>
+        <a href="artifact.html" class="menu-item sub-item${isActive('artifact.html')}">🧰 Artifactlar</a>
+        <a href="meydan.html" class="menu-item sub-item${isActive('meydan.html')}">💬 Şehir Meydanı</a>
       </div>
-
-      <a href="cag.html" class="menu-item${isActive('cag.html')}">📅 Çağ Atlama</a>
-      <a href="siralama.html" class="menu-item${isActive('siralama.html')}">🏆 Sıralamalar</a>
-      <a href="artifact.html" class="menu-item${isActive('artifact.html')}">🧰 Artifactlar</a>
-      <a href="gorev.html" class="menu-item${isActive('gorev.html')}">📜 Görevler <span id="gorev-badge" style="display:none;background:#e74c3c;color:#fff;font-size:8px;padding:1px 5px;border-radius:8px;margin-left:4px"></span></a>
-      <a href="meydan.html" class="menu-item${isActive('meydan.html')}">💬 Şehir Meydanı</a>
 
       <a href="bocek-yarisi.html" class="menu-item${isFun?' on':''}">🪲 Eğlence</a>
       <div class="submenu" style="display:${isFun?'block':'none'}">
@@ -447,6 +444,88 @@ function initDayTransition() {
       hideOverlay();
     }
   }, 1000);
+}
+
+/* ═══════════════════════════════════════════
+   HIZLI ERİŞİM API — v1.13.13
+   Oyuncu sidebar'a max 5 menu pinler. localStorage'da saklanır.
+═══════════════════════════════════════════ */
+
+// Pin edilebilir tum sayfalar (menu katalogu)
+const HIZLI_MENU_KATALOG = [
+  { href: 'city.html',          label: 'Şehrim',           icon: '🏗️', grup: 'Krallığım' },
+  { href: 'population.html',    label: 'Nüfus & İşçiler',  icon: '👥', grup: 'Krallığım' },
+  { href: 'land.html',          label: 'Arazi',            icon: '🧭', grup: 'Krallığım' },
+  { href: 'festival.html',      label: 'Festival',         icon: '🎉', grup: 'Krallığım' },
+  { href: 'army.html',          label: 'Ordu',             icon: '🗡️', grup: 'Savaş' },
+  { href: 'savas-baslat.html',  label: 'Savaş Başlat',     icon: '🏹', grup: 'Savaş' },
+  { href: 'mezarlik.html',      label: 'Mezarlık',         icon: '💀', grup: 'Savaş' },
+  { href: 'casus.html',         label: 'Casuslar',         icon: '🕵️', grup: 'Savaş' },
+  { href: 'magic.html',         label: 'Tapınak & Mana',   icon: '🕯️', grup: 'Savaş' },
+  { href: 'buyucu-kulesi.html', label: 'Büyücü Kulesi',    icon: '🗼', grup: 'Savaş' },
+  { href: 'market.html',        label: 'Market',           icon: '🏪', grup: 'Ticaret' },
+  { href: 'kervan.html',        label: 'Kervan',           icon: '🐪', grup: 'Ticaret' },
+  { href: 'pazar.html',         label: 'Oyuncu Pazarı',    icon: '🤝', grup: 'Ticaret' },
+  { href: 'buyu-dukkani.html',  label: 'Büyü Dükkanı',     icon: '🔮', grup: 'Ticaret' },
+  { href: 'map.html',           label: 'Harita',           icon: '🗺️', grup: 'Dünya' },
+  { href: 'guild.html',         label: 'Guild',            icon: '🏰', grup: 'Dünya' },
+  { href: 'cag.html',           label: 'Çağ Atlama',       icon: '📅', grup: 'Dünya' },
+  { href: 'gorev.html',         label: 'Görevler',         icon: '📜', grup: 'Aktivite' },
+  { href: 'activity.html',      label: 'Şehir Raporları',  icon: '🏙️', grup: 'Aktivite' },
+  { href: 'reports.html',       label: 'Raporlar',         icon: '📊', grup: 'Aktivite' },
+  { href: 'siralama.html',      label: 'Sıralamalar',      icon: '🏆', grup: 'Aktivite' },
+  { href: 'artifact.html',      label: 'Artifactlar',      icon: '🧰', grup: 'Aktivite' },
+  { href: 'meydan.html',        label: 'Şehir Meydanı',    icon: '💬', grup: 'Aktivite' },
+  { href: 'bocek-yarisi.html',  label: 'Böcek Yarışı',     icon: '🪲', grup: 'Eğlence' },
+  { href: 'sandik.html',        label: 'Kader Sandıkları', icon: '📦', grup: 'Eğlence' },
+  { href: 'premium.html',       label: 'Premium',          icon: '⚜',  grup: 'Diğer' }
+];
+const HIZLI_MAX = 5;
+
+function getHizliMenu() {
+  try {
+    const raw = localStorage.getItem('noxara_hizli_menu');
+    if (!raw) return [];
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? arr.slice(0, HIZLI_MAX) : [];
+  } catch(e) { return []; }
+}
+
+function setHizliMenu(list) {
+  const clean = (list || []).slice(0, HIZLI_MAX).map(h => ({
+    href: String(h.href || '').slice(0, 50),
+    label: String(h.label || '').slice(0, 30),
+    icon: String(h.icon || '⭐').slice(0, 4)
+  }));
+  localStorage.setItem('noxara_hizli_menu', JSON.stringify(clean));
+  // Sidebar'i yenile
+  if (typeof renderSidebar === 'function') renderSidebar();
+}
+
+function hizliMenuEkle(href) {
+  const cur = getHizliMenu();
+  if (cur.length >= HIZLI_MAX) return { ok: false, hata: `Max ${HIZLI_MAX} menu pinlenebilir` };
+  if (cur.find(x => x.href === href)) return { ok: false, hata: 'Zaten pinli' };
+  const kat = HIZLI_MENU_KATALOG.find(k => k.href === href);
+  if (!kat) return { ok: false, hata: 'Sayfa tanimli degil' };
+  cur.push({ href: kat.href, label: kat.label, icon: kat.icon });
+  setHizliMenu(cur);
+  return { ok: true };
+}
+
+function hizliMenuCikar(href) {
+  setHizliMenu(getHizliMenu().filter(x => x.href !== href));
+  return { ok: true };
+}
+
+function hizliMenuSirala(href, yon) {
+  const list = getHizliMenu();
+  const i = list.findIndex(x => x.href === href);
+  if (i < 0) return;
+  const j = yon === 'up' ? i - 1 : i + 1;
+  if (j < 0 || j >= list.length) return;
+  [list[i], list[j]] = [list[j], list[i]];
+  setHizliMenu(list);
 }
 
 /* Sayfa yuklenince otomatik cagir */

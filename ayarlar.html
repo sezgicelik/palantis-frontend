@@ -14,7 +14,58 @@
   <div id="sidebar-mount"></div>
   <div class="main-content">
     <h2 style="font-family:Cinzel,serif;color:var(--race-color);margin-bottom:12px">⚙️ Ayarlar</h2>
+
+    <!-- v1.13.13: Hızlı Erişim Yönetimi -->
+    <div class="card" style="padding:16px;margin-bottom:16px">
+      <h3 style="color:#d4af37;font-family:Cinzel,serif;font-size:14px;margin-bottom:8px">★ Hızlı Erişim Menüsü</h3>
+      <p style="font-size:11px;color:#888;margin-bottom:12px">
+        Sidebar'a maksimum <b style="color:#d4af37">5</b> menü pinleyebilirsin. Seçtiğin sayfalar ana menü üstünde hızlı erişim bölümünde görünür.
+      </p>
+      <div id="hizli-mevcut" style="margin-bottom:14px"></div>
+      <div style="border-top:1px solid #1a1a1a;padding-top:10px">
+        <div style="font-size:11px;color:#aaa;margin-bottom:6px">Ekle:</div>
+        <div id="hizli-katalog" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:4px"></div>
+      </div>
+    </div>
+
     <div id="ayar-content">Yukleniyor...</div>
+
+    <script>
+    function renderHizli() {
+      const mevcut = document.getElementById('hizli-mevcut');
+      const katalog = document.getElementById('hizli-katalog');
+      const list = (typeof getHizliMenu === 'function') ? getHizliMenu() : [];
+
+      if (!list.length) {
+        mevcut.innerHTML = '<div style="color:#555;font-size:11px;text-align:center;padding:12px;background:#0a0a0a;border:1px dashed #1a1a1a;border-radius:4px">Henüz pinli menü yok</div>';
+      } else {
+        mevcut.innerHTML = '<div style="font-size:11px;color:#aaa;margin-bottom:6px">Pinli menüler (' + list.length + '/5):</div>' +
+          list.map((h, i) => '<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:#0d0a06;border:1px solid rgba(212,175,55,0.2);border-left:3px solid #d4af37;border-radius:3px;margin-bottom:4px">' +
+            '<span style="font-size:14px">' + (h.icon || '⭐') + '</span>' +
+            '<span style="flex:1;font-size:12px;color:#d4af37">' + h.label + '</span>' +
+            '<span style="font-size:9px;color:#555">' + h.href + '</span>' +
+            '<button onclick="hizliMenuSirala(\'' + h.href + '\',\'up\');renderHizli()" style="padding:2px 6px;background:#1a1a1a;border:1px solid #333;color:#888;border-radius:3px;cursor:pointer;font-size:10px" ' + (i === 0 ? 'disabled' : '') + '>↑</button>' +
+            '<button onclick="hizliMenuSirala(\'' + h.href + '\',\'down\');renderHizli()" style="padding:2px 6px;background:#1a1a1a;border:1px solid #333;color:#888;border-radius:3px;cursor:pointer;font-size:10px" ' + (i === list.length - 1 ? 'disabled' : '') + '>↓</button>' +
+            '<button onclick="if(confirm(\'Kaldırılsın mı?\')){hizliMenuCikar(\'' + h.href + '\');renderHizli()}" style="padding:2px 8px;background:#1a0a0a;border:1px solid #3a1a1a;color:#c0392b;border-radius:3px;cursor:pointer;font-size:10px">✕</button>' +
+            '</div>').join('');
+      }
+
+      const pinliSet = new Set(list.map(h => h.href));
+      const kat = (typeof HIZLI_MENU_KATALOG !== 'undefined') ? HIZLI_MENU_KATALOG : [];
+      const dolu = list.length >= 5;
+      katalog.innerHTML = kat.map(k => {
+        const pinli = pinliSet.has(k.href);
+        const dis = pinli || dolu;
+        return '<button onclick="const r=hizliMenuEkle(\'' + k.href + '\');if(!r.ok)alert(r.hata);else renderHizli()" ' +
+          (dis ? 'disabled' : '') +
+          ' style="padding:6px 10px;background:' + (pinli ? '#0a2a0a' : '#1a1a1a') + ';border:1px solid ' + (pinli ? '#2ecc71' : '#333') + ';color:' + (pinli ? '#2ecc71' : (dolu ? '#444' : '#c8a96e')) + ';border-radius:3px;cursor:' + (dis ? 'not-allowed' : 'pointer') + ';font-size:11px;text-align:left' + (dis ? ';opacity:0.5' : '') + '">' +
+          (k.icon || '⭐') + ' ' + k.label + (pinli ? ' ✓' : '') +
+          '</button>';
+      }).join('');
+    }
+    // layout.js yüklendikten sonra render et
+    setTimeout(renderHizli, 200);
+    </script>
   </div>
 </div>
 <div id="toast"></div>
