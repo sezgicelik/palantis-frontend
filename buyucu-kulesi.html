@@ -728,8 +728,11 @@ async function bilgeLoad() {
     if (data.kisisel_bilge) {
       document.getElementById('bilge-kisisel-isim').textContent = `${BILGE_ICON[data.kisisel_bilge]||''} ${data.kisisel_bilge_isim}`;
       document.getElementById('bilge-kisisel-isim').style.color = BILGE_RENK[data.kisisel_bilge] || '#2ecc71';
+      // v1.13.40.1: localStorage'a yaz, army sayfasi EXTRA_RES.mana'yi bu renkten okuyor
+      try { localStorage.setItem('noxara_kisisel_bilge', data.kisisel_bilge); } catch {}
     } else {
       document.getElementById('bilge-kisisel-isim').textContent = 'Secilmedi';
+      try { localStorage.removeItem('noxara_kisisel_bilge'); } catch {}
     }
     if (data.degisim_kalan_pg > 0) {
       document.getElementById('bilge-kisisel-cd').textContent = `Degistirmeye kalan: ${Math.round(data.degisim_kalan_pg)} PG`;

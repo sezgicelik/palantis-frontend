@@ -253,11 +253,15 @@ async function loadGameData() {
     if (res.buyulu_yumurta !== undefined) EXTRA_RES.buyulu_yumurta = parseFloat(res.buyulu_yumurta) || 0;
     if (res.besi_hayvani !== undefined) EXTRA_RES.besi_hayvani = parseInt(res.besi_hayvani) || 0;
     if (res.cig_et !== undefined) EXTRA_RES.cig_et = parseInt(res.cig_et) || 0;
-    // v1.13.40 FIX: EXTRA_RES.mana taraf bazli (iyi=beyaz, kotu=kirmizi) — backend army.js:345 ile senkron
+    // v1.13.40.1 FIX: EXTRA_RES.mana kisisel bilge rengine gore (yoksa tarafa gore)
     // Oncesinde set edilmedigi icin buyucu/kara_elf uretimi "Yetersiz: mana" hatasi veriyordu
+    // Bilge: window.__KISISEL_BILGE veya localStorage'dan oku (buyucu-kulesi sayfasinda set)
     var _pt = (typeof loadPlayer === 'function') ? (loadPlayer()?.taraf) : null;
-    var _manaKey = _pt === 'kotu' ? 'mana_kirmizi' : 'mana_beyaz';
-    EXTRA_RES.mana = parseFloat(res[_manaKey]) || 0;
+    var _kisi = null;
+    try { _kisi = localStorage.getItem('noxara_kisisel_bilge'); } catch {}
+    var _renk = (_kisi && ['beyaz','kirmizi','mavi','yesil'].includes(_kisi)) ? _kisi
+              : (_pt === 'kotu' ? 'kirmizi' : 'beyaz');
+    EXTRA_RES.mana = parseFloat(res['mana_' + _renk]) || 0;
 
     // HUD Ham kaynaklar (miktar + rate)
     setText('hud-w',   RES.odun);
