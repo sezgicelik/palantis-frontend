@@ -24,7 +24,26 @@
       <div class="cstat"><span class="snum" id="as-moral" style="color:#e67e22">0</span><span class="slbl">ORDU MORALİ</span></div>
     </div>
 
-    <!-- Sekmeler sidebar'dan yonetilir, inline tab butonlari kaldirildi -->
+    <!-- v1.13.32: Inline tab bar geri eklendi (sidebar'dan kaldirilmisti, ordu kur gizlendi) -->
+    <div class="army-tabs" id="army-tab-bar" style="margin-bottom:16px;display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid #222;padding-bottom:8px">
+      <button class="atab on" data-atab="units" onclick="armyTabSwitch('units')">🗡️ Asker Eğitimi</button>
+      <button class="atab" data-atab="armies" onclick="armyTabSwitch('armies')">🏕️ Ordu Yönetimi</button>
+      <button class="atab" data-atab="formation" onclick="armyTabSwitch('formation')">⚔️ Saf Dizilimi</button>
+      <button class="atab" data-atab="upgrades" onclick="armyTabSwitch('upgrades')">📈 Geliştirmeler</button>
+    </div>
+    <style>
+      #army-tab-bar .atab {
+        padding:6px 14px; border:none; border-radius:4px; cursor:pointer;
+        font-size:11px; font-weight:bold; background:#1a1a1a; color:#888;
+      }
+      #army-tab-bar .atab.on { background:#c8a96e; color:#000; }
+    </style>
+    <script>
+      function armyTabSwitch(tab) {
+        document.querySelectorAll('#army-tab-bar .atab').forEach(b => b.classList.toggle('on', b.dataset.atab === tab));
+        if (typeof armyTab === 'function') armyTab(tab, document.querySelector('#army-tab-bar .atab[data-atab="' + tab + '"]'));
+      }
+    </script>
 
     <!-- Asker Eğitimi: köylü↔asker + ünite eğitimi tek sekmede -->
     <div id="atab-units" class="army-section">
