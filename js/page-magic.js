@@ -1,14 +1,15 @@
 /* ══════════════════════════════════
    WORSHIPPER & MANA SiSTEMi
    Tapinak bazli WS uretimi
-   Rathe=Kirmizi, Xegony=Mavi, Fennin=Beyaz, Uras(Tunare)=Yesil
+   Rathe=Beyaz, Fennin Ro=Kirmizi, Xegony=Mavi, Tunare=Yesil
+   (OYUN_KURGUSU.md - bilge config ile senkron)
 ══════════════════════════════════ */
 
 // Tapinak -> mana renk eslesmesi
 const TAPINAK_RENK = {
-  rathe_tapinagi:   'kirmizi',
+  rathe_tapinagi:   'beyaz',
+  fennin_tapinagi:  'kirmizi',
   xegony_tapinagi:  'mavi',
-  fennin_tapinagi:  'beyaz',
   tunare_tapinagi:  'yesil'
 };
 

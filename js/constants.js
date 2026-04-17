@@ -134,11 +134,11 @@ const BLDGS = {
     fx:l=>[{t:'pos',s:`${l} Büyücü/tur`},{t:'pos',s:`Büyü ATK +${l*120}`}],
     cost:l=>({odun:400,metal:300,altin:900}),time:l=>5400},
 
-  rathe_tapinagi:{id:'rathe_tapinagi',cat:'askeri',icon:'⚔️',name:'Rathe Tapınağı',bg:'#180000',
-    desc:"Savaş tanrısı. 200 Kırmızı WS kapasitesi/bina. Kırmızı mana üretir.",
-    maxLv:100,lv:0,deger:270,kapasite:{tip:'ws_kirmizi',miktar:200},
+  rathe_tapinagi:{id:'rathe_tapinagi',cat:'askeri',icon:'⚪',name:'Rathe Tapınağı',bg:'#181818',
+    desc:"Bilgelik tanrıçası. 200 Beyaz WS kapasitesi/bina. Beyaz mana üretir.",
+    maxLv:100,lv:0,deger:270,kapasite:{tip:'ws_beyaz',miktar:200},
     cagLimit:{1:10,2:20,3:40,4:80,5:100},
-    fx:l=>[{t:'pos',s:`${l*200} Kırm.WS kap.`},{t:'pos',s:`Kırmızı mana üretir`}],
+    fx:l=>[{t:'pos',s:`${l*200} Beyaz WS kap.`},{t:'pos',s:`Beyaz mana üretir`}],
     cost:l=>({odun:500,metal:400,altin:600}),time:l=>7200},
 
   xegony_tapinagi:{id:'xegony_tapinagi',cat:'askeri',icon:'💫',name:'Xegony Tapınağı',bg:'#000018',
@@ -148,11 +148,11 @@ const BLDGS = {
     fx:l=>[{t:'pos',s:`${l*200} Mavi WS kap.`},{t:'pos',s:`Mavi mana üretir`}],
     cost:l=>({metal:300,altin:800}),time:l=>7200},
 
-  fennin_tapinagi:{id:'fennin_tapinagi',cat:'askeri',icon:'🔥',name:'Fennin Ro Tapınağı',bg:'#180800',
-    desc:"Ateş tanrısı. 200 Beyaz WS kapasitesi/bina. Beyaz mana üretir.",
-    maxLv:100,lv:0,deger:290,kapasite:{tip:'ws_beyaz',miktar:200},
+  fennin_tapinagi:{id:'fennin_tapinagi',cat:'askeri',icon:'🔥',name:'Fennin Ro Tapınağı',bg:'#180000',
+    desc:"Ateş/Savaş tanrısı. 200 Kırmızı WS kapasitesi/bina. Kırmızı mana üretir.",
+    maxLv:100,lv:0,deger:290,kapasite:{tip:'ws_kirmizi',miktar:200},
     cagLimit:{1:10,2:20,3:40,4:80,5:100},
-    fx:l=>[{t:'pos',s:`${l*200} Beyaz WS kap.`},{t:'pos',s:`Beyaz mana üretir`}],
+    fx:l=>[{t:'pos',s:`${l*200} Kırm.WS kap.`},{t:'pos',s:`Kırmızı mana üretir`}],
     cost:l=>({metal:400,altin:700}),time:l=>7200},
 
   tunare_tapinagi:{id:'tunare_tapinagi',cat:'askeri',icon:'🌿',name:'Tunare Tapınağı',bg:'#001800',
