@@ -188,10 +188,12 @@ function renderGuildPageHUD(data) {
 }
 
 function renderGuildTabs(el, data) {
-  // v1.13.25: Yetki bazli tab filter
-  var yetkiler = (data.uye && data.uye.yetkiler) || {};
+  // v1.13.25 FIX: Backend alanlari data.benim_yetkilerim + data.benim_rutbem (data.uye DIYE bir alan YOK)
+  var yetkiler = data.benim_yetkilerim || {};
+  var rutbe = data.benim_rutbem || 'uye';
   var gorunurTabs = GUILD_TABS.filter(function(t) {
     if (!t.yetki) return true; // yetki gerekmiyorsa herkes gorur
+    if (rutbe === 'lider') return true; // lider her seyi gorur
     return yetkiler[t.yetki] === true;
   });
 
