@@ -23,6 +23,7 @@
       <button class="atab" id="rtab-btn-koloni" onclick="reportTab('koloni',this)">🏰 Koloni</button>
       <button class="atab" id="rtab-btn-ekonomi" onclick="reportTab('ekonomi',this)">💰 Ekonomi</button>
       <button class="atab" id="rtab-btn-ticaret" onclick="reportTab('ticaret',this)">🏪 Ticaret</button>
+      <button class="atab" id="rtab-btn-ozet-tablo" onclick="reportTab('ozet-tablo',this)">📊 Ozet Tablo</button>
     </div>
 
     <!-- Şehir Raporları -->
@@ -90,6 +91,41 @@
       </div>
     </div>
 
+    <!-- v1.13.26: Ozet Tablo — Excel tarzi gelir/gider -->
+    <div id="rtab-ozet-tablo" class="report-section" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+        <h2 style="color:#c8a96e;font-family:'Cinzel',serif;margin:0;font-size:clamp(16px,4vw,22px)">📊 Ekonomi Ozet Tablosu</h2>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          <span style="font-size:10px;color:#888">Zaman:</span>
+          <button id="ozet-saat-24" onclick="ozetSaatDegistir(24)" class="btn-ozet-saat">24 P.G.</button>
+          <button id="ozet-saat-48" onclick="ozetSaatDegistir(48)" class="btn-ozet-saat">48 P.G.</button>
+          <button id="ozet-saat-72" onclick="ozetSaatDegistir(72)" class="btn-ozet-saat">72 P.G.</button>
+          <button id="ozet-saat-168" onclick="ozetSaatDegistir(168)" class="btn-ozet-saat">168 P.G.</button>
+          <button class="btn-action" onclick="loadOzetTablo()" style="padding:4px 12px;font-size:11px;width:auto">↻ Yenile</button>
+        </div>
+      </div>
+      <p style="font-size:11px;color:#888;margin-bottom:10px">Son N Palantis gunundeki kaynak hareketleri. Gelir (+) yesil, Gider (-) kirmizi.</p>
+      <style>
+        .btn-ozet-saat { padding:4px 10px;font-size:10px;background:#1a1a1a;border:1px solid #333;color:#888;border-radius:4px;cursor:pointer }
+        .btn-ozet-saat.on { background:#c8a96e;color:#000;border-color:#c8a96e;font-weight:bold }
+        .ozet-tbl { width:100%;border-collapse:collapse;font-size:10px;background:#0a0a08 }
+        .ozet-tbl th,.ozet-tbl td { padding:4px 6px;border:1px solid #1e1e1e;text-align:right;white-space:nowrap }
+        .ozet-tbl th { background:#1a1510;color:#c8a96e;font-weight:bold;position:sticky;top:0 }
+        .ozet-tbl th:first-child,.ozet-tbl td:first-child,.ozet-tbl td:nth-child(2) { text-align:left }
+        .ozet-tbl td.yon-gelir { color:#2ecc71 }
+        .ozet-tbl td.yon-gider { color:#e74c3c }
+        .ozet-tbl tr.toplam-row { background:#150f08;font-weight:bold }
+        .ozet-tbl tr.toplam-gelir td { color:#2ecc71 }
+        .ozet-tbl tr.toplam-gider td { color:#e74c3c }
+        .ozet-tbl tr.toplam-net td { color:#d4af37;border-top:2px solid #d4af37 }
+      </style>
+      <div id="ozet-loading" style="color:#888;font-size:13px;text-align:center;padding:40px">Zaman penceresi sec...</div>
+      <div id="ozet-wrap" style="display:none;overflow-x:auto;max-height:70vh"></div>
+      <div id="ozet-empty" style="display:none;color:#777;font-size:13px;text-align:center;padding:40px">
+        Bu zaman araliginda ekonomik hareket yok.
+      </div>
+    </div>
+
     <script>
     // v1.2.1: Rapor sekme sistemi — her sekme kendi event_type'ini filtreler
     const REPORT_EVENT_TYPES = {
@@ -112,6 +148,102 @@
         else if (typeof loadActivity === 'function') loadActivity();
       }
       if (tab === 'askeri' || tab === 'ekonomi' || tab === 'ticaret' || tab === 'koloni') loadFilteredReport(tab);
+      if (tab === 'ozet-tablo') { loadOzetTablo(); }
+    }
+
+    // ═══ v1.13.26: Ozet Tablo (Excel tarzi) ═══
+    var OZET_SAAT = 24;
+    var KAYNAK_LABEL = {
+      altin:'💰 Altin', metal:'⛏️ Metal', odun:'🌳 Odun', kereste:'🪵 Kereste', islenmis:'⚙️ Islenmis',
+      bugday:'🌾 Bugday', balik:'🎣 Balik', cig_et:'🥩 Cig Et', ekmek:'🍞 Ekmek', pismis:'🍳 Pis.Balik', pismis_et:'🍖 Pis.Et',
+      mana_beyaz:'🤍 B.Mana', mana_kirmizi:'❤️ K.Mana', mana_mavi:'💙 M.Mana', mana_yesil:'💚 Y.Mana'
+    };
+
+    function ozetSaatDegistir(s) { OZET_SAAT = s; loadOzetTablo(); }
+
+    async function loadOzetTablo() {
+      const token = getToken();
+      if (!token) return;
+      const loading = document.getElementById('ozet-loading');
+      const wrap = document.getElementById('ozet-wrap');
+      const empty = document.getElementById('ozet-empty');
+      if (loading) loading.style.display = 'block';
+      if (wrap) wrap.style.display = 'none';
+      if (empty) empty.style.display = 'none';
+      // Zaman buton aktif stili
+      ['24','48','72','168'].forEach(s => {
+        const b = document.getElementById('ozet-saat-' + s);
+        if (b) b.classList.toggle('on', String(OZET_SAAT) === s);
+      });
+
+      try {
+        const resp = await fetch(API_BASE + '/api/game/ekonomi-ozet?saat=' + OZET_SAAT, { headers: { 'Authorization': 'Bearer ' + token } });
+        const d = await resp.json();
+        if (!resp.ok || !d.ok) throw new Error(d.error || 'Hata');
+
+        if ((!d.gelirler || !d.gelirler.length) && (!d.giderler || !d.giderler.length)) {
+          if (loading) loading.style.display = 'none';
+          if (empty) empty.style.display = 'block';
+          return;
+        }
+
+        // Tablo olustur
+        const kaynaklarKullanilan = new Set();
+        (d.gelirler || []).concat(d.giderler || []).forEach(r => Object.keys(r.toplamlar).forEach(k => kaynaklarKullanilan.add(k)));
+        Object.keys(d.toplam_gelir||{}).forEach(k => kaynaklarKullanilan.add(k));
+        Object.keys(d.toplam_gider||{}).forEach(k => kaynaklarKullanilan.add(k));
+        const kaynaklar = d.kaynaklar.filter(k => kaynaklarKullanilan.has(k));
+
+        const fmt = (n) => n ? Math.round(n).toLocaleString('tr-TR') : '—';
+
+        let html = '<table class="ozet-tbl"><thead><tr>';
+        html += '<th style="width:60px">Tip</th><th style="min-width:180px">Kategori</th>';
+        kaynaklar.forEach(k => html += '<th style="min-width:90px">' + (KAYNAK_LABEL[k] || k) + '</th>');
+        html += '</tr></thead><tbody>';
+
+        // GELIR satirlari
+        (d.gelirler || []).forEach(r => {
+          html += '<tr><td style="color:#2ecc71;font-weight:bold">📈 Gelir</td><td>' + r.isim + '</td>';
+          kaynaklar.forEach(k => html += '<td class="yon-gelir">' + fmt(r.toplamlar[k]) + '</td>');
+          html += '</tr>';
+        });
+        // Gelir toplam
+        if ((d.gelirler || []).length) {
+          html += '<tr class="toplam-row toplam-gelir"><td>📈 TOPLAM</td><td>Gelir</td>';
+          kaynaklar.forEach(k => html += '<td>' + fmt(d.toplam_gelir[k]) + '</td>');
+          html += '</tr>';
+        }
+
+        // GIDER satirlari
+        (d.giderler || []).forEach(r => {
+          html += '<tr><td style="color:#e74c3c;font-weight:bold">📉 Gider</td><td>' + r.isim + '</td>';
+          kaynaklar.forEach(k => html += '<td class="yon-gider">' + (r.toplamlar[k] ? '-' + fmt(r.toplamlar[k]) : '—') + '</td>');
+          html += '</tr>';
+        });
+        if ((d.giderler || []).length) {
+          html += '<tr class="toplam-row toplam-gider"><td>📉 TOPLAM</td><td>Gider</td>';
+          kaynaklar.forEach(k => html += '<td>' + (d.toplam_gider[k] ? '-' + fmt(d.toplam_gider[k]) : '—') + '</td>');
+          html += '</tr>';
+        }
+
+        // Net
+        html += '<tr class="toplam-row toplam-net"><td>⚖️ NET</td><td>Gelir − Gider</td>';
+        kaynaklar.forEach(k => {
+          const n = d.net[k] || 0;
+          const cls = n > 0 ? 'yon-gelir' : (n < 0 ? 'yon-gider' : '');
+          const prefix = n > 0 ? '+' : '';
+          html += '<td class="' + cls + '">' + (n ? prefix + fmt(n) : '—') + '</td>';
+        });
+        html += '</tr></tbody></table>';
+
+        html += '<div style="font-size:10px;color:#555;margin-top:8px">Son ' + d.saat + ' saatte ' + d.log_sayisi + ' log kaydi islendi.</div>';
+
+        wrap.innerHTML = html;
+        loading.style.display = 'none';
+        wrap.style.display = 'block';
+      } catch(e) {
+        if (loading) loading.textContent = 'Hata: ' + e.message;
+      }
     }
 
     async function loadFilteredReport(tab) {
