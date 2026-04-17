@@ -98,67 +98,95 @@ async function loadGameData() {
   const token = getToken();
   if (!token) return;
   try {
-    // Tum API cagrilari paralel — hiz icin
+    // v1.13.36: Tum API cagrilari TEK Promise.all'da paralel + cache layer
+    // Eskiden guild/gorev SIRALI idi (+1.2sn). Simdi hepsi paralel.
     const authH = { 'Authorization': 'Bearer ' + token };
-    const [pResp, resRes, prodRes, workRes, alanRes, takvimRes, armyRes, kvResp, tatilResp, ateskesResp] = await Promise.all([
-      fetch(API_BASE + '/api/player/me',        { headers: authH }).catch(() => null),
-      fetch(API_BASE + '/api/game/resources',    { headers: authH }),
-      fetch(API_BASE + '/api/game/production',   { headers: authH }),
-      fetch(API_BASE + '/api/game/workers',      { headers: authH }),
-      fetch(API_BASE + '/api/game/alan',         { headers: authH }),
-      fetch(API_BASE + '/api/takvim'),
-      fetch(API_BASE + '/api/army/state',        { headers: authH }),
-      fetch(API_BASE + '/api/kervan/liste',      { headers: authH }).catch(() => null),
-      fetch(API_BASE + '/api/game/tatil',        { headers: authH }).catch(() => null),
-      fetch(API_BASE + '/api/game/ateskes').catch(() => null),
+    const cf = (typeof cachedFetch === 'function') ? cachedFetch : null;
+
+    // Cached yoksa (cache-fetch.js yuklenmediyse) normal fetch fallback
+    const fetchJson = async (url) => {
+      if (cf) return await cf(API_BASE + url, { headers: authH });
+      try { const r = await fetch(API_BASE + url, { headers: authH }); return r.ok ? await r.json() : null; }
+      catch(e) { return null; }
+    };
+
+    // 14 endpoint paralel (eskiden 10 + 3 sequential = 13)
+    const [
+      pData, resRaw, prodRaw, workRaw, alanRaw, takvimRaw,
+      armyRaw, kvRaw, tatilRaw, ateskesRaw, gorevRaw, gRaw, maliyetRaw, nufusRaw
+    ] = await Promise.all([
+      fetchJson('/api/player/me'),
+      fetchJson('/api/game/resources'),
+      fetchJson('/api/game/production'),
+      fetchJson('/api/game/workers'),
+      fetchJson('/api/game/alan'),
+      fetchJson('/api/takvim'),
+      fetchJson('/api/army/state'),
+      fetchJson('/api/kervan/liste'),
+      fetchJson('/api/game/tatil'),
+      fetchJson('/api/game/ateskes'),
+      fetchJson('/api/gorev/liste'),
+      fetchJson('/api/guild/benim'),       // Guild artik paralel (guilde degilse null)
+      fetchJson('/api/game/bina-maliyetler'),
+      fetchJson('/api/game/nufus'),        // v1.13.35
     ]);
+
+    // Null guard + downstream degiskenleri (eski isimlerle uyumluluk)
+    const res       = resRaw   || {};
+    const work      = workRaw  || {};
+    const alanData  = alanRaw  || {};
+    const takvimData= takvimRaw;
+    const prodData  = prodRaw  || {};
+    const prod      = prodData.toplam || prodData;
+    const kvData    = kvRaw;
+    const tatilResp = { ok: !!tatilRaw,   data: tatilRaw };
+    const ateskesResp = { ok: !!ateskesRaw, data: ateskesRaw };
 
     // Player verisi
     let playerGuildId = null;
     try {
-      if (pResp && pResp.ok) {
-        const pData = await pResp.json();
+      if (pData) {
         savePlayer(pData);
         obApplyPlayer(pData);
         playerGuildId = pData.guild_id;
       }
     } catch(e) {}
 
-    // v1.13.2: Guild HUD (sadece guilddeyse)
-    if (playerGuildId) {
-      try {
-        const gResp = await fetch(API_BASE + '/api/guild/benim', { headers: authH });
-        if (gResp.ok) {
-          const gData = await gResp.json();
-          if (typeof setGuildHUD === 'function') setGuildHUD(gData);
-        }
-      } catch(e) {}
+    // Guild HUD
+    if (playerGuildId && gRaw) {
+      try { if (typeof setGuildHUD === 'function') setGuildHUD(gRaw); } catch(e) {}
     } else {
       const gRow = document.getElementById('hud-guild-row');
       if (gRow) gRow.style.display = 'none';
     }
-    const res  = resRes.ok  ? await resRes.json()  : {};
-    const prodData = prodRes.ok ? await prodRes.json() : {};
-    const prod = prodData.toplam || prodData;
-    const work = workRes.ok ? await workRes.json() : {};
-    const alanData = alanRes.ok ? await alanRes.json() : {};
-    const takvimData = takvimRes.ok ? await takvimRes.json() : null;
+
+    // Bina maliyetleri globale yaz (loadBuildingsFromBackend icin cache)
+    if (maliyetRaw && maliyetRaw.maliyetler) {
+      window._BINA_MALIYETLER = maliyetRaw.maliyetler;
+    }
+
+    // Gorev badge
+    try {
+      if (gorevRaw && gorevRaw.gorevler) {
+        const bekleyen = gorevRaw.gorevler.filter(g => g.durum === 'tamamlandi').length;
+        const badge = document.getElementById('gorev-badge');
+        if (badge) {
+          if (bekleyen > 0) { badge.style.display = 'inline'; badge.textContent = bekleyen; }
+          else badge.style.display = 'none';
+        }
+      }
+    } catch(e) {}
 
     // Army state — toplam ATK/DEF (sehir degeri icin)
     try {
-      const armyData = armyRes.ok ? await armyRes.json() : {};
-      window._palantisToplamAtk = armyData.toplam_atk || 0;
-      window._palantisToplamDef = armyData.toplam_def || 0;
-      window._palantisReyting = armyData.reyting || 0;
-      window._palantisOrduMorali = armyData.ordu_morali ?? 0;
-      // Essek bilgisi: sehirdeki / toplam (sehir + kervanlardaki)
+      const a = armyRaw || {};
+      window._palantisToplamAtk = a.toplam_atk || 0;
+      window._palantisToplamDef = a.toplam_def || 0;
+      window._palantisReyting = a.reyting || 0;
+      window._palantisOrduMorali = a.ordu_morali ?? 0;
       const sehirEssek = parseInt(res.essek) || 0;
-      let kervanEssek = 0;
-      try {
-        if (kvResp && kvResp.ok) { const kvData = await kvResp.json(); kervanEssek = (kvData.kervanlar || []).reduce((s,k) => s + (k.essek_sayisi || 0), 0); }
-      } catch(e) {}
+      const kervanEssek = (kvData && kvData.kervanlar) ? kvData.kervanlar.reduce((s,k) => s + (k.essek_sayisi || 0), 0) : 0;
       setText('hud-essek', sehirEssek + ' / ' + (sehirEssek + kervanEssek));
-      // Sehir degeri ordu ile guncelle
       if (typeof updateCityStats === 'function') updateCityStats();
     } catch(e) {}
 
@@ -302,25 +330,15 @@ async function loadGameData() {
       ASKER_SAYISI = parseInt(work.asker) || 0;
     }
 
-    // Sayfa-ozel fonksiyonlar — sadece tanimli ise cagir
-    if(typeof loadPisirme === 'function') await loadPisirme();
-    if(typeof loadBuildingsFromBackend === 'function') await loadBuildingsFromBackend();
-    if(typeof loadTrainingQueue === 'function') await loadTrainingQueue();
-    if(typeof loadArmyPool === 'function') await loadArmyPool();
+    // v1.13.36: Sayfa-ozel fonksiyonlar artik PARALEL (eskiden sequential, 4 x 600ms = 2.4 sn)
+    const pageLoaders = [];
+    if(typeof loadPisirme === 'function')              pageLoaders.push(loadPisirme());
+    if(typeof loadBuildingsFromBackend === 'function') pageLoaders.push(loadBuildingsFromBackend());
+    if(typeof loadTrainingQueue === 'function')        pageLoaders.push(loadTrainingQueue());
+    if(typeof loadArmyPool === 'function')             pageLoaders.push(loadArmyPool());
+    if(pageLoaders.length) await Promise.all(pageLoaders);
 
-    // Gorev badge kontrolu
-    try {
-      var gResp = await fetch(API_BASE + '/api/gorev/liste', { headers: authH });
-      if (gResp.ok) {
-        var gData = await gResp.json();
-        var bekleyen = (gData.gorevler || []).filter(function(g){ return g.durum === 'tamamlandi'; }).length;
-        var badge = document.getElementById('gorev-badge');
-        if (badge) {
-          if (bekleyen > 0) { badge.style.display = 'inline'; badge.textContent = bekleyen; }
-          else badge.style.display = 'none';
-        }
-      }
-    } catch(e){}
+    // Gorev badge: zaten yukarida yapildi (gorevRaw'dan), bu bolum kaldirildi
 
     // ── Tatil + Ateşkes global flag ──
     try {
@@ -329,15 +347,13 @@ async function loadGameData() {
       window.ATESKES_AKTIF = false;
       window.ATESKES_ACIKLAMA = '';
 
-      if (tatilResp && tatilResp.ok) {
-        const td = await tatilResp.json();
-        window.TATIL_AKTIF = !!td.tatil_modu;
-        window.TATIL_KALAN_PG = td.kalan_pg || 0;
+      if (tatilRaw) {
+        window.TATIL_AKTIF = !!tatilRaw.tatil_modu;
+        window.TATIL_KALAN_PG = tatilRaw.kalan_pg || 0;
       }
-      if (ateskesResp && ateskesResp.ok) {
-        const ad = await ateskesResp.json();
-        window.ATESKES_AKTIF = !!(ad.aktif && ad.bitis && new Date(ad.bitis) > new Date());
-        window.ATESKES_ACIKLAMA = ad.aciklama || '';
+      if (ateskesRaw) {
+        window.ATESKES_AKTIF = !!(ateskesRaw.aktif && ateskesRaw.bitis && new Date(ateskesRaw.bitis) > new Date());
+        window.ATESKES_ACIKLAMA = ateskesRaw.aciklama || '';
       }
 
       // HUD banner güncelle
