@@ -258,7 +258,14 @@
   <div id="tab-binalar" class="panel">
     <div class="card">
       <h3>Bina Ayarlari</h3>
-      <p style="font-size:10px;color:var(--muted);margin-bottom:10px">Hammadde maliyeti, yapim suresi, sehir degeri, cag limitleri ve <b>aciklama</b>. Degistirdiginiz degerler DB'ye kaydedilir. Aciklama bos ise frontend constants.js default gosterilir.</p>
+      <p style="font-size:10px;color:var(--muted);margin-bottom:4px">Hammadde maliyeti, yapim suresi, sehir degeri, cag limitleri ve <b>aciklama</b>. Degistirdiginiz degerler DB'ye kaydedilir. Aciklama bos ise frontend constants.js default gosterilir.</p>
+      <p style="font-size:10px;color:#c8a96e;margin-bottom:10px;background:rgba(201,168,76,0.06);border-left:3px solid #c8a96e;padding:4px 8px;border-radius:3px">
+        <b>Cag Limiti (Ç1..Ç5) rehber:</b>
+        <code style="color:#e74c3c">0</code> = o cagda yapilamaz &nbsp;·&nbsp;
+        <code style="color:#d4af37">1-10</code> = kumulatif max adet (orn. magara Ç2:2, Ç3:4, Ç4:6, Ç5:10) &nbsp;·&nbsp;
+        <code style="color:#2ecc71">999</code> = sinirsiz/limitsiz &nbsp;·&nbsp;
+        Her degisiklikte 💾 tikla, aninda oyunda aktif olur.
+      </p>
       <div style="overflow-x:auto">
         <table style="font-size:11px" id="bina-config-table">
           <thead><tr><th>Bina</th><th>Odun</th><th>Metal</th><th>Altin</th><th>Süre (PG)</th><th>Değer</th><th>Ç1</th><th>Ç2</th><th>Ç3</th><th>Ç4</th><th>Ç5</th><th>Açıklama (oyuncuya görünür)</th><th></th></tr></thead>
