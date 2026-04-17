@@ -166,21 +166,29 @@
 .rehber-dot.aktif { background: var(--race-color, #c8a96e); }
 .rehber-dot.tamamlandi { background: #2ecc71; }
 
-/* Sayfa yönlendirme banner */
+/* Sayfa yönlendirme banner — v1.13.21: alta tasindi, mobil uyumlu */
 .rehber-banner {
   position: fixed;
-  top: 0; left: 0; right: 0;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 720px;
+  width: calc(100% - 20px);
   z-index: 99997;
   background: linear-gradient(90deg, rgba(200,169,110,.15) 0%, rgba(200,169,110,.05) 100%);
-  border-bottom: 1px solid rgba(200,169,110,.2);
-  padding: 8px 16px;
+  border: 1px solid rgba(200,169,110,.3);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+  padding: 8px 12px;
   display: flex; justify-content: space-between; align-items: center;
   font-family: 'Cinzel', serif;
+  gap: 8px;
+  flex-wrap: wrap;
   animation: rehberBannerIn .3s ease;
 }
 @keyframes rehberBannerIn {
-  from { transform: translateY(-100%); }
-  to { transform: translateY(0); }
+  from { transform: translate(-50%, 100%); opacity: 0; }
+  to   { transform: translate(-50%, 0); opacity: 1; }
 }
 .rehber-banner-text {
   font-size: 11px; color: var(--race-color, #c8a96e);
@@ -196,6 +204,18 @@
   font-family: 'Cinzel', serif;
 }
 
+/* HUD Rehber butonu (v1.13.21) */
+.rehber-hud-btn {
+  transition: background 0.2s, transform 0.15s;
+}
+.rehber-hud-btn:hover {
+  background: rgba(200,169,110,0.15) !important;
+  transform: translateY(-1px);
+}
+.rehber-hud-btn:active {
+  transform: scale(0.96);
+}
+
 /* Responsive */
 @media (max-width: 600px) {
   .rehber-tooltip {
@@ -204,4 +224,21 @@
   }
   .rehber-baslik { font-size: 13px; }
   .rehber-aciklama { font-size: 11px; }
+
+  /* v1.13.21: Banner mobilde alta sabitli, HUD'u engellemez */
+  .rehber-banner {
+    font-size: 10px;
+    padding: 6px 10px;
+    bottom: 6px;
+    border-radius: 6px;
+  }
+  .rehber-banner-text {
+    font-size: 10px !important;
+    flex: 1 1 100%;
+    margin-bottom: 4px;
+  }
+  .rehber-banner-btn {
+    font-size: 9px !important;
+    padding: 3px 8px !important;
+  }
 }

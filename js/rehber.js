@@ -8,6 +8,7 @@
 
 const REHBER_STORAGE = 'noxara_rehber_tamamlandi';
 const REHBER_ADIM_STORAGE = 'noxara_rehber_adim';
+const REHBER_BANNER_GIZLI = 'noxara_rehber_banner_gizli'; // v1.13.21
 
 /* ── Rehber Adim Tanimlari (frontend config) ──
    Her adim:
@@ -131,11 +132,16 @@ function rehberInit() {
   const adim = REHBER_ADIMLARI.find(a => a.adim === _mevcutAdim);
   if (!adim) return;
 
+  // v1.13.21: HUD rehber butonunu her durumda goster (aktif rehber var)
+  rehberHudButonGoster(adim);
+
   // Sayfa eslesmesi kontrol
   const currentPage = window.location.pathname;
   if (!sayfaEslesiyor(currentPage, adim.sayfa)) {
-    // Yanlis sayfadayiz — banner goster
-    rehberBannerGoster(adim);
+    // v1.13.21: Yanlis sayfada — banner sadece kullanici gizlememisse
+    if (localStorage.getItem(REHBER_BANNER_GIZLI) !== '1') {
+      rehberBannerGoster(adim);
+    }
     return;
   }
 
@@ -143,22 +149,53 @@ function rehberInit() {
   setTimeout(() => rehberAdimGoster(adim), 1000);
 }
 
+// v1.13.21: HUD'daki rehber butonu — her sayfada gorulur, tikla banner'i toggle eder
+function rehberHudButonGoster(adim) {
+  const el = document.getElementById('hud-rehber-btn');
+  const adimEl = document.getElementById('hud-rehber-adim');
+  if (!el || !adimEl) return;
+  el.style.display = 'flex';
+  adimEl.textContent = adim.adim + '/' + REHBER_ADIMLARI.length;
+}
+
+// Kullanici HUD rehber butonuna tiklayinca — banner'i toggle
+function rehberHudTikla() {
+  const banner = document.querySelector('.rehber-banner');
+  if (banner) {
+    // Acik → gizle
+    localStorage.setItem(REHBER_BANNER_GIZLI, '1');
+    rehberBannerKaldir();
+    return;
+  }
+  // Kapali → ac
+  localStorage.removeItem(REHBER_BANNER_GIZLI);
+  const adim = REHBER_ADIMLARI.find(a => a.adim === _mevcutAdim);
+  if (adim) rehberBannerGoster(adim);
+}
+
 function sayfaEslesiyor(currentPath, hedefSayfa) {
   return currentPath.includes(hedefSayfa);
 }
 
-/* ── Banner (yanlis sayfadayken) ── */
+/* ── Banner (yanlis sayfadayken) — v1.13.21: kompakt + kapatma ── */
 function rehberBannerGoster(adim) {
   rehberBannerKaldir();
   _bannerEl = document.createElement('div');
   _bannerEl.className = 'rehber-banner';
   _bannerEl.innerHTML =
-    '<span class="rehber-banner-text">📜 Rehber Adim ' + adim.adim + '/' + REHBER_ADIMLARI.length + ': ' + adim.baslik + '</span>' +
-    '<div style="display:flex;gap:6px">' +
-      '<button class="rehber-banner-btn" onclick="rehberSayfayaGit()">Adima Git →</button>' +
+    '<span class="rehber-banner-text">📜 Adim ' + adim.adim + '/' + REHBER_ADIMLARI.length + ': ' + adim.baslik + '</span>' +
+    '<div style="display:flex;gap:6px;align-items:center">' +
+      '<button class="rehber-banner-btn" onclick="rehberSayfayaGit()">Git →</button>' +
       '<button class="rehber-banner-btn" onclick="rehberAtla()" style="color:#666;border-color:#333">Atla</button>' +
+      '<button class="rehber-banner-btn rehber-banner-close" onclick="rehberBannerGizle()" title="Kapat (rehber butonundan tekrar ac)" style="color:#888;border:none;background:transparent;font-size:16px;padding:2px 8px">✕</button>' +
     '</div>';
   document.body.appendChild(_bannerEl);
+}
+
+// v1.13.21: Kullanici ✕'ya bastiginda banner gizlenir (HUD butonu kalir)
+function rehberBannerGizle() {
+  localStorage.setItem(REHBER_BANNER_GIZLI, '1');
+  rehberBannerKaldir();
 }
 
 function rehberBannerKaldir() {

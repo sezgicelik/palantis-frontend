@@ -219,6 +219,14 @@ function renderHUD(){
         <div class="stat-box mana-box" data-tip="MAVİ MANA" style="border-left:2px solid #3498db"><span class="res-icon">💙</span><div class="res-details"><span class="res-label" style="color:#3498db">M.Mana</span><span class="res-amount" id="hud-mana-mavi">0</span><span class="res-rate" id="hud-mana-mavi-g"></span></div></div>
         <div class="stat-box mana-box" data-tip="YEŞİL MANA" style="border-left:2px solid #2ecc71"><span class="res-icon">💚</span><div class="res-details"><span class="res-label" style="color:#2ecc71">Y.Mana</span><span class="res-amount" id="hud-mana-yesil">0</span><span class="res-rate" id="hud-mana-yesil-g"></span></div></div>
         ${sb('EŞEK','🫏','Eşek','hud-essek',null)}
+        <!-- v1.13.21: Rehber butonu (Esek yaninda, sadece rehber aktifse gorunur) -->
+        <div id="hud-rehber-btn" class="stat-box rehber-hud-btn" data-tip="REHBER" onclick="rehberHudTikla()" style="display:none;cursor:pointer;border-left:2px solid #c8a96e;background:rgba(200,169,110,0.06)">
+          <span class="res-icon">📜</span>
+          <div class="res-details">
+            <span class="res-label" style="color:#c8a96e">Rehber</span>
+            <span class="res-amount" id="hud-rehber-adim" style="color:#f0d050">—</span>
+          </div>
+        </div>
       </div>
     </div>
     <button class="hud-toggle-btn" onclick="document.getElementById('hudbar').classList.toggle('expanded');this.textContent=document.getElementById('hudbar').classList.contains('expanded')?'▲':'▼'">▼</button>
