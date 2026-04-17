@@ -191,7 +191,23 @@ function renderHUD(){
         <div class="stat-box stat-empty"></div>
       </div>
     </div>
-    <!-- GENEL -->
+    <!-- MANA (v1.13.22: Genel'in ustune alindi) -->
+    <div class="hud-row-wrap">
+      <div class="hud-row-lbl">MANA</div>
+      <div class="hud-res-row">
+        <div class="stat-box mana-box" data-tip="BEYAZ MANA" style="border-left:2px solid #f0e8d8"><span class="res-icon">🤍</span><div class="res-details"><span class="res-label" style="color:#f0e8d8">B.Mana</span><span class="res-amount" id="hud-mana-beyaz">0</span><span class="res-rate" id="hud-mana-beyaz-g"></span></div></div>
+        <div class="stat-box mana-box" data-tip="KIRMIZI MANA" style="border-left:2px solid #e74c3c"><span class="res-icon">❤️</span><div class="res-details"><span class="res-label" style="color:#e74c3c">K.Mana</span><span class="res-amount" id="hud-mana-kirmizi">0</span><span class="res-rate" id="hud-mana-kirmizi-g"></span></div></div>
+        <div class="stat-box mana-box" data-tip="MAVİ MANA" style="border-left:2px solid #3498db"><span class="res-icon">💙</span><div class="res-details"><span class="res-label" style="color:#3498db">M.Mana</span><span class="res-amount" id="hud-mana-mavi">0</span><span class="res-rate" id="hud-mana-mavi-g"></span></div></div>
+        <div class="stat-box mana-box" data-tip="YEŞİL MANA" style="border-left:2px solid #2ecc71"><span class="res-icon">💚</span><div class="res-details"><span class="res-label" style="color:#2ecc71">Y.Mana</span><span class="res-amount" id="hud-mana-yesil">0</span><span class="res-rate" id="hud-mana-yesil-g"></span></div></div>
+        ${sb('EŞEK','🫏','Eşek','hud-essek',null)}
+      </div>
+    </div>
+    <!-- GUILD (v1.13.2 — sadece guilddeyse goster) -->
+    <div class="hud-row-wrap" id="hud-guild-row" style="display:none">
+      <div class="hud-row-lbl">GUILD</div>
+      <div class="hud-res-row hud-aligned" id="hud-guild-stats"></div>
+    </div>
+    <!-- GENEL (v1.13.22: Mana'nin altina alindi) -->
     <div class="hud-row-wrap">
       <div class="hud-row-lbl">GENEL</div>
       <div class="hud-res-row">
@@ -203,23 +219,15 @@ function renderHUD(){
         ${sb('ŞEHİR','🏰','Ş.Değeri','hud-sehir-deger',null)}
         ${sb('TARİH','📅','Tarih','hud-takvim',null)}
         ${sb('SAAT','⏰','Saat','c-now',null)}
-      </div>
-    </div>
-    <!-- GUILD (v1.13.2 — sadece guilddeyse goster) -->
-    <div class="hud-row-wrap" id="hud-guild-row" style="display:none">
-      <div class="hud-row-lbl">GUILD</div>
-      <div class="hud-res-row hud-aligned" id="hud-guild-stats"></div>
-    </div>
-    <!-- MANA -->
-    <div class="hud-row-wrap">
-      <div class="hud-row-lbl">MANA</div>
-      <div class="hud-res-row">
-        <div class="stat-box mana-box" data-tip="BEYAZ MANA" style="border-left:2px solid #f0e8d8"><span class="res-icon">🤍</span><div class="res-details"><span class="res-label" style="color:#f0e8d8">B.Mana</span><span class="res-amount" id="hud-mana-beyaz">0</span><span class="res-rate" id="hud-mana-beyaz-g"></span></div></div>
-        <div class="stat-box mana-box" data-tip="KIRMIZI MANA" style="border-left:2px solid #e74c3c"><span class="res-icon">❤️</span><div class="res-details"><span class="res-label" style="color:#e74c3c">K.Mana</span><span class="res-amount" id="hud-mana-kirmizi">0</span><span class="res-rate" id="hud-mana-kirmizi-g"></span></div></div>
-        <div class="stat-box mana-box" data-tip="MAVİ MANA" style="border-left:2px solid #3498db"><span class="res-icon">💙</span><div class="res-details"><span class="res-label" style="color:#3498db">M.Mana</span><span class="res-amount" id="hud-mana-mavi">0</span><span class="res-rate" id="hud-mana-mavi-g"></span></div></div>
-        <div class="stat-box mana-box" data-tip="YEŞİL MANA" style="border-left:2px solid #2ecc71"><span class="res-icon">💚</span><div class="res-details"><span class="res-label" style="color:#2ecc71">Y.Mana</span><span class="res-amount" id="hud-mana-yesil">0</span><span class="res-rate" id="hud-mana-yesil-g"></span></div></div>
-        ${sb('EŞEK','🫏','Eşek','hud-essek',null)}
-        <!-- v1.13.21: Rehber butonu (Esek yaninda, sadece rehber aktifse gorunur) -->
+        <!-- v1.13.22: Gelen saldiri/takviye sayaci (sadece > 0 iken gorunur) -->
+        <div id="hud-gelen-btn" class="stat-box" data-tip="GELEN ORDULAR" onclick="toggleGelenOrdular()" style="display:none;cursor:pointer;border-left:2px solid #e74c3c;background:rgba(231,76,60,0.08)">
+          <span class="res-icon">🎯</span>
+          <div class="res-details">
+            <span class="res-label" style="color:#e74c3c">Gelen</span>
+            <span class="res-amount" id="hud-gelen-sayi">0</span>
+          </div>
+        </div>
+        <!-- v1.13.21: Rehber butonu -->
         <div id="hud-rehber-btn" class="stat-box rehber-hud-btn" data-tip="REHBER" onclick="rehberHudTikla()" style="display:none;cursor:pointer;border-left:2px solid #c8a96e;background:rgba(200,169,110,0.06)">
           <span class="res-icon">📜</span>
           <div class="res-details">
@@ -228,6 +236,14 @@ function renderHUD(){
           </div>
         </div>
       </div>
+    </div>
+    <!-- v1.13.22: Gelen ordular detay paneli (tikla ac/kapa) -->
+    <div id="hud-gelen-panel" style="display:none;position:fixed;top:auto;bottom:10px;right:10px;width:320px;max-width:92vw;max-height:60vh;overflow-y:auto;background:linear-gradient(180deg,#1a0e06,#110804);border:1px solid #c0392b;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,0.8);z-index:99998;padding:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(231,76,60,0.3)">
+        <span style="font-family:'Cinzel',serif;color:#e74c3c;font-size:13px;font-weight:bold">🎯 Şehrime Gelen Ordular</span>
+        <button onclick="toggleGelenOrdular()" style="background:none;border:none;color:#888;cursor:pointer;font-size:18px">✕</button>
+      </div>
+      <div id="hud-gelen-liste" style="font-size:11px;color:#aaa">Yukleniyor...</div>
     </div>
     <button class="hud-toggle-btn" onclick="document.getElementById('hudbar').classList.toggle('expanded');this.textContent=document.getElementById('hudbar').classList.contains('expanded')?'▲':'▼'">▼</button>
   </div>
@@ -323,6 +339,10 @@ function initLayout(){
   if(typeof loadGameData === 'function'){
     setInterval(loadGameData, 60000);
   }
+
+  // v1.13.22: Gelen ordular polling (30sn)
+  loadGelenOrdular();
+  setInterval(loadGelenOrdular, 30000);
 
   // v1.2.0: Gün geçişi sistemi
   initDayTransition();
@@ -534,6 +554,96 @@ function hizliMenuSirala(href, yon) {
   if (j < 0 || j >= list.length) return;
   [list[i], list[j]] = [list[j], list[i]];
   setHizliMenu(list);
+}
+
+/* ═══════════════════════════════════════════
+   GELEN ORDULAR (v1.13.22) — Sehrime gelen saldiri/takviye
+═══════════════════════════════════════════ */
+let _gelenOrdularCache = null;
+
+async function loadGelenOrdular() {
+  const token = getToken ? getToken() : null;
+  if (!token || typeof API_BASE === 'undefined') return;
+  try {
+    const r = await fetch(API_BASE + '/api/game/gelen-ordular', { headers: { Authorization: 'Bearer ' + token } });
+    if (!r.ok) return;
+    const data = await r.json();
+    if (!data.ok) return;
+    _gelenOrdularCache = data;
+
+    const btn = document.getElementById('hud-gelen-btn');
+    const sayi = document.getElementById('hud-gelen-sayi');
+    if (!btn || !sayi) return;
+
+    if (data.toplam > 0) {
+      btn.style.display = 'flex';
+      // Saldiri varsa kirmizi, yoksa yesil (sadece takviye)
+      const hasSaldiri = data.saldiri_sayisi > 0;
+      btn.style.borderLeftColor = hasSaldiri ? '#e74c3c' : '#2ecc71';
+      btn.style.background = hasSaldiri ? 'rgba(231,76,60,0.12)' : 'rgba(46,204,113,0.12)';
+      sayi.style.color = hasSaldiri ? '#e74c3c' : '#2ecc71';
+      sayi.textContent = hasSaldiri
+        ? `⚔️${data.saldiri_sayisi}${data.takviye_sayisi ? ` 🛡️${data.takviye_sayisi}` : ''}`
+        : `🛡️${data.takviye_sayisi}`;
+      // Label'i da guncelle
+      const lbl = btn.querySelector('.res-label');
+      if (lbl) { lbl.textContent = hasSaldiri ? 'Saldiri!' : 'Takviye'; lbl.style.color = hasSaldiri ? '#e74c3c' : '#2ecc71'; }
+    } else {
+      btn.style.display = 'none';
+      const panel = document.getElementById('hud-gelen-panel');
+      if (panel) panel.style.display = 'none';
+    }
+
+    // Panel acikssa icerigini de guncelle
+    const panel = document.getElementById('hud-gelen-panel');
+    if (panel && panel.style.display === 'block') renderGelenOrdularPanel();
+  } catch(e) { /* sessiz */ }
+}
+
+function toggleGelenOrdular() {
+  const panel = document.getElementById('hud-gelen-panel');
+  if (!panel) return;
+  if (panel.style.display === 'block') {
+    panel.style.display = 'none';
+  } else {
+    panel.style.display = 'block';
+    renderGelenOrdularPanel();
+  }
+}
+
+function renderGelenOrdularPanel() {
+  const wrap = document.getElementById('hud-gelen-liste');
+  if (!wrap) return;
+  const d = _gelenOrdularCache;
+  if (!d || !d.ordular || d.ordular.length === 0) {
+    wrap.innerHTML = '<div style="color:#555;text-align:center;padding:14px">Gelen ordu yok</div>';
+    return;
+  }
+  const fmtKalan = (sn) => {
+    if (sn <= 0) return 'Variyor...';
+    const d = Math.floor(sn / 86400);
+    const h = Math.floor((sn % 86400) / 3600);
+    const m = Math.floor((sn % 3600) / 60);
+    if (d > 0) return `${d}g ${h}s`;
+    if (h > 0) return `${h}s ${m}d`;
+    return `${m}d`;
+  };
+  wrap.innerHTML = d.ordular.map(o => {
+    const isSald = o.tip === 'saldiri';
+    const renk = isSald ? '#e74c3c' : '#2ecc71';
+    const ikon = isSald ? '⚔️' : '🛡️';
+    const ad = o.saldiran_kral || 'Bilinmeyen';
+    const sehir = o.saldiran_sehir ? ` (${o.saldiran_sehir})` : '';
+    const koord = o.kaynak ? `📍 ${o.kaynak} →` : '';
+    return `<div style="padding:8px 10px;margin-bottom:6px;background:rgba(0,0,0,0.3);border-left:3px solid ${renk};border-radius:4px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+        <span style="color:${renk};font-weight:bold;font-size:12px">${ikon} ${isSald ? 'SALDIRI' : 'TAKVİYE'}</span>
+        <span style="color:#c8a96e;font-size:10px;font-weight:bold">${fmtKalan(o.kalan_saniye)}</span>
+      </div>
+      <div style="color:#ccc;font-size:11px">${ad}${sehir}</div>
+      <div style="color:#666;font-size:10px;margin-top:2px">${koord} ${o.ordu_isim || 'Ordu'}</div>
+    </div>`;
+  }).join('');
 }
 
 /* Sayfa yuklenince otomatik cagir */
