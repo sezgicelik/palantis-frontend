@@ -66,6 +66,9 @@
       <span><span class="dot" style="background:#2ecc71"></span> Sen</span>
       <span><span class="dot" style="background:#3498db"></span> Aydınlık</span>
       <span><span class="dot" style="background:#e74c3c"></span> Karanlık</span>
+      <span><span class="dot" style="background:#9b59b6"></span> 🏰 Guild</span>
+      <span><span class="dot" style="background:#f39c12"></span> ★ Kadim (Aydınlık)</span>
+      <span><span class="dot" style="background:#c0392b"></span> ★ Kadim (Karanlık)</span>
       <span><span class="dot" style="background:#f1c40f"></span> Koloni</span>
       <span><span class="dot" style="background:#2d5a1e"></span> Orman</span>
       <span><span class="dot" style="background:#5a7a2a"></span> Ova</span>
@@ -187,6 +190,15 @@ function render2D() {
   const cellMap = {};
   (MAP_DATA.oyuncular || []).forEach(o => { cellMap[o.x + ':' + o.y] = { tip: 'oyuncu', d: o }; });
   (MAP_DATA.koloniler || []).forEach(k => { cellMap[k.x + ':' + k.y] = { tip: 'koloni', d: k }; });
+  // v1.13.7: Guild sehirleri (oyuncuyu override etmez, ayri katman)
+  (MAP_DATA.guildSehirler || []).forEach(g => {
+    const key = g.x + ':' + g.y;
+    if (!cellMap[key]) cellMap[key] = { tip: 'guild', d: g };
+  });
+  // v1.13.7: Kadim sehirler (en onemli, oyuncu/koloni override)
+  (MAP_DATA.kadimSehirler || []).forEach(k => {
+    cellMap[k.x + ':' + k.y] = { tip: 'kadim', d: k };
+  });
   // v1.9.3: Konuşlanan ordular map
   const konusMap = {};
   (MAP_DATA.konuslananlar || []).forEach(t => { konusMap[t.x + ':' + t.y] = t; });
@@ -227,7 +239,7 @@ function render2D() {
       const tile = getTile(x, y, bolgeId);
       ctx.drawImage(tile, px, py, TW, TH);
 
-      // Oyuncu / Koloni overlay
+      // Oyuncu / Koloni / Guild / Kadim overlay
       const cell = cellMap[x + ':' + y];
       if (cell) {
         if (cell.tip === 'oyuncu') {
@@ -239,7 +251,7 @@ function render2D() {
           ctx.font = `${Math.min(TH - 2, 8)}px sans-serif`;
           ctx.textAlign = 'center';
           ctx.fillText(o.kral?.substring(0, 3) || '?', px + TW / 2, py + TH / 2 + 2);
-        } else {
+        } else if (cell.tip === 'koloni') {
           const k = cell.d;
           ctx.fillStyle = k.sahip_kral ? 'rgba(231,76,60,0.6)' : 'rgba(46,204,113,0.4)';
           ctx.fillRect(px + 1, py + 1, TW - 2, TH - 2);
@@ -247,6 +259,27 @@ function render2D() {
           ctx.font = `${Math.min(TH - 2, 7)}px sans-serif`;
           ctx.textAlign = 'center';
           ctx.fillText('K', px + TW / 2, py + TH / 2 + 2);
+        } else if (cell.tip === 'guild') {
+          // v1.13.7: Guild sehir (mor)
+          const g = cell.d;
+          ctx.fillStyle = '#9b59b6';
+          ctx.fillRect(px + 1, py + 1, TW - 2, TH - 2);
+          ctx.fillStyle = '#fff';
+          ctx.font = `bold ${Math.min(TH - 2, 7)}px sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.fillText('[' + (g.tag || '?').substring(0, 3) + ']', px + TW / 2, py + TH / 2 + 2);
+        } else if (cell.tip === 'kadim') {
+          // v1.13.7: Kadim sehir (altin sari, onemli)
+          const k = cell.d;
+          ctx.fillStyle = k.taraf === 'aydinlik' ? '#f39c12' : '#8e44ad';
+          ctx.fillRect(px + 1, py + 1, TW - 2, TH - 2);
+          ctx.strokeStyle = '#d4af37';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(px + 1, py + 1, TW - 2, TH - 2);
+          ctx.fillStyle = '#fff';
+          ctx.font = `bold ${Math.min(TH - 2, 7)}px sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.fillText('★' + (k.isim || '?').substring(0, 3), px + TW / 2, py + TH / 2 + 2);
         }
       }
 
@@ -322,6 +355,12 @@ function renderGrid() {
   const cellMap = {};
   (MAP_DATA.oyuncular || []).forEach(o => { cellMap[o.x + ':' + o.y] = { tip: 'oyuncu', d: o }; });
   (MAP_DATA.koloniler || []).forEach(k => { cellMap[k.x + ':' + k.y] = { tip: 'koloni', d: k }; });
+  // v1.13.7: Guild + Kadim sehirler
+  (MAP_DATA.guildSehirler || []).forEach(g => {
+    const key = g.x + ':' + g.y;
+    if (!cellMap[key]) cellMap[key] = { tip: 'guild', d: g };
+  });
+  (MAP_DATA.kadimSehirler || []).forEach(k => { cellMap[k.x + ':' + k.y] = { tip: 'kadim', d: k }; });
   // v1.9.3: Konuşlanan ordular
   const konusMap2 = {};
   (MAP_DATA.konuslananlar || []).forEach(t => { konusMap2[t.x + ':' + t.y] = t; });
@@ -342,9 +381,15 @@ function renderGrid() {
           const o = cell.d;
           if (o.benMi) { bg = '#0a2a0a'; color = '#2ecc71'; content = o.kral.substring(0,3); }
           else { bg = o.taraf==='iyi'?'#0a1420':'#200a0a'; color = TARAF_RENK[o.taraf]; content = o.kral.substring(0,3); }
-        } else {
+        } else if (cell.tip === 'koloni') {
           bg = '#1a1500'; color = cell.d.sahip_kral ? '#e67e22' : '#f1c40f';
           content = (KAYNAK_IKON[cell.d.kaynak_tipi]||'⛏');
+        } else if (cell.tip === 'guild') {
+          bg = '#2a1a35'; color = '#9b59b6';
+          content = '[' + (cell.d.tag || '?').substring(0, 3) + ']';
+        } else if (cell.tip === 'kadim') {
+          bg = '#2a1f00'; color = cell.d.taraf === 'aydinlik' ? '#f39c12' : '#c0392b';
+          content = '★';
         }
       }
       // v1.9.3: Konuşlanan ordu ikonu grid'de
@@ -363,6 +408,9 @@ function renderGrid() {
 function mapSecHucre(x, y) {
   const oyuncu = (MAP_DATA?.oyuncular || []).find(o => o.x === x && o.y === y);
   const koloni = (MAP_DATA?.koloniler || []).find(k => k.x === x && k.y === y);
+  // v1.13.7: Guild + Kadim
+  const guildSehir = (MAP_DATA?.guildSehirler || []).find(g => g.x === x && g.y === y);
+  const kadimSehir = (MAP_DATA?.kadimSehirler || []).find(k => k.x === x && k.y === y);
   const konuslanan = (MAP_DATA?.konuslananlar || []).find(t => t.x === x && t.y === y);
   const panel = document.getElementById('map-info');
   const title = document.getElementById('map-info-title');
@@ -370,7 +418,28 @@ function mapSecHucre(x, y) {
   if (!panel) return;
   panel.style.display = 'block';
 
-  if (oyuncu) {
+  if (kadimSehir) {
+    // v1.13.7: Kadim sehir bilgi paneli (oncelikli)
+    const k = kadimSehir;
+    title.textContent = '★ ' + k.isim + ' (Kadim Sehir) (' + x + ':' + y + ')';
+    content.innerHTML =
+      '<div><div style="color:#555;font-size:9px">Isim</div><div style="color:#f39c12;font-weight:bold">' + k.isim + '</div></div>' +
+      '<div><div style="color:#555;font-size:9px">Taraf</div><div style="color:' + (k.taraf === 'aydinlik' ? '#f39c12' : '#c0392b') + '">' + (k.taraf === 'aydinlik' ? 'Aydinlik' : 'Karanlik') + '</div></div>' +
+      '<div><div style="color:#555;font-size:9px">Durum</div><div>' + (k.state || '-') + '</div></div>' +
+      '<div><div style="color:#555;font-size:9px">Ordu Gucu</div><div style="color:#e74c3c">⚔️ ' + (k.ordu_gucu||0).toLocaleString() + '</div></div>' +
+      (k.holding_guild_id ? '<div><div style="color:#555;font-size:9px">Holding Guild</div><div>#' + k.holding_guild_id + '</div></div>' : '') +
+      '<div><div style="color:#555;font-size:9px">Mesafe</div><div>' + (k.mesafe??'—') + '</div></div>' +
+      '<div style="grid-column:1/-1;margin-top:6px;text-align:center"><a href="pazar.html" class="btn-action" style="padding:6px 16px;font-size:12px">🛒 Kadim Pazar</a></div>';
+  } else if (guildSehir) {
+    // v1.13.7: Guild sehir bilgi paneli
+    const g = guildSehir;
+    title.textContent = '🏰 [' + g.tag + '] ' + g.isim + ' (' + x + ':' + y + ')';
+    content.innerHTML =
+      '<div><div style="color:#555;font-size:9px">Guild</div><div style="color:#9b59b6;font-weight:bold">[' + g.tag + '] ' + g.isim + '</div></div>' +
+      '<div><div style="color:#555;font-size:9px">Taraf</div><div style="color:' + (TARAF_RENK[g.taraf]||'#888') + '">' + (g.taraf === 'iyi' ? 'Aydinlik' : 'Karanlik') + '</div></div>' +
+      '<div><div style="color:#555;font-size:9px">Alan</div><div>' + (g.alan||0).toLocaleString() + '</div></div>' +
+      '<div><div style="color:#555;font-size:9px">Mesafe</div><div>' + (g.mesafe??'—') + '</div></div>';
+  } else if (oyuncu) {
     title.textContent = '📋 ' + oyuncu.kral + ' (' + x + ':' + y + ')';
     content.innerHTML =
       '<div><div style="color:#555;font-size:9px">Kral</div><div style="color:#d4af37">' + oyuncu.kral + '</div></div>' +
