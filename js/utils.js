@@ -29,17 +29,23 @@ const fmtT=sec=>{
   return `${gun.toFixed(3)} P.G.`;
 };
 
-// v1.13.23: Kalan sureyi daha okunur sekilde formatla (tamamlanma icin)
-// 2s 30dk = "2 P.G. 30dk" gibi
+// v1.13.31: Kalan sureyi PG biriminde formatla — dakika/saniye yerine yuzdelik PG
+// Ornek: 3600 sn = "1 P.G.", 1800 sn = "%50 P.G.", 5400 sn = "1 P.G. %50",
+//        2844 sn = "%79 P.G.", 0 sn = "Tamamlaniyor"
 function fmtKalanSure(sec){
   sec = Math.max(0, Math.floor(sec));
-  if (sec <= 0) return 'Tamamlaniyor';
-  const pg = Math.floor(sec / 3600);
-  const dk = Math.floor((sec % 3600) / 60);
-  const sn = sec % 60;
-  if (pg >= 1) return dk > 0 ? `${pg} P.G. ${dk} dk` : `${pg} P.G.`;
-  if (dk >= 1) return `${dk} dk ${sn > 0 ? sn + ' sn' : ''}`.trim();
-  return `${sn} sn`;
+  if (sec <= 0) return 'Tamamlanıyor';
+  if (sec < 36) return '< %1 P.G.'; // 36sn altı = 1 PG'nin %1'inden az
+
+  const tamPg = Math.floor(sec / 3600);
+  const kalanSn = sec - tamPg * 3600;
+  // 3600/100 = 36sn → 1%. Yuvarla ama 100'e varmasin (o zaman +1 PG olmali)
+  let yuzde = Math.round(kalanSn / 36);
+  if (yuzde >= 100) yuzde = 99;
+
+  if (tamPg === 0) return `%${yuzde} P.G.`;
+  if (yuzde === 0) return `${tamPg} P.G.`;
+  return `${tamPg} P.G. %${yuzde}`;
 }
 
 function romanCag(n) {
