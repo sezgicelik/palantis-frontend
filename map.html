@@ -20,6 +20,27 @@
 #map-grid-wrap table { border-collapse:collapse; table-layout:fixed; font-size:6px; width:auto; margin:0 auto; }
 #map-grid-wrap th { background:#1a1a00; color:#555; padding:0; border:1px solid #111; font-size:6px; }
 #map-grid-wrap td { border:1px solid #0a0a0a; padding:0; text-align:center; height:10px; line-height:10px; cursor:pointer; overflow:hidden; font-size:6px; width:48px; }
+/* Klasik (parsomen) gorunum */
+#map-klasik-wrap { background:#1a1208; border:2px solid #7a5014; border-radius:6px; padding:6px; overflow:auto; max-height:600px; display:none; }
+#map-klasik-wrap table.kmap { border-collapse:collapse; margin:0 auto; background:
+  repeating-linear-gradient(90deg, rgba(0,0,0,0.04) 0 1px, transparent 1px 60px),
+  repeating-linear-gradient(0deg, rgba(0,0,0,0.04) 0 1px, transparent 1px 50px),
+  #1a1208; }
+#map-klasik-wrap table.kmap th.kcoord { background:rgba(10,6,2,0.95); color:rgba(180,130,40,0.7); font:bold 9px 'Cinzel',serif; padding:3px 2px; border-bottom:1px solid rgba(100,70,20,0.3); }
+#map-klasik-wrap table.kmap td.ky { background:rgba(10,6,2,0.85); color:rgba(140,100,30,0.65); font:9px 'Cinzel',serif; text-align:center; width:22px; border-right:1px solid rgba(100,70,20,0.3); }
+#map-klasik-wrap table.kmap td.kc { width:60px; height:50px; position:relative; border:1px solid rgba(60,40,16,0.55); cursor:pointer; overflow:hidden; vertical-align:middle; transition:filter .12s; }
+#map-klasik-wrap table.kmap td.kc:hover { filter:brightness(1.3); border-color:rgba(201,160,32,0.6); }
+#map-klasik-wrap table.kmap td.kt-orman { background:linear-gradient(145deg,#102808,#18360a,#0c2006); }
+#map-klasik-wrap table.kmap td.kt-ova { background:linear-gradient(145deg,#3e4e12,#4e6018,#30400e); }
+#map-klasik-wrap table.kmap td.kt-dag { background:linear-gradient(145deg,#342a1c,#3e3222,#2a2216); }
+#map-klasik-wrap table.kmap td.kt-deniz { background:linear-gradient(145deg,#0e2a40,#162e4a,#0a1e30); }
+#map-klasik-wrap table.kmap td.kt-col { background:linear-gradient(145deg,#6a5018,#7e6020,#584010); }
+#map-klasik-wrap table.kmap td.kt-bos { background:linear-gradient(145deg,#243e10,#2e5014,#1c320c); }
+#map-klasik-wrap .kmark { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:none; gap:0; }
+#map-klasik-wrap .kmark svg { filter:drop-shadow(0 2px 4px rgba(0,0,0,0.9)); }
+#map-klasik-wrap .kname { font:600 7px 'Cinzel',serif; text-shadow:0 0 5px #000,1px 1px 0 #000,-1px -1px 0 #000; white-space:nowrap; max-width:56px; overflow:hidden; text-overflow:ellipsis; letter-spacing:.2px; line-height:1; margin-top:1px; }
+#map-klasik-wrap td.kc.kown { box-shadow:inset 0 0 10px rgba(80,160,255,0.25); }
+#map-klasik-wrap td.kc.kenemy { box-shadow:inset 0 0 10px rgba(220,60,60,0.2); }
 </style>
 </head>
 <body>
@@ -34,6 +55,7 @@
     <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px;flex-wrap:wrap">
       <button class="btn ghost map-view-btn active" id="vbtn-2d" onclick="setView('2d')">🎨 2D</button>
       <button class="btn ghost map-view-btn" id="vbtn-grid" onclick="setView('grid')">📊 Grid</button>
+      <button class="btn ghost map-view-btn" id="vbtn-klasik" onclick="setView('klasik')">📜 Klasik</button>
       <span style="color:#222">|</span>
       <button class="btn ghost" onclick="mapSayfa(MAP_SAYFA - 1)" id="map-prev" style="padding:3px 8px">⬅</button>
       <div style="padding:3px 10px;background:#2a1a00;border:1px solid #d4af37;color:#d4af37;border-radius:4px;font-weight:bold;font-size:11px">
@@ -61,6 +83,11 @@
       <div id="map-grid"></div>
     </div>
 
+    <!-- Klasik (parsomen) Gorunum -->
+    <div id="map-klasik-wrap">
+      <div id="map-klasik"></div>
+    </div>
+
     <!-- Açıklama -->
     <div class="map-legend">
       <span><span class="dot" style="background:#2ecc71"></span> Sen</span>
@@ -75,6 +102,8 @@
       <span><span class="dot" style="background:#5a5a6a"></span> Dağ</span>
       <span><span class="dot" style="background:#1a4a7a"></span> Deniz</span>
       <span><span class="dot" style="background:#c8a050"></span> Çöl</span>
+      <span style="color:#7a5014">|</span>
+      <span style="color:#c9a020">📜 Klasik mod: parsomen harita + SVG kale</span>
     </div>
 
   </div>
@@ -130,9 +159,15 @@ function setView(v) {
   MAP_VIEW = v;
   document.getElementById('vbtn-2d').classList.toggle('active', v === '2d');
   document.getElementById('vbtn-grid').classList.toggle('active', v === 'grid');
+  document.getElementById('vbtn-klasik').classList.toggle('active', v === 'klasik');
   document.getElementById('map-2d-wrap').style.display = v === '2d' ? 'block' : 'none';
   document.getElementById('map-grid-wrap').style.display = v === 'grid' ? 'block' : 'none';
-  if (MAP_DATA) { if (v === '2d') render2D(); else renderGrid(); }
+  document.getElementById('map-klasik-wrap').style.display = v === 'klasik' ? 'block' : 'none';
+  if (MAP_DATA) {
+    if (v === '2d') render2D();
+    else if (v === 'grid') renderGrid();
+    else renderKlasik();
+  }
 }
 
 async function mapInit() {
@@ -167,7 +202,9 @@ async function mapYukle() {
     });
     if (!resp.ok) return;
     MAP_DATA = await resp.json();
-    if (MAP_VIEW === '2d') render2D(); else renderGrid();
+    if (MAP_VIEW === '2d') render2D();
+    else if (MAP_VIEW === 'grid') renderGrid();
+    else renderKlasik();
   } catch(e) {}
 }
 
@@ -400,6 +437,101 @@ function renderGrid() {
   }
   html += '</tbody></table>';
   grid.innerHTML = html;
+}
+
+// ═══════════════════════════════════
+// KLASIK (PARSOMEN) GORUNUM — v1.13.8
+// ═══════════════════════════════════
+function klasikCastleSVG(col, sz) {
+  sz = sz || 30;
+  return '<svg width="' + sz + '" height="' + sz + '" viewBox="0 0 32 30">' +
+    '<rect x="1" y="16" width="30" height="13" fill="' + col + '" opacity="0.85"/>' +
+    '<rect x="22" y="16" width="9" height="13" fill="rgba(0,0,0,0.22)"/>' +
+    '<rect x="1" y="12" width="5" height="5" fill="' + col + '"/>' +
+    '<rect x="8" y="12" width="5" height="5" fill="' + col + '"/>' +
+    '<rect x="18" y="12" width="5" height="5" fill="' + col + '"/>' +
+    '<rect x="26" y="12" width="5" height="5" fill="' + col + '"/>' +
+    '<rect x="10" y="5" width="12" height="12" fill="' + col + '"/>' +
+    '<rect x="18" y="5" width="4" height="12" fill="rgba(0,0,0,0.18)"/>' +
+    '<rect x="10" y="2" width="3" height="4" fill="' + col + '"/>' +
+    '<rect x="14.5" y="2" width="3" height="4" fill="' + col + '"/>' +
+    '<rect x="19" y="2" width="3" height="4" fill="' + col + '"/>' +
+    '<rect x="14" y="8" width="4" height="5" fill="rgba(0,0,0,0.6)"/>' +
+    '<rect x="13" y="21" width="6" height="8" fill="rgba(0,0,0,0.65)"/>' +
+    '</svg>';
+}
+function klasikColonySVG(col) {
+  return '<svg width="20" height="20" viewBox="0 0 22 22">' +
+    '<line x1="11" y1="3" x2="11" y2="18" stroke="rgba(210,180,90,0.7)" stroke-width="1.5"/>' +
+    '<path d="M11,3 L19,7 L11,11 Z" fill="' + col + '"/>' +
+    '<ellipse cx="11" cy="17" rx="4" ry="1.5" fill="' + col + '" opacity="0.6"/>' +
+    '</svg>';
+}
+const KLASIK_TERRAIN = {
+  kuzey_bati: 'kt-orman', kuzey_orta: 'kt-bos', kuzey_dogu: 'kt-dag',
+  orta_bati: 'kt-ova', merkez: 'kt-bos', orta_dogu: 'kt-ova',
+  guney_bati: 'kt-deniz', guney_orta: 'kt-col', guney_dogu: 'kt-bos'
+};
+function renderKlasik() {
+  if (!MAP_DATA) return;
+  const wrap = document.getElementById('map-klasik');
+  if (!wrap) return;
+  const xMin = MAP_DATA.xMin, xMax = MAP_DATA.xMax;
+  const cellMap = {};
+  (MAP_DATA.oyuncular || []).forEach(o => { cellMap[o.x + ':' + o.y] = { tip: 'oyuncu', d: o }; });
+  (MAP_DATA.koloniler || []).forEach(k => { cellMap[k.x + ':' + k.y] = { tip: 'koloni', d: k }; });
+  (MAP_DATA.guildSehirler || []).forEach(g => {
+    const key = g.x + ':' + g.y;
+    if (!cellMap[key]) cellMap[key] = { tip: 'guild', d: g };
+  });
+  (MAP_DATA.kadimSehirler || []).forEach(k => { cellMap[k.x + ':' + k.y] = { tip: 'kadim', d: k }; });
+
+  let html = '<table class="kmap"><thead><tr><th class="kcoord" style="width:22px"></th>';
+  for (let x = xMin; x <= xMax; x++) html += '<th class="kcoord">' + x + '</th>';
+  html += '</tr></thead><tbody>';
+
+  for (let y = 1; y <= 50; y++) {
+    html += '<tr><td class="ky">' + y + '</td>';
+    for (let x = xMin; x <= xMax; x++) {
+      const bolge = getBolge(x, y);
+      let tClass = bolge ? (KLASIK_TERRAIN[bolge.id] || 'kt-bos') : 'kt-bos';
+      const cell = cellMap[x + ':' + y];
+      let extra = '', overlay = '';
+      if (cell) {
+        if (cell.tip === 'oyuncu') {
+          const o = cell.d;
+          const col = o.benMi ? '#4a9af0' : (o.taraf === 'iyi' ? '#3498db' : '#d03030');
+          extra = o.benMi ? ' kown' : (o.taraf === 'kotu' ? ' kenemy' : '');
+          overlay = '<div class="kmark">' + klasikCastleSVG(col, 30) +
+            '<div class="kname" style="color:' + col + '">' + (o.kral||'').substring(0,8) + '</div></div>';
+        } else if (cell.tip === 'guild') {
+          const g = cell.d;
+          overlay = '<div class="kmark">' + klasikCastleSVG('#9b59b6', 28) +
+            '<div class="kname" style="color:#b580d0">[' + (g.tag||'?').substring(0,4) + ']</div></div>';
+        } else if (cell.tip === 'kadim') {
+          const k = cell.d;
+          const col = k.taraf === 'aydinlik' ? '#f0d050' : '#c0392b';
+          overlay = '<div class="kmark">' + klasikCastleSVG(col, 32) +
+            '<div class="kname" style="color:' + col + '">★' + (k.isim||'?').substring(0,6) + '</div></div>';
+        } else if (cell.tip === 'koloni') {
+          const k = cell.d;
+          const rcCol = k.kaynak_tipi === 'altin' ? '#c9a020' : (k.kaynak_tipi === 'odun' ? '#4a8a3a' : '#7878b0');
+          overlay = '<div class="kmark">' + klasikColonySVG(rcCol) +
+            '<div class="kname" style="color:#90d080">' + (k.kaynak_tipi||'').substring(0,5) + '</div></div>';
+        }
+      }
+      html += '<td class="kc ' + tClass + extra + '" onclick="mapSecHucre(' + x + ',' + y + ')" title="' + x + ':' + y + '">' + overlay + '</td>';
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+
+  // Kendi konumuna scroll
+  if (MAP_DATA.benim && MAP_DATA.benim.x >= xMin && MAP_DATA.benim.x <= xMax) {
+    const ko = document.getElementById('map-klasik-wrap');
+    if (ko) ko.scrollTop = Math.max(0, (MAP_DATA.benim.y - 5) * 52);
+  }
 }
 
 // ═══════════════════════════════════

@@ -48,6 +48,22 @@
         </div>
       </div>
 
+      <!-- Sehir Gorunumu (v1.13.8) — binalar + adet -->
+      <div class="card" style="padding:16px;margin-bottom:14px;background:linear-gradient(180deg,#0d0a06 0%,#110d07 100%);border:1px solid rgba(201,160,32,0.25)" id="home-sehir-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <h3 style="color:#d4af37;font-family:'Cinzel',serif;font-size:13px;margin:0">🏰 Sehrim — Binalar</h3>
+          <a href="city.html" style="color:#888;font-size:10px;text-decoration:none">yonet →</a>
+        </div>
+        <div id="home-sehir-stats" style="display:flex;gap:10px;margin-bottom:10px;font-size:10px;color:#888;flex-wrap:wrap">
+          <span>Toplam: <b id="hsc-total" style="color:#d4af37">—</b></span>
+          <span>Bina Tipi: <b id="hsc-tip" style="color:#c8a96e">—</b></span>
+          <span>Alan: <b id="hsc-alan" style="color:#c8a96e">—</b></span>
+        </div>
+        <div id="home-sehir-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;padding:10px;background:linear-gradient(180deg,#0a1424 0%,#0c1a14 55%,#0e1408 100%);border-radius:4px;min-height:140px">
+          <div style="grid-column:1/-1;color:#444;font-size:11px;text-align:center;padding:20px 0">Yukleniyor...</div>
+        </div>
+      </div>
+
       <!-- Tarih + Aktivite yan yana -->
       <div style="display:grid;grid-template-columns:220px 1fr;gap:12px;margin-bottom:14px">
         <!-- Tarih -->
