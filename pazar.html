@@ -157,6 +157,7 @@ async function loadKadimSehirler() {
         <div style="font-size:10px;color:#888;margin-top:4px">${s.taraf === 'isik' ? 'Isik Sehri' : 'Karanlik Sehir'}</div>
         <div style="font-size:10px;color:#555;margin-top:6px">Konum: ${s.x}:${s.y} | Ordu: ${s.ordu_gucu}</div>
         <div style="font-size:10px;color:#d4af37;margin-top:4px">Ticaretiniz: ${s.toplam_ticaret.toLocaleString()} altin</div>
+        ${s.toplam_ticaret > 0 ? `<div style="font-size:9px;color:#888;margin-top:2px">Saldiri esigi: ${s.saldiri_kalan_saat!=null?s.saldiri_kalan_saat.toFixed(1)+' saat':'-'} | ${(s.saldiri_kalan_miktar||0).toLocaleString()} ticaret</div>` : ''}
         ${s.saldiri_planli ? '<div style="font-size:10px;color:#e74c3c;margin-top:4px">⚠️ Saldiri planlaniyor!</div>' : ''}
       </div>`;
     }).join('');
