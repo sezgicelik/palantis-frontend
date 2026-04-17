@@ -252,6 +252,12 @@ async function loadGameData() {
     if (res.gizlilik !== undefined) EXTRA_RES.gizlilik = parseFloat(res.gizlilik) || 0;
     if (res.buyulu_yumurta !== undefined) EXTRA_RES.buyulu_yumurta = parseFloat(res.buyulu_yumurta) || 0;
     if (res.besi_hayvani !== undefined) EXTRA_RES.besi_hayvani = parseInt(res.besi_hayvani) || 0;
+    if (res.cig_et !== undefined) EXTRA_RES.cig_et = parseInt(res.cig_et) || 0;
+    // v1.13.40 FIX: EXTRA_RES.mana taraf bazli (iyi=beyaz, kotu=kirmizi) — backend army.js:345 ile senkron
+    // Oncesinde set edilmedigi icin buyucu/kara_elf uretimi "Yetersiz: mana" hatasi veriyordu
+    var _pt = (typeof loadPlayer === 'function') ? (loadPlayer()?.taraf) : null;
+    var _manaKey = _pt === 'kotu' ? 'mana_kirmizi' : 'mana_beyaz';
+    EXTRA_RES.mana = parseFloat(res[_manaKey]) || 0;
 
     // HUD Ham kaynaklar (miktar + rate)
     setText('hud-w',   RES.odun);
