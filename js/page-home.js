@@ -100,7 +100,9 @@ const HOME_BINA_META = {
   kutuphane:{ad:'Kutuphane',col:'#806040',ico:'📖'}, tiyatro:{ad:'Tiyatro',col:'#a04060',ico:'🎭'},
   arena:{ad:'Arena',col:'#a03030',ico:'🏟️'}, asma_bahceler:{ad:'Asma Bahceler',col:'#60a060',ico:'🌿'},
   muze:{ad:'Muze',col:'#806020',ico:'🏛️'}, noxara_hani:{ad:'Noxara Hani',col:'#b07030',ico:'🏨'},
-  taverna:{ad:'Taverna',col:'#c08050',ico:'🍺'}
+  taverna:{ad:'Taverna',col:'#c08050',ico:'🍺'},
+  okcu_kulesi:{ad:'Okcu Kulesi',col:'#4a9a3a',ico:'🏹'}, mizrak_kulesi:{ad:'Mizrak Kulesi',col:'#a06040',ico:'🔱'},
+  balista_kulesi:{ad:'Balista Kulesi',col:'#a08040',ico:'🏯'}, ciftlik:{ad:'Ciftlik',col:'#906040',ico:'🐄'}
 };
 
 function homeBinaSVG(col) {
