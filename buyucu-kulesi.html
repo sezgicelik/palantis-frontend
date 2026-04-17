@@ -382,7 +382,7 @@ function bkRenderKitap() {
             inlineBtn = '<span style="font-size:8px;color:#e74c3c;white-space:nowrap;flex-shrink:0">CD ' + bkFormatKalan(cdBuyu.bitis) + '</span>';
           }
 
-          return `<div class="buyu-card ${secili ? 'selected' : ''}" onclick="bkSelectBuyu('${b.id}')" style="opacity:${ogrenildi ? 1 : 0.4}">
+          return `<div class="buyu-card ${secili ? 'selected' : ''}" onclick="bkSelectBuyu('${b.id}')" style="opacity:${ogrenildi ? 1 : 0.4};flex-wrap:wrap">
             <div style="flex:1;min-width:0">
               <div style="display:flex;align-items:center;gap:6px">
                 <span class="mana-dot mana-${b.mana_renk}" style="width:10px;height:10px;flex-shrink:0"></span>
@@ -399,7 +399,8 @@ function bkRenderKitap() {
                 ' · CD:' + (b.cooldown||0) + 'PG · %' + (kd.basari||0) +
               '</div>' : ''}
             </div>
-            ${inlineBtn}
+            ${(secili && isOfansif && kd) ? '' : inlineBtn}
+            ${yapBtn}
           </div>`;
 
           // Ofansif büyüler için hedef seçimi gerekiyorsa, seçim sonrası yapılır
