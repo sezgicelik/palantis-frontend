@@ -75,6 +75,27 @@
       <div class="cstat"><span class="snum" id="bk-ejderha">0</span><span class="slbl">Ejderha Pulu</span></div>
     </div>
 
+    <!-- v1.13.19: Son buyu sonucu — buyuk belirgin banner -->
+    <div id="bk-son-sonuc" style="display:none;border-radius:8px;padding:16px 20px;margin-bottom:14px;position:relative;animation:bk-flash 0.4s">
+      <button onclick="document.getElementById('bk-son-sonuc').style.display='none'" style="position:absolute;top:8px;right:12px;background:none;border:none;color:inherit;font-size:20px;cursor:pointer;opacity:0.6">✕</button>
+      <div id="bk-son-sonuc-icon" style="font-size:32px;float:left;margin-right:14px">✨</div>
+      <div id="bk-son-sonuc-baslik" style="font-family:'Cinzel',serif;font-size:16px;font-weight:bold;margin-bottom:4px">—</div>
+      <div id="bk-son-sonuc-detay" style="font-size:12px;opacity:0.9">—</div>
+    </div>
+    <style>@keyframes bk-flash { 0% { transform:scale(0.9); opacity:0 } 100% { transform:scale(1); opacity:1 } }</style>
+
+    <!-- v1.13.19: Sehirdeki kervanlarda bekleyen buyu malzemesi/parsomen uyarisi -->
+    <div id="bk-kervan-uyari" style="display:none;background:rgba(243,156,18,0.08);border:1px solid rgba(243,156,18,0.3);border-left:4px solid #f39c12;border-radius:4px;padding:10px 14px;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+        <div style="font-size:12px;color:#f39c12">
+          <b>⚠️ Sehirdeki kervanlarda bekleyen malzeme:</b>
+          <span id="bk-kervan-ozet" style="color:#c8a96e">—</span>
+          <div style="font-size:10px;color:#888;margin-top:3px">Bu malzemeler envanterinize gecmedigi icin buyu yapamayabilirsiniz. Kervanlari bosaltin.</div>
+        </div>
+        <a href="kervan.html" style="padding:6px 14px;background:#f39c12;color:#000;font-weight:bold;font-size:11px;text-decoration:none;border-radius:4px">Kervanlara Git →</a>
+      </div>
+    </div>
+
     <!-- Sekmeler -->
     <div class="bk-tabs">
       <button class="bk-tab active" onclick="bkSwitchTab('kitap')">Buyu Kitabi</button>
@@ -169,7 +190,94 @@ async function bkLoad() {
     bkRenderAktifler();
     bkRenderCooldownlar();
     bkLoadLog();
+    bkCheckKervan(); // v1.13.19: sehirdeki kervanlarda bekleyen buyu malzemesi/parsomen
   } catch(e) { console.error('bkLoad hata:', e); }
+}
+
+// v1.13.19: Buyu sonucu kalici banner (toast yerine)
+function bkShowSonuc(basarili, data, buyuId) {
+  const el = document.getElementById('bk-son-sonuc');
+  const ikon = document.getElementById('bk-son-sonuc-icon');
+  const baslik = document.getElementById('bk-son-sonuc-baslik');
+  const detay = document.getElementById('bk-son-sonuc-detay');
+  if (!el) return;
+
+  const buyu = (bkData?.buyuler || []).find(b => b.id === buyuId);
+  const buyuAdi = buyu?.isim || buyuId;
+
+  if (basarili) {
+    el.style.background = 'linear-gradient(90deg, rgba(46,204,113,0.18), rgba(46,204,113,0.05))';
+    el.style.border = '1px solid rgba(46,204,113,0.5)';
+    el.style.borderLeft = '5px solid #2ecc71';
+    el.style.color = '#2ecc71';
+    ikon.textContent = '✨';
+    baslik.textContent = `BASARILI: ${buyuAdi}`;
+    detay.style.color = '#aaa';
+    detay.textContent = data.mesaj || 'Buyu basariyla yapildi';
+  } else {
+    el.style.background = 'linear-gradient(90deg, rgba(231,76,60,0.18), rgba(231,76,60,0.05))';
+    el.style.border = '1px solid rgba(231,76,60,0.5)';
+    el.style.borderLeft = '5px solid #e74c3c';
+    el.style.color = '#e74c3c';
+    ikon.textContent = '💥';
+    baslik.textContent = `BASARISIZ: ${buyuAdi}`;
+    detay.style.color = '#aaa';
+    const parcalar = [];
+    if (data.mesaj) parcalar.push(data.mesaj);
+    if (data.iade_mana) parcalar.push(`+${data.iade_mana} mana iade`);
+    if (data.kayip_malzeme) parcalar.push(`${data.kayip_malzeme} malzeme kaybi`);
+    detay.textContent = parcalar.join(' · ') || 'Buyu basarisiz oldu';
+  }
+  el.style.display = 'block';
+  // Sayfa ustune scroll et
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // 30 saniye sonra otomatik kapat
+  setTimeout(() => {
+    if (el.style.display === 'block') el.style.display = 'none';
+  }, 30000);
+}
+
+// v1.13.19: Sehirdeki kervanlarda bekleyen buyu malzemesi varsa uyari goster
+async function bkCheckKervan() {
+  try {
+    const token = getToken();
+    const r = await fetch(`${API}/api/kervan/liste`, { headers: { Authorization: `Bearer ${token}` } });
+    if (!r.ok) return;
+    const data = await r.json();
+    const uyariEl = document.getElementById('bk-kervan-uyari');
+    const ozetEl = document.getElementById('bk-kervan-ozet');
+    if (!uyariEl || !ozetEl) return;
+
+    const malzemeKolonlari = ['ates_tozu','ay_cigi','golgeler_otu','ejderha_goz_damla'];
+    const malzemeIsim = { ates_tozu:'Kristal Tozu', ay_cigi:'Ay Tasi', golgeler_otu:'Karanlik Esans', ejderha_goz_damla:'Ejderha Pulu' };
+    const toplam = {};
+    let toplamParsomen = 0;
+
+    for (const k of (data.kervanlar || [])) {
+      if (k.durum !== 'sehirde') continue;
+      for (const [key, miktar] of Object.entries(k.yuk || {})) {
+        if (miktar <= 0) continue;
+        if (malzemeKolonlari.includes(key)) {
+          toplam[key] = (toplam[key] || 0) + miktar;
+        } else if (key.startsWith('parsomen_')) {
+          toplamParsomen += miktar;
+        }
+      }
+    }
+
+    const bolumler = [];
+    for (const k of malzemeKolonlari) {
+      if (toplam[k]) bolumler.push(`${toplam[k]} ${malzemeIsim[k]}`);
+    }
+    if (toplamParsomen > 0) bolumler.push(`${toplamParsomen} parsomen`);
+
+    if (bolumler.length > 0) {
+      ozetEl.textContent = bolumler.join(', ');
+      uyariEl.style.display = 'block';
+    } else {
+      uyariEl.style.display = 'none';
+    }
+  } catch(e) { /* sessiz */ }
 }
 
 function bkUpdateKaynaklar() {
@@ -414,17 +522,15 @@ async function bkBuyuYap(buyuId) {
     });
     const data = await r.json();
     if (data.ok) {
-      if (data.basarili) {
-        toast('✅ ' + (data.mesaj || 'Basarili!'));
-      } else {
-        toast('❌ ' + (data.mesaj || 'Basarisiz') + ' | +' + (data.iade_mana||0) + ' mana iade');
-      }
+      // v1.13.19: Kalici banner goster (toast cok hizli kapaniyordu)
+      bkShowSonuc(data.basarili, data, buyuId);
       // Sayfayı yenile — kart içi güncellenir
       selectedBuyu = null;
       selectedHedef = null;
       await bkLoad();
     } else {
-      toast(data.error || 'Hata');
+      toast(data.error || 'Hata', 'error');
+      bkShowSonuc(false, { mesaj: data.error || 'Hata' }, buyuId);
     }
   } catch(e) { toast('Sunucu hatasi'); }
 }

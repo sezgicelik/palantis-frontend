@@ -150,7 +150,10 @@
       <div class="actions">
         <button class="btn" onclick="confirmAction('Cron tetiklenecek. Emin misiniz?',triggerCron)">Cron Tetikle</button>
         <button class="btn" onclick="confirmAction('Tum koloniler silinip yeniden olusturulacak. Emin misiniz?',koloniReset)">Koloni Reset</button>
+        <button class="btn" onclick="besiDurumCek()" style="background:#16a085;color:#fff">🐄 Besi Durum</button>
+        <button class="btn" onclick="confirmAction('Tum oyuncularin besi_hayvani -> cig_et (1 besi = 20 cig_et). Cron 24. gun otomatik calisir, bu manuel tetikleme. Emin misiniz?',besiKesimManuel)" style="background:#c0392b;color:#fff">🔪 Besi Kesim (Manuel)</button>
       </div>
+      <div id="besi-msg" style="color:var(--green);font-size:11px;margin-top:8px"></div>
       <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
         <h4 style="color:var(--red);font-size:12px;margin-bottom:8px">Yeni Sezon Baslat (Oyun Reset)</h4>
         <p style="font-size:10px;color:var(--muted);margin-bottom:8px">Tum oyun verileri silinir. Oyunculara sezon rozeti verilir. Yeni sezon baslar.</p>
@@ -936,6 +939,24 @@ async function koloniReset() {
   const r = await fetch(API+'/api/admin/koloni-reset',{method:'POST',headers:hdr()}).then(r=>r.json());
   document.getElementById('status-msg').textContent = `Koloni reset: ${r.slotlar} slot, ${r.koloniler} koloni`;
   setTimeout(()=>{ loadKoloniStats(); loadKoloniList(); }, 2000);
+}
+async function besiDurumCek() {
+  const r = await fetch(API+'/api/admin/besi-durum',{headers:hdr()}).then(x=>x.json()).catch(()=>({ok:false}));
+  const msg = document.getElementById('besi-msg');
+  if (r.ok) {
+    const d = r.durum || {};
+    const t = r.takvim || {};
+    msg.innerHTML = `<b>Gun:</b> ${t.palantis_gun||'?'}/${t.palantis_ay||'?'} · <b>Besi olan oyuncu:</b> ${d.besi_olan||0} · <b>Toplam besi:</b> ${d.toplam_besi||0} · <b>Ortalama:</b> ${Math.round(d.ortalama||0)}`;
+    msg.style.color = '#3498db';
+  } else {
+    msg.textContent = 'Hata'; msg.style.color = '#e74c3c';
+  }
+}
+async function besiKesimManuel() {
+  const r = await fetch(API+'/api/admin/besi-kesim-manuel',{method:'POST',headers:hdr()}).then(x=>x.json()).catch(()=>({ok:false}));
+  const msg = document.getElementById('besi-msg');
+  msg.textContent = r.ok ? r.mesaj : (r.error || 'Hata');
+  msg.style.color = r.ok ? '#2ecc71' : '#e74c3c';
 }
 function yeniSezonBaslat() {
   const isim = document.getElementById('sezon-isim-input').value.trim();
