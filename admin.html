@@ -366,12 +366,27 @@
   <!-- MARKET AYAR TAB -->
   <div id="tab-market-cfg" class="panel">
     <div class="card">
-      <h3>Satilabilir Hammaddeler</h3>
-      <p style="font-size:10px;color:var(--muted);margin-bottom:10px">Tikla = aktif/pasif. Aktif olanlar oyuncu marketinde satilabiilir.</p>
+      <h3>🏪 NPC Market — Satilabilir Hammaddeler</h3>
+      <p style="font-size:10px;color:var(--muted);margin-bottom:10px">
+        Oyuncunun <b>NPC marketinde (Market sayfasi)</b> altina satabilecegi hammaddeler.
+        Tikla = aktif/pasif. Varsayilan: 10 hammadde (gumus, mitril, bakir vs).
+      </p>
       <div id="mc-liste" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"></div>
-      <button class="btn" onclick="confirmAction('Satilabilir kaynaklar kaydedilecek. Emin misiniz?',saveMarketConfig)">Kaydet</button>
+      <button class="btn" onclick="confirmAction('NPC market hammaddeleri kaydedilecek. Emin misiniz?',saveMarketConfig)">Kaydet</button>
       <button class="btn" onclick="mcVarsayilan()" style="background:#27ae60;color:#fff;margin-left:6px">🔄 Varsayilana Don (10 Market Hammadde)</button>
       <div id="mc-msg" style="color:var(--green);font-size:11px;margin-top:6px"></div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h3>🤝 PvP Pazari — Takas Edilebilir Kaynaklar</h3>
+      <p style="font-size:10px;color:var(--muted);margin-bottom:10px">
+        Oyuncularin birbirine (<b>PvP Oyuncu Pazari / Kervan ile</b>) takas edebilecegi kaynaklar.
+        Varsayilan: 23 kaynak (temel/islenmis/yemek/mana/ozel, ancak hammadde market taraklari yoktur).
+      </p>
+      <div id="pk-liste" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"></div>
+      <button class="btn" onclick="confirmAction('PvP Pazari takas kaynaklari kaydedilecek. Emin misiniz?',savePazarKaynaklari)">Kaydet</button>
+      <button class="btn" onclick="pkVarsayilan()" style="background:#27ae60;color:#fff;margin-left:6px">🔄 Varsayilana Don (23 Kaynak)</button>
+      <div id="pk-msg" style="color:var(--green);font-size:11px;margin-top:6px"></div>
     </div>
   </div>
 
@@ -732,7 +747,7 @@ function switchTab(tab, el) {
   if (tab === 'binalar') loadBinaConfig();
   if (tab === 'premium') loadPremium();
   if (tab === 'sezon') loadSezon();
-  if (tab === 'market-cfg') loadMarketConfig();
+  if (tab === 'market-cfg') { loadMarketConfig(); loadPazarKaynaklari(); }
   if (tab === 'buyu') loadBuyuConfig();
   if (tab === 'irklar') loadIrkBonuslari();
   if (tab === 'artifact') loadArtifactAdmin();
@@ -1300,6 +1315,62 @@ async function mcVarsayilan() {
   msg.textContent = r.ok ? '✓ 10 market hammaddesi aktif edildi' : (r.error||'Hata');
   msg.style.color = r.ok ? '#2ecc71' : '#e74c3c';
   if (r.ok) loadMarketConfig();
+}
+
+// ── PvP Pazari Takas Kaynaklari (v1.13.17) ──
+let PK_AKTIF = new Set();
+
+async function loadPazarKaynaklari() {
+  const d = await fetch(API+'/api/admin/pazar-kaynaklari', {headers:hdr()}).then(r=>r.json());
+  if(!d.ok) return;
+  PK_AKTIF = new Set(d.aktif);
+  const KAT = {
+    'Temel Kaynak': ['altin','odun','metal','bugday','balik'],
+    'Islenmis': ['kereste','islenmis','ekmek','pismis','pismis_et','cig_et'],
+    'Mana': ['mana_beyaz','mana_kirmizi','mana_mavi','mana_yesil'],
+    'Ozel Kaynak': ['at','kurt','gizlilik','buyulu_yumurta','ates_tozu','ay_cigi','golgeler_otu','ejderha_goz_damla'],
+    'Market Hammadde (nadir)': ['gumus','bakir','mitril','kalay','kehribar','obsidyen','yakut','zumrut','ejderha_tasi','elmas']
+  };
+  let html = '';
+  for (const [kat, kaynaklar] of Object.entries(KAT)) {
+    html += `<div style="width:100%;margin-bottom:6px"><div style="font-size:10px;color:var(--gold);margin-bottom:3px;font-weight:bold">${kat}</div><div style="display:flex;flex-wrap:wrap;gap:4px">`;
+    for (const k of kaynaklar) {
+      const aktif = PK_AKTIF.has(k);
+      html += `<button id="pk-${k}" onclick="pkToggle('${k}')" style="padding:4px 10px;font-size:10px;border-radius:4px;border:1px solid ${aktif?'#2ecc71':'#333'};background:${aktif?'rgba(46,204,113,0.15)':'#1a1a1a'};color:${aktif?'#2ecc71':'#666'};cursor:pointer">${k}</button>`;
+    }
+    html += '</div></div>';
+  }
+  document.getElementById('pk-liste').innerHTML = html;
+}
+
+function pkToggle(k) {
+  if (PK_AKTIF.has(k)) PK_AKTIF.delete(k); else PK_AKTIF.add(k);
+  const el = document.getElementById('pk-'+k);
+  const aktif = PK_AKTIF.has(k);
+  el.style.borderColor = aktif ? '#2ecc71' : '#333';
+  el.style.background = aktif ? 'rgba(46,204,113,0.15)' : '#1a1a1a';
+  el.style.color = aktif ? '#2ecc71' : '#666';
+}
+
+async function savePazarKaynaklari() {
+  const r = await fetch(API+'/api/admin/pazar-kaynaklari',{method:'POST',headers:hdr(),body:JSON.stringify({aktif:[...PK_AKTIF]})}).then(r=>r.json());
+  document.getElementById('pk-msg').textContent = r.ok ? r.mesaj : (r.error||'Hata');
+}
+
+async function pkVarsayilan() {
+  if (!confirm('23 kaynak (temel/islenmis/mana/ozel) aktif olarak ayarlanacak. Market hammaddeleri (gumus, mitril vs) dahil DEGILDIR (NPC market icin). Emin misiniz?')) return;
+  const varsayilan = [
+    'altin','odun','metal','islenmis','kereste',
+    'bugday','balik','cig_et','ekmek','pismis','pismis_et',
+    'mana_beyaz','mana_kirmizi','mana_mavi','mana_yesil',
+    'at','kurt','gizlilik','buyulu_yumurta',
+    'ates_tozu','ay_cigi','golgeler_otu','ejderha_goz_damla'
+  ];
+  const r = await fetch(API+'/api/admin/pazar-kaynaklari',{method:'POST',headers:hdr(),body:JSON.stringify({aktif:varsayilan})}).then(r=>r.json());
+  const msg = document.getElementById('pk-msg');
+  msg.textContent = r.ok ? '✓ 23 kaynak PvP pazari icin aktif edildi' : (r.error||'Hata');
+  msg.style.color = r.ok ? '#2ecc71' : '#e74c3c';
+  if (r.ok) loadPazarKaynaklari();
 }
 
 // ── Unite Durum ──
