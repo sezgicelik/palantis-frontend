@@ -219,12 +219,37 @@ function renderHUD(){
         ${sb('ŞEHİR','🏰','Ş.Değeri','hud-sehir-deger',null)}
         ${sb('TARİH','📅','Tarih','hud-takvim',null)}
         ${sb('SAAT','⏰','Saat','c-now',null)}
-        <!-- v1.13.22: Gelen saldiri/takviye sayaci (sadece > 0 iken gorunur) -->
-        <div id="hud-gelen-btn" class="stat-box" data-tip="GELEN ORDULAR" onclick="toggleGelenOrdular()" style="display:none;cursor:pointer;border-left:2px solid #e74c3c;background:rgba(231,76,60,0.08)">
-          <span class="res-icon">🎯</span>
+        <!-- v1.13.33: 4 tehdit/destek gostergesi (sadece > 0 iken gorunur) -->
+        <!-- 1. Gelen Saldiri Ordusu -->
+        <div id="hud-sald-btn" class="stat-box" data-tip="GELEN SALDIRI ORDUSU" onclick="toggleGelenOrdular()" style="display:none;cursor:pointer;border-left:2px solid #e74c3c;background:rgba(231,76,60,0.08)">
+          <span class="res-icon">⚔️</span>
           <div class="res-details">
-            <span class="res-label" style="color:#e74c3c">Gelen</span>
-            <span class="res-amount" id="hud-gelen-sayi">0</span>
+            <span class="res-label" style="color:#e74c3c">Saldırı</span>
+            <span class="res-amount" id="hud-sald-sayi" style="color:#e74c3c">0</span>
+          </div>
+        </div>
+        <!-- 2. Gelen Destek Ordusu -->
+        <div id="hud-takv-btn" class="stat-box" data-tip="GELEN DESTEK ORDUSU" onclick="toggleGelenOrdular()" style="display:none;cursor:pointer;border-left:2px solid #2ecc71;background:rgba(46,204,113,0.08)">
+          <span class="res-icon">🛡️</span>
+          <div class="res-details">
+            <span class="res-label" style="color:#2ecc71">Destek</span>
+            <span class="res-amount" id="hud-takv-sayi" style="color:#2ecc71">0</span>
+          </div>
+        </div>
+        <!-- 3. Ustumdeki Agresif Buyu -->
+        <div id="hud-buagr-btn" class="stat-box" data-tip="USTUMDEKI AGRESIF BUYULER" onclick="toggleGelenOrdular()" style="display:none;cursor:pointer;border-left:2px solid #c0392b;background:rgba(192,57,43,0.08)">
+          <span class="res-icon">🔮</span>
+          <div class="res-details">
+            <span class="res-label" style="color:#c0392b">A.Büyü</span>
+            <span class="res-amount" id="hud-buagr-sayi" style="color:#c0392b">0</span>
+          </div>
+        </div>
+        <!-- 4. Ustumdeki Defansif Buyu -->
+        <div id="hud-budef-btn" class="stat-box" data-tip="USTUMDEKI DESTEK BUYULER" onclick="toggleGelenOrdular()" style="display:none;cursor:pointer;border-left:2px solid #3498db;background:rgba(52,152,219,0.08)">
+          <span class="res-icon">✨</span>
+          <div class="res-details">
+            <span class="res-label" style="color:#3498db">D.Büyü</span>
+            <span class="res-amount" id="hud-budef-sayi" style="color:#3498db">0</span>
           </div>
         </div>
         <!-- v1.13.21: Rehber butonu -->
@@ -683,28 +708,18 @@ async function loadGelenOrdular() {
     if (!data.ok) return;
     _gelenOrdularCache = data;
 
-    const btn = document.getElementById('hud-gelen-btn');
-    const sayi = document.getElementById('hud-gelen-sayi');
-    if (!btn || !sayi) return;
-
-    if (data.toplam > 0) {
-      btn.style.display = 'flex';
-      // Saldiri varsa kirmizi, yoksa yesil (sadece takviye)
-      const hasSaldiri = data.saldiri_sayisi > 0;
-      btn.style.borderLeftColor = hasSaldiri ? '#e74c3c' : '#2ecc71';
-      btn.style.background = hasSaldiri ? 'rgba(231,76,60,0.12)' : 'rgba(46,204,113,0.12)';
-      sayi.style.color = hasSaldiri ? '#e74c3c' : '#2ecc71';
-      sayi.textContent = hasSaldiri
-        ? `⚔️${data.saldiri_sayisi}${data.takviye_sayisi ? ` 🛡️${data.takviye_sayisi}` : ''}`
-        : `🛡️${data.takviye_sayisi}`;
-      // Label'i da guncelle
-      const lbl = btn.querySelector('.res-label');
-      if (lbl) { lbl.textContent = hasSaldiri ? 'Saldiri!' : 'Takviye'; lbl.style.color = hasSaldiri ? '#e74c3c' : '#2ecc71'; }
-    } else {
-      btn.style.display = 'none';
-      const panel = document.getElementById('hud-gelen-panel');
-      if (panel) panel.style.display = 'none';
-    }
+    // v1.13.33: 4 ayri stat-box (sadece > 0 iken gorunur)
+    const show = (btnId, sayiId, count) => {
+      const btn = document.getElementById(btnId);
+      const sayi = document.getElementById(sayiId);
+      if (!btn || !sayi) return;
+      if (count > 0) { btn.style.display = 'flex'; sayi.textContent = count; }
+      else { btn.style.display = 'none'; }
+    };
+    show('hud-sald-btn',  'hud-sald-sayi',  data.saldiri_sayisi || 0);
+    show('hud-takv-btn',  'hud-takv-sayi',  data.takviye_sayisi || 0);
+    show('hud-buagr-btn', 'hud-buagr-sayi', data.ustume_buyu_agresif || 0);
+    show('hud-budef-btn', 'hud-budef-sayi', data.ustume_buyu_defansif || 0);
 
     // Panel acikssa icerigini de guncelle
     const panel = document.getElementById('hud-gelen-panel');
@@ -727,35 +742,53 @@ function renderGelenOrdularPanel() {
   const wrap = document.getElementById('hud-gelen-liste');
   if (!wrap) return;
   const d = _gelenOrdularCache;
-  if (!d || !d.ordular || d.ordular.length === 0) {
-    wrap.innerHTML = '<div style="color:#555;text-align:center;padding:14px">Gelen ordu yok</div>';
+  const ordular = d?.ordular || [];
+  const buyuler = d?.ustume_buyu_detay || [];
+  if (ordular.length === 0 && buyuler.length === 0) {
+    wrap.innerHTML = '<div style="color:#555;text-align:center;padding:14px">Hiç bir şey yok</div>';
     return;
   }
-  const fmtKalan = (sn) => {
-    if (sn <= 0) return 'Variyor...';
-    const d = Math.floor(sn / 86400);
-    const h = Math.floor((sn % 86400) / 3600);
-    const m = Math.floor((sn % 3600) / 60);
-    if (d > 0) return `${d}g ${h}s`;
-    if (h > 0) return `${h}s ${m}d`;
-    return `${m}d`;
-  };
-  wrap.innerHTML = d.ordular.map(o => {
-    const isSald = o.tip === 'saldiri';
-    const renk = isSald ? '#e74c3c' : '#2ecc71';
-    const ikon = isSald ? '⚔️' : '🛡️';
-    const ad = o.saldiran_kral || 'Bilinmeyen';
-    const sehir = o.saldiran_sehir ? ` (${o.saldiran_sehir})` : '';
-    const koord = o.kaynak ? `📍 ${o.kaynak} →` : '';
-    return `<div style="padding:8px 10px;margin-bottom:6px;background:rgba(0,0,0,0.3);border-left:3px solid ${renk};border-radius:4px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
-        <span style="color:${renk};font-weight:bold;font-size:12px">${ikon} ${isSald ? 'SALDIRI' : 'TAKVİYE'}</span>
-        <span style="color:#c8a96e;font-size:10px;font-weight:bold">${fmtKalan(o.kalan_saniye)}</span>
-      </div>
-      <div style="color:#ccc;font-size:11px">${ad}${sehir}</div>
-      <div style="color:#666;font-size:10px;margin-top:2px">${koord} ${o.ordu_isim || 'Ordu'}</div>
-    </div>`;
-  }).join('');
+  const fmtK = (typeof fmtKalanSure === 'function') ? fmtKalanSure : sn => sn + ' sn';
+
+  let html = '';
+  // Gelen ordular
+  if (ordular.length > 0) {
+    html += '<div style="font-size:10px;color:#c8a96e;margin-bottom:4px;font-weight:bold">🎯 GELEN ORDULAR</div>';
+    html += ordular.map(o => {
+      const isSald = o.tip === 'saldiri';
+      const renk = isSald ? '#e74c3c' : '#2ecc71';
+      const ikon = isSald ? '⚔️' : '🛡️';
+      const ad = o.saldiran_kral || 'Bilinmeyen';
+      const sehir = o.saldiran_sehir ? ` (${o.saldiran_sehir})` : '';
+      const koord = o.kaynak ? `📍 ${o.kaynak} →` : '';
+      return `<div style="padding:8px 10px;margin-bottom:6px;background:rgba(0,0,0,0.3);border-left:3px solid ${renk};border-radius:4px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+          <span style="color:${renk};font-weight:bold;font-size:12px">${ikon} ${isSald ? 'SALDIRI' : 'TAKVİYE'}</span>
+          <span style="color:#c8a96e;font-size:10px;font-weight:bold">${fmtK(o.kalan_saniye)}</span>
+        </div>
+        <div style="color:#ccc;font-size:11px">${ad}${sehir}</div>
+        <div style="color:#666;font-size:10px;margin-top:2px">${koord} ${o.ordu_isim || 'Ordu'}</div>
+      </div>`;
+    }).join('');
+  }
+  // Ustumdeki buyuler
+  if (buyuler.length > 0) {
+    html += '<div style="font-size:10px;color:#c8a96e;margin:10px 0 4px;font-weight:bold;padding-top:8px;border-top:1px dashed #3a3020">🔮 ÜSTÜMDEKİ BÜYÜLER</div>';
+    html += buyuler.map(b => {
+      const agr = b.kategori === 'dusmana';
+      const renk = agr ? '#c0392b' : '#3498db';
+      const ikon = agr ? '🔮⚔️' : '✨';
+      const atan = b.atan_kral ? ` · ${b.atan_kral}` : '';
+      return `<div style="padding:6px 10px;margin-bottom:4px;background:rgba(0,0,0,0.3);border-left:3px solid ${renk};border-radius:4px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="color:${renk};font-weight:bold;font-size:11px">${ikon} ${b.isim} K${b.kademe}</span>
+          <span style="color:#c8a96e;font-size:10px">${fmtK(b.kalan_saniye)}</span>
+        </div>
+        <div style="color:#888;font-size:10px">${agr ? 'Agresif' : 'Destek/Savunma'}${atan}</div>
+      </div>`;
+    }).join('');
+  }
+  wrap.innerHTML = html;
 }
 
 /* Sayfa yuklenince otomatik cagir */
