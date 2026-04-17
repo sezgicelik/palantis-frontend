@@ -104,12 +104,16 @@ function renderMarket() {
     const kurRenk = kur >= 100 ? '#2ecc71' : kur >= 85 ? '#f1c40f' : '#e74c3c';
     const kurOk = kur >= 100 ? '▲' : '▼';
     MK_SATIS_MIKTAR[key] = MK_SATIS_MIKTAR[key] || 0;
+    // v1.13.18: Cag kilidi
+    const kilitli = f.kilitli;
+    const opaStyle = kilitli ? 'opacity:0.45' : '';
+    const cagBadge = f.cag_min > 1 ? `<span style="background:${kilitli?'#4a2010':'#103a10'};color:${kilitli?'#e67e22':'#2ecc71'};padding:1px 5px;border-radius:3px;font-size:9px;margin-left:4px">${kilitli?'🔒 '+f.cag_min+'. Çağ':'✓ '+f.cag_min+'. Çağ+'}</span>` : '';
 
     return `
-    <div style="padding:6px 10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#111;border:1px solid #1e1e1e;border-radius:4px;margin-bottom:2px">
+    <div style="padding:6px 10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#111;border:1px solid #1e1e1e;border-radius:4px;margin-bottom:2px;${opaStyle}">
       <span style="font-size:20px;width:24px;text-align:center">${MK_IKONLAR[key]||'📦'}</span>
       <div style="min-width:100px">
-        <div style="color:#d4af37;font-weight:bold;font-size:12px">${f.isim}</div>
+        <div style="color:#d4af37;font-weight:bold;font-size:12px">${f.isim}${cagBadge}</div>
         <div style="color:#888;font-size:10px">Stok: <b style="color:#fff">${f.miktar.toLocaleString()}</b></div>
       </div>
       <div style="min-width:120px">
@@ -118,13 +122,14 @@ function renderMarket() {
         <span style="color:#f1c40f;font-size:12px;font-weight:bold;margin-left:6px">${f.satis_fiyat.toFixed(1)} altın/adet</span>
       </div>
       <div style="flex:1;display:flex;align-items:center;gap:4px;justify-content:flex-end;min-width:200px">
+        ${kilitli ? `<span style="color:#e67e22;font-size:11px;font-style:italic">Bu hammadde ${f.cag_min}. Çağ'da açılır</span>` : `
         <button class="btn ghost" style="padding:2px 6px;font-size:10px" onclick="mkAdjust('${key}',-100)">−100</button>
         <button class="btn ghost" style="padding:2px 5px;font-size:10px" onclick="mkAdjust('${key}',-10)">−10</button>
         <span id="mk-m-${key}" style="min-width:36px;text-align:center;font-weight:bold;color:#d4af37;font-size:12px">${MK_SATIS_MIKTAR[key]}</span>
         <button class="btn ghost" style="padding:2px 5px;font-size:10px" onclick="mkAdjust('${key}',10)">+10</button>
         <button class="btn ghost" style="padding:2px 6px;font-size:10px" onclick="mkAdjust('${key}',100)">+100</button>
         <button class="btn ghost" style="padding:2px 6px;font-size:10px;color:#f1c40f" onclick="mkAdjust('${key}','max')">MAX</button>
-        <button class="btn" style="min-width:60px;padding:3px 8px;font-size:10px" onclick="mkSat('${key}')">💰 Sat</button>
+        <button class="btn" style="min-width:60px;padding:3px 8px;font-size:10px" onclick="mkSat('${key}')">💰 Sat</button>`}
       </div>
     </div>`;
   }).join('');

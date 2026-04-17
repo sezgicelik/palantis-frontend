@@ -363,25 +363,42 @@
     </div>
   </div>
 
-  <!-- MARKET AYAR TAB -->
+  <!-- MARKET AYAR TAB (v1.13.18: NPC Market 10 hammadde config + PvP pazari kaynak kisitlama) -->
   <div id="tab-market-cfg" class="panel">
     <div class="card">
-      <h3>🏪 NPC Market — Satilabilir Hammaddeler</h3>
+      <h3>🏪 NPC Market — Hammadde Config (10 hammadde)</h3>
       <p style="font-size:10px;color:var(--muted);margin-bottom:10px">
-        Oyuncunun <b>NPC marketinde (Market sayfasi)</b> altina satabilecegi hammaddeler.
-        Tikla = aktif/pasif. Varsayilan: 10 hammadde (gumus, mitril, bakir vs).
+        Tuccarin urettigi ve oyuncunun <b>altina sattigi</b> 10 hammaddenin oraninlari, baz fiyatlari ve cag kilitleri.
+        Tuccar her saat toplam 300-500 birim uretir, bu oranlara gore dagitilir.
       </p>
-      <div id="mc-liste" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"></div>
-      <button class="btn" onclick="confirmAction('NPC market hammaddeleri kaydedilecek. Emin misiniz?',saveMarketConfig)">Kaydet</button>
-      <button class="btn" onclick="mcVarsayilan()" style="background:#27ae60;color:#fff;margin-left:6px">🔄 Varsayilana Don (10 Market Hammadde)</button>
-      <div id="mc-msg" style="color:var(--green);font-size:11px;margin-top:6px"></div>
+      <div style="overflow-x:auto">
+        <table id="mh-cfg-table" style="font-size:11px;width:100%">
+          <thead>
+            <tr style="color:var(--gold)">
+              <th style="text-align:left;padding:4px">Hammadde</th>
+              <th>Isim (oyuncuya)</th>
+              <th>Baz Fiyat (altin)</th>
+              <th>Uretim Orani (%)</th>
+              <th>Cag Min</th>
+              <th>Aktif</th>
+            </tr>
+          </thead>
+          <tbody id="mh-cfg-body"></tbody>
+        </table>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="btn" onclick="saveMarketHammadde()">💾 Kaydet</button>
+        <button class="btn" onclick="mhVarsayilan()" style="background:#27ae60;color:#fff">🔄 Varsayilana Don</button>
+        <span style="font-size:10px;color:#666">Toplam oran: <b id="mh-toplam-oran">—</b>% (100 olmali)</span>
+      </div>
+      <div id="mh-msg" style="color:var(--green);font-size:11px;margin-top:6px"></div>
     </div>
 
     <div class="card" style="margin-top:14px">
       <h3>🤝 PvP Pazari — Takas Edilebilir Kaynaklar</h3>
       <p style="font-size:10px;color:var(--muted);margin-bottom:10px">
         Oyuncularin birbirine (<b>PvP Oyuncu Pazari / Kervan ile</b>) takas edebilecegi kaynaklar.
-        Varsayilan: 23 kaynak (temel/islenmis/yemek/mana/ozel, ancak hammadde market taraklari yoktur).
+        Varsayilan: 23 kaynak (temel/islenmis/yemek/mana/ozel).
       </p>
       <div id="pk-liste" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"></div>
       <button class="btn" onclick="confirmAction('PvP Pazari takas kaynaklari kaydedilecek. Emin misiniz?',savePazarKaynaklari)">Kaydet</button>
@@ -1263,58 +1280,85 @@ async function yeniSezon() {
   if(r.ok) setTimeout(loadSezon, 2000);
 }
 
-// ── Market Satilabilir Ayarlari ──
-let MC_AKTIF = [];
-let MC_TUM = [];
+// ── NPC Market Hammadde Config (v1.13.18) — 10 hammadde: isim/baz_fiyat/oran/cag_min ──
+const MH_VARSAYILAN = [
+  { kolon:'gumus',        isim:'Gümüş',        baz_fiyat:3,  oran:30,  cag_min:1, aktif:true },
+  { kolon:'bakir',        isim:'Bakır',        baz_fiyat:2,  oran:22,  cag_min:1, aktif:true },
+  { kolon:'mitril',       isim:'Mitril',       baz_fiyat:5,  oran:20,  cag_min:2, aktif:true },
+  { kolon:'kalay',        isim:'Kalay',        baz_fiyat:1,  oran:8,   cag_min:1, aktif:true },
+  { kolon:'kehribar',     isim:'Kehribar',     baz_fiyat:8,  oran:6,   cag_min:2, aktif:true },
+  { kolon:'obsidyen',     isim:'Obsidyen',     baz_fiyat:12, oran:5,   cag_min:3, aktif:true },
+  { kolon:'yakut',        isim:'Yakut',        baz_fiyat:20, oran:4,   cag_min:3, aktif:true },
+  { kolon:'zumrut',       isim:'Zümrüt',       baz_fiyat:35, oran:2.5, cag_min:4, aktif:true },
+  { kolon:'ejderha_tasi', isim:'Ejderha Taşı', baz_fiyat:30, oran:1.5, cag_min:4, aktif:true },
+  { kolon:'elmas',        isim:'Elmas',        baz_fiyat:50, oran:1,   cag_min:5, aktif:true }
+];
+let MH_DATA = [];
 
 async function loadMarketConfig() {
-  const d = await fetch(API+'/api/admin/satilabilir', {headers:hdr()}).then(r=>r.json());
-  if(!d.ok) return;
-  MC_TUM = d.tum_kaynaklar;
-  MC_AKTIF = new Set(d.aktif);
+  const d = await fetch(API+'/api/admin/market-hammadde', {headers:hdr()}).then(r=>r.json()).catch(()=>({ok:false}));
+  MH_DATA = (d.ok && Array.isArray(d.config) && d.config.length === 10) ? d.config : MH_VARSAYILAN.slice();
+  renderMarketHammadde();
+}
 
-  const KAT = {
-    'Market Hammadde': ['gumus','bakir','mitril','kalay','kehribar','obsidyen','yakut','zumrut','ejderha_tasi','elmas'],
-    'Temel Kaynak': ['odun','metal','altin','bugday','balik'],
-    'Islenmis': ['kereste','islenmis','ekmek','pismis','pismis_et','cig_et'],
-    'Mana': ['mana_beyaz','mana_kirmizi','mana_mavi','mana_yesil'],
-    'Ozel': ['at','kurt','gizlilik','buyulu_yumurta','ates_tozu','ay_cigi','golgeler_otu','ejderha_goz_damla']
-  };
+function renderMarketHammadde() {
+  const body = document.getElementById('mh-cfg-body');
+  if (!body) return;
+  body.innerHTML = MH_DATA.map((h, i) => `
+    <tr style="border-bottom:1px solid #1a1a1a">
+      <td style="padding:4px;color:var(--gold);font-family:monospace">${h.kolon}</td>
+      <td><input type="text" id="mh-${i}-isim" value="${(h.isim||'').replace(/"/g,'&quot;')}" style="width:110px;padding:3px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px"></td>
+      <td><input type="number" id="mh-${i}-fiyat" value="${h.baz_fiyat}" min="0" step="0.5" style="width:70px;padding:3px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px;text-align:center" onchange="updateMhToplam()"></td>
+      <td><input type="number" id="mh-${i}-oran" value="${h.oran}" min="0" max="100" step="0.5" style="width:60px;padding:3px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px;text-align:center" onchange="updateMhToplam()"></td>
+      <td style="text-align:center">
+        <select id="mh-${i}-cag" style="padding:3px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px">
+          ${[1,2,3,4,5].map(c => `<option value="${c}" ${h.cag_min===c?'selected':''}>${c}. Cag</option>`).join('')}
+        </select>
+      </td>
+      <td style="text-align:center"><input type="checkbox" id="mh-${i}-aktif" ${h.aktif!==false?'checked':''}></td>
+    </tr>
+  `).join('');
+  updateMhToplam();
+}
 
-  let html = '';
-  for (const [kat, kaynaklar] of Object.entries(KAT)) {
-    html += `<div style="width:100%;margin-bottom:6px"><div style="font-size:10px;color:var(--gold);margin-bottom:3px;font-weight:bold">${kat}</div><div style="display:flex;flex-wrap:wrap;gap:4px">`;
-    for (const k of kaynaklar) {
-      const aktif = MC_AKTIF.has(k);
-      html += `<button id="mc-${k}" onclick="mcToggle('${k}')" style="padding:4px 10px;font-size:10px;border-radius:4px;border:1px solid ${aktif?'#2ecc71':'#333'};background:${aktif?'rgba(46,204,113,0.15)':'#1a1a1a'};color:${aktif?'#2ecc71':'#666'};cursor:pointer">${k}</button>`;
-    }
-    html += '</div></div>';
+function updateMhToplam() {
+  let toplam = 0;
+  for (let i=0; i<MH_DATA.length; i++) {
+    toplam += parseFloat(document.getElementById(`mh-${i}-oran`)?.value) || 0;
   }
-  document.getElementById('mc-liste').innerHTML = html;
+  const el = document.getElementById('mh-toplam-oran');
+  if (el) {
+    el.textContent = toplam.toFixed(1);
+    el.style.color = Math.abs(toplam - 100) < 0.5 ? '#2ecc71' : '#e74c3c';
+  }
 }
 
-function mcToggle(k) {
-  if (MC_AKTIF.has(k)) MC_AKTIF.delete(k); else MC_AKTIF.add(k);
-  const el = document.getElementById('mc-'+k);
-  const aktif = MC_AKTIF.has(k);
-  el.style.borderColor = aktif ? '#2ecc71' : '#333';
-  el.style.background = aktif ? 'rgba(46,204,113,0.15)' : '#1a1a1a';
-  el.style.color = aktif ? '#2ecc71' : '#666';
-}
-
-async function saveMarketConfig() {
-  const r = await fetch(API+'/api/admin/satilabilir',{method:'POST',headers:hdr(),body:JSON.stringify({aktif:[...MC_AKTIF]})}).then(r=>r.json());
-  document.getElementById('mc-msg').textContent = r.ok ? r.mesaj : (r.error||'Hata');
-}
-
-async function mcVarsayilan() {
-  if (!confirm('10 market hammaddesi (gumus, mitril, bakir, obsidyen, ejderha_tasi, kalay, kehribar, yakut, zumrut, elmas) aktif olarak ayarlanacak. Emin misiniz?')) return;
-  const varsayilan = ['gumus','mitril','bakir','obsidyen','ejderha_tasi','kalay','kehribar','yakut','zumrut','elmas'];
-  const r = await fetch(API+'/api/admin/satilabilir',{method:'POST',headers:hdr(),body:JSON.stringify({aktif:varsayilan})}).then(r=>r.json());
-  const msg = document.getElementById('mc-msg');
-  msg.textContent = r.ok ? '✓ 10 market hammaddesi aktif edildi' : (r.error||'Hata');
+async function saveMarketHammadde() {
+  const config = MH_DATA.map((h, i) => ({
+    kolon: h.kolon,
+    isim: document.getElementById(`mh-${i}-isim`).value.trim() || h.kolon,
+    baz_fiyat: parseFloat(document.getElementById(`mh-${i}-fiyat`).value) || 1,
+    oran: parseFloat(document.getElementById(`mh-${i}-oran`).value) || 0,
+    cag_min: parseInt(document.getElementById(`mh-${i}-cag`).value) || 1,
+    aktif: document.getElementById(`mh-${i}-aktif`).checked
+  }));
+  const toplam = config.reduce((s, c) => s + c.oran, 0);
+  if (Math.abs(toplam - 100) > 0.5) {
+    if (!confirm(`Uretim oranlari toplami ${toplam.toFixed(1)}% (100 olmali). Yine de kaydedilsin mi?`)) return;
+  }
+  const r = await fetch(API+'/api/admin/market-hammadde',{method:'POST',headers:hdr(),body:JSON.stringify({config})}).then(r=>r.json());
+  const msg = document.getElementById('mh-msg');
+  msg.textContent = r.ok ? (r.mesaj || '✓ Kaydedildi') : (r.error || 'Hata');
   msg.style.color = r.ok ? '#2ecc71' : '#e74c3c';
-  if (r.ok) loadMarketConfig();
+  if (r.ok) { MH_DATA = config; }
+  setTimeout(() => { if (msg) msg.textContent = ''; }, 3000);
+}
+
+async function mhVarsayilan() {
+  if (!confirm('10 hammadde varsayilan degerlere donecek (baz fiyat, oran, cag_min). Emin misiniz?')) return;
+  MH_DATA = MH_VARSAYILAN.slice();
+  renderMarketHammadde();
+  await saveMarketHammadde();
 }
 
 // ── PvP Pazari Takas Kaynaklari (v1.13.17) ──
