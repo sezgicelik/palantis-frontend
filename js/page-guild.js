@@ -125,6 +125,7 @@ async function guildKatil(guildId) {
 var GUILD_TABS = [
   { id: 'genel',    label: '🏰 Genel',       aktif: true },
   { id: 'uyeler',   label: '👥 Uyeler',       aktif: true },
+  { id: 'uye-ozet', label: '📊 Uye Ozeti',    aktif: true, yetki: 'ambar_gor' }, // v1.13.25
   { id: 'kasa',     label: '💰 Kasa',         aktif: true },
   { id: 'isciler',  label: '⚒️ Isciler',     aktif: true },
   { id: 'binalar',  label: '🏗️ Binalar',     aktif: true },
@@ -187,8 +188,15 @@ function renderGuildPageHUD(data) {
 }
 
 function renderGuildTabs(el, data) {
+  // v1.13.25: Yetki bazli tab filter
+  var yetkiler = (data.uye && data.uye.yetkiler) || {};
+  var gorunurTabs = GUILD_TABS.filter(function(t) {
+    if (!t.yetki) return true; // yetki gerekmiyorsa herkes gorur
+    return yetkiler[t.yetki] === true;
+  });
+
   var tabBar = '<div style="display:flex;gap:2px;flex-wrap:wrap;margin-bottom:12px;border-bottom:1px solid #222;padding-bottom:8px">' +
-    GUILD_TABS.map(function(t) {
+    gorunurTabs.map(function(t) {
       var cls = t.id === GUILD_AKTIF_TAB ? 'background:var(--race-color);color:#000' : 'background:#1a1a1a;color:#888';
       var opacity = t.aktif ? '1' : '0.4';
       return '<button onclick="guildTabDegistir(\'' + t.id + '\')" style="padding:6px 12px;border:none;border-radius:4px;cursor:pointer;font-size:10px;font-weight:bold;' + cls + ';opacity:' + opacity + '">' + t.label + '</button>';
@@ -222,6 +230,7 @@ function guildTabIcerikGoster(data) {
     case 'dagitim':  renderTabDagitim(el, data); break;
     case 'mezarlik': renderTabMezarlik(el, data); break;
     case 'raporlar': renderTabRaporlar(el, data); break;
+    case 'uye-ozet': renderTabUyeOzet(el, data); break;
     default:        el.innerHTML = '<div class="card" style="text-align:center;padding:30px;color:#555"><div style="font-size:30px;margin-bottom:8px">🔒</div><p style="font-size:12px">Bu ozellik Faz 3\'te aktif olacak.</p></div>';
   }
 }
@@ -1366,19 +1375,20 @@ async function renderTabRaporlar(el, data) {
     }
     html += '</div>';
 
-    // Raporlari filtrele
-    var raporlar = d.raporlar || [];
+    // v1.13.25 FIX: Backend {raporlar:[{palantis_yil,palantis_ay,palantis_gun,olaylar:[]}], liste:[]}
+    // Eskiden event_type direkt raporlar[] icinde aranıyordu → undefined. Simdi d.liste kullaniyoruz.
+    var events = d.liste || [];
     if (GUILD_RAPOR_FILTRE !== 'hepsi') {
       var tipler = GUILD_RAPOR_KATEGORI[GUILD_RAPOR_FILTRE]?.tipler || [];
-      raporlar = raporlar.filter(function(r) { return tipler.indexOf(r.event_type) >= 0; });
+      events = events.filter(function(r) { return tipler.indexOf(r.event_type) >= 0; });
     }
 
-    if (raporlar.length === 0) {
+    if (events.length === 0) {
       html += '<div class="card" style="padding:20px;text-align:center;color:#555;font-size:11px">Rapor bulunamadi</div>';
     } else {
       // Tarih bazli gruplama
       var gruplar = {};
-      raporlar.forEach(function(r) {
+      events.forEach(function(r) {
         var tarih = r.palantis_gun + '/' + r.palantis_ay + '/' + r.palantis_yil;
         if (!gruplar[tarih]) gruplar[tarih] = [];
         gruplar[tarih].push(r);
@@ -1388,11 +1398,12 @@ async function renderTabRaporlar(el, data) {
         html += '<div style="font-size:10px;color:#888;margin:8px 0 4px;border-bottom:1px solid #222;padding-bottom:2px">📅 ' + tarih + ' (' + gruplar[tarih].length + ' kayit)</div>';
         gruplar[tarih].forEach(function(r) {
           var renk = '#888';
+          var ikon = GUILD_EVENT_IKON[r.event_type] || '•';
           for (var kat2 in GUILD_RAPOR_KATEGORI) {
             if (GUILD_RAPOR_KATEGORI[kat2].tipler.indexOf(r.event_type) >= 0) { renk = GUILD_RAPOR_KATEGORI[kat2].renk; break; }
           }
           html += '<div style="font-size:10px;color:#aaa;padding:2px 0;border-left:2px solid ' + renk + ';padding-left:8px">' +
-            '<span style="color:' + renk + '">' + r.event_type + '</span> ' + r.mesaj +
+            '<span style="color:' + renk + '">' + ikon + ' ' + (r.event_type || '?') + '</span> ' + (r.mesaj || '—') +
             (r.oyuncu_adi ? ' <span style="color:#555">(' + r.oyuncu_adi + ')</span>' : '') +
           '</div>';
         });
@@ -1410,6 +1421,122 @@ function guildRaporFiltre(filtre) {
   if (GUILD_DATA) {
     var el = document.getElementById('guild-tab-content');
     if (el) renderTabRaporlar(el, GUILD_DATA);
+  }
+}
+
+// ═══════════════════════════════════
+//   TAB: UYE OZETI (v1.13.25)
+//   24 saatlik verdi/aldi tablosu
+// ═══════════════════════════════════
+var UYE_OZET_SAAT = 24; // default pencere
+
+async function renderTabUyeOzet(el, data) {
+  var gId = data.guild.id;
+  el.innerHTML = '<div style="text-align:center;padding:20px;color:#888">Yukleniyor...</div>';
+  try {
+    var resp = await fetch(API_BASE + '/api/guild/' + gId + '/uye-ozet?saat=' + UYE_OZET_SAAT, { headers: guildHdr() });
+    var d = await resp.json();
+    if (!resp.ok) { el.innerHTML = '<div style="color:#e74c3c">' + (d.error || 'Hata') + '</div>'; return; }
+
+    var KAYNAK_IKON_LOCAL = {
+      koylu:'👥', altin:'💰', odun:'🌳', metal:'⛏️', bugday:'🌾', balik:'🎣',
+      kereste:'🪵', islenmis:'⚙️', ekmek:'🍞', pismis:'🍳', pismis_et:'🍖', cig_et:'🥩',
+      at:'🐎', kurt:'🐺', gizlilik:'🌑', buyulu_yumurta:'🥚',
+      mana_beyaz:'🤍', mana_kirmizi:'❤️', mana_mavi:'💙', mana_yesil:'💚'
+    };
+    var KAYNAK_ISIM_LOCAL = {
+      koylu:'Koylu', altin:'Altin', odun:'Odun', metal:'Metal', bugday:'Bugday', balik:'Balik',
+      kereste:'Kereste', islenmis:'Islenmis', ekmek:'Ekmek', pismis:'Pis.Balik', pismis_et:'Pis.Et', cig_et:'Cig Et',
+      at:'At', kurt:'Kurt', gizlilik:'Gizlilik', buyulu_yumurta:'Buyulu Yumurta',
+      mana_beyaz:'Beyaz Mana', mana_kirmizi:'Kirmizi Mana', mana_mavi:'Mavi Mana', mana_yesil:'Yesil Mana'
+    };
+    var RUTBE_ETKI = { lider: '👑', yardimci: '⭐', uye: '' };
+
+    var html = '<h3 style="font-family:Cinzel,serif;color:var(--race-color);margin-bottom:6px">📊 Uye Ozeti</h3>';
+    html += '<p style="font-size:11px;color:#888;margin-bottom:10px">Guild uyelerinin son ' + d.saat + ' saatte verdigi ve aldigi kaynaklar (bagis + ambar + dagitim log).</p>';
+
+    // Zaman penceresi secimi
+    html += '<div style="display:flex;gap:6px;margin-bottom:12px;align-items:center;flex-wrap:wrap">';
+    html += '<span style="font-size:11px;color:#888">Zaman:</span>';
+    [24,48,72,168].forEach(function(s){
+      var lbl = s===24?'24 saat':(s===48?'2 gun':(s===72?'3 gun':'7 gun'));
+      html += '<button onclick="uyeOzetSaat(' + s + ')" style="padding:3px 10px;border:none;border-radius:4px;font-size:10px;cursor:pointer;' +
+        (UYE_OZET_SAAT===s ? 'background:var(--race-color);color:#000;font-weight:bold' : 'background:#1a1a1a;color:#888') + '">' + lbl + '</button>';
+    });
+    html += '</div>';
+
+    // Toplam aktivite
+    html += '<div style="font-size:10px;color:#666;margin-bottom:8px">' + d.log_sayisi + ' log kaydi islendi · ' + d.uyeler.length + ' uye</div>';
+
+    // Her uye icin kart
+    var varBilgi = false;
+    d.uyeler.forEach(function(u) {
+      var verdiKeys = Object.keys(u.verdi || {}).filter(function(k){ return u.verdi[k] > 0; });
+      var aldiKeys  = Object.keys(u.aldi  || {}).filter(function(k){ return u.aldi[k]  > 0; });
+      if (verdiKeys.length === 0 && aldiKeys.length === 0) return; // hic aktivitesi yok
+      varBilgi = true;
+
+      var rutbeIkon = RUTBE_ETKI[u.rutbe] || '';
+      html += '<div class="card" style="padding:12px;margin-bottom:8px">';
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #222">';
+      html += '<span style="font-family:Cinzel,serif;color:var(--race-color);font-size:13px;font-weight:bold">' + rutbeIkon + ' ' + (u.kral || '?') + '</span>';
+      html += '<span style="font-size:10px;color:#666">' + (u.rutbe || 'uye') + '</span>';
+      html += '</div>';
+
+      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+
+      // Verdi sutunu
+      html += '<div>';
+      html += '<div style="font-size:10px;color:#2ecc71;margin-bottom:4px;font-weight:bold">🎁 VERDI</div>';
+      if (verdiKeys.length === 0) {
+        html += '<div style="color:#444;font-size:10px">—</div>';
+      } else {
+        verdiKeys.forEach(function(k){
+          html += '<div style="font-size:11px;color:#ccc;padding:2px 0">' +
+            (KAYNAK_IKON_LOCAL[k] || '•') + ' ' +
+            '<b style="color:#2ecc71">' + u.verdi[k].toLocaleString('tr-TR') + '</b> ' +
+            '<span style="color:#888">' + (KAYNAK_ISIM_LOCAL[k] || k) + '</span>' +
+          '</div>';
+        });
+      }
+      html += '</div>';
+
+      // Aldi sutunu
+      html += '<div>';
+      html += '<div style="font-size:10px;color:#f39c12;margin-bottom:4px;font-weight:bold">📦 ALDI</div>';
+      if (aldiKeys.length === 0) {
+        html += '<div style="color:#444;font-size:10px">—</div>';
+      } else {
+        aldiKeys.forEach(function(k){
+          html += '<div style="font-size:11px;color:#ccc;padding:2px 0">' +
+            (KAYNAK_IKON_LOCAL[k] || '•') + ' ' +
+            '<b style="color:#f39c12">' + u.aldi[k].toLocaleString('tr-TR') + '</b> ' +
+            '<span style="color:#888">' + (KAYNAK_ISIM_LOCAL[k] || k) + '</span>' +
+          '</div>';
+        });
+      }
+      html += '</div>';
+
+      html += '</div></div>';
+    });
+
+    if (!varBilgi) {
+      html += '<div class="card" style="padding:30px;text-align:center;color:#555;font-size:11px">' +
+        'Son ' + d.saat + ' saatte hicbir uye bagis/ambar islemi yapmadi.' +
+      '</div>';
+    }
+
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = '<div style="color:#e74c3c">Baglanti hatasi: ' + e.message + '</div>';
+  }
+}
+
+function uyeOzetSaat(s) {
+  UYE_OZET_SAAT = s;
+  if (GUILD_DATA) {
+    var el = document.getElementById('guild-tab-content');
+    if (el) renderTabUyeOzet(el, GUILD_DATA);
   }
 }
 
