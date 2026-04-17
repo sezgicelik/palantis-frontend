@@ -332,6 +332,9 @@ function bkRenderKitap() {
           const cdBuyu = (bkData?.cooldownlar || []).find(c => c.buyu_id === b.id);
           const cdAktif = cdBuyu ? new Date(cdBuyu.bitis) > new Date() : false;
           const isOfansif = b.kategori === 'dusmana';
+          // v1.13.28: Buyucu Kulesi gereksinimi (buyu cagi <= kule adeti)
+          const kuleAdet = parseInt(bkData?.buyu_kulesi_adet) || 0;
+          const yeterliKule = b.cag <= kuleAdet;
 
           // Ofansif büyü seçili ise hedef arama + yap butonu (kart altında)
           let yapBtn = '';
@@ -347,23 +350,33 @@ function bkRenderKitap() {
             (!selectedHedef ? '<ul class="hedef-list" id="bk-hedef-list" style="max-height:50px;margin-top:2px"></ul>' : '');
           }
 
-          // Maliyet bilgisi (her kartta göster)
+          // Maliyet bilgisi (her kartta göster) + v1.13.28 Kule gereksinimi
           let maliyetStr = '';
           if (kd) {
+            const kuleRenk = yeterliKule ? '#2ecc71' : '#e74c3c';
+            const kuleEtiket = yeterliKule
+              ? '🗼 ' + b.cag + '/' + kuleAdet + ' Kule'
+              : '🗼 <b>' + b.cag + ' Kule gerekli</b> (mevcut: ' + kuleAdet + ')';
             maliyetStr = '<div style="font-size:9px;color:#666;margin-top:4px;line-height:1.5">' +
-              '<span class="mana-dot mana-' + b.mana_renk + '" style="width:8px;height:8px"></span> ' + (kd.mana||0) + ' ' + MANA_RENK_ISIM[b.mana_renk] +
-              ' · ' + (kd.malzeme||0) + ' ' + (MALZEME_ISIM[b.malzeme]||b.malzeme) +
+              '<span class="mana-dot mana-' + b.mana_renk + '" style="width:8px;height:8px"></span> ' +
+              '<span style="color:' + (yeterliMana ? '#888' : '#e74c3c') + '">' + (kd.mana||0) + ' ' + MANA_RENK_ISIM[b.mana_renk] + '</span>' +
+              ' · <span style="color:' + (yeterliMalzeme ? '#888' : '#e74c3c') + '">' + (kd.malzeme||0) + ' ' + (MALZEME_ISIM[b.malzeme]||b.malzeme) + '</span>' +
+              ' · <span style="color:' + kuleRenk + '">' + kuleEtiket + '</span>' +
               (kd.sure > 0 ? ' · ⏱' + kd.sure + 'PG' : '') +
               ' · CD:' + (b.cooldown||0) + 'PG' +
               ' · %' + (kd.basari||0) + ' sans' +
             '</div>';
           }
 
-          // Inline buton (sağda)
+          // Inline buton (sağda) + v1.13.28: Kule yetersizse pasif
           let inlineBtn = '';
           if (ogrenildi && kd && !cdAktif) {
-            inlineBtn = '<button class="btn gold" style="font-size:9px;padding:4px 12px;white-space:nowrap;flex-shrink:0" onclick="event.stopPropagation();bkSelectAndCast(\'' + b.id + '\')" ' +
-              ((!yeterliMana || !yeterliMalzeme) ? 'disabled style="opacity:0.3;font-size:9px;padding:4px 12px;white-space:nowrap;flex-shrink:0"' : '') +
+            const yapilabilir = yeterliMana && yeterliMalzeme && yeterliKule;
+            const titleTxt = !yeterliKule ? b.cag + ' Buyucu Kulesi gerekli (mevcut: ' + kuleAdet + ')'
+                          : !yeterliMana ? 'Yetersiz mana'
+                          : !yeterliMalzeme ? 'Yetersiz malzeme' : 'Buyuyu yap';
+            inlineBtn = '<button class="btn gold" title="' + titleTxt + '" style="font-size:9px;padding:4px 12px;white-space:nowrap;flex-shrink:0" onclick="event.stopPropagation();bkSelectAndCast(\'' + b.id + '\')" ' +
+              (!yapilabilir ? 'disabled style="opacity:0.3;font-size:9px;padding:4px 12px;white-space:nowrap;flex-shrink:0;cursor:not-allowed"' : '') +
               '>⚡ YAP</button>';
           } else if (ogrenildi && cdAktif) {
             inlineBtn = '<span style="font-size:8px;color:#e74c3c;white-space:nowrap;flex-shrink:0">CD ' + bkFormatKalan(cdBuyu.bitis) + '</span>';
@@ -441,6 +454,9 @@ function bkRenderBuyuYap() {
   const cdAktif = cdBuyu ? new Date(cdBuyu.bitis) > new Date() : false;
 
   const isOfansif = buyu.kategori === 'dusmana';
+  // v1.13.28: Buyucu Kulesi gereksinimi
+  const kuleAdet = parseInt(bkData?.buyu_kulesi_adet) || 0;
+  const yeterliKule = buyu.cag <= kuleAdet;
 
   let hedefHtml = '';
   if (isOfansif) {
@@ -459,6 +475,7 @@ function bkRenderBuyuYap() {
     <p style="color:#888;font-size:11px;margin-bottom:10px">${buyu.aciklama}</p>
     <div class="buyu-detail-row"><span class="lbl">Mana Maliyeti</span><span class="val" style="color:${yeterliMana ? MANA_RENK_RENK[buyu.mana_renk] : '#e74c3c'}">${kd.mana} ${MANA_RENK_ISIM[buyu.mana_renk]} (mevcut: ${mevcutMana})</span></div>
     <div class="buyu-detail-row"><span class="lbl">Malzeme</span><span class="val" style="color:${yeterliMalzeme ? '#e8dcc8' : '#e74c3c'}">${kd.malzeme} ${MALZEME_ISIM[buyu.malzeme]||buyu.malzeme} (mevcut: ${mevcutMalzeme})</span></div>
+    <div class="buyu-detail-row"><span class="lbl">🗼 Buyucu Kulesi</span><span class="val" style="color:${yeterliKule ? '#2ecc71' : '#e74c3c'}">${buyu.cag} gerekli (mevcut: ${kuleAdet})</span></div>
     <div class="buyu-detail-row"><span class="lbl">Basari Sansi</span><span class="val">%${kd.basari}</span></div>
     ${kd.sure > 0 ? `<div class="buyu-detail-row"><span class="lbl">Sure</span><span class="val">${kd.sure} PG</span></div>` : ''}
     <div class="buyu-detail-row"><span class="lbl">Cooldown</span><span class="val">${buyu.cooldown} PG</span></div>
@@ -467,9 +484,10 @@ function bkRenderBuyuYap() {
     <div style="margin-top:12px;text-align:center">
       ${cdAktif
         ? `<button class="btn" disabled style="opacity:0.4">Cooldown (${bkFormatKalan(cdBuyu.bitis)})</button>`
-        : `<button class="btn gold" onclick="bkBuyuYap('${buyu.id}')" ${(!yeterliMana || !yeterliMalzeme || (isOfansif && !selectedHedef)) ? 'disabled style="opacity:0.5"' : ''}>Buyu Yap</button>`
+        : `<button class="btn gold" onclick="bkBuyuYap('${buyu.id}')" ${(!yeterliMana || !yeterliMalzeme || !yeterliKule || (isOfansif && !selectedHedef)) ? 'disabled style="opacity:0.5"' : ''}>Buyu Yap</button>`
       }
     </div>
+    ${!yeterliKule ? '<p style="color:#e74c3c;font-size:10px;text-align:center;margin-top:4px">🗼 ' + buyu.cag + ' Buyucu Kulesi gerekli! (mevcut: ' + kuleAdet + ') — Sehrimde daha fazla kule insa et.</p>' : ''}
     ${!yeterliMana ? '<p style="color:#e74c3c;font-size:10px;text-align:center;margin-top:4px">Yetersiz mana!</p>' : ''}
     ${!yeterliMalzeme ? '<p style="color:#e74c3c;font-size:10px;text-align:center;margin-top:4px">Yetersiz malzeme!</p>' : ''}
     ${isOfansif && !selectedHedef ? '<p style="color:#f39c12;font-size:10px;text-align:center;margin-top:4px">Hedef oyuncu secin</p>' : ''}
