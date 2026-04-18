@@ -56,17 +56,42 @@ function sbHedefAra() {
         return;
       }
 
-      // API: { id, kullanici_adi, koord_x, koord_y, cag, taraf, irk }
+      // v1.13.55: Zenginlestirilmis kart — cag, kubbe, tatil, deger araligi, saldiri uygun mu
       wrap.innerHTML = data.slice(0, 10).map(p => {
         const pData = JSON.stringify({ id: p.id, kral: p.kullanici_adi, koord_x: p.koord_x, koord_y: p.koord_y, irk: p.irk, taraf: p.taraf }).replace(/'/g, "&#39;");
+        const uygun = p.saldiri_uygun !== false;
+        const opacity = uygun ? '1' : '0.55';
+        const cursor = uygun ? 'pointer' : 'not-allowed';
+        const onclick = uygun ? `onclick='sbHedefSec(${pData})'` : `onclick='showToast("Saldiri uygun degil: ${(p.red_sebebi||"").replace(/"/g,"&quot;")}", "error")'`;
+        const borderColor = uygun ? '#3a3a3a' : '#c0392b';
+
+        // Cag rozeti — 1. cag kirmizi, digerleri gri
+        const cagRenk = (p.cag === 1) ? '#c0392b' : '#5a8fcb';
+        const cagRozet = `<span style="background:${cagRenk};color:#fff;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:600">C${p.cag||'?'}</span>`;
+
+        // Durum ikonlari
+        const ikonlar = [];
+        if (p.tatil_modu) ikonlar.push('<span title="Tatil modunda" style="color:#f39c12">🏖️</span>');
+        if (p.kubbe_aktif) ikonlar.push('<span title="Gorunmez Kubbe aktif" style="color:#9b59b6">🛡️</span>');
+        if (p.cag === 1) ikonlar.push('<span title="1. Cag koruma" style="color:#c0392b">🔒</span>');
+        if (p.deger_araligi && !p.deger_araligi.gecerli) ikonlar.push(`<span title="Deger araligi disi: ${p.deger_araligi.alt}-${p.deger_araligi.ust}" style="color:#e67e22">⚖️</span>`);
+
+        const redMsg = uygun ? '' : `<div style="color:#e74c3c;font-size:10px;margin-top:3px">⛔ ${p.red_sebebi || 'Saldiri uygun degil'}</div>`;
+        const degerStr = p.sehir_deger != null ? `Deger: ${p.sehir_deger.toLocaleString('tr-TR')}` : '';
+
         return `
-        <div class="hareket-card" style="cursor:pointer;padding:8px 12px;margin-bottom:4px"
-             onclick='sbHedefSec(${pData})'>
-          <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="hareket-card" style="cursor:${cursor};padding:8px 12px;margin-bottom:4px;opacity:${opacity};border-left:3px solid ${borderColor}"
+             ${onclick}>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
             <span style="color:#f0e8d8;font-weight:600">${p.kullanici_adi || 'Bilinmeyen'}</span>
-            <span style="color:#888;font-size:12px">${p.koord_x || '?'}:${p.koord_y || '?'}</span>
+            <span style="display:flex;gap:4px;align-items:center">
+              ${cagRozet}
+              ${ikonlar.join('')}
+              <span style="color:#888;font-size:12px">${p.koord_x || '?'}:${p.koord_y || '?'}</span>
+            </span>
           </div>
-          <div style="color:#666;font-size:11px">${p.irk || ''} — ${p.taraf || ''}</div>
+          <div style="color:#888;font-size:11px;margin-top:2px">${p.irk || ''} — ${p.taraf || ''} · ${degerStr}</div>
+          ${redMsg}
         </div>`;
       }).join('');
       wrap.style.display = 'block';
