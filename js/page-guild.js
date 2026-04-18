@@ -1379,6 +1379,7 @@ async function renderTabMarket(el, data) {
     if (otoResp.ok) { var otoData = await otoResp.json(); otoAyarlar = otoData.hammaddeler || {}; }
     window._GUILD_OTO_AYARLAR = otoAyarlar;
     window._GUILD_MARKET_GID = gId;
+    window._GUILD_MKT_FIYATLAR = d.fiyatlar || {}; // v1.13.51.1: adjust icin stok bilgisi
 
     var yetkiler = data.benim_yetkilerim || {};
     var satisYetki = yetkiler.market_satis;
@@ -1423,47 +1424,63 @@ async function renderTabMarket(el, data) {
       html += '<div style="font-size:10px;color:#f39c12;margin-bottom:10px">ℹ️ Sadece market satis yetkiniz olan uyeler satis yapabilir</div>';
     }
 
-    // Hammadde tablosu
-    html += '<div class="card" style="padding:10px">';
-    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px">';
+    // v1.13.51.1: Oyuncu market UI ile ayni yapi — flex row, adjust butonlari
+    html += '<div style="display:flex;flex-direction:column;gap:2px">';
+    if (!window._GMKT_SATIS_MIKTAR) window._GMKT_SATIS_MIKTAR = {};
 
     Object.keys(fiyatlar).forEach(function(key) {
       var f = fiyatlar[key];
       var ikon = HAMMADDE_IKON[key] || '💠';
       var kurRenk = f.kur >= 110 ? '#2ecc71' : (f.kur <= 90 ? '#e74c3c' : '#d4af37');
-      // v1.13.51: oto-sat durumu
+      var kurOk = f.kur >= 100 ? '▲' : '▼';
+      window._GMKT_SATIS_MIKTAR[key] = window._GMKT_SATIS_MIKTAR[key] || 0;
+
       var oto = otoAyarlar[key] || { aktif:false, esik:0 };
-      var otoBorder = oto.aktif ? '#1a4a1a' : '#1a1a1a';
+      var otoBorder = oto.aktif ? '#1a4a1a' : '#1e1e1e';
       var otoBadge = oto.aktif ? '<span style="background:#103a10;color:#2ecc71;padding:1px 5px;border-radius:3px;font-size:9px;margin-left:4px">🔄 OTO</span>' : '';
-      html += '<div style="background:#0a0a0a;padding:8px;border-radius:4px;border:1px solid ' + otoBorder + '">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">' +
-          '<span style="font-size:12px"><span style="font-size:16px">' + ikon + '</span> <b>' + f.isim + '</b>' + otoBadge + '</span>' +
-          '<span style="font-size:10px;color:' + kurRenk + ';font-weight:bold">kur %' + f.kur + '</span>' +
+
+      html += '<div style="padding:6px 10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#111;border:1px solid ' + otoBorder + ';border-radius:4px;margin-bottom:2px">' +
+        '<span style="font-size:20px;width:24px;text-align:center">' + ikon + '</span>' +
+        '<div style="min-width:100px">' +
+          '<div style="color:#d4af37;font-weight:bold;font-size:12px">' + f.isim + otoBadge + '</div>' +
+          '<div style="color:#888;font-size:10px">Stok: <b style="color:#fff">' + fmt(f.miktar) + '</b></div>' +
         '</div>' +
-        '<div style="font-size:10px;color:#aaa;margin-bottom:4px">Stok: <span style="color:#d4af37;font-weight:bold">' + fmt(f.miktar) + '</span> | Fiyat: <span style="color:#d4af37">' + f.satis_fiyat + '</span> altin/adet <span style="color:#555;font-size:9px">(baz: ' + f.baz_fiyat + ')</span></div>' +
+        '<div style="min-width:120px">' +
+          '<span style="color:#666;font-size:10px">Kur: </span>' +
+          '<span style="color:' + kurRenk + ';font-weight:bold;font-size:11px">' + kurOk + ' %' + f.kur + '</span>' +
+          '<span style="color:#f1c40f;font-size:12px;font-weight:bold;margin-left:6px">' + f.satis_fiyat + ' altın/adet</span>' +
+        '</div>' +
         (satisYetki ?
-          '<div style="display:flex;gap:4px;align-items:center;margin-bottom:6px">' +
-            '<input id="gmkt-inp-' + key + '" type="number" min="1" max="' + f.miktar + '" value="0" style="padding:3px;border:1px solid #333;background:#111;color:#ccc;border-radius:3px;font-size:10px;width:70px" placeholder="adet">' +
-            '<button class="btn-action" style="width:auto;padding:3px 10px;font-size:9px;background:#27ae60" onclick="guildMarketSat(\'' + key + '\')" ' + (f.miktar <= 0 ? 'disabled' : '') + '>SAT</button>' +
-            '<span id="gmkt-kzn-' + key + '" style="font-size:9px;color:#666"></span>' +
-          '</div>' +
-          // v1.13.51: oto-sat toggle + esik
-          '<div style="display:flex;align-items:center;gap:6px;padding-top:4px;border-top:1px dashed #222">' +
-            '<label style="display:flex;align-items:center;gap:4px;font-size:9px;color:' + (oto.aktif?'#2ecc71':'#888') + ';cursor:pointer">' +
+          '<div style="flex:1;display:flex;align-items:center;gap:4px;justify-content:flex-end;min-width:200px">' +
+            '<button class="btn-action" style="padding:2px 6px;font-size:10px;background:#222;width:auto" onclick="guildMktAdjust(\'' + key + '\',-100)">−100</button>' +
+            '<button class="btn-action" style="padding:2px 5px;font-size:10px;background:#222;width:auto" onclick="guildMktAdjust(\'' + key + '\',-10)">−10</button>' +
+            '<span id="gmkt-m-' + key + '" style="min-width:48px;text-align:center;font-weight:bold;color:#d4af37;font-size:12px">' + window._GMKT_SATIS_MIKTAR[key] + '</span>' +
+            '<button class="btn-action" style="padding:2px 5px;font-size:10px;background:#222;width:auto" onclick="guildMktAdjust(\'' + key + '\',10)">+10</button>' +
+            '<button class="btn-action" style="padding:2px 6px;font-size:10px;background:#222;width:auto" onclick="guildMktAdjust(\'' + key + '\',100)">+100</button>' +
+            '<button class="btn-action" style="padding:2px 6px;font-size:10px;background:#2a2a2a;color:#f1c40f;width:auto" onclick="guildMktAdjust(\'' + key + '\',\'max\')">MAX</button>' +
+            '<button class="btn-action" style="min-width:60px;padding:3px 8px;font-size:10px;background:#27ae60;color:#000;width:auto" onclick="guildMarketSat(\'' + key + '\')" ' + (f.miktar <= 0 ? 'disabled' : '') + '>💰 Sat</button>' +
+            '<input id="gmkt-inp-' + key + '" type="hidden" value="0">' +
+          '</div>'
+        : '') +
+        // Oto-sat ek satir
+        (satisYetki ?
+          '<div style="width:100%;display:flex;align-items:center;gap:6px;padding-top:4px;border-top:1px dashed #2a2a2a">' +
+            '<label style="display:flex;align-items:center;gap:4px;font-size:10px;color:' + (oto.aktif?'#2ecc71':'#888') + ';cursor:pointer">' +
               '<input type="checkbox" ' + (oto.aktif?'checked':'') + ' onchange="guildOtoSatToggle(\'' + key + '\', this.checked)">' +
-              '🔄 Oto (sabit ' + (f.baz_fiyat||1) + 'a)' +
+              '🔄 Oto-Sat (sabit ' + (f.baz_fiyat||1) + ' altın/adet)' +
             '</label>' +
-            '<span style="font-size:9px;color:#888;margin-left:auto">Eşik:</span>' +
+            '<span style="font-size:10px;color:#888;margin-left:auto">Eşik:</span>' +
             '<input id="gmkt-esik-' + key + '" type="number" min="0" value="' + (oto.esik||0) + '"' +
               ' onblur="guildOtoSatEsikKaydet(\'' + key + '\')"' +
               ' onkeydown="if(event.key===\'Enter\')this.blur()"' +
-              ' style="width:70px;padding:2px 4px;background:#111;border:1px solid #333;color:#ddd;border-radius:3px;font-size:9px">' +
+              ' style="width:80px;padding:2px 4px;background:#0a0a0a;border:1px solid #333;color:#ddd;border-radius:3px;font-size:10px">' +
+            '<span style="font-size:9px;color:#666">(stok > eşik ise fazlası satılır)</span>' +
           '</div>'
-          : '') +
+        : '') +
       '</div>';
     });
 
-    html += '</div></div>';
+    html += '</div>';
 
     // Son islemler
     if (d.islemler && d.islemler.length > 0) {
@@ -1537,21 +1554,40 @@ async function guildOtoSatToplu(aktif) {
   } catch(e) { toast('Baglanti hatasi', 'error'); }
 }
 
+// v1.13.51.1: Oyuncu market ile ayni adjust sistemi
+function guildMktAdjust(key, delta) {
+  if (!window._GMKT_SATIS_MIKTAR) window._GMKT_SATIS_MIKTAR = {};
+  var fiyatlar = window._GUILD_MKT_FIYATLAR || {};
+  var f = fiyatlar[key];
+  var maxStok = f ? parseInt(f.miktar)||0 : 0;
+  if (delta === 'max') {
+    window._GMKT_SATIS_MIKTAR[key] = maxStok;
+  } else {
+    window._GMKT_SATIS_MIKTAR[key] = Math.max(0, Math.min((window._GMKT_SATIS_MIKTAR[key]||0) + delta, maxStok));
+  }
+  var el = document.getElementById('gmkt-m-' + key);
+  if (el) el.textContent = window._GMKT_SATIS_MIKTAR[key].toLocaleString('tr-TR');
+  var inp = document.getElementById('gmkt-inp-' + key);
+  if (inp) inp.value = window._GMKT_SATIS_MIKTAR[key];
+}
+
 async function guildMarketSat(hammadde) {
   if (!GUILD_DATA) return;
-  var inp = document.getElementById('gmkt-inp-' + hammadde);
-  if (!inp) return;
-  var miktar = parseInt(inp.value);
-  if (!miktar || miktar < 1) { toast('Gecersiz miktar', 'error'); return; }
+  // v1.13.51.1: state'den veya input'tan (backward compat)
+  var miktar = (window._GMKT_SATIS_MIKTAR || {})[hammadde] || 0;
+  if (!miktar) {
+    var inp = document.getElementById('gmkt-inp-' + hammadde);
+    miktar = inp ? (parseInt(inp.value)||0) : 0;
+  }
+  if (!miktar || miktar < 1) { toast('Satilacak miktar belirle (±ile ayarla ya da MAX)', 'error'); return; }
   try {
     var resp = await fetch(API_BASE + '/api/guild/' + GUILD_DATA.guild.id + '/market/sat', {
       method: 'POST', headers: guildHdr(), body: JSON.stringify({ hammadde: hammadde, miktar: miktar })
     });
     var d = await resp.json();
     if (resp.ok) {
-      toast(d.mesaj || 'Satildi');
-      var kzn = document.getElementById('gmkt-kzn-' + hammadde);
-      if (kzn) kzn.textContent = '+' + fmt(d.kazanc) + ' altin (kur %' + d.kur + ')';
+      toast('+' + fmt(d.kazanc) + ' altın (kur %' + d.kur + ')');
+      if (window._GMKT_SATIS_MIKTAR) window._GMKT_SATIS_MIKTAR[hammadde] = 0;
       loadGuild();
     } else toast(d.error || 'Hata', 'error');
   } catch(e) { toast('Baglanti hatasi', 'error'); }
