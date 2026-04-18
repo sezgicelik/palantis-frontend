@@ -621,7 +621,8 @@ function renderKuyrukWidget() {
     { key:'kervan',      label:'🐪 Kervan',         link:'kervan.html' },
     { key:'ordu',        label:'⚔️ Ordu Görevi',   link:'army.html' },
     { key:'casus',       label:'🕵️ Casus',         link:'casus.html' },
-    { key:'buyu',        label:'✨ Aktif Büyü',    link:'buyucu-kulesi.html' }
+    { key:'buyu',        label:'✨ Aktif Büyü',    link:'buyucu-kulesi.html' },
+    { key:'ws',          label:'🙏 Worshipper',   link:'magic.html' }
   ];
 
   const icerik = document.getElementById('kuyruk-icerik');
