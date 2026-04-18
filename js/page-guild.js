@@ -1078,7 +1078,11 @@ async function renderTabBinalar(el, data) {
         var kalanSn = b.queue_end ? Math.max(0, Math.floor((new Date(b.queue_end) - Date.now()) / 1000)) : 0;
         aksiyonHtml = '<span style="color:#f39c12;font-size:10px">🔨 Insaatta (' + fmtKalanSure(kalanSn) + ')</span>';
       } else if (yetkiler.guild_bina_yap) {
-        aksiyonHtml = '<button class="btn-action" style="width:auto;padding:4px 12px;font-size:10px" onclick="guildBinaUpgrade(\'' + binaId + '\')">+1 ' + b.isim + '</button>';
+        // v1.13.41.3: Adet input + toplu insa (oyuncu gibi)
+        aksiyonHtml = '<div style="display:flex;gap:4px;align-items:center">' +
+          '<input id="gb-adet-' + binaId + '" type="number" value="1" min="1" max="100" style="width:55px;padding:3px 6px;background:#0a0a0a;border:1px solid #333;color:#ddd;border-radius:3px;font-size:11px">' +
+          '<button class="btn-action" style="width:auto;padding:4px 12px;font-size:10px" onclick="guildBinaUpgrade(\'' + binaId + '\')">+ Yap</button>' +
+        '</div>';
       }
 
       // v1.13: seviye → adet terminolojisi
@@ -1103,9 +1107,12 @@ async function renderTabBinalar(el, data) {
 
 async function guildBinaUpgrade(binaId) {
   if (!GUILD_DATA) return;
+  // v1.13.41.3: Adet al
+  var adetEl = document.getElementById('gb-adet-' + binaId);
+  var adet = Math.max(1, Math.min(100, parseInt(adetEl?.value) || 1));
   try {
     var resp = await fetch(API_BASE + '/api/guild/' + GUILD_DATA.guild.id + '/binalar/upgrade', {
-      method: 'POST', headers: guildHdr(), body: JSON.stringify({ binaId: binaId })
+      method: 'POST', headers: guildHdr(), body: JSON.stringify({ binaId: binaId, adet: adet })
     });
     var d = await resp.json();
     if (resp.ok) { toast(d.mesaj || 'Insa baslatildi'); loadGuild(); }

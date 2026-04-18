@@ -526,18 +526,30 @@ function bkRenderBuyuYap() {
   `;
 }
 
+// v1.13.41.3: Debounce + focus koru (input re-render'da fokus kaybetme bug'i)
+let _bkHedefTimer = null;
 async function bkHedefAra(q) {
-  if (q.length < 2) { document.getElementById('bk-hedef-list').innerHTML = ''; return; }
-  try {
-    const token = getToken();
-    const r = await fetch(`${API}/api/buyucu-kulesi/oyuncu-ara?q=${encodeURIComponent(q)}`, { headers: { Authorization: `Bearer ${token}` } });
-    const data = await r.json();
-    if (!data.ok) return;
-    const list = document.getElementById('bk-hedef-list');
-    list.innerHTML = data.oyuncular.map(o =>
-      `<li onclick="bkSelectHedef(${o.id},'${o.kral}','${o.taraf}')">${o.kral} (${o.taraf} ${o.irk} C${o.cag}) <span style="background:rgba(212,162,87,0.15);color:#d4a257;padding:1px 5px;border-radius:3px;font-size:10px;margin-left:4px">⚡ ${(o.sehir_degeri||0).toLocaleString()}</span></li>`
-    ).join('');
-  } catch(e) {}
+  const list = document.getElementById('bk-hedef-list');
+  if (!list) return;
+  if (q.length < 2) { list.innerHTML = ''; return; }
+  // Debounce 300ms
+  clearTimeout(_bkHedefTimer);
+  _bkHedefTimer = setTimeout(async () => {
+    try {
+      const token = getToken();
+      const r = await fetch(`${API}/api/buyucu-kulesi/oyuncu-ara?q=${encodeURIComponent(q)}`, { headers: { Authorization: `Bearer ${token}` } });
+      const data = await r.json();
+      if (!data.ok) return;
+      const el = document.getElementById('bk-hedef-list');
+      if (!el) return;
+      el.innerHTML = data.oyuncular.map(o =>
+        `<li onclick="bkSelectHedef(${o.id},'${o.kral.replace(/'/g,"\\'")}','${o.taraf}')">${o.kral} (${o.taraf} ${o.irk} C${o.cag}) <span style="background:rgba(212,162,87,0.15);color:#d4a257;padding:1px 5px;border-radius:3px;font-size:10px;margin-left:4px">⚡ ${(o.sehir_degeri||0).toLocaleString()}</span></li>`
+      ).join('');
+      // Fokusu koru (re-render sonrasi)
+      const inp = document.getElementById('bk-hedef-input');
+      if (inp && document.activeElement !== inp) inp.focus();
+    } catch(e) {}
+  }, 300);
 }
 
 function bkSelectHedef(id, kral, taraf) {
