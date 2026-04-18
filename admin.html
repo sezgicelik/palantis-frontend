@@ -2297,7 +2297,7 @@ async function muhasebeEsikKaydet() {
   alert('Muhasebe esik kaydedildi: %'+esik);
 }
 
-// v1.13.59: Anomali detay tablo + CSV indir
+// v1.13.60: Anomali detay tablo + CSV indir — YENI "Aciklanabilir Delta Sapma"
 async function anomaliDetayYukle() {
   const box = document.getElementById('anomali-detay-box');
   const content = document.getElementById('anomali-detay-content');
@@ -2311,31 +2311,37 @@ async function anomaliDetayYukle() {
 
     const m = d.meta || {};
     const fmtN = n => (n||0).toLocaleString('tr-TR');
+    const fmtSigned = n => (n>=0?'+':'') + fmtN(n);
     meta.innerHTML = `
-      Ortalama altin: <b>${fmtN(m.ortalama_altin)}</b> · Altin 10x esik: <b>${fmtN(m.altin_10x_esik)}</b> · Muhasebe esik: <b>%${m.muhasebe_esik_yuzde}</b><br>
+      <div style="padding:8px;background:#111;border-left:3px solid #3498db;margin-bottom:6px">
+        <b style="color:#3498db">📐 Formul:</b> Sapma = Gercek Fark (DB snapshot) − Aciklanan (log parse gelir-gider)<br>
+        <b style="color:#e67e22">⚠️ Asiri Gider:</b> gider > (eski + gelir) × 1.5 → imkansiz eylem (senin ornegin: mana yetmeden buyucu)
+      </div>
+      Altin sapma esik: <b>${fmtN(m.altin_sapma_esik)}</b> · Oran esik: <b>%${m.yuzde_esik}</b><br>
       Toplam oyuncu: <b>${m.toplam_oyuncu}</b> · Flag olan: <b style="color:#e74c3c">${m.flag_olan_oyuncu}</b>
     `;
 
     const rows = (d.detay || []).map(x => {
       const flagRenk = x.flag_sayisi > 0 ? '#e74c3c' : '#27ae60';
-      const cellYesil = v => v ? '<span style="color:#27ae60">✓</span>' : '<span style="color:#555">—</span>';
-      const cellKirmizi = v => v ? '<span style="color:#e74c3c;font-weight:bold">⛔</span>' : '<span style="color:#555">—</span>';
+      const ic = v => v ? '<span style="color:#e74c3c;font-weight:bold">⛔</span>' : '<span style="color:#555">—</span>';
+      const farkR = n => n>0?'#27ae60':(n<0?'#e74c3c':'#888');
       return `<tr>
         <td>${x.player_id}</td>
         <td style="color:#d4af37">${x.kral}</td>
         <td>C${x.cag||'?'}</td>
         <td style="text-align:right;color:#f1c40f">${fmtN(x.altin)}</td>
         <td style="text-align:right;color:#888">${fmtN(x.eski_altin)}</td>
-        <td style="text-align:right;color:${x.fark_altin>0?'#27ae60':(x.fark_altin<0?'#e74c3c':'#888')}">${x.fark_altin>=0?'+':''}${fmtN(x.fark_altin)}</td>
-        <td style="text-align:right">${fmtN(x.fark_odun)}</td>
-        <td style="text-align:right">${fmtN(x.fark_metal)}</td>
-        <td style="text-align:right;color:#e67e22">${fmtN(x.toplam_artis)}</td>
-        <td style="text-align:center">${x.aktivite_24h}</td>
-        <td style="text-align:center">${x.hizli_insaat_1h}</td>
-        <td style="text-align:center">${cellKirmizi(x.test_1_altin_10x)}</td>
-        <td style="text-align:center">${cellKirmizi(x.test_2_uretim)}</td>
-        <td style="text-align:center">${cellKirmizi(x.test_3_hizli_insaat)}</td>
-        <td style="text-align:center">${cellKirmizi(x.test_4_muhasebe)}</td>
+        <td style="text-align:right;color:${farkR(x.fark_altin)}">${fmtSigned(x.fark_altin)}</td>
+        <td style="text-align:right;color:#27ae60">${fmtN(x.gelir_altin)}</td>
+        <td style="text-align:right;color:#e74c3c">${fmtN(x.gider_altin)}</td>
+        <td style="text-align:right;color:#3498db">${fmtSigned(x.aciklanan_altin)}</td>
+        <td style="text-align:right;color:${Math.abs(x.sapma_altin)>100000?'#e74c3c':'#888'};font-weight:${Math.abs(x.sapma_altin)>100000?'bold':'normal'}">${fmtSigned(x.sapma_altin)}</td>
+        <td style="text-align:center;color:${x.sapma_yuzde_altin>30?'#e74c3c':'#888'}">${x.sapma_yuzde_altin}%</td>
+        <td style="text-align:center;color:${x.max_sapma_yuzde>30?'#e74c3c':'#888'}">%${x.max_sapma_yuzde} (${x.max_sapma_kaynak||'-'})</td>
+        <td style="text-align:center;color:${x.asiri_gider_oran>150?'#e67e22':'#555'}">${x.asiri_gider_oran?('%'+x.asiri_gider_oran+' '+x.asiri_gider_kaynak):'—'}</td>
+        <td style="text-align:center">${ic(x.flag_altin)}</td>
+        <td style="text-align:center">${ic(x.flag_yuzde)}</td>
+        <td style="text-align:center">${ic(x.flag_asiri_gider)}</td>
         <td style="text-align:center;color:${flagRenk};font-weight:bold">${x.flag_sayisi}</td>
       </tr>`;
     }).join('');
@@ -2344,20 +2350,23 @@ async function anomaliDetayYukle() {
       <table style="font-size:10px;width:100%;border-collapse:collapse">
         <thead style="background:#2a2a2a;position:sticky;top:0">
           <tr>
-            <th>ID</th><th>Kral</th><th>Cag</th>
-            <th>Altin</th><th>24s Once</th><th>Fark</th>
-            <th>Fark Odun</th><th>Fark Metal</th>
-            <th>Toplam Artis</th>
-            <th title="24s aktivite">A24h</th>
-            <th title="1s bina sayisi">B1h</th>
-            <th title="Altin 10x">T1</th>
-            <th title="Harcamasiz uretim">T2</th>
-            <th title="Hizli insaat">T3</th>
-            <th title="Muhasebe">T4</th>
+            <th>ID</th><th>Kral</th><th>Çağ</th>
+            <th>Altın</th><th>24s Önce</th>
+            <th title="Gercek delta">Gerçek Fark</th>
+            <th title="Log gelir toplami">Gelir</th>
+            <th title="Log gider toplami">Gider</th>
+            <th title="Gelir - Gider">Açıklanan</th>
+            <th title="Gercek - Aciklanan">Sapma</th>
+            <th>Sapma%</th>
+            <th title="Tum kaynaklarda max sapma">Max %</th>
+            <th title="gider / (eski+gelir) × 100 %">Asiri Gider</th>
+            <th title="|Sapma|>100K ise">⛔Altin</th>
+            <th title="Sapma%>30 ise">⛔Oran</th>
+            <th title="Asiri gider %150+ ise">⛔Gider</th>
             <th>Flag</th>
           </tr>
         </thead>
-        <tbody>${rows || '<tr><td colspan=16 style="text-align:center;color:#888">Veri yok</td></tr>'}</tbody>
+        <tbody>${rows || '<tr><td colspan=17 style="text-align:center;color:#888">Veri yok</td></tr>'}</tbody>
       </table>
     `;
   } catch(e) { content.innerHTML = '<span style="color:#e74c3c">Baglanti hatasi</span>'; }
