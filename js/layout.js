@@ -262,8 +262,8 @@ function renderHUD(){
         </div>
       </div>
     </div>
-    <!-- v1.13.22: Gelen ordular detay paneli (tikla ac/kapa) -->
-    <div id="hud-gelen-panel" style="display:none;position:fixed;top:auto;bottom:10px;right:10px;width:320px;max-width:92vw;max-height:60vh;overflow-y:auto;background:linear-gradient(180deg,#1a0e06,#110804);border:1px solid #c0392b;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,0.8);z-index:99998;padding:12px">
+    <!-- v1.13.42.2: Gelen ordular detay paneli HUD'un altinda + sayfada scroll olabilir (yukarı taşmaz) -->
+    <div id="hud-gelen-panel" style="display:none;position:fixed;top:160px;right:10px;width:360px;max-width:92vw;max-height:calc(100vh - 180px);overflow-y:auto;background:linear-gradient(180deg,#1a0e06,#110804);border:1px solid #c0392b;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,0.8);z-index:99998;padding:12px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(231,76,60,0.3)">
         <span style="font-family:'Cinzel',serif;color:#e74c3c;font-size:13px;font-weight:bold">🎯 Şehrime Gelen Ordular</span>
         <button onclick="toggleGelenOrdular()" style="background:none;border:none;color:#888;cursor:pointer;font-size:18px">✕</button>
