@@ -8,10 +8,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/main.css?v=13422">
-<!-- v1.13.48: PWA manifest + theme -->
-<link rel="manifest" href="/manifest.json">
+<!-- v1.13.48: PWA manifest + theme (v1.13.49.2: relative path fix — GitHub Pages subpath) -->
+<link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#0a0a0a">
-<link rel="apple-touch-icon" href="/icons/icon-192.svg">
+<link rel="apple-touch-icon" href="./icons/icon-192.svg">
 </head>
 <body>
 
@@ -239,10 +239,10 @@
 function featureToggle(el) {
   el.classList.toggle('acik');
 }
-// v1.13.48: Service worker register (PWA)
+// v1.13.48: Service worker register (PWA) — v1.13.49.2: relative path (GitHub Pages subpath)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('/sw.js').catch(function(e) { console.log('[SW] register failed:', e.message); });
+    navigator.serviceWorker.register('./sw.js').catch(function(e) { console.log('[SW] register failed:', e.message); });
   });
 }
 </script>

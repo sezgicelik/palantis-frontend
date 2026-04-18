@@ -2,7 +2,8 @@
   "name": "Noxara — Karanlik Caglarin Strateji Dunyasi",
   "short_name": "Noxara",
   "description": "Ortacag fantazi tarayici tabanli MMO strateji oyunu",
-  "start_url": "/index.html",
+  "start_url": "./home.html",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#0a0a0a",
@@ -10,13 +11,13 @@
   "lang": "tr",
   "icons": [
     {
-      "src": "/icons/icon-192.svg",
+      "src": "icons/icon-192.svg",
       "sizes": "192x192",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     },
     {
-      "src": "/icons/icon-512.svg",
+      "src": "icons/icon-512.svg",
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
