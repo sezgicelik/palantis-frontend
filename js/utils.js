@@ -2,15 +2,13 @@
 
 function numFmt(v){
   // Sayiyi binlik ayiracli formatla (Turkce: 1.234.567)
+  // v1.13.58.1: String branch kaldirildi — TR locale "218.168" zaten formatli,
+  //             regex bunu float sanip Math.floor yapiyordu (218 bug'i)
   const n = Number(v);
   if(typeof v === 'number' && Number.isFinite(n)){
     return Math.floor(n).toLocaleString('tr-TR');
   }
-  // String olarak gelen sayilari da format et
-  if (typeof v === 'string' && v.match(/^-?\d+(\.\d+)?$/)) {
-    return Math.floor(Number(v)).toLocaleString('tr-TR');
-  }
-  return v;
+  return v; // Zaten string/formatlanmissa dokunma
 }
 
 // v1.13.55: Global alias — tum sayfalarda fmt(n) kullanilabilir

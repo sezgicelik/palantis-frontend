@@ -259,7 +259,7 @@ function updateCityStats(){
   const toplamDef = window._palantisToplamDef || 0;
   const orduDegeri = Math.floor((toplamAtk + toplamDef) / 2);
   const sehirDegeri = binaDegeri + orduDegeri;
-  setText('hud-sehir-deger', sehirDegeri.toLocaleString());
+  setText('hud-sehir-deger', sehirDegeri); // v1.13.58.1: int ver, setText numFmt formatlar — double format bug fix
   // Ana ekran hızlı stats
   const bEl=document.getElementById('hs-bina'); if(bEl) bEl.textContent=active;
   const aEl=document.getElementById('hs-alan'); if(aEl) aEl.textContent=usedArea+'/'+landVal;

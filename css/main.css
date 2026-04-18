@@ -330,6 +330,7 @@ body{padding-top:130px;}
 .hud-res-row::-webkit-scrollbar{display:none;}
 
 /* ── STAT BOX: Tek kaynak kutusu ── */
+/* v1.13.58.1: min-width 140px — tum kutular esit genislikte hizali gorunum */
 .stat-box{
   display:inline-flex;
   align-items:center;
@@ -342,10 +343,12 @@ body{padding-top:130px;}
   cursor:default;
   transition:all .18s;
   position:relative;
-  min-width:0;
+  min-width:140px;
+  flex:1 1 140px;
   overflow:hidden;
   text-overflow:ellipsis;
 }
+.stat-box.stat-empty{min-width:0;flex:1 1 0;border:none;background:none;}
 .stat-box:hover{
   background:rgba(200,169,110,0.06);
   border-color:rgba(200,169,110,0.25);
