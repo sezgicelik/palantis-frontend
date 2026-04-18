@@ -49,9 +49,20 @@ async function loadCasus() {
               else kalanStr = ' (Donus bekleniyor)';
             }
             var canBar = c.can !== undefined ? '<div style="font-size:8px;color:#888;margin-top:2px">❤️ ' + (c.can||0) + '/100 | XP: ' + (c.deneyim||0) + '</div>' : '';
+            // v1.13.43: Gorevdeki casus icin gorev + hedef bilgisi
+            var gorevSatir = '';
+            if (c.durum === 'gorevde' && c.gorev_tipi) {
+              var gIkon = GOREV_IKONLARI[c.gorev_tipi] || '🕵️';
+              var gIsim = GOREV_ISIMLERI[c.gorev_tipi] || c.gorev_tipi;
+              var gRenk = GOREV_RENK[c.gorev_tipi] || '#888';
+              var hedefAdi = c.hedef_kral ? _escCasus(c.hedef_kral) : '?';
+              gorevSatir = '<div style="font-size:9px;margin-top:2px;color:' + gRenk + '">' +
+                gIkon + ' <b>' + _escCasus(gIsim) + '</b> → ' + hedefAdi +
+              '</div>';
+            }
             return '<div style="padding:6px 0;border-bottom:1px solid #1a1a1a">' +
               '<div style="display:flex;align-items:center;justify-content:space-between">' +
-                '<div><span style="font-size:12px">🕵️</span> Casus #' + c.id + ' <span style="font-size:9px;color:#888">Sv.' + (c.seviye||1) + '</span>' + canBar + '</div>' +
+                '<div><span style="font-size:12px">🕵️</span> Casus #' + c.id + ' <span style="font-size:9px;color:#888">Sv.' + (c.seviye||1) + '</span>' + canBar + gorevSatir + '</div>' +
                 '<div style="display:flex;align-items:center;gap:6px">' +
                   '<span style="font-size:10px;color:' + durumRenk + '">' + c.durum + kalanStr + '</span>' +
                   (c.durum === 'hazir' ? '<button class="btn-action" style="width:auto;padding:3px 8px;font-size:9px" onclick="casusGonderModal(' + c.id + ')">Goreve Gonder</button>' : '') +
@@ -135,6 +146,61 @@ async function casusGonder(casusId, gorevTipi) {
   } catch(e) { alert('Hata'); }
 }
 
+// v1.13.43: Casus rapor detay formatlama
+var KAYNAK_ISIM = {
+  altin:'altın', odun:'odun', kereste:'kereste', metal:'metal', islenmis:'işlenmiş',
+  bugday:'buğday', balik:'balık', ekmek:'ekmek', pismis:'pişmiş balık', pismis_et:'pişmiş et'
+};
+function _fmtNum(n){ n=parseInt(n)||0; return n.toLocaleString('tr-TR'); }
+function _escCasus(s){ s=String(s==null?'':s); return s.replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+function casusDetayMetin(r) {
+  var s = r.sonuc || {};
+  if (typeof s === 'string') { try { s = JSON.parse(s); } catch(e){ s = {}; } }
+  var d = s.detay || {};
+  if (!r.basarili) return 'Casus görevi başaramadı.';
+  switch (r.gorev_tipi) {
+    case 'kaynak_hirsizligi':
+    case 'yemek_hirsizligi': {
+      var c = d.calinan || {};
+      var parca = Object.keys(c).filter(function(k){ return (parseInt(c[k])||0) > 0; })
+        .map(function(k){ return _fmtNum(c[k]) + ' ' + (KAYNAK_ISIM[k]||k); });
+      if (!parca.length) return 'Çalacak bir şey bulunamadı.';
+      return '💰 Çalınan: ' + parca.join(', ');
+    }
+    case 'sabotaj':
+      return '💣 ' + (d.hasarli||0) + ' binaya sabotaj yapıldı (20-40 dayanıklılık hasarı).';
+    case 'kargasa':
+      return '🔥 Şehirde kargaşa çıkarıldı! Hedef moral -100.';
+    case 'katliam':
+      return '💀 ' + _fmtNum(d.oldurulen||0) + ' köylü öldürüldü.';
+    case 'ordu_incele': {
+      var ord = d.ordular || [];
+      if (!ord.length) return 'Hedefin ordusu bulunamadı.';
+      return '⚔️ ' + ord.length + ' ordu tespit edildi:<br>' + ord.map(function(a){
+        return '&nbsp;&nbsp;• <b>' + _escCasus(a.isim||'Ordu') + '</b>: ' + _fmtNum(a.toplam_unite) + ' ünite, ATK ' + _fmtNum(a.toplam_atk) + ' / DEF ' + _fmtNum(a.toplam_def) + ' (' + _escCasus(a.durum||'?') + ')';
+      }).join('<br>');
+    }
+    case 'ordu_saldiri_incele': {
+      var ord2 = d.ordular || [];
+      if (!ord2.length) return 'Hedef ordu hareketi yok.';
+      return '🎯 ' + ord2.map(function(a){ return _escCasus(a.isim||'?') + ' (' + _escCasus(a.durum||'?') + ', ' + _fmtNum(a.toplam_unite) + ' ünite)'; }).join(', ');
+    }
+    case 'koloni_incele': {
+      var kol = d.koloniler || [];
+      if (!kol.length) return 'Hedefin kolonisi yok.';
+      return '🏰 ' + kol.length + ' koloni: ' + kol.map(function(k){ return (k.kaynak_tipi||'?') + ' (+%' + (k.bonus_oran||0) + ')'; }).join(', ');
+    }
+    case 'bolge_incele':
+      return '🗺️ Bölge: ' + (d.bolge_id||'?') + ' · Koordinat: ' + (d.koord||'?');
+    case 'stratejik_bilgiler':
+      return '📊 Hedef ordu morali: ' + (d.ordu_morali!=null? d.ordu_morali : '?');
+    case 'bilim_hirsizligi':
+      return '📚 ' + (d.mesaj || 'Bilim hırsızlığı denendi');
+    default:
+      return d.mesaj || '';
+  }
+}
+
 async function loadCasusRaporlar() {
   var token = getToken(); if (!token) return;
   var el = document.getElementById('casus-raporlar');
@@ -146,7 +212,17 @@ async function loadCasusRaporlar() {
     el.innerHTML = '<div class="card"><div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">📋 Raporlar</div>' +
       data.map(function(r) {
         var icon = r.basarili ? '✅' : '❌';
-        return '<div style="font-size:10px;padding:3px 0;border-bottom:1px solid #1a1a1a">' + icon + ' ' + r.gorev_tipi + ' → ' + (r.hedef_adi||'?') + ' <span style="color:#555">' + new Date(r.created_at).toLocaleString('tr-TR') + '</span></div>';
+        var gorevIkon = GOREV_IKONLARI[r.gorev_tipi] || '🕵️';
+        var gorevIsim = GOREV_ISIMLERI[r.gorev_tipi] || r.gorev_tipi;
+        var detay = casusDetayMetin(r);
+        var renk = r.basarili ? '#2ecc71' : '#e74c3c';
+        return '<div style="font-size:10px;padding:6px 4px;border-bottom:1px solid #1a1a1a">' +
+          '<div style="display:flex;justify-content:space-between;gap:6px">' +
+            '<span>' + icon + ' ' + gorevIkon + ' <b>' + _escCasus(gorevIsim) + '</b> → ' + _escCasus(r.hedef_adi||'?') + '</span>' +
+            '<span style="color:#555;font-size:9px;white-space:nowrap">' + new Date(r.created_at).toLocaleString('tr-TR') + '</span>' +
+          '</div>' +
+          (detay ? '<div style="margin-top:3px;color:' + renk + ';padding-left:18px">' + detay + '</div>' : '') +
+          '</div>';
       }).join('') + '</div>';
   } catch(e) {}
 }
