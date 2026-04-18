@@ -600,13 +600,22 @@
   <div id="tab-anomali" class="panel">
     <h3>Anomali & Guvenlik Loglari</h3>
     <p style="font-size:10px;color:var(--muted);margin-bottom:10px">Harcamasiz uretim, hizli insaat, muhasebe denetimi sonuclari</p>
-    <div style="margin-bottom:10px;display:flex;gap:6px;align-items:center">
+    <div style="margin-bottom:10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
       <span style="font-size:10px;color:var(--muted)">Muhasebe esik:</span>
       <input id="muh-esik" type="number" value="30" min="1" max="100" style="width:50px;padding:2px;background:#111;border:1px solid #333;color:#ddd">
       <span style="font-size:9px;color:#555">%</span>
       <button class="act" onclick="muhasebeEsikKaydet()">Kaydet</button>
+      <span style="flex:1"></span>
+      <button class="act" onclick="anomaliDetayYukle()" style="background:#2980b9">🔍 Detay Tablosu Goster</button>
+      <button class="act" onclick="anomaliCsvIndir()" style="background:#27ae60">📊 CSV (Excel) Indir</button>
     </div>
     <div id="anomali-list">Yukleniyor...</div>
+    <!-- v1.13.59: Anomali detay tablosu -->
+    <div id="anomali-detay-box" style="margin-top:18px;display:none">
+      <h4 style="color:#3498db;margin-bottom:6px">🔍 Anomali Hesap Detayi (tum oyuncular)</h4>
+      <div id="anomali-detay-meta" style="font-size:11px;color:#888;margin-bottom:8px"></div>
+      <div id="anomali-detay-content" style="overflow-x:auto"></div>
+    </div>
   </div>
 
   <!-- ═══ TATİL & ATEŞKES ═══ -->
@@ -2286,6 +2295,92 @@ async function muhasebeEsikKaydet() {
   const esik = parseInt(document.getElementById('muh-esik')?.value) || 30;
   await fetch(API+'/api/admin/muhasebe-esik',{method:'POST',headers:hdr(),body:JSON.stringify({esik})});
   alert('Muhasebe esik kaydedildi: %'+esik);
+}
+
+// v1.13.59: Anomali detay tablo + CSV indir
+async function anomaliDetayYukle() {
+  const box = document.getElementById('anomali-detay-box');
+  const content = document.getElementById('anomali-detay-content');
+  const meta = document.getElementById('anomali-detay-meta');
+  box.style.display = 'block';
+  content.innerHTML = 'Yukleniyor...';
+  try {
+    const r = await fetch(API+'/api/admin/anomali-detay', {headers:hdr()});
+    const d = await r.json();
+    if (!d.ok) { content.innerHTML = '<span style="color:#e74c3c">Hata: '+(d.error||'?')+'</span>'; return; }
+
+    const m = d.meta || {};
+    const fmtN = n => (n||0).toLocaleString('tr-TR');
+    meta.innerHTML = `
+      Ortalama altin: <b>${fmtN(m.ortalama_altin)}</b> · Altin 10x esik: <b>${fmtN(m.altin_10x_esik)}</b> · Muhasebe esik: <b>%${m.muhasebe_esik_yuzde}</b><br>
+      Toplam oyuncu: <b>${m.toplam_oyuncu}</b> · Flag olan: <b style="color:#e74c3c">${m.flag_olan_oyuncu}</b>
+    `;
+
+    const rows = (d.detay || []).map(x => {
+      const flagRenk = x.flag_sayisi > 0 ? '#e74c3c' : '#27ae60';
+      const cellYesil = v => v ? '<span style="color:#27ae60">✓</span>' : '<span style="color:#555">—</span>';
+      const cellKirmizi = v => v ? '<span style="color:#e74c3c;font-weight:bold">⛔</span>' : '<span style="color:#555">—</span>';
+      return `<tr>
+        <td>${x.player_id}</td>
+        <td style="color:#d4af37">${x.kral}</td>
+        <td>C${x.cag||'?'}</td>
+        <td style="text-align:right;color:#f1c40f">${fmtN(x.altin)}</td>
+        <td style="text-align:right;color:#888">${fmtN(x.eski_altin)}</td>
+        <td style="text-align:right;color:${x.fark_altin>0?'#27ae60':(x.fark_altin<0?'#e74c3c':'#888')}">${x.fark_altin>=0?'+':''}${fmtN(x.fark_altin)}</td>
+        <td style="text-align:right">${fmtN(x.fark_odun)}</td>
+        <td style="text-align:right">${fmtN(x.fark_metal)}</td>
+        <td style="text-align:right;color:#e67e22">${fmtN(x.toplam_artis)}</td>
+        <td style="text-align:center">${x.aktivite_24h}</td>
+        <td style="text-align:center">${x.hizli_insaat_1h}</td>
+        <td style="text-align:center">${cellKirmizi(x.test_1_altin_10x)}</td>
+        <td style="text-align:center">${cellKirmizi(x.test_2_uretim)}</td>
+        <td style="text-align:center">${cellKirmizi(x.test_3_hizli_insaat)}</td>
+        <td style="text-align:center">${cellKirmizi(x.test_4_muhasebe)}</td>
+        <td style="text-align:center;color:${flagRenk};font-weight:bold">${x.flag_sayisi}</td>
+      </tr>`;
+    }).join('');
+
+    content.innerHTML = `
+      <table style="font-size:10px;width:100%;border-collapse:collapse">
+        <thead style="background:#2a2a2a;position:sticky;top:0">
+          <tr>
+            <th>ID</th><th>Kral</th><th>Cag</th>
+            <th>Altin</th><th>24s Once</th><th>Fark</th>
+            <th>Fark Odun</th><th>Fark Metal</th>
+            <th>Toplam Artis</th>
+            <th title="24s aktivite">A24h</th>
+            <th title="1s bina sayisi">B1h</th>
+            <th title="Altin 10x">T1</th>
+            <th title="Harcamasiz uretim">T2</th>
+            <th title="Hizli insaat">T3</th>
+            <th title="Muhasebe">T4</th>
+            <th>Flag</th>
+          </tr>
+        </thead>
+        <tbody>${rows || '<tr><td colspan=16 style="text-align:center;color:#888">Veri yok</td></tr>'}</tbody>
+      </table>
+    `;
+  } catch(e) { content.innerHTML = '<span style="color:#e74c3c">Baglanti hatasi</span>'; }
+}
+
+async function anomaliCsvIndir() {
+  // CSV direkt backend'den download (browser save dialog)
+  const url = API + '/api/admin/anomali-detay?format=csv&secret=' + encodeURIComponent(SECRET);
+  // secret query ile gonderme — simpler. Ama backend checkSecret header bekliyor.
+  // Dogru yol: fetch + blob
+  try {
+    const r = await fetch(API + '/api/admin/anomali-detay?format=csv', { headers: hdr() });
+    if (!r.ok) { alert('CSV alinamadi: ' + r.status); return; }
+    const blob = await r.blob();
+    const href = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = href;
+    a.download = `anomali-detay-${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(href);
+  } catch(e) { alert('Hata: ' + e.message); }
 }
 
 // ═══ TATİL & ATEŞKES ═══
