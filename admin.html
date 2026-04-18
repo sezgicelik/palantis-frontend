@@ -825,17 +825,34 @@ function renderMoralTarihcesi(d) {
   const tarihceRows = d.tarihce.map(t => {
     const etkiColor = t.etki > 0 ? '#27ae60' : (t.etki < 0 ? '#e74c3c' : '#888');
     const moralColor = t.sim_moral_sonrasi >= 70 ? '#27ae60' : (t.sim_moral_sonrasi >= 30 ? '#f39c12' : '#e74c3c');
-    // Maas tutari -> yaklasik asker tahmini (ortalama 62 altin/asker, piyade/suvari/paladin karisimi)
     const tahminAsker = t.maas_tutari ? Math.round(t.maas_tutari / 62) : null;
+    // v1.13.53: Snapshot ile gercek birim listesi — yoksa "—"
+    let birimStr = '<span style="color:#555">snapshot yok</span>';
+    if (t.ordu_snapshot && t.ordu_snapshot.length) {
+      birimStr = t.ordu_snapshot.map(os => {
+        const unitPairs = Object.entries(os.units || {})
+          .filter(([k,v]) => v > 0)
+          .map(([k,v]) => `${k}:${v}`)
+          .join(', ');
+        return `<div style="margin-bottom:2px"><b style="color:#d4af37">${os.ordu_isim||('#'+os.ordu_id)}</b> (${os.toplam_asker}): <span style="color:#aaa">${unitPairs||'—'}</span></div>`;
+      }).join('');
+    }
     return `<tr>
       <td>${t.tarih}</td>
       <td style="color:${etkiColor};font-weight:600">${t.etki>0?'+':''}${t.etki}</td>
       <td style="color:${moralColor};font-weight:600">%${t.sim_moral_sonrasi}</td>
       <td style="text-align:right;color:#f1c40f">${fmtN(t.maas_tutari)}</td>
       <td style="text-align:right;color:#d4af37;font-size:11px">${tahminAsker?'~'+fmtN(tahminAsker):'—'}</td>
+      <td style="font-size:10px;max-width:300px">${birimStr}</td>
       <td style="color:#aaa;font-size:11px">${t.mesaj||''}</td>
     </tr>`;
   }).join('');
+
+  // v1.13.53 A: Mevcut ordu kompozisyonu (tepede sabit kart) — snapshot YOK olanlar icin referans
+  const mevcutKompHtml = d.ordular.length ? d.ordular.map(or => {
+    const unitPairs = (or.units || []).filter(u => u.adet > 0).map(u => `${u.unite_id}:${u.adet}`).join(', ') || '—';
+    return `<div style="margin-bottom:4px"><b style="color:#d4af37">${or.isim||('#'+or.id)}</b> (${or.toplam_asker} asker · ham guc ${fmtN(or.ham_guc)}): <span style="color:#aaa">${unitPairs}</span></div>`;
+  }).join('') : '<span style="color:#888">Ordu yok</span>';
 
   const orduRows = d.ordular.map(or => {
     const unitList = (or.units||[]).map(u => `${u.unite_id}:${u.adet}`).join(', ') || '—';
@@ -875,19 +892,26 @@ function renderMoralTarihcesi(d) {
       </div>
     </div>
 
+    <div class="card" style="margin-bottom:12px;border-left:3px solid #3498db">
+      <h4 style="margin:0 0 8px 0;color:#3498db">📸 Mevcut Ordu Kompozisyonu (Anlik Referans)</h4>
+      <div style="font-size:11px;line-height:1.5">${mevcutKompHtml}</div>
+      <p style="font-size:10px;color:#888;margin-top:8px">v1.13.53: Bu kart <b>SU ANKI</b> ordu durumunu gosterir. Gecmis satirlarda "snapshot yok" yaziyorsa, o tarihte snapshot alinmamisti (sistem yeni aktif). Sonraki cron'lardan itibaren her PG icin snapshot kaydedilir.</p>
+    </div>
+
     <div class="card" style="margin-bottom:12px">
-      <h4 style="margin:0 0 8px 0">📜 Maas Gecmisi (Yeni → Eski) — Maas tutari = o anki ordu buyuklugunun gostergesi</h4>
+      <h4 style="margin:0 0 8px 0">📜 Maas Gecmisi (Yeni → Eski) — Maas tutari + o anki birim listesi</h4>
       <div style="max-height:400px;overflow-y:auto">
         <table style="width:100%;font-size:12px"><thead>
           <tr style="background:#333;color:#fff">
             <th>Tarih</th><th>Etki</th><th>Sim Moral</th>
             <th style="text-align:right">Maas</th>
             <th style="text-align:right">~Asker*</th>
+            <th>Birimler (snapshot)</th>
             <th>Mesaj</th>
           </tr>
-        </thead><tbody>${tarihceRows||'<tr><td colspan=6 style="text-align:center;color:#888">Hic maas event yok</td></tr>'}</tbody></table>
+        </thead><tbody>${tarihceRows||'<tr><td colspan=7 style="text-align:center;color:#888">Hic maas event yok</td></tr>'}</tbody></table>
       </div>
-      <p style="font-size:10px;color:#888;margin-top:6px">* Yaklasik asker = maas / 62 (karisik ordu ortalama birim maasi). Ortalamadan sapabilir ama trendi gosterir.</p>
+      <p style="font-size:10px;color:#888;margin-top:6px">* Yaklasik asker = maas / 62 (karisik ordu ortalama birim maasi). · Birimler = snapshot tablosundan (v1.13.53 sonrasi kayitli).</p>
     </div>
 
     <div class="card" style="margin-bottom:12px">
