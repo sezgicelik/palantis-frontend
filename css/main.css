@@ -289,8 +289,8 @@ body{
   max-width:960px;
   margin:0 auto;
 }
-/* Body padding-top: HUD yuksekligi kadar bosluk birak (4 satir HUD) */
-body{padding-top:130px;}
+/* Body padding-top: v1.13.61 — sadece HAM sticky satiri icin (detay overlay) */
+body{padding-top:38px;}
 .hud-toggle-btn{display:none;position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);background:rgba(14,8,2,0.95);border:1px solid rgba(200,169,110,0.3);border-top:none;border-radius:0 0 8px 8px;padding:1px 12px;cursor:pointer;color:#c9a84c;font-size:10px;z-index:901;}
 
 .hud-row-wrap{
@@ -1186,8 +1186,8 @@ body{padding-top:130px;}
   .hudbar{max-width:none;}
   .layout{flex-direction:column;}
 
-  /* HUD bar */
-  body{padding-top:140px;}
+  /* HUD bar — v1.13.61 sadece HAM sticky */
+  body{padding-top:42px;}
   .hudbar{font-size:11px;}
   .hud-row-lbl{min-width:32px;font-size:7px;padding:0 3px;}
   .stat-box{padding:3px 6px;gap:3px;}
@@ -1281,10 +1281,9 @@ body{padding-top:130px;}
   .ob-step-title{font-size:.85rem !important;}
   .ob-step-label{font-size:.55rem !important;}
 
-  /* HUD bar mobil — sadece ilk 2 satir gorunur, geri kalanlar gizli */
-  body{padding-top:60px;}
-  .hudbar{overflow:hidden;max-height:58px;transition:max-height .3s;}
-  .hudbar.expanded{max-height:160px;}
+  /* HUD bar mobil — v1.13.61 tek HAM satiri sticky, detay overlay ile */
+  body{padding-top:32px;}
+  .hudbar{overflow:visible;} /* overlay icin visible */
   .hud-row-wrap{min-height:22px;}
   .hud-row-lbl{min-width:20px;font-size:5px;padding:0 1px;}
   .stat-box{padding:1px 3px;gap:1px;}
@@ -1340,7 +1339,7 @@ body{padding-top:130px;}
    RESPONSIVE — Fold/küçük ekran (360px)
 ═══════════════════════════════════════ */
 @media (max-width: 360px) {
-  body{padding-top:125px;}
+  body{padding-top:32px;} /* v1.13.61 tek HAM sticky */
   .main-content{padding:10px 8px;}
   .card{padding:12px;}
   .stat-box{padding:1px 3px;}

@@ -166,117 +166,117 @@ function renderHUD(){
     <!-- Ateşkes / Tatil Banner -->
     <div id="hud-ateskes-banner" style="display:none;background:rgba(231,76,60,0.15);border-bottom:1px solid rgba(231,76,60,0.3);padding:3px 10px;text-align:center;font-size:9px;color:#e74c3c;font-family:Cinzel,serif;letter-spacing:1px">⚔️ ATEŞKES AKTİF</div>
     <div id="hud-tatil-banner" style="display:none;background:rgba(46,204,113,0.15);border-bottom:1px solid rgba(46,204,113,0.3);padding:3px 10px;text-align:center;font-size:9px;color:#2ecc71;font-family:Cinzel,serif;letter-spacing:1px">🏖️ TATİL MODU</div>
-    <!-- HAM: Odun Metal Bugday Balik CigEt Altin -->
+    <!-- v1.13.61: YENI HUD — 1 sticky HAM satiri + 4 satir overlay detay -->
+    <!-- HAM (sticky, her zaman gorunur): Odun · Kereste · Metal · Isl.Metal · Altin · Tarih + ▼ Detay -->
     <div class="hud-row-wrap">
       <div class="hud-row-lbl">HAM</div>
       <div class="hud-res-row hud-aligned">
         ${sb('ODUN','🌳','Odun','hud-w','hud-wg')}
-        <div class="stat-box" data-tip="METAL"><span class="res-icon">${metalSvg}</span><div class="res-details"><span class="res-label">Metal</span><span class="res-amount" id="hud-m">0</span><span class="res-rate pos" id="hud-mg">+0</span></div></div>
-        ${sb('BUĞDAY','🌾','Buğday','hud-bu','hud-bug')}
-        ${sb('BALIK','🎣','Balık','hud-ba','hud-bag')}
-        ${sb('ÇİĞ ET','🥩','Çiğ Et','hud-ce',null)}
-        ${sb('ALTIN','💰','Altın','hud-g','hud-gg')}
-      </div>
-    </div>
-    <!-- ISL: Kereste IslMetal Ekmek PisBal PisEt (bos) (bos) — ayni sirada -->
-    <div class="hud-row-wrap">
-      <div class="hud-row-lbl">İŞL.</div>
-      <div class="hud-res-row hud-aligned">
         ${sb('KERESTE','🪵','Kereste','hud-ke',null)}
+        <div class="stat-box" data-tip="METAL"><span class="res-icon">${metalSvg}</span><div class="res-details"><span class="res-label">Metal</span><span class="res-amount" id="hud-m">0</span><span class="res-rate pos" id="hud-mg">+0</span></div></div>
         <div class="stat-box" data-tip="İŞL.METAL"><span class="res-icon">${islSvg}</span><div class="res-details"><span class="res-label">İşl.Metal</span><span class="res-amount" id="hud-is">0</span></div></div>
-        ${sb('EKMEK','🍞','Ekmek','hud-ek',null)}
-        ${sb('PİŞ.BALIK','🍳','Piş.Balık','hud-pb',null)}
-        ${sb('PİŞ.ET','🍖','Piş.Et','hud-pe',null)}
-        <div class="stat-box stat-empty"></div>
-        <div class="stat-box stat-empty"></div>
-      </div>
-    </div>
-    <!-- MANA (v1.13.22: Genel'in ustune alindi) -->
-    <div class="hud-row-wrap">
-      <div class="hud-row-lbl">MANA</div>
-      <div class="hud-res-row">
-        <div class="stat-box mana-box" data-tip="BEYAZ MANA" style="border-left:2px solid #f0e8d8"><span class="res-icon">🤍</span><div class="res-details"><span class="res-label" style="color:#f0e8d8">B.Mana</span><span class="res-amount" id="hud-mana-beyaz">0</span><span class="res-rate" id="hud-mana-beyaz-g"></span></div></div>
-        <div class="stat-box mana-box" data-tip="KIRMIZI MANA" style="border-left:2px solid #e74c3c"><span class="res-icon">❤️</span><div class="res-details"><span class="res-label" style="color:#e74c3c">K.Mana</span><span class="res-amount" id="hud-mana-kirmizi">0</span><span class="res-rate" id="hud-mana-kirmizi-g"></span></div></div>
-        <div class="stat-box mana-box" data-tip="MAVİ MANA" style="border-left:2px solid #3498db"><span class="res-icon">💙</span><div class="res-details"><span class="res-label" style="color:#3498db">M.Mana</span><span class="res-amount" id="hud-mana-mavi">0</span><span class="res-rate" id="hud-mana-mavi-g"></span></div></div>
-        <div class="stat-box mana-box" data-tip="YEŞİL MANA" style="border-left:2px solid #2ecc71"><span class="res-icon">💚</span><div class="res-details"><span class="res-label" style="color:#2ecc71">Y.Mana</span><span class="res-amount" id="hud-mana-yesil">0</span><span class="res-rate" id="hud-mana-yesil-g"></span></div></div>
-        ${sb('EŞEK','🫏','Eşek','hud-essek',null)}
-      </div>
-    </div>
-    <!-- GUILD (v1.13.2 — sadece guilddeyse goster) -->
-    <div class="hud-row-wrap" id="hud-guild-row" style="display:none">
-      <div class="hud-row-lbl">GUILD</div>
-      <div class="hud-res-row hud-aligned" id="hud-guild-stats"></div>
-    </div>
-    <!-- v1.13.58: GENEL 2 satira bolundu — GENEL_1 (sehir/nufus) + GENEL_2 (takvim + ordularim) -->
-    <div class="hud-row-wrap">
-      <div class="hud-row-lbl">GENEL_1</div>
-      <div class="hud-res-row">
-        ${sb('MUTLULUK','😊','Mutluluk','hud-sehir-moral',null)}
-        ${sb('O.MORAL','⚔️','O.Moral','hud-moral',null)}
-        ${sb('AÇLIK','🍽️','Açlık','hud-hunger',null)}
-        ${sb('NÜFUS','👥','Nüfus','hud-nufus-box',null)}
-        ${sb('ALAN','📐','Alan','hud-alan-box',null)}
-        ${sb('ŞEHİR','🏰','Ş.Değeri','hud-sehir-deger',null)}
-      </div>
-    </div>
-    <div class="hud-row-wrap">
-      <div class="hud-row-lbl">GENEL_2</div>
-      <div class="hud-res-row">
+        ${sb('ALTIN','💰','Altın','hud-g','hud-gg')}
         ${sb('TARİH','📅','Tarih','hud-takvim',null)}
-        ${sb('SAAT','⏰','Saat','c-now',null)}
-        <!-- v1.13.58: Ordularim — tiklayinca detay paneli acar -->
-        <div id="hud-ordularim-btn" class="stat-box" data-tip="ORDULARIM (Sehirde/Toplam)" onclick="toggleOrdularimPanel()" style="cursor:pointer;border-left:2px solid #d4af37;background:rgba(212,175,55,0.08)">
-          <span class="res-icon">🏇</span>
-          <div class="res-details">
-            <span class="res-label" style="color:#d4af37">Ordularım</span>
-            <span class="res-amount" id="hud-ordularim-sayi" style="color:#d4af37">0/0</span>
-          </div>
+        <!-- Overlay toggle butonu -->
+        <button id="hud-detay-toggle" onclick="toggleHudDetay()" style="margin-left:auto;background:linear-gradient(135deg,#d4af37,#c8a96e);color:#0a0604;border:none;padding:3px 10px;cursor:pointer;font-size:10px;font-weight:700;border-radius:3px;white-space:nowrap;font-family:Cinzel,serif;letter-spacing:1px" title="Detay panelini aç/kapa">▼ DETAY</button>
+      </div>
+    </div>
+
+    <!-- OVERLAY DETAY — position:absolute, sayfa itilmez; toggle ile acilir -->
+    <div id="hud-detay-overlay" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:9000;background:linear-gradient(180deg,#14100a,#0a0604);box-shadow:0 8px 24px rgba(0,0,0,0.85);border-bottom:2px solid #d4af37">
+      <!-- YIYECEK -->
+      <div class="hud-row-wrap">
+        <div class="hud-row-lbl">YİYECEK</div>
+        <div class="hud-res-row hud-aligned">
+          ${sb('BUĞDAY','🌾','Buğday','hud-bu','hud-bug')}
+          ${sb('EKMEK','🍞','Ekmek','hud-ek',null)}
+          ${sb('BALIK','🎣','Balık','hud-ba','hud-bag')}
+          ${sb('PİŞ.BALIK','🍳','Piş.Balık','hud-pb',null)}
+          ${sb('ÇİĞ ET','🥩','Çiğ Et','hud-ce',null)}
+          ${sb('PİŞ.ET','🍖','Piş.Et','hud-pe',null)}
         </div>
-        <!-- v1.13.33: 4 tehdit/destek gostergesi (sadece > 0 iken gorunur) -->
-        <!-- 1. Gelen Saldiri Ordusu -->
-        <div id="hud-sald-btn" class="stat-box" data-tip="GELEN SALDIRI ORDUSU" onclick="toggleGelenOrdular()" style="display:none;cursor:pointer;border-left:2px solid #e74c3c;background:rgba(231,76,60,0.08)">
-          <span class="res-icon">⚔️</span>
-          <div class="res-details">
-            <span class="res-label" style="color:#e74c3c">Saldırı</span>
-            <span class="res-amount" id="hud-sald-sayi" style="color:#e74c3c">0</span>
-          </div>
+      </div>
+      <!-- MANA -->
+      <div class="hud-row-wrap">
+        <div class="hud-row-lbl">MANA</div>
+        <div class="hud-res-row">
+          <div class="stat-box mana-box" data-tip="BEYAZ MANA" style="border-left:2px solid #f0e8d8"><span class="res-icon">🤍</span><div class="res-details"><span class="res-label" style="color:#f0e8d8">B.Mana</span><span class="res-amount" id="hud-mana-beyaz">0</span><span class="res-rate" id="hud-mana-beyaz-g"></span></div></div>
+          <div class="stat-box mana-box" data-tip="KIRMIZI MANA" style="border-left:2px solid #e74c3c"><span class="res-icon">❤️</span><div class="res-details"><span class="res-label" style="color:#e74c3c">K.Mana</span><span class="res-amount" id="hud-mana-kirmizi">0</span><span class="res-rate" id="hud-mana-kirmizi-g"></span></div></div>
+          <div class="stat-box mana-box" data-tip="MAVİ MANA" style="border-left:2px solid #3498db"><span class="res-icon">💙</span><div class="res-details"><span class="res-label" style="color:#3498db">M.Mana</span><span class="res-amount" id="hud-mana-mavi">0</span><span class="res-rate" id="hud-mana-mavi-g"></span></div></div>
+          <div class="stat-box mana-box" data-tip="YEŞİL MANA" style="border-left:2px solid #2ecc71"><span class="res-icon">💚</span><div class="res-details"><span class="res-label" style="color:#2ecc71">Y.Mana</span><span class="res-amount" id="hud-mana-yesil">0</span><span class="res-rate" id="hud-mana-yesil-g"></span></div></div>
+          ${sb('EŞEK','🫏','Eşek','hud-essek',null)}
         </div>
-        <!-- 2. Gelen Destek Ordusu -->
-        <div id="hud-takv-btn" class="stat-box" data-tip="GELEN DESTEK ORDUSU" onclick="toggleGelenOrdular()" style="display:none;cursor:pointer;border-left:2px solid #2ecc71;background:rgba(46,204,113,0.08)">
-          <span class="res-icon">🛡️</span>
-          <div class="res-details">
-            <span class="res-label" style="color:#2ecc71">Destek</span>
-            <span class="res-amount" id="hud-takv-sayi" style="color:#2ecc71">0</span>
-          </div>
+      </div>
+      <!-- GUILD (sadece guilddeyse gorunur) -->
+      <div class="hud-row-wrap" id="hud-guild-row" style="display:none">
+        <div class="hud-row-lbl">GUILD</div>
+        <div class="hud-res-row hud-aligned" id="hud-guild-stats"></div>
+      </div>
+      <!-- ISTATISTIK -->
+      <div class="hud-row-wrap">
+        <div class="hud-row-lbl">İSTATİSTİK</div>
+        <div class="hud-res-row">
+          ${sb('MUTLULUK','😊','Mutluluk','hud-sehir-moral',null)}
+          ${sb('O.MORAL','⚔️','O.Moral','hud-moral',null)}
+          ${sb('AÇLIK','🍽️','Açlık','hud-hunger',null)}
+          ${sb('NÜFUS','👥','Nüfus','hud-nufus-box',null)}
+          ${sb('ALAN','📐','Alan','hud-alan-box',null)}
+          ${sb('ŞEHİR','🏰','Ş.Değeri','hud-sehir-deger',null)}
+          ${sb('SAAT','⏰','Saat','c-now',null)}
         </div>
-        <!-- 3. Ustumdeki Agresif Buyu -->
-        <div id="hud-buagr-btn" class="stat-box" data-tip-below="USTUMDEKI AGRESIF BUYULER" onclick="toggleGelenOrdular()" style="display:none;cursor:pointer;border-left:2px solid #c0392b;background:rgba(192,57,43,0.08)">
-          <span class="res-icon">🔮</span>
-          <div class="res-details">
-            <span class="res-label" style="color:#c0392b">A.Büyü</span>
-            <span class="res-amount" id="hud-buagr-sayi" style="color:#c0392b">0</span>
+      </div>
+      <!-- ORDU — Ordularim + tehdit/destek rozetleri + rehber -->
+      <div class="hud-row-wrap">
+        <div class="hud-row-lbl">ORDU</div>
+        <div class="hud-res-row">
+          <div id="hud-ordularim-btn" class="stat-box" data-tip="ORDULARIM (Sehirde/Toplam)" onclick="toggleOrdularimPanel()" style="cursor:pointer;border-left:2px solid #d4af37;background:rgba(212,175,55,0.08)">
+            <span class="res-icon">🏇</span>
+            <div class="res-details">
+              <span class="res-label" style="color:#d4af37">Ordularım</span>
+              <span class="res-amount" id="hud-ordularim-sayi" style="color:#d4af37">0/0</span>
+            </div>
           </div>
-        </div>
-        <!-- 4. Ustumdeki Defansif Buyu -->
-        <div id="hud-budef-btn" class="stat-box" data-tip-below="USTUMDEKI DESTEK BUYULER" onclick="toggleGelenOrdular()" style="display:none;cursor:pointer;border-left:2px solid #3498db;background:rgba(52,152,219,0.08)">
-          <span class="res-icon">✨</span>
-          <div class="res-details">
-            <span class="res-label" style="color:#3498db">D.Büyü</span>
-            <span class="res-amount" id="hud-budef-sayi" style="color:#3498db">0</span>
+          <div id="hud-sald-btn" class="stat-box" data-tip="GELEN SALDIRI ORDUSU" onclick="toggleGelenOrdular()" style="display:none;cursor:pointer;border-left:2px solid #e74c3c;background:rgba(231,76,60,0.08)">
+            <span class="res-icon">⚔️</span>
+            <div class="res-details">
+              <span class="res-label" style="color:#e74c3c">Saldırı</span>
+              <span class="res-amount" id="hud-sald-sayi" style="color:#e74c3c">0</span>
+            </div>
           </div>
-        </div>
-        <!-- v1.13.21: Rehber butonu -->
-        <div id="hud-rehber-btn" class="stat-box rehber-hud-btn" data-tip="REHBER" onclick="rehberHudTikla()" style="display:none;cursor:pointer;border-left:2px solid #c8a96e;background:rgba(200,169,110,0.06)">
-          <span class="res-icon">📜</span>
-          <div class="res-details">
-            <span class="res-label" style="color:#c8a96e">Rehber</span>
-            <span class="res-amount" id="hud-rehber-adim" style="color:#f0d050">—</span>
+          <div id="hud-takv-btn" class="stat-box" data-tip="GELEN DESTEK ORDUSU" onclick="toggleGelenOrdular()" style="display:none;cursor:pointer;border-left:2px solid #2ecc71;background:rgba(46,204,113,0.08)">
+            <span class="res-icon">🛡️</span>
+            <div class="res-details">
+              <span class="res-label" style="color:#2ecc71">Destek</span>
+              <span class="res-amount" id="hud-takv-sayi" style="color:#2ecc71">0</span>
+            </div>
+          </div>
+          <div id="hud-buagr-btn" class="stat-box" data-tip-below="USTUMDEKI AGRESIF BUYULER" onclick="toggleGelenOrdular()" style="display:none;cursor:pointer;border-left:2px solid #c0392b;background:rgba(192,57,43,0.08)">
+            <span class="res-icon">🔮</span>
+            <div class="res-details">
+              <span class="res-label" style="color:#c0392b">A.Büyü</span>
+              <span class="res-amount" id="hud-buagr-sayi" style="color:#c0392b">0</span>
+            </div>
+          </div>
+          <div id="hud-budef-btn" class="stat-box" data-tip-below="USTUMDEKI DESTEK BUYULER" onclick="toggleGelenOrdular()" style="display:none;cursor:pointer;border-left:2px solid #3498db;background:rgba(52,152,219,0.08)">
+            <span class="res-icon">✨</span>
+            <div class="res-details">
+              <span class="res-label" style="color:#3498db">D.Büyü</span>
+              <span class="res-amount" id="hud-budef-sayi" style="color:#3498db">0</span>
+            </div>
+          </div>
+          <!-- v1.13.21: Rehber butonu -->
+          <div id="hud-rehber-btn" class="stat-box rehber-hud-btn" data-tip="REHBER" onclick="rehberHudTikla()" style="display:none;cursor:pointer;border-left:2px solid #c8a96e;background:rgba(200,169,110,0.06)">
+            <span class="res-icon">📜</span>
+            <div class="res-details">
+              <span class="res-label" style="color:#c8a96e">Rehber</span>
+              <span class="res-amount" id="hud-rehber-adim" style="color:#f0d050">—</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </div><!-- /hud-detay-overlay -->
     <!-- v1.13.42.2: Gelen ordular detay paneli HUD'un altinda + sayfada scroll olabilir (yukarı taşmaz) -->
-    <div id="hud-gelen-panel" style="display:none;position:fixed;top:160px;right:10px;width:360px;max-width:92vw;max-height:calc(100vh - 180px);overflow-y:auto;background:linear-gradient(180deg,#1a0e06,#110804);border:1px solid #c0392b;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,0.8);z-index:99998;padding:12px">
+    <div id="hud-gelen-panel" style="display:none;position:fixed;top:50px;right:10px;width:360px;max-width:92vw;max-height:calc(100vh - 180px);overflow-y:auto;background:linear-gradient(180deg,#1a0e06,#110804);border:1px solid #c0392b;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,0.8);z-index:99998;padding:12px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(231,76,60,0.3)">
         <span style="font-family:'Cinzel',serif;color:#e74c3c;font-size:13px;font-weight:bold">🎯 Şehrime Gelen Ordular</span>
         <button onclick="toggleGelenOrdular()" style="background:none;border:none;color:#888;cursor:pointer;font-size:18px">✕</button>
@@ -284,7 +284,7 @@ function renderHUD(){
       <div id="hud-gelen-liste" style="font-size:11px;color:#aaa">Yukleniyor...</div>
     </div>
     <!-- v1.13.58: Ordularim detay paneli (sehirdeki + yoldaki + kolonideki) -->
-    <div id="hud-ordularim-panel" style="display:none;position:fixed;top:160px;right:10px;width:380px;max-width:92vw;max-height:calc(100vh - 180px);overflow-y:auto;background:linear-gradient(180deg,#14100a,#0e0b07);border:1px solid #d4af37;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,0.8);z-index:99998;padding:12px">
+    <div id="hud-ordularim-panel" style="display:none;position:fixed;top:50px;right:10px;width:380px;max-width:92vw;max-height:calc(100vh - 180px);overflow-y:auto;background:linear-gradient(180deg,#14100a,#0e0b07);border:1px solid #d4af37;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,0.8);z-index:99998;padding:12px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(212,175,55,0.3)">
         <span style="font-family:'Cinzel',serif;color:#d4af37;font-size:13px;font-weight:bold">🏇 Ordularım</span>
         <button onclick="toggleOrdularimPanel()" style="background:none;border:none;color:#888;cursor:pointer;font-size:18px">✕</button>
@@ -805,6 +805,40 @@ function toggleOrdularimPanel() {
   } else {
     panel.style.display = 'block';
     renderOrdularimPanel();
+  }
+}
+
+// v1.13.61: HUD detay overlay toggle (YIYECEK, MANA, GUILD, ISTATISTIK, ORDU satirlari)
+function toggleHudDetay() {
+  const panel = document.getElementById('hud-detay-overlay');
+  const btn = document.getElementById('hud-detay-toggle');
+  if (!panel) return;
+  const acik = panel.style.display === 'block';
+  panel.style.display = acik ? 'none' : 'block';
+  if (btn) btn.innerHTML = acik ? '▼ DETAY' : '▲ KAPAT';
+  // LocalStorage persist
+  try { localStorage.setItem('noxara_hud_detay_acik', acik ? '0' : '1'); } catch(e) {}
+}
+
+// Sayfa yuklendiginde localStorage'dan eski tercih
+function _hudDetayRestore() {
+  try {
+    const acik = localStorage.getItem('noxara_hud_detay_acik') === '1';
+    const panel = document.getElementById('hud-detay-overlay');
+    const btn = document.getElementById('hud-detay-toggle');
+    if (acik && panel) {
+      panel.style.display = 'block';
+      if (btn) btn.innerHTML = '▲ KAPAT';
+    }
+  } catch(e) {}
+}
+if (typeof window !== 'undefined') {
+  window.toggleHudDetay = toggleHudDetay;
+  // DOMContentLoaded sonrasi restore (hudbar render sonrasi)
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => setTimeout(_hudDetayRestore, 100));
+  } else {
+    setTimeout(_hudDetayRestore, 100);
   }
 }
 
