@@ -747,16 +747,25 @@ async function guildAmbarIsteklerYukle(guildId) {
 
     var myYetkiler = GUILD_DATA?.benim_yetkilerim || {};
 
+    // v1.13.42.3: HTML escape helper - XSS korumasi
+    var _escHtml = function(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) {
+        return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+      });
+    };
     el.innerHTML = istekler.map(function(i) {
       var durumRenk = i.durum === 'bekliyor' ? '#f39c12' : i.durum === 'onaylandi' ? '#2ecc71' : '#e74c3c';
       var butonlar = '';
       if (i.durum === 'bekliyor' && myYetkiler.ambar_istek_onayla) {
-        butonlar = '<button style="background:#2ecc71;color:#000;border:none;padding:2px 8px;border-radius:3px;font-size:9px;cursor:pointer" onclick="guildAmbarIstekOnayla(' + guildId + ',' + i.id + ',\'onayla\')">Onayla</button>' +
-                   '<button style="background:#e74c3c;color:#fff;border:none;padding:2px 8px;border-radius:3px;font-size:9px;cursor:pointer" onclick="guildAmbarIstekOnayla(' + guildId + ',' + i.id + ',\'reddet\')">Reddet</button>';
+        // guildId ve i.id numeric, parseInt ile guvenli hale getir
+        var gId = parseInt(guildId) || 0;
+        var rId = parseInt(i.id) || 0;
+        butonlar = '<button style="background:#2ecc71;color:#000;border:none;padding:2px 8px;border-radius:3px;font-size:9px;cursor:pointer" onclick="guildAmbarIstekOnayla(' + gId + ',' + rId + ',\'onayla\')">Onayla</button>' +
+                   '<button style="background:#e74c3c;color:#fff;border:none;padding:2px 8px;border-radius:3px;font-size:9px;cursor:pointer" onclick="guildAmbarIstekOnayla(' + gId + ',' + rId + ',\'reddet\')">Reddet</button>';
       }
       return '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid #1a1a1a;font-size:10px">' +
-        '<span>' + i.kullanici_adi + ': ' + (KAYNAK_IKON[i.kaynak]||'') + ' ' + fmt(i.miktar) + ' ' + i.kaynak + '</span>' +
-        '<div style="display:flex;gap:4px;align-items:center"><span style="color:' + durumRenk + '">' + i.durum + '</span>' + butonlar + '</div>' +
+        '<span>' + _escHtml(i.kullanici_adi) + ': ' + (KAYNAK_IKON[i.kaynak]||'') + ' ' + fmt(i.miktar) + ' ' + _escHtml(i.kaynak) + '</span>' +
+        '<div style="display:flex;gap:4px;align-items:center"><span style="color:' + durumRenk + '">' + _escHtml(i.durum) + '</span>' + butonlar + '</div>' +
       '</div>';
     }).join('');
   } catch(e) { el.innerHTML = '<span style="color:#e74c3c">Hata</span>'; }

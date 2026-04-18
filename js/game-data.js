@@ -47,8 +47,9 @@ function selectIrk(id) {
 }
 
 function startGame() {
-  const kral = document.getElementById('inp-kral')?.value.trim();
-  const sehir = document.getElementById('inp-sehir')?.value.trim();
+  // v1.13.42.3: ?.value.trim() element yoksa crash ederdi — null-safe
+  const kral = (document.getElementById('inp-kral')?.value || '').trim();
+  const sehir = (document.getElementById('inp-sehir')?.value || '').trim();
   if (!kral) { toast('Kral adi gir!'); return; }
   if (!sehir) { toast('Sehir adi gir!'); return; }
   if (!selectedIrk) { toast('Irk sec!'); return; }

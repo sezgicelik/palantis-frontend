@@ -270,7 +270,7 @@ function renderHUD(){
       </div>
       <div id="hud-gelen-liste" style="font-size:11px;color:#aaa">Yukleniyor...</div>
     </div>
-    <button class="hud-toggle-btn" onclick="document.getElementById('hudbar').classList.toggle('expanded');this.textContent=document.getElementById('hudbar').classList.contains('expanded')?'▲':'▼'">▼</button>
+    <button class="hud-toggle-btn" onclick="(function(btn){var h=document.getElementById('hudbar');if(!h)return;h.classList.toggle('expanded');btn.textContent=h.classList.contains('expanded')?'▲':'▼';})(this)">▼</button>
   </div>
   `;
 }

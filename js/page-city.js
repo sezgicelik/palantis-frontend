@@ -182,7 +182,7 @@ function openModal(id){
 function updateBuildTotal(){
   if(!modalId)return;
   const b=BLDGS[modalId];if(!b)return;
-  const adet=Math.max(1,Math.min(999,parseInt(document.getElementById('build-adet')?.value)||1));
+  const adet=Math.max(1,Math.min(999,parseInt(document.getElementById('build-adet')?.value||'1')||1));
   const cost1=b.cost(1);
   if(adet<=1){document.getElementById('build-total-cost').innerHTML='';
     const btn=document.getElementById('mbtn');if(btn)btn.disabled=!canAfford(cost1);return;}
@@ -200,7 +200,7 @@ function closeModalOut(e){if(e.target===document.getElementById('building-modal'
 async function confirmBuild(){
   if(!modalId)return;
   const b=BLDGS[modalId];if(!b)return;
-  const adet=Math.max(1,Math.min(999,parseInt(document.getElementById('build-adet')?.value)||1));
+  const adet=Math.max(1,Math.min(999,parseInt(document.getElementById('build-adet')?.value||'1')||1));
   const nLv=b.lv+adet;
   const cost1=b.cost(1);
   const totalCost={};

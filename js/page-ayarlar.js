@@ -151,8 +151,10 @@ async function loadTatilDurum() {
 }
 
 async function tatilBaslat() {
-  var sure = parseInt(document.getElementById('tatil-sure')?.value);
-  if (!sure) { alert('Sure girin'); return; }
+  // v1.13.42.3: null-safe parseInt (NaN da (!sure) icin true, ama element yoksa explicit kontrol)
+  var sureVal = document.getElementById('tatil-sure')?.value || '';
+  var sure = parseInt(sureVal);
+  if (!sure || isNaN(sure)) { alert('Sure girin'); return; }
   if (!confirm('Tatil modunu ' + sure + ' PG icin aktiflestireceksiniz. Emin misiniz?')) return;
   var token = getToken(); if (!token) return;
   try {
