@@ -470,6 +470,7 @@
       </div>
       <button onclick="adminGorevEkle()" style="padding:5px 16px;background:#d4af37;color:#000;border:none;border-radius:4px;cursor:pointer;font-size:11px;font-weight:bold">Gorev Ekle</button>
       <button onclick="adminGorevSeed()" style="padding:5px 16px;background:#27ae60;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:11px;font-weight:bold;margin-left:6px">🔄 Örnek Görevleri Güncelle (v1.13.14)</button>
+      <button onclick="adminGorevDuplicateTemizle()" style="padding:5px 16px;background:#e74c3c;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:11px;font-weight:bold;margin-left:6px">🧹 Duplicate Temizle</button>
       <span id="gv-msg" style="font-size:11px;margin-left:8px"></span>
     </div>
     <div class="card">
@@ -1933,6 +1934,21 @@ async function adminGorevSeed() {
     var data = await resp.json();
     if (data.ok) { document.getElementById('gv-msg').innerHTML = '<span style="color:#2ecc71">' + data.mesaj + '</span>'; loadGorevlerAdmin(); }
     else document.getElementById('gv-msg').innerHTML = '<span style="color:#e74c3c">' + (data.error||'Hata') + '</span>';
+  } catch(e) { document.getElementById('gv-msg').innerHTML = '<span style="color:#e74c3c">Hata</span>'; }
+}
+
+// v1.13.49: Duplicate gorev temizle (ayni basliktan eskisi kalir, yenileri silinir)
+async function adminGorevDuplicateTemizle() {
+  if (!confirm('Ayni basliktaki duplicate gorevleri silecek. Emin misiniz?')) return;
+  try {
+    var resp = await fetch(API + '/api/admin/gorev-duplicate-temizle', { method: 'POST', headers: hdr() });
+    var data = await resp.json();
+    if (data.ok) {
+      document.getElementById('gv-msg').innerHTML = '<span style="color:#2ecc71">' + data.silinen_sayi + ' duplicate silindi</span>';
+      loadGorevlerAdmin();
+    } else {
+      document.getElementById('gv-msg').innerHTML = '<span style="color:#e74c3c">' + (data.error||'Hata') + '</span>';
+    }
   } catch(e) { document.getElementById('gv-msg').innerHTML = '<span style="color:#e74c3c">Hata</span>'; }
 }
 

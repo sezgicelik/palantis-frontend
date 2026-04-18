@@ -206,38 +206,58 @@ function obLogin() {
     if (password.length < 8) { showObErr('Sifre en az 8 karakter olmali!'); return; }
     const davet_kodu = document.getElementById('ob-davet')?.value?.trim();
     if (!davet_kodu) { showObErr('Davet kodu gerekli!'); return; }
-    fetch(API_BASE + '/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password, email, davet_kodu, screen_width: screen.width, screen_height: screen.height })
-    })
-    .then(r => r.json())
-    .then(data => {
-      if (data.error) { showObErr(data.error); return; }
-      setToken(data.token);
-      obSelectedKral = username;
-      obGoTo('side');
-    })
-    .catch(() => showObErr('Sunucuya baglanamadi!'));
-  } else {
-    fetch(API_BASE + '/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password, screen_width: screen.width, screen_height: screen.height })
-    })
-    .then(r => r.json())
-    .then(data => {
-      if (data.error) { showObErr(data.error); return; }
-      setToken(data.token);
-      if (data.setupDone && data.player) {
-        obApplyPlayer(data.player);
-        window.location.href = 'home.html';
-      } else {
+    // v1.13.49: UA Client Hints (model/platform) — mobile cihaz modeli icin
+    (async () => {
+      let client_hints = {};
+      try {
+        if (navigator.userAgentData?.getHighEntropyValues) {
+          const h = await navigator.userAgentData.getHighEntropyValues(['model','platform','platformVersion']);
+          client_hints = { model: h.model||null, platform: h.platform||null, platformVersion: h.platformVersion||null };
+        }
+      } catch(e) {}
+      fetch(API_BASE + '/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, email, davet_kodu, screen_width: screen.width, screen_height: screen.height, client_hints })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) { showObErr(data.error); return; }
+        setToken(data.token);
         obSelectedKral = username;
         obGoTo('side');
-      }
-    })
-    .catch(() => showObErr('Sunucuya baglanamadi!'));
+      })
+      .catch(() => showObErr('Sunucuya baglanamadi!'));
+    })();
+  } else {
+    // v1.13.49: UA Client Hints login icin de
+    (async () => {
+      let client_hints = {};
+      try {
+        if (navigator.userAgentData?.getHighEntropyValues) {
+          const h = await navigator.userAgentData.getHighEntropyValues(['model','platform','platformVersion']);
+          client_hints = { model: h.model||null, platform: h.platform||null, platformVersion: h.platformVersion||null };
+        }
+      } catch(e) {}
+      fetch(API_BASE + '/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, screen_width: screen.width, screen_height: screen.height, client_hints })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) { showObErr(data.error); return; }
+        setToken(data.token);
+        if (data.setupDone && data.player) {
+          obApplyPlayer(data.player);
+          window.location.href = 'home.html';
+        } else {
+          obSelectedKral = username;
+          obGoTo('side');
+        }
+      })
+      .catch(() => showObErr('Sunucuya baglanamadi!'));
+    })();
   }
 }
 
