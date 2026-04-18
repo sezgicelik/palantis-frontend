@@ -274,6 +274,9 @@ async function sbOrduGonder() {
     sbOrdulariYukle();
     sbHareketleriYukle();
     btn.textContent = isRelay ? 'Relay Saldiri' : 'Orduyu Gonder';
+    // v1.13.58: HUD ordularim rozeti + kuyruk widget anlik yenile
+    if (typeof window.refreshOrdularim === 'function') window.refreshOrdularim();
+    if (typeof window.refreshKuyruk === 'function') window.refreshKuyruk();
   } catch(e) {
     showToast('Sunucu hatasi', 'error');
     btn.disabled = false;

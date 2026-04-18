@@ -296,7 +296,7 @@ body{padding-top:130px;}
 .hud-row-wrap{
   display:flex;
   align-items:center;
-  min-height:36px;
+  min-height:28px; /* v1.13.58: 36->28 — stat-box yaklasik yuksekligiyle hizali, kompakt */
   border-bottom:1px solid rgba(200,169,110,0.06);
 }
 .hud-row-wrap:last-child{border-bottom:none;}
@@ -321,7 +321,7 @@ body{padding-top:130px;}
   align-items:center;
   flex-wrap:nowrap;
   gap:4px;
-  padding:4px 8px;
+  padding:2px 8px; /* v1.13.58: dikey 4->2 kompakt */
   flex:1;
   overflow-x:auto;
   scrollbar-width:none;

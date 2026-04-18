@@ -207,9 +207,9 @@ function renderHUD(){
       <div class="hud-row-lbl">GUILD</div>
       <div class="hud-res-row hud-aligned" id="hud-guild-stats"></div>
     </div>
-    <!-- GENEL (v1.13.22: Mana'nin altina alindi) -->
+    <!-- v1.13.58: GENEL 2 satira bolundu — GENEL_1 (sehir/nufus) + GENEL_2 (takvim + ordularim) -->
     <div class="hud-row-wrap">
-      <div class="hud-row-lbl">GENEL</div>
+      <div class="hud-row-lbl">GENEL_1</div>
       <div class="hud-res-row">
         ${sb('MUTLULUK','😊','Mutluluk','hud-sehir-moral',null)}
         ${sb('O.MORAL','⚔️','O.Moral','hud-moral',null)}
@@ -217,8 +217,21 @@ function renderHUD(){
         ${sb('NÜFUS','👥','Nüfus','hud-nufus-box',null)}
         ${sb('ALAN','📐','Alan','hud-alan-box',null)}
         ${sb('ŞEHİR','🏰','Ş.Değeri','hud-sehir-deger',null)}
+      </div>
+    </div>
+    <div class="hud-row-wrap">
+      <div class="hud-row-lbl">GENEL_2</div>
+      <div class="hud-res-row">
         ${sb('TARİH','📅','Tarih','hud-takvim',null)}
         ${sb('SAAT','⏰','Saat','c-now',null)}
+        <!-- v1.13.58: Ordularim — tiklayinca detay paneli acar -->
+        <div id="hud-ordularim-btn" class="stat-box" data-tip="ORDULARIM (Sehirde/Toplam)" onclick="toggleOrdularimPanel()" style="cursor:pointer;border-left:2px solid #d4af37;background:rgba(212,175,55,0.08)">
+          <span class="res-icon">🏇</span>
+          <div class="res-details">
+            <span class="res-label" style="color:#d4af37">Ordularım</span>
+            <span class="res-amount" id="hud-ordularim-sayi" style="color:#d4af37">0/0</span>
+          </div>
+        </div>
         <!-- v1.13.33: 4 tehdit/destek gostergesi (sadece > 0 iken gorunur) -->
         <!-- 1. Gelen Saldiri Ordusu -->
         <div id="hud-sald-btn" class="stat-box" data-tip="GELEN SALDIRI ORDUSU" onclick="toggleGelenOrdular()" style="display:none;cursor:pointer;border-left:2px solid #e74c3c;background:rgba(231,76,60,0.08)">
@@ -269,6 +282,14 @@ function renderHUD(){
         <button onclick="toggleGelenOrdular()" style="background:none;border:none;color:#888;cursor:pointer;font-size:18px">✕</button>
       </div>
       <div id="hud-gelen-liste" style="font-size:11px;color:#aaa">Yukleniyor...</div>
+    </div>
+    <!-- v1.13.58: Ordularim detay paneli (sehirdeki + yoldaki + kolonideki) -->
+    <div id="hud-ordularim-panel" style="display:none;position:fixed;top:160px;right:10px;width:380px;max-width:92vw;max-height:calc(100vh - 180px);overflow-y:auto;background:linear-gradient(180deg,#14100a,#0e0b07);border:1px solid #d4af37;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,0.8);z-index:99998;padding:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(212,175,55,0.3)">
+        <span style="font-family:'Cinzel',serif;color:#d4af37;font-size:13px;font-weight:bold">🏇 Ordularım</span>
+        <button onclick="toggleOrdularimPanel()" style="background:none;border:none;color:#888;cursor:pointer;font-size:18px">✕</button>
+      </div>
+      <div id="hud-ordularim-liste" style="font-size:11px;color:#aaa">Yukleniyor...</div>
     </div>
     <button class="hud-toggle-btn" onclick="(function(btn){var h=document.getElementById('hudbar');if(!h)return;h.classList.toggle('expanded');btn.textContent=h.classList.contains('expanded')?'▲':'▼';})(this)">▼</button>
   </div>
@@ -375,6 +396,10 @@ function initLayout(){
   setInterval(loadKuyrukOzet, 30000);
   // Global tetikleyici — ordu gonder/casus/kervan sonrasi anlik refresh icin kullanilir
   if (typeof window !== 'undefined') window.refreshKuyruk = loadKuyrukOzet;
+
+  // v1.13.58: Ordularim HUD rozet polling (30sn)
+  loadOrdularim();
+  setInterval(loadOrdularim, 30000);
 
   // v1.2.0: Gün geçişi sistemi
   initDayTransition();
@@ -740,6 +765,99 @@ function toggleGelenOrdular() {
     renderGelenOrdularPanel();
   }
 }
+
+// v1.13.58: Ordularim HUD rozeti + detay paneli
+let _ordularimCache = null;
+
+async function loadOrdularim() {
+  const token = getToken ? getToken() : null;
+  if (!token || typeof API_BASE === 'undefined') return;
+  try {
+    const r = await fetch(API_BASE + '/api/army/state', { headers: { Authorization: 'Bearer ' + token } });
+    if (!r.ok) return;
+    const data = await r.json();
+    _ordularimCache = data;
+
+    const ordular = data.armies || [];
+    const sehirde = ordular.filter(a => !a.is_busy && (a.konum === 'sehirde' || a.konum_tipi === 'sehir')).length;
+    const toplam = ordular.length;
+
+    const sayi = document.getElementById('hud-ordularim-sayi');
+    if (sayi) {
+      sayi.textContent = `${sehirde}/${toplam}`;
+      // Renk: hepsi şehirde = yesil, hepsi yolda = kirmizi, karisik = sari
+      if (toplam === 0) sayi.style.color = '#888';
+      else if (sehirde === toplam) sayi.style.color = '#27ae60';
+      else if (sehirde === 0) sayi.style.color = '#e74c3c';
+      else sayi.style.color = '#f39c12';
+    }
+
+    const panel = document.getElementById('hud-ordularim-panel');
+    if (panel && panel.style.display === 'block') renderOrdularimPanel();
+  } catch(e) { /* sessiz */ }
+}
+
+function toggleOrdularimPanel() {
+  const panel = document.getElementById('hud-ordularim-panel');
+  if (!panel) return;
+  if (panel.style.display === 'block') {
+    panel.style.display = 'none';
+  } else {
+    panel.style.display = 'block';
+    renderOrdularimPanel();
+  }
+}
+
+function renderOrdularimPanel() {
+  const wrap = document.getElementById('hud-ordularim-liste');
+  if (!wrap) return;
+  const ordular = _ordularimCache?.armies || [];
+  if (ordular.length === 0) {
+    wrap.innerHTML = '<div style="color:#555;text-align:center;padding:14px">Henuz ordu kurmadin — <a href="army.html" style="color:#d4af37">Ordu Kur</a></div>';
+    return;
+  }
+  const fmtK = (typeof fmtKalanSure === 'function') ? fmtKalanSure : sn => sn + ' sn';
+  const fmtN = (typeof fmt === 'function') ? fmt : n => (n||0).toLocaleString('tr-TR');
+
+  const html = ordular.map(o => {
+    let durum, renk, detay = '';
+    if (o.is_busy && o.aktif_gorev) {
+      const g = o.aktif_gorev;
+      const kalanSn = g.varis ? Math.max(0, Math.floor((new Date(g.varis) - Date.now()) / 1000)) : 0;
+      const tipTr = g.tip === 'saldiri' ? '⚔️ Saldırı' : (g.tip === 'takviye' ? '🛡️ Takviye' : (g.tip === 'donus' ? '↩️ Dönüş' : g.tip));
+      renk = '#f39c12';
+      durum = `${tipTr} → ${g.hedef_x}:${g.hedef_y}`;
+      detay = `<span style="color:#d4af37">${fmtK(kalanSn)}</span>`;
+    } else if (o.konum === 'kolonide' || o.konum_tipi === 'koloni') {
+      renk = '#3498db';
+      durum = `🏕️ Kolonide ${o.koloni_bilgi?.x || '?'}:${o.koloni_bilgi?.y || '?'}`;
+    } else if (o.konum_tipi === 'korumada' && o.takviye) {
+      renk = '#2ecc71';
+      durum = `🛡️ Koruma ${o.takviye.konum_x}:${o.takviye.konum_y}`;
+    } else {
+      renk = '#27ae60';
+      durum = '🏠 Şehirde';
+    }
+
+    return `<div style="padding:8px;margin-bottom:6px;background:rgba(212,175,55,0.04);border-left:2px solid ${renk};border-radius:3px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="color:#f0e8d8;font-weight:600">${o.isim || 'Ordu ' + o.id}</span>
+        <span style="color:#888;font-size:10px">${fmtN(o.total_units)} asker</span>
+      </div>
+      <div style="color:${renk};font-size:11px;margin-top:3px;display:flex;justify-content:space-between">
+        <span>${durum}</span>${detay}
+      </div>
+      <div style="color:#777;font-size:10px;margin-top:2px">
+        ATK ${fmtN(o.atk)} · DEF ${fmtN(o.def)} · Reyting %${o.reyting || 0}
+      </div>
+    </div>`;
+  }).join('');
+
+  wrap.innerHTML = html;
+}
+
+// Global trigger — ordu gonder sonrasi anlik refresh icin
+if (typeof window !== 'undefined') window.refreshOrdularim = loadOrdularim;
 
 function renderGelenOrdularPanel() {
   const wrap = document.getElementById('hud-gelen-liste');
