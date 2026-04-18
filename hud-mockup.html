@@ -27,22 +27,14 @@
   .stat .val{color:#f0e8d8;font-weight:600;font-size:12px}
   .stat .rate{color:#27ae60;font-size:10px}
 
-  /* MODE: OVERLAY — minimal bar sabit, detay absolute */
-  body.mode-overlay .hud-detail{position:absolute;top:35px;left:0;right:0;z-index:9001;background:linear-gradient(180deg,#1a140a,#0a0604);box-shadow:0 8px 24px rgba(0,0,0,0.8);border-bottom:2px solid #c8a96e;display:none}
-  body.mode-overlay .hud-detail.open{display:block}
-  body.mode-overlay .hud-minimal{position:sticky;top:0;height:35px;background:linear-gradient(180deg,#1a140a,#110805);border-bottom:1px solid #c8a96e;display:flex;align-items:center;padding:0 12px;z-index:9002;gap:12px}
-  body.mode-overlay .toggle-btn{margin-left:auto;color:#c8a96e;background:none;border:none;cursor:pointer;font-size:18px}
-
-  /* MODE: ACCORDION — 5 satir gorunur, her label tikla toggle */
-  body.mode-accordion .hud-minimal{display:none}
-  body.mode-accordion .hud-row.collapsed .hud-res{display:none}
-  body.mode-accordion .hud-row.collapsed .hud-lbl::after{content:' ▶';color:#888}
-  body.mode-accordion .hud-row:not(.collapsed) .hud-lbl::after{content:' ▼';color:#c8a96e}
-
-  /* MODE: MINIMAL-ONLY — sadece minimal bar, detay yok */
-  body.mode-minimal-only .hud-detail{display:none!important}
-  body.mode-minimal-only .hud-minimal{height:35px;background:linear-gradient(180deg,#1a140a,#110805);border-bottom:1px solid #c8a96e;display:flex;align-items:center;padding:0 12px;gap:12px}
-  body.mode-minimal-only .toggle-btn{display:none}
+  /* Yeni 3 satirli minimal bar — hep gorunur (sticky), alt kismina overlay detay gelir */
+  .hud-minimal-3row{position:sticky;top:0;z-index:9002;background:linear-gradient(180deg,#1a140a,#110805);border-bottom:2px solid #c8a96e;box-shadow:0 2px 8px rgba(0,0,0,0.5)}
+  /* Detay overlay — 3 satir altindan acilir, sayfa ICERIGINI itmez (position:absolute) */
+  .hud-detail{position:absolute;top:84px;left:0;right:0;z-index:9001;background:linear-gradient(180deg,#14100a,#0a0604);box-shadow:0 8px 24px rgba(0,0,0,0.9);border-bottom:2px solid #d4af37;display:none}
+  .hud-detail.open{display:block;animation:slideDown 0.2s ease-out}
+  @keyframes slideDown{from{transform:translateY(-20px);opacity:0}to{transform:translateY(0);opacity:1}}
+  /* Eski minimal tek-satir gizli (backward compat) */
+  .hud-minimal{display:none!important}
 
   /* Minimal bar stat (kucuk) */
   .mini-stat{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;color:#f0e8d8;font-size:12px}
@@ -63,48 +55,39 @@
 <body class="mode-overlay">
 
 <div class="switcher">
-  <button data-mode="overlay" class="active">A) Overlay + Minimal</button>
-  <button data-mode="accordion">B) Accordion (her satir toggle)</button>
-  <button data-mode="minimal-only">C) Sadece Minimal</button>
+  <button class="active" style="pointer-events:none">🎯 Overlay + 3 Satır Tematik</button>
 </div>
-<div class="info" id="mode-info"></div>
+<div class="info" id="mode-info">
+  <b style="color:#d4af37">✓ Kararlı Tasarım:</b> <b>HAM · YİYECEK · MANA</b> 3 satır sabit (84px), her zaman görünür.
+  Sağdaki <b>▼ İstatistik</b> butonuna tıkla → Mutluluk/Moral/Nüfus/Alan/Saat/Ordularım <b>overlay olarak</b> üste açılır (sayfa itilmez).
+</div>
 
 <div id="hud">
-  <!-- Minimal bar (A ve C modlari icin) -->
-  <div class="hud-minimal">
-    <span class="mini-stat"><span class="ico">💰</span><span class="lbl">Altın</span><span class="val">62.8M</span></span>
-    <span class="mini-stat"><span class="ico">🌾</span><span class="lbl">Buğday</span><span class="val">1.7M</span></span>
-    <span class="mini-stat"><span class="ico">👥</span><span class="lbl">Nüfus</span><span class="val">3.018/2.380</span></span>
-    <span class="mini-stat"><span class="ico">⚔️</span><span class="lbl">Moral</span><span class="val">%100</span></span>
-    <span class="mini-stat"><span class="ico">📅</span><span class="lbl">Gün</span><span class="val">02 Mart 1303</span></span>
-    <span class="mini-stat"><span class="ico">🏇</span><span class="lbl">Ordu</span><span class="val">0/1</span></span>
-    <button class="toggle-btn" id="overlayToggle" title="Detay aç/kapa">▼</button>
-  </div>
-
-  <!-- Detay 5 satir (B modunda hep acik, A modunda overlay toggle, C modunda gizli) -->
-  <div class="hud-detail">
-    <div class="hud-row" data-row="ham">
+  <!-- Minimal bar — 3 tematik satir (Overlay+Minimal modu icin) -->
+  <div class="hud-minimal-3row">
+    <div class="hud-row">
       <div class="hud-lbl">HAM</div>
       <div class="hud-res">
         <span class="stat"><span class="ico">🌳</span><span class="lbl">Odun</span><span class="val">4.275.060</span><span class="rate">+1.375</span></span>
+        <span class="stat"><span class="ico">🪵</span><span class="lbl">Kereste</span><span class="val">172.850</span></span>
         <span class="stat"><span class="ico">⛏️</span><span class="lbl">Metal</span><span class="val">1.001.626</span><span class="rate">+150</span></span>
-        <span class="stat"><span class="ico">🌾</span><span class="lbl">Buğday</span><span class="val">1.783.774</span><span class="rate">+440</span></span>
-        <span class="stat"><span class="ico">🐟</span><span class="lbl">Balık</span><span class="val">12</span><span class="rate">+132</span></span>
-        <span class="stat"><span class="ico">🥩</span><span class="lbl">Çiğ Et</span><span class="val">356.108</span></span>
+        <span class="stat"><span class="ico">⚙️</span><span class="lbl">İşl.Metal</span><span class="val">161.836</span></span>
         <span class="stat"><span class="ico">💰</span><span class="lbl">Altın</span><span class="val">62.823.675</span></span>
+        <span class="stat"><span class="ico">📅</span><span class="lbl">Tarih</span><span class="val">02 Mart 1303</span></span>
       </div>
     </div>
-    <div class="hud-row" data-row="isl">
-      <div class="hud-lbl">İŞL.</div>
+    <div class="hud-row">
+      <div class="hud-lbl">YİYECEK</div>
       <div class="hud-res">
-        <span class="stat"><span class="ico">🪵</span><span class="lbl">Kereste</span><span class="val">172.850</span></span>
-        <span class="stat"><span class="ico">⚙️</span><span class="lbl">İşl.Metal</span><span class="val">161.836</span></span>
+        <span class="stat"><span class="ico">🌾</span><span class="lbl">Buğday</span><span class="val">1.783.774</span><span class="rate">+440</span></span>
         <span class="stat"><span class="ico">🍞</span><span class="lbl">Ekmek</span><span class="val">3.065.728</span></span>
+        <span class="stat"><span class="ico">🐟</span><span class="lbl">Balık</span><span class="val">12</span><span class="rate">+132</span></span>
         <span class="stat"><span class="ico">🍳</span><span class="lbl">Piş.Balık</span><span class="val">970.689</span></span>
+        <span class="stat"><span class="ico">🥩</span><span class="lbl">Çiğ Et</span><span class="val">356.108</span></span>
         <span class="stat"><span class="ico">🍖</span><span class="lbl">Piş.Et</span><span class="val">796.435</span></span>
       </div>
     </div>
-    <div class="hud-row" data-row="mana">
+    <div class="hud-row">
       <div class="hud-lbl">MANA</div>
       <div class="hud-res">
         <span class="stat" style="border-left:2px solid #f0e8d8"><span class="ico">🤍</span><span class="lbl">B.Mana</span><span class="val">153.965</span><span class="rate">+60</span></span>
@@ -112,10 +95,20 @@
         <span class="stat" style="border-left:2px solid #3498db"><span class="ico">💙</span><span class="lbl">M.Mana</span><span class="val">58.727</span><span class="rate">+20</span></span>
         <span class="stat" style="border-left:2px solid #2ecc71"><span class="ico">💚</span><span class="lbl">Y.Mana</span><span class="val">58.916</span><span class="rate">+23</span></span>
         <span class="stat"><span class="ico">🫏</span><span class="lbl">Eşek</span><span class="val">9/57</span></span>
+        <button class="toggle-btn" id="overlayToggle" title="İstatistikler aç/kapa" style="margin-left:auto;background:none;border:none;color:#c8a96e;cursor:pointer;font-size:16px">▼ İstatistik</button>
       </div>
     </div>
-    <div class="hud-row" data-row="genel1">
-      <div class="hud-lbl">GENEL_1</div>
+  </div>
+
+  <!-- Eski tek satir minimal bar (diger modlar icin hala gerekli — gizli) -->
+  <div class="hud-minimal" style="display:none">
+    <button class="toggle-btn" id="overlayToggle_old" style="display:none">▼</button>
+  </div>
+
+  <!-- Detay overlay — sadece İstatistikler (kaynaklar zaten minimal barda) -->
+  <div class="hud-detail">
+    <div class="hud-row">
+      <div class="hud-lbl">İSTATİSTİK</div>
       <div class="hud-res">
         <span class="stat"><span class="ico">😊</span><span class="lbl">Mutluluk</span><span class="val">0</span></span>
         <span class="stat"><span class="ico">⚔️</span><span class="lbl">O.Moral</span><span class="val">100</span></span>
@@ -123,13 +116,12 @@
         <span class="stat"><span class="ico">👥</span><span class="lbl">Nüfus</span><span class="val">3.018/2.380</span></span>
         <span class="stat"><span class="ico">📐</span><span class="lbl">Alan</span><span class="val">440/590</span></span>
         <span class="stat"><span class="ico">🏰</span><span class="lbl">Ş.Değeri</span><span class="val">218.168</span></span>
+        <span class="stat"><span class="ico">⏰</span><span class="lbl">Saat</span><span class="val">02:05:33</span></span>
       </div>
     </div>
-    <div class="hud-row" data-row="genel2">
-      <div class="hud-lbl">GENEL_2</div>
+    <div class="hud-row">
+      <div class="hud-lbl">ORDU</div>
       <div class="hud-res">
-        <span class="stat"><span class="ico">📅</span><span class="lbl">Tarih</span><span class="val">02 Mart 1303</span></span>
-        <span class="stat"><span class="ico">⏰</span><span class="lbl">Saat</span><span class="val">02:05:33</span></span>
         <span class="stat" style="border-left:2px solid #d4af37"><span class="ico">🏇</span><span class="lbl">Ordularım</span><span class="val" style="color:#d4af37">0/1</span></span>
         <span class="stat" style="border-left:2px solid #3498db"><span class="ico">✨</span><span class="lbl">D.Büyü</span><span class="val" style="color:#3498db">1</span></span>
       </div>
@@ -150,47 +142,47 @@
     <a href="#">🛒 Pazar</a>
   </div>
   <div class="content">
-    <h2>Örnek Oyun Sayfası</h2>
-    <p>Bu alan normalde oyun içeriğiyle dolar (bina listesi, ordu yönetimi, savaş raporu vb.). HUD'un yukarıya ne kadar yer kapladığını, menünün ne kadar aşağıya itildiğini buradan göreceksin.</p>
-    <p><b>A) Overlay + Minimal</b>: Sadece 35px sabit bar. Detay için üstteki ▼ tıkla, içeriğin üzerinde açılır (sayfa itilmez).</p>
-    <p><b>B) Accordion</b>: 5 satır görünür. Her satırın başındaki label'a tıkla → o satır kapanır. Örnek: [HAM ▶] → kapalı, [GENEL_1 ▼] → açık.</p>
-    <p><b>C) Sadece Minimal</b>: Sadece 35px bar. Detay hiç yok (ayarlardan kritik kaynakları minimal bara taşımalı).</p>
+    <h2>🎯 Yeni HUD Tasarımı — Overlay + 3 Satır Tematik</h2>
+    <p>Bu alan normalde oyun içeriğiyle dolar (bina listesi, ordu yönetimi, savaş raporu vb.). Yeni tasarım <b>sadece 84px</b> yer kaplar — eskisi 140px idi, <b>-56px kazanç</b>.</p>
+
+    <h3 style="color:#d4af37">3 Sticky Satır (her zaman görünür)</h3>
+    <ul style="color:#aaa;line-height:1.8">
+      <li><b style="color:#c8a96e">HAM</b> — Odun · Kereste · Metal · İşl.Metal · Altın · <b>Tarih</b></li>
+      <li><b style="color:#c8a96e">YİYECEK</b> — Buğday · Ekmek · Balık · Piş.Balık · Çiğ Et · Piş.Et</li>
+      <li><b style="color:#c8a96e">MANA</b> — B.Mana · K.Mana · M.Mana · Y.Mana · Eşek <span style="color:#d4af37">+ ▼ İstatistik butonu</span></li>
+    </ul>
+
+    <h3 style="color:#d4af37">Overlay İstatistikler (▼ tıkla)</h3>
+    <ul style="color:#aaa;line-height:1.8">
+      <li><b style="color:#c8a96e">İSTATİSTİK</b> — Mutluluk · O.Moral · Açlık · Nüfus · Alan · Ş.Değeri · Saat</li>
+      <li><b style="color:#c8a96e">ORDU</b> — Ordularım · D.Büyü · (+ gelen saldırı/destek/büyü rozetleri)</li>
+    </ul>
+
     <hr style="border-color:#3a3020;margin:20px 0">
-    <p><b>Kararını verdiğinde</b> üstteki butondan seçtiğin modun tam adını söyle, gerçek sayfaya implement edelim.</p>
+    <p style="color:#27ae60"><b>✓ Avantajlar:</b></p>
+    <ul style="color:#aaa;line-height:1.7">
+      <li>Kaynaklar tematik gruplarda, aranmaz (yiyecek yiyecek satırında)</li>
+      <li>Minimal bar sticky — scroll olsa bile üstte kalır</li>
+      <li>Detay overlay sayfa içeriğini <b>itmez</b> (position: absolute)</li>
+      <li>Menü sabit pozisyonda başlar — asla aşağı inmez</li>
+    </ul>
+
+    <p style="margin-top:20px;padding:10px;background:#14100a;border-left:3px solid #27ae60">
+      <b style="color:#27ae60">👉 Onay verirsen</b> bu tasarımı <code>js/layout.js</code>'e implement edip gerçek oyun sayfalarına yansıtırım. ~15-20 dk iş.
+    </p>
   </div>
 </div>
 
 <script>
-const info = document.getElementById('mode-info');
-const MODE_INFO = {
-  overlay: '🅰️ <b>Overlay + Minimal</b>: 35px sabit bar + ▼ ile tıklayınca detay <b>overlay olarak</b> üste açılır. Sayfa <b>itilmez</b>. En pratik.',
-  accordion: '🅱️ <b>Accordion</b>: 5 satır standart, ama her satırın label\'ına tıklayınca o satır <b>kapanır</b>. İstediğin kadar gizle. Sayfa her kapatmada yukarı çıkar.',
-  'minimal-only': '🅲 <b>Sadece Minimal</b>: Yalnızca 35px bar. Detay <b>yok</b>. Ayarlardan hangi stat\'ların barda olacağını seçersin. En sade.'
-};
-function setMode(m) {
-  document.body.className = 'mode-' + m;
-  document.querySelectorAll('.switcher button').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
-  info.innerHTML = MODE_INFO[m];
-}
-document.querySelectorAll('.switcher button').forEach(b => {
-  b.addEventListener('click', () => setMode(b.dataset.mode));
-});
-setMode('overlay');
-
-// Overlay toggle
-document.getElementById('overlayToggle').addEventListener('click', () => {
-  const d = document.querySelector('.hud-detail');
-  d.classList.toggle('open');
-  document.getElementById('overlayToggle').textContent = d.classList.contains('open') ? '▲' : '▼';
-});
-
-// Accordion: her hud-lbl tiklanabilir
-document.querySelectorAll('.hud-row .hud-lbl').forEach(lbl => {
-  lbl.addEventListener('click', () => {
-    if (!document.body.classList.contains('mode-accordion')) return;
-    lbl.parentElement.classList.toggle('collapsed');
+// Overlay toggle — 3 satir minimal barin sagindaki "İstatistik" butonu
+const overlayBtn = document.getElementById('overlayToggle');
+if (overlayBtn) {
+  overlayBtn.addEventListener('click', () => {
+    const d = document.querySelector('.hud-detail');
+    d.classList.toggle('open');
+    overlayBtn.innerHTML = d.classList.contains('open') ? '▲ İstatistik' : '▼ İstatistik';
   });
-});
+}
 </script>
 
 </body>
