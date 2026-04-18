@@ -3,13 +3,14 @@
    Tarih + Tip gruplama, filtre butonları
 ══════════════════════════════════ */
 
+// v1.13.44: eksik event'ler eklendi (askeri/casus_hedefi/kadim_saldiri/takviye/kadim_ticaret/bocek_yarisi/premium/sandik)
 const KATEGORI_MAP = {
-  sehir: { isim:'Şehir', renk:'#c9a84c', tipler:['bina_tamam','nufus','kacis','yemek','sehir_morali','festival','arazi','essek','kervan'] },
-  askeri: { isim:'Askeri', renk:'#e74c3c', tipler:['egitim_tamam','maas','savas','casus'] },
+  sehir: { isim:'Şehir', renk:'#c9a84c', tipler:['bina_tamam','nufus','kacis','yemek','sehir_morali','festival','arazi','essek','kervan','bocek_yarisi'] },
+  askeri: { isim:'Askeri', renk:'#e74c3c', tipler:['egitim_tamam','maas','savas','casus','casus_hedefi','askeri','kadim_saldiri','takviye'] },
   ekonomi: { isim:'Ekonomi', renk:'#2ecc71', tipler:['isci_uretim','ekonomi','pisirme','bolge_bonus','irk_bonus','mana_uretim','vergi'] },
-  ticaret: { isim:'Ticaret', renk:'#3498db', tipler:['market_satis','buyu_alisveris','pazar_ilan','pazar_alisveris','guild_ambar','guild_bagis'] },
+  ticaret: { isim:'Ticaret', renk:'#3498db', tipler:['market_satis','buyu_alisveris','pazar_ilan','pazar_alisveris','guild_ambar','guild_bagis','kadim_ticaret'] },
   koloni: { isim:'Koloni', renk:'#9b59b6', tipler:['koloni_fetih','koloni_cekil','koloni_kaynak'] },
-  diger: { isim:'Diğer', renk:'#888', tipler:['admin','artifact','gorev'] },
+  diger: { isim:'Diğer', renk:'#888', tipler:['admin','artifact','gorev','premium','sandik'] },
 };
 
 let aktifFiltre = 'hepsi'; // hepsi veya kategori key

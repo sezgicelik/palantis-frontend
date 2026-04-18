@@ -607,6 +607,15 @@ const ACTIVITY_ICONS = {
   gorev:         '📜',
   savas:         '⚔️',
   casus:         '🕵️',
+  // v1.13.44: eksik event ikonlari
+  askeri:        '⚔️',
+  casus_hedefi:  '🕵️',
+  takviye:       '🛡️',
+  kadim_saldiri: '🏯',
+  kadim_ticaret: '🏺',
+  bocek_yarisi:  '🐞',
+  premium:       '💎',
+  sandik:        '🎁',
 };
 
 const SAF_LIMITS = [3, 3, 5, 3]; // 14 total slots
