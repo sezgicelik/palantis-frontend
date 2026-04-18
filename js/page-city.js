@@ -75,8 +75,9 @@ function renderBinaRow(grid, b, inQ, oyuncuCag) {
       action=`<span style="color:#e74c3c;font-size:10px;font-family:'Cinzel',serif">\ud83d\udd12 ${acilisCag}. Çağ gerekli</span>`;
     }
     else if(limitDoldu) action=`<span style="color:#f59e0b;font-size:10px;font-family:'Cinzel',serif">\u26a0\ufe0f Limit doldu (${cagLimiti})</span>`;
-    else if(inC) action=`<span style="color:#2ecc71;font-size:11px;font-family:'Cinzel',serif">\ud83d\udd28 Insada</span>`;
+    // v1.13.42.2: Kuyrukta olsa bile INSA butonu aktif (kalan_insa artirabilmek icin)
     else if(isMergeOnly) action=`<span style="color:#888;font-size:10px">\ud83d\udd17 Birlestirme ile olusur</span>`;
+    else if(inC) action=`<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap"><span style="color:#2ecc71;font-size:10px;font-family:'Cinzel',serif">\ud83d\udd28 Insada</span><button class="btn-sm" ${afford?'':'disabled'} onclick="openModal('${b.id}')">+ INSA</button></div>`;
     else action=`<button class="btn-sm" ${afford?'':'disabled'} onclick="openModal('${b.id}')">\ud83c\udfd7\ufe0f INSA</button>`;
     const mergeKural=BINA_BIRLESTIRME_FE[b.id];
     let mergeBtn='';
