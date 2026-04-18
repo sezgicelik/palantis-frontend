@@ -325,6 +325,7 @@ body{padding-top:130px;}
   flex:1;
   overflow-x:auto;
   scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
 }
 .hud-res-row::-webkit-scrollbar{display:none;}
 
@@ -359,6 +360,7 @@ body{padding-top:130px;}
   flex:1;
   overflow-x:auto;
   scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
 }
 .hud-aligned::-webkit-scrollbar{display:none;}
 .stat-empty{border-color:transparent;background:transparent;pointer-events:none;}
@@ -1221,6 +1223,27 @@ body{padding-top:130px;}
   .army-tabs{gap:4px;}
   .atab{padding:6px 12px;font-size:11px;}
 
+  /* Bina grid — 2 sütun */
+  .bg-grid{grid-template-columns:repeat(2,1fr);}
+
+  /* Kategori filtre butonları — yatay scroll, küçülme yok */
+  .filters,.city-filter-bar{
+    flex-wrap:nowrap;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    padding-bottom:4px;
+  }
+  .filters::-webkit-scrollbar,.city-filter-bar::-webkit-scrollbar{display:none;}
+  .fbtn,.city-filt{flex-shrink:0;}
+
+  /* İçerik alanı altta padding — sabit tutorial/görev çubuğu için */
+  .main-content{padding-bottom:80px;}
+
+  /* Parmakla tıklanabilir hedefler — min 44px */
+  .btn,.btn-sm,.btn-action,.fbtn,.city-filt,.atab,.menu-item,
+  .btab,.filter-btn,button{min-height:44px;}
+
   /* Modal */
   .modal-box{width:95vw;padding:18px;}
 
@@ -1274,6 +1297,9 @@ body{padding-top:130px;}
   .city-stats{grid-template-columns:1fr 1fr;gap:6px;}
   .cstat{padding:10px;}
   .cstat .snum{font-size:20px;}
+
+  /* Bina grid — 1 sütun (küçük telefon) */
+  .bg-grid{grid-template-columns:1fr;}
 
   /* Filtreler */
   .filters{gap:4px;}
