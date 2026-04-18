@@ -3,6 +3,37 @@
    Tarih + Tip gruplama, filtre butonları
 ══════════════════════════════════ */
 
+// v1.13.50: Savas event tiklanabilir satir helper
+function _formatActivityRow(l, baseStyle) {
+  const m = /\[#(\d+)\]/.exec(l.mesaj||'');
+  if (l.event_type === 'savas' && m) {
+    const sid = m[1];
+    const mesaj = l.mesaj.replace(/\s*\[#\d+\]\s*$/, '');
+    return '<div onclick="openSavasRaporFromLog('+sid+')" style="'+baseStyle+';color:#e0c080;cursor:pointer" onmouseover="this.style.background=\'rgba(201,168,76,0.08)\'" onmouseout="this.style.background=\'none\'">🔍 '+mesaj+' <span style="font-size:9px;color:#888">raporu gör ›</span></div>';
+  }
+  return '<div style="'+baseStyle+'">' + l.mesaj + '</div>';
+}
+
+// v1.13.50: Savas log'dan rapor aç (global helper — activity.html ve reports.html ortak kullanır)
+async function openSavasRaporFromLog(savasId) {
+  const token = getToken();
+  if (!token) return;
+  try {
+    const resp = await fetch(API_BASE + '/api/savas/' + savasId + '/rapor', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await resp.json();
+    if (!resp.ok) { alert(data.error || 'Rapor alinamadi'); return; }
+    if (typeof showSavasRapor === 'function') {
+      showSavasRapor(data.sonuc, data.benim_taraf, {
+        saldiranAdi: data.saldiran_kral || 'Saldiran',
+        savunanAdi: data.savunan_kral || (data.tip === 'koloni' ? 'Koloni' : 'Savunan'),
+        tip: data.tip
+      });
+    } else { alert('Savas rapor modulu yuklenmedi'); }
+  } catch(e) { alert('Rapor yuklenemedi: ' + e.message); }
+}
+
 // v1.13.44: eksik event'ler eklendi (askeri/casus_hedefi/kadim_saldiri/takviye/kadim_ticaret/bocek_yarisi/premium/sandik)
 // v1.13.45: casus_hedefi + kadim_saldiri hem Askeri hem Sehir'de (sehrine zarar/etki)
 const KATEGORI_MAP = {
@@ -101,7 +132,7 @@ function renderActivity(gunler) {
         contentHtml += '<div style="margin:4px 0 6px;padding-left:4px;border-left:2px solid ' + katRenk + '">';
         contentHtml += '<div style="font-size:10px;color:' + katRenk + ';font-weight:bold;margin-bottom:2px">' + ikon + ' ' + tip.replace(/_/g,' ').toUpperCase() + ' (' + items.length + ')</div>';
         items.forEach(l => {
-          contentHtml += '<div style="font-size:11px;color:#999;padding:1px 0 1px 8px">' + l.mesaj + '</div>';
+          contentHtml += _formatActivityRow(l, 'font-size:11px;color:#999;padding:1px 0 1px 8px');
         });
         contentHtml += '</div>';
       }
@@ -109,9 +140,19 @@ function renderActivity(gunler) {
       // Düz liste
       loglar.forEach(l => {
         const ikon = (typeof ACTIVITY_ICONS !== 'undefined' && ACTIVITY_ICONS[l.event_type]) || '•';
-        contentHtml += '<div style="display:flex;gap:6px;padding:2px 0;font-size:11px;color:#999">' +
-          '<span style="width:18px;text-align:center;flex-shrink:0">' + ikon + '</span>' +
-          '<span>' + l.mesaj + '</span></div>';
+        // v1.13.50: savas event'i tiklanabilir
+        const m = /\[#(\d+)\]/.exec(l.mesaj||'');
+        if (l.event_type === 'savas' && m) {
+          const sid = m[1];
+          const mesaj = l.mesaj.replace(/\s*\[#\d+\]\s*$/, '');
+          contentHtml += '<div onclick="openSavasRaporFromLog('+sid+')" style="display:flex;gap:6px;padding:3px 0;font-size:11px;color:#e0c080;cursor:pointer" onmouseover="this.style.background=\'rgba(201,168,76,0.08)\'" onmouseout="this.style.background=\'none\'">' +
+            '<span style="width:18px;text-align:center;flex-shrink:0">'+ikon+'</span>' +
+            '<span>🔍 '+mesaj+' <span style="font-size:9px;color:#888">raporu gör ›</span></span></div>';
+        } else {
+          contentHtml += '<div style="display:flex;gap:6px;padding:2px 0;font-size:11px;color:#999">' +
+            '<span style="width:18px;text-align:center;flex-shrink:0">' + ikon + '</span>' +
+            '<span>' + l.mesaj + '</span></div>';
+        }
       });
     }
 
