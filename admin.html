@@ -627,26 +627,50 @@
     <div id="savas-cfg-content">Yukleniyor...</div>
     <button class="act" onclick="savasCfgKaydet()">Kaydet</button>
 
-    <!-- v1.13.56: Saldiri deger araligi ayari -->
-    <div class="card" style="margin-top:18px;border-left:3px solid #e74c3c">
-      <h4 style="margin:0 0 8px 0;color:#e74c3c">⚖️ Saldiri Deger Araligi</h4>
+    <!-- v1.13.56-57: 3 tip deger araligi ayari -->
+    <div style="margin-top:18px">
+      <h3 style="color:#e74c3c">⚖️ Deger Araligi Ayarlari (3 tip)</h3>
       <p style="font-size:11px;color:#888;margin-bottom:10px">
-        Oyuncu hedef secerken sehir degerleri oranla karsilastirilir.
+        Oyuncu hedef secerken sehir degerleri oranlar ile karsilastirilir. Her tip bagimsiz.
         <br><b>Alt %</b>: hedef, senin degerinin (%100 - alt) kadar dusuk olabilir.
         <br><b>Ust %</b>: hedef, senin degerinin (%100 + ust) kadar yuksek olabilir.
-        <br><i>Default: Alt=30, Ust=43 (ornek: sen 200K isen hedef 140K-286K arasi olmalı)</i>
       </p>
-      <div style="display:flex;gap:12px;align-items:center">
-        <label>Alt % (düşük limit):
-          <input type="number" id="sda-alt" min="0" max="99" value="30" style="width:80px" />
-        </label>
-        <label>Ust % (yuksek limit):
-          <input type="number" id="sda-ust" min="0" value="43" style="width:80px" />
-        </label>
-        <span id="sda-ornek" style="color:#888;font-size:11px"></span>
+
+      <!-- Savas -->
+      <div class="card" style="margin-bottom:10px;border-left:3px solid #e74c3c">
+        <h4 style="margin:0 0 8px 0;color:#e74c3c">⚔️ Savas Saldiri</h4>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <label>Alt %: <input type="number" id="da-savas-alt" min="0" max="99" value="30" style="width:80px" /></label>
+          <label>Ust %: <input type="number" id="da-savas-ust" min="0" value="43" style="width:80px" /></label>
+          <span id="da-savas-ornek" style="color:#888;font-size:11px"></span>
+          <button class="act" onclick="degerAraligiKaydet('savas')" style="background:#c0392b">💾 Kaydet</button>
+          <span id="da-savas-msg" style="font-size:12px"></span>
+        </div>
       </div>
-      <button class="act" onclick="savasDegerAraligiKaydet()" style="margin-top:10px;background:#c0392b">💾 Deger Araligini Kaydet</button>
-      <span id="sda-msg" style="margin-left:10px;font-size:12px"></span>
+
+      <!-- Casus -->
+      <div class="card" style="margin-bottom:10px;border-left:3px solid #9b59b6">
+        <h4 style="margin:0 0 8px 0;color:#9b59b6">🕵️ Casus Operasyon</h4>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <label>Alt %: <input type="number" id="da-casus-alt" min="0" max="99" value="30" style="width:80px" /></label>
+          <label>Ust %: <input type="number" id="da-casus-ust" min="0" value="43" style="width:80px" /></label>
+          <span id="da-casus-ornek" style="color:#888;font-size:11px"></span>
+          <button class="act" onclick="degerAraligiKaydet('casus')" style="background:#8e44ad">💾 Kaydet</button>
+          <span id="da-casus-msg" style="font-size:12px"></span>
+        </div>
+      </div>
+
+      <!-- Buyu -->
+      <div class="card" style="margin-bottom:10px;border-left:3px solid #2980b9">
+        <h4 style="margin:0 0 8px 0;color:#2980b9">✨ Ofansif Buyu</h4>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <label>Alt %: <input type="number" id="da-buyu-alt" min="0" max="99" value="30" style="width:80px" /></label>
+          <label>Ust %: <input type="number" id="da-buyu-ust" min="0" value="43" style="width:80px" /></label>
+          <span id="da-buyu-ornek" style="color:#888;font-size:11px"></span>
+          <button class="act" onclick="degerAraligiKaydet('buyu')" style="background:#1f618d">💾 Kaydet</button>
+          <span id="da-buyu-msg" style="font-size:12px"></span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -2348,45 +2372,49 @@ async function savasCfgKaydet() {
   } catch(e) { alert('Hata: ' + e.message); }
 }
 
-// v1.13.56: Saldiri Deger Araligi (oyuncu vs hedef sehir degeri oranlari)
+// v1.13.56-57: Deger Araligi — generic 3 tip (savas, casus, buyu)
 async function loadSavasDegerAraligi() {
   try {
-    const r = await fetch(API + '/api/admin/savas-deger-araligi', { headers: hdr() });
+    const r = await fetch(API + '/api/admin/deger-araligi', { headers: hdr() });
     const d = await r.json();
-    if (d.ok) {
-      document.getElementById('sda-alt').value = d.alt_yuzde;
-      document.getElementById('sda-ust').value = d.ust_yuzde;
-      sdaOrnekGuncelle();
+    if (!d.ok) return;
+    for (const tip of ['savas', 'casus', 'buyu']) {
+      const cfg = d[tip] || { alt_yuzde: 30, ust_yuzde: 43 };
+      const altEl = document.getElementById(`da-${tip}-alt`);
+      const ustEl = document.getElementById(`da-${tip}-ust`);
+      if (altEl) altEl.value = cfg.alt_yuzde;
+      if (ustEl) ustEl.value = cfg.ust_yuzde;
+      daOrnekGuncelle(tip);
     }
-  } catch(e) { console.error('sda load', e); }
+  } catch(e) { console.error('deger-araligi load', e); }
 }
 
-function sdaOrnekGuncelle() {
-  const alt = parseFloat(document.getElementById('sda-alt').value) || 30;
-  const ust = parseFloat(document.getElementById('sda-ust').value) || 43;
+function daOrnekGuncelle(tip) {
+  const alt = parseFloat(document.getElementById(`da-${tip}-alt`)?.value) || 30;
+  const ust = parseFloat(document.getElementById(`da-${tip}-ust`)?.value) || 43;
   const ornek = 200000;
   const altV = Math.floor(ornek * (1 - alt/100));
   const ustV = Math.floor(ornek * (1 + ust/100));
-  document.getElementById('sda-ornek').textContent =
-    `Ornek: 200.000 degerli oyuncu ${altV.toLocaleString('tr-TR')} - ${ustV.toLocaleString('tr-TR')} arasini hedef alabilir`;
+  const el = document.getElementById(`da-${tip}-ornek`);
+  if (el) el.textContent = `(200.000 oyuncu → ${altV.toLocaleString('tr-TR')} - ${ustV.toLocaleString('tr-TR')})`;
 }
 
-async function savasDegerAraligiKaydet() {
-  const alt_yuzde = parseFloat(document.getElementById('sda-alt').value);
-  const ust_yuzde = parseFloat(document.getElementById('sda-ust').value);
-  const msg = document.getElementById('sda-msg');
+async function degerAraligiKaydet(tip) {
+  const alt_yuzde = parseFloat(document.getElementById(`da-${tip}-alt`).value);
+  const ust_yuzde = parseFloat(document.getElementById(`da-${tip}-ust`).value);
+  const msg = document.getElementById(`da-${tip}-msg`);
   msg.textContent = 'Kaydediliyor...';
   msg.style.color = '#888';
   try {
-    const r = await fetch(API + '/api/admin/savas-deger-araligi', {
+    const r = await fetch(API + '/api/admin/deger-araligi', {
       method: 'POST', headers: hdr(),
-      body: JSON.stringify({ alt_yuzde, ust_yuzde })
+      body: JSON.stringify({ tip, alt_yuzde, ust_yuzde })
     });
     const d = await r.json();
     if (d.ok) {
-      msg.textContent = `✅ Kaydedildi: %${d.alt_yuzde} alt, %${d.ust_yuzde} ust`;
+      msg.textContent = `✅ Kaydedildi`;
       msg.style.color = '#27ae60';
-      sdaOrnekGuncelle();
+      daOrnekGuncelle(tip);
     } else {
       msg.textContent = `❌ ${d.error || 'Hata'}`;
       msg.style.color = '#e74c3c';
@@ -2397,12 +2425,14 @@ async function savasDegerAraligiKaydet() {
   }
 }
 
-// sda input'larina listener — ornek guncelle
+// Input'lara listener — ornek guncelle
 document.addEventListener('DOMContentLoaded', () => {
-  const a = document.getElementById('sda-alt');
-  const u = document.getElementById('sda-ust');
-  if (a) a.addEventListener('input', sdaOrnekGuncelle);
-  if (u) u.addEventListener('input', sdaOrnekGuncelle);
+  for (const tip of ['savas', 'casus', 'buyu']) {
+    const a = document.getElementById(`da-${tip}-alt`);
+    const u = document.getElementById(`da-${tip}-ust`);
+    if (a) a.addEventListener('input', () => daOrnekGuncelle(tip));
+    if (u) u.addEventListener('input', () => daOrnekGuncelle(tip));
+  }
 });
 
 // ═══ DAYANIKLILIK CONFIG ═══
