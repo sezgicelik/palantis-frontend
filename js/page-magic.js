@@ -171,6 +171,36 @@ async function wsUret() {
 // Eski fonksiyon uyumluluk
 function setWorshippers(n) { /* artik kullanilmiyor */ }
 
+// v1.13.42: Worshipper uretim kuyrugunu yukle ve goster
+async function wsQueueLoad() {
+  const token = getToken(); if (!token) return;
+  try {
+    const resp = await fetch(API_BASE + '/api/game/worshipper/queue', { headers: { Authorization: 'Bearer ' + token } });
+    if (!resp.ok) return;
+    const data = await resp.json();
+    const wrap = document.getElementById('ws-queue-wrap');
+    const list = document.getElementById('ws-queue-list');
+    if (!wrap || !list) return;
+    const q = data.queue || [];
+    if (!q.length) { wrap.style.display = 'none'; return; }
+    wrap.style.display = 'block';
+    const RENK_IKON = { beyaz:'🤍', kirmizi:'❤️', mavi:'💙', yesil:'💚' };
+    const RENK_AD = { beyaz:'Beyaz', kirmizi:'Kırmızı', mavi:'Mavi', yesil:'Yeşil' };
+    const RENK_REN = { beyaz:'#f0e8d8', kirmizi:'#e74c3c', mavi:'#3498db', yesil:'#2ecc71' };
+    list.innerHTML = q.map(w => {
+      const gun = parseFloat(w.gunKalan) || 0;
+      return '<div style="display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid #222">' +
+        '<span style="font-size:14px">' + (RENK_IKON[w.renk]||'🙏') + '</span>' +
+        '<span style="color:' + (RENK_REN[w.renk]||'#aaa') + ';font-weight:bold;min-width:90px">' + (RENK_AD[w.renk]||w.renk) + ' WS</span>' +
+        '<span style="color:#ddd">×' + w.miktar + '</span>' +
+        '<span style="margin-left:auto;color:#88aaff">⏱ ' + (gun > 0 ? (typeof fmtKalanSure === 'function' ? fmtKalanSure(gun*3600) : gun.toFixed(1) + ' P.G.') : 'Tamamlanıyor') + '</span>' +
+      '</div>';
+    }).join('');
+  } catch(e) {}
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(wsInit, 1500);
+  setTimeout(wsQueueLoad, 1800);
+  setInterval(wsQueueLoad, 30000); // 30 sn'de bir guncelle
 });

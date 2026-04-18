@@ -29,6 +29,7 @@ function renderAyarlar(el, data) {
     { key:'maas_eksik', label:'Ordu maasi odenemediginde', icon:'💸' },
     { key:'guild_duyuru', label:'Guild duyurusu yapildiginda', icon:'🏰' },
     { key:'bina_tamam', label:'Bina insaati tamamlandiginda', icon:'🏗️' },
+    { key:'egitim_tamam', label:'Unite egitimi tamamlandiginda', icon:'⚔️' },
     { key:'pazar_satis', label:'Pazardaki ilanlarim satildiginda', icon:'🏪' },
   ];
 
@@ -331,7 +332,7 @@ async function telegramKopar() {
 
 async function bildirimKaydet() {
   var token = getToken(); if (!token) return;
-  var keys = ['saldiri','koloni_bitis','gorev_tamam','casus_rapor','ozel_mesaj','maas_eksik','guild_duyuru','bina_tamam','pazar_satis'];
+  var keys = ['saldiri','koloni_bitis','gorev_tamam','casus_rapor','ozel_mesaj','maas_eksik','guild_duyuru','bina_tamam','egitim_tamam','pazar_satis'];
   var body = {};
   keys.forEach(function(k) {
     var cb = document.getElementById('bil-' + k);

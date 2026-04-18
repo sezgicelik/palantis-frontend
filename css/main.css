@@ -396,6 +396,30 @@ body{padding-top:130px;}
 }
 .stat-box[data-tip]:hover::after{opacity:1;}
 
+/* v1.13.42: Asagi acilir tooltip (A.Buyu / D.Buyu icin ekran disina taşmasin) */
+.stat-box[data-tip-below]::after{
+  content:attr(data-tip-below);
+  position:absolute;
+  top:calc(100% + 7px);
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(26,14,4,0.95);
+  border:1px solid rgba(200,169,110,0.5);
+  color:#c8a96e;
+  font-size:8px;
+  letter-spacing:1.5px;
+  padding:3px 8px;
+  border-radius:2px;
+  white-space:nowrap;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .15s;
+  box-shadow:0 0 14px rgba(200,169,110,0.15);
+  font-family:'Cinzel',serif;
+  z-index:9999;
+}
+.stat-box[data-tip-below]:hover::after{opacity:1;}
+
 /* Eski class uyumluluk */
 .hud-res-item{display:none;} /* Eski item'lar gizle */
 

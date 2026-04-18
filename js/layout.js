@@ -237,7 +237,7 @@ function renderHUD(){
           </div>
         </div>
         <!-- 3. Ustumdeki Agresif Buyu -->
-        <div id="hud-buagr-btn" class="stat-box" data-tip="USTUMDEKI AGRESIF BUYULER" onclick="toggleGelenOrdular()" style="display:none;cursor:pointer;border-left:2px solid #c0392b;background:rgba(192,57,43,0.08)">
+        <div id="hud-buagr-btn" class="stat-box" data-tip-below="USTUMDEKI AGRESIF BUYULER" onclick="toggleGelenOrdular()" style="display:none;cursor:pointer;border-left:2px solid #c0392b;background:rgba(192,57,43,0.08)">
           <span class="res-icon">🔮</span>
           <div class="res-details">
             <span class="res-label" style="color:#c0392b">A.Büyü</span>
@@ -245,7 +245,7 @@ function renderHUD(){
           </div>
         </div>
         <!-- 4. Ustumdeki Defansif Buyu -->
-        <div id="hud-budef-btn" class="stat-box" data-tip="USTUMDEKI DESTEK BUYULER" onclick="toggleGelenOrdular()" style="display:none;cursor:pointer;border-left:2px solid #3498db;background:rgba(52,152,219,0.08)">
+        <div id="hud-budef-btn" class="stat-box" data-tip-below="USTUMDEKI DESTEK BUYULER" onclick="toggleGelenOrdular()" style="display:none;cursor:pointer;border-left:2px solid #3498db;background:rgba(52,152,219,0.08)">
           <span class="res-icon">✨</span>
           <div class="res-details">
             <span class="res-label" style="color:#3498db">D.Büyü</span>
