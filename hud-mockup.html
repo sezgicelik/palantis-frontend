@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>HUD Mockup - Noxara v1.13.60</title>
+<style>
+  *{box-sizing:border-box}
+  body{background:#0a0604;color:#f0e8d8;font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:0;min-height:100vh}
+
+  /* Switcher — ust ortada */
+  .switcher{position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:99999;display:flex;gap:4px;background:#1a140a;padding:8px;border-radius:6px;border:1px solid #c8a96e;box-shadow:0 4px 12px rgba(0,0,0,0.5)}
+  .switcher button{background:#0f0a06;color:#c8a96e;border:1px solid #3a3020;padding:8px 14px;cursor:pointer;border-radius:4px;font-family:'Cinzel',serif;font-size:12px;font-weight:600;letter-spacing:1px}
+  .switcher button:hover{background:#2a1f11}
+  .switcher button.active{background:linear-gradient(135deg,#d4af37,#c8a96e);color:#0a0604;border-color:#d4af37}
+  .info{position:fixed;top:65px;left:50%;transform:translateX(-50%);z-index:99998;background:#1a140a;border:1px solid #3a3020;border-radius:6px;padding:8px 14px;font-size:11px;max-width:680px;color:#aaa}
+
+  /* HUD genel */
+  #hud{position:relative;z-index:9000}
+  .hud-row{display:flex;align-items:center;min-height:28px;border-bottom:1px solid rgba(200,169,110,0.08);background:#110805}
+  .hud-lbl{min-width:60px;text-align:center;font-size:9px;letter-spacing:1.5px;font-weight:700;color:rgba(200,169,110,0.4);border-right:1px solid rgba(200,169,110,0.08);padding:0 6px;align-self:stretch;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none}
+  .hud-lbl:hover{background:rgba(200,169,110,0.1);color:#c8a96e}
+  .hud-res{display:flex;align-items:center;gap:6px;padding:3px 10px;flex:1;overflow-x:auto;scrollbar-width:none}
+  .hud-res::-webkit-scrollbar{display:none}
+  .stat{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;background:rgba(255,255,255,0.03);border:1px solid rgba(200,169,110,0.1);border-radius:4px;white-space:nowrap}
+  .stat .ico{font-size:14px}
+  .stat .lbl{color:#888;font-size:10px}
+  .stat .val{color:#f0e8d8;font-weight:600;font-size:12px}
+  .stat .rate{color:#27ae60;font-size:10px}
+
+  /* MODE: OVERLAY — minimal bar sabit, detay absolute */
+  body.mode-overlay .hud-detail{position:absolute;top:35px;left:0;right:0;z-index:9001;background:linear-gradient(180deg,#1a140a,#0a0604);box-shadow:0 8px 24px rgba(0,0,0,0.8);border-bottom:2px solid #c8a96e;display:none}
+  body.mode-overlay .hud-detail.open{display:block}
+  body.mode-overlay .hud-minimal{position:sticky;top:0;height:35px;background:linear-gradient(180deg,#1a140a,#110805);border-bottom:1px solid #c8a96e;display:flex;align-items:center;padding:0 12px;z-index:9002;gap:12px}
+  body.mode-overlay .toggle-btn{margin-left:auto;color:#c8a96e;background:none;border:none;cursor:pointer;font-size:18px}
+
+  /* MODE: ACCORDION — 5 satir gorunur, her label tikla toggle */
+  body.mode-accordion .hud-minimal{display:none}
+  body.mode-accordion .hud-row.collapsed .hud-res{display:none}
+  body.mode-accordion .hud-row.collapsed .hud-lbl::after{content:' ▶';color:#888}
+  body.mode-accordion .hud-row:not(.collapsed) .hud-lbl::after{content:' ▼';color:#c8a96e}
+
+  /* MODE: MINIMAL-ONLY — sadece minimal bar, detay yok */
+  body.mode-minimal-only .hud-detail{display:none!important}
+  body.mode-minimal-only .hud-minimal{height:35px;background:linear-gradient(180deg,#1a140a,#110805);border-bottom:1px solid #c8a96e;display:flex;align-items:center;padding:0 12px;gap:12px}
+  body.mode-minimal-only .toggle-btn{display:none}
+
+  /* Minimal bar stat (kucuk) */
+  .mini-stat{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;color:#f0e8d8;font-size:12px}
+  .mini-stat .ico{font-size:14px}
+  .mini-stat .lbl{color:#888;font-size:10px;margin-right:2px}
+  .mini-stat .val{font-weight:600;color:#d4af37}
+
+  /* Sayfa icerigi — menu + content */
+  #page{padding:20px 24px}
+  .menu{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+  .menu a{padding:8px 16px;background:#1a140a;border:1px solid #3a3020;color:#c8a96e;text-decoration:none;border-radius:4px;font-size:13px;font-family:'Cinzel',serif}
+  .menu a:hover{background:#2a1f11;color:#d4af37}
+  .content{background:#1a140a;border:1px solid #3a3020;border-radius:6px;padding:20px;min-height:300px}
+  .content h2{color:#c8a96e;margin-top:0}
+  .content p{color:#aaa;line-height:1.6;font-size:13px}
+</style>
+</head>
+<body class="mode-overlay">
+
+<div class="switcher">
+  <button data-mode="overlay" class="active">A) Overlay + Minimal</button>
+  <button data-mode="accordion">B) Accordion (her satir toggle)</button>
+  <button data-mode="minimal-only">C) Sadece Minimal</button>
+</div>
+<div class="info" id="mode-info"></div>
+
+<div id="hud">
+  <!-- Minimal bar (A ve C modlari icin) -->
+  <div class="hud-minimal">
+    <span class="mini-stat"><span class="ico">💰</span><span class="lbl">Altın</span><span class="val">62.8M</span></span>
+    <span class="mini-stat"><span class="ico">🌾</span><span class="lbl">Buğday</span><span class="val">1.7M</span></span>
+    <span class="mini-stat"><span class="ico">👥</span><span class="lbl">Nüfus</span><span class="val">3.018/2.380</span></span>
+    <span class="mini-stat"><span class="ico">⚔️</span><span class="lbl">Moral</span><span class="val">%100</span></span>
+    <span class="mini-stat"><span class="ico">📅</span><span class="lbl">Gün</span><span class="val">02 Mart 1303</span></span>
+    <span class="mini-stat"><span class="ico">🏇</span><span class="lbl">Ordu</span><span class="val">0/1</span></span>
+    <button class="toggle-btn" id="overlayToggle" title="Detay aç/kapa">▼</button>
+  </div>
+
+  <!-- Detay 5 satir (B modunda hep acik, A modunda overlay toggle, C modunda gizli) -->
+  <div class="hud-detail">
+    <div class="hud-row" data-row="ham">
+      <div class="hud-lbl">HAM</div>
+      <div class="hud-res">
+        <span class="stat"><span class="ico">🌳</span><span class="lbl">Odun</span><span class="val">4.275.060</span><span class="rate">+1.375</span></span>
+        <span class="stat"><span class="ico">⛏️</span><span class="lbl">Metal</span><span class="val">1.001.626</span><span class="rate">+150</span></span>
+        <span class="stat"><span class="ico">🌾</span><span class="lbl">Buğday</span><span class="val">1.783.774</span><span class="rate">+440</span></span>
+        <span class="stat"><span class="ico">🐟</span><span class="lbl">Balık</span><span class="val">12</span><span class="rate">+132</span></span>
+        <span class="stat"><span class="ico">🥩</span><span class="lbl">Çiğ Et</span><span class="val">356.108</span></span>
+        <span class="stat"><span class="ico">💰</span><span class="lbl">Altın</span><span class="val">62.823.675</span></span>
+      </div>
+    </div>
+    <div class="hud-row" data-row="isl">
+      <div class="hud-lbl">İŞL.</div>
+      <div class="hud-res">
+        <span class="stat"><span class="ico">🪵</span><span class="lbl">Kereste</span><span class="val">172.850</span></span>
+        <span class="stat"><span class="ico">⚙️</span><span class="lbl">İşl.Metal</span><span class="val">161.836</span></span>
+        <span class="stat"><span class="ico">🍞</span><span class="lbl">Ekmek</span><span class="val">3.065.728</span></span>
+        <span class="stat"><span class="ico">🍳</span><span class="lbl">Piş.Balık</span><span class="val">970.689</span></span>
+        <span class="stat"><span class="ico">🍖</span><span class="lbl">Piş.Et</span><span class="val">796.435</span></span>
+      </div>
+    </div>
+    <div class="hud-row" data-row="mana">
+      <div class="hud-lbl">MANA</div>
+      <div class="hud-res">
+        <span class="stat" style="border-left:2px solid #f0e8d8"><span class="ico">🤍</span><span class="lbl">B.Mana</span><span class="val">153.965</span><span class="rate">+60</span></span>
+        <span class="stat" style="border-left:2px solid #e74c3c"><span class="ico">❤️</span><span class="lbl">K.Mana</span><span class="val">58.861</span><span class="rate">+20</span></span>
+        <span class="stat" style="border-left:2px solid #3498db"><span class="ico">💙</span><span class="lbl">M.Mana</span><span class="val">58.727</span><span class="rate">+20</span></span>
+        <span class="stat" style="border-left:2px solid #2ecc71"><span class="ico">💚</span><span class="lbl">Y.Mana</span><span class="val">58.916</span><span class="rate">+23</span></span>
+        <span class="stat"><span class="ico">🫏</span><span class="lbl">Eşek</span><span class="val">9/57</span></span>
+      </div>
+    </div>
+    <div class="hud-row" data-row="genel1">
+      <div class="hud-lbl">GENEL_1</div>
+      <div class="hud-res">
+        <span class="stat"><span class="ico">😊</span><span class="lbl">Mutluluk</span><span class="val">0</span></span>
+        <span class="stat"><span class="ico">⚔️</span><span class="lbl">O.Moral</span><span class="val">100</span></span>
+        <span class="stat"><span class="ico">🍽️</span><span class="lbl">Açlık</span><span class="val">0</span></span>
+        <span class="stat"><span class="ico">👥</span><span class="lbl">Nüfus</span><span class="val">3.018/2.380</span></span>
+        <span class="stat"><span class="ico">📐</span><span class="lbl">Alan</span><span class="val">440/590</span></span>
+        <span class="stat"><span class="ico">🏰</span><span class="lbl">Ş.Değeri</span><span class="val">218.168</span></span>
+      </div>
+    </div>
+    <div class="hud-row" data-row="genel2">
+      <div class="hud-lbl">GENEL_2</div>
+      <div class="hud-res">
+        <span class="stat"><span class="ico">📅</span><span class="lbl">Tarih</span><span class="val">02 Mart 1303</span></span>
+        <span class="stat"><span class="ico">⏰</span><span class="lbl">Saat</span><span class="val">02:05:33</span></span>
+        <span class="stat" style="border-left:2px solid #d4af37"><span class="ico">🏇</span><span class="lbl">Ordularım</span><span class="val" style="color:#d4af37">0/1</span></span>
+        <span class="stat" style="border-left:2px solid #3498db"><span class="ico">✨</span><span class="lbl">D.Büyü</span><span class="val" style="color:#3498db">1</span></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="page">
+  <div class="menu">
+    <a href="#">🏠 Ana Ekran</a>
+    <a href="#">🏰 Guild</a>
+    <a href="#">🏛️ Şehrim</a>
+    <a href="#">📊 Raporlar</a>
+    <a href="#">⚔️ Savaş & Askeri</a>
+    <a href="#">🕵️ Casuslar</a>
+    <a href="#">🔮 Büyücü Kulesi</a>
+    <a href="#">📜 Görevler</a>
+    <a href="#">🛒 Pazar</a>
+  </div>
+  <div class="content">
+    <h2>Örnek Oyun Sayfası</h2>
+    <p>Bu alan normalde oyun içeriğiyle dolar (bina listesi, ordu yönetimi, savaş raporu vb.). HUD'un yukarıya ne kadar yer kapladığını, menünün ne kadar aşağıya itildiğini buradan göreceksin.</p>
+    <p><b>A) Overlay + Minimal</b>: Sadece 35px sabit bar. Detay için üstteki ▼ tıkla, içeriğin üzerinde açılır (sayfa itilmez).</p>
+    <p><b>B) Accordion</b>: 5 satır görünür. Her satırın başındaki label'a tıkla → o satır kapanır. Örnek: [HAM ▶] → kapalı, [GENEL_1 ▼] → açık.</p>
+    <p><b>C) Sadece Minimal</b>: Sadece 35px bar. Detay hiç yok (ayarlardan kritik kaynakları minimal bara taşımalı).</p>
+    <hr style="border-color:#3a3020;margin:20px 0">
+    <p><b>Kararını verdiğinde</b> üstteki butondan seçtiğin modun tam adını söyle, gerçek sayfaya implement edelim.</p>
+  </div>
+</div>
+
+<script>
+const info = document.getElementById('mode-info');
+const MODE_INFO = {
+  overlay: '🅰️ <b>Overlay + Minimal</b>: 35px sabit bar + ▼ ile tıklayınca detay <b>overlay olarak</b> üste açılır. Sayfa <b>itilmez</b>. En pratik.',
+  accordion: '🅱️ <b>Accordion</b>: 5 satır standart, ama her satırın label\'ına tıklayınca o satır <b>kapanır</b>. İstediğin kadar gizle. Sayfa her kapatmada yukarı çıkar.',
+  'minimal-only': '🅲 <b>Sadece Minimal</b>: Yalnızca 35px bar. Detay <b>yok</b>. Ayarlardan hangi stat\'ların barda olacağını seçersin. En sade.'
+};
+function setMode(m) {
+  document.body.className = 'mode-' + m;
+  document.querySelectorAll('.switcher button').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
+  info.innerHTML = MODE_INFO[m];
+}
+document.querySelectorAll('.switcher button').forEach(b => {
+  b.addEventListener('click', () => setMode(b.dataset.mode));
+});
+setMode('overlay');
+
+// Overlay toggle
+document.getElementById('overlayToggle').addEventListener('click', () => {
+  const d = document.querySelector('.hud-detail');
+  d.classList.toggle('open');
+  document.getElementById('overlayToggle').textContent = d.classList.contains('open') ? '▲' : '▼';
+});
+
+// Accordion: her hud-lbl tiklanabilir
+document.querySelectorAll('.hud-row .hud-lbl').forEach(lbl => {
+  lbl.addEventListener('click', () => {
+    if (!document.body.classList.contains('mode-accordion')) return;
+    lbl.parentElement.classList.toggle('collapsed');
+  });
+});
+</script>
+
+</body>
+</html>
