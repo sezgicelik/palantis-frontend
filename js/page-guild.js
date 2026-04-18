@@ -1340,6 +1340,20 @@ async function renderTabMarket(el, data) {
     var fiyatlar = d.fiyatlar || {};
     var kurTarih = d.kur_guncelleme ? new Date(d.kur_guncelleme).toLocaleString('tr-TR') : '-';
 
+    // v1.13.45: Tuccar durumu gosterimi
+    var tuccarSayi = (data.guild_isciler || {}).tuccar || 0;
+    var toplamStok = Object.keys(fiyatlar).reduce(function(s,k){ return s + (parseInt(fiyatlar[k].miktar)||0); }, 0);
+    if (tuccarSayi === 0) {
+      html += '<div style="background:rgba(231,76,60,0.1);border:1px solid #e74c3c;padding:8px;border-radius:4px;margin-bottom:10px;font-size:11px;color:#e74c3c">' +
+        '⚠️ <b>Hiç tüccar atanmamış!</b> Tüccar saatte 300-500 rastgele hammadde getirir. ' +
+        '<a href="#" onclick="guildTab(\'isciler\');return false" style="color:#f39c12;text-decoration:underline">İşçiler sekmesine git</a> ve köylülerden 💼 Tuccar ata.' +
+      '</div>';
+    } else {
+      html += '<div style="font-size:10px;color:#2ecc71;margin-bottom:6px">💼 ' + tuccarSayi + ' tüccar aktif — saatte ~' + (tuccarSayi*400) + ' hammadde (ortalama)' +
+        (toplamStok === 0 ? ' · <span style="color:#f39c12">Toplam stok 0 — bir sonraki cron (XX:00) için bekle</span>' : ' · Toplam stok: ' + fmt(toplamStok)) +
+      '</div>';
+    }
+
     html += '<div style="font-size:10px;color:#888;margin-bottom:10px">Kur son guncelleme: ' + kurTarih + ' | Kurlar saatte bir %70-130 arasi dalgalanir</div>';
 
     if (!satisYetki) {
