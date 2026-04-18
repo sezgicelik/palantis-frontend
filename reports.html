@@ -128,12 +128,14 @@
 
     <script>
     // v1.2.1: Rapor sekme sistemi — her sekme kendi event_type'ini filtreler
+    // v1.13.44.1: eksik event_type'lar eklendi (casus, casus_hedefi, kadim_saldiri, takviye,
+    // kadim_ticaret, guild_ambar, guild_bagis, bocek_yarisi, premium, sandik, askeri)
     const REPORT_EVENT_TYPES = {
-      sehir: ['bina_tamam','nufus','kacis','yemek','sehir_morali','festival','admin','arazi','essek','kervan','artifact','gorev'],
-      askeri: ['egitim_tamam','maas','admin','savas','artifact'],
+      sehir: ['bina_tamam','nufus','kacis','yemek','sehir_morali','festival','admin','arazi','essek','kervan','artifact','gorev','bocek_yarisi','premium','sandik'],
+      askeri: ['egitim_tamam','maas','admin','savas','artifact','casus','casus_hedefi','askeri','kadim_saldiri','takviye'],
       koloni: ['koloni_fetih','koloni_cekil','koloni_kaynak','admin'],
       ekonomi: ['isci_uretim','ekonomi','pisirme','bolge_bonus','irk_bonus','mana_uretim','vergi','admin','artifact','gorev'],
-      ticaret: ['market_satis','buyu_alisveris','pazar_ilan','pazar_alisveris','admin']
+      ticaret: ['market_satis','buyu_alisveris','pazar_ilan','pazar_alisveris','admin','kadim_ticaret','guild_ambar','guild_bagis']
     };
 
     function reportTab(tab, el) {
