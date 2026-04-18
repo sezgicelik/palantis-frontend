@@ -626,6 +626,28 @@
     <p style="font-size:10px;color:#888;margin-bottom:10px">Olen unite maliyet ganimeti + sehir yagmasi + alan transferi oranlari</p>
     <div id="savas-cfg-content">Yukleniyor...</div>
     <button class="act" onclick="savasCfgKaydet()">Kaydet</button>
+
+    <!-- v1.13.56: Saldiri deger araligi ayari -->
+    <div class="card" style="margin-top:18px;border-left:3px solid #e74c3c">
+      <h4 style="margin:0 0 8px 0;color:#e74c3c">⚖️ Saldiri Deger Araligi</h4>
+      <p style="font-size:11px;color:#888;margin-bottom:10px">
+        Oyuncu hedef secerken sehir degerleri oranla karsilastirilir.
+        <br><b>Alt %</b>: hedef, senin degerinin (%100 - alt) kadar dusuk olabilir.
+        <br><b>Ust %</b>: hedef, senin degerinin (%100 + ust) kadar yuksek olabilir.
+        <br><i>Default: Alt=30, Ust=43 (ornek: sen 200K isen hedef 140K-286K arasi olmalı)</i>
+      </p>
+      <div style="display:flex;gap:12px;align-items:center">
+        <label>Alt % (düşük limit):
+          <input type="number" id="sda-alt" min="0" max="99" value="30" style="width:80px" />
+        </label>
+        <label>Ust % (yuksek limit):
+          <input type="number" id="sda-ust" min="0" value="43" style="width:80px" />
+        </label>
+        <span id="sda-ornek" style="color:#888;font-size:11px"></span>
+      </div>
+      <button class="act" onclick="savasDegerAraligiKaydet()" style="margin-top:10px;background:#c0392b">💾 Deger Araligini Kaydet</button>
+      <span id="sda-msg" style="margin-left:10px;font-size:12px"></span>
+    </div>
   </div>
 
   <!-- ═══ DAYANIKLILIK ═══ -->
@@ -792,7 +814,7 @@ function switchTab(tab, el) {
   if (tab === 'duyuru') loadDuyuruAdmin();
   if (tab === 'anomali') loadAnomaliAdmin();
   if (tab === 'tatil-cfg') loadTatilAdmin();
-  if (tab === 'savas-cfg') loadSavasCfg();
+  if (tab === 'savas-cfg') { loadSavasCfg(); loadSavasDegerAraligi(); }
   if (tab === 'dayaniklilik-cfg') loadDayaniklikCfg();
   if (tab === 'bilge-cfg') loadBilgeCfg();
   if (tab === 'casus-cfg') loadCasusCfg();
@@ -2325,6 +2347,63 @@ async function savasCfgKaydet() {
     alert('Savas config kaydedildi!');
   } catch(e) { alert('Hata: ' + e.message); }
 }
+
+// v1.13.56: Saldiri Deger Araligi (oyuncu vs hedef sehir degeri oranlari)
+async function loadSavasDegerAraligi() {
+  try {
+    const r = await fetch(API + '/api/admin/savas-deger-araligi', { headers: hdr() });
+    const d = await r.json();
+    if (d.ok) {
+      document.getElementById('sda-alt').value = d.alt_yuzde;
+      document.getElementById('sda-ust').value = d.ust_yuzde;
+      sdaOrnekGuncelle();
+    }
+  } catch(e) { console.error('sda load', e); }
+}
+
+function sdaOrnekGuncelle() {
+  const alt = parseFloat(document.getElementById('sda-alt').value) || 30;
+  const ust = parseFloat(document.getElementById('sda-ust').value) || 43;
+  const ornek = 200000;
+  const altV = Math.floor(ornek * (1 - alt/100));
+  const ustV = Math.floor(ornek * (1 + ust/100));
+  document.getElementById('sda-ornek').textContent =
+    `Ornek: 200.000 degerli oyuncu ${altV.toLocaleString('tr-TR')} - ${ustV.toLocaleString('tr-TR')} arasini hedef alabilir`;
+}
+
+async function savasDegerAraligiKaydet() {
+  const alt_yuzde = parseFloat(document.getElementById('sda-alt').value);
+  const ust_yuzde = parseFloat(document.getElementById('sda-ust').value);
+  const msg = document.getElementById('sda-msg');
+  msg.textContent = 'Kaydediliyor...';
+  msg.style.color = '#888';
+  try {
+    const r = await fetch(API + '/api/admin/savas-deger-araligi', {
+      method: 'POST', headers: hdr(),
+      body: JSON.stringify({ alt_yuzde, ust_yuzde })
+    });
+    const d = await r.json();
+    if (d.ok) {
+      msg.textContent = `✅ Kaydedildi: %${d.alt_yuzde} alt, %${d.ust_yuzde} ust`;
+      msg.style.color = '#27ae60';
+      sdaOrnekGuncelle();
+    } else {
+      msg.textContent = `❌ ${d.error || 'Hata'}`;
+      msg.style.color = '#e74c3c';
+    }
+  } catch(e) {
+    msg.textContent = '❌ Sunucu hatasi';
+    msg.style.color = '#e74c3c';
+  }
+}
+
+// sda input'larina listener — ornek guncelle
+document.addEventListener('DOMContentLoaded', () => {
+  const a = document.getElementById('sda-alt');
+  const u = document.getElementById('sda-ust');
+  if (a) a.addEventListener('input', sdaOrnekGuncelle);
+  if (u) u.addEventListener('input', sdaOrnekGuncelle);
+});
 
 // ═══ DAYANIKLILIK CONFIG ═══
 let _dayCfg = {};
