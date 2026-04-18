@@ -1,7 +1,8 @@
-// v1.13.49.2: relative path (GitHub Pages subpath /palantis-frontend/)
-const CACHE_NAME = 'noxara-v2';
+// v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
+// Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
+const CACHE_NAME = 'noxara-v3';
 
-// Relative paths — self.registration.scope base'dir (./ olarak register edildi)
+// Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -12,7 +13,9 @@ const STATIC_ASSETS = [
   './icons/icon-512.svg'
 ];
 
-// Install: cache static assets
+// ═══════════════════════════════════════════════════════════════
+// INSTALL — kritik statik varliklari onden cache'le
+// ═══════════════════════════════════════════════════════════════
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache =>
@@ -25,43 +28,113 @@ self.addEventListener('install', event => {
   self.skipWaiting();
 });
 
-// Activate: remove old caches
+// ═══════════════════════════════════════════════════════════════
+// ACTIVATE — eski cache'leri sil + aktif claim
+// ═══════════════════════════════════════════════════════════════
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => {
+        console.log('[SW] eski cache siliniyor:', k);
+        return caches.delete(k);
+      }))
     )
   );
   self.clients.claim();
 });
 
-// Fetch: network-first for API, cache-first for static
+// ═══════════════════════════════════════════════════════════════
+// FETCH — istek tipine gore strateji
+// ═══════════════════════════════════════════════════════════════
 self.addEventListener('fetch', event => {
-  const url = new URL(event.request.url);
+  const req = event.request;
+  const url = new URL(req.url);
 
-  // API isteklerini her zaman network'ten al
+  // 1) API isteklerini her zaman network'ten al (hiç cache)
   if (url.pathname.includes('/api/')) {
-    event.respondWith(fetch(event.request));
+    event.respondWith(fetch(req));
     return;
   }
 
-  // Only same-origin GET
-  if (event.request.method !== 'GET' || url.origin !== location.origin) {
-    event.respondWith(fetch(event.request));
+  // 2) Sadece same-origin GET — diğerleri pass-through
+  if (req.method !== 'GET' || url.origin !== location.origin) {
+    event.respondWith(fetch(req));
     return;
   }
 
-  // Statik dosyalar: once cache, yoksa network
-  event.respondWith(
-    caches.match(event.request).then(cached => {
-      if (cached) return cached;
-      return fetch(event.request).then(response => {
-        if (response.status === 200 && response.type === 'basic') {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-        }
-        return response;
-      });
-    })
-  );
+  // 3) HTML sayfalar (document) → NETWORK-FIRST
+  //    Yeni deploy anında kullanıcı hemen yeni HTML'i görür.
+  //    Network yoksa cache'den düşer (offline fallback).
+  const isHTML = req.destination === 'document' ||
+                 req.headers.get('accept')?.includes('text/html') ||
+                 url.pathname.endsWith('.html') ||
+                 url.pathname === '/' ||
+                 url.pathname.endsWith('/');
+  if (isHTML) {
+    event.respondWith(networkFirst(req));
+    return;
+  }
+
+  // 4) Icon/image/font → CACHE-FIRST (statik, nadir değişir)
+  const isAsset = /\.(png|jpg|jpeg|gif|svg|webp|woff2?|ttf|ico)$/.test(url.pathname);
+  if (isAsset) {
+    event.respondWith(cacheFirst(req));
+    return;
+  }
+
+  // 5) CSS/JS (ve diğer her şey) → STALE-WHILE-REVALIDATE
+  //    Cache'den hemen döner, arkaplanda network'ten yeni halini çeker.
+  //    Sonraki ziyarette yeni versiyon gelir.
+  event.respondWith(staleWhileRevalidate(req));
 });
+
+// ═══════════════════════════════════════════════════════════════
+// STRATEJI YARDIMCILARI
+// ═══════════════════════════════════════════════════════════════
+
+// Network-first: network'ten dene, başarısızsa cache'e düş
+async function networkFirst(req) {
+  try {
+    const fresh = await fetch(req);
+    if (fresh && fresh.status === 200 && fresh.type === 'basic') {
+      const cache = await caches.open(CACHE_NAME);
+      cache.put(req, fresh.clone());
+    }
+    return fresh;
+  } catch (e) {
+    const cached = await caches.match(req);
+    if (cached) return cached;
+    // Network yok + cache'de de yok → 503
+    return new Response('Offline ve cache yok', { status: 503, statusText: 'Offline' });
+  }
+}
+
+// Cache-first: cache'te varsa onu ver, yoksa network'ten al + cache'e yaz
+async function cacheFirst(req) {
+  const cached = await caches.match(req);
+  if (cached) return cached;
+  try {
+    const fresh = await fetch(req);
+    if (fresh && fresh.status === 200 && fresh.type === 'basic') {
+      const cache = await caches.open(CACHE_NAME);
+      cache.put(req, fresh.clone());
+    }
+    return fresh;
+  } catch {
+    return new Response('Asset yok', { status: 404 });
+  }
+}
+
+// Stale-while-revalidate: cache'ten hemen ver, arkaplanda network'ten güncelle
+async function staleWhileRevalidate(req) {
+  const cache = await caches.open(CACHE_NAME);
+  const cached = await cache.match(req);
+  const fetchPromise = fetch(req).then(fresh => {
+    if (fresh && fresh.status === 200 && fresh.type === 'basic') {
+      cache.put(req, fresh.clone());
+    }
+    return fresh;
+  }).catch(() => null);
+  // Cached varsa onu dön, yoksa network'ü bekle
+  return cached || fetchPromise || new Response('Offline', { status: 503 });
+}
