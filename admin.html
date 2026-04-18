@@ -149,6 +149,7 @@
       <h3>Admin Islemleri</h3>
       <div class="actions">
         <button class="btn" onclick="confirmAction('Cron tetiklenecek. Emin misiniz?',triggerCron)">Cron Tetikle</button>
+        <button class="btn" onclick="cronHataTesti()" style="background:#c0392b;color:#fff">🧪 Cron Hata Testi</button>
         <button class="btn" onclick="confirmAction('Tum koloniler silinip yeniden olusturulacak. Emin misiniz?',koloniReset)">Koloni Reset</button>
         <button class="btn" onclick="besiDurumCek()" style="background:#16a085;color:#fff">🐄 Besi Durum</button>
         <button class="btn" onclick="confirmAction('Tum oyuncularin besi_hayvani -> cig_et (1 besi = 20 cig_et). Cron 24. gun otomatik calisir, bu manuel tetikleme. Emin misiniz?',besiKesimManuel)" style="background:#c0392b;color:#fff">🔪 Besi Kesim (Manuel)</button>
@@ -935,6 +936,15 @@ async function triggerCron() {
   const r = await fetch(API+'/api/admin/cron/trigger',{method:'POST',headers:hdr()}).then(r=>r.json());
   document.getElementById('status-msg').textContent = r.skipped ? 'Son 30dk icinde calismis, atlandi.' : 'Cron tetiklendi!';
   setTimeout(loadCron, 2000);
+}
+// v1.13.49.1: Cron hata testi — cron_runs'a kasten HATA satiri insert, Cron Durumu tablosunda gorsel
+async function cronHataTesti() {
+  if (!confirm('cron_runs tablosuna KASTEN HATA satiri eklenecek. Cron durumu tablosunda HATA gorunumu kontrol icin. Emin misiniz?')) return;
+  try {
+    const r = await fetch(API+'/api/admin/cron/test-hata', { method:'POST', headers:hdr() }).then(r=>r.json());
+    document.getElementById('status-msg').textContent = r.ok ? '🧪 Test hatasi eklendi. Cron durumunu yeniliyorum...' : (r.error || 'Hata');
+    setTimeout(loadCron, 1500);
+  } catch(e) { document.getElementById('status-msg').textContent = 'Hata: ' + e.message; }
 }
 async function koloniReset() {
   const r = await fetch(API+'/api/admin/koloni-reset',{method:'POST',headers:hdr()}).then(r=>r.json());
