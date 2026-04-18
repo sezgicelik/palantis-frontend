@@ -837,8 +837,12 @@ function renderMoralTarihcesi(d) {
         return `<div style="margin-bottom:2px"><b style="color:#d4af37">${os.ordu_isim||('#'+os.ordu_id)}</b> (${os.toplam_asker}): <span style="color:#aaa">${unitPairs||'—'}</span></div>`;
       }).join('');
     }
+    // Sezon etiket rengi (alterne: 1-3-5 mor, 2-4-6 lacivert)
+    const sezonNo = t.sezon || 1;
+    const sezonRenk = sezonNo % 2 === 0 ? '#2980b9' : '#8e44ad';
     return `<tr>
       <td>${t.tarih}</td>
+      <td><span style="background:${sezonRenk};color:#fff;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:600">S${sezonNo}</span></td>
       <td style="color:${etkiColor};font-weight:600">${t.etki>0?'+':''}${t.etki}</td>
       <td style="color:${moralColor};font-weight:600">%${t.sim_moral_sonrasi}</td>
       <td style="text-align:right;color:#f1c40f">${fmtN(t.maas_tutari)}</td>
@@ -903,13 +907,13 @@ function renderMoralTarihcesi(d) {
       <div style="max-height:400px;overflow-y:auto">
         <table style="width:100%;font-size:12px"><thead>
           <tr style="background:#333;color:#fff">
-            <th>Tarih</th><th>Etki</th><th>Sim Moral</th>
+            <th>Tarih</th><th>Sezon</th><th>Etki</th><th>Sim Moral</th>
             <th style="text-align:right">Maas</th>
             <th style="text-align:right">~Asker*</th>
             <th>Birimler (snapshot)</th>
             <th>Mesaj</th>
           </tr>
-        </thead><tbody>${tarihceRows||'<tr><td colspan=7 style="text-align:center;color:#888">Hic maas event yok</td></tr>'}</tbody></table>
+        </thead><tbody>${tarihceRows||'<tr><td colspan=8 style="text-align:center;color:#888">Hic maas event yok</td></tr>'}</tbody></table>
       </div>
       <p style="font-size:10px;color:#888;margin-top:6px">* Yaklasik asker = maas / 62 (karisik ordu ortalama birim maasi). · Birimler = snapshot tablosundan (v1.13.53 sonrasi kayitli).</p>
     </div>
