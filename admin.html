@@ -820,14 +820,19 @@ async function loadMoralTarihcesi() {
 }
 
 function renderMoralTarihcesi(d) {
-  const o = d.oyuncu, oz = d.ozet;
+  const o = d.oyuncu, oz = d.ozet, rd = d.reyting_debug || {};
+  const fmtN = (n) => (n==null||n===undefined)?'—':n.toLocaleString('tr-TR');
   const tarihceRows = d.tarihce.map(t => {
     const etkiColor = t.etki > 0 ? '#27ae60' : (t.etki < 0 ? '#e74c3c' : '#888');
     const moralColor = t.sim_moral_sonrasi >= 70 ? '#27ae60' : (t.sim_moral_sonrasi >= 30 ? '#f39c12' : '#e74c3c');
+    // Maas tutari -> yaklasik asker tahmini (ortalama 62 altin/asker, piyade/suvari/paladin karisimi)
+    const tahminAsker = t.maas_tutari ? Math.round(t.maas_tutari / 62) : null;
     return `<tr>
       <td>${t.tarih}</td>
       <td style="color:${etkiColor};font-weight:600">${t.etki>0?'+':''}${t.etki}</td>
       <td style="color:${moralColor};font-weight:600">%${t.sim_moral_sonrasi}</td>
+      <td style="text-align:right;color:#f1c40f">${fmtN(t.maas_tutari)}</td>
+      <td style="text-align:right;color:#d4af37;font-size:11px">${tahminAsker?'~'+fmtN(tahminAsker):'—'}</td>
       <td style="color:#aaa;font-size:11px">${t.mesaj||''}</td>
     </tr>`;
   }).join('');
@@ -836,10 +841,17 @@ function renderMoralTarihcesi(d) {
     const unitList = (or.units||[]).map(u => `${u.unite_id}:${u.adet}`).join(', ') || '—';
     return `<tr>
       <td>${or.id}</td><td>${or.isim||'?'}</td><td>${or.durum||'—'}</td>
-      <td style="text-align:right">${or.toplam_asker}</td>
+      <td style="text-align:right">${fmtN(or.toplam_asker)}</td>
+      <td style="text-align:right;color:#e74c3c">${fmtN(or.ham_guc)}</td>
       <td style="color:#aaa;font-size:11px">${unitList}</td>
     </tr>`;
   }).join('');
+
+  const top5Rows = (rd.top5_ordu||[]).map((a, i) => `<tr>
+    <td>${i+1}</td><td>${a.kral||'?'}</td><td>${a.isim||'?'}</td>
+    <td style="text-align:right">${fmtN(a.toplam_asker)}</td>
+    <td style="text-align:right;color:#e74c3c;font-weight:600">${fmtN(a.guc)}</td>
+  </tr>`).join('');
 
   const moralClr = o.ordu_morali_simdi >= 70 ? '#27ae60' : (o.ordu_morali_simdi >= 30 ? '#f39c12' : '#e74c3c');
   const simClr = oz.simule_moral_100_den_baslarsa >= 70 ? '#27ae60' : (oz.simule_moral_100_den_baslarsa >= 30 ? '#f39c12' : '#e74c3c');
@@ -864,20 +876,45 @@ function renderMoralTarihcesi(d) {
     </div>
 
     <div class="card" style="margin-bottom:12px">
-      <h4 style="margin:0 0 8px 0">📜 Maas Gecmisi (Eski → Yeni, Her Satir Simule Moral)</h4>
+      <h4 style="margin:0 0 8px 0">📜 Maas Gecmisi (Eski → Yeni) — Maas tutari = o anki ordu buyuklugunun gostergesi</h4>
       <div style="max-height:400px;overflow-y:auto">
         <table style="width:100%;font-size:12px"><thead>
-          <tr style="background:#333;color:#fff"><th>Tarih</th><th>Etki</th><th>Sim Moral</th><th>Mesaj</th></tr>
-        </thead><tbody>${tarihceRows||'<tr><td colspan=4 style="text-align:center;color:#888">Hic maas event yok</td></tr>'}</tbody></table>
+          <tr style="background:#333;color:#fff">
+            <th>Tarih</th><th>Etki</th><th>Sim Moral</th>
+            <th style="text-align:right">Maas</th>
+            <th style="text-align:right">~Asker*</th>
+            <th>Mesaj</th>
+          </tr>
+        </thead><tbody>${tarihceRows||'<tr><td colspan=6 style="text-align:center;color:#888">Hic maas event yok</td></tr>'}</tbody></table>
       </div>
+      <p style="font-size:10px;color:#888;margin-top:6px">* Yaklasik asker = maas / 62 (karisik ordu ortalama birim maasi). Ortalamadan sapabilir ama trendi gosterir.</p>
+    </div>
+
+    <div class="card" style="margin-bottom:12px">
+      <h4 style="margin:0 0 8px 0">⚔️ Ordular (${d.ordular.length})</h4>
+      <table style="width:100%;font-size:12px"><thead>
+        <tr style="background:#333;color:#fff"><th>ID</th><th>Isim</th><th>Durum</th><th>Toplam Asker</th><th>Ham Guc</th><th>Uniteler</th></tr>
+      </thead><tbody>${orduRows||'<tr><td colspan=6 style="text-align:center;color:#888">Ordu yok</td></tr>'}</tbody></table>
+      <p style="font-size:11px;color:#888;margin-top:8px">Toplam asker 0 veya uniteler bos gorunuyorsa, atk_ham 0 olur ve reyting %0 hesaplanir (ayri bug).</p>
     </div>
 
     <div class="card">
-      <h4 style="margin:0 0 8px 0">⚔️ Ordular (${d.ordular.length})</h4>
+      <h4 style="margin:0 0 8px 0">📊 Reyting Debug (v1.13.53)</h4>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px">
+        <div class="stat"><div class="val">${fmtN(rd.benim_max_ordu_guc)}</div><div class="lbl">Benim En Guclu Ordu</div></div>
+        <div class="stat"><div class="val">${fmtN(rd.benim_toplam_guc)}</div><div class="lbl">Benim Toplam Guc</div></div>
+        <div class="stat"><div class="val" style="color:#e74c3c">${fmtN(rd.server_max_ordu_guc)}</div><div class="lbl">Sunucu Max Ordu</div></div>
+      </div>
+      <div style="padding:8px;background:#2c2c2c;border-left:3px solid #3498db;font-size:13px;font-family:monospace;margin-bottom:10px">
+        ${rd.reyting_hesap||'—'}
+      </div>
+      <h5 style="margin:0 0 6px 0;color:#d4af37">🏆 Sunucu Top 5 Ordu (Ham Guc)</h5>
       <table style="width:100%;font-size:12px"><thead>
-        <tr style="background:#333;color:#fff"><th>ID</th><th>Isim</th><th>Durum</th><th>Toplam Asker</th><th>Uniteler</th></tr>
-      </thead><tbody>${orduRows||'<tr><td colspan=5 style="text-align:center;color:#888">Ordu yok</td></tr>'}</tbody></table>
-      <p style="font-size:11px;color:#888;margin-top:8px">Toplam asker 0 veya uniteler bos gorunuyorsa, atk_ham 0 olur ve reyting %0 hesaplanir (ayri bug).</p>
+        <tr style="background:#333;color:#fff"><th>#</th><th>Kral</th><th>Ordu</th><th>Asker</th><th>Ham Guc</th></tr>
+      </thead><tbody>${top5Rows||'<tr><td colspan=5 style="text-align:center;color:#888">Veri yok</td></tr>'}</tbody></table>
+      <p style="font-size:11px;color:#888;margin-top:8px">
+        Reyting = Benim Toplam Guc / Max(Sunucu Max, Benim Max) × 100. Eger "Sunucu Max" cok buyuk bir degerdeyse (orn. 100M+), reyting %0'a yuvarlanir (bug: admin spawn ordusu veya corrupt row).
+      </p>
     </div>
   `;
 }
