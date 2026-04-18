@@ -679,6 +679,8 @@ function renderTabKasa(el, data) {
   var g = data.guild;
   var kasa = data.kasa || {};
   var myYetkiler = data.benim_yetkilerim || {};
+  // v1.13.47: bagis loglari fetch
+  _loadGuildBagislar(g.id);
 
   // Kasa kaynaklari
   var kasaHTML = ['altin','odun','metal','bugday','balik','kereste','islenmis'].map(function(k) {
@@ -729,9 +731,47 @@ function renderTabKasa(el, data) {
       '<div style="display:flex;gap:10px;flex-wrap:wrap">' + kasaHTML + '</div>' +
       bagisHTML + limitInfo + koyluBagisHTML +
     '</div>' +
+    // v1.13.47: Son bagislar kartı
+    '<div class="card" id="guild-bagis-kart">' +
+      '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">🎁 Son Bağışlar (Son 20)</div>' +
+      '<div id="guild-bagis-liste" style="font-size:10px;color:#888">Yukleniyor...</div>' +
+    '</div>' +
     ambarIstekHTML;
 
   if (myYetkiler.ambar_gor) guildAmbarIsteklerYukle(g.id);
+}
+
+// v1.13.47: Son bagislar yukle (GET /kasa son_bagislar)
+async function _loadGuildBagislar(guildId) {
+  try {
+    var resp = await fetch(API_BASE + '/api/guild/' + guildId + '/kasa', { headers: { 'Authorization': 'Bearer ' + getToken() } });
+    var d = await resp.json();
+    var el = document.getElementById('guild-bagis-liste');
+    if (!el) return;
+    var bagis = d.son_bagislar || [];
+    if (!bagis.length) { el.innerHTML = '<span style="color:#555">Henuz bagis yapilmadi</span>'; return; }
+    var _escB = function(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); };
+    var _fmtN = function(n){ n=parseInt(n)||0; return n.toLocaleString('tr-TR'); };
+    el.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:10px">' +
+      '<thead><tr style="color:#c9a84c;border-bottom:1px solid #2a2a1a">' +
+        '<th style="text-align:left;padding:4px">Oyuncu</th>' +
+        '<th style="text-align:left;padding:4px">Bağış</th>' +
+        '<th style="text-align:right;padding:4px">Miktar</th>' +
+        '<th style="text-align:right;padding:4px">Tarih</th>' +
+      '</tr></thead><tbody>' +
+      bagis.map(function(b) {
+        var ikon = b.kaynak === 'koylu' ? '👨‍🌾' : (KAYNAK_IKON[b.kaynak] || '📦');
+        return '<tr style="border-bottom:1px solid #1a1a1a;color:#aaa">' +
+          '<td style="padding:3px"><b style="color:#d4af37">' + _escB(b.kullanici_adi) + '</b></td>' +
+          '<td style="padding:3px">' + ikon + ' ' + _escB(b.kaynak) + '</td>' +
+          '<td style="padding:3px;text-align:right;color:#2ecc71">+' + _fmtN(b.miktar) + '</td>' +
+          '<td style="padding:3px;text-align:right;color:#555;font-size:9px">' + new Date(b.created_at).toLocaleString('tr-TR') + '</td>' +
+        '</tr>';
+      }).join('') + '</tbody></table>';
+  } catch(e) {
+    var el = document.getElementById('guild-bagis-liste');
+    if (el) el.innerHTML = '<span style="color:#e74c3c">Yuklenemedi</span>';
+  }
 }
 
 async function guildAmbarIsteklerYukle(guildId) {
