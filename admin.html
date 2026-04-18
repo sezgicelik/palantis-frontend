@@ -81,6 +81,7 @@
     <button onclick="switchTab('pazar-deger',this)">Pazar Deger</button>
     <button onclick="switchTab('kadim-cfg',this)">Kadim Sehir</button>
     <button onclick="switchTab('ekonomi',this)" style="background:linear-gradient(135deg,#8e44ad 0%,#6c3483 100%);color:#fff">Ekonomi Ayar</button>
+    <button onclick="switchTab('moral-tar',this)" style="background:linear-gradient(135deg,#c0392b 0%,#922b21 100%);color:#fff">🛡️ Moral Teshis</button>
   </div>
 
   <!-- CRON TAB -->
@@ -731,6 +732,19 @@
     <button class="act" onclick="ekonomiCfgKaydet()" style="margin-top:12px;background:#27ae60">💾 Tum Ekonomi Ayarlarini Kaydet</button>
   </div>
 
+  <!-- MORAL TESHIS TAB (v1.13.53) -->
+  <div id="tab-moral-tar" class="panel">
+    <h3 style="color:#e74c3c">🛡️ Oyuncu Moral & Ordu Teshis</h3>
+    <p style="font-size:11px;color:#888;margin-bottom:10px">Bir oyuncunun son N PG maas gecmisi, moral degisim simulasyonu ve ordu detayi. "Moral %0 nasil oldu?" sorusunun kaniti.</p>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+      <label>Oyuncu ID: <input type="number" id="moral-tar-pid" value="" style="width:100px" /></label>
+      <label>Son N PG: <input type="number" id="moral-tar-gun" value="60" min="1" max="365" style="width:80px" /></label>
+      <button class="act" onclick="loadMoralTarihcesi()">Raporu Getir</button>
+      <button onclick="moralTarPickPlayer()" style="background:#555">Oyuncu Listesinden Sec</button>
+    </div>
+    <div id="moral-tar-content" style="font-size:12px">Oyuncu ID gir, 'Raporu Getir'e bas.</div>
+  </div>
+
 </div>
 
 <script src="js/servers.js"></script>
@@ -786,6 +800,94 @@ function switchTab(tab, el) {
   if (tab === 'pazar-deger') loadPazarDegerCfg();
   if (tab === 'kadim-cfg') loadKadimCfg();
   if (tab === 'ekonomi') loadEkonomiCfg();
+  if (tab === 'moral-tar') { /* kullanici manuel fetch */ }
+}
+
+/* ═══════════ v1.13.53 MORAL TESHIS ═══════════ */
+async function loadMoralTarihcesi() {
+  const pid = parseInt(document.getElementById('moral-tar-pid').value);
+  const gun = parseInt(document.getElementById('moral-tar-gun').value) || 60;
+  const box = document.getElementById('moral-tar-content');
+  if (!pid) { box.innerHTML = '<span style="color:#e74c3c">Oyuncu ID gir!</span>'; return; }
+  box.innerHTML = 'Yukleniyor...';
+  try {
+    const d = await fetch(`${API}/api/admin/player/${pid}/moral-tarihcesi?gun=${gun}`, {headers:hdr()}).then(r=>r.json());
+    if (!d.ok) { box.innerHTML = `<span style="color:#e74c3c">HATA: ${d.error||'bilinmiyor'}</span>`; return; }
+    renderMoralTarihcesi(d);
+  } catch(e) {
+    box.innerHTML = `<span style="color:#e74c3c">Baglanti hatasi: ${e.message}</span>`;
+  }
+}
+
+function renderMoralTarihcesi(d) {
+  const o = d.oyuncu, oz = d.ozet;
+  const tarihceRows = d.tarihce.map(t => {
+    const etkiColor = t.etki > 0 ? '#27ae60' : (t.etki < 0 ? '#e74c3c' : '#888');
+    const moralColor = t.sim_moral_sonrasi >= 70 ? '#27ae60' : (t.sim_moral_sonrasi >= 30 ? '#f39c12' : '#e74c3c');
+    return `<tr>
+      <td>${t.tarih}</td>
+      <td style="color:${etkiColor};font-weight:600">${t.etki>0?'+':''}${t.etki}</td>
+      <td style="color:${moralColor};font-weight:600">%${t.sim_moral_sonrasi}</td>
+      <td style="color:#aaa;font-size:11px">${t.mesaj||''}</td>
+    </tr>`;
+  }).join('');
+
+  const orduRows = d.ordular.map(or => {
+    const unitList = (or.units||[]).map(u => `${u.unite_id}:${u.adet}`).join(', ') || '—';
+    return `<tr>
+      <td>${or.id}</td><td>${or.isim||'?'}</td><td>${or.durum||'—'}</td>
+      <td style="text-align:right">${or.toplam_asker}</td>
+      <td style="color:#aaa;font-size:11px">${unitList}</td>
+    </tr>`;
+  }).join('');
+
+  const moralClr = o.ordu_morali_simdi >= 70 ? '#27ae60' : (o.ordu_morali_simdi >= 30 ? '#f39c12' : '#e74c3c');
+  const simClr = oz.simule_moral_100_den_baslarsa >= 70 ? '#27ae60' : (oz.simule_moral_100_den_baslarsa >= 30 ? '#f39c12' : '#e74c3c');
+  const fark = oz.simule_moral_100_den_baslarsa - o.ordu_morali_simdi;
+
+  document.getElementById('moral-tar-content').innerHTML = `
+    <div class="card" style="margin-bottom:12px">
+      <h4 style="margin:0 0 8px 0">👤 ${o.kral} (ID: ${o.id})</h4>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+        <div class="stat"><div class="val" style="color:${moralClr}">%${o.ordu_morali_simdi}</div><div class="lbl">Mevcut Moral</div></div>
+        <div class="stat"><div class="val" style="color:${simClr}">%${oz.simule_moral_100_den_baslarsa}</div><div class="lbl">100'den Basla Simulasyon</div></div>
+        <div class="stat"><div class="val" style="color:${fark>0?'#e74c3c':'#27ae60'}">${fark>0?'-':'+'}${Math.abs(fark)}</div><div class="lbl">Fark (Daha Eski Olaylar)</div></div>
+        <div class="stat"><div class="val">${oz.toplam_maas_event}</div><div class="lbl">Maas Event</div></div>
+      </div>
+      <div style="margin-top:10px;padding:8px;background:#2c2c2c;border-left:3px solid #e67e22;font-size:12px">
+        <b>Ozet:</b> ${oz.aciklama}<br>
+        <b>Bu ${oz.toplam_maas_event} olay icinde:</b>
+        <span style="color:#e74c3c">❌ ${oz.eksik_odenen} eksik</span> ·
+        <span style="color:#27ae60">✅ ${oz.tam_odenen} tam</span> ·
+        <span style="color:#9b59b6">🧙 ${oz.hipnoz} hipnoz</span>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:12px">
+      <h4 style="margin:0 0 8px 0">📜 Maas Gecmisi (Eski → Yeni, Her Satir Simule Moral)</h4>
+      <div style="max-height:400px;overflow-y:auto">
+        <table style="width:100%;font-size:12px"><thead>
+          <tr style="background:#333;color:#fff"><th>Tarih</th><th>Etki</th><th>Sim Moral</th><th>Mesaj</th></tr>
+        </thead><tbody>${tarihceRows||'<tr><td colspan=4 style="text-align:center;color:#888">Hic maas event yok</td></tr>'}</tbody></table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4 style="margin:0 0 8px 0">⚔️ Ordular (${d.ordular.length})</h4>
+      <table style="width:100%;font-size:12px"><thead>
+        <tr style="background:#333;color:#fff"><th>ID</th><th>Isim</th><th>Durum</th><th>Toplam Asker</th><th>Uniteler</th></tr>
+      </thead><tbody>${orduRows||'<tr><td colspan=5 style="text-align:center;color:#888">Ordu yok</td></tr>'}</tbody></table>
+      <p style="font-size:11px;color:#888;margin-top:8px">Toplam asker 0 veya uniteler bos gorunuyorsa, atk_ham 0 olur ve reyting %0 hesaplanir (ayri bug).</p>
+    </div>
+  `;
+}
+
+async function moralTarPickPlayer() {
+  const d = await fetch(API + '/api/admin/players', {headers:hdr()}).then(r=>r.json());
+  if (!d.ok) { alert('Oyuncu listesi alinamadi'); return; }
+  const names = d.oyuncular.map(p => `${p.player_id}: ${p.kral} (moral %${p.ordu_morali})`).join('\n');
+  const sec = prompt('Oyuncu ID gir:\n\n' + names);
+  if (sec) { document.getElementById('moral-tar-pid').value = sec.split(':')[0].trim(); loadMoralTarihcesi(); }
 }
 
 function hdr() { return { 'x-admin-secret': SECRET, 'Content-Type': 'application/json' }; }
