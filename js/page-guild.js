@@ -1368,9 +1368,17 @@ async function renderTabMarket(el, data) {
   var gId = data.guild.id;
   el.innerHTML = '<div style="text-align:center;padding:20px;color:#888">Yukleniyor...</div>';
   try {
-    var resp = await fetch(API_BASE + '/api/guild/' + gId + '/market', { headers: guildHdr() });
+    // v1.13.51: Market + oto-sat birlikte cekilir
+    var [resp, otoResp] = await Promise.all([
+      fetch(API_BASE + '/api/guild/' + gId + '/market', { headers: guildHdr() }),
+      fetch(API_BASE + '/api/guild/' + gId + '/market/oto-sat', { headers: guildHdr() })
+    ]);
     var d = await resp.json();
     if (!resp.ok) { el.innerHTML = '<div style="color:#e74c3c">' + (d.error || 'Hata') + '</div>'; return; }
+    var otoAyarlar = {};
+    if (otoResp.ok) { var otoData = await otoResp.json(); otoAyarlar = otoData.hammaddeler || {}; }
+    window._GUILD_OTO_AYARLAR = otoAyarlar;
+    window._GUILD_MARKET_GID = gId;
 
     var yetkiler = data.benim_yetkilerim || {};
     var satisYetki = yetkiler.market_satis;
@@ -1396,6 +1404,21 @@ async function renderTabMarket(el, data) {
 
     html += '<div style="font-size:10px;color:#888;margin-bottom:10px">Kur son guncelleme: ' + kurTarih + ' | Kurlar saatte bir %70-130 arasi dalgalanir</div>';
 
+    // v1.13.51: Oto-sat master bar
+    var otoAktifSayi = Object.values(otoAyarlar).filter(function(v){ return v.aktif; }).length;
+    if (satisYetki) {
+      html += '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px;background:#0d0a06;border:1px solid rgba(201,168,76,0.25);border-radius:4px;margin-bottom:10px">' +
+        '<span style="font-size:16px">🔄</span>' +
+        '<div style="flex:1;min-width:150px">' +
+          '<div style="color:#c8a96e;font-weight:bold;font-size:12px">Oto-Sat Kontrol</div>' +
+          '<div style="color:#888;font-size:10px">Her saat stok > eşik ise sabit %100 baz fiyat ile kasaya akar (komisyonsuz) — ' +
+            '<b style="color:' + (otoAktifSayi>0?'#2ecc71':'#888') + '">' + otoAktifSayi + '/10 AKTİF</b></div>' +
+        '</div>' +
+        '<button class="btn-action" style="padding:5px 12px;font-size:10px;background:#27ae60;color:#000;width:auto" onclick="guildOtoSatToplu(true)">✓ Tümünü Aç</button>' +
+        '<button class="btn-action" style="padding:5px 12px;font-size:10px;background:#e74c3c;color:#fff;width:auto" onclick="guildOtoSatToplu(false)">✗ Tümünü Kapat</button>' +
+      '</div>';
+    }
+
     if (!satisYetki) {
       html += '<div style="font-size:10px;color:#f39c12;margin-bottom:10px">ℹ️ Sadece market satis yetkiniz olan uyeler satis yapabilir</div>';
     }
@@ -1408,17 +1431,33 @@ async function renderTabMarket(el, data) {
       var f = fiyatlar[key];
       var ikon = HAMMADDE_IKON[key] || '💠';
       var kurRenk = f.kur >= 110 ? '#2ecc71' : (f.kur <= 90 ? '#e74c3c' : '#d4af37');
-      html += '<div style="background:#0a0a0a;padding:8px;border-radius:4px;border:1px solid #1a1a1a">' +
+      // v1.13.51: oto-sat durumu
+      var oto = otoAyarlar[key] || { aktif:false, esik:0 };
+      var otoBorder = oto.aktif ? '#1a4a1a' : '#1a1a1a';
+      var otoBadge = oto.aktif ? '<span style="background:#103a10;color:#2ecc71;padding:1px 5px;border-radius:3px;font-size:9px;margin-left:4px">🔄 OTO</span>' : '';
+      html += '<div style="background:#0a0a0a;padding:8px;border-radius:4px;border:1px solid ' + otoBorder + '">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">' +
-          '<span style="font-size:12px"><span style="font-size:16px">' + ikon + '</span> <b>' + f.isim + '</b></span>' +
+          '<span style="font-size:12px"><span style="font-size:16px">' + ikon + '</span> <b>' + f.isim + '</b>' + otoBadge + '</span>' +
           '<span style="font-size:10px;color:' + kurRenk + ';font-weight:bold">kur %' + f.kur + '</span>' +
         '</div>' +
         '<div style="font-size:10px;color:#aaa;margin-bottom:4px">Stok: <span style="color:#d4af37;font-weight:bold">' + fmt(f.miktar) + '</span> | Fiyat: <span style="color:#d4af37">' + f.satis_fiyat + '</span> altin/adet <span style="color:#555;font-size:9px">(baz: ' + f.baz_fiyat + ')</span></div>' +
         (satisYetki ?
-          '<div style="display:flex;gap:4px;align-items:center">' +
+          '<div style="display:flex;gap:4px;align-items:center;margin-bottom:6px">' +
             '<input id="gmkt-inp-' + key + '" type="number" min="1" max="' + f.miktar + '" value="0" style="padding:3px;border:1px solid #333;background:#111;color:#ccc;border-radius:3px;font-size:10px;width:70px" placeholder="adet">' +
             '<button class="btn-action" style="width:auto;padding:3px 10px;font-size:9px;background:#27ae60" onclick="guildMarketSat(\'' + key + '\')" ' + (f.miktar <= 0 ? 'disabled' : '') + '>SAT</button>' +
             '<span id="gmkt-kzn-' + key + '" style="font-size:9px;color:#666"></span>' +
+          '</div>' +
+          // v1.13.51: oto-sat toggle + esik
+          '<div style="display:flex;align-items:center;gap:6px;padding-top:4px;border-top:1px dashed #222">' +
+            '<label style="display:flex;align-items:center;gap:4px;font-size:9px;color:' + (oto.aktif?'#2ecc71':'#888') + ';cursor:pointer">' +
+              '<input type="checkbox" ' + (oto.aktif?'checked':'') + ' onchange="guildOtoSatToggle(\'' + key + '\', this.checked)">' +
+              '🔄 Oto (sabit ' + (f.baz_fiyat||1) + 'a)' +
+            '</label>' +
+            '<span style="font-size:9px;color:#888;margin-left:auto">Eşik:</span>' +
+            '<input id="gmkt-esik-' + key + '" type="number" min="0" value="' + (oto.esik||0) + '"' +
+              ' onblur="guildOtoSatEsikKaydet(\'' + key + '\')"' +
+              ' onkeydown="if(event.key===\'Enter\')this.blur()"' +
+              ' style="width:70px;padding:2px 4px;background:#111;border:1px solid #333;color:#ddd;border-radius:3px;font-size:9px">' +
           '</div>'
           : '') +
       '</div>';
@@ -1445,6 +1484,57 @@ async function renderTabMarket(el, data) {
   } catch(e) {
     el.innerHTML = '<div style="color:#e74c3c">Baglanti hatasi: ' + e.message + '</div>';
   }
+}
+
+// v1.13.51: Guild oto-sat handler'lari
+async function guildOtoSatToggle(key, aktif) {
+  var gId = window._GUILD_MARKET_GID;
+  if (!gId) return;
+  var esik = parseInt(document.getElementById('gmkt-esik-'+key)?.value) || 0;
+  try {
+    var resp = await fetch(API_BASE + '/api/guild/' + gId + '/market/oto-sat', {
+      method: 'PUT', headers: guildHdr(),
+      body: JSON.stringify({ hammadde: key, aktif: aktif, esik: esik })
+    });
+    var d = await resp.json();
+    if (resp.ok) {
+      if (!window._GUILD_OTO_AYARLAR[key]) window._GUILD_OTO_AYARLAR[key] = {};
+      window._GUILD_OTO_AYARLAR[key].aktif = aktif;
+      window._GUILD_OTO_AYARLAR[key].esik = esik;
+      toast('🔄 Oto-sat ' + (aktif?'AÇIK':'KAPALI'));
+      if (GUILD_DATA) renderTabMarket(document.getElementById('guild-tab-content'), GUILD_DATA);
+    } else toast(d.error || 'Hata', 'error');
+  } catch(e) { toast('Baglanti hatasi', 'error'); }
+}
+async function guildOtoSatEsikKaydet(key) {
+  var gId = window._GUILD_MARKET_GID;
+  if (!gId) return;
+  var esik = parseInt(document.getElementById('gmkt-esik-'+key)?.value) || 0;
+  var aktif = !!(window._GUILD_OTO_AYARLAR||{})[key]?.aktif;
+  try {
+    await fetch(API_BASE + '/api/guild/' + gId + '/market/oto-sat', {
+      method: 'PUT', headers: guildHdr(),
+      body: JSON.stringify({ hammadde: key, aktif: aktif, esik: esik })
+    });
+    if (!window._GUILD_OTO_AYARLAR[key]) window._GUILD_OTO_AYARLAR[key] = {};
+    window._GUILD_OTO_AYARLAR[key].esik = esik;
+    toast('Eşik: ' + esik.toLocaleString('tr-TR'));
+  } catch(e) {}
+}
+async function guildOtoSatToplu(aktif) {
+  var gId = window._GUILD_MARKET_GID;
+  if (!gId) return;
+  try {
+    var resp = await fetch(API_BASE + '/api/guild/' + gId + '/market/oto-sat/toplu', {
+      method: 'POST', headers: guildHdr(),
+      body: JSON.stringify({ aktif: aktif })
+    });
+    var d = await resp.json();
+    if (resp.ok) {
+      toast('🔄 Tüm oto-sat ' + (aktif?'AÇILDI':'KAPATILDI'));
+      if (GUILD_DATA) renderTabMarket(document.getElementById('guild-tab-content'), GUILD_DATA);
+    } else toast(d.error || 'Hata', 'error');
+  } catch(e) { toast('Baglanti hatasi', 'error'); }
 }
 
 async function guildMarketSat(hammadde) {

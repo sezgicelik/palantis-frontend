@@ -36,6 +36,9 @@
       </div>
     </div>
 
+    <!-- v1.13.51: Oto-Sat Master Bar -->
+    <div id="mk-oto-master"></div>
+
     <!-- Hammadde Tablosu -->
     <div id="mk-liste" style="display:flex;flex-direction:column;gap:2px">
       <div style="color:#888;text-align:center;padding:40px" id="mk-loading">Yükleniyor...</div>
@@ -68,19 +71,80 @@ const MK_IKONLAR = {
 };
 let MK_DATA = {};
 let MK_SATIS_MIKTAR = {};
+let MK_OTO_SAT = {}; // v1.13.51: {gumus: {aktif,esik,cag_min,aktif_cag,...}, ...}
 
 async function loadMarket() {
   const token = getToken(); if (!token) return;
   try {
-    const resp = await fetch(API_BASE + '/api/game/market', {
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
-    if (!resp.ok) return;
-    MK_DATA = await resp.json();
+    const [marketResp, otoResp] = await Promise.all([
+      fetch(API_BASE + '/api/game/market', { headers: { 'Authorization': 'Bearer ' + token } }),
+      fetch(API_BASE + '/api/game/market/oto-sat', { headers: { 'Authorization': 'Bearer ' + token } })
+    ]);
+    if (!marketResp.ok) return;
+    MK_DATA = await marketResp.json();
+    if (otoResp.ok) {
+      const otoData = await otoResp.json();
+      MK_OTO_SAT = otoData.hammaddeler || {};
+    }
     renderMarket();
   } catch(e) {
     document.getElementById('mk-loading').textContent = 'Bağlantı hatası';
   }
+}
+
+// v1.13.51: Oto-sat tek hammadde toggle
+async function mkOtoSatToggle(key, aktif) {
+  const token = getToken(); if (!token) return;
+  const esik = parseInt(document.getElementById('mk-esik-'+key)?.value) || 0;
+  try {
+    const resp = await fetch(API_BASE + '/api/game/market/oto-sat', {
+      method: 'PUT',
+      headers: { 'Content-Type':'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ hammadde: key, aktif, esik })
+    });
+    const data = await resp.json();
+    if (resp.ok) {
+      if (!MK_OTO_SAT[key]) MK_OTO_SAT[key] = {};
+      MK_OTO_SAT[key].aktif = aktif;
+      MK_OTO_SAT[key].esik = esik;
+      toast('🔄 Oto-sat ' + (aktif?'AÇIK':'KAPALI') + ': ' + (MK_DATA.fiyatlar[key]?.isim||key));
+      renderMarket();
+    } else { toast(data.error || 'Hata'); }
+  } catch(e) { toast('Bağlantı hatası'); }
+}
+
+// Eşik kaydet (input blur/Enter)
+async function mkEsikKaydet(key) {
+  const token = getToken(); if (!token) return;
+  const esik = parseInt(document.getElementById('mk-esik-'+key)?.value) || 0;
+  const aktif = !!MK_OTO_SAT[key]?.aktif;
+  try {
+    await fetch(API_BASE + '/api/game/market/oto-sat', {
+      method: 'PUT',
+      headers: { 'Content-Type':'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ hammadde: key, aktif, esik })
+    });
+    if (!MK_OTO_SAT[key]) MK_OTO_SAT[key] = {};
+    MK_OTO_SAT[key].esik = esik;
+    toast('Eşik kaydedildi: ' + esik.toLocaleString('tr-TR'));
+  } catch(e) {}
+}
+
+// Toplu master aç/kapa
+async function mkOtoSatToplu(aktif) {
+  const token = getToken(); if (!token) return;
+  try {
+    const resp = await fetch(API_BASE + '/api/game/market/oto-sat/toplu', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ aktif })
+    });
+    const data = await resp.json();
+    if (resp.ok) {
+      toast('🔄 Tüm oto-sat ' + (aktif?'AÇILDI':'KAPATILDI') + ' (' + data.degisen_hammadde + ' hammadde)');
+      loadMarket();
+    } else { toast(data.error || 'Hata'); }
+  } catch(e) { toast('Bağlantı hatası'); }
 }
 
 function renderMarket() {
@@ -98,6 +162,23 @@ function renderMarket() {
     zamanEl.textContent = d.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
   }
 
+  // v1.13.51: Oto-sat master bar
+  const masterBar = document.getElementById('mk-oto-master');
+  if (masterBar) {
+    const aktifSayi = Object.values(MK_OTO_SAT).filter(v => v.aktif).length;
+    masterBar.innerHTML =
+      '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px;background:#0d0a06;border:1px solid rgba(201,168,76,0.25);border-radius:4px;margin-bottom:10px">' +
+        '<span style="font-size:16px">🔄</span>' +
+        '<div style="flex:1;min-width:150px">' +
+          '<div style="color:#c8a96e;font-weight:bold;font-size:12px">Oto-Sat Kontrol</div>' +
+          '<div style="color:#888;font-size:10px">Her saat stok > eşik ise sabit %100 baz fiyat ile satılır — '+
+            '<b style="color:'+(aktifSayi>0?'#2ecc71':'#888')+'">'+aktifSayi+'/10 AKTİF</b></div>' +
+        '</div>' +
+        '<button class="btn" style="padding:5px 12px;font-size:10px;background:#2ecc71;color:#000" onclick="mkOtoSatToplu(true)">✓ Tümünü Aç</button>' +
+        '<button class="btn" style="padding:5px 12px;font-size:10px;background:#e74c3c;color:#fff" onclick="mkOtoSatToplu(false)">✗ Tümünü Kapat</button>' +
+      '</div>';
+  }
+
   const keys = ['gumus','bakir','mitril','kalay','kehribar','obsidyen','yakut','zumrut','ejderha_tasi','elmas'];
   liste.innerHTML = keys.map(key => {
     const f = MK_DATA.fiyatlar[key];
@@ -111,11 +192,16 @@ function renderMarket() {
     const opaStyle = kilitli ? 'opacity:0.45' : '';
     const cagBadge = f.cag_min > 1 ? `<span style="background:${kilitli?'#4a2010':'#103a10'};color:${kilitli?'#e67e22':'#2ecc71'};padding:1px 5px;border-radius:3px;font-size:9px;margin-left:4px">${kilitli?'🔒 '+f.cag_min+'. Çağ':'✓ '+f.cag_min+'. Çağ+'}</span>` : '';
 
+    // v1.13.51: Oto-sat durumu
+    const oto = MK_OTO_SAT[key] || { aktif: false, esik: 0 };
+    const otoAktif = !!oto.aktif;
+    const otoBadge = otoAktif ? '<span style="background:#103a10;color:#2ecc71;padding:1px 5px;border-radius:3px;font-size:9px;margin-left:4px">🔄 OTO</span>' : '';
+
     return `
-    <div style="padding:6px 10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#111;border:1px solid #1e1e1e;border-radius:4px;margin-bottom:2px;${opaStyle}">
+    <div style="padding:6px 10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#111;border:1px solid ${otoAktif?'#1a4a1a':'#1e1e1e'};border-radius:4px;margin-bottom:2px;${opaStyle}">
       <span style="font-size:20px;width:24px;text-align:center">${MK_IKONLAR[key]||'📦'}</span>
       <div style="min-width:100px">
-        <div style="color:#d4af37;font-weight:bold;font-size:12px">${f.isim}${cagBadge}</div>
+        <div style="color:#d4af37;font-weight:bold;font-size:12px">${f.isim}${cagBadge}${otoBadge}</div>
         <div style="color:#888;font-size:10px">Stok: <b style="color:#fff">${f.miktar.toLocaleString()}</b></div>
       </div>
       <div style="min-width:120px">
@@ -133,6 +219,19 @@ function renderMarket() {
         <button class="btn ghost" style="padding:2px 6px;font-size:10px;color:#f1c40f" onclick="mkAdjust('${key}','max')">MAX</button>
         <button class="btn" style="min-width:60px;padding:3px 8px;font-size:10px" onclick="mkSat('${key}')">💰 Sat</button>`}
       </div>
+      ${kilitli ? '' : `
+      <div style="width:100%;display:flex;align-items:center;gap:6px;padding-top:4px;border-top:1px dashed #2a2a2a">
+        <label style="display:flex;align-items:center;gap:4px;font-size:10px;color:${otoAktif?'#2ecc71':'#888'};cursor:pointer">
+          <input type="checkbox" ${otoAktif?'checked':''} onchange="mkOtoSatToggle('${key}', this.checked)">
+          🔄 Oto-Sat (sabit ${f.baz_fiyat||1} altın/adet)
+        </label>
+        <span style="font-size:10px;color:#888;margin-left:auto">Eşik:</span>
+        <input id="mk-esik-${key}" type="number" min="0" value="${oto.esik||0}"
+               onblur="mkEsikKaydet('${key}')"
+               onkeydown="if(event.key==='Enter')this.blur()"
+               style="width:80px;padding:2px 4px;background:#0a0a0a;border:1px solid #333;color:#ddd;border-radius:3px;font-size:10px">
+        <span style="font-size:9px;color:#666">(stok > eşik ise fazlası satılır)</span>
+      </div>`}
     </div>`;
   }).join('');
 }
