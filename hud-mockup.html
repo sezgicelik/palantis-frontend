@@ -25,7 +25,8 @@
   .toggle-btn:hover{background:linear-gradient(135deg,#e5bf48,#d4af37)}
 
   /* ── OVERLAY DETAY (position:absolute — sayfa itilmez) ── */
-  #hud-overlay{position:absolute;top:84px;left:0;right:0;z-index:9001;background:linear-gradient(180deg,#14100a,#0a0604);box-shadow:0 8px 24px rgba(0,0,0,0.9);border-bottom:2px solid #d4af37;display:none}
+  /* Top: 28px cunku sadece 1 satir sticky (HAM) var */
+  #hud-overlay{position:absolute;top:28px;left:0;right:0;z-index:9001;background:linear-gradient(180deg,#14100a,#0a0604);box-shadow:0 8px 24px rgba(0,0,0,0.9);border-bottom:2px solid #d4af37;display:none}
   #hud-overlay.open{display:block;animation:slideDown 0.2s ease-out}
   @keyframes slideDown{from{transform:translateY(-20px);opacity:0}to{transform:translateY(0);opacity:1}}
 
@@ -50,9 +51,8 @@
 </head>
 <body>
 
-<!-- ═══ 3 SATIRLI STICKY MINIMAL BAR ═══ -->
+<!-- ═══ TEK SATIR STICKY MINIMAL BAR (sadece HAM) ═══ -->
 <div id="hud">
-  <!-- Satir 1: HAM -->
   <div class="hud-row">
     <div class="hud-lbl">HAM</div>
     <div class="hud-res">
@@ -62,10 +62,13 @@
       <span class="stat"><span class="ico">⚙️</span><span class="lbl">İşl.Metal</span><span class="val">161.836</span></span>
       <span class="stat"><span class="ico">💰</span><span class="lbl">Altın</span><span class="val">62.823.675</span></span>
       <span class="stat"><span class="ico">📅</span><span class="lbl">Tarih</span><span class="val">02 Mart 1303</span></span>
+      <button class="toggle-btn" id="toggleBtn">▼ Detay</button>
     </div>
   </div>
+</div>
 
-  <!-- Satir 2: YIYECEK -->
+<!-- ═══ OVERLAY DETAY (4 satir: YIYECEK + MANA + ISTATISTIK + ORDU) ═══ -->
+<div id="hud-overlay">
   <div class="hud-row">
     <div class="hud-lbl">YİYECEK</div>
     <div class="hud-res">
@@ -77,8 +80,6 @@
       <span class="stat"><span class="ico">🍖</span><span class="lbl">Piş.Et</span><span class="val">796.435</span></span>
     </div>
   </div>
-
-  <!-- Satir 3: MANA + toggle -->
   <div class="hud-row">
     <div class="hud-lbl">MANA</div>
     <div class="hud-res">
@@ -87,13 +88,8 @@
       <span class="stat mana-m"><span class="ico">💙</span><span class="lbl">M.Mana</span><span class="val">58.727</span><span class="rate">+20</span></span>
       <span class="stat mana-y"><span class="ico">💚</span><span class="lbl">Y.Mana</span><span class="val">58.916</span><span class="rate">+23</span></span>
       <span class="stat"><span class="ico">🫏</span><span class="lbl">Eşek</span><span class="val">9/57</span></span>
-      <button class="toggle-btn" id="toggleBtn">▼ İstatistikler</button>
     </div>
   </div>
-</div>
-
-<!-- ═══ OVERLAY DETAY (position:absolute) ═══ -->
-<div id="hud-overlay">
   <div class="hud-row">
     <div class="hud-lbl">İSTATİSTİK</div>
     <div class="hud-res">
@@ -130,23 +126,23 @@
   </div>
 
   <div class="content">
-    <h2>🎯 Yeni HUD Tasarımı</h2>
-    <p><b>84px</b> sticky bar (3 satır) + tıklanabilir overlay. Eskisi 140px idi, <b>-56px kazanç</b>.</p>
+    <h2>🎯 Yeni HUD Tasarımı — Ultra Kompakt</h2>
+    <p><b>Sadece 28px</b> sticky bar (1 satır HAM) + tıklanabilir overlay. Eski 140px → <b>-112px kazanç</b> 🎉</p>
 
     <div class="info-box">
-      <b style="color:#d4af37">📋 3 Sticky Satır</b> — her zaman görünür<br>
-      <b style="color:#c8a96e">HAM</b> — Odun, Kereste, Metal, İşl.Metal, Altın, Tarih<br>
-      <b style="color:#c8a96e">YİYECEK</b> — Buğday, Ekmek, Balık, Piş.Balık, Çiğ Et, Piş.Et<br>
-      <b style="color:#c8a96e">MANA</b> — B.Mana, K.Mana, M.Mana, Y.Mana, Eşek + ▼ İstatistikler
+      <b style="color:#d4af37">📋 1 Sticky Satır</b> — her zaman görünür<br>
+      <b style="color:#c8a96e">HAM</b> — Odun · Kereste · Metal · İşl.Metal · Altın · Tarih + <b>▼ Detay</b> butonu
     </div>
 
     <div class="info-box" style="border-left-color:#d4af37">
       <b style="color:#d4af37">🔽 Overlay Detay</b> — ▼ tıkla açılır, position:absolute (sayfa itilmez)<br>
+      <b style="color:#c8a96e">YİYECEK</b> — Buğday, Ekmek, Balık, Piş.Balık, Çiğ Et, Piş.Et<br>
+      <b style="color:#c8a96e">MANA</b> — B.Mana, K.Mana, M.Mana, Y.Mana, Eşek<br>
       <b style="color:#c8a96e">İSTATİSTİK</b> — Mutluluk, O.Moral, Açlık, Nüfus, Alan, Ş.Değeri, Saat<br>
       <b style="color:#c8a96e">ORDU</b> — Ordularım, D.Büyü (+ gelen saldırı/destek rozetleri)
     </div>
 
-    <p style="margin-top:20px"><b style="color:#27ae60">✓ Onayla:</b> Üstteki <b>▼ İstatistikler</b> butonuna tıkla — overlay açılmalı. Tekrar tıkla kapanmalı. Sayfa içeriği YERİNDEN KALKMAMALI (overlay üstüne gelir).</p>
+    <p style="margin-top:20px"><b style="color:#27ae60">✓ Test Et:</b> Üstteki <b>▼ Detay</b> butonuna tıkla — 4 satır overlay açılmalı. Tekrar tıkla kapanmalı. Sayfa içeriği YERİNDEN KALKMAMALI.</p>
 
     <p style="margin-top:8px;padding:10px;background:#14100a;border-left:3px solid #27ae60">
       <b style="color:#27ae60">👉 Beğendin mi?</b> "Evet implement et" de, <code>js/layout.js</code>'e uygulayıp gerçek oyun sayfalarına yansıtayım.
