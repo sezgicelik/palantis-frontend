@@ -6,7 +6,18 @@ function numFmt(v){
   if(typeof v === 'number' && Number.isFinite(n)){
     return Math.floor(n).toLocaleString('tr-TR');
   }
+  // String olarak gelen sayilari da format et
+  if (typeof v === 'string' && v.match(/^-?\d+(\.\d+)?$/)) {
+    return Math.floor(Number(v)).toLocaleString('tr-TR');
+  }
   return v;
+}
+
+// v1.13.55: Global alias — tum sayfalarda fmt(n) kullanilabilir
+// Lokal fmt fonksiyonlari (page-army.js, page-guild.js, savas-rapor.js) ile uyumlu
+if (typeof window !== 'undefined') {
+  window.numFmt = numFmt;
+  window.fmt = numFmt;
 }
 function setText(id, value){
   const el = document.getElementById(id);
