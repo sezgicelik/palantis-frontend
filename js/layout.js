@@ -369,10 +369,12 @@ function initLayout(){
   loadGelenOrdular();
   setInterval(loadGelenOrdular, 30000);
 
-  // v1.13.30: Kuyruk widget mount + polling (60sn)
+  // v1.13.30: Kuyruk widget mount + polling (v1.13.58: 30sn — ordu hareketleri daha reaktif)
   renderKuyrukMount();
   loadKuyrukOzet();
-  setInterval(loadKuyrukOzet, 60000);
+  setInterval(loadKuyrukOzet, 30000);
+  // Global tetikleyici — ordu gonder/casus/kervan sonrasi anlik refresh icin kullanilir
+  if (typeof window !== 'undefined') window.refreshKuyruk = loadKuyrukOzet;
 
   // v1.2.0: Gün geçişi sistemi
   initDayTransition();
