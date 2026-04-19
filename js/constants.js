@@ -311,6 +311,35 @@ const BLDGS = {
     cagLimit:{1:0,2:0,3:0,4:0,5:-1},
     fx:l=>[{t:'pos',s:`Verimlilik +${l*3}%`},{t:'pos',s:`Araştırma -%${l*5}%`}],
     cost:l=>({odun:400,altin:400}),time:l=>72000},
+
+  // v1.13.70: 4 YENI SEHIR BINASI — GPS sistemini zenginlestirir
+  buyuk_kutuphane:{id:'buyuk_kutuphane',cat:'sehir',icon:'📚',name:'Büyük Kütüphane',bg:'#0a1400',
+    desc:"Kütüphane tier 2. Bilgi alani kapsamasi 2500 kisi. Cag 3+.",
+    maxLv:999,lv:0,deger:120,
+    cagLimit:{1:0,2:0,3:-1,4:-1,5:-1},
+    fx:l=>[{t:'pos',s:`Bilgi +${l*2500} kapsama`},{t:'pos',s:`GPS bonus`}],
+    cost:l=>({odun:800,altin:1200}),time:l=>10800},
+
+  opera_evi:{id:'opera_evi',cat:'sehir',icon:'🎼',name:'Opera Evi',bg:'#140010',
+    desc:"Tiyatro tier 2. Kultur alani kapsamasi 8000 kisi. Cag 4+.",
+    maxLv:999,lv:0,deger:180,
+    cagLimit:{1:0,2:0,3:0,4:-1,5:-1},
+    fx:l=>[{t:'pos',s:`Kultur +${l*8000} kapsama`},{t:'pos',s:`GPS bonus`}],
+    cost:l=>({odun:600,metal:200,altin:1500}),time:l=>14400},
+
+  koliseum:{id:'koliseum',cat:'sehir',icon:'🏟️',name:'Koliseum',bg:'#1a0808',
+    desc:"Arena tier 2. Eglence alani kapsamasi 20.000 kisi. Cag 5 endgame.",
+    maxLv:999,lv:0,deger:350,
+    cagLimit:{1:0,2:0,3:0,4:0,5:-1},
+    fx:l=>[{t:'pos',s:`Eglence +${l*20000} kapsama`},{t:'pos',s:`GPS bonus`}],
+    cost:l=>({odun:1500,metal:800,altin:3000}),time:l=>21600},
+
+  katedral:{id:'katedral',cat:'sehir',icon:'⛪',name:'Katedral',bg:'#0a1018',
+    desc:"Sehir alani kapsamasi 5000 kisi. Tapinak prestiji. Cag 3+.",
+    maxLv:999,lv:0,deger:150,
+    cagLimit:{1:0,2:0,3:-1,4:-1,5:-1},
+    fx:l=>[{t:'pos',s:`Sehir alani +${l*5000} kapsama`},{t:'pos',s:`GPS bonus`}],
+    cost:l=>({odun:700,metal:400,altin:1200}),time:l=>14400},
 };
 
 // Bina alan maliyetleri (frontend mirror of BINA_ALAN backend)

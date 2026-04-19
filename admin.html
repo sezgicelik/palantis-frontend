@@ -83,6 +83,7 @@
     <button onclick="switchTab('ekonomi',this)" style="background:linear-gradient(135deg,#8e44ad 0%,#6c3483 100%);color:#fff">Ekonomi Ayar</button>
     <button onclick="switchTab('moral-tar',this)" style="background:linear-gradient(135deg,#c0392b 0%,#922b21 100%);color:#fff">🛡️ Moral Teshis</button>
     <button onclick="switchTab('bina-nufus',this)" style="background:linear-gradient(135deg,#16a085 0%,#117864 100%);color:#fff">🏘️ Bina Nufus</button>
+    <button onclick="switchTab('vergi-sistem',this)" style="background:linear-gradient(135deg,#d4af37 0%,#8a6a1a 100%);color:#fff">💰 Vergi Sistemi</button>
   </div>
 
   <!-- CRON TAB -->
@@ -834,6 +835,122 @@
     </div>
   </div>
 
+  <!-- VERGI SISTEMI TAB (v1.13.70) — 5 farkli vergi modeli -->
+  <div id="tab-vergi-sistem" class="panel">
+    <h3 style="color:#d4af37">💰 Vergi Sistemi Secimi (5 Model)</h3>
+    <p style="font-size:11px;color:#888;margin-bottom:12px">
+      Oyundaki vergi toplama mantigi. Admin tek sistem secer, cron saatte onu uygular.<br>
+      <b>Degisiklik anlik:</b> bir sonraki saatlik vergi cron'unda (XX:00) yeni sistem devreye girer.
+    </p>
+
+    <div class="card" style="border-left:3px solid #d4af37">
+      <h4 style="margin:0 0 10px;color:#d4af37">Aktif Sistem</h4>
+      <select id="vs-aktif" style="width:100%;padding:8px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:13px" onchange="vsUpdateAktifAciklama()">
+        <option value="1">1 — Klasik Duz Oran (mevcut davranis)</option>
+        <option value="2">2 — GPS Kilitli (eski Palantis — sehir binasi zorunlu)</option>
+        <option value="3">3 — Progressive (Sinif Bazli: koylu/isci/tuccar ayri carpan)</option>
+        <option value="4">4 — Dinamik Moral-Bazli (yuksek moral az ceza, dusukse katlanir)</option>
+        <option value="5">5 — Premium Entegre (premium olmayana kisit)</option>
+      </select>
+      <div id="vs-aciklama" style="margin-top:8px;font-size:11px;color:#c8a96e"></div>
+    </div>
+
+    <!-- Sistem parametreleri — sekmeli -->
+    <div class="tabs" style="margin-top:14px">
+      <button class="on" onclick="vsSubTab(1,this)">Sistem 1</button>
+      <button onclick="vsSubTab(2,this)">Sistem 2</button>
+      <button onclick="vsSubTab(3,this)">Sistem 3</button>
+      <button onclick="vsSubTab(4,this)">Sistem 4</button>
+      <button onclick="vsSubTab(5,this)">Sistem 5</button>
+    </div>
+
+    <!-- Sistem 1 — Klasik -->
+    <div id="vs-tab-1" class="card" style="margin-top:10px">
+      <h4 style="color:#d4af37">Sistem 1 — Klasik Duz Oran</h4>
+      <p style="font-size:10px;color:#888">Mevcut davranis: vergi_orani × bos_koylu = altin. Ceza tablosu uygulanir.</p>
+      <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">vergi_gel azaltma / kademe (0.02 = %2)</label>
+      <input type="number" id="vs1-gel" step="0.01" min="0" max="0.1" style="width:120px">
+      <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">Sehir moral min (negatif)</label>
+      <input type="number" id="vs1-min" style="width:120px">
+      <div style="margin-top:10px">
+        <button class="btn-small" onclick="vsCezaDuzenle(1)">Ceza Tablosu Duzenle (0-25)</button>
+      </div>
+    </div>
+
+    <!-- Sistem 2 — GPS Kilitli -->
+    <div id="vs-tab-2" class="card" style="margin-top:10px;display:none">
+      <h4 style="color:#d4af37">Sistem 2 — GPS Kilitli</h4>
+      <p style="font-size:10px;color:#888">5 alan (Egitim/Bilgi/Kultur/Eglence/Sehir) kapsama % ortalamasi = GPS. GPS &lt; esikse vergi sifirlanir, max vergi merdivenle acilir.</p>
+      <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">GPS Minimum Esigi (% altinda vergi alinamaz)</label>
+      <input type="number" id="vs2-esik" min="0" max="100" style="width:120px">
+      <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">Her alan min kapsama % (azsa vergi sifirlanir)</label>
+      <input type="number" id="vs2-alan-min" min="0" max="100" style="width:120px">
+      <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">GPS Vergi Merdiveni (JSON — GPS esigi ve max vergi)</label>
+      <textarea id="vs2-merdiven" rows="4" style="width:100%;font-family:monospace;font-size:11px;background:#1a1a1a;color:var(--text);border:1px solid var(--border);padding:6px"></textarea>
+      <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">vergi_gel azaltma / kademe</label>
+      <input type="number" id="vs2-gel" step="0.01" style="width:120px">
+      <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">Sehir moral min</label>
+      <input type="number" id="vs2-min" style="width:120px">
+    </div>
+
+    <!-- Sistem 3 — Progressive -->
+    <div id="vs-tab-3" class="card" style="margin-top:10px;display:none">
+      <h4 style="color:#d4af37">Sistem 3 — Progressive (Sinif Bazli)</h4>
+      <p style="font-size:10px;color:#888">Vergi = (koylu×koylu_carpan + isci×isci_carpan + tuccar×tuccar_carpan) × vergi_orani</p>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px">
+        <label style="font-size:11px;color:#aaa">Koylu carpan<br><input type="number" id="vs3-koylu" step="0.05" style="width:100%"></label>
+        <label style="font-size:11px;color:#aaa">Isci carpan<br><input type="number" id="vs3-isci" step="0.05" style="width:100%"></label>
+        <label style="font-size:11px;color:#aaa">Tuccar carpan<br><input type="number" id="vs3-tuccar" step="0.05" style="width:100%"></label>
+      </div>
+      <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">vergi_gel azaltma / kademe</label>
+      <input type="number" id="vs3-gel" step="0.01" style="width:120px">
+      <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">Sehir moral min</label>
+      <input type="number" id="vs3-min" style="width:120px">
+    </div>
+
+    <!-- Sistem 4 — Dinamik -->
+    <div id="vs-tab-4" class="card" style="margin-top:10px;display:none">
+      <h4 style="color:#d4af37">Sistem 4 — Dinamik Moral-Bazli</h4>
+      <p style="font-size:10px;color:#888">Moral yuzdesine (current/max) gore gelir ve ceza carpani degisir. Yuksek moral = bonus gelir + az ceza.</p>
+      <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">Moral yuzde etkisi tablosu (JSON)</label>
+      <textarea id="vs4-tablo" rows="6" style="width:100%;font-family:monospace;font-size:11px;background:#1a1a1a;color:var(--text);border:1px solid var(--border);padding:6px"></textarea>
+      <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">vergi_gel azaltma / kademe</label>
+      <input type="number" id="vs4-gel" step="0.01" style="width:120px">
+      <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">Sehir moral min</label>
+      <input type="number" id="vs4-min" style="width:120px">
+    </div>
+
+    <!-- Sistem 5 — Premium -->
+    <div id="vs-tab-5" class="card" style="margin-top:10px;display:none">
+      <h4 style="color:#d4af37">Sistem 5 — Premium Entegre</h4>
+      <p style="font-size:10px;color:#888">Premium oyunculara ceza azaltma + yuksek vergi hakki. Istege bagli: premium olmayan vergi alamaz.</p>
+      <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">
+        <input type="checkbox" id="vs5-sadece-prem"> Sadece premium vergi alabilir (siki mod)
+      </label>
+      <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">Premium ceza carpani (0.8 = %20 az ceza)</label>
+      <input type="number" id="vs5-prem-ceza" step="0.05" style="width:120px">
+      <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">Premium max vergi carpani (1.5 = 1.5x daha yuksek)</label>
+      <input type="number" id="vs5-prem-max" step="0.05" style="width:120px">
+      <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">vergi_gel azaltma / kademe</label>
+      <input type="number" id="vs5-gel" step="0.01" style="width:120px">
+      <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">Sehir moral min</label>
+      <input type="number" id="vs5-min" style="width:120px">
+    </div>
+
+    <button class="act" onclick="vsKaydet()" style="margin-top:14px;background:#d4af37;color:#0a0604">💾 Vergi Sistem Config Kaydet</button>
+    <span id="vs-msg" style="margin-left:10px;font-size:12px"></span>
+
+    <!-- Oyuncu test -->
+    <div class="card" style="margin-top:18px;border-left:3px solid #3498db">
+      <h4 style="color:#3498db;margin:0 0 10px">🔬 Oyuncu Vergi Testi (5 sistem canli karsilastirma)</h4>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+        <input id="vs-test-pid" type="number" placeholder="Oyuncu ID" style="padding:6px;width:120px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px">
+        <button class="btn" onclick="vsTest()">Test Et</button>
+      </div>
+      <div id="vs-test-sonuc" style="font-size:11px;color:#ccc"></div>
+    </div>
+  </div>
+
   <!-- MORAL TESHIS TAB (v1.13.53) -->
   <div id="tab-moral-tar" class="panel">
     <h3 style="color:#e74c3c">🛡️ Oyuncu Moral & Ordu Teshis</h3>
@@ -904,6 +1021,192 @@ function switchTab(tab, el) {
   if (tab === 'ekonomi') loadEkonomiCfg();
   if (tab === 'moral-tar') { /* kullanici manuel fetch */ }
   if (tab === 'bina-nufus') loadBinaNufus();
+  if (tab === 'vergi-sistem') loadVergiSistem();
+}
+
+// ═══════════════════════════════════════
+// VERGI SISTEMI (v1.13.70) — 5 farkli model
+// ═══════════════════════════════════════
+let VS_CONFIG = null;
+const VS_ACIKLAMA = {
+  1: 'Klasik: vergi_orani × bos_koylu = altin. Sabit ceza tablosu. Mevcut davranis.',
+  2: 'GPS Kilitli: Sehir binasi olmayan vergi alamaz. 5 alan kapsamasi %30 alti → vergi sifirlanir. Merdiven ile max vergi acilir.',
+  3: 'Progressive: Koylu/Isci/Tuccar 3 ayri dilim. Her sinifin carpani farkli (koylu 1.0, isci 0.5, tuccar 0.3 vb.).',
+  4: 'Dinamik: Moral yuksekse bonus gelir + az ceza, moral dusukse gelir azalir ceza artar. Halk memnuniyetiyle dogrudan bagli.',
+  5: 'Premium Entegre: Premium oyunculara yuksek vergi hakki + az ceza. Istege bagli: premium olmayan vergi alamaz.'
+};
+function vsUpdateAktifAciklama() {
+  const v = document.getElementById('vs-aktif').value;
+  const el = document.getElementById('vs-aciklama');
+  if (el) el.textContent = '→ ' + (VS_ACIKLAMA[v] || '');
+}
+function vsSubTab(n, btn) {
+  for (let i = 1; i <= 5; i++) {
+    const t = document.getElementById('vs-tab-' + i);
+    if (t) t.style.display = (i === n) ? 'block' : 'none';
+  }
+  // Button on/off
+  const tabs = btn.parentElement.querySelectorAll('button');
+  tabs.forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+async function loadVergiSistem() {
+  try {
+    const r = await fetch(API + '/api/admin/vergi-sistem-config', { headers: hdr() });
+    const data = await r.json();
+    VS_CONFIG = data.config || {};
+    document.getElementById('vs-aktif').value = VS_CONFIG.aktif_sistem || 1;
+    vsUpdateAktifAciklama();
+    // Sistem 1
+    const s1 = VS_CONFIG.sistem1 || {};
+    document.getElementById('vs1-gel').value = s1.vergi_gel_azaltma_per_kademe ?? 0.02;
+    document.getElementById('vs1-min').value = s1.sehir_moral_min ?? -1500;
+    // Sistem 2
+    const s2 = VS_CONFIG.sistem2 || {};
+    document.getElementById('vs2-esik').value = s2.gps_min_esik ?? 30;
+    document.getElementById('vs2-alan-min').value = s2.tum_alan_min ?? 20;
+    document.getElementById('vs2-merdiven').value = JSON.stringify(s2.gps_vergi_merdiveni || [], null, 2);
+    document.getElementById('vs2-gel').value = s2.vergi_gel_azaltma_per_kademe ?? 0.02;
+    document.getElementById('vs2-min').value = s2.sehir_moral_min ?? -1500;
+    // Sistem 3
+    const s3 = VS_CONFIG.sistem3 || {};
+    const sc = s3.sinif_carpani || { koylu:1, isci:0.5, tuccar:0.3 };
+    document.getElementById('vs3-koylu').value = sc.koylu ?? 1;
+    document.getElementById('vs3-isci').value = sc.isci ?? 0.5;
+    document.getElementById('vs3-tuccar').value = sc.tuccar ?? 0.3;
+    document.getElementById('vs3-gel').value = s3.vergi_gel_azaltma_per_kademe ?? 0.02;
+    document.getElementById('vs3-min').value = s3.sehir_moral_min ?? -1500;
+    // Sistem 4
+    const s4 = VS_CONFIG.sistem4 || {};
+    document.getElementById('vs4-tablo').value = JSON.stringify(s4.moral_yuzde_etkisi || [], null, 2);
+    document.getElementById('vs4-gel').value = s4.vergi_gel_azaltma_per_kademe ?? 0.02;
+    document.getElementById('vs4-min').value = s4.sehir_moral_min ?? -1500;
+    // Sistem 5
+    const s5 = VS_CONFIG.sistem5 || {};
+    document.getElementById('vs5-sadece-prem').checked = !!s5.sadece_premium_vergi_alabilir;
+    document.getElementById('vs5-prem-ceza').value = s5.premium_ceza_carpan ?? 0.8;
+    document.getElementById('vs5-prem-max').value = s5.premium_max_vergi_carpan ?? 1.5;
+    document.getElementById('vs5-gel').value = s5.vergi_gel_azaltma_per_kademe ?? 0.02;
+    document.getElementById('vs5-min').value = s5.sehir_moral_min ?? -1500;
+  } catch(e) { alert('Vergi sistem config yuklenemedi: ' + e.message); }
+}
+async function vsKaydet() {
+  try {
+    if (!VS_CONFIG) VS_CONFIG = {};
+    VS_CONFIG.aktif_sistem = parseInt(document.getElementById('vs-aktif').value) || 1;
+    // Sistem 1
+    VS_CONFIG.sistem1 = Object.assign({}, VS_CONFIG.sistem1 || {}, {
+      vergi_gel_azaltma_per_kademe: parseFloat(document.getElementById('vs1-gel').value) || 0.02,
+      sehir_moral_min: parseInt(document.getElementById('vs1-min').value) || -1500,
+    });
+    // Sistem 2
+    let merdiven;
+    try { merdiven = JSON.parse(document.getElementById('vs2-merdiven').value); }
+    catch(e) { return alert('Sistem 2 merdiven JSON hatali: ' + e.message); }
+    VS_CONFIG.sistem2 = Object.assign({}, VS_CONFIG.sistem2 || {}, {
+      gps_min_esik: parseInt(document.getElementById('vs2-esik').value) || 30,
+      tum_alan_min: parseInt(document.getElementById('vs2-alan-min').value) || 20,
+      gps_vergi_merdiveni: merdiven,
+      vergi_gel_azaltma_per_kademe: parseFloat(document.getElementById('vs2-gel').value) || 0.02,
+      sehir_moral_min: parseInt(document.getElementById('vs2-min').value) || -1500,
+    });
+    // Sistem 3
+    VS_CONFIG.sistem3 = Object.assign({}, VS_CONFIG.sistem3 || {}, {
+      sinif_carpani: {
+        koylu:  parseFloat(document.getElementById('vs3-koylu').value)  || 1,
+        isci:   parseFloat(document.getElementById('vs3-isci').value)   || 0.5,
+        tuccar: parseFloat(document.getElementById('vs3-tuccar').value) || 0.3,
+      },
+      vergi_gel_azaltma_per_kademe: parseFloat(document.getElementById('vs3-gel').value) || 0.02,
+      sehir_moral_min: parseInt(document.getElementById('vs3-min').value) || -1500,
+    });
+    // Sistem 4
+    let moralTab;
+    try { moralTab = JSON.parse(document.getElementById('vs4-tablo').value); }
+    catch(e) { return alert('Sistem 4 tablo JSON hatali: ' + e.message); }
+    VS_CONFIG.sistem4 = Object.assign({}, VS_CONFIG.sistem4 || {}, {
+      moral_yuzde_etkisi: moralTab,
+      vergi_gel_azaltma_per_kademe: parseFloat(document.getElementById('vs4-gel').value) || 0.02,
+      sehir_moral_min: parseInt(document.getElementById('vs4-min').value) || -1500,
+    });
+    // Sistem 5
+    VS_CONFIG.sistem5 = Object.assign({}, VS_CONFIG.sistem5 || {}, {
+      sadece_premium_vergi_alabilir: document.getElementById('vs5-sadece-prem').checked,
+      premium_ceza_carpan: parseFloat(document.getElementById('vs5-prem-ceza').value) || 0.8,
+      premium_max_vergi_carpan: parseFloat(document.getElementById('vs5-prem-max').value) || 1.5,
+      vergi_gel_azaltma_per_kademe: parseFloat(document.getElementById('vs5-gel').value) || 0.02,
+      sehir_moral_min: parseInt(document.getElementById('vs5-min').value) || -1500,
+    });
+
+    const r = await fetch(API + '/api/admin/vergi-sistem-config', {
+      method: 'POST', headers: hdr(), body: JSON.stringify({ config: VS_CONFIG })
+    });
+    const d = await r.json();
+    const msgEl = document.getElementById('vs-msg');
+    if (d.ok) {
+      msgEl.textContent = '✓ ' + d.mesaj;
+      msgEl.style.color = '#27ae60';
+    } else {
+      msgEl.textContent = '✗ ' + (d.error || 'Hata');
+      msgEl.style.color = '#e74c3c';
+    }
+    setTimeout(() => { msgEl.textContent = ''; }, 5000);
+  } catch(e) { alert('Kaydetme hatasi: ' + e.message); }
+}
+function vsCezaDuzenle(sistemNo) {
+  const s = VS_CONFIG['sistem'+sistemNo] || {};
+  const t = s.ceza_tablosu || {};
+  const yeni = prompt('Ceza tablosu (JSON) — oran → moral ceza:', JSON.stringify(t));
+  if (!yeni) return;
+  try {
+    const parsed = JSON.parse(yeni);
+    s.ceza_tablosu = parsed;
+    VS_CONFIG['sistem'+sistemNo] = s;
+    alert('Tablo gecici olarak guncellendi. Kaydet butonuna basmayi unutma.');
+  } catch(e) { alert('JSON hatasi: ' + e.message); }
+}
+async function vsTest() {
+  const pid = parseInt(document.getElementById('vs-test-pid').value);
+  const el = document.getElementById('vs-test-sonuc');
+  if (!pid) { el.innerHTML = '<span style="color:#e74c3c">Oyuncu ID girin.</span>'; return; }
+  try {
+    const r = await fetch(API + '/api/admin/vergi-test/' + pid, { headers: hdr() });
+    const d = await r.json();
+    if (!d.ok) { el.innerHTML = '<span style="color:#e74c3c">' + (d.error || 'Hata') + '</span>'; return; }
+    const fmt = n => (n || 0).toLocaleString('tr-TR');
+    const p = d.player;
+    let html = '<div style="background:#0f0f0f;padding:10px;border-radius:4px;margin-bottom:10px">' +
+      '<b style="color:#d4af37">' + p.kral + '</b> · Cag ' + p.cag + ' · Vergi: %' + p.vergi_orani +
+      ' · Sehir Moral: ' + fmt(p.sehir_morali) +
+      ' · Bos Koylu: ' + fmt(p.free_koylu) +
+      ' · Toplam Nufus: ' + fmt(p.total_nufus) +
+      ' · Isci: ' + fmt(p.isci_top) +
+      ' · Tuccar: ' + fmt(p.tuccar) +
+      '</div>';
+    html += '<div style="margin-bottom:8px"><b>GPS:</b> ' + d.gps + '% · ';
+    html += Object.entries(d.alan).map(([a,v]) => a + ':' + v + '%').join(' · ') + '</div>';
+    html += '<table style="width:100%;font-size:11px;border-collapse:collapse"><thead><tr style="background:#1a1a1a">' +
+      '<th style="padding:5px;text-align:left">Sistem</th>' +
+      '<th style="padding:5px;text-align:right">Altin</th>' +
+      '<th style="padding:5px;text-align:right">Moral Ceza</th>' +
+      '<th style="padding:5px;text-align:left">Notlar</th></tr></thead><tbody>';
+    for (let i = 1; i <= 5; i++) {
+      const s = d.sonuclar['sistem' + i];
+      const aktif = (i === d.aktif_sistem) ? ' style="background:rgba(212,175,55,0.1);color:#d4af37;font-weight:bold"' : '';
+      let notlar = [];
+      if (s.engel) notlar.push('❌ ' + s.engel);
+      if (s.efektif_vergi !== undefined) notlar.push('efektif vergi: ' + s.efektif_vergi);
+      if (s.gelir_carpan !== undefined) notlar.push('gelir×' + s.gelir_carpan + ' ceza×' + s.ceza_carpan);
+      if (s.is_premium) notlar.push('👑 Premium');
+      html += '<tr' + aktif + '><td style="padding:5px">' + i + '</td>' +
+        '<td style="padding:5px;text-align:right">' + fmt(s.altin) + '</td>' +
+        '<td style="padding:5px;text-align:right;color:' + (s.moral_ceza < 0 ? '#e74c3c' : '#27ae60') + '">' + fmt(s.moral_ceza) + '</td>' +
+        '<td style="padding:5px;font-size:10px;color:#888">' + notlar.join(' · ') + '</td></tr>';
+    }
+    html += '</tbody></table>';
+    html += '<div style="margin-top:8px;font-size:10px;color:#888">Aktif sistem: <b style="color:#d4af37">' + d.aktif_sistem + '</b> (altın sarısı satır)</div>';
+    el.innerHTML = html;
+  } catch(e) { el.innerHTML = '<span style="color:#e74c3c">Test hatasi: ' + e.message + '</span>'; }
 }
 
 // v1.13.66: Bina Nufus Config
