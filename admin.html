@@ -82,6 +82,7 @@
     <button onclick="switchTab('kadim-cfg',this)">Kadim Sehir</button>
     <button onclick="switchTab('ekonomi',this)" style="background:linear-gradient(135deg,#8e44ad 0%,#6c3483 100%);color:#fff">Ekonomi Ayar</button>
     <button onclick="switchTab('moral-tar',this)" style="background:linear-gradient(135deg,#c0392b 0%,#922b21 100%);color:#fff">🛡️ Moral Teshis</button>
+    <button onclick="switchTab('bina-nufus',this)" style="background:linear-gradient(135deg,#16a085 0%,#117864 100%);color:#fff">🏘️ Bina Nufus</button>
   </div>
 
   <!-- CRON TAB -->
@@ -787,6 +788,52 @@
     <button class="act" onclick="ekonomiCfgKaydet()" style="margin-top:12px;background:#27ae60">💾 Tum Ekonomi Ayarlarini Kaydet</button>
   </div>
 
+  <!-- BINA NUFUS CONFIG TAB (v1.13.66) -->
+  <div id="tab-bina-nufus" class="panel">
+    <h3 style="color:#16a085">🏘️ Bina Nüfus & Birleştirme Config</h3>
+    <p style="font-size:11px;color:#888;margin-bottom:12px">
+      Ev / Köy / Kasaba kapasite değerleri + birleştirme kuralları (miktar + doğum bonusu).<br>
+      <b>Default (Eski Palantis)</b>: Ev=10, Köy=100, Kasaba=2000. 10 Ev→1 Köy (+1 doğum), 20 Köy→1 Kasaba (+5 doğum).
+    </p>
+
+    <div class="card" style="border-left:3px solid #16a085">
+      <h4 style="margin:0 0 10px 0;color:#16a085">Nüfus Kapasiteleri (köylü/bina)</h4>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+        <label>🏠 Ev kapasitesi<br><input type="number" id="bn-ev" min="1" value="10" style="width:100%"/></label>
+        <label>🏡 Köy kapasitesi<br><input type="number" id="bn-koy" min="1" value="100" style="width:100%"/></label>
+        <label>🏘️ Kasaba kapasitesi<br><input type="number" id="bn-kasaba" min="1" value="2000" style="width:100%"/></label>
+      </div>
+    </div>
+
+    <div class="card" style="border-left:3px solid #d4af37;margin-top:10px">
+      <h4 style="margin:0 0 10px 0;color:#d4af37">Birleştirme Kuralları</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <b style="color:#c8a96e">🏠 → 🏡 Ev → Köy</b>
+          <div style="display:flex;gap:8px;margin-top:6px">
+            <label style="flex:1">Gerekli Ev<br><input type="number" id="bn-ev-adet" min="1" value="10" style="width:100%"/></label>
+            <label style="flex:1">Doğum Bonusu<br><input type="number" id="bn-ev-bonus" min="0" value="1" style="width:100%"/></label>
+          </div>
+        </div>
+        <div>
+          <b style="color:#c8a96e">🏡 → 🏘️ Köy → Kasaba</b>
+          <div style="display:flex;gap:8px;margin-top:6px">
+            <label style="flex:1">Gerekli Köy<br><input type="number" id="bn-koy-adet" min="1" value="20" style="width:100%"/></label>
+            <label style="flex:1">Doğum Bonusu<br><input type="number" id="bn-koy-bonus" min="0" value="5" style="width:100%"/></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="act" onclick="binaNufusKaydet()" style="margin-top:12px;background:#16a085">💾 Bina Nüfus Config Kaydet</button>
+    <span id="bn-msg" style="margin-left:10px;font-size:12px"></span>
+
+    <div class="card" style="margin-top:18px;background:#0f0f0f">
+      <h4 style="color:#888;font-size:12px;margin:0 0 8px 0">📊 Canlı Önizleme (kaydedilmemiş)</h4>
+      <div id="bn-onizleme" style="font-size:12px;color:#aaa;line-height:1.8"></div>
+    </div>
+  </div>
+
   <!-- MORAL TESHIS TAB (v1.13.53) -->
   <div id="tab-moral-tar" class="panel">
     <h3 style="color:#e74c3c">🛡️ Oyuncu Moral & Ordu Teshis</h3>
@@ -856,7 +903,77 @@ function switchTab(tab, el) {
   if (tab === 'kadim-cfg') loadKadimCfg();
   if (tab === 'ekonomi') loadEkonomiCfg();
   if (tab === 'moral-tar') { /* kullanici manuel fetch */ }
+  if (tab === 'bina-nufus') loadBinaNufus();
 }
+
+// v1.13.66: Bina Nufus Config
+async function loadBinaNufus() {
+  try {
+    const r = await fetch(API + '/api/admin/bina-nufus-config', {headers:hdr()});
+    const d = await r.json();
+    if (!d.ok) return;
+    document.getElementById('bn-ev').value         = d.ev_kapasite;
+    document.getElementById('bn-koy').value        = d.koy_kapasite;
+    document.getElementById('bn-kasaba').value     = d.kasaba_kapasite;
+    document.getElementById('bn-ev-adet').value    = d.ev_to_koy_adet;
+    document.getElementById('bn-ev-bonus').value   = d.ev_to_koy_bonus;
+    document.getElementById('bn-koy-adet').value   = d.koy_to_kasaba_adet;
+    document.getElementById('bn-koy-bonus').value  = d.koy_to_kasaba_bonus;
+    binaNufusOnizleme();
+  } catch(e) { console.error('bina-nufus load', e); }
+}
+
+function binaNufusOnizleme() {
+  const ev = parseInt(document.getElementById('bn-ev')?.value) || 10;
+  const koy = parseInt(document.getElementById('bn-koy')?.value) || 100;
+  const kasaba = parseInt(document.getElementById('bn-kasaba')?.value) || 2000;
+  const evAdet = parseInt(document.getElementById('bn-ev-adet')?.value) || 10;
+  const evBonus = parseInt(document.getElementById('bn-ev-bonus')?.value) || 1;
+  const koyAdet = parseInt(document.getElementById('bn-koy-adet')?.value) || 20;
+  const koyBonus = parseInt(document.getElementById('bn-koy-bonus')?.value) || 5;
+  const fmt = n => n.toLocaleString('tr-TR');
+
+  const el = document.getElementById('bn-onizleme');
+  if (!el) return;
+  el.innerHTML = `
+    <b>🏠→🏡</b> ${evAdet} Ev (${fmt(evAdet*ev)} köylü kap) → 1 Köy (${fmt(koy)} kap) + <b style="color:#27ae60">${evBonus} doğum</b><br>
+    <b>🏡→🏘️</b> ${koyAdet} Köy (${fmt(koyAdet*koy)} köylü kap) → 1 Kasaba (${fmt(kasaba)} kap) + <b style="color:#27ae60">${koyBonus} doğum</b><br>
+    <br>
+    <b style="color:#d4af37">Örnek nüfus sınırı</b> (100 ev, 50 köy, 10 kasaba):<br>
+    100×${ev} + 50×${koy} + 10×${kasaba} = <b>${fmt(100*ev + 50*koy + 10*kasaba)}</b> köylü
+  `;
+}
+
+async function binaNufusKaydet() {
+  const msg = document.getElementById('bn-msg');
+  msg.textContent = 'Kaydediliyor...';
+  msg.style.color = '#888';
+  const body = {
+    ev_kapasite: parseInt(document.getElementById('bn-ev').value) || 10,
+    koy_kapasite: parseInt(document.getElementById('bn-koy').value) || 100,
+    kasaba_kapasite: parseInt(document.getElementById('bn-kasaba').value) || 2000,
+    ev_to_koy_adet: parseInt(document.getElementById('bn-ev-adet').value) || 10,
+    ev_to_koy_bonus: parseInt(document.getElementById('bn-ev-bonus').value) || 1,
+    koy_to_kasaba_adet: parseInt(document.getElementById('bn-koy-adet').value) || 20,
+    koy_to_kasaba_bonus: parseInt(document.getElementById('bn-koy-bonus').value) || 5
+  };
+  try {
+    const r = await fetch(API + '/api/admin/bina-nufus-config', {
+      method:'POST', headers:hdr(), body: JSON.stringify(body)
+    });
+    const d = await r.json();
+    if (d.ok) { msg.textContent = '✅ Kaydedildi'; msg.style.color = '#27ae60'; }
+    else { msg.textContent = `❌ ${d.error||'Hata'}`; msg.style.color = '#e74c3c'; }
+  } catch(e) { msg.textContent = '❌ Sunucu hatasi'; msg.style.color = '#e74c3c'; }
+}
+
+// Input'larda canli onizleme
+document.addEventListener('DOMContentLoaded', () => {
+  ['bn-ev','bn-koy','bn-kasaba','bn-ev-adet','bn-ev-bonus','bn-koy-adet','bn-koy-bonus'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', binaNufusOnizleme);
+  });
+});
 
 /* ═══════════ v1.13.53 MORAL TESHIS ═══════════ */
 async function loadMoralTarihcesi() {
