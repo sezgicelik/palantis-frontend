@@ -45,7 +45,8 @@ function assignWorker(type, delta){
 
   population[type] = Math.max(0, population[type] + delta);
   population.free -= delta;
-  updatePopulationUI();
+  // v1.13.68.7: skipBackendFetch=true — lokal degisiklik backend fetch ile overwrite edilmesin
+  updatePopulationUI(true);
 }
 
 /* -- Pisirme Orani -- */
@@ -132,8 +133,11 @@ async function saveWorkers(){
         tuccar: population.merchant || 0
       })
     });
-    if (resp.ok) { toast('Isci dagilimi kaydedildi!'); }
-    else { const err = await resp.json(); toast(err.error || 'Hata'); }
+    if (resp.ok) {
+      toast('Isci dagilimi kaydedildi!');
+      // v1.13.68.7: Kayittan sonra backend'le tam senkron (skipBackendFetch=false)
+      if (typeof updatePopulationUI === 'function') updatePopulationUI(false);
+    } else { const err = await resp.json(); toast(err.error || 'Hata'); }
   } catch(e) { toast('Sunucu hatasi'); }
 }
 

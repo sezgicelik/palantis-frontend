@@ -143,11 +143,13 @@ function setGuildHUD(g){
    v1.13.35: Eger nufus-render.js yuklendiyse ONA devret.
    Aksi durumda eski (yerel hesap) fallback calissin.
 ===================================================== */
-function updatePopulationUI(){
+function updatePopulationUI(skipBackendFetch){
   const set = (id, v) => { const e=document.getElementById(id); if(e) e.innerText=v; };
 
   // v1.13.35: Tek dogruluk kaynagi — nufus-render.js
-  if (typeof window.loadNufus === 'function') {
+  // v1.13.68.7: assignWorker sonrasinda skipBackendFetch=true ile cagrilir (local state'i overwrite etmesin diye).
+  //             Backend senkronu saveWorkers() basari sonrasi tekrar cagrilir.
+  if (typeof window.loadNufus === 'function' && !skipBackendFetch) {
     window.loadNufus(); // backend'den cek, renderNufus icerideki tum UI'i gunceller
     // Asagisi (uretim degerleri, bina kapasite) hala lokal hesap
   }
