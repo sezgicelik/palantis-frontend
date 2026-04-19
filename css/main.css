@@ -445,43 +445,64 @@ body{padding-top:38px;}
 .fbtn:hover,.fbtn.on{background:var(--race-color);color:#000;border-color:var(--race-color);font-weight:700;}
 
 /* Bina grid → satır listesi */
-/* v1.13.64: Bina kartlari kompakt + mobil uyumlu — 3 sutun responsive */
-.bg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;}
-.bg-grid .cag-baslik{grid-column:1/-1;}
+/* v1.13.65: Bina list satirlari — horizontal flex row, mobile ready */
+.bg-grid{display:flex;flex-direction:column;gap:6px;}
+.bg-grid .cag-baslik{margin-top:12px}
+
 .brow{
-  display:flex;flex-direction:column;gap:4px;
-  background:#111;border:1px solid #1e1e1e;border-top:2px solid #333;border-radius:6px;
-  padding:8px;transition:.18s;position:relative;
-  min-height:0; /* sabit yukseklik yok */
+  display:grid;
+  grid-template-columns:1fr auto auto;
+  grid-template-areas:"info cost btn";
+  align-items:center;
+  gap:10px;
+  background:linear-gradient(180deg,#1a120a,#120a04);
+  border:1px solid #3a2a15;border-left:3px solid #5a4a2a;
+  border-radius:6px;
+  padding:10px 14px;
+  transition:.18s;position:relative;
+  min-height:0;
 }
-.brow:hover{border-color:#2a2a2a;background:#141414;}
-.brow.building{border-left:3px solid #2ecc71;background:#0b0f0b;}
-.brow.locked{opacity:.4;}
+.brow:hover{border-color:#c8a96e;background:linear-gradient(180deg,#1e150a,#140c06)}
+.brow.building{border-left-color:#2ecc71;background:linear-gradient(180deg,#0e1a0a,#0b1508)}
+.brow.locked{opacity:.4}
 
-/* Ust satir: ikon + isim + seviye */
-.br-ico{width:28px;height:28px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;align-self:flex-start;position:absolute;top:8px;left:8px}
-.br-main{width:100%;padding-left:36px;min-height:28px}
-.br-name{font-family:'Cinzel',serif;font-size:12px;color:#eee;font-weight:600;line-height:1.2}
-.br-desc{font-size:10px;color:#888;line-height:1.3;margin-top:2px}
-.br-lv{position:absolute;top:8px;right:8px;font-family:'Cinzel',serif;font-size:10px;color:#d4af37;font-weight:700;padding:2px 6px;background:rgba(212,175,55,0.08);border-radius:3px}
+/* SOL: isim + desc + bonus pill */
+.br-ico{display:none} /* ikon kaldirildi — kompakt list view */
+.br-main{grid-area:info;display:flex;flex-direction:column;gap:4px;min-width:0}
+.br-name{
+  font-family:'Cinzel',serif;font-size:13px;color:#d4af37;font-weight:700;
+  letter-spacing:.5px;line-height:1.1;
+}
+.br-name small,.br-name span{font-family:inherit;color:#888;font-size:10px;font-weight:400;margin-left:4px}
+.br-desc{font-size:11px;color:#888;line-height:1.3}
+.br-lv{display:none} /* seviye artik br-name icinde */
 
-/* Bonus pill row */
-.br-fx{display:flex;flex-wrap:wrap;gap:3px;margin-top:2px}
+/* Bonus pills — yesil */
+.br-fx{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
+.etag{padding:2px 8px;border-radius:4px;font-size:10px;border:1px solid;line-height:1.3;background:rgba(46,204,113,0.08);color:#2ecc71;border-color:rgba(46,204,113,0.3)}
+.etag.neg{color:#e74c3c;background:rgba(231,76,60,0.08);border-color:rgba(231,76,60,0.3)}
 
-/* Maliyet satiri — full width */
-.br-cost{display:flex;flex-wrap:wrap;gap:3px;width:100%;margin-top:2px}
+/* ORTA: maliyet — horizontal pills */
+.br-cost{grid-area:cost;display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-end}
+.citem{display:inline-flex;align-items:center;gap:3px;font-size:11px;padding:2px 6px;background:transparent;border:none;color:#ccc;white-space:nowrap}
+.citem small{color:#555;font-size:9px}
+.citem.no{color:#e74c3c}
+.br-time{font-size:10px;color:#777;text-align:right;white-space:nowrap;padding:0 6px}
 
-/* Sure — inline kucuk */
-.br-time{font-size:9px;color:#888;text-align:left;padding:2px 0}
-
-/* AKSIYON BUTONU — her zaman full width + asagida */
-.br-act{width:100%;display:flex;flex-direction:column;gap:3px;margin-top:4px}
-.br-act button,.br-act .btn-sm{width:100%;padding:5px 8px;font-family:'Cinzel',serif;font-size:11px;font-weight:600;letter-spacing:0.5px}
+/* SAĞ: INSA butonu — sabit sagda */
+.br-act{grid-area:btn;display:flex;align-items:center;justify-content:flex-end;min-width:90px}
+.br-act button,.br-act .btn-sm{
+  padding:8px 14px;font-family:'Cinzel',serif;font-size:11px;font-weight:700;
+  letter-spacing:.5px;border-radius:4px;white-space:nowrap;
+  background:linear-gradient(135deg,#2ecc71,#27ae60);color:#0a0604;border:none;
+}
+.br-act button:disabled{opacity:.4;cursor:not-allowed}
+.br-act button:hover:not(:disabled){background:linear-gradient(135deg,#3adf82,#2ecc71)}
 
 /* Insa ediliyor durumu */
-.br-prog{width:100%;height:3px;background:#0a1a08;border-radius:2px;overflow:hidden;margin-top:4px}
+.br-prog{grid-column:1/-1;width:100%;height:3px;background:#0a1a08;border-radius:2px;overflow:hidden;margin-top:4px}
 .br-prog-fill{height:100%;background:#2ecc71;border-radius:2px;transition:width 1s linear}
-.br-building-lbl{font-size:10px;color:#2ecc71;font-family:'Cinzel',serif;padding-top:2px;width:100%}
+.br-building-lbl{grid-column:1/-1;font-size:10px;color:#2ecc71;font-family:'Cinzel',serif;padding-top:2px}
 
 .bcard{background:#111;border:1px solid #1e1e1e;border-radius:12px;overflow:hidden;transition:.22s;position:relative;}
 .bcard:hover{border-color:#333;transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.5);}
@@ -1217,15 +1238,15 @@ body{padding-top:38px;}
   /* Şehir istatistik grid */
   .city-stats{grid-template-columns:repeat(2,1fr);gap:8px;}
 
-  /* v1.13.64: Bina kartlari mobil — 2 sutun, daha kompakt, buton hep gorunur */
-  .bg-grid{grid-template-columns:repeat(2,1fr);gap:6px;}
-  .brow{padding:6px;gap:3px;}
-  .br-ico{width:24px;height:24px;font-size:13px;top:6px;left:6px}
-  .br-main{padding-left:30px;min-height:24px}
-  .br-name{font-size:11px}
-  .br-desc{font-size:9px}
-  .br-lv{top:6px;right:6px;font-size:9px;padding:1px 4px}
-  .br-act button,.br-act .btn-sm{padding:6px 10px;font-size:12px} /* mobilde buton biraz daha buyuk dokunulabilir */
+  /* v1.13.65: Bina list satirlari mobil — horizontal row, sag buton hep gorunur */
+  /* bg-grid zaten flex column (tek sutun liste), degisiklik gerekmez */
+  .brow{grid-template-columns:1fr auto;grid-template-areas:"info btn" "cost cost";padding:8px 10px;gap:6px}
+  .br-cost{grid-area:cost;justify-content:flex-start;border-top:1px solid rgba(200,169,110,0.08);padding-top:4px}
+  .br-name{font-size:12px}
+  .br-desc{font-size:10px}
+  .br-act button,.br-act .btn-sm{padding:8px 12px;font-size:12px}
+  .citem{font-size:10px;padding:2px 4px}
+  .citem small{font-size:8px}
 
   /* Ünite satırları */
   .urow{flex-wrap:wrap;gap:6px;padding:8px;}
@@ -1245,8 +1266,7 @@ body{padding-top:38px;}
   .army-tabs{gap:4px;}
   .atab{padding:6px 12px;font-size:11px;}
 
-  /* Bina grid — 2 sütun */
-  .bg-grid{grid-template-columns:repeat(2,1fr);}
+  /* v1.13.65: Bina list — flex column zaten tek sutun, ekstra kural gereksiz */
 
   /* Kategori filtre butonları — yatay scroll, küçülme yok */
   .filters,.city-filter-bar{
@@ -1319,8 +1339,7 @@ body{padding-top:38px;}
   .cstat{padding:10px;}
   .cstat .snum{font-size:20px;}
 
-  /* Bina grid — 1 sütun (küçük telefon) */
-  .bg-grid{grid-template-columns:1fr;}
+  /* v1.13.65: Bina list zaten tek sutun flex — kural gereksiz */
 
   /* Filtreler */
   .filters{gap:4px;}
