@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ordu Mockup — 5 Tasarim</title>
+<style>
+  *{box-sizing:border-box}
+  body{background:#0a0604;color:#f0e8d8;font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:0}
+
+  .switcher{position:sticky;top:0;z-index:100;display:flex;gap:4px;background:#1a140a;padding:10px;border-bottom:1px solid #c8a96e;overflow-x:auto;white-space:nowrap}
+  .switcher button{background:#0f0a06;color:#c8a96e;border:1px solid #3a3020;padding:8px 14px;cursor:pointer;border-radius:4px;font-family:'Cinzel',serif;font-size:11px;font-weight:600;letter-spacing:.5px;flex-shrink:0}
+  .switcher button.active{background:linear-gradient(135deg,#d4af37,#c8a96e);color:#0a0604;border-color:#d4af37}
+
+  .mockup-section{padding:16px;border-bottom:2px dashed #333;display:none}
+  .mockup-section.active{display:block}
+  .mockup-title{color:#d4af37;font-family:'Cinzel',serif;margin:0 0 8px;font-size:16px}
+  .mockup-desc{color:#888;font-size:12px;margin-bottom:14px}
+
+  .list{display:flex;flex-direction:column;gap:6px}
+
+  /* ═══════════ TASARIM 1: Ultra Minimal ═══════════ */
+  .t1-row{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#111;border-left:2px solid #c8a96e;border-radius:4px;font-size:13px}
+  .t1-name{color:#d4af37;font-family:'Cinzel',serif;font-weight:600;min-width:130px}
+  .t1-cost{color:#aaa;flex:1;font-size:12px}
+  .t1-cost b{color:#eee}
+  .t1-btn{background:#2ecc71;color:#000;border:none;padding:7px 16px;font-weight:700;border-radius:3px;cursor:pointer;font-family:'Cinzel',serif}
+
+  /* ═══════════ TASARIM 2: Ikon + Kompakt ═══════════ */
+  .t2-row{display:flex;align-items:center;gap:10px;padding:8px 12px;background:linear-gradient(180deg,#1a120a,#120a04);border:1px solid #3a2a15;border-left:3px solid #c8a96e;border-radius:6px}
+  .t2-ico{width:32px;height:32px;background:#0f0a06;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+  .t2-mid{flex:1;min-width:0}
+  .t2-name{color:#d4af37;font-family:'Cinzel',serif;font-size:13px;font-weight:700}
+  .t2-sub{color:#888;font-size:10px}
+  .t2-cost{display:flex;gap:6px;font-size:11px;color:#bbb;flex-shrink:0}
+  .t2-cost span b{color:#eee}
+  .t2-btn{background:linear-gradient(135deg,#2ecc71,#27ae60);color:#000;border:none;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;font-family:'Cinzel',serif;font-size:11px;flex-shrink:0}
+
+  /* ═══════════ TASARIM 3: 2 Satir Card ═══════════ */
+  .t3-row{display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"ico top btn" "ico bot btn";gap:4px 10px;padding:10px 12px;background:#12110a;border:1px solid #3a2a15;border-left:3px solid #c8a96e;border-radius:6px;align-items:center}
+  .t3-ico{grid-area:ico;width:38px;height:38px;background:#0f0a06;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px}
+  .t3-top{grid-area:top;display:flex;gap:8px;align-items:center;font-size:12px}
+  .t3-name{color:#d4af37;font-family:'Cinzel',serif;font-weight:700;font-size:13px}
+  .t3-tier{background:#1a3020;color:#2ecc71;padding:1px 6px;border-radius:2px;font-size:10px;font-family:'Cinzel',serif}
+  .t3-stats{color:#888;font-size:11px}
+  .t3-stats span{margin-right:6px}
+  .t3-bot{grid-area:bot;font-size:11px;color:#bbb}
+  .t3-bot b{color:#eee}
+  .t3-btn{grid-area:btn;background:#27ae60;color:#000;border:none;padding:10px 18px;font-weight:700;border-radius:4px;cursor:pointer;font-family:'Cinzel',serif;font-size:11px}
+
+  /* ═══════════ TASARIM 4: Kademe Renkli (Travian) ═══════════ */
+  .t4-row{display:flex;align-items:center;gap:0;padding:0;background:#0d0d0d;border:1px solid #2a2a2a;border-radius:4px;overflow:hidden}
+  .t4-ico-box{width:52px;height:52px;background:linear-gradient(135deg,#2a1d10,#1a1208);display:flex;align-items:center;justify-content:center;font-size:24px;border-right:1px solid #3a2a15;flex-shrink:0}
+  .t4-body{flex:1;padding:6px 12px;min-width:0}
+  .t4-line1{display:flex;align-items:baseline;gap:8px}
+  .t4-name{color:#d4af37;font-family:'Cinzel',serif;font-weight:700;font-size:14px;letter-spacing:.3px}
+  .t4-tier{font-size:10px;color:#888;letter-spacing:1px}
+  .t4-line2{color:#999;font-size:11px;margin-top:2px}
+  .t4-line2 b{color:#e0c97f}
+  .t4-ctrl{display:flex;align-items:center;gap:4px;padding:0 10px;flex-shrink:0}
+  .t4-cnt{width:56px;background:#1a1a1a;border:1px solid #333;color:#eee;text-align:center;padding:6px;border-radius:3px;font-family:'Cinzel',serif;font-weight:600;font-size:13px}
+  .t4-btn{background:#c8a96e;color:#000;border:none;padding:10px 14px;font-weight:900;border-radius:0;cursor:pointer;font-family:'Cinzel',serif;font-size:11px;letter-spacing:1px;align-self:stretch;flex-shrink:0}
+
+  /* ═══════════ TASARIM 5: Altin cerceve + Cost inline ═══════════ */
+  .t5-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:radial-gradient(circle at top left,#1a140a 0%,#0a0604 100%);border:1px solid #c8a96e;border-radius:6px;box-shadow:inset 0 0 0 1px rgba(200,169,110,0.1)}
+  .t5-ico{width:42px;height:42px;background:linear-gradient(135deg,#d4af37,#8b6914);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 0 12px rgba(212,175,55,0.3)}
+  .t5-center{flex:1;min-width:0}
+  .t5-name{color:#d4af37;font-family:'Cinzel',serif;font-weight:700;font-size:14px;text-shadow:0 0 6px rgba(212,175,55,0.2)}
+  .t5-inline{color:#ccc;font-size:11px;margin-top:4px;letter-spacing:.2px}
+  .t5-inline span{color:#999;margin:0 4px}
+  .t5-inline b{color:#e0c97f}
+  .t5-btn{background:transparent;color:#d4af37;border:1px solid #d4af37;padding:9px 16px;font-weight:700;border-radius:4px;cursor:pointer;font-family:'Cinzel',serif;font-size:11px;transition:.2s;flex-shrink:0;letter-spacing:1px}
+  .t5-btn:hover{background:#d4af37;color:#000}
+
+  @media(max-width:500px){
+    .t1-name{min-width:auto}
+    .t2-cost{display:none}
+    .t3-stats{display:none}
+    .t4-cnt{width:48px}
+    .t5-inline{font-size:10px}
+  }
+</style>
+</head>
+<body>
+
+<div class="switcher">
+  <button data-t="1" class="active">1) Ultra Minimal</button>
+  <button data-t="2">2) İkon + Kompakt</button>
+  <button data-t="3">3) 2 Satır Card</button>
+  <button data-t="4">4) Travian Klasik</button>
+  <button data-t="5">5) Altın Çerçeve</button>
+  <button data-t="all">Hepsi</button>
+</div>
+
+<!-- ═══════════ TASARIM 1: Ultra Minimal ═══════════ -->
+<div class="mockup-section active" data-sec="1">
+  <h3 class="mockup-title">1️⃣ Ultra Minimal — Sade, hızlı tarama</h3>
+  <p class="mockup-desc">İkon yok, tek satır liste. Sadece en kritik bilgi. Travian'ın "barracks" sayfasına çok benzer.</p>
+  <div class="list">
+    <div class="t1-row">
+      <div class="t1-name">Okçu <span style="color:#888;font-size:10px">(T1)</span></div>
+      <div class="t1-cost">Asker <b>1</b> · Altın <b>6.000</b> · Odun <b>300</b> · İşlenmiş <b>50</b></div>
+      <button class="t1-btn">EGIT</button>
+    </div>
+    <div class="t1-row">
+      <div class="t1-name">Savaşçı <span style="color:#888;font-size:10px">(T2)</span></div>
+      <div class="t1-cost">Asker <b>1</b> · Altın <b>12.000</b> · Metal <b>800</b> · İşlenmiş <b>120</b></div>
+      <button class="t1-btn">EGIT</button>
+    </div>
+    <div class="t1-row">
+      <div class="t1-name">Paladin <span style="color:#888;font-size:10px">(T2)</span></div>
+      <div class="t1-cost">Asker <b>1</b> · Altın <b>28.000</b> · Metal <b>1.500</b> · At <b>1</b></div>
+      <button class="t1-btn">EGIT</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ TASARIM 2: İkon + Kompakt ═══════════ -->
+<div class="mockup-section" data-sec="2">
+  <h3 class="mockup-title">2️⃣ İkon + Kompakt — Görsel + bilgi dengesi</h3>
+  <p class="mockup-desc">Küçük ikon, isim, role, sağda maliyet + EGIT. Şu anki yapıya en yakın ama toparlanmış.</p>
+  <div class="list">
+    <div class="t2-row">
+      <div class="t2-ico">🏹</div>
+      <div class="t2-mid">
+        <div class="t2-name">Okçu</div>
+        <div class="t2-sub">Uzak · T1 · ATK 5 / DEF 12 · Maaş 28</div>
+      </div>
+      <div class="t2-cost">
+        <span>🪖 <b>1</b></span><span>💰 <b>6K</b></span><span>🌳 <b>300</b></span><span>⚙️ <b>50</b></span>
+      </div>
+      <button class="t2-btn">EGIT</button>
+    </div>
+    <div class="t2-row">
+      <div class="t2-ico">⚔️</div>
+      <div class="t2-mid">
+        <div class="t2-name">Savaşçı</div>
+        <div class="t2-sub">Tank · T2 · ATK 6 / DEF 18 · Maaş 32</div>
+      </div>
+      <div class="t2-cost">
+        <span>🪖 <b>1</b></span><span>💰 <b>12K</b></span><span>⛏️ <b>800</b></span><span>⚙️ <b>120</b></span>
+      </div>
+      <button class="t2-btn">EGIT</button>
+    </div>
+    <div class="t2-row">
+      <div class="t2-ico">🛡️</div>
+      <div class="t2-mid">
+        <div class="t2-name">Paladin</div>
+        <div class="t2-sub">Süvari · T2 · ATK 9 / DEF 33 · Maaş 52</div>
+      </div>
+      <div class="t2-cost">
+        <span>🪖 <b>1</b></span><span>💰 <b>28K</b></span><span>⛏️ <b>1.5K</b></span><span>🐴 <b>1</b></span>
+      </div>
+      <button class="t2-btn">EGIT</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ TASARIM 3: 2 Satir Card ═══════════ -->
+<div class="mockup-section" data-sec="3">
+  <h3 class="mockup-title">3️⃣ 2 Satır Card — İsim üstte, maliyet altta</h3>
+  <p class="mockup-desc">İkon sol, 2 satır info ortada (isim+stats üst / maliyet alt), EGIT sağda dikey. Hiyerarşi net.</p>
+  <div class="list">
+    <div class="t3-row">
+      <div class="t3-ico">🏹</div>
+      <div class="t3-top">
+        <span class="t3-name">Okçu</span>
+        <span class="t3-tier">T1</span>
+        <span class="t3-stats"><span>ATK 5</span><span>DEF 12</span><span>⏱ 1 PG</span></span>
+      </div>
+      <div class="t3-bot">Asker <b>1</b> · Altın <b>6.000</b> · Odun <b>300</b> · İşlenmiş <b>50</b></div>
+      <button class="t3-btn">EGIT</button>
+    </div>
+    <div class="t3-row">
+      <div class="t3-ico">⚔️</div>
+      <div class="t3-top">
+        <span class="t3-name">Savaşçı</span>
+        <span class="t3-tier">T2</span>
+        <span class="t3-stats"><span>ATK 6</span><span>DEF 18</span><span>⏱ 2 PG</span></span>
+      </div>
+      <div class="t3-bot">Asker <b>1</b> · Altın <b>12.000</b> · Metal <b>800</b> · İşlenmiş <b>120</b></div>
+      <button class="t3-btn">EGIT</button>
+    </div>
+    <div class="t3-row">
+      <div class="t3-ico">🛡️</div>
+      <div class="t3-top">
+        <span class="t3-name">Paladin</span>
+        <span class="t3-tier">T2</span>
+        <span class="t3-stats"><span>ATK 9</span><span>DEF 33</span><span>⏱ 2 PG</span></span>
+      </div>
+      <div class="t3-bot">Asker <b>1</b> · Altın <b>28.000</b> · Metal <b>1.500</b> · At <b>1</b></div>
+      <button class="t3-btn">EGIT</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ TASARIM 4: Travian Klasik ═══════════ -->
+<div class="mockup-section" data-sec="4">
+  <h3 class="mockup-title">4️⃣ Travian Klasik — Büyük ikon kutusu, minimal çerçeve</h3>
+  <p class="mockup-desc">Sol ikon kutusu vurgulu, sağda adet input + direkt EGIT. Eski Palantis/Travian'a en yakın.</p>
+  <div class="list">
+    <div class="t4-row">
+      <div class="t4-ico-box">🏹</div>
+      <div class="t4-body">
+        <div class="t4-line1"><span class="t4-name">OKÇU</span><span class="t4-tier">TIER I · UZAK</span></div>
+        <div class="t4-line2">🪖 <b>1</b> asker · 💰 <b>6.000</b> altın · 🌳 <b>300</b> odun · ⚙️ <b>50</b> işlenmiş · ⏱ <b>1 PG</b></div>
+      </div>
+      <div class="t4-ctrl"><input class="t4-cnt" value="10"></div>
+      <button class="t4-btn">EGIT</button>
+    </div>
+    <div class="t4-row">
+      <div class="t4-ico-box">⚔️</div>
+      <div class="t4-body">
+        <div class="t4-line1"><span class="t4-name">SAVAŞÇI</span><span class="t4-tier">TIER II · TANK</span></div>
+        <div class="t4-line2">🪖 <b>1</b> · 💰 <b>12.000</b> · ⛏️ <b>800</b> · ⚙️ <b>120</b> · ⏱ <b>2 PG</b></div>
+      </div>
+      <div class="t4-ctrl"><input class="t4-cnt" value="5"></div>
+      <button class="t4-btn">EGIT</button>
+    </div>
+    <div class="t4-row">
+      <div class="t4-ico-box">🛡️</div>
+      <div class="t4-body">
+        <div class="t4-line1"><span class="t4-name">PALADİN</span><span class="t4-tier">TIER II · SÜVARİ</span></div>
+        <div class="t4-line2">🪖 <b>1</b> · 💰 <b>28.000</b> · ⛏️ <b>1.500</b> · 🐴 <b>1</b> · ⏱ <b>2 PG</b></div>
+      </div>
+      <div class="t4-ctrl"><input class="t4-cnt" value="0"></div>
+      <button class="t4-btn">EGIT</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ TASARIM 5: Altın Çerçeve ═══════════ -->
+<div class="mockup-section" data-sec="5">
+  <h3 class="mockup-title">5️⃣ Altın Çerçeve — Premium / Ortaçağ tema</h3>
+  <p class="mockup-desc">Yuvarlak altın ikon, glow efekt, şeffaf "EGIT" border butonu. Lüks his.</p>
+  <div class="list">
+    <div class="t5-row">
+      <div class="t5-ico">🏹</div>
+      <div class="t5-center">
+        <div class="t5-name">Okçu <span style="color:#888;font-size:11px">· T1 · ATK 5 / DEF 12</span></div>
+        <div class="t5-inline">Asker <b>1</b> <span>·</span> Altın <b>6.000</b> <span>·</span> Odun <b>300</b> <span>·</span> İşlenmiş <b>50</b></div>
+      </div>
+      <button class="t5-btn">EGİT</button>
+    </div>
+    <div class="t5-row">
+      <div class="t5-ico">⚔️</div>
+      <div class="t5-center">
+        <div class="t5-name">Savaşçı <span style="color:#888;font-size:11px">· T2 · ATK 6 / DEF 18</span></div>
+        <div class="t5-inline">Asker <b>1</b> <span>·</span> Altın <b>12.000</b> <span>·</span> Metal <b>800</b> <span>·</span> İşlenmiş <b>120</b></div>
+      </div>
+      <button class="t5-btn">EGİT</button>
+    </div>
+    <div class="t5-row">
+      <div class="t5-ico">🛡️</div>
+      <div class="t5-center">
+        <div class="t5-name">Paladin <span style="color:#888;font-size:11px">· T2 · ATK 9 / DEF 33</span></div>
+        <div class="t5-inline">Asker <b>1</b> <span>·</span> Altın <b>28.000</b> <span>·</span> Metal <b>1.500</b> <span>·</span> At <b>1</b></div>
+      </div>
+      <button class="t5-btn">EGİT</button>
+    </div>
+  </div>
+</div>
+
+<div style="padding:20px;text-align:center;color:#888;font-size:12px;border-top:1px solid #333">
+  <b style="color:#d4af37">👉 Hangisini beğendin?</b> "1, 2, 3, 4 veya 5" de, onu gerçek <code>page-army.js</code> + <code>main.css</code>'e implement ederim.
+</div>
+
+<script>
+document.querySelectorAll('.switcher button').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.switcher button').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    const t = b.dataset.t;
+    document.querySelectorAll('.mockup-section').forEach(s => {
+      s.classList.toggle('active', t === 'all' || s.dataset.sec === t);
+    });
+  });
+});
+</script>
+</body>
+</html>
