@@ -4,10 +4,11 @@
 ══════════════════════════════════ */
 
 // Unite gorsel helper: resim varsa img, yoksa emoji
+// v1.13.68.2: Ikon render — container'a tam sigdir, crop yok, ortada
 function unitIcon(u, size) {
   size = size || 32;
-  if (u && u.img) return '<img src="' + u.img + '" alt="' + (u.name||'') + '" style="width:' + size + 'px;height:' + size + 'px;object-fit:cover;border-radius:4px;vertical-align:middle">';
-  return '<span style="font-size:' + size + 'px;line-height:1">' + (u ? u.icon || '?' : '?') + '</span>';
+  if (u && u.img) return '<img src="' + u.img + '" alt="' + (u.name||'') + '" style="width:100%;height:100%;object-fit:contain;object-position:center center;display:block">';
+  return '<span style="font-size:' + Math.round(size*0.75) + 'px;line-height:1">' + (u ? u.icon || '⚔️' : '⚔️') + '</span>';
 }
 
 /* -- ORDU SEKMESi -- */

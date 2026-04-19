@@ -79,6 +79,58 @@
     .t4-cnt{width:48px}
     .t5-inline{font-size:10px}
   }
+
+  /* ═══════════ TASARIM 6: 2 Kolon Compact Grid (mobil) ═══════════ */
+  .t6-wrap{max-width:380px;margin:0 auto;background:#0d0d0d;border:1px solid #2ecc71;border-radius:10px;padding:16px}
+  .t6-cat{color:#2ecc71;font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;margin-bottom:6px}
+  .t6-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #1a1a1a}
+  .t6-title{color:#eee;font-family:'Cinzel',serif;font-size:18px;font-weight:700}
+  .t6-count{background:#1a1a1a;border:1px solid #2ecc71;color:#2ecc71;padding:3px 10px;border-radius:3px;font-size:11px}
+  .t6-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .t6-card{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:6px;padding:8px}
+  .t6-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px}
+  .t6-name{color:#eee;font-family:'Cinzel',serif;font-size:12px;font-weight:700}
+  .t6-price{color:#888;font-size:10px}
+  .t6-tier{background:#0a2a14;color:#2ecc71;font-size:9px;padding:1px 6px;border-radius:2px;display:inline-block;margin-bottom:4px}
+  .t6-stats{color:#888;font-size:10px;margin-bottom:6px}
+  .t6-ctrl{display:flex;align-items:center;gap:3px;margin-bottom:6px}
+  .t6-ctrl button{width:22px;height:22px;background:#0d0d0d;border:1px solid #333;color:#ccc;cursor:pointer;border-radius:3px;font-size:12px}
+  .t6-ctrl input{flex:1;text-align:center;background:#0d0d0d;border:1px solid #333;color:#eee;padding:3px;border-radius:3px;font-size:12px}
+  .t6-btn{width:100%;background:#2ecc71;color:#000;border:none;padding:5px;font-weight:700;border-radius:3px;cursor:pointer;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px}
+
+  /* ═══════════ TASARIM 7: Ultra Sıkışık Liste ═══════════ */
+  .t7-wrap{max-width:380px;margin:0 auto;background:#0d0d0d;border:1px solid #2ecc71;border-radius:10px;padding:16px}
+  .t7-list{display:flex;flex-direction:column;gap:0}
+  .t7-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #1a1a1a;font-size:11px}
+  .t7-row:last-child{border-bottom:none}
+  .t7-name-col{flex:1;min-width:0}
+  .t7-name{color:#eee;font-family:'Cinzel',serif;font-weight:600;font-size:12px}
+  .t7-tier{color:#2ecc71;font-size:9px;letter-spacing:.5px;margin-top:1px}
+  .t7-ratio{color:#aaa;min-width:40px;text-align:center;font-size:11px}
+  .t7-cost{color:#d4af37;min-width:40px;text-align:center;font-size:11px;font-weight:600}
+  .t7-pm{display:flex;align-items:center;gap:2px;flex-shrink:0}
+  .t7-pm button{width:22px;height:22px;background:#1a1a1a;border:1px solid #333;color:#ccc;cursor:pointer;border-radius:3px;font-size:12px}
+  .t7-pm input{width:36px;text-align:center;background:#0d0d0d;border:1px solid #333;color:#eee;padding:2px;border-radius:3px;font-size:11px}
+  .t7-submit{width:100%;margin-top:14px;background:#2ecc71;color:#000;border:none;padding:12px;font-weight:800;border-radius:4px;cursor:pointer;font-family:'Cinzel',serif;font-size:12px;letter-spacing:2px}
+
+  /* ═══════════ TASARIM 8: Accordion / Açılır Satır ═══════════ */
+  .t8-wrap{max-width:380px;margin:0 auto;background:#0d0d0d;border:1px solid #2ecc71;border-radius:10px;padding:16px}
+  .t8-list{display:flex;flex-direction:column;gap:6px}
+  .t8-row{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:5px;overflow:hidden;cursor:pointer;transition:.15s}
+  .t8-row:hover{border-color:#2ecc71}
+  .t8-row.open{border-color:#2ecc71}
+  .t8-head-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px}
+  .t8-info{flex:1;min-width:0}
+  .t8-name{color:#eee;font-family:'Cinzel',serif;font-size:13px;font-weight:700}
+  .t8-meta{color:#888;font-size:10px;margin-top:2px;letter-spacing:.3px}
+  .t8-toggle{color:#2ecc71;font-size:18px;font-weight:700;margin-left:8px}
+  .t8-body{display:none;padding:10px 12px;border-top:1px solid #2a2a2a;background:#0f0f0f}
+  .t8-row.open .t8-body{display:block}
+  .t8-price{color:#d4af37;font-size:11px;margin-bottom:8px}
+  .t8-ctrl{display:flex;align-items:center;gap:4px}
+  .t8-ctrl button{width:26px;height:26px;background:#0d0d0d;border:1px solid #333;color:#ccc;cursor:pointer;border-radius:3px;font-size:13px}
+  .t8-ctrl input{flex:1;text-align:center;background:#0d0d0d;border:1px solid #333;color:#eee;padding:5px;border-radius:3px;font-size:13px}
+  .t8-ctrl .t8-btn{flex-shrink:0;width:auto;padding:6px 14px;background:#2ecc71;color:#000;border:none;font-weight:700;border-radius:3px;cursor:pointer;font-family:'Cinzel',serif;font-size:11px;letter-spacing:.5px}
 </style>
 </head>
 <body>
@@ -89,6 +141,9 @@
   <button data-t="3">3) 2 Satır Card</button>
   <button data-t="4">4) Travian Klasik</button>
   <button data-t="5">5) Altın Çerçeve</button>
+  <button data-t="6" style="border-color:#16a085;color:#16a085">6) 📱 2 Kolon Grid</button>
+  <button data-t="7" style="border-color:#16a085;color:#16a085">7) 📱 Ultra Sıkışık</button>
+  <button data-t="8" style="border-color:#16a085;color:#16a085">8) 📱 Accordion</button>
   <button data-t="all">Hepsi</button>
 </div>
 
@@ -261,8 +316,238 @@
   </div>
 </div>
 
+<!-- ═══════════ TASARIM 6: 2 Kolon Compact Grid (Mobil) ═══════════ -->
+<div class="mockup-section" data-sec="6">
+  <h3 class="mockup-title">6️⃣ 📱 2 Kolon Compact Grid</h3>
+  <p class="mockup-desc">Mobilde 2 sütun, her kart kompakt. Her ünitenin kendi EGIT butonu. "Oyun hissi korunur, yoğun bilgi gösterir."</p>
+  <div class="t6-wrap">
+    <div class="t6-cat">ASKERI EGITIM</div>
+    <div class="t6-head">
+      <span class="t6-title">Üniteler</span>
+      <span class="t6-count">14 Ünite</span>
+    </div>
+    <div class="t6-grid">
+      <div class="t6-card">
+        <div class="t6-top"><span class="t6-name">Piyade</span><span class="t6-price">3k</span></div>
+        <span class="t6-tier">T1</span>
+        <div class="t6-stats">ATK 2 · DEF 10</div>
+        <div class="t6-ctrl"><button>−</button><input value="0"><button>+</button></div>
+        <button class="t6-btn">EGIT</button>
+      </div>
+      <div class="t6-card">
+        <div class="t6-top"><span class="t6-name">Baltacı</span><span class="t6-price">2k</span></div>
+        <span class="t6-tier">T1</span>
+        <div class="t6-stats">ATK 2 · DEF 7</div>
+        <div class="t6-ctrl"><button>−</button><input value="0"><button>+</button></div>
+        <button class="t6-btn">EGIT</button>
+      </div>
+      <div class="t6-card">
+        <div class="t6-top"><span class="t6-name">Okçu</span><span class="t6-price">6k</span></div>
+        <span class="t6-tier">T1</span>
+        <div class="t6-stats">ATK 5 · DEF 12</div>
+        <div class="t6-ctrl"><button>−</button><input value="0"><button>+</button></div>
+        <button class="t6-btn">EGIT</button>
+      </div>
+      <div class="t6-card">
+        <div class="t6-top"><span class="t6-name">Savaşçı</span><span class="t6-price">7.5k</span></div>
+        <span class="t6-tier">T2</span>
+        <div class="t6-stats">ATK 6 · DEF 18</div>
+        <div class="t6-ctrl"><button>−</button><input value="0"><button>+</button></div>
+        <button class="t6-btn">EGIT</button>
+      </div>
+      <div class="t6-card">
+        <div class="t6-top"><span class="t6-name">Şövalye</span><span class="t6-price">10k</span></div>
+        <span class="t6-tier">T2</span>
+        <div class="t6-stats">ATK 6 · DEF 22</div>
+        <div class="t6-ctrl"><button>−</button><input value="0"><button>+</button></div>
+        <button class="t6-btn">EGIT</button>
+      </div>
+      <div class="t6-card">
+        <div class="t6-top"><span class="t6-name">Süvari</span><span class="t6-price">11.5k</span></div>
+        <span class="t6-tier">T2</span>
+        <div class="t6-stats">ATK 8 · DEF 26</div>
+        <div class="t6-ctrl"><button>−</button><input value="0"><button>+</button></div>
+        <button class="t6-btn">EGIT</button>
+      </div>
+      <div class="t6-card">
+        <div class="t6-top"><span class="t6-name">Paladin</span><span class="t6-price">16k</span></div>
+        <span class="t6-tier">T3</span>
+        <div class="t6-stats">ATK 9 · DEF 33</div>
+        <div class="t6-ctrl"><button>−</button><input value="0"><button>+</button></div>
+        <button class="t6-btn">EGIT</button>
+      </div>
+      <div class="t6-card">
+        <div class="t6-top"><span class="t6-name">Kolcu</span><span class="t6-price">32k</span></div>
+        <span class="t6-tier">T3</span>
+        <div class="t6-stats">ATK 10 · DEF 30</div>
+        <div class="t6-ctrl"><button>−</button><input value="0"><button>+</button></div>
+        <button class="t6-btn">EGIT</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ TASARIM 7: Ultra Sıkışık Liste ═══════════ -->
+<div class="mockup-section" data-sec="7">
+  <h3 class="mockup-title">7️⃣ 📱 Ultra Sıkışık Liste</h3>
+  <p class="mockup-desc">En fazla üniteyi en az alanda. Her satır tek çizgi: isim · oran · fiyat · ±input. Toplu SEÇİLENLERİ EĞİT butonu altta.</p>
+  <div class="t7-wrap">
+    <div class="t6-cat">ASKERI EGITIM</div>
+    <div class="t6-head">
+      <span class="t6-title">Üniteler</span>
+      <span class="t6-count">14 Ünite</span>
+    </div>
+    <div class="t7-list">
+      <div class="t7-row">
+        <div class="t7-name-col"><div class="t7-name">Piyade</div><div class="t7-tier">T1</div></div>
+        <span class="t7-ratio">2/10</span>
+        <span class="t7-cost">3k</span>
+        <div class="t7-pm"><button>−</button><input value="0"><button>+</button></div>
+      </div>
+      <div class="t7-row">
+        <div class="t7-name-col"><div class="t7-name">Baltacı</div><div class="t7-tier">T1</div></div>
+        <span class="t7-ratio">2/7</span>
+        <span class="t7-cost">2k</span>
+        <div class="t7-pm"><button>−</button><input value="0"><button>+</button></div>
+      </div>
+      <div class="t7-row">
+        <div class="t7-name-col"><div class="t7-name">Okçu</div><div class="t7-tier">T1</div></div>
+        <span class="t7-ratio">5/12</span>
+        <span class="t7-cost">6k</span>
+        <div class="t7-pm"><button>−</button><input value="0"><button>+</button></div>
+      </div>
+      <div class="t7-row">
+        <div class="t7-name-col"><div class="t7-name">Savaşçı</div><div class="t7-tier">T2</div></div>
+        <span class="t7-ratio">6/18</span>
+        <span class="t7-cost">7.5k</span>
+        <div class="t7-pm"><button>−</button><input value="0"><button>+</button></div>
+      </div>
+      <div class="t7-row">
+        <div class="t7-name-col"><div class="t7-name">Şövalye</div><div class="t7-tier">T2</div></div>
+        <span class="t7-ratio">6/22</span>
+        <span class="t7-cost">10k</span>
+        <div class="t7-pm"><button>−</button><input value="0"><button>+</button></div>
+      </div>
+      <div class="t7-row">
+        <div class="t7-name-col"><div class="t7-name">Süvari</div><div class="t7-tier">T2</div></div>
+        <span class="t7-ratio">8/26</span>
+        <span class="t7-cost">11.5k</span>
+        <div class="t7-pm"><button>−</button><input value="0"><button>+</button></div>
+      </div>
+      <div class="t7-row">
+        <div class="t7-name-col"><div class="t7-name">Paladin</div><div class="t7-tier">T3</div></div>
+        <span class="t7-ratio">9/33</span>
+        <span class="t7-cost">16k</span>
+        <div class="t7-pm"><button>−</button><input value="0"><button>+</button></div>
+      </div>
+      <div class="t7-row">
+        <div class="t7-name-col"><div class="t7-name">Kolcu</div><div class="t7-tier">T3</div></div>
+        <span class="t7-ratio">10/30</span>
+        <span class="t7-cost">32k</span>
+        <div class="t7-pm"><button>−</button><input value="0"><button>+</button></div>
+      </div>
+    </div>
+    <button class="t7-submit">SEÇİLENLERİ EĞİT</button>
+  </div>
+</div>
+
+<!-- ═══════════ TASARIM 8: Accordion / Açılır Satır ═══════════ -->
+<div class="mockup-section" data-sec="8">
+  <h3 class="mockup-title">8️⃣ 📱 Accordion / Açılır Satır</h3>
+  <p class="mockup-desc">En temiz görünüm. Normalde kapalı satır (isim+tier+stat). Üstüne tıkla → maliyet+count+EGIT açılır. Ekranı boğmaz, detay isteyince gösterir.</p>
+  <div class="t8-wrap">
+    <div class="t6-cat">ASKERI EGITIM</div>
+    <div class="t6-head">
+      <span class="t6-title">Üniteler</span>
+      <span class="t6-count">14 Ünite</span>
+    </div>
+    <div class="t8-list">
+      <div class="t8-row" onclick="this.classList.toggle('open')">
+        <div class="t8-head-row">
+          <div class="t8-info"><div class="t8-name">Piyade</div><div class="t8-meta">T1 · ATK 2 · DEF 10</div></div>
+          <span class="t8-toggle">+</span>
+        </div>
+        <div class="t8-body">
+          <div class="t8-price">Maliyet: 3k altın · 75 odun · 50 işl.metal</div>
+          <div class="t8-ctrl"><button>−</button><input value="0"><button>+</button><button class="t8-btn">EGIT</button></div>
+        </div>
+      </div>
+      <div class="t8-row" onclick="this.classList.toggle('open')">
+        <div class="t8-head-row">
+          <div class="t8-info"><div class="t8-name">Baltacı</div><div class="t8-meta">T1 · ATK 2 · DEF 7</div></div>
+          <span class="t8-toggle">+</span>
+        </div>
+        <div class="t8-body">
+          <div class="t8-price">Maliyet: 2k altın · 75 odun · 50 işl.metal</div>
+          <div class="t8-ctrl"><button>−</button><input value="0"><button>+</button><button class="t8-btn">EGIT</button></div>
+        </div>
+      </div>
+      <div class="t8-row open" onclick="this.classList.toggle('open')">
+        <div class="t8-head-row">
+          <div class="t8-info"><div class="t8-name">Okçu</div><div class="t8-meta">T1 · ATK 5 · DEF 12</div></div>
+          <span class="t8-toggle">−</span>
+        </div>
+        <div class="t8-body">
+          <div class="t8-price">Maliyet: 6k altın · 300 odun · 50 işl.metal</div>
+          <div class="t8-ctrl"><button>−</button><input value="0"><button>+</button><button class="t8-btn">EGIT</button></div>
+        </div>
+      </div>
+      <div class="t8-row" onclick="this.classList.toggle('open')">
+        <div class="t8-head-row">
+          <div class="t8-info"><div class="t8-name">Savaşçı</div><div class="t8-meta">T2 · ATK 6 · DEF 18</div></div>
+          <span class="t8-toggle">+</span>
+        </div>
+        <div class="t8-body">
+          <div class="t8-price">Maliyet: 7.5k altın · 100 metal · 100 işl.metal</div>
+          <div class="t8-ctrl"><button>−</button><input value="0"><button>+</button><button class="t8-btn">EGIT</button></div>
+        </div>
+      </div>
+      <div class="t8-row open" onclick="this.classList.toggle('open')">
+        <div class="t8-head-row">
+          <div class="t8-info"><div class="t8-name">Şövalye</div><div class="t8-meta">T2 · ATK 6 · DEF 22</div></div>
+          <span class="t8-toggle">−</span>
+        </div>
+        <div class="t8-body">
+          <div class="t8-price">Maliyet: 10k altın · 200 metal · 150 işl.metal</div>
+          <div class="t8-ctrl"><button>−</button><input value="0"><button>+</button><button class="t8-btn">EGIT</button></div>
+        </div>
+      </div>
+      <div class="t8-row" onclick="this.classList.toggle('open')">
+        <div class="t8-head-row">
+          <div class="t8-info"><div class="t8-name">Süvari</div><div class="t8-meta">T2 · ATK 8 · DEF 26</div></div>
+          <span class="t8-toggle">+</span>
+        </div>
+        <div class="t8-body">
+          <div class="t8-price">Maliyet: 11.5k altın · 300 metal · 1 at</div>
+          <div class="t8-ctrl"><button>−</button><input value="0"><button>+</button><button class="t8-btn">EGIT</button></div>
+        </div>
+      </div>
+      <div class="t8-row" onclick="this.classList.toggle('open')">
+        <div class="t8-head-row">
+          <div class="t8-info"><div class="t8-name">Paladin</div><div class="t8-meta">T3 · ATK 9 · DEF 33</div></div>
+          <span class="t8-toggle">+</span>
+        </div>
+        <div class="t8-body">
+          <div class="t8-price">Maliyet: 16k altın · 1.5k metal · 1 at</div>
+          <div class="t8-ctrl"><button>−</button><input value="0"><button>+</button><button class="t8-btn">EGIT</button></div>
+        </div>
+      </div>
+      <div class="t8-row" onclick="this.classList.toggle('open')">
+        <div class="t8-head-row">
+          <div class="t8-info"><div class="t8-name">Kolcu</div><div class="t8-meta">T2 · ATK 10 · DEF 30</div></div>
+          <span class="t8-toggle">+</span>
+        </div>
+        <div class="t8-body">
+          <div class="t8-price">Maliyet: 32k altın · 500 metal · 1 gizlilik</div>
+          <div class="t8-ctrl"><button>−</button><input value="0"><button>+</button><button class="t8-btn">EGIT</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div style="padding:20px;text-align:center;color:#888;font-size:12px;border-top:1px solid #333">
-  <b style="color:#d4af37">👉 Hangisini beğendin?</b> "1, 2, 3, 4 veya 5" de, onu gerçek <code>page-army.js</code> + <code>main.css</code>'e implement ederim.
+  <b style="color:#d4af37">👉 Hangisini beğendin?</b> "1 – 8" arası tek numara söyle, onu gerçek <code>page-army.js</code> + <code>main.css</code>'e implement ederim.
 </div>
 
 <script>
