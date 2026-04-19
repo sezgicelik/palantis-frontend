@@ -150,6 +150,8 @@ async function loadGameData() {
         savePlayer(pData);
         obApplyPlayer(pData);
         playerGuildId = pData.guild_id;
+        // v1.13.69: Sidebar kosullu menuler (premium, guild_binasi)
+        if (typeof updateConditionalMenus === 'function') updateConditionalMenus(pData);
       }
     } catch(e) {}
 

@@ -34,8 +34,9 @@ function renderSidebar(){
   }
 
   // v1.13.13: 6 ana grup (Kralligim / Savas / Ticaret / Dunya / Aktivite / Eglence)
+  // v1.13.69: simulator.html Eğlence'den Savaş'a tasindi
   const krallikPages = ['city.html','population.html','festival.html','land.html'];
-  const savasPages   = ['army.html','savas-baslat.html','mezarlik.html','casus.html','magic.html','buyucu-kulesi.html'];
+  const savasPages   = ['army.html','savas-baslat.html','mezarlik.html','casus.html','magic.html','buyucu-kulesi.html','simulator.html'];
   const ticPages     = ['market.html','kervan.html','pazar.html','buyu-dukkani.html'];
   const dunyaPages   = ['map.html','guild.html','cag.html'];
   const aktivitePages= ['gorev.html','reports.html','activity.html','siralama.html','artifact.html','meydan.html'];
@@ -89,6 +90,7 @@ function renderSidebar(){
         <a href="casus.html" class="menu-item sub-item${isActive('casus.html')}">🕵️ Casuslar</a>
         <a href="magic.html" class="menu-item sub-item${isActive('magic.html')}">🕯️ Tapınak & Mana</a>
         <a href="buyucu-kulesi.html" class="menu-item sub-item${isActive('buyucu-kulesi.html')}">🗼 Büyücü Kulesi</a>
+        <a id="menu-simulator" href="simulator.html" class="menu-item sub-item${isActive('simulator.html')}" target="_blank" style="display:none">⚔️ Savaş Simülatörü <span style="color:#d4af37;font-size:9px;margin-left:4px">⚜ Premium</span></a>
       </div>
 
       <a href="market.html" class="menu-item${isTic?' on':''}">💰 Ticaret</a>
@@ -102,7 +104,7 @@ function renderSidebar(){
       <a href="map.html" class="menu-item${isDunya?' on':''}">🌍 Dünya</a>
       <div class="submenu" style="display:${isDunya?'block':'none'}">
         <a href="map.html" class="menu-item sub-item${isActive('map.html')}">🗺️ Harita</a>
-        <a href="guild.html" class="menu-item sub-item${isActive('guild.html')}">🏰 Guild</a>
+        <a id="menu-guild" href="guild.html" class="menu-item sub-item${isActive('guild.html')}" style="display:none">🏰 Guild</a>
         <a href="cag.html" class="menu-item sub-item${isActive('cag.html')}">📅 Çağ Atlama</a>
       </div>
 
@@ -122,7 +124,6 @@ function renderSidebar(){
       <div class="submenu" style="display:${isFun?'block':'none'}">
         <a href="bocek-yarisi.html" class="menu-item sub-item${isActive('bocek-yarisi.html')}">🪲 Böcek Yarışı</a>
         <a href="sandik.html" class="menu-item sub-item${isActive('sandik.html')}">📦 Kader Sandıkları</a>
-        <a href="simulator.html" class="menu-item sub-item" target="_blank">⚔️ Savaş Simülatörü</a>
       </div>
 
       <a href="premium.html" class="menu-item${isActive('premium.html')}" style="color:#d4af37">⚜ Premium</a>
@@ -332,6 +333,26 @@ function renderBuildingModal(){
   </div>
   `;
 }
+
+/* v1.13.69: Kosullu menu gorunurlugu (premium + guild_binasi)
+   loadGameData icinde /api/player/me yaniti geldikten sonra cagirilir */
+function updateConditionalMenus(player) {
+  try {
+    // Simulator: sadece premium aktifse
+    const simEl = document.getElementById('menu-simulator');
+    if (simEl) {
+      const premiumAktif = !!(player && player.premium && player.premium.aktif);
+      simEl.style.display = premiumAktif ? '' : 'none';
+    }
+    // Guild: sadece guild_binasi varsa
+    const guildEl = document.getElementById('menu-guild');
+    if (guildEl) {
+      const hasGuildBina = !!(player && player.has_guild_binasi);
+      guildEl.style.display = hasGuildBina ? '' : 'none';
+    }
+  } catch(e) { /* sessiz */ }
+}
+if (typeof window !== 'undefined') window.updateConditionalMenus = updateConditionalMenus;
 
 /* Mobil sidebar toggle */
 function toggleMobileSidebar(){
