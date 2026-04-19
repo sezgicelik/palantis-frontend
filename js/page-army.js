@@ -660,28 +660,28 @@ function renderUnitGrid(side, gridId){
     div.addEventListener('dragstart', e=>{ e.dataTransfer.setData('unitId', u.id); div.style.opacity='.5'; });
     div.addEventListener('dragend', ()=>div.style.opacity='1');
 
+    // v1.13.68.1: Travian Klasik layout — body = 2-line nested div
     div.innerHTML = `
-      <div class="uico" style="background:${bgCol};width:42px;height:42px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">${unitIcon(u, 42)}</div>
-      <div style="min-width:140px;flex-shrink:0">
-        <div style="font-family:'Cinzel',serif;font-size:12px;color:#eee;font-weight:600">
-          ${u.name} ${u.saldiriCarpan>1?`<span style="color:#e74c3c;font-size:10px">\u00d7${u.saldiriCarpan}</span>`:''}
-          <span class="utier ${tierCl}" style="position:static;display:inline;margin-left:4px;font-size:9px">${tierLbl}</span>
+      <div class="uico" style="background:${bgCol}">${unitIcon(u, 48)}</div>
+      <div class="u-body">
+        <div class="u-line1">
+          <span class="u-name">${u.name}</span>
+          <span class="u-meta">${tierLbl} · ${u.role||''}${u.saldiriCarpan>1?' · ×'+u.saldiriCarpan:''}</span>
         </div>
-        <div style="font-size:10px;color:#555">${u.role||''}</div>
+        <div class="u-line2">${askerHTML}${costHTML}${extraHTML}</div>
       </div>
-      <div style="width:130px;flex-shrink:0;display:flex;gap:8px;font-size:11px">
-        <span style="color:#e74c3c">ATK:${uAtk}</span>
-        <span style="color:#3498db">DEF:${uDef}</span>
+      <div class="u-stats">
+        <span style="color:#e74c3c">ATK ${uAtk}</span>
+        <span style="color:#3498db">DEF ${uDef}</span>
         <span style="color:#f1c40f">${uMaas}/g</span>
+        <span style="color:#888">⏱ ${trainDays}PG</span>
       </div>
-      <div class="ucost" style="flex:1;display:flex;flex-wrap:wrap;gap:4px">${askerHTML}${costHTML}${extraHTML}</div>
-      <div style="width:68px;flex-shrink:0;text-align:center;font-size:10px;color:#555">\u23f1 ${trainDays} P.G.</div>
-      <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
-        <button class="ucount-btn" onclick="changeCount('${u.id}',-1)">\u2212</button>
-        <input class="ucount-inp" id="cnt-${u.id}" value="${u.count}" type="number" min="0" style="width:44px;text-align:center" onchange="setCount('${u.id}',this.value)">
+      <div class="u-ctrl">
+        <button class="ucount-btn" onclick="changeCount('${u.id}',-1)">−</button>
+        <input class="ucount-inp" id="cnt-${u.id}" value="${u.count}" type="number" min="0" onchange="setCount('${u.id}',this.value)">
         <button class="ucount-btn" onclick="changeCount('${u.id}',1)">+</button>
       </div>
-      <button class="utrain-btn" style="flex-shrink:0" ${afford?'':'disabled'} onclick="trainUnit('${u.id}')">EGIT</button>
+      <button class="utrain-btn" ${afford?'':'disabled'} onclick="trainUnit('${u.id}')">EGIT</button>
     `;
     grid.appendChild(div);
   });

@@ -599,84 +599,62 @@ body{padding-top:38px;}
 /* Ünite grid → satır listesi */
 .unit-grid{display:flex;flex-direction:column;gap:5px;}
 
-/* v1.13.68: Ünite satırı — Travian Klasik tasarim (mockup #4)
-   [52px ikon kutusu] [ISIM + role / maliyet] [adet input] [EGIT buton — tam yukseklik] */
+/* v1.13.68.1: Ünite satırı — Travian Klasik (mockup #4) TEMIZ render
+   Yapi: [uico 52px] [u-body flex:1] [u-stats auto] [u-ctrl auto] [utrain-btn auto full-height] */
 .urow{
   display:flex;
   align-items:stretch;
   flex-wrap:nowrap;
-  gap:0;                   /* gap yok, segmentler yapisik */
+  gap:0;
   background:#0d0d0d;
   border:1px solid #2a2a2a;
   border-radius:4px;
   overflow:hidden;
   transition:.18s;
   position:relative;
-  padding:0;               /* padding segment icinde */
-  min-height:56px;
+  padding:0;
+  min-height:56px
 }
 .urow:hover{border-color:#c8a96e;background:#121110}
 .urow.light-unit{border-left:3px solid #f1c40f}
 .urow.dark-unit{border-left:3px solid #9b59b6}
 
-/* Ikon kutusu — sol, buyuk, gradient arkaplan, sag border */
+/* Ikon kutusu */
 .urow .uico{
-  width:52px!important;height:52px!important;
-  background:linear-gradient(135deg,#2a1d10,#1a1208)!important;
+  width:52px;height:52px;
+  background:linear-gradient(135deg,#2a1d10,#1a1208);
   display:flex;align-items:center;justify-content:center;
   font-size:24px;border-right:1px solid #3a2a15;flex-shrink:0;
-  border-radius:0!important;align-self:center;margin:2px 0
+  border-radius:0;align-self:center;overflow:hidden
 }
 
-/* Orta govde — 2 satirli */
-.urow > div:nth-child(2){
-  flex:1!important;padding:6px 12px!important;min-width:0!important;max-width:none!important;
-  display:flex;flex-direction:column;gap:2px;justify-content:center
+/* Govde — 2 line nested */
+.urow .u-body{
+  flex:1;min-width:0;padding:6px 12px;
+  display:flex;flex-direction:column;gap:3px;justify-content:center
 }
-.urow > div:nth-child(2) > div:first-child{
-  font-family:'Cinzel',serif!important;font-size:14px!important;color:#d4af37!important;
-  font-weight:700!important;letter-spacing:.3px;line-height:1.1
+.urow .u-line1{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;min-width:0}
+.urow .u-name{
+  font-family:'Cinzel',serif;font-size:13px;color:#d4af37;font-weight:700;letter-spacing:.3px
 }
-.urow > div:nth-child(2) > div:first-child span.utier{
-  font-size:10px!important;color:#888!important;background:transparent!important;
-  border:none!important;padding:0!important;margin-left:6px!important;
-  font-weight:400!important;letter-spacing:1px
+.urow .u-meta{font-size:10px;color:#888;letter-spacing:.5px}
+.urow .u-line2{
+  display:flex;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;
+  font-size:11px;color:#bbb;gap:0;min-width:0
 }
-.urow > div:nth-child(2) > div:first-child span[style*="color:#e74c3c"]{
-  font-size:11px!important;margin-left:4px;font-weight:400
-}
-.urow > div:nth-child(2) > div:last-child{
-  font-size:10px!important;color:#888!important;letter-spacing:.3px;line-height:1.1
+.urow .u-line2::-webkit-scrollbar{display:none}
+
+/* ATK/DEF/maas — desktop sag ortada kucuk */
+.urow .u-stats{
+  display:flex;flex-direction:column;gap:2px;padding:0 10px;
+  align-items:flex-end;justify-content:center;font-size:10px;
+  border-left:1px solid #1a1a1a;flex-shrink:0;min-width:85px
 }
 
-/* ATK/DEF/maas satiri — 2. satira tasi (inline) */
-.urow > div:nth-child(3){
-  position:absolute!important;right:170px;top:22px;
-  width:auto!important;display:flex!important;gap:8px!important;
-  font-size:10px!important;color:#999!important;pointer-events:none
-}
-
-/* Maliyet — 2. satirdaki govde icinde INLINE (· ayracli) */
-.urow > .ucost{
-  flex:0 1 auto!important;padding:0!important;
-  display:flex!important;flex-wrap:nowrap!important;gap:0!important;
-  align-items:center;order:3;
-  position:absolute;left:64px;right:170px;bottom:8px;
-  overflow-x:auto;scrollbar-width:none;white-space:nowrap
-}
-.urow > .ucost::-webkit-scrollbar{display:none}
-
-/* Sure yazisi (⏱ X PG) — .ucost icinde goster */
-.urow > div:nth-child(5){
-  position:absolute;left:64px;bottom:8px;
-  width:auto!important;font-size:10px!important;color:#888!important;
-  pointer-events:none;display:none /* maliyet ile ayni yer — gizli, .ucost icinde gosterebiliriz */
-}
-
-/* Adet input — sag, EGIT'ten onceki panel */
-.urow > div:nth-child(6){
+/* Count kontrol */
+.urow .u-ctrl{
   display:flex;align-items:center;gap:3px;padding:0 10px;
-  flex-shrink:0;align-self:center;margin-left:auto
+  flex-shrink:0;align-self:center;border-left:1px solid #1a1a1a
 }
 .urow .ucount-btn{
   width:24px;height:24px;background:#1a1a1a;color:#f5f0e8;
@@ -685,35 +663,36 @@ body{padding-top:38px;}
 }
 .urow .ucount-btn:hover{background:#c8a96e;color:#000}
 .urow .ucount-inp{
-  width:56px!important;text-align:center;background:#1a1a1a;border:1px solid #333;
+  width:56px;text-align:center;background:#1a1a1a;border:1px solid #333;
   color:#eee;padding:5px 4px;border-radius:3px;
   font-family:'Cinzel',serif;font-weight:600;font-size:13px
 }
 
-/* EGIT butonu — sag uc, full yukseklik, altin renk */
+/* EGIT butonu — full-height altin */
 .urow .utrain-btn{
-  background:linear-gradient(135deg,#d4af37,#c8a96e)!important;
-  color:#000!important;border:none!important;
-  padding:0 18px!important;font-weight:900!important;
-  border-radius:0!important;cursor:pointer;
-  font-family:'Cinzel',serif!important;font-size:11px!important;
-  letter-spacing:1.5px!important;align-self:stretch;flex-shrink:0;
+  background:linear-gradient(135deg,#d4af37,#c8a96e);
+  color:#000;border:none;
+  padding:0 18px;font-weight:900;
+  border-radius:0;cursor:pointer;
+  font-family:'Cinzel',serif;font-size:11px;
+  letter-spacing:1.5px;align-self:stretch;flex-shrink:0;
   min-width:80px;transition:.18s
 }
-.urow .utrain-btn:hover:not(:disabled){background:linear-gradient(135deg,#e5bf48,#d4af37)!important}
-.urow .utrain-btn:disabled{opacity:.3;cursor:not-allowed}
+.urow .utrain-btn:hover:not(:disabled){background:linear-gradient(135deg,#e5bf48,#d4af37)}
+.urow .utrain-btn:disabled{opacity:.35;cursor:not-allowed}
 
-/* Mobil (≤768px): daha kompakt */
+/* Mobil (≤768px): ATK/DEF gizli + kompakt */
 @media (max-width:768px){
-  .urow{min-height:52px}
-  .urow .uico{width:44px!important;height:44px!important;font-size:20px}
-  .urow > div:nth-child(2) > div:first-child{font-size:13px!important}
-  .urow > div:nth-child(2) > div:first-child span.utier{display:none}
-  .urow > div:nth-child(3){display:none!important}
-  .urow > .ucost{left:56px;right:150px;font-size:10px}
-  .urow > div:nth-child(6){padding:0 6px}
-  .urow .ucount-inp{width:48px!important}
-  .urow .utrain-btn{padding:0 14px!important;min-width:70px;font-size:10px!important}
+  .urow{min-height:50px}
+  .urow .uico{width:44px;height:44px;font-size:20px}
+  .urow .u-body{padding:5px 10px;gap:2px}
+  .urow .u-name{font-size:12px}
+  .urow .u-meta{font-size:9px}
+  .urow .u-line2{font-size:10px}
+  .urow .u-stats{display:none}  /* mobilde ATK/DEF gizli */
+  .urow .u-ctrl{padding:0 6px;border-left:none}
+  .urow .ucount-inp{width:46px;font-size:12px}
+  .urow .utrain-btn{padding:0 12px;min-width:64px;font-size:10px;letter-spacing:1px}
 }
 
 
