@@ -599,11 +599,11 @@ body{padding-top:38px;}
 /* Ünite grid → satır listesi */
 .unit-grid{display:flex;flex-direction:column;gap:5px;}
 
-/* v1.13.67: Ünite satırı — flex wrap (responsive, bina list tarzi) */
+/* v1.13.67: Ünite satırı — her ünite TEK SIRA (nowrap), içerik yatay scroll */
 .urow{
   display:flex;
   align-items:center;
-  flex-wrap:wrap;
+  flex-wrap:nowrap;         /* <-- tek sıra zorla */
   gap:8px;
   background:linear-gradient(180deg,#1a120a,#120a04);
   border:1px solid #3a2a15;border-left:3px solid #5a4a2a;
@@ -611,22 +611,27 @@ body{padding-top:38px;}
   padding:8px 12px;
   transition:.18s;
   position:relative;
+  overflow-x:auto;          /* taşarsa yatay scroll (scrollbar gizli asagida) */
+  overflow-y:hidden;
+  scrollbar-width:none;
 }
+.urow::-webkit-scrollbar{display:none}
 .urow:hover{border-color:#c8a96e;background:linear-gradient(180deg,#1e150a,#140c06)}
 .urow.light-unit{border-left-color:#f1c40f;}
 .urow.dark-unit{border-left-color:#9b59b6;}
 
-/* Mobil (≤768px): her grup alt alta — bina kartlari tarzi */
+/* Mobil (≤768px): nowrap + daha kompakt — tüm icerik tek satirda, az yer tutan elementler gizli */
 @media (max-width:768px){
   .urow{gap:6px;padding:6px 10px}
-  .urow > div[style*="width:130px"]{display:none!important} /* ATK/DEF/maas satiri mobilde gizli */
-  .urow > div[style*="width:68px"]{display:none!important}  /* sure yazisi mobilde gizli */
-  .urow > .ucost{flex:1 1 100%!important;padding:3px 0!important;font-size:10px}
-  .urow > div[style*="min-width:140px"]{flex:1 1 160px;min-width:140px!important}
-  .urow > .utrain-btn{padding:7px 12px!important;font-size:12px!important;flex-shrink:0}
-  .ucost-i{font-size:10px;padding:2px 5px}
-  .ucount-btn{width:26px;height:26px}
-  .ucount-inp{width:50px!important}
+  .urow > div[style*="width:130px"]{display:none!important}  /* ATK/DEF/maas — yer kazanmak icin gizli */
+  .urow > div[style*="width:68px"]{display:none!important}   /* sure yazisi — gizli */
+  .urow > div[style*="min-width:140px"]{min-width:110px!important;flex-shrink:0}
+  .urow > .ucost{flex:0 1 auto!important;gap:3px!important}
+  .urow > .utrain-btn{padding:7px 12px!important;font-size:11px!important;flex-shrink:0;margin-left:auto}
+  .ucost-i{font-size:10px;padding:2px 5px;flex-shrink:0}
+  .ucount-btn{width:26px;height:26px;flex-shrink:0}
+  .ucount-inp{width:44px!important;flex-shrink:0}
+  .uico{width:32px!important;height:32px!important;flex-shrink:0}
 }
 
 
@@ -679,10 +684,16 @@ body{padding-top:38px;}
 .utrain-btn:hover{opacity:.85;}
 .utrain-btn:disabled{opacity:.3;cursor:not-allowed;}
 
-/* Maliyet mini */
-.ucost{padding:0 15px 10px;display:flex;flex-wrap:wrap;gap:4px;}
-.ucost-i{font-size:10px;padding:2px 6px;background:#0d0d0d;border:1px solid #1e1e1e;border-radius:3px;}
-.ucost-i.ok{color:#ccc;} .ucost-i.no{color:#e74c3c;}
+/* v1.13.67: Maliyet inline — kutusuz, · ayraçli, tek satir */
+.ucost{padding:0;display:flex;flex-wrap:nowrap;gap:0;align-items:center}
+.ucost-i{
+  font-size:11px;padding:0 4px;background:none;border:none;border-radius:0;
+  color:#ccc;white-space:nowrap;flex-shrink:0;
+  display:inline-flex;align-items:center;gap:2px
+}
+.ucost-i + .ucost-i::before{content:"·";color:#555;margin-right:4px}
+.ucost-i.no{color:#e74c3c}
+.ucost-i.ok{color:#ccc}
 
 /* SAF DİZİLİMİ (4 saf: 3-3-5-3) */
 .saf-row{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:12px;}
