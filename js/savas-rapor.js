@@ -112,18 +112,40 @@ function showSavasRapor(sonuc, benimTaraf, opts) {
     }).join('');
   }
 
-  // Ganimet
+  // Ganimet — v1.13.68: yapisal gosterim (savas_alani + sehir_yagmasi + alan + koylu + esir)
   let ganimetHTML = '';
-  if (sonuc.ganimet && Object.keys(sonuc.ganimet).length > 0) {
+  const g = sonuc.ganimet || {};
+  const ganimetItemleri = [];
+  const ikon = function(k) { return (typeof RICONS !== 'undefined' && RICONS[k]) ? RICONS[k] : ''; };
+  // Savas alani ganimeti (olen unite maliyeti bazli kaynak)
+  if (g.savas_alani && Object.keys(g.savas_alani).length > 0) {
+    for (const [k, v] of Object.entries(g.savas_alani)) {
+      if (v > 0) ganimetItemleri.push('<div class="sr-ganimet-item" title="Savas alaninda dusman kayiplarindan elde edilen ganimet">' + ikon(k) + ' ' + k + ': <span>+' + fmt(v) + '</span></div>');
+    }
+  }
+  // Sehir yagmasi
+  if (g.sehir_yagmasi && Object.keys(g.sehir_yagmasi).length > 0) {
+    for (const [k, v] of Object.entries(g.sehir_yagmasi)) {
+      if (v > 0) ganimetItemleri.push('<div class="sr-ganimet-item" title="Sehir yagmasi — hedef oyuncudan alindi">🏴 ' + ikon(k) + ' ' + k + ': <span>+' + fmt(v) + '</span></div>');
+    }
+  }
+  // Alan transferi
+  if (g.alan_transferi && g.alan_transferi.miktar > 0) {
+    const serapNot = g.alan_transferi.serap_etkisi ? ' (Serap Kd.' + g.alan_transferi.serap_kademe + ' azalttı)' : '';
+    ganimetItemleri.push('<div class="sr-ganimet-item" title="Hedefin toplam alanından transfer edildi">📐 Alan: <span>+' + fmt(g.alan_transferi.miktar) + '</span>' + serapNot + '</div>');
+  }
+  // Koylu olumu (saldiran kazandiysa hedefin koylusu oldu)
+  if (g.koylu_olum > 0) {
+    ganimetItemleri.push('<div class="sr-ganimet-item" title="Yagma sirasinda oldurulen hedef koylu">💀 Koylu olumu: <span>' + fmt(g.koylu_olum) + '</span></div>');
+  }
+  // Esir alinan
+  if (g.esir_alinan > 0) {
+    ganimetItemleri.push('<div class="sr-ganimet-item" title="Savas sonu kazanilan esir (donus varisinda kampa eklenir, dolu ise kacar)">🔒 Esir alindi: <span>+' + fmt(g.esir_alinan) + '</span></div>');
+  }
+  if (ganimetItemleri.length > 0) {
     ganimetHTML = '<div class="sr-div"></div>' +
       '<div class="sr-sec">💰 GANİMET</div>' +
-      '<div class="sr-ganimet">' +
-      Object.entries(sonuc.ganimet).map(function(e) {
-        var k = e[0], v = e[1];
-        var icon = (typeof RICONS !== 'undefined' && RICONS[k]) ? RICONS[k] : '';
-        return '<div class="sr-ganimet-item">' + icon + ' ' + k + ': <span>+' + fmt(v) + '</span></div>';
-      }).join('') +
-      '</div>';
+      '<div class="sr-ganimet">' + ganimetItemleri.join('') + '</div>';
   }
 
   // Koloni fethi
