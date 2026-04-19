@@ -4,9 +4,10 @@
 ══════════════════════════════════ */
 
 // v1.13.50: Savas event tiklanabilir satir helper
+// v1.13.69: kadim_saldiri event'i de tiklanabilir (NPC savas raporu)
 function _formatActivityRow(l, baseStyle) {
   const m = /\[#(\d+)\]/.exec(l.mesaj||'');
-  if (l.event_type === 'savas' && m) {
+  if ((l.event_type === 'savas' || l.event_type === 'kadim_saldiri') && m) {
     const sid = m[1];
     const mesaj = l.mesaj.replace(/\s*\[#\d+\]\s*$/, '');
     return '<div onclick="openSavasRaporFromLog('+sid+')" style="'+baseStyle+';color:#e0c080;cursor:pointer" onmouseover="this.style.background=\'rgba(201,168,76,0.08)\'" onmouseout="this.style.background=\'none\'">🔍 '+mesaj+' <span style="font-size:9px;color:#888">raporu gör ›</span></div>';
