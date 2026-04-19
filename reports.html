@@ -32,9 +32,10 @@
         <h2 style="color:#c8a96e;font-family:'Cinzel',serif;margin:0;font-size:clamp(16px,4vw,22px)">🏙️ Şehir Raporları</h2>
         <button class="btn-action" onclick="loadActivity()" style="padding:4px 14px;font-size:11px;width:auto">↻ Yenile</button>
       </div>
-      <div id="sehir-loading" style="color:#888;font-size:13px;text-align:center;padding:40px">Yükleniyor...</div>
-      <div id="sehir-list" style="display:none"></div>
-      <div id="sehir-empty" style="display:none;color:#777;font-size:13px;text-align:center;padding:40px">
+      <!-- v1.13.62: page-activity.js uyumlu ID'ler — activity.html ile birleştirildi -->
+      <div id="activity-loading" style="color:#888;font-size:13px;text-align:center;padding:40px">Yükleniyor...</div>
+      <div id="activity-list" style="display:none"></div>
+      <div id="activity-empty" style="display:none;color:#777;font-size:13px;text-align:center;padding:40px">
         Henüz kayıt yok.<br><small style="color:#555">Her Noxara günü başında işçi üretimi, inşaat ve nüfus olayları burada görünür.</small>
       </div>
     </div>
@@ -146,9 +147,10 @@
       document.querySelectorAll('.army-tabs .atab').forEach(b => b.classList.remove('on'));
       if (el) el.classList.add('on');
       if (tab === 'sehir') {
-        // Sehir raporlari da filtreli gosterilir
-        if (typeof loadFilteredReport === 'function') loadFilteredReport('sehir');
-        else if (typeof loadActivity === 'function') loadActivity();
+        // v1.13.62: activity.html ile birlestirildi — page-activity.js'in zengin render'i
+        // (tarih gruplama + tip ikonlari + filtre/gruplama) kullanilir
+        if (typeof loadActivity === 'function') loadActivity();
+        else if (typeof loadFilteredReport === 'function') loadFilteredReport('sehir');
       }
       if (tab === 'askeri' || tab === 'ekonomi' || tab === 'ticaret' || tab === 'koloni') loadFilteredReport(tab);
       if (tab === 'ozet-tablo') { loadOzetTablo(); }

@@ -109,7 +109,7 @@ function renderSidebar(){
       <a href="gorev.html" class="menu-item${isAktivite?' on':''}">📊 Aktivite</a>
       <div class="submenu" style="display:${isAktivite?'block':'none'}">
         <a href="gorev.html" class="menu-item sub-item${isActive('gorev.html')}">📜 Görevler <span id="gorev-badge" style="display:none;background:#e74c3c;color:#fff;font-size:8px;padding:1px 5px;border-radius:8px;margin-left:4px"></span></a>
-        <a href="activity.html" class="menu-item sub-item${isActive('activity.html')}">🏙️ Şehir Raporları</a>
+        <a href="reports.html?tab=sehir" class="menu-item sub-item${isActive('reports.html')}">🏙️ Şehir Raporları</a>
         <a href="reports.html?tab=askeri" class="menu-item sub-item">⚔️ Askeri Raporlar</a>
         <a href="reports.html?tab=koloni" class="menu-item sub-item">🏰 Koloni Raporları</a>
         <a href="reports.html?tab=ekonomi" class="menu-item sub-item">💰 Ekonomi Raporları</a>
@@ -556,7 +556,7 @@ const HIZLI_MENU_KATALOG = [
   { href: 'guild.html',         label: 'Guild',            icon: '🏰', grup: 'Dünya' },
   { href: 'cag.html',           label: 'Çağ Atlama',       icon: '📅', grup: 'Dünya' },
   { href: 'gorev.html',         label: 'Görevler',         icon: '📜', grup: 'Aktivite' },
-  { href: 'activity.html',      label: 'Şehir Raporları',  icon: '🏙️', grup: 'Aktivite' },
+  { href: 'reports.html?tab=sehir', label: 'Şehir Raporları',  icon: '🏙️', grup: 'Aktivite' },
   { href: 'reports.html',       label: 'Raporlar',         icon: '📊', grup: 'Aktivite' },
   { href: 'siralama.html',      label: 'Sıralamalar',      icon: '🏆', grup: 'Aktivite' },
   { href: 'artifact.html',      label: 'Artifactlar',      icon: '🧰', grup: 'Aktivite' },
