@@ -186,19 +186,53 @@ function renderSoldierPanel(){
   const koylu = Math.max(0, population.free);
   setText('sm-koylu', koylu);
   setText('sm-asker', ASKER_SAYISI);
-  setText('sm-miktar', SM_MIKTAR);
+  // v1.13.67: sm-miktar artik input — value guncelle
+  const inp = document.getElementById('sm-miktar');
+  if (inp) inp.value = SM_MIKTAR;
+}
+
+function _smMax() {
+  const koylu = Math.max(0, population.free);
+  return Math.max(koylu, ASKER_SAYISI);
 }
 
 function smAdjust(d){
-  const koylu = Math.max(0, population.free);
-  SM_MIKTAR = Math.max(0, Math.min(SM_MIKTAR + d, koylu));
-  setText('sm-miktar', SM_MIKTAR);
+  SM_MIKTAR = Math.max(0, Math.min(SM_MIKTAR + d, _smMax()));
+  renderSoldierPanel();
+}
+
+// v1.13.67: Input'a direkt yazinca cagrilir (onchange/oninput)
+function smSet(v) {
+  let n = parseInt(v, 10);
+  if (!Number.isFinite(n) || n < 0) n = 0;
+  SM_MIKTAR = Math.min(n, _smMax());
+  // Input value'su zaten degisti, renderSoldierPanel cagirirsak tekrar atar — gerek yok
+  // Sadece SM_MIKTAR degeri guncellendi
+}
+
+// v1.13.67: MAX butonu — yon bagimsiz, hangisi fazlaysa ona setler
+function smMax() {
+  SM_MIKTAR = _smMax();
+  renderSoldierPanel();
+  const msg = document.getElementById('sm-msg');
+  if (msg) {
+    const koylu = Math.max(0, population.free);
+    const yon = koylu >= ASKER_SAYISI ? `Boş köylü: ${koylu}` : `Asker: ${ASKER_SAYISI}`;
+    msg.textContent = `MAX → ${SM_MIKTAR} (${yon})`;
+    msg.style.color = '#d4af37';
+  }
 }
 
 async function smConvert(){
-  if(SM_MIKTAR <= 0){ document.getElementById('sm-msg').textContent = 'Donusturulecek koylu sayisini belirle.'; return; }
+  const msgEl = document.getElementById('sm-msg');
+  if(SM_MIKTAR <= 0){ msgEl.textContent = 'Donusturulecek koylu sayisini belirle.'; msgEl.style.color='#e74c3c'; return; }
   const koylu = Math.max(0, population.free);
-  if(SM_MIKTAR > koylu){ document.getElementById('sm-msg').textContent = 'Yeterli bos koylu yok!'; return; }
+  // v1.13.67: Net uyari — user 5500 yazdi, 100 koylu var ise clamp degil hata ver
+  if(SM_MIKTAR > koylu){
+    msgEl.textContent = `⚠️ Sadece ${koylu} boş köylün var, ${SM_MIKTAR} askere çeviremezsin!`;
+    msgEl.style.color = '#e74c3c';
+    return;
+  }
 
   const token = getToken();
   if(token) {
@@ -240,8 +274,13 @@ async function smConvert(){
 }
 
 async function smRelease(){
-  if(SM_MIKTAR <= 0){ document.getElementById('sm-msg').textContent = 'Koyluye cevrilecek asker sayisini belirle.'; return; }
-  if(SM_MIKTAR > ASKER_SAYISI){ document.getElementById('sm-msg').textContent = 'Bu kadar asker yok!'; return; }
+  const msgEl = document.getElementById('sm-msg');
+  if(SM_MIKTAR <= 0){ msgEl.textContent = 'Koyluye cevrilecek asker sayisini belirle.'; msgEl.style.color='#e74c3c'; return; }
+  if(SM_MIKTAR > ASKER_SAYISI){
+    msgEl.textContent = `⚠️ Sadece ${ASKER_SAYISI} askerin var, ${SM_MIKTAR} köylüye çeviremezsin!`;
+    msgEl.style.color = '#e74c3c';
+    return;
+  }
 
   const token = getToken();
   if(token) {

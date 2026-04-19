@@ -67,12 +67,18 @@
           <div class="cstat"><span class="snum" id="sm-asker">0</span><span class="slbl">HAM ASKER</span></div>
         </div>
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
-          <div style="display:flex;align-items:center;gap:6px">
-            <button class="btn ghost" style="padding:4px 12px;font-size:16px" onclick="smAdjust(-10)">−10</button>
-            <button class="btn ghost" style="padding:4px 10px;font-size:16px" onclick="smAdjust(-1)">−</button>
-            <span id="sm-miktar" style="min-width:48px;text-align:center;font-size:18px;font-weight:bold;color:#d4af37">0</span>
-            <button class="btn ghost" style="padding:4px 10px;font-size:16px" onclick="smAdjust(1)">+</button>
-            <button class="btn ghost" style="padding:4px 12px;font-size:16px" onclick="smAdjust(10)">+10</button>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <button class="btn ghost" style="padding:4px 10px;font-size:14px" onclick="smAdjust(-100)">−100</button>
+            <button class="btn ghost" style="padding:4px 10px;font-size:14px" onclick="smAdjust(-10)">−10</button>
+            <button class="btn ghost" style="padding:4px 8px;font-size:14px" onclick="smAdjust(-1)">−</button>
+            <!-- v1.13.67: Input manuel yazilabilir + ok tuslariyla artirma/azaltma -->
+            <input type="number" id="sm-miktar" value="0" min="0" step="1"
+              onchange="smSet(this.value)" oninput="smSet(this.value)"
+              style="width:80px;text-align:center;font-size:16px;font-weight:bold;color:#d4af37;background:#0f0a06;border:1px solid #c8a96e;border-radius:4px;padding:5px 6px" />
+            <button class="btn ghost" style="padding:4px 8px;font-size:14px" onclick="smAdjust(1)">+</button>
+            <button class="btn ghost" style="padding:4px 10px;font-size:14px" onclick="smAdjust(10)">+10</button>
+            <button class="btn ghost" style="padding:4px 10px;font-size:14px" onclick="smAdjust(100)">+100</button>
+            <button class="btn ghost" style="padding:4px 10px;font-size:14px;color:#d4af37;border-color:#d4af37" onclick="smMax()">MAX</button>
           </div>
           <button class="btn" onclick="smConvert()" style="min-width:140px">⚔️ Askere Çevir</button>
           <button class="btn ghost" onclick="smRelease()" style="min-width:140px">🏠 Köylüye Çevir</button>
