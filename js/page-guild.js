@@ -135,7 +135,9 @@ var GUILD_TABS = [
   { id: 'mezarlik', label: '⚰️ Mezarlik',    aktif: true },
   { id: 'kusatma',  label: '⚔️ Kusatma',      aktif: true },  // v1.13.39 Faz 3b.0
   { id: 'savas',    label: '⚔️ Savas Odasi', aktif: false },
-  { id: 'raporlar', label: '📜 Raporlar',     aktif: true }
+  { id: 'raporlar', label: '📜 Raporlar',     aktif: true },
+  // v1.13.68.5: Ekonomi Ozet Tablosu (oyuncu sayfasindaki ile ayni format)
+  { id: 'ekonomi-ozet', label: '📊 Ekonomi Ozet', aktif: true }
 ];
 
 // v1.13.2: Guild sayfasi ust HUD seridi (tum tab'larda gorunur)
@@ -233,6 +235,7 @@ function guildTabIcerikGoster(data) {
     case 'dagitim':  renderTabDagitim(el, data); break;
     case 'mezarlik': renderTabMezarlik(el, data); break;
     case 'raporlar': renderTabRaporlar(el, data); break;
+    case 'ekonomi-ozet': renderTabEkonomiOzet(el, data); break;
     case 'uye-ozet': renderTabUyeOzet(el, data); break;
     case 'kusatma':  renderTabKusatma(el, data); break;
     default:        el.innerHTML = '<div class="card" style="text-align:center;padding:30px;color:#555"><div style="font-size:30px;margin-bottom:8px">🔒</div><p style="font-size:12px">Bu ozellik Faz 3\'te aktif olacak.</p></div>';
@@ -1981,6 +1984,113 @@ async function guildMezarlikDirilt(guildId, mezId) {
     if (resp.ok) { toast(d.diriltilen + ' unite diriltildi. Maliyet: ' + fmt(d.maliyet) + ' altin'); loadGuild(); }
     else toast(d.error || 'Hata', 'error');
   } catch(e) { toast('Baglanti hatasi', 'error'); }
+}
+
+// v1.13.68.5: Guild Ekonomi Ozet tablosu (oyuncu sayfasindaki ile ayni format)
+var GUILD_OZET_SAAT = 24;
+var GUILD_KAYNAK_LABEL = {
+  altin:'💰 Altin', metal:'⛏️ Metal', odun:'🌳 Odun', kereste:'🪵 Kereste', islenmis:'⚙️ Islenmis',
+  bugday:'🌾 Bugday', balik:'🎣 Balik', cig_et:'🥩 Cig Et', ekmek:'🍞 Ekmek', pismis:'🍳 Pis.Balik', pismis_et:'🍖 Pis.Et',
+  mana_beyaz:'🤍 B.Mana', mana_kirmizi:'❤️ K.Mana', mana_mavi:'💙 M.Mana', mana_yesil:'💚 Y.Mana'
+};
+
+function renderTabEkonomiOzet(el, data) {
+  var g = data.guild || {};
+  el.innerHTML =
+    '<div class="card">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">' +
+        '<h3 style="color:#c8a96e;font-family:\'Cinzel\',serif;margin:0">📊 Guild Ekonomi Ozet Tablosu</h3>' +
+        '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
+          '<span style="font-size:10px;color:#888">Zaman:</span>' +
+          ['24','48','72','168'].map(function(s){
+            return '<button class="btn-gozet-saat" id="gozet-saat-' + s + '" onclick="guildOzetSaatDegistir(' + s + ',' + g.id + ')">' + s + ' P.G.</button>';
+          }).join('') +
+          '<button class="btn-action" onclick="loadGuildEkonomiOzet(' + g.id + ')" style="padding:4px 12px;font-size:11px;width:auto">↻ Yenile</button>' +
+        '</div>' +
+      '</div>' +
+      '<p style="font-size:11px;color:#888;margin-bottom:10px">Guild kasasindaki son N PG kaynak hareketleri. Isci uretim, uye bagisi, dagitim, savas ganimeti, yemek tuketim... hepsi burada.</p>' +
+      '<style>' +
+        '.btn-gozet-saat { padding:4px 10px;font-size:10px;background:#1a1a1a;border:1px solid #333;color:#888;border-radius:4px;cursor:pointer }' +
+        '.btn-gozet-saat.on { background:#c8a96e;color:#000;border-color:#c8a96e;font-weight:bold }' +
+        '.gozet-tbl { width:100%;border-collapse:collapse;font-size:10px;background:#0a0a08 }' +
+        '.gozet-tbl th,.gozet-tbl td { padding:4px 6px;border:1px solid #1e1e1e;text-align:right;white-space:nowrap }' +
+        '.gozet-tbl th { background:#1a1510;color:#c8a96e;font-weight:bold;position:sticky;top:0 }' +
+        '.gozet-tbl th:first-child,.gozet-tbl td:first-child,.gozet-tbl td:nth-child(2) { text-align:left }' +
+        '.gozet-tbl td.yon-gelir { color:#2ecc71 }' +
+        '.gozet-tbl td.yon-gider { color:#e74c3c }' +
+        '.gozet-tbl tr.toplam-row { background:#150f08;font-weight:bold }' +
+        '.gozet-tbl tr.toplam-gelir td { color:#2ecc71 }' +
+        '.gozet-tbl tr.toplam-gider td { color:#e74c3c }' +
+        '.gozet-tbl tr.toplam-net td { color:#d4af37;border-top:2px solid #d4af37 }' +
+      '</style>' +
+      '<div id="gozet-loading" style="color:#888;font-size:13px;text-align:center;padding:40px">Yukleniyor...</div>' +
+      '<div id="gozet-wrap" style="display:none;overflow-x:auto;max-height:70vh"></div>' +
+      '<div id="gozet-empty" style="display:none;color:#777;font-size:13px;text-align:center;padding:40px">Bu zaman araliginda ekonomik hareket yok.</div>' +
+    '</div>';
+  loadGuildEkonomiOzet(g.id);
+}
+
+function guildOzetSaatDegistir(s, gId) { GUILD_OZET_SAAT = s; loadGuildEkonomiOzet(gId); }
+
+async function loadGuildEkonomiOzet(gId) {
+  if (!gId) return;
+  var loading = document.getElementById('gozet-loading');
+  var wrap = document.getElementById('gozet-wrap');
+  var empty = document.getElementById('gozet-empty');
+  if (loading) loading.style.display = 'block';
+  if (wrap) wrap.style.display = 'none';
+  if (empty) empty.style.display = 'none';
+  ['24','48','72','168'].forEach(function(s){
+    var b = document.getElementById('gozet-saat-' + s);
+    if (b) b.classList.toggle('on', String(GUILD_OZET_SAAT) === s);
+  });
+  try {
+    var resp = await fetch(API_BASE + '/api/guild/' + gId + '/ekonomi-ozet?saat=' + GUILD_OZET_SAAT, { headers: guildHdr() });
+    var d = await resp.json();
+    if (!resp.ok || !d.ok) throw new Error(d.error || 'Hata');
+    if ((!d.gelirler || !d.gelirler.length) && (!d.giderler || !d.giderler.length)) {
+      if (loading) loading.style.display = 'none';
+      if (empty) empty.style.display = 'block';
+      return;
+    }
+    var kullanilanSet = {};
+    (d.gelirler||[]).concat(d.giderler||[]).forEach(function(r){ Object.keys(r.toplamlar).forEach(function(k){ kullanilanSet[k] = 1; }); });
+    Object.keys(d.toplam_gelir||{}).forEach(function(k){ kullanilanSet[k] = 1; });
+    Object.keys(d.toplam_gider||{}).forEach(function(k){ kullanilanSet[k] = 1; });
+    var kaynaklar = (d.kaynaklar||[]).filter(function(k){ return kullanilanSet[k]; });
+    var fmt = function(n) { return n ? Math.round(n).toLocaleString('tr-TR') : '—'; };
+    var html = '<table class="gozet-tbl"><thead><tr><th style="width:60px">Tip</th><th style="min-width:180px">Kategori</th>';
+    kaynaklar.forEach(function(k){ html += '<th style="min-width:90px">' + (GUILD_KAYNAK_LABEL[k] || k) + '</th>'; });
+    html += '</tr></thead><tbody>';
+    (d.gelirler||[]).forEach(function(r){
+      html += '<tr><td style="color:#2ecc71;font-weight:bold">📈 Gelir</td><td>' + r.isim + '</td>';
+      kaynaklar.forEach(function(k){ html += '<td class="yon-gelir">' + fmt(r.toplamlar[k]) + '</td>'; });
+      html += '</tr>';
+    });
+    if ((d.gelirler||[]).length) {
+      html += '<tr class="toplam-row toplam-gelir"><td>📈 TOPLAM</td><td>Gelir</td>';
+      kaynaklar.forEach(function(k){ html += '<td>' + fmt(d.toplam_gelir[k]) + '</td>'; });
+      html += '</tr>';
+    }
+    (d.giderler||[]).forEach(function(r){
+      html += '<tr><td style="color:#e74c3c;font-weight:bold">📉 Gider</td><td>' + r.isim + '</td>';
+      kaynaklar.forEach(function(k){ html += '<td class="yon-gider">' + fmt(r.toplamlar[k]) + '</td>'; });
+      html += '</tr>';
+    });
+    if ((d.giderler||[]).length) {
+      html += '<tr class="toplam-row toplam-gider"><td>📉 TOPLAM</td><td>Gider</td>';
+      kaynaklar.forEach(function(k){ html += '<td>' + fmt(d.toplam_gider[k]) + '</td>'; });
+      html += '</tr>';
+    }
+    html += '<tr class="toplam-row toplam-net"><td>⚖️ NET</td><td>Gelir − Gider</td>';
+    kaynaklar.forEach(function(k){ var v = d.net[k] || 0; html += '<td>' + (v > 0 ? '+' : '') + fmt(v) + '</td>'; });
+    html += '</tr>';
+    html += '</tbody></table>';
+    if (wrap) { wrap.innerHTML = html; wrap.style.display = 'block'; }
+    if (loading) loading.style.display = 'none';
+  } catch(e) {
+    if (loading) loading.textContent = 'Hata: ' + e.message;
+  }
 }
 
 // Init
