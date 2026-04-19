@@ -694,17 +694,38 @@ function renderTabKasa(el, data) {
       return '<button class="btn-action" style="width:auto;padding:4px 10px;font-size:9px" onclick="guildBagis(' + g.id + ',\'' + k + '\')">' + (KAYNAK_IKON[k]||'📦') + ' ' + k + '</button>';
     }).join('') +
   '</div>';
+  // v1.13.67: Bagis cooldown bilgisi — backend'den gelir
+  var cdH = (GUILD_DATA && GUILD_DATA.bagis_cooldown && GUILD_DATA.bagis_cooldown.hammadde) || null;
+  var cdK = (GUILD_DATA && GUILD_DATA.bagis_cooldown && GUILD_DATA.bagis_cooldown.koylu)    || null;
+  var fmtKalan = function(saat) {
+    if (!saat || saat <= 0) return '';
+    var pg = Math.floor(saat);
+    var dk = Math.round((saat - pg) * 60);
+    return pg + ' PG ' + (dk > 0 ? dk + ' dk' : '');
+  };
+  var cdHText = cdH
+    ? (cdH.dolu
+        ? '<span style="color:#dc3545">⏳ Dolu — ' + fmtKalan(cdH.kalan_saat) + ' sonra reset</span>'
+        : '<span style="color:#5cb85c">✓ ' + cdH.kalan_bagis + '/' + cdH.max + ' hakki kaldi' + (cdH.sayac>0 ? ' (' + fmtKalan(cdH.kalan_saat) + ' sonra reset)' : '') + '</span>')
+    : '';
+  var cdKText = cdK
+    ? (cdK.dolu
+        ? '<span style="color:#dc3545">⏳ Dolu — ' + fmtKalan(cdK.kalan_saat) + ' sonra reset</span>'
+        : '<span style="color:#5cb85c">✓ ' + cdK.kalan_bagis + '/' + cdK.max + ' hakki kaldi' + (cdK.sayac>0 ? ' (' + fmtKalan(cdK.kalan_saat) + ' sonra reset)' : '') + '</span>')
+    : '';
+
   var limitInfo = '<div style="font-size:9px;color:#555;margin-top:4px">Max: kaynaklarinizin %' + ((GUILD_CONFIG && GUILD_CONFIG.bagis_yuzde_limit) || 20) + '\'i | ' +
-    ((GUILD_CONFIG && GUILD_CONFIG.hammadde_bagis_24pg) || 3) + ' bagis/24PG</div>';
+    ((GUILD_CONFIG && GUILD_CONFIG.hammadde_bagis_24pg) || 3) + ' bagis/24PG ' + cdHText + '</div>';
 
   // Koylu bagisi
   var koyluBagisHTML = '<div style="margin-top:8px;padding-top:8px;border-top:1px solid #222">' +
     '<div style="font-size:10px;color:#aaa;margin-bottom:4px">👨‍🌾 Koylu Bagisi</div>' +
-    '<div style="display:flex;gap:4px;align-items:center">' +
+    '<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">' +
       '<input id="koylu-bagis-adet" type="number" min="1" placeholder="Adet" style="width:80px;padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
       '<button class="btn-action" style="width:auto;padding:4px 10px;font-size:9px" onclick="guildKoyluBagis(' + g.id + ')">Gonder</button>' +
       '<span style="font-size:9px;color:#555">Max ' + ((GUILD_CONFIG && GUILD_CONFIG.koylu_bagis_limit) || 100) + ' ' + ((GUILD_CONFIG && GUILD_CONFIG.koylu_bagis_tip) || 'adet') + ' | ' + ((GUILD_CONFIG && GUILD_CONFIG.koylu_bagis_24pg) || 2) + '/24PG</span>' +
     '</div>' +
+    '<div style="font-size:9px;margin-top:4px">' + cdKText + '</div>' +
   '</div>';
 
   // Ambar istek
@@ -950,7 +971,22 @@ async function guildBagis(guildId, kaynak) {
 async function guildKoyluBagis(guildId) {
   var adet = parseInt(document.getElementById('koylu-bagis-adet')?.value);
   if (!adet || adet <= 0) { alert('Gecerli bir adet girin'); return; }
-  if (!confirm(adet + ' koylu guilde gonderilecek. Geri ALINAMAZ! Emin misiniz?')) return;
+  // v1.13.67: Cooldown durumunu confirm'e dahil et
+  var cdK = GUILD_DATA && GUILD_DATA.bagis_cooldown && GUILD_DATA.bagis_cooldown.koylu;
+  var cdMsg = '';
+  if (cdK) {
+    if (cdK.dolu) {
+      var sPg = Math.floor(cdK.kalan_saat), sDk = Math.round((cdK.kalan_saat - sPg) * 60);
+      alert('24 PG icinde max ' + cdK.max + ' koylu bagisi yapabilirsiniz. Dolu! Kalan: ' + sPg + ' PG ' + (sDk>0 ? sDk+' dk' : '') + ' sonra reset.');
+      return;
+    }
+    cdMsg = '\n\nHak: ' + cdK.kalan_bagis + '/' + cdK.max + ' (24 PG icinde)';
+    if (cdK.sayac > 0) {
+      var pg = Math.floor(cdK.kalan_saat), dk = Math.round((cdK.kalan_saat - pg) * 60);
+      cdMsg += '\nReset: ' + pg + ' PG ' + (dk>0 ? dk+' dk' : '') + ' sonra';
+    }
+  }
+  if (!confirm(adet + ' koylu guilde gonderilecek. Geri ALINAMAZ! Emin misiniz?' + cdMsg)) return;
   try {
     var resp = await fetch(API_BASE + '/api/guild/' + guildId + '/koylu-bagis', {
       method: 'POST', headers: guildHdr(), body: JSON.stringify({ adet: adet })

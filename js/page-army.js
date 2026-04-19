@@ -4,11 +4,12 @@
 ══════════════════════════════════ */
 
 // Unite gorsel helper: resim varsa img, yoksa emoji
-// v1.13.68.2: Ikon render — container'a tam sigdir, crop yok, ortada
+// v1.13.68.3: Size paramini direkt px olarak uygula (inline kullanimi icin gerekli).
+//             max 100% ile .uico container'dan tasmayi engelle. alt="" → broken img'de text duplikasyonu olmaz.
 function unitIcon(u, size) {
   size = size || 32;
-  if (u && u.img) return '<img src="' + u.img + '" alt="' + (u.name||'') + '" style="width:100%;height:100%;object-fit:contain;object-position:center center;display:block">';
-  return '<span style="font-size:' + Math.round(size*0.75) + 'px;line-height:1">' + (u ? u.icon || '⚔️' : '⚔️') + '</span>';
+  if (u && u.img) return '<img src="' + u.img + '" alt="" style="width:' + size + 'px;height:' + size + 'px;max-width:100%;max-height:100%;object-fit:contain;vertical-align:middle;display:inline-block;flex-shrink:0">';
+  return '<span style="font-size:' + Math.round(size*0.75) + 'px;line-height:1;display:inline-block;vertical-align:middle">' + (u ? u.icon || '⚔️' : '⚔️') + '</span>';
 }
 
 /* -- ORDU SEKMESi -- */

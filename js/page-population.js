@@ -3,12 +3,15 @@
    Extracted from index.html
 ══════════════════════════════════ */
 
-// Isci tipi -> bina eslesmesi (v1.13.15: demir_madeni kaldirildi, madenci artik serbest)
+// Isci tipi -> bina eslesmesi
+// v1.13.15: demir_madeni kaldirildi, madenci serbest
+// v1.13.67: wood (oduncu) kapasite kontrolu kaldirildi — backend'de de yok (oduncu serbest ata)
+// SADECE ciftci→tarla enforce ediliyor (backend routes/game.js:311)
 const ISCI_BINA_MAP = {
-  wood:     { binaId: 'oduncu',       kapasite: 40, ad: 'Oduncu Kampı' },
+  // wood: bina kapasitesi YOK — oduncu serbest ata
   // iron: bina kapasitesi YOK (v1.12.0'da demir_madeni kaldirildi) — madenci serbest ata
   farm:     { binaId: 'tarla',        kapasite: 50, ad: 'Tarla' },
-  fish:     { binaId: 'balikci',      kapasite: 20, ad: 'Balıkçı Limanı' },
+  // fish: backend'de enforce edilmiyor — serbest ata (HUD'de bilgi gosterilmeye devam edilir)
   // merchant: Pazar binasi eklenince baglanacak — simdilik serbest
 };
 
