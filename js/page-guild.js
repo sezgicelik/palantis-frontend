@@ -12,7 +12,11 @@ var ISCI_IKON = {oduncu:'🪓',madenci:'⛏️',ciftci:'🌾',balikci:'🐟',tuc
 function guildHdr() {
   return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() };
 }
-function fmt(n) { return (n||0).toLocaleString('tr-TR'); }
+function fmt(n) {
+  // v1.13.68.11: string geldiginde toLocaleString format uygulamiyor — Number'a cevir
+  var num = typeof n === 'number' ? n : (parseFloat(n) || 0);
+  return num.toLocaleString('tr-TR');
+}
 
 async function loadGuild() {
   var token = getToken(); if (!token) return;
