@@ -816,6 +816,19 @@
     <button class="act" onclick="loadKadimTicaretTablosu()" style="margin-bottom:8px">🔄 Tabloyu Yenile</button>
     <div id="kadim-ticaret-tablosu-content">Yüklemek için butona tıkla.</div>
 
+    <!-- v1.14.0.17: Altin izleme araci -->
+    <h3 style="margin-top:24px;border-top:1px solid #f1c40f;padding-top:16px;color:#f1c40f">💰 Oyuncu Altın İz Sürme (son 48h)</h3>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">
+      Bir oyuncunun altın değişim geçmişini göster — snapshot diff'leri + activity_log.
+      Altın aniden 0'a düştüyse nereden kesildiği buradan anlaşılır (maaş, ticaret, inşa, saldırı yağması vb).
+    </p>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+      <label style="font-size:11px;color:#aaa">player_id:</label>
+      <input id="altin-izle-pid" type="number" placeholder="ornek 1" style="width:120px;padding:4px;background:#222;color:#fff;border:1px solid #555;border-radius:3px">
+      <button class="act" onclick="loadAltinIzle()">🔍 İzle</button>
+    </div>
+    <div id="altin-izle-content" style="font-size:11px;color:#888">—</div>
+
     <!-- v1.14.0.3: Oyunculari haritada topla (test araci) -->
     <h3 style="margin-top:24px;border-top:1px solid #3498db;padding-top:16px;color:#3498db">🗺 Test: Oyunculari Haritada Topla</h3>
     <p style="font-size:10px;color:#888;margin-bottom:10px">
@@ -3790,6 +3803,71 @@ async function loadKadimTicaretTablosu() {
         '(denge <%10). Cron "tA === tB" kuraliyla saldiri tetiklenmeyebilir.<br>' +
         '<b>Onerilen cozum:</b> TOPLAM_ticaret × 0.5 × carpan ile ceza -- ileride eklenebilir.' +
         '</div>';
+    }
+    el.innerHTML = html;
+  } catch(e) { el.innerHTML = '<div style="color:#e74c3c">Hata: ' + e.message + '</div>'; }
+}
+
+// v1.14.0.17: Altin iz surme — snapshot diff + activity_log
+async function loadAltinIzle() {
+  const pid = parseInt(document.getElementById('altin-izle-pid')?.value);
+  const el = document.getElementById('altin-izle-content');
+  if (!pid) { el.innerHTML = '<div style="color:#e74c3c">player_id girin</div>'; return; }
+  el.innerHTML = '<div style="color:#888">Yükleniyor...</div>';
+  try {
+    const r = await fetch(API + '/api/admin/player/' + pid + '/altin-izle', { headers: hdr() });
+    const d = await r.json();
+    if (!d.ok) { el.innerHTML = '<div style="color:#e74c3c">' + (d.error||'Hata') + '</div>'; return; }
+    const fmt = n => (n||0).toLocaleString('tr-TR');
+    const fmtT = ts => new Date(ts).toLocaleString('tr-TR', { hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit' });
+
+    let html = '<div style="margin-bottom:8px;padding:8px;background:#111;border-left:3px solid #f1c40f;border-radius:4px">' +
+      '<b style="color:#f1c40f">' + d.player.kral + '</b> (ID ' + d.player.id + ', Çağ ' + d.player.cag + ')<br>' +
+      '<span style="color:#d4af37">Şu anki altın: ' + fmt(d.player.altin_simdi) + '</span>' +
+      '</div>';
+
+    // Saatlik diff tablosu (sifirdan farkli)
+    if (d.diffs.length === 0) {
+      html += '<div style="color:#666;padding:6px">Son 48 saatte snapshot farkı yok.</div>';
+    } else {
+      html += '<div style="font-size:11px;color:#aaa;margin:6px 0 4px"><b>Saatlik Snapshot Farkları (48h)</b> — aniden düşüşleri yakala</div>';
+      html += '<table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:#1a1a1a">' +
+        '<th style="padding:4px;text-align:left">Zaman</th>' +
+        '<th style="padding:4px;text-align:right">Önceki</th>' +
+        '<th style="padding:4px;text-align:right">Yeni</th>' +
+        '<th style="padding:4px;text-align:right">Fark</th>' +
+        '</tr></thead><tbody>';
+      // Son 20 diff (yeniden eskiye)
+      const sonDiffs = d.diffs.slice(-30).reverse();
+      for (const x of sonDiffs) {
+        const renk = x.fark < 0 ? '#e74c3c' : '#2ecc71';
+        const sifirduzenek = x.yeni === 0 ? 'background:rgba(231,76,60,0.12)' : '';
+        html += '<tr style="border-bottom:1px solid #222;' + sifirduzenek + '">' +
+          '<td style="padding:4px;color:#888">' + fmtT(x.at) + '</td>' +
+          '<td style="padding:4px;text-align:right;color:#888;font-family:Courier New">' + fmt(x.onceki) + '</td>' +
+          '<td style="padding:4px;text-align:right;color:#d4af37;font-family:Courier New">' + fmt(x.yeni) + (x.yeni===0?' ⚠':'') + '</td>' +
+          '<td style="padding:4px;text-align:right;color:' + renk + ';font-weight:bold;font-family:Courier New">' + (x.fark>0?'+':'') + fmt(x.fark) + '</td>' +
+          '</tr>';
+      }
+      html += '</tbody></table>';
+    }
+
+    // Activity log
+    if (d.activity.length > 0) {
+      html += '<div style="font-size:11px;color:#aaa;margin:10px 0 4px"><b>Activity Log (altın/maaş/ticaret/savaş/vergi olayları)</b></div>';
+      html += '<div style="max-height:400px;overflow-y:auto;border:1px solid #222;border-radius:4px">';
+      for (const a of d.activity) {
+        const renkMap = { maas:'#e67e22', vergi:'#f1c40f', kadim_ticaret:'#9b59b6', kadim_saldiri:'#e74c3c', savas:'#e74c3c', ekonomi:'#2ecc71', ticaret:'#3498db', pazar:'#3498db', artifact:'#c0392b' };
+        const renk = renkMap[a.event_type] || '#888';
+        html += '<div style="padding:6px 8px;border-bottom:1px solid #181818;font-size:11px">' +
+          '<span style="color:#666">' + fmtT(a.at) + '</span> ' +
+          '<span style="color:' + renk + ';font-weight:bold">[' + a.event_type + ']</span> ' +
+          '<span style="color:#ccc">' + (a.mesaj||'').replace(/</g,'&lt;') + '</span>' +
+          '</div>';
+      }
+      html += '</div>';
+    } else {
+      html += '<div style="color:#666;padding:6px">Altın ile ilgili activity_log kaydı yok.</div>';
     }
     el.innerHTML = html;
   } catch(e) { el.innerHTML = '<div style="color:#e74c3c">Hata: ' + e.message + '</div>'; }
