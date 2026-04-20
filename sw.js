@@ -1,6 +1,6 @@
 // v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
 // Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
-const CACHE_NAME = 'noxara-v50'; // v1.14.0.37 Guild yetki yonetimi toggle switch (ayarlar stili)
+const CACHE_NAME = 'noxara-v51'; // v1.14.0.38 Guild bagis cooldown saat basi hassasiyeti (PG integer)
 
 // Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [

@@ -744,11 +744,11 @@ function renderTabKasa(el, data) {
   // v1.13.67: Bagis cooldown bilgisi — backend'den gelir
   var cdH = (GUILD_DATA && GUILD_DATA.bagis_cooldown && GUILD_DATA.bagis_cooldown.hammadde) || null;
   var cdK = (GUILD_DATA && GUILD_DATA.bagis_cooldown && GUILD_DATA.bagis_cooldown.koylu)    || null;
+  // v1.14.0.38: Kalan PG integer (saat basi hassasiyeti, dk gosterme)
   var fmtKalan = function(saat) {
     if (!saat || saat <= 0) return '';
-    var pg = Math.floor(saat);
-    var dk = Math.round((saat - pg) * 60);
-    return pg + ' PG ' + (dk > 0 ? dk + ' dk' : '');
+    var pg = Math.ceil(saat);
+    return pg + ' PG';
   };
   var cdHText = cdH
     ? (cdH.dolu
@@ -1023,14 +1023,12 @@ async function guildKoyluBagis(guildId) {
   var cdMsg = '';
   if (cdK) {
     if (cdK.dolu) {
-      var sPg = Math.floor(cdK.kalan_saat), sDk = Math.round((cdK.kalan_saat - sPg) * 60);
-      alert('24 PG icinde max ' + cdK.max + ' koylu bagisi yapabilirsiniz. Dolu! Kalan: ' + sPg + ' PG ' + (sDk>0 ? sDk+' dk' : '') + ' sonra reset.');
+      alert('24 PG icinde max ' + cdK.max + ' koylu bagisi yapabilirsiniz. Dolu! Kalan: ' + Math.ceil(cdK.kalan_saat) + ' PG sonra reset.');
       return;
     }
     cdMsg = '\n\nHak: ' + cdK.kalan_bagis + '/' + cdK.max + ' (24 PG icinde)';
     if (cdK.sayac > 0) {
-      var pg = Math.floor(cdK.kalan_saat), dk = Math.round((cdK.kalan_saat - pg) * 60);
-      cdMsg += '\nReset: ' + pg + ' PG ' + (dk>0 ? dk+' dk' : '') + ' sonra';
+      cdMsg += '\nReset: ' + Math.ceil(cdK.kalan_saat) + ' PG sonra';
     }
   }
   if (!confirm(adet + ' koylu guilde gonderilecek. Geri ALINAMAZ! Emin misiniz?' + cdMsg)) return;
