@@ -784,8 +784,8 @@
     <!-- v1.14.0: Manuel NPC Saldiri Tetikle (test araci) -->
     <h3 style="margin-top:24px;border-top:1px solid #e74c3c;padding-top:16px;color:#e74c3c">⚔ Manuel NPC Saldiri Tetikle (Test)</h3>
     <p style="font-size:10px;color:#888;margin-bottom:10px">
-      Secilen kadim sehri secilen oyuncuya hemen saldirtir. Tam savas motoru (surlar + kuleler + asker kaybi) + savas_log kaydi + Telegram.<br>
-      <b style="color:#e67e22">Dikkat:</b> Esik/uyari kontrolu yok — aninda saldiri!
+      Secilen kadim sehri secilen oyuncuya saldirtir. Tam savas motoru (surlar + kuleler + asker kaybi) + savas_log + Telegram.<br>
+      <b style="color:#e67e22">Gecikme 0 ise aninda saldiri.</b> >0 ise once uyari gonderilir, N PG sonra cron saldiriyi gerceklestirir.
     </p>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px;background:#1a0a08;border:1px solid #4a1a15;border-radius:4px">
       <label style="font-size:11px;color:#aaa">Sehir:
@@ -793,11 +793,34 @@
           <option value="">(Sehirler yukleniyor...)</option>
         </select>
       </label>
-      <label style="font-size:11px;color:#aaa">Hedef player_id:
-        <input id="ks-saldirt-pid" type="number" placeholder="123" style="padding:6px;width:90px;background:#000;border:1px solid var(--border);color:#e0c97f;border-radius:3px;font-size:11px;margin-left:4px">
+      <label style="font-size:11px;color:#aaa">player_id:
+        <input id="ks-saldirt-pid" type="number" placeholder="123" style="padding:6px;width:80px;background:#000;border:1px solid var(--border);color:#e0c97f;border-radius:3px;font-size:11px;margin-left:4px">
+      </label>
+      <label style="font-size:11px;color:#aaa">Gecikme PG (0=aninda):
+        <input id="ks-saldirt-gecikme" type="number" value="0" min="0" max="168" style="padding:6px;width:70px;background:#000;border:1px solid var(--border);color:#e0c97f;border-radius:3px;font-size:11px;margin-left:4px">
       </label>
       <button class="act" onclick="kadimSaldirtTetikle()" style="background:#c0392b;color:#fff">💥 SALDIRT</button>
       <span id="ks-saldirt-msg" style="font-size:11px"></span>
+    </div>
+
+    <!-- v1.14.0.3: Oyunculari haritada topla (test araci) -->
+    <h3 style="margin-top:24px;border-top:1px solid #3498db;padding-top:16px;color:#3498db">🗺 Test: Oyunculari Haritada Topla</h3>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">
+      Tum aktif oyunculari belirli bir merkez etrafinda rastgele dagitir. Test ortaminda yakinlastirmak icin.<br>
+      <b style="color:#e67e22">Dikkat:</b> Geri alinamaz — tum oyuncularin koord_x, koord_y degisir.
+    </p>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px;background:#08141a;border:1px solid #15384a;border-radius:4px">
+      <label style="font-size:11px;color:#aaa">Merkez X:
+        <input id="topla-mx" type="number" value="100" min="1" max="200" style="padding:6px;width:70px;background:#000;border:1px solid var(--border);color:#3498db;border-radius:3px;font-size:11px;margin-left:4px">
+      </label>
+      <label style="font-size:11px;color:#aaa">Merkez Y:
+        <input id="topla-my" type="number" value="25" min="1" max="50" style="padding:6px;width:70px;background:#000;border:1px solid var(--border);color:#3498db;border-radius:3px;font-size:11px;margin-left:4px">
+      </label>
+      <label style="font-size:11px;color:#aaa">Yaricap:
+        <input id="topla-yaricap" type="number" value="10" min="3" max="50" style="padding:6px;width:70px;background:#000;border:1px solid var(--border);color:#3498db;border-radius:3px;font-size:11px;margin-left:4px">
+      </label>
+      <button class="act" onclick="oyuncularHaritadaTopla()" style="background:#2980b9;color:#fff">🗺 TOPLA</button>
+      <span id="topla-msg" style="font-size:11px"></span>
     </div>
   </div>
 
@@ -3588,16 +3611,24 @@ async function loadKadimCfg() {
 async function kadimSaldirtTetikle() {
   const sehirId = parseInt(document.getElementById('ks-saldirt-sehir').value);
   const playerId = parseInt(document.getElementById('ks-saldirt-pid').value);
+  const gecikme = parseInt(document.getElementById('ks-saldirt-gecikme')?.value) || 0;
   const msgEl = document.getElementById('ks-saldirt-msg');
   if (!sehirId || !playerId) { msgEl.innerHTML = '<span style="color:#e74c3c">Sehir ve player_id secilmeli!</span>'; return; }
-  if (!confirm('DIKKAT: ' + (KADIM_SEHIRLER.find(s=>s.id===sehirId)?.isim||'?') + ' sehri player_id=' + playerId + ' uzerine saldiracak. Emin misiniz?')) return;
-  msgEl.innerHTML = '<span style="color:#888">Saldiri yapiliyor...</span>';
+  const sehirIsim = KADIM_SEHIRLER.find(s=>s.id===sehirId)?.isim||'?';
+  const gecikmeMsj = gecikme > 0 ? `${gecikme} PG sonra` : 'HEMEN';
+  if (!confirm('DIKKAT: ' + sehirIsim + ' sehri player_id=' + playerId + ' uzerine ' + gecikmeMsj + ' saldiracak. Emin misiniz?')) return;
+  msgEl.innerHTML = '<span style="color:#888">Islem yapiliyor...</span>';
   try {
     const r = await fetch(API + '/api/admin/kadim-sehir/' + sehirId + '/saldirt', {
-      method: 'POST', headers: hdr(), body: JSON.stringify({ player_id: playerId })
+      method: 'POST', headers: hdr(), body: JSON.stringify({ player_id: playerId, gecikme_pg: gecikme })
     });
     const d = await r.json();
     if (d.ok) {
+      // Gecikmeli saldiri durumu (sonuc yok, sadece uyari gonderildi)
+      if (d.gecikme_pg && d.gecikme_pg > 0) {
+        msgEl.innerHTML = '<div style="margin-top:8px;padding:10px;background:#000;border-left:3px solid #f39c12;font-size:11px;color:#f39c12"><b>⏰ ' + d.mesaj + '</b><br>Cron XX:00\'da gecikme dolunca saldiri gerceklesecek.</div>';
+        return;
+      }
       const renk = d.sonuc.npcKazandi ? '#e74c3c' : '#2ecc71';
       let html = '<div style="margin-top:8px;padding:10px;background:#000;border-left:3px solid '+renk+';font-size:11px">';
       html += '<b style="color:'+renk+'">'+d.mesaj+'</b><br>';
@@ -3616,6 +3647,33 @@ async function kadimSaldirtTetikle() {
       msgEl.innerHTML = '<span style="color:#e74c3c">✗ '+(d.error||'Hata')+'</span>';
     }
   } catch(e) { msgEl.innerHTML = '<span style="color:#e74c3c">Hata: '+e.message+'</span>'; }
+}
+
+// v1.14.0.3: Oyunculari haritada topla (test araci)
+async function oyuncularHaritadaTopla() {
+  const mx = parseInt(document.getElementById('topla-mx').value) || 100;
+  const my = parseInt(document.getElementById('topla-my').value) || 25;
+  const yaricap = parseInt(document.getElementById('topla-yaricap').value) || 10;
+  const msgEl = document.getElementById('topla-msg');
+  if (!confirm(`${mx}:${my} merkezli ${yaricap} yaricap alana TUM oyuncular rastgele tasinacak. Geri alinamaz. Emin misin?`)) return;
+  msgEl.innerHTML = '<span style="color:#888">Toplaniyor...</span>';
+  try {
+    const r = await fetch(API + '/api/admin/oyunculari-haritada-topla', {
+      method: 'POST', headers: hdr(), body: JSON.stringify({ merkez_x: mx, merkez_y: my, yaricap })
+    });
+    const d = await r.json();
+    if (d.ok) {
+      let html = '<div style="margin-top:8px;padding:10px;background:#000;border-left:3px solid #2ecc71;font-size:11px">';
+      html += '<b style="color:#2ecc71">✓ ' + d.mesaj + '</b><br>';
+      html += '<div style="max-height:200px;overflow-y:auto;margin-top:6px">';
+      html += (d.tasinanlar||[]).slice(0, 50).map(t => `${t.kral} (id:${t.id}): ${t.eski} → <b style="color:#3498db">${t.yeni}</b>`).join('<br>');
+      if ((d.tasinanlar||[]).length > 50) html += `<br>... ve ${d.tasinanlar.length - 50} daha`;
+      html += '</div></div>';
+      msgEl.innerHTML = html;
+    } else {
+      msgEl.innerHTML = '<span style="color:#e74c3c">✗ ' + (d.error||'Hata') + '</span>';
+    }
+  } catch(e) { msgEl.innerHTML = '<span style="color:#e74c3c">Hata: ' + e.message + '</span>'; }
 }
 
 async function kadimCfgKaydet() {
