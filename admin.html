@@ -85,6 +85,7 @@
     <button onclick="switchTab('vergi-sistem',this)" style="background:linear-gradient(135deg,#d4af37 0%,#8a6a1a 100%);color:#fff">💰 Vergi Sistemi</button>
     <button onclick="switchTab('top-ordular',this)" style="background:linear-gradient(135deg,#8e44ad 0%,#5b2c6f 100%);color:#fff">🏆 Top Ordular</button>
     <button onclick="switchTab('iz-surme',this)" style="background:linear-gradient(135deg,#16a085 0%,#0e6b52 100%);color:#fff">🕵️ Iz Surme</button>
+    <button onclick="switchTab('bug-bildirimleri',this)" style="background:linear-gradient(135deg,#e74c3c 0%,#922b21 100%);color:#fff">🐛 Bug Bildirimleri</button>
   </div>
 
   <!-- CRON TAB -->
@@ -1191,6 +1192,42 @@
     <div id="iz-surme-content" style="font-size:11px;color:#888">player_id gir ve "İzle"ye bas.</div>
   </div>
 
+  <!-- v1.14.0.52 BUG BILDIRIMLERI TAB -->
+  <div id="tab-bug-bildirimleri" class="panel">
+    <h3 style="color:#e74c3c">🐛 Oyuncu Bug Bildirimleri</h3>
+    <p style="font-size:11px;color:#888;margin-bottom:10px">
+      Oyunculardan gelen bug + öneri + UI + performans + denge bildirimleri.
+      Her bildirime admin notu eklenebilir ve durumu değiştirilebilir.
+    </p>
+
+    <!-- Filtre + sayac bari -->
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;padding:8px;background:#0d0d0d;border:1px solid #1f1f1f;border-radius:4px">
+      <label style="font-size:11px;color:#aaa">Durum:
+        <select id="bug-filt-durum" onchange="loadBugList()" style="padding:4px;background:#1a1a1a;color:#ddd;border:1px solid #333;border-radius:3px;font-size:11px">
+          <option value="">Hepsi</option>
+          <option value="acik">🟠 Açık</option>
+          <option value="inceleniyor">🔵 Inceleniyor</option>
+          <option value="cozuldu">🟢 Çözüldü</option>
+          <option value="reddedildi">⚫ Reddedildi</option>
+        </select>
+      </label>
+      <label style="font-size:11px;color:#aaa">Tip:
+        <select id="bug-filt-tip" onchange="loadBugList()" style="padding:4px;background:#1a1a1a;color:#ddd;border:1px solid #333;border-radius:3px;font-size:11px">
+          <option value="">Hepsi</option>
+          <option value="bug">🔴 Bug</option>
+          <option value="oneri">🔵 Öneri</option>
+          <option value="ui">🟣 UI</option>
+          <option value="performans">🟠 Performans</option>
+          <option value="denge">🟢 Denge</option>
+        </select>
+      </label>
+      <button class="act" onclick="loadBugList()">🔄 Yenile</button>
+      <span id="bug-sayac" style="font-size:11px;color:#888;margin-left:10px"></span>
+    </div>
+
+    <div id="bug-list-content" style="font-size:11px;color:#888">Yükleniyor...</div>
+  </div>
+
 </div>
 
 <script src="js/servers.js"></script>
@@ -1249,6 +1286,7 @@ function switchTab(tab, el) {
   if (tab === 'bina-nufus') loadBinaNufus();
   if (tab === 'vergi-sistem') loadVergiSistem();
   if (tab === 'top-ordular') loadTopOrdular();
+  if (tab === 'bug-bildirimleri') loadBugList();
 }
 
 // v1.14.0.2: Sunucu top 20 ordu
@@ -4851,6 +4889,90 @@ async function arastirmaCfgKaydet() {
     alert(d.ok ? 'Arastirma config kaydedildi' : ('Hata: ' + (d.error || r.status)));
     if (d.ok) loadArastirmaCfg();
   } catch(e) { alert('Hata: ' + e.message); }
+}
+
+/* ═══════════════════════════════════════════
+   v1.14.0.52 — BUG BILDIRIMLERI
+═══════════════════════════════════════════ */
+const BUG_TIP_LABEL = { bug:'🔴 Bug', oneri:'🔵 Öneri', ui:'🟣 UI', performans:'🟠 Perf.', denge:'🟢 Denge' };
+const BUG_DURUM_COLOR = { acik:'#f39c12', inceleniyor:'#3498db', cozuldu:'#2ecc71', reddedildi:'#95a5a6' };
+
+async function loadBugList() {
+  const el = document.getElementById('bug-list-content');
+  const sayacEl = document.getElementById('bug-sayac');
+  const durum = document.getElementById('bug-filt-durum').value;
+  const tip = document.getElementById('bug-filt-tip').value;
+  el.innerHTML = '<div style="color:#888">Yükleniyor...</div>';
+  try {
+    const qs = new URLSearchParams();
+    if (durum) qs.set('durum', durum);
+    if (tip) qs.set('tip', tip);
+    qs.set('limit', '200');
+    const r = await fetch(API + '/api/admin/bug-list?' + qs.toString(), { headers: hdr() });
+    const d = await r.json();
+    if (!d.ok) { el.innerHTML = '<div style="color:#e74c3c">Yuklenemedi: ' + (d.error || '?') + '</div>'; return; }
+    const s = d.sayac || {};
+    sayacEl.textContent = `Açık: ${s.acik||0} · Inceleniyor: ${s.inceleniyor||0} · Çözüldü: ${s.cozuldu||0} · Reddedildi: ${s.reddedildi||0}`;
+    if (!d.bildirimler.length) { el.innerHTML = '<div style="color:#666;padding:20px;text-align:center">Bu filtreye uyan bildirim yok.</div>'; return; }
+    const fmt = (x) => x ? new Date(x).toLocaleString('tr-TR') : '-';
+    const esc = (s) => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    el.innerHTML = d.bildirimler.map(b => `
+      <div style="padding:10px 12px;background:#0d0d0d;border:1px solid #1a1a1a;border-left:4px solid ${BUG_DURUM_COLOR[b.durum]||'#555'};border-radius:4px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+          <div style="font-size:12px">
+            <span style="color:#888">#${b.id}</span>
+            <span style="padding:1px 6px;border-radius:8px;font-size:10px;background:rgba(255,255,255,0.05);margin-left:4px">${BUG_TIP_LABEL[b.tip]||b.tip}</span>
+            <b style="color:#e8dcc8;margin-left:6px">${esc(b.baslik)}</b>
+          </div>
+          <div style="display:flex;gap:4px;align-items:center">
+            <select id="bug-durum-${b.id}" style="padding:2px 6px;background:#1a1a1a;border:1px solid #333;color:${BUG_DURUM_COLOR[b.durum]};font-size:11px;border-radius:3px">
+              <option value="acik" ${b.durum==='acik'?'selected':''}>🟠 Açık</option>
+              <option value="inceleniyor" ${b.durum==='inceleniyor'?'selected':''}>🔵 Inceleniyor</option>
+              <option value="cozuldu" ${b.durum==='cozuldu'?'selected':''}>🟢 Çözüldü</option>
+              <option value="reddedildi" ${b.durum==='reddedildi'?'selected':''}>⚫ Reddedildi</option>
+            </select>
+            <button class="act" style="padding:2px 8px;font-size:10px" onclick="bugDurumKaydet(${b.id})">💾</button>
+            <button class="act" style="padding:2px 6px;font-size:10px;background:#4a1a15;color:#e74c3c" onclick="bugSil(${b.id})">🗑</button>
+          </div>
+        </div>
+        <div style="font-size:10px;color:#666;margin-bottom:4px">
+          👤 ${esc(b.kral || 'silinmis')} · 📅 ${fmt(b.created_at)}
+          ${b.sayfa ? '· 📄 ' + esc(b.sayfa) : ''}
+          ${b.ekran_url ? '· <a href="'+esc(b.ekran_url)+'" target="_blank" style="color:#3498db">📷 Ekran</a>' : ''}
+        </div>
+        <div style="font-size:11px;color:#ccc;padding:6px 8px;background:#0a0a0a;border-radius:3px;margin-bottom:6px;white-space:pre-wrap">${esc(b.aciklama)}</div>
+        <div style="display:flex;gap:6px;align-items:flex-start">
+          <textarea id="bug-not-${b.id}" placeholder="Admin notu (opsiyonel)..." style="flex:1;padding:4px 8px;background:#0a0a0a;border:1px solid #2a2a2a;color:#c8a96e;font-size:11px;border-radius:3px;min-height:36px;resize:vertical;font-family:inherit">${esc(b.admin_notu||'')}</textarea>
+        </div>
+        ${b.browser_info ? '<div style="font-size:9px;color:#444;margin-top:4px">🌐 ' + esc(b.browser_info) + '</div>' : ''}
+      </div>
+    `).join('');
+  } catch (e) {
+    el.innerHTML = '<div style="color:#e74c3c">Yuklenemedi: ' + e.message + '</div>';
+  }
+}
+
+async function bugDurumKaydet(id) {
+  const durum = document.getElementById('bug-durum-' + id).value;
+  const admin_notu = document.getElementById('bug-not-' + id).value;
+  try {
+    const r = await fetch(API + '/api/admin/bug/' + id + '/durum', {
+      method:'POST', headers:hdr(), body:JSON.stringify({ durum, admin_notu })
+    });
+    const d = await r.json();
+    if (d.ok) { loadBugList(); }
+    else alert('Hata: ' + (d.error || r.status));
+  } catch (e) { alert('Hata: ' + e.message); }
+}
+
+async function bugSil(id) {
+  if (!confirm('Bildirim #' + id + ' silinsin mi? Geri alinamaz.')) return;
+  try {
+    const r = await fetch(API + '/api/admin/bug/' + id, { method:'DELETE', headers:hdr() });
+    const d = await r.json();
+    if (d.ok) loadBugList();
+    else alert('Hata: ' + (d.error || r.status));
+  } catch (e) { alert('Hata: ' + e.message); }
 }
 </script>
 </body>

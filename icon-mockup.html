@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noxara – Ikon Mockup (Öncesi / Sonrası)</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css?v=13422">
+<!-- Font Awesome for medieval alternatives -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  .im-wrap { max-width: 1200px; margin: 0 auto; padding: 20px }
+  .im-intro { padding: 16px 20px; background: rgba(20,18,14,0.85); border: 1px solid rgba(212,162,87,0.25); border-radius: 8px; margin-bottom: 24px }
+  .im-intro h1 { font-family: 'Cinzel Decorative', serif; color: #d4a257; font-size: 22px; margin-bottom: 8px; letter-spacing: 2px }
+  .im-intro p { color: #bbb; font-size: 13px; line-height: 1.5; margin: 4px 0 }
+  .im-kat { margin: 28px 0 12px }
+  .im-kat-h { font-family: 'Cinzel', serif; color: #c9a84c; font-size: 18px; border-bottom: 2px solid rgba(212,162,87,0.3); padding-bottom: 6px; margin-bottom: 12px }
+  .im-row {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) minmax(80px, 0.5fr) 3fr minmax(100px, 0.6fr);
+    gap: 12px;
+    align-items: center;
+    padding: 10px 14px;
+    background: rgba(20,18,14,0.6);
+    border: 1px solid rgba(212,162,87,0.12);
+    border-radius: 6px;
+    margin-bottom: 6px;
+    transition: 0.2s;
+  }
+  .im-row:hover { border-color: rgba(212,162,87,0.35); background: rgba(20,18,14,0.8) }
+  .im-row.chosen { border-color: #2ecc71; background: rgba(46,204,113,0.08) }
+  .im-row .im-label { font-size: 13px; color: #e8dcc8; font-weight: 600 }
+  .im-row .im-sub   { display: block; font-size: 10px; color: #777; font-weight: normal; margin-top: 2px }
+  .im-current { text-align: center; font-size: 28px; padding: 8px; background: #0a0a0a; border: 2px solid #d4a257; border-radius: 6px }
+  .im-current-lbl { display: block; font-size: 9px; color: #d4a257; margin-top: 2px; letter-spacing: 1px }
+  .im-alts { display: flex; gap: 6px; flex-wrap: wrap }
+  .im-alt {
+    flex: 1;
+    min-width: 70px;
+    text-align: center;
+    padding: 8px 4px;
+    background: #141414;
+    border: 1px solid #2a2a2a;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.15s;
+    position: relative;
+  }
+  .im-alt:hover { border-color: #c9a84c; transform: translateY(-1px) }
+  .im-alt.selected { border-color: #2ecc71; background: rgba(46,204,113,0.12); box-shadow: 0 0 10px rgba(46,204,113,0.2) }
+  .im-alt .im-alt-icon { font-size: 24px; line-height: 1.2 }
+  .im-alt .im-alt-name { display: block; font-size: 9px; color: #888; margin-top: 3px; letter-spacing: 0.5px }
+  .im-alt.selected .im-alt-name { color: #2ecc71 }
+  .im-action { display: flex; flex-direction: column; gap: 4px; align-items: stretch }
+  .im-btn-sec { padding: 4px 8px; font-size: 10px; background: rgba(46,204,113,0.15); color: #2ecc71; border: 1px solid rgba(46,204,113,0.4); border-radius: 3px; cursor: pointer }
+  .im-btn-sec:hover { background: rgba(46,204,113,0.25) }
+  .im-btn-rst { padding: 3px 6px; font-size: 9px; background: transparent; color: #888; border: 1px solid #333; border-radius: 3px; cursor: pointer }
+  .im-sum { position: sticky; bottom: 0; background: rgba(10,10,10,0.95); border-top: 2px solid #d4a257; padding: 12px 20px; margin: 20px -20px 0; z-index: 10 }
+  .im-sum-h { font-family: 'Cinzel', serif; color: #d4a257; font-size: 14px; margin-bottom: 6px }
+  .im-sum-items { display: flex; flex-wrap: wrap; gap: 6px; font-size: 11px }
+  .im-sum-tag { padding: 3px 8px; background: rgba(46,204,113,0.1); border: 1px solid rgba(46,204,113,0.3); border-radius: 12px; color: #2ecc71 }
+  .im-export { margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap }
+  .im-fa { font-size: 22px; color: #d4a257 }
+  @media (max-width: 700px) {
+    .im-row { grid-template-columns: 1fr; }
+    .im-current { justify-self: start; }
+    .im-action { flex-direction: row }
+  }
+</style>
+</head>
+<body>
+<div id="hudbar-mount"></div>
+<div class="layout">
+  <div id="sidebar-mount"></div>
+  <div class="main-content">
+    <div class="im-wrap">
+
+      <div class="im-intro">
+        <h1>🎨 İkon Mockup — Öncesi / Sonrası</h1>
+        <p>Her satirda solda <b style="color:#d4a257">mevcut ikon</b> (altın border), saginda <b>ortacag/ejderha alternatifleri</b>. Tıkla ve sec.</p>
+        <p>Seçimlerin localStorage'da saklanir. Hepsini seçtikten sonra aşağıdaki JSON'u al, uygulamaya bas.</p>
+        <p style="color:#888;font-size:11px">Alternatifler karisik: 🎭 emoji, 🏛️ unicode sembol, ⚔️ FontAwesome. Her birinden zengin secim.</p>
+      </div>
+
+      <!-- ═══════ MENÜ / NAVIGASYON ═══════ -->
+      <div class="im-kat">
+        <div class="im-kat-h">🧭 Menü / Navigasyon</div>
+        <div id="kat-menu"></div>
+      </div>
+
+      <!-- ═══════ KAYNAKLAR ═══════ -->
+      <div class="im-kat">
+        <div class="im-kat-h">💎 Kaynaklar</div>
+        <div id="kat-kaynak"></div>
+      </div>
+
+      <!-- ═══════ BİNALAR ═══════ -->
+      <div class="im-kat">
+        <div class="im-kat-h">🏛️ Binalar</div>
+        <div id="kat-bina"></div>
+      </div>
+
+      <!-- ═══════ ÜNİTELER ═══════ -->
+      <div class="im-kat">
+        <div class="im-kat-h">⚔️ Üniteler</div>
+        <div id="kat-unite"></div>
+      </div>
+
+      <!-- ═══════ SİSTEMLER ═══════ -->
+      <div class="im-kat">
+        <div class="im-kat-h">🎯 Sistemler</div>
+        <div id="kat-sistem"></div>
+      </div>
+
+      <!-- ÖZET + EXPORT -->
+      <div class="im-sum">
+        <div class="im-sum-h">📝 Seçimlerin: <span id="im-sayac">0</span> / <span id="im-toplam">?</span></div>
+        <div class="im-sum-items" id="im-secimler"></div>
+        <div class="im-export">
+          <button class="btn" onclick="exportJson()" style="padding:6px 14px;font-size:11px">📋 JSON Kopyala</button>
+          <button class="btn" onclick="clearAll()" style="padding:6px 14px;font-size:11px;background:#4a1a15;color:#e74c3c">🗑 Sıfırla</button>
+          <span id="im-msg" style="font-size:11px;color:#888;align-self:center"></span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script src="js/constants.js"></script><script src="js/utils.js"></script><script src="js/servers.js"></script>
+<script src="js/auth.js"></script><script src="js/toast.js"></script><script src="js/theme.js"></script>
+<script src="js/cache-fetch.js"></script>
+<script src="js/game-data.js?v=13422"></script>
+<script src="js/hud.js"></script>
+<script src="js/nufus-render.js"></script><script src="js/layout.js?v=13422"></script>
+
+<script>
+// ═══ IKON KATALOGU ═══
+// Her satir: { id, label, sub, current, alternatives: [{ icon, name, type }] }
+// type: 'emoji' | 'unicode' | 'fa' (font-awesome class)
+
+const IKONLAR = {
+  menu: [
+    { id:'m-ana', label:'Ana Ekran', sub:'home.html', current:'🏠', alts: [
+      {icon:'🏰', name:'Kule', type:'emoji'},
+      {icon:'⚜', name:'Fleur-de-lis', type:'unicode'},
+      {icon:'🗝️', name:'Anahtar', type:'emoji'},
+      {icon:'<i class="fa-solid fa-chess-rook im-fa"></i>', name:'FA Kale', type:'fa'},
+    ]},
+    { id:'m-krallik', label:'Krallığım', sub:'Şehrim/Nüfus/Arazi/Festival', current:'🏰', alts: [
+      {icon:'🏯', name:'Taht', type:'emoji'},
+      {icon:'♔', name:'Şah', type:'unicode'},
+      {icon:'<i class="fa-solid fa-crown im-fa"></i>', name:'FA Taç', type:'fa'},
+      {icon:'<i class="fa-solid fa-tower-cell im-fa"></i>', name:'FA Kule', type:'fa'},
+    ]},
+    { id:'m-ordu', label:'Ordu & Savaş', sub:'army/savas/casus/mezarlik', current:'⚔️', alts: [
+      {icon:'🛡️', name:'Kalkan', type:'emoji'},
+      {icon:'🗡️', name:'Kılıç', type:'emoji'},
+      {icon:'⚔', name:'Çapraz kılıç', type:'unicode'},
+      {icon:'<i class="fa-solid fa-shield-halved im-fa"></i>', name:'FA Kalkan', type:'fa'},
+    ]},
+    { id:'m-buyu', label:'Büyüler', sub:'magic/buyucu-kulesi', current:'🔮', alts: [
+      {icon:'🪄', name:'Değnek', type:'emoji'},
+      {icon:'✨', name:'Parıltı', type:'emoji'},
+      {icon:'<i class="fa-solid fa-hat-wizard im-fa"></i>', name:'FA Büyücü', type:'fa'},
+      {icon:'<i class="fa-solid fa-wand-sparkles im-fa"></i>', name:'FA Değnek', type:'fa'},
+    ]},
+    { id:'m-ticaret', label:'Ticaret', sub:'market/kervan/pazar', current:'💰', alts: [
+      {icon:'🪙', name:'Sikke', type:'emoji'},
+      {icon:'⚖️', name:'Terazi', type:'emoji'},
+      {icon:'<i class="fa-solid fa-scale-balanced im-fa"></i>', name:'FA Terazi', type:'fa'},
+      {icon:'<i class="fa-solid fa-coins im-fa"></i>', name:'FA Sikkeler', type:'fa'},
+    ]},
+    { id:'m-harita', label:'Harita & Dünya', sub:'map/cag', current:'🗺️', alts: [
+      {icon:'🧭', name:'Pusula', type:'emoji'},
+      {icon:'🪶', name:'Tüy Kalem', type:'emoji'},
+      {icon:'<i class="fa-solid fa-compass im-fa"></i>', name:'FA Pusula', type:'fa'},
+      {icon:'<i class="fa-solid fa-map im-fa"></i>', name:'FA Harita', type:'fa'},
+    ]},
+    { id:'m-guild', label:'Guild', sub:'guild.html', current:'🏰', alts: [
+      {icon:'🛡️', name:'Kalkan Arması', type:'emoji'},
+      {icon:'☗', name:'Shogi Kale', type:'unicode'},
+      {icon:'<i class="fa-solid fa-flag im-fa"></i>', name:'FA Bayrak', type:'fa'},
+      {icon:'<i class="fa-solid fa-people-group im-fa"></i>', name:'FA Grup', type:'fa'},
+    ]},
+    { id:'m-rapor', label:'Raporlar', sub:'reports.html', current:'📊', alts: [
+      {icon:'📜', name:'Parşömen', type:'emoji'},
+      {icon:'📑', name:'Belge', type:'emoji'},
+      {icon:'<i class="fa-solid fa-scroll im-fa"></i>', name:'FA Parşömen', type:'fa'},
+      {icon:'<i class="fa-solid fa-book-open im-fa"></i>', name:'FA Kitap', type:'fa'},
+    ]},
+    { id:'m-gorev', label:'Görevler', sub:'gorev.html', current:'📜', alts: [
+      {icon:'⚜', name:'Fleur', type:'unicode'},
+      {icon:'🏆', name:'Kupa', type:'emoji'},
+      {icon:'<i class="fa-solid fa-scroll im-fa"></i>', name:'FA Ferman', type:'fa'},
+      {icon:'<i class="fa-solid fa-award im-fa"></i>', name:'FA Madalya', type:'fa'},
+    ]},
+    { id:'m-artifact', label:'Artifactlar', sub:'artifact.html', current:'🧰', alts: [
+      {icon:'💎', name:'Mücevher', type:'emoji'},
+      {icon:'🗿', name:'Antik Heykel', type:'emoji'},
+      {icon:'<i class="fa-solid fa-gem im-fa"></i>', name:'FA Elmas', type:'fa'},
+      {icon:'<i class="fa-solid fa-khanda im-fa"></i>', name:'FA Kutsal', type:'fa'},
+    ]},
+  ],
+
+  kaynak: [
+    { id:'k-altin', label:'Altın', current:'💰', alts: [
+      {icon:'🪙', name:'Sikke', type:'emoji'},
+      {icon:'🟡', name:'Daire', type:'emoji'},
+      {icon:'⚜', name:'Fleur', type:'unicode'},
+      {icon:'<i class="fa-solid fa-coins im-fa"></i>', name:'FA Sikkeler', type:'fa'},
+    ]},
+    { id:'k-odun', label:'Odun', current:'🌲', alts: [
+      {icon:'🪵', name:'Kütük', type:'emoji'},
+      {icon:'🌳', name:'Ağaç', type:'emoji'},
+      {icon:'<i class="fa-solid fa-tree im-fa"></i>', name:'FA Ağaç', type:'fa'},
+    ]},
+    { id:'k-metal', label:'Metal', current:'⛏️', alts: [
+      {icon:'🪨', name:'Kaya', type:'emoji'},
+      {icon:'⚒️', name:'Çekiç+Keski', type:'emoji'},
+      {icon:'<i class="fa-solid fa-hammer im-fa"></i>', name:'FA Çekiç', type:'fa'},
+      {icon:'<i class="fa-solid fa-mountain im-fa"></i>', name:'FA Dağ', type:'fa'},
+    ]},
+    { id:'k-bugday', label:'Buğday', current:'🌾', alts: [
+      {icon:'🥖', name:'Ekmek', type:'emoji'},
+      {icon:'🌱', name:'Filiz', type:'emoji'},
+      {icon:'<i class="fa-solid fa-wheat-awn im-fa"></i>', name:'FA Başak', type:'fa'},
+    ]},
+    { id:'k-balik', label:'Balık', current:'🐟', alts: [
+      {icon:'🎣', name:'Olta', type:'emoji'},
+      {icon:'<i class="fa-solid fa-fish im-fa"></i>', name:'FA Balık', type:'fa'},
+    ]},
+    { id:'k-kereste', label:'Kereste', current:'🪵', alts: [
+      {icon:'🏗️', name:'Yapı', type:'emoji'},
+      {icon:'🪓', name:'Balta', type:'emoji'},
+      {icon:'<i class="fa-solid fa-hammer im-fa"></i>', name:'FA Çekiç', type:'fa'},
+    ]},
+    { id:'k-islenmis', label:'İşlenmiş Metal', current:'🔩', alts: [
+      {icon:'⛓️', name:'Zincir', type:'emoji'},
+      {icon:'🛠️', name:'Alet', type:'emoji'},
+      {icon:'<i class="fa-solid fa-gears im-fa"></i>', name:'FA Dişliler', type:'fa'},
+    ]},
+    { id:'k-mana-b', label:'Mana (Beyaz)', sub:'Tapınak Rathe', current:'⚪', alts: [
+      {icon:'✨', name:'Parıltı', type:'emoji'},
+      {icon:'☸', name:'Çark', type:'unicode'},
+      {icon:'<i class="fa-solid fa-sun im-fa" style="color:#f0e6d2"></i>', name:'FA Güneş', type:'fa'},
+    ]},
+    { id:'k-mana-k', label:'Mana (Kırmızı)', sub:'Tapınak Fennin', current:'🔴', alts: [
+      {icon:'🔥', name:'Ateş', type:'emoji'},
+      {icon:'<i class="fa-solid fa-fire im-fa" style="color:#e74c3c"></i>', name:'FA Alev', type:'fa'},
+    ]},
+    { id:'k-mana-m', label:'Mana (Mavi)', sub:'Tapınak Xegony', current:'🔵', alts: [
+      {icon:'💧', name:'Damla', type:'emoji'},
+      {icon:'<i class="fa-solid fa-snowflake im-fa" style="color:#3498db"></i>', name:'FA Kar', type:'fa'},
+    ]},
+    { id:'k-mana-y', label:'Mana (Yeşil)', sub:'Tapınak Tunare', current:'🟢', alts: [
+      {icon:'🌿', name:'Yaprak', type:'emoji'},
+      {icon:'<i class="fa-solid fa-leaf im-fa" style="color:#2ecc71"></i>', name:'FA Yaprak', type:'fa'},
+    ]},
+    { id:'k-at', label:'At', current:'🐴', alts: [
+      {icon:'🐎', name:'Koşan At', type:'emoji'},
+      {icon:'<i class="fa-solid fa-horse im-fa"></i>', name:'FA At', type:'fa'},
+    ]},
+    { id:'k-kurt', label:'Kurt', current:'🐺', alts: [
+      {icon:'🦮', name:'Av Köpeği', type:'emoji'},
+      {icon:'<i class="fa-solid fa-dog im-fa"></i>', name:'FA Köpek', type:'fa'},
+    ]},
+    { id:'k-yumurta', label:'Büyülü Yumurta', current:'🥚', alts: [
+      {icon:'🐣', name:'Çatlayan', type:'emoji'},
+      {icon:'💠', name:'Kristal', type:'emoji'},
+      {icon:'<i class="fa-solid fa-egg im-fa"></i>', name:'FA Yumurta', type:'fa'},
+    ]},
+    { id:'k-gizlilik', label:'Gizlilik', sub:'Casus kaynağı', current:'🌫️', alts: [
+      {icon:'🗝️', name:'Anahtar', type:'emoji'},
+      {icon:'🎭', name:'Maske', type:'emoji'},
+      {icon:'<i class="fa-solid fa-user-ninja im-fa"></i>', name:'FA Ninja', type:'fa'},
+      {icon:'<i class="fa-solid fa-mask im-fa"></i>', name:'FA Maske', type:'fa'},
+    ]},
+  ],
+
+  bina: [
+    { id:'b-ev', label:'Ev', sub:'10 nufus', current:'🏠', alts: [
+      {icon:'🛖', name:'Kulübe', type:'emoji'},
+      {icon:'<i class="fa-solid fa-house im-fa"></i>', name:'FA Ev', type:'fa'},
+    ]},
+    { id:'b-koy', label:'Köy', sub:'100 nufus', current:'🏘️', alts: [
+      {icon:'🛖', name:'Kulübeler', type:'emoji'},
+      {icon:'<i class="fa-solid fa-city im-fa"></i>', name:'FA Şehir', type:'fa'},
+    ]},
+    { id:'b-tarla', label:'Tarla', current:'🌾', alts: [
+      {icon:'🚜', name:'Traktör', type:'emoji'},
+      {icon:'<i class="fa-solid fa-wheat-awn im-fa"></i>', name:'FA Başak', type:'fa'},
+    ]},
+    { id:'b-ahir', label:'Ahır', sub:'at/kurt üretir', current:'🐴', alts: [
+      {icon:'🏚️', name:'Eski bina', type:'emoji'},
+      {icon:'<i class="fa-solid fa-warehouse im-fa"></i>', name:'FA Depo', type:'fa'},
+      {icon:'<i class="fa-solid fa-horse im-fa"></i>', name:'FA At', type:'fa'},
+    ]},
+    { id:'b-lonca', label:'Lonca', sub:'gizlilik üretir', current:'🎭', alts: [
+      {icon:'🗝️', name:'Anahtar', type:'emoji'},
+      {icon:'<i class="fa-solid fa-user-secret im-fa"></i>', name:'FA Casus', type:'fa'},
+    ]},
+    { id:'b-tapinak', label:'Tapınak', sub:'4 renk', current:'⛪', alts: [
+      {icon:'🕍', name:'Tapınak 2', type:'emoji'},
+      {icon:'<i class="fa-solid fa-place-of-worship im-fa"></i>', name:'FA İbadethane', type:'fa'},
+    ]},
+    { id:'b-magara', label:'Mağara', sub:'ejderha yumurtası', current:'🕳️', alts: [
+      {icon:'🐲', name:'Ejder', type:'emoji'},
+      {icon:'<i class="fa-solid fa-dungeon im-fa"></i>', name:'FA Zindan', type:'fa'},
+      {icon:'<i class="fa-solid fa-mountain im-fa"></i>', name:'FA Dağ', type:'fa'},
+    ]},
+    { id:'b-surlar', label:'Surlar', current:'🧱', alts: [
+      {icon:'🏯', name:'Kale Duvarı', type:'emoji'},
+      {icon:'<i class="fa-solid fa-shield im-fa"></i>', name:'FA Kalkan', type:'fa'},
+    ]},
+    { id:'b-kule', label:'Kule (Okçu/Mizrak/vs)', current:'🗼', alts: [
+      {icon:'🏰', name:'Kule 2', type:'emoji'},
+      {icon:'<i class="fa-solid fa-tower-observation im-fa"></i>', name:'FA Gözleme', type:'fa'},
+    ]},
+    { id:'b-istihbarat', label:'İstihbarat', current:'🕵️', alts: [
+      {icon:'📬', name:'Mektup', type:'emoji'},
+      {icon:'<i class="fa-solid fa-user-secret im-fa"></i>', name:'FA Sırlı', type:'fa'},
+      {icon:'<i class="fa-solid fa-mask im-fa"></i>', name:'FA Maske', type:'fa'},
+    ]},
+  ],
+
+  unite: [
+    { id:'u-piyade', label:'Piyade', sub:'T1 Hafif', current:'🗡️', alts: [
+      {icon:'⚔️', name:'Çapraz kılıç', type:'emoji'},
+      {icon:'<i class="fa-solid fa-shield-halved im-fa"></i>', name:'FA Kalkan', type:'fa'},
+    ]},
+    { id:'u-okcu', label:'Okçu', sub:'T1 Menzilli', current:'🏹', alts: [
+      {icon:'🎯', name:'Hedef', type:'emoji'},
+      {icon:'<i class="fa-solid fa-bullseye im-fa"></i>', name:'FA Hedef', type:'fa'},
+    ]},
+    { id:'u-sovalye', label:'Şövalye', sub:'T2 Ağır', current:'🐴', alts: [
+      {icon:'🛡️', name:'Kalkan', type:'emoji'},
+      {icon:'<i class="fa-solid fa-chess-knight im-fa"></i>', name:'FA Şovalye', type:'fa'},
+    ]},
+    { id:'u-buyucu', label:'Büyücü', sub:'T3 Elit', current:'🧙', alts: [
+      {icon:'🪄', name:'Değnek', type:'emoji'},
+      {icon:'<i class="fa-solid fa-hat-wizard im-fa"></i>', name:'FA Şapka', type:'fa'},
+    ]},
+    { id:'u-paladin', label:'Paladin', sub:'T3 Agir', current:'🛐', alts: [
+      {icon:'⚜', name:'Fleur', type:'unicode'},
+      {icon:'✝', name:'Haç', type:'unicode'},
+      {icon:'<i class="fa-solid fa-khanda im-fa"></i>', name:'FA Kutsal', type:'fa'},
+    ]},
+    { id:'u-ejder', label:'Ejderha', sub:'Nadir', current:'🐉', alts: [
+      {icon:'🐲', name:'Ejder yüzü', type:'emoji'},
+      {icon:'<i class="fa-solid fa-dragon im-fa" style="color:#c0392b"></i>', name:'FA Ejder', type:'fa'},
+    ]},
+    { id:'u-isin', label:'Işığın Savaşçısı', sub:'Elit iyi', current:'✨', alts: [
+      {icon:'🌟', name:'Yıldız', type:'emoji'},
+      {icon:'<i class="fa-solid fa-sun im-fa" style="color:#f1c40f"></i>', name:'FA Güneş', type:'fa'},
+    ]},
+    { id:'u-golge', label:'Gölge Savaşçısı', sub:'Elit kötü', current:'🌑', alts: [
+      {icon:'🖤', name:'Kara Kalp', type:'emoji'},
+      {icon:'<i class="fa-solid fa-moon im-fa" style="color:#8e44ad"></i>', name:'FA Ay', type:'fa'},
+    ]},
+    { id:'u-kara-elf', label:'Kara Elf', sub:'Elit kötü', current:'🏴', alts: [
+      {icon:'🗡️', name:'Hançer', type:'emoji'},
+      {icon:'<i class="fa-solid fa-user-ninja im-fa" style="color:#9b59b6"></i>', name:'FA Ninja', type:'fa'},
+    ]},
+    { id:'u-casus', label:'Casus', current:'🕵️', alts: [
+      {icon:'🎭', name:'Maske', type:'emoji'},
+      {icon:'<i class="fa-solid fa-user-secret im-fa"></i>', name:'FA Sırlı', type:'fa'},
+    ]},
+  ],
+
+  sistem: [
+    { id:'s-festival', label:'Festival', current:'🎉', alts: [
+      {icon:'🍷', name:'Şarap', type:'emoji'},
+      {icon:'🪘', name:'Davul', type:'emoji'},
+      {icon:'<i class="fa-solid fa-wine-glass im-fa"></i>', name:'FA Kadeh', type:'fa'},
+    ]},
+    { id:'s-savas-rapor', label:'Savaş Raporu', current:'⚔️', alts: [
+      {icon:'📜', name:'Parşömen', type:'emoji'},
+      {icon:'🗡️', name:'Kılıç', type:'emoji'},
+      {icon:'<i class="fa-solid fa-scroll im-fa"></i>', name:'FA Parşömen', type:'fa'},
+    ]},
+    { id:'s-ganimet', label:'Ganimet', current:'💰', alts: [
+      {icon:'🏺', name:'Amfora', type:'emoji'},
+      {icon:'💎', name:'Elmas', type:'emoji'},
+      {icon:'<i class="fa-solid fa-sack-dollar im-fa"></i>', name:'FA Kese', type:'fa'},
+    ]},
+    { id:'s-maas', label:'Ordu Maaşı', current:'💸', alts: [
+      {icon:'🪙', name:'Sikke', type:'emoji'},
+      {icon:'<i class="fa-solid fa-hand-holding-dollar im-fa"></i>', name:'FA Avuç', type:'fa'},
+    ]},
+    { id:'s-moral', label:'Şehir Moral', current:'😊', alts: [
+      {icon:'❤️', name:'Kalp', type:'emoji'},
+      {icon:'🎭', name:'Tiyatro', type:'emoji'},
+      {icon:'<i class="fa-solid fa-face-smile im-fa"></i>', name:'FA Gülen', type:'fa'},
+    ]},
+    { id:'s-ordu-moral', label:'Ordu Morali', current:'⚔️', alts: [
+      {icon:'🏅', name:'Madalya', type:'emoji'},
+      {icon:'<i class="fa-solid fa-medal im-fa"></i>', name:'FA Madalya', type:'fa'},
+    ]},
+    { id:'s-cag', label:'Çağ', current:'📅', alts: [
+      {icon:'⏳', name:'Kum saati', type:'emoji'},
+      {icon:'🕰️', name:'Eski Saat', type:'emoji'},
+      {icon:'<i class="fa-solid fa-hourglass-half im-fa"></i>', name:'FA Kum saati', type:'fa'},
+    ]},
+    { id:'s-bilge', label:'Bilge', current:'🧙', alts: [
+      {icon:'🧓', name:'Yaşlı', type:'emoji'},
+      {icon:'📿', name:'Tespih', type:'emoji'},
+      {icon:'<i class="fa-solid fa-book-open im-fa"></i>', name:'FA Kitap', type:'fa'},
+    ]},
+    { id:'s-kadim', label:'Kadim Şehir', sub:'Aurium/Gorathul', current:'🏛️', alts: [
+      {icon:'🏯', name:'Antik', type:'emoji'},
+      {icon:'<i class="fa-solid fa-monument im-fa"></i>', name:'FA Anit', type:'fa'},
+      {icon:'<i class="fa-solid fa-landmark im-fa"></i>', name:'FA Yapı', type:'fa'},
+    ]},
+    { id:'s-koloni', label:'Koloni', current:'🏕️', alts: [
+      {icon:'⛺', name:'Çadır', type:'emoji'},
+      {icon:'🚩', name:'Bayrak', type:'emoji'},
+      {icon:'<i class="fa-solid fa-campground im-fa"></i>', name:'FA Kamp', type:'fa'},
+    ]},
+    { id:'s-mezarlik', label:'Mezarlık', current:'⚰️', alts: [
+      {icon:'💀', name:'Kurukafa', type:'emoji'},
+      {icon:'🪦', name:'Mezartaşı', type:'emoji'},
+      {icon:'<i class="fa-solid fa-skull im-fa"></i>', name:'FA Kafa', type:'fa'},
+    ]},
+    { id:'s-siralama', label:'Sıralama', current:'🏆', alts: [
+      {icon:'👑', name:'Taç', type:'emoji'},
+      {icon:'🥇', name:'Altın', type:'emoji'},
+      {icon:'<i class="fa-solid fa-ranking-star im-fa"></i>', name:'FA Yıldız', type:'fa'},
+    ]},
+    { id:'s-sandik', label:'Kader Sandığı', current:'📦', alts: [
+      {icon:'🎁', name:'Hediye', type:'emoji'},
+      {icon:'🗝️', name:'Anahtar', type:'emoji'},
+      {icon:'<i class="fa-solid fa-treasure-chest im-fa"></i>', name:'FA Sandik', type:'fa'},
+    ]},
+    { id:'s-bocek', label:'Böcek Yarışı', current:'🪲', alts: [
+      {icon:'🐜', name:'Karınca', type:'emoji'},
+      {icon:'🎲', name:'Zar', type:'emoji'},
+      {icon:'<i class="fa-solid fa-dice im-fa"></i>', name:'FA Zar', type:'fa'},
+    ]},
+    { id:'s-diplomasi', label:'Diplomasi', current:'🤝', alts: [
+      {icon:'📜', name:'Antlaşma', type:'emoji'},
+      {icon:'<i class="fa-solid fa-handshake im-fa"></i>', name:'FA Tokalaşma', type:'fa'},
+    ]},
+  ],
+};
+
+// ═══ RENDER ═══
+function renderKategori(katId, items) {
+  const el = document.getElementById('kat-' + katId);
+  const secimler = getSecimler();
+  el.innerHTML = items.map(it => {
+    const selIdx = secimler[it.id];
+    const rowCls = selIdx !== undefined ? ' chosen' : '';
+    return `
+      <div class="im-row${rowCls}" data-id="${it.id}">
+        <div>
+          <span class="im-label">${it.label}</span>
+          ${it.sub ? `<span class="im-sub">${it.sub}</span>` : ''}
+        </div>
+        <div class="im-current">
+          ${it.current}
+          <span class="im-current-lbl">ŞİMDİ</span>
+        </div>
+        <div class="im-alts">
+          ${it.alts.map((a, idx) => {
+            const selCls = selIdx === idx ? ' selected' : '';
+            return `<div class="im-alt${selCls}" onclick="secAlt('${it.id}', ${idx})" title="${a.name}">
+              <div class="im-alt-icon">${a.icon}</div>
+              <span class="im-alt-name">${a.name}</span>
+            </div>`;
+          }).join('')}
+        </div>
+        <div class="im-action">
+          ${selIdx !== undefined ? `<button class="im-btn-rst" onclick="sifirlaAlt('${it.id}')">↺ Temizle</button>` : '<span style="font-size:9px;color:#444">—</span>'}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function getSecimler() {
+  try { return JSON.parse(localStorage.getItem('noxara_icon_secimler') || '{}'); } catch(e) { return {}; }
+}
+function saveSecimler(s) {
+  localStorage.setItem('noxara_icon_secimler', JSON.stringify(s));
+}
+
+function secAlt(id, idx) {
+  const s = getSecimler();
+  s[id] = idx;
+  saveSecimler(s);
+  renderAll();
+}
+function sifirlaAlt(id) {
+  const s = getSecimler();
+  delete s[id];
+  saveSecimler(s);
+  renderAll();
+}
+function clearAll() {
+  if (!confirm('Tum secimler silinsin mi?')) return;
+  localStorage.removeItem('noxara_icon_secimler');
+  renderAll();
+}
+
+function renderAll() {
+  renderKategori('menu', IKONLAR.menu);
+  renderKategori('kaynak', IKONLAR.kaynak);
+  renderKategori('bina', IKONLAR.bina);
+  renderKategori('unite', IKONLAR.unite);
+  renderKategori('sistem', IKONLAR.sistem);
+  renderSum();
+}
+
+function renderSum() {
+  const s = getSecimler();
+  const toplam = Object.values(IKONLAR).reduce((a,b) => a + b.length, 0);
+  const sayi = Object.keys(s).length;
+  document.getElementById('im-sayac').textContent = sayi;
+  document.getElementById('im-toplam').textContent = toplam;
+  const items = [];
+  for (const kat of Object.values(IKONLAR)) {
+    for (const it of kat) {
+      if (s[it.id] !== undefined) {
+        const alt = it.alts[s[it.id]];
+        items.push(`<span class="im-sum-tag">${it.label}: ${alt.icon.replace(/<[^>]+>/g,'')} ${alt.name}</span>`);
+      }
+    }
+  }
+  document.getElementById('im-secimler').innerHTML = items.join('') || '<span style="color:#666">Henuz secim yok.</span>';
+}
+
+function exportJson() {
+  const s = getSecimler();
+  const out = {};
+  for (const kat of Object.values(IKONLAR)) {
+    for (const it of kat) {
+      if (s[it.id] !== undefined) {
+        const alt = it.alts[s[it.id]];
+        out[it.id] = { label: it.label, icon: alt.icon, name: alt.name, type: alt.type };
+      }
+    }
+  }
+  const json = JSON.stringify(out, null, 2);
+  navigator.clipboard.writeText(json).then(() => {
+    document.getElementById('im-msg').textContent = '✓ JSON kopyalandi (' + Object.keys(out).length + ' secim)';
+    document.getElementById('im-msg').style.color = '#2ecc71';
+    setTimeout(() => { document.getElementById('im-msg').textContent = ''; }, 3000);
+  }).catch(e => {
+    alert('JSON:\n\n' + json);
+  });
+}
+
+renderAll();
+</script>
+</body></html>
