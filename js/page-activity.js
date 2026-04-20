@@ -38,7 +38,8 @@ async function openSavasRaporFromLog(savasId) {
 // v1.13.44: eksik event'ler eklendi (askeri/casus_hedefi/kadim_saldiri/takviye/kadim_ticaret/bocek_yarisi/premium/sandik)
 // v1.13.45: casus_hedefi + kadim_saldiri hem Askeri hem Sehir'de (sehrine zarar/etki)
 const KATEGORI_MAP = {
-  sehir: { isim:'Şehir', renk:'#c9a84c', tipler:['bina_tamam','nufus','kacis','yemek','sehir_morali','festival','arazi','essek','kervan','bocek_yarisi','casus_hedefi','kadim_saldiri'] },
+  // v1.14.0: bina_yikim + bina_tamir + kadim_saldiri_uyari eklendi
+  sehir: { isim:'Şehir', renk:'#c9a84c', tipler:['bina_tamam','bina_yikim','bina_tamir','nufus','kacis','yemek','sehir_morali','festival','arazi','essek','kervan','bocek_yarisi','casus_hedefi','kadim_saldiri','kadim_saldiri_uyari'] },
   askeri: { isim:'Askeri', renk:'#e74c3c', tipler:['egitim_tamam','maas','savas','casus','casus_hedefi','askeri','kadim_saldiri','takviye'] },
   ekonomi: { isim:'Ekonomi', renk:'#2ecc71', tipler:['isci_uretim','ekonomi','pisirme','bolge_bonus','irk_bonus','mana_uretim','vergi'] },
   ticaret: { isim:'Ticaret', renk:'#3498db', tipler:['market_satis','buyu_alisveris','pazar_ilan','pazar_alisveris','guild_ambar','guild_bagis','kadim_ticaret'] },
