@@ -1051,6 +1051,19 @@
     </div>
     <div id="kayip-tarama-content" style="font-size:11px;color:#888;margin-bottom:20px">"Kayıp Tara" butonuna bas.</div>
 
+    <!-- v1.14.0.23: Bildirim + casus tani -->
+    <h3 style="color:#3498db;border-top:1px solid #222;padding-top:14px">📡 Telegram Bildirim + Casus Tanı</h3>
+    <p style="font-size:11px;color:#888;margin-bottom:10px">
+      Oyuncunun Telegram bağlantı durumu, bildirim ayarları, casus rapor + activity_log kayıtları.
+      "Casus yaptım ama log/Telegram gelmedi" gibi durumlar için kanıt.
+    </p>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+      <label style="font-size:11px;color:#aaa">player_id:</label>
+      <input id="bt-pid" type="number" style="width:120px;padding:4px;background:#222;color:#fff;border:1px solid #555;border-radius:3px">
+      <button class="act" onclick="loadBildirimTani()" style="background:linear-gradient(135deg,#3498db 0%,#21618c 100%);color:#fff">📡 Tanı</button>
+    </div>
+    <div id="bildirim-tani-content" style="font-size:11px;color:#888;margin-bottom:20px">player_id gir ve "Tanı"ya bas.</div>
+
     <h3 style="color:#16a085;border-top:1px solid #222;padding-top:14px">🕵️ Oyuncu Kaynak İz Sürme (son 48h)</h3>
     <p style="font-size:11px;color:#888;margin-bottom:12px">
       Bir oyuncunun TÜM kaynaklarındaki saatlik değişimleri + activity_log gösterir.
@@ -3850,6 +3863,105 @@ async function loadKadimTicaretTablosu() {
         '<b>Onerilen cozum:</b> TOPLAM_ticaret × 0.5 × carpan ile ceza -- ileride eklenebilir.' +
         '</div>';
     }
+    el.innerHTML = html;
+  } catch(e) { el.innerHTML = '<div style="color:#e74c3c">Hata: ' + e.message + '</div>'; }
+}
+
+// v1.14.0.23: Telegram + casus tani
+async function loadBildirimTani() {
+  const pid = parseInt(document.getElementById('bt-pid')?.value);
+  const el = document.getElementById('bildirim-tani-content');
+  if (!pid) { el.innerHTML = '<div style="color:#e74c3c">player_id girin</div>'; return; }
+  el.innerHTML = '<div style="color:#888">Yükleniyor...</div>';
+  try {
+    const r = await fetch(API + '/api/admin/player/' + pid + '/bildirim-tani', { headers: hdr() });
+    const d = await r.json();
+    if (!d.ok) { el.innerHTML = '<div style="color:#e74c3c">' + (d.error||'Hata') + '</div>'; return; }
+    const fmtT = ts => ts ? new Date(ts).toLocaleString('tr-TR',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'}) : '-';
+    const okIkon = v => v ? '<span style="color:#2ecc71">✅</span>' : '<span style="color:#e74c3c">❌</span>';
+
+    let html = '<div style="padding:8px;background:#111;border-left:3px solid #3498db;border-radius:4px;margin-bottom:10px">' +
+      '<b style="color:#3498db">' + (d.player.kral||'?') + '</b> (ID ' + pid + ', Çağ ' + d.player.cag + ')</div>';
+
+    // TELEGRAM DURUM
+    html += '<div style="margin-bottom:10px;padding:8px;border:1px solid #222;border-radius:4px">' +
+      '<b style="color:#3498db">📱 Telegram Durum</b><br>' +
+      '<div style="margin-top:4px">BOT_TOKEN env: ' + okIkon(d.telegram.bot_token_env_set) + '</div>' +
+      '<div>Oyuncu hesap bağladı: ' + okIkon(d.telegram.baglanti_var_mi);
+    if (d.telegram.baglanti) {
+      html += ' <span style="color:#aaa;font-size:10px">(chat_id: ' + d.telegram.baglanti.chat_id + ', username: @' + (d.telegram.baglanti.username||'-') + ')</span>';
+    }
+    html += '</div>';
+    if (!d.telegram.bot_token_env_set) html += '<div style="color:#e74c3c;font-size:10px;margin-top:4px">⚠ Railway env TELEGRAM_BOT_TOKEN EKSİK — TÜM bildirimler sessiz skip!</div>';
+    if (!d.telegram.baglanti_var_mi) html += '<div style="color:#e67e22;font-size:10px;margin-top:4px">⚠ Oyuncu Ayarlar sayfasından "Telegram Bağla" yapmamış — bildirim gelmez.</div>';
+    html += '</div>';
+
+    // BILDIRIM AYARLARI
+    if (d.bildirim_ayarlari) {
+      const a = d.bildirim_ayarlari;
+      html += '<div style="margin-bottom:10px;padding:8px;border:1px solid #222;border-radius:4px">' +
+        '<b style="color:#3498db">🔔 Bildirim Ayarları</b>' +
+        '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:4px;margin-top:6px;font-size:10px">';
+      const keys = ['saldiri','koloni_bitis','gorev_tamam','casus_rapor','ozel_mesaj','maas_eksik','guild_duyuru','bina_tamam','pazar_satis','egitim_tamam'];
+      for (const k of keys) {
+        html += '<div>' + okIkon(a[k]) + ' ' + k + '</div>';
+      }
+      html += '</div></div>';
+    } else {
+      html += '<div style="color:#e67e22;font-size:10px;margin-bottom:10px">Oyuncunun bildirim_ayarlar kaydı yok (ilk Ayarlar sayfasına girince oluşur).</div>';
+    }
+
+    // AKTIF CASUSLAR
+    if (d.aktif_casuslar && d.aktif_casuslar.length > 0) {
+      html += '<div style="margin-bottom:10px;padding:8px;border:1px solid #222;border-radius:4px">' +
+        '<b style="color:#9b59b6">🕵️ Oyuncunun Casusları (' + d.aktif_casuslar.length + ')</b>';
+      html += '<table style="width:100%;font-size:10px;margin-top:6px;border-collapse:collapse"><tr style="color:#666">' +
+        '<th style="text-align:left;padding:3px">Görev</th><th style="text-align:left">Durum</th><th style="text-align:right">Can</th><th style="text-align:right">Sv</th><th style="text-align:right">Kalan</th></tr>';
+      for (const c of d.aktif_casuslar) {
+        const kalan = c.kalan_sn > 0 ? Math.ceil(c.kalan_sn / 60) + ' dk' : (c.bitis ? 'bitti (bekliyor)' : '-');
+        const renk = c.durum === 'gorevde' ? '#f39c12' : (c.durum === 'hazir' ? '#2ecc71' : '#e74c3c');
+        html += '<tr style="border-bottom:1px solid #181818">' +
+          '<td style="padding:3px">' + (c.gorev_tipi||'-') + '</td>' +
+          '<td style="padding:3px;color:' + renk + '">' + c.durum + '</td>' +
+          '<td style="padding:3px;text-align:right">' + c.can + '</td>' +
+          '<td style="padding:3px;text-align:right">' + c.seviye + '</td>' +
+          '<td style="padding:3px;text-align:right;color:#888">' + kalan + '</td></tr>';
+      }
+      html += '</table></div>';
+    }
+
+    // CASUS RAPORLARI
+    html += '<div style="margin-bottom:10px;padding:8px;border:1px solid #222;border-radius:4px">' +
+      '<b style="color:#9b59b6">📋 Casus Raporları (' + d.casus_raporlari.length + ')</b>';
+    if (d.casus_raporlari.length === 0) {
+      html += '<div style="color:#666;font-size:10px;margin-top:4px">Hiç casus raporu yok — ne gönderdi ne üstüne geldi.</div>';
+    } else {
+      for (const r of d.casus_raporlari) {
+        const ikon = r.basarili ? '✅' : '❌';
+        const yonRenk = r.yon === 'gonderdim' ? '#3498db' : '#e74c3c';
+        html += '<div style="padding:4px 6px;border-bottom:1px solid #181818;font-size:10px">' +
+          ikon + ' <span style="color:' + yonRenk + '">' + r.yon + '</span> · ' +
+          '<b>' + (r.gorev_tipi||'?') + '</b> · karşı: ' + (r.karsi_taraf||'?') +
+          ' <span style="color:#666;float:right">' + fmtT(r.created_at) + '</span></div>';
+      }
+    }
+    html += '</div>';
+
+    // CASUS ACTIVITY LOG
+    html += '<div style="padding:8px;border:1px solid #222;border-radius:4px">' +
+      '<b style="color:#9b59b6">📜 Casus Activity Log (' + d.casus_activity_log.length + ')</b>';
+    if (d.casus_activity_log.length === 0) {
+      html += '<div style="color:#e74c3c;font-size:10px;margin-top:4px">⚠ Activity_log\'da casus/casus_hedefi kaydı YOK! Eğer casus raporları var ama burası boşsa bu bir bug.</div>';
+    } else {
+      for (const l of d.casus_activity_log) {
+        html += '<div style="padding:4px 6px;border-bottom:1px solid #181818;font-size:10px">' +
+          '<span style="color:#666">' + fmtT(l.created_at) + '</span> ' +
+          '<span style="color:#9b59b6">[' + l.event_type + ']</span> ' +
+          '<span style="color:#ccc">' + (l.mesaj||'').replace(/</g,'&lt;') + '</span></div>';
+      }
+    }
+    html += '</div>';
+
     el.innerHTML = html;
   } catch(e) { el.innerHTML = '<div style="color:#e74c3c">Hata: ' + e.message + '</div>'; }
 }
