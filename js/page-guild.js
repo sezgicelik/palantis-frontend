@@ -117,7 +117,7 @@ async function guildListele() {
           ? '<button class="btn-action" style="width:auto;padding:4px 12px;font-size:10px;background:#555;color:#fff" onclick="guildIstegiIptal(' + g.id + ')">⏳ Bekliyor (İptal)</button>'
           : '<button class="btn-action" style="width:auto;padding:4px 12px;font-size:10px" onclick="guildIstekGonder(' + g.id + ',\'' + (g.isim||'').replace(/[\'"]/g,'') + '\')">📨 Üyelik İste</button>';
         return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:#111;border:1px solid #222;border-radius:6px;margin-bottom:4px">' +
-          '<div><span style="color:var(--race-color);font-weight:bold;font-size:12px">[' + (g.tag||'?') + ']</span> <span style="font-size:11px">' + (g.isim||'?') + '</span> <span style="font-size:9px;color:#888">(' + (g.uye_sayisi||0) + ' uye)</span></div>' +
+          '<div><span style="color:var(--race-color);font-weight:bold;font-size:12px">[' + (g.tag||'?') + ']</span> <span style="font-size:11px">' + (g.isim||'?') + '</span> <span style="font-size:11px;color:#888">(' + (g.uye_sayisi||0) + ' uye)</span></div>' +
           btn +
         '</div>';
       }).join('');
@@ -356,7 +356,7 @@ function renderKusatmaIcerik(el, data) {
         var varis = o.varis_zamani ? 'Varis: ' + new Date(o.varis_zamani).toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}) : '';
         var hedef = o.sehir_isim ? '→ ' + o.sehir_isim : '';
         var geriCagir = o.durum === 'kusatmada' || o.durum === 'yolda_gidis' ?
-          ' <button class="btn-action" onclick="kusatmaGeriCagir(' + data.guild.id + ',' + o.id + ')" style="padding:2px 8px;font-size:9px;width:auto;border-color:#f39c12;color:#f39c12">Geri Cagir</button>' : '';
+          ' <button class="btn-action" onclick="kusatmaGeriCagir(' + data.guild.id + ',' + o.id + ')" style="padding:2px 8px;font-size:11px;width:auto;border-color:#f39c12;color:#f39c12">Geri Cagir</button>' : '';
         return '<div style="font-size:11px;padding:3px 0;border-top:1px solid #222">' +
           '<b>' + o.isim + '</b> ' + hedef + ' <span style="color:' + durumRenk + '">[' + o.durum + ']</span> <span style="color:#666">' + (o.toplam_unite||0) + ' unite | ' + varis + '</span>' + geriCagir +
         '</div>';
@@ -443,7 +443,7 @@ function renderTabGenel(el, data) {
         (!isLider ? '<button class="btn-action" style="width:auto;padding:4px 12px;font-size:10px;background:#333;color:#e74c3c" onclick="guildAyril(' + g.id + ')">Ayril</button>' : '') +
       '</div>' +
       (g.duyuru ? '<div style="background:#0a0a0a;border-left:2px solid var(--race-color);padding:6px 10px;font-size:10px;color:#ccc;margin-bottom:8px;border-radius:4px">📢 ' + g.duyuru + '</div>' : '') +
-      (isLider ? '<div style="margin-bottom:8px"><textarea id="guild-duyuru-inp" rows="2" style="width:100%;padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:10px" placeholder="Duyuru yaz...">' + (g.duyuru||'') + '</textarea><button class="btn-action" style="width:auto;padding:3px 10px;font-size:9px;margin-top:2px" onclick="guildDuyuruKaydet(' + g.id + ')">Kaydet</button></div>' : '') +
+      (isLider ? '<div style="margin-bottom:8px"><textarea id="guild-duyuru-inp" rows="2" style="width:100%;padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:10px" placeholder="Duyuru yaz...">' + (g.duyuru||'') + '</textarea><button class="btn-action" style="width:auto;padding:3px 10px;font-size:11px;margin-top:2px" onclick="guildDuyuruKaydet(' + g.id + ')">Kaydet</button></div>' : '') +
     '</div>' +
 
     // v1.13: Guild nufus + isci ozet + nufus siniri + tuccar
@@ -464,16 +464,16 @@ function renderTabGenel(el, data) {
         '</div>' +
         '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-size:10px;margin-bottom:6px">' +
           '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center">' +
-            '<div style="color:#888;font-size:9px">Köylü</div><div style="color:#d4af37;font-weight:bold">' + fmt(n.koylu||0) + '</div>' +
+            '<div style="color:#888;font-size:11px">Köylü</div><div style="color:#d4af37;font-weight:bold">' + fmt(n.koylu||0) + '</div>' +
           '</div>' +
           '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center">' +
-            '<div style="color:#888;font-size:9px">Asker</div><div style="color:#e74c3c;font-weight:bold">' + fmt(n.asker||0) + '</div>' +
+            '<div style="color:#888;font-size:11px">Asker</div><div style="color:#e74c3c;font-weight:bold">' + fmt(n.asker||0) + '</div>' +
           '</div>' +
           '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center">' +
-            '<div style="color:#888;font-size:9px">WS</div><div style="color:#9b59b6;font-weight:bold">' + fmt(wsToplam) + '</div>' +
+            '<div style="color:#888;font-size:11px">WS</div><div style="color:#9b59b6;font-weight:bold">' + fmt(wsToplam) + '</div>' +
           '</div>' +
         '</div>' +
-        '<div style="display:flex;gap:8px;flex-wrap:wrap;font-size:9px;color:#777">' +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;font-size:11px;color:#777">' +
           (w.oduncu ? '<span>🪓 Oduncu: ' + w.oduncu + '</span>' : '') +
           (w.madenci ? '<span>⛏️ Madenci: ' + w.madenci + '</span>' : '') +
           (w.ciftci ? '<span>🌾 Ciftci: ' + w.ciftci + '</span>' : '') +
@@ -491,7 +491,7 @@ function renderTabGenel(el, data) {
         '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">🎖 Ordu Morali</div>' +
         '<div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:2px"><span style="color:#888">Moral</span><span style="color:' + moralRenk + ';font-weight:bold">' + morali + ' / 100</span></div>' +
         '<div style="height:6px;background:#0a0a0a;border-radius:3px;overflow:hidden"><div style="width:' + morali + '%;height:100%;background:' + moralRenk + '"></div></div>' +
-        '<div style="font-size:9px;color:#555;margin-top:4px">Maas odenirse +5 (max 100), odenemezse -10</div>' +
+        '<div style="font-size:11px;color:#555;margin-top:4px">Maas odenirse +5 (max 100), odenemezse -10</div>' +
       '</div>';
     })() +
 
@@ -503,10 +503,10 @@ function renderTabGenel(el, data) {
       return '<div class="card">' +
         '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">🔮 Mana</div>' +
         '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;font-size:10px">' +
-          '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center"><div style="color:#888;font-size:9px">Beyaz</div><div style="color:#ecf0f1;font-weight:bold">' + mb.toFixed(1) + '</div></div>' +
-          '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center"><div style="color:#888;font-size:9px">Kirmizi</div><div style="color:#e74c3c;font-weight:bold">' + mk.toFixed(1) + '</div></div>' +
-          '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center"><div style="color:#888;font-size:9px">Mavi</div><div style="color:#3498db;font-weight:bold">' + mm.toFixed(1) + '</div></div>' +
-          '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center"><div style="color:#888;font-size:9px">Yesil</div><div style="color:#2ecc71;font-weight:bold">' + my.toFixed(1) + '</div></div>' +
+          '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center"><div style="color:#888;font-size:11px">Beyaz</div><div style="color:#ecf0f1;font-weight:bold">' + mb.toFixed(1) + '</div></div>' +
+          '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center"><div style="color:#888;font-size:11px">Kirmizi</div><div style="color:#e74c3c;font-weight:bold">' + mk.toFixed(1) + '</div></div>' +
+          '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center"><div style="color:#888;font-size:11px">Mavi</div><div style="color:#3498db;font-weight:bold">' + mm.toFixed(1) + '</div></div>' +
+          '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center"><div style="color:#888;font-size:11px">Yesil</div><div style="color:#2ecc71;font-weight:bold">' + my.toFixed(1) + '</div></div>' +
         '</div>' +
       '</div>';
     })() +
@@ -531,7 +531,7 @@ function renderTabGenel(el, data) {
                 '<input id="guild-tasi-x" type="number" min="1" max="200" placeholder="' + sehir.x + '" style="width:55px;padding:3px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:10px">' +
                 '<span style="font-size:10px;color:#888">Y:</span>' +
                 '<input id="guild-tasi-y" type="number" min="1" max="50" placeholder="' + sehir.y + '" style="width:55px;padding:3px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:10px">' +
-                '<button class="btn-action" style="width:auto;padding:3px 12px;font-size:9px" onclick="guildSehirTasi(' + g.id + ')">Tasi</button>' +
+                '<button class="btn-action" style="width:auto;padding:3px 12px;font-size:11px" onclick="guildSehirTasi(' + g.id + ')">Tasi</button>' +
               '</div>' +
               '<div id="guild-tasi-msg" style="font-size:10px;margin-top:4px;min-height:14px"></div>'
             : '<div style="font-size:10px;color:#e74c3c">Tasima hakkiniz kalmadi.</div>') +
@@ -547,16 +547,16 @@ function renderTabGenel(el, data) {
         '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">⚔️ Savas Gucu</div>' +
         '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;font-size:10px">' +
           '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center">' +
-            '<div style="color:#888;font-size:9px">Ordular</div><div style="color:#d4af37;font-weight:bold">' + (vs.ordu_sayisi||0) + '</div>' +
+            '<div style="color:#888;font-size:11px">Ordular</div><div style="color:#d4af37;font-weight:bold">' + (vs.ordu_sayisi||0) + '</div>' +
           '</div>' +
           '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center">' +
-            '<div style="color:#888;font-size:9px">Uniteler</div><div style="color:#2ecc71;font-weight:bold">' + fmt(vs.toplam_unite||0) + '</div>' +
+            '<div style="color:#888;font-size:11px">Uniteler</div><div style="color:#2ecc71;font-weight:bold">' + fmt(vs.toplam_unite||0) + '</div>' +
           '</div>' +
           '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center">' +
-            '<div style="color:#888;font-size:9px">ATK</div><div style="color:#e74c3c;font-weight:bold">' + fmt(Math.floor(vs.toplam_atk||0)) + '</div>' +
+            '<div style="color:#888;font-size:11px">ATK</div><div style="color:#e74c3c;font-weight:bold">' + fmt(Math.floor(vs.toplam_atk||0)) + '</div>' +
           '</div>' +
           '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center">' +
-            '<div style="color:#888;font-size:9px">DEF</div><div style="color:#3498db;font-weight:bold">' + fmt(Math.floor(vs.toplam_def||0)) + '</div>' +
+            '<div style="color:#888;font-size:11px">DEF</div><div style="color:#3498db;font-weight:bold">' + fmt(Math.floor(vs.toplam_def||0)) + '</div>' +
           '</div>' +
         '</div>' +
       '</div>';
@@ -629,15 +629,15 @@ function renderTabUyeler(el, data) {
 
     // Takviye
     if (u.player_id !== data.benim_player_id) {
-      aksiyonlar += '<button style="background:none;border:1px solid #9b59b6;color:#9b59b6;cursor:pointer;font-size:9px;border-radius:3px;padding:1px 6px" onclick="guildTakviyeGonder(' + u.player_id + ',\'' + (u.kullanici_adi||'').replace(/'/g,'') + '\')">🛡️</button>';
+      aksiyonlar += '<button style="background:none;border:1px solid #9b59b6;color:#9b59b6;cursor:pointer;font-size:11px;border-radius:3px;padding:1px 6px" onclick="guildTakviyeGonder(' + u.player_id + ',\'' + (u.kullanici_adi||'').replace(/'/g,'') + '\')">🛡️</button>';
     }
 
     // Lider islemleri
     if (isLider && u.player_id !== g.lider_id) {
       // v1.14.0.44: Taraf kisiti kaldirildi — guildler.taraf kuruluste sabit, lider degisse bile uretim ayni
-      aksiyonlar += '<button style="background:none;border:1px solid #f1c40f;color:#f1c40f;cursor:pointer;font-size:9px;border-radius:3px;padding:1px 6px" onclick="guildLiderlikDevret(' + g.id + ',' + u.player_id + ',\'' + (u.kullanici_adi||'').replace(/\'/g,'') + '\')">👑 Lider Yap</button>' +
-        '<button style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:9px" onclick="guildAt(' + g.id + ',' + u.player_id + ')">At</button>' +
-        '<select style="background:#111;border:1px solid #333;color:#ddd;font-size:9px;border-radius:3px;padding:1px" onchange="guildRutbe(' + g.id + ',' + u.player_id + ',this.value)">' +
+      aksiyonlar += '<button style="background:none;border:1px solid #f1c40f;color:#f1c40f;cursor:pointer;font-size:11px;border-radius:3px;padding:1px 6px" onclick="guildLiderlikDevret(' + g.id + ',' + u.player_id + ',\'' + (u.kullanici_adi||'').replace(/\'/g,'') + '\')">👑 Lider Yap</button>' +
+        '<button style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:11px" onclick="guildAt(' + g.id + ',' + u.player_id + ')">At</button>' +
+        '<select style="background:#111;border:1px solid #333;color:#ddd;font-size:11px;border-radius:3px;padding:1px" onchange="guildRutbe(' + g.id + ',' + u.player_id + ',this.value)">' +
           '<option value="uye"' + (u.rutbe==='uye'?' selected':'') + '>Uye</option>' +
           '<option value="yardimci"' + (u.rutbe==='yardimci'?' selected':'') + '>Yardimci</option>' +
         '</select>';
@@ -650,7 +650,7 @@ function renderTabUyeler(el, data) {
     }
 
     return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid #1a1a1a;font-size:11px">' +
-      '<span>' + rutbeIcon + ' ' + u.kullanici_adi + ' <span style="color:#555;font-size:9px">Cag ' + (u.cag||1) + extraInfo + '</span></span>' +
+      '<span>' + rutbeIcon + ' ' + u.kullanici_adi + ' <span style="color:#555;font-size:11px">Cag ' + (u.cag||1) + extraInfo + '</span></span>' +
       '<div style="display:flex;gap:4px;align-items:center">' + aksiyonlar + '</div>' +
     '</div>';
   }).join('');
@@ -660,7 +660,7 @@ function renderTabUyeler(el, data) {
   if (myYetkiler.yetki_duzenle) {
     yetkiHTML = '<div class="card">' +
       '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">🔑 Yetki Yonetimi</div>' +
-      '<p style="font-size:9px;color:#555;margin-bottom:8px">Uye ismine tiklayarak yetkilerini duzenleyebilirsiniz</p>' +
+      '<p style="font-size:11px;color:#555;margin-bottom:8px">Uye ismine tiklayarak yetkilerini duzenleyebilirsiniz</p>' +
       '<div id="guild-yetki-panel">Yukleniyor...</div>' +
     '</div>';
   }
@@ -693,9 +693,9 @@ async function _loadGelenIstekler(guildId) {
       return '<div style="padding:8px 10px;background:#111;border-radius:4px;margin-bottom:6px;border-left:3px solid #f39c12">' +
         '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap">' +
           '<div>' +
-            '<div><b style="color:#f39c12">' + (i.kral||'?') + '</b> <span style="color:#666;font-size:9px">ID ' + i.player_id + ' · Çağ ' + (i.cag||1) + ' · ' + (i.taraf||'?') + ' · ' + (i.irk||'?') + '</span></div>' +
+            '<div><b style="color:#f39c12">' + (i.kral||'?') + '</b> <span style="color:#666;font-size:11px">ID ' + i.player_id + ' · Çağ ' + (i.cag||1) + ' · ' + (i.taraf||'?') + ' · ' + (i.irk||'?') + '</span></div>' +
             (i.mesaj ? '<div style="color:#ccc;font-size:10px;font-style:italic;margin-top:3px">"' + i.mesaj.replace(/</g,'&lt;') + '"</div>' : '') +
-            '<div style="color:#555;font-size:9px;margin-top:2px">' + tarih + '</div>' +
+            '<div style="color:#555;font-size:11px;margin-top:2px">' + tarih + '</div>' +
           '</div>' +
           '<div style="display:flex;gap:4px">' +
             '<button class="btn-action" onclick="istekKabul(' + guildId + ',' + i.player_id + ')" style="background:#27ae60;color:#fff;font-size:10px;padding:4px 10px">✅ Kabul</button>' +
@@ -748,7 +748,7 @@ async function renderTabSohbet(el, data) {
       '<input id="sohbet-inp" type="text" maxlength="500" placeholder="Mesajın..." onkeypress="if(event.key===\'Enter\')sohbetGonder(' + gId + ')" style="flex:1;padding:6px;background:#111;border:1px solid #444;color:#ddd;border-radius:4px;font-size:11px">' +
       '<button class="btn-action" style="width:auto;padding:6px 14px;font-size:11px" onclick="sohbetGonder(' + gId + ')">Gönder</button>' +
     '</div>' +
-    '<div style="font-size:9px;color:#666;margin-top:6px">Son 50 mesaj · Lider/yardımcı tüm mesajları silebilir, diğer üyeler sadece kendi mesajını</div></div>';
+    '<div style="font-size:11px;color:#666;margin-top:6px">Son 50 mesaj · Lider/yardımcı tüm mesajları silebilir, diğer üyeler sadece kendi mesajını</div></div>';
   await _loadSohbet(gId, data.benim_player_id, data.benim_rutbem);
   // Auto-refresh 20 sn
   if (window._sohbetIntv) clearInterval(window._sohbetIntv);
@@ -773,7 +773,7 @@ async function _loadSohbet(gId, benId, benRutbe) {
       return '<div style="padding:5px 6px;border-bottom:1px solid #1a1a1a">' +
         '<div style="display:flex;justify-content:space-between;align-items:center">' +
           '<span>' + ikon + ' <b style="color:' + renk + '">' + (m.kral || '?') + '</b></span>' +
-          '<span style="color:#555;font-size:9px">' + tarih + silBtn + '</span>' +
+          '<span style="color:#555;font-size:11px">' + tarih + silBtn + '</span>' +
         '</div>' +
         '<div style="color:#ddd;margin-top:2px;word-break:break-word">' + (m.mesaj||'').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>' +
       '</div>';
@@ -850,7 +850,7 @@ async function renderTabArastirma(el, data) {
         (kuyruk ? '<div style="color:#f39c12;font-size:10px">⏳ K' + kuyruk.hedef_seviye + ' araştırılıyor · ' + kalanPg + ' PG kaldı</div>'
          : mev >= maxSev ? '<div style="color:#2ecc71;font-size:10px">✅ Max seviye</div>'
          : isLiderYard ?
-            '<div style="font-size:9px;color:#888;margin-bottom:4px">K' + hedef + ' maliyet: ' + maliyetStr + '</div>' +
+            '<div style="font-size:11px;color:#888;margin-bottom:4px">K' + hedef + ' maliyet: ' + maliyetStr + '</div>' +
             '<button class="btn-action" style="width:auto;padding:4px 12px;font-size:10px;background:#9b59b6;color:#fff" onclick="arastirmaBaslat(' + gId + ',\'' + key + '\')">🔬 K' + hedef + ' Başlat (' + (cfg.sure_pg || 12) + ' PG)</button>'
          : '<div style="font-size:10px;color:#666">Lider/yardımcı başlatabilir</div>'
         ) +
@@ -917,9 +917,9 @@ async function guildYetkilerYukle(guildId) {
           '<span style="font-size:18px">' + rutbeIkon + '</span>' +
           '<div style="flex:1">' +
             '<div style="font-size:12px;color:' + rutbeRenk + ';font-weight:bold">' + (u.kullanici_adi || '?') + '</div>' +
-            '<div style="font-size:9px;color:#888;text-transform:uppercase">' + u.rutbe + '</div>' +
+            '<div style="font-size:11px;color:#888;text-transform:uppercase">' + u.rutbe + '</div>' +
           '</div>' +
-          (isLdr ? '<span style="font-size:9px;color:#666;font-style:italic">lider tüm yetkilere sahip</span>' : '') +
+          (isLdr ? '<span style="font-size:11px;color:#666;font-style:italic">lider tüm yetkilere sahip</span>' : '') +
         '</div>' +
         (isLdr ? '' : '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px">');
       if (!isLdr) {
@@ -994,7 +994,7 @@ function renderTabKasa(el, data) {
   var izinliKaynaklar = (GUILD_CONFIG && GUILD_CONFIG.izinli_kaynaklar) || ['altin','odun','metal'];
   var bagisHTML = '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px">' +
     izinliKaynaklar.map(function(k) {
-      return '<button class="btn-action" style="width:auto;padding:4px 10px;font-size:9px" onclick="guildBagis(' + g.id + ',\'' + k + '\')">' + (KAYNAK_IKON[k]||'📦') + ' ' + k + '</button>';
+      return '<button class="btn-action" style="width:auto;padding:4px 10px;font-size:11px" onclick="guildBagis(' + g.id + ',\'' + k + '\')">' + (KAYNAK_IKON[k]||'📦') + ' ' + k + '</button>';
     }).join('') +
   '</div>';
   // v1.13.67: Bagis cooldown bilgisi — backend'den gelir
@@ -1017,7 +1017,7 @@ function renderTabKasa(el, data) {
         : '<span style="color:#5cb85c">✓ ' + cdK.kalan_bagis + '/' + cdK.max + ' hakki kaldi' + (cdK.sayac>0 ? ' (' + fmtKalan(cdK.kalan_saat) + ' sonra reset)' : '') + '</span>')
     : '';
 
-  var limitInfo = '<div style="font-size:9px;color:#555;margin-top:4px">Max: kaynaklarinizin %' + ((GUILD_CONFIG && GUILD_CONFIG.bagis_yuzde_limit) || 20) + '\'i | ' +
+  var limitInfo = '<div style="font-size:11px;color:#555;margin-top:4px">Max: kaynaklarinizin %' + ((GUILD_CONFIG && GUILD_CONFIG.bagis_yuzde_limit) || 20) + '\'i | ' +
     ((GUILD_CONFIG && GUILD_CONFIG.hammadde_bagis_24pg) || 3) + ' bagis/24PG ' + cdHText + '</div>';
 
   // Köylü bagisi
@@ -1028,10 +1028,10 @@ function renderTabKasa(el, data) {
     '<div style="font-size:10px;color:#aaa;margin-bottom:4px">👨‍🌾 Köylü Bagisi</div>' +
     '<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">' +
       '<input id="koylu-bagis-adet" type="number" min="1" max="' + koyluMax + '" placeholder="Max ' + koyluMax + '" style="width:100px;padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px" oninput="if(this.value>' + koyluMax + ')this.value=' + koyluMax + '">' +
-      '<button class="btn-action" style="width:auto;padding:4px 10px;font-size:9px" onclick="guildKoyluBagis(' + g.id + ',' + koyluMax + ')">Gonder</button>' +
-      '<span style="font-size:9px;color:#555">Max <b style="color:#aaa">' + koyluMax + '</b> ' + koyluTip + ' | ' + ((GUILD_CONFIG && GUILD_CONFIG.koylu_bagis_24pg) || 2) + '/24PG</span>' +
+      '<button class="btn-action" style="width:auto;padding:4px 10px;font-size:11px" onclick="guildKoyluBagis(' + g.id + ',' + koyluMax + ')">Gonder</button>' +
+      '<span style="font-size:11px;color:#555">Max <b style="color:#aaa">' + koyluMax + '</b> ' + koyluTip + ' | ' + ((GUILD_CONFIG && GUILD_CONFIG.koylu_bagis_24pg) || 2) + '/24PG</span>' +
     '</div>' +
-    '<div style="font-size:9px;margin-top:4px">' + cdKText + '</div>' +
+    '<div style="font-size:11px;margin-top:4px">' + cdKText + '</div>' +
   '</div>';
 
   // Ambar istek
@@ -1046,7 +1046,7 @@ function renderTabKasa(el, data) {
           }).join('') +
         '</select>' +
         '<input id="ambar-istek-miktar" type="number" min="1" placeholder="Miktar" style="width:80px;padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
-        '<button class="btn-action" style="width:auto;padding:4px 10px;font-size:9px" onclick="guildAmbarIstek(' + g.id + ')">Talep Et</button>' +
+        '<button class="btn-action" style="width:auto;padding:4px 10px;font-size:11px" onclick="guildAmbarIstek(' + g.id + ')">Talep Et</button>' +
       '</div>' +
       '<div id="ambar-istek-liste">Yukleniyor...</div>' +
     '</div>';
@@ -1092,7 +1092,7 @@ async function _loadGuildBagislar(guildId) {
           '<td style="padding:3px"><b style="color:#d4af37">' + _escB(b.kullanici_adi) + '</b></td>' +
           '<td style="padding:3px">' + ikon + ' ' + _escB(b.kaynak) + '</td>' +
           '<td style="padding:3px;text-align:right;color:#2ecc71">+' + _fmtN(b.miktar) + '</td>' +
-          '<td style="padding:3px;text-align:right;color:#555;font-size:9px">' + new Date(b.created_at).toLocaleString('tr-TR') + '</td>' +
+          '<td style="padding:3px;text-align:right;color:#555;font-size:11px">' + new Date(b.created_at).toLocaleString('tr-TR') + '</td>' +
         '</tr>';
       }).join('') + '</tbody></table>';
   } catch(e) {
@@ -1127,8 +1127,8 @@ async function guildAmbarIsteklerYukle(guildId) {
         // guildId ve i.id numeric, parseInt ile guvenli hale getir
         var gId = parseInt(guildId) || 0;
         var rId = parseInt(i.id) || 0;
-        butonlar = '<button style="background:#2ecc71;color:#000;border:none;padding:2px 8px;border-radius:3px;font-size:9px;cursor:pointer" onclick="guildAmbarIstekOnayla(' + gId + ',' + rId + ',\'onayla\')">Onayla</button>' +
-                   '<button style="background:#e74c3c;color:#fff;border:none;padding:2px 8px;border-radius:3px;font-size:9px;cursor:pointer" onclick="guildAmbarIstekOnayla(' + gId + ',' + rId + ',\'reddet\')">Reddet</button>';
+        butonlar = '<button style="background:#2ecc71;color:#000;border:none;padding:2px 8px;border-radius:3px;font-size:11px;cursor:pointer" onclick="guildAmbarIstekOnayla(' + gId + ',' + rId + ',\'onayla\')">Onayla</button>' +
+                   '<button style="background:#e74c3c;color:#fff;border:none;padding:2px 8px;border-radius:3px;font-size:11px;cursor:pointer" onclick="guildAmbarIstekOnayla(' + gId + ',' + rId + ',\'reddet\')">Reddet</button>';
       }
       return '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid #1a1a1a;font-size:10px">' +
         '<span>' + _escHtml(i.kullanici_adi) + ': ' + (KAYNAK_IKON[i.kaynak]||'') + ' ' + fmt(i.miktar) + ' ' + _escHtml(i.kaynak) + '</span>' +
@@ -1161,10 +1161,10 @@ function renderTabIsciler(el, data) {
 
   var nufusHTML =
     '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-bottom:12px">' +
-      '<div class="card" style="text-align:center;padding:8px"><div style="font-size:18px">👨‍🌾</div><div style="font-size:14px;color:#d4af37;font-weight:bold">' + fmt(nufus.koylu) + '</div><div style="font-size:9px;color:#888">Köylü</div></div>' +
-      '<div class="card" style="text-align:center;padding:8px"><div style="font-size:18px">⚒️</div><div style="font-size:14px;color:#d4af37;font-weight:bold">' + fmt(toplam_isci) + '</div><div style="font-size:9px;color:#888">İşçi</div></div>' +
-      '<div class="card" style="text-align:center;padding:8px"><div style="font-size:18px">⚔️</div><div style="font-size:14px;color:#d4af37;font-weight:bold">' + fmt(nufus.asker) + '</div><div style="font-size:9px;color:#888">Asker</div></div>' +
-      '<div class="card" style="text-align:center;padding:8px"><div style="font-size:18px">🙏</div><div style="font-size:14px;color:#d4af37;font-weight:bold">' + fmt(nufus.worshipper) + '</div><div style="font-size:9px;color:#888">Worshipper</div></div>' +
+      '<div class="card" style="text-align:center;padding:8px"><div style="font-size:18px">👨‍🌾</div><div style="font-size:14px;color:#d4af37;font-weight:bold">' + fmt(nufus.koylu) + '</div><div style="font-size:11px;color:#888">Köylü</div></div>' +
+      '<div class="card" style="text-align:center;padding:8px"><div style="font-size:18px">⚒️</div><div style="font-size:14px;color:#d4af37;font-weight:bold">' + fmt(toplam_isci) + '</div><div style="font-size:11px;color:#888">İşçi</div></div>' +
+      '<div class="card" style="text-align:center;padding:8px"><div style="font-size:18px">⚔️</div><div style="font-size:14px;color:#d4af37;font-weight:bold">' + fmt(nufus.asker) + '</div><div style="font-size:11px;color:#888">Asker</div></div>' +
+      '<div class="card" style="text-align:center;padding:8px"><div style="font-size:18px">🙏</div><div style="font-size:14px;color:#d4af37;font-weight:bold">' + fmt(nufus.worshipper) + '</div><div style="font-size:11px;color:#888">Worshipper</div></div>' +
     '</div>';
 
   // v1.13: İşçi dagilimi (5 tip + kapasite gostergesi)
@@ -1174,18 +1174,18 @@ function renderTabIsciler(el, data) {
       ['oduncu','madenci','ciftci','balikci','tuccar'].map(function(tip) {
         var mevcut = isciler[tip] || 0;
         var kap = kapasite[tip];
-        var kapText = kap < 999999 ? ' <span style="color:#666;font-size:9px">/ ' + fmt(kap) + '</span>' : '';
+        var kapText = kap < 999999 ? ' <span style="color:#666;font-size:11px">/ ' + fmt(kap) + '</span>' : '';
         var doluRenk = kap < 999999 && mevcut >= kap ? '#e74c3c' : '#d4af37';
         return '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:#111;border-radius:4px">' +
           '<span style="font-size:10px">' + (ISCI_IKON[tip]||'') + ' ' + tip + ': <span style="color:' + doluRenk + ';font-weight:bold">' + fmt(mevcut) + '</span>' + kapText + '</span>' +
           (myYetkiler.isci_ata ? '<div style="display:flex;gap:2px">' +
-            '<button style="background:#2ecc71;color:#000;border:none;padding:2px 6px;border-radius:3px;font-size:9px;cursor:pointer" onclick="guildIsciAta(' + g.id + ',\'' + tip + '\')">+</button>' +
-            '<button style="background:#e74c3c;color:#fff;border:none;padding:2px 6px;border-radius:3px;font-size:9px;cursor:pointer" onclick="guildIsciCikar(' + g.id + ',\'' + tip + '\')">-</button>' +
+            '<button style="background:#2ecc71;color:#000;border:none;padding:2px 6px;border-radius:3px;font-size:11px;cursor:pointer" onclick="guildIsciAta(' + g.id + ',\'' + tip + '\')">+</button>' +
+            '<button style="background:#e74c3c;color:#fff;border:none;padding:2px 6px;border-radius:3px;font-size:11px;cursor:pointer" onclick="guildIsciCikar(' + g.id + ',\'' + tip + '\')">-</button>' +
           '</div>' : '') +
         '</div>';
       }).join('') +
     '</div>' +
-    '<div style="font-size:9px;color:#555;margin-top:6px">Kapasite: tarla×50 ciftci, balikci×20, oduncu×40</div>' +
+    '<div style="font-size:11px;color:#555;margin-top:6px">Kapasite: tarla×50 ciftci, balikci×20, oduncu×40</div>' +
   '</div>';
 
   // Asker yap butonu
@@ -1195,8 +1195,8 @@ function renderTabIsciler(el, data) {
       '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">⚔️ Asker Yap</div>' +
       '<div style="display:flex;gap:4px;align-items:center">' +
         '<input id="guild-asker-adet" type="number" min="1" placeholder="Adet" style="width:80px;padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
-        '<button class="btn-action" style="width:auto;padding:4px 10px;font-size:9px" onclick="guildAskerYap(' + g.id + ')">Köylü → Asker</button>' +
-        '<span style="font-size:9px;color:#555">Mevcut koylu: ' + fmt(nufus.koylu) + '</span>' +
+        '<button class="btn-action" style="width:auto;padding:4px 10px;font-size:11px" onclick="guildAskerYap(' + g.id + ')">Köylü → Asker</button>' +
+        '<span style="font-size:11px;color:#555">Mevcut koylu: ' + fmt(nufus.koylu) + '</span>' +
       '</div>' +
     '</div>';
   }
@@ -1552,11 +1552,11 @@ async function renderTabOrdu(el, data) {
         html += '<div style="font-size:11px;background:#1a1a1a;padding:4px 8px;border-radius:4px;display:flex;align-items:center;gap:4px">' +
           '<span>' + u.unite_id + ': <b>' + fmt(u.adet) + '</b></span>';
         if (yetkiler.guild_ordusu_kur && d.ordular.length > 0) {
-          html += '<select id="havuz-hedef-' + u.unite_id + '" style="font-size:9px;background:#222;color:#ccc;border:1px solid #444;border-radius:3px;padding:1px">';
+          html += '<select id="havuz-hedef-' + u.unite_id + '" style="font-size:11px;background:#222;color:#ccc;border:1px solid #444;border-radius:3px;padding:1px">';
           d.ordular.forEach(function(o) { html += '<option value="' + o.id + '">' + o.isim + '</option>'; });
           html += '</select>' +
-            '<input id="havuz-adet-' + u.unite_id + '" type="number" min="1" max="' + u.adet + '" value="' + Math.min(u.adet, 10) + '" style="width:40px;font-size:9px;background:#222;color:#ccc;border:1px solid #444;border-radius:3px;padding:1px">' +
-            '<button style="font-size:8px;padding:2px 6px;background:#2a5a2a;color:#ccc;border:none;border-radius:3px;cursor:pointer" onclick="guildOrduAta(\'' + u.unite_id + '\')">Ata</button>';
+            '<input id="havuz-adet-' + u.unite_id + '" type="number" min="1" max="' + u.adet + '" value="' + Math.min(u.adet, 10) + '" style="width:40px;font-size:11px;background:#222;color:#ccc;border:1px solid #444;border-radius:3px;padding:1px">' +
+            '<button style="font-size:11px;padding:2px 6px;background:#2a5a2a;color:#ccc;border:none;border-radius:3px;cursor:pointer" onclick="guildOrduAta(\'' + u.unite_id + '\')">Ata</button>';
         }
         html += '</div>';
       });
@@ -1583,8 +1583,8 @@ async function renderTabOrdu(el, data) {
           html += '<div style="font-size:10px;background:#111;padding:2px 6px;border-radius:3px;display:inline-flex;align-items:center;gap:3px">' +
             '<span>' + u.unite_id + ':' + fmt(u.adet) + '</span>';
           if (yetkiler.guild_ordusu_kur) {
-            html += '<input id="cikar-adet-' + ordu.id + '-' + u.unite_id + '" type="number" min="1" max="' + u.adet + '" value="' + Math.min(u.adet, 10) + '" style="width:35px;font-size:8px;background:#222;color:#ccc;border:1px solid #444;border-radius:2px;padding:0 2px">' +
-              '<button style="font-size:7px;padding:1px 4px;background:#5a2a2a;color:#ccc;border:none;border-radius:2px;cursor:pointer" onclick="guildOrduCikar(' + ordu.id + ',\'' + u.unite_id + '\')">Cikar</button>';
+            html += '<input id="cikar-adet-' + ordu.id + '-' + u.unite_id + '" type="number" min="1" max="' + u.adet + '" value="' + Math.min(u.adet, 10) + '" style="width:35px;font-size:11px;background:#222;color:#ccc;border:1px solid #444;border-radius:2px;padding:0 2px">' +
+              '<button style="font-size:11px;padding:1px 4px;background:#5a2a2a;color:#ccc;border:none;border-radius:2px;cursor:pointer" onclick="guildOrduCikar(' + ordu.id + ',\'' + u.unite_id + '\')">Cikar</button>';
           }
           html += '</div>';
         });
@@ -1592,7 +1592,7 @@ async function renderTabOrdu(el, data) {
       }
       if (yetkiler.guild_ordusu_kur) {
         html += '<div style="margin-top:6px;display:flex;gap:4px">' +
-          '<button class="btn-action" style="width:auto;padding:3px 10px;font-size:9px;background:#333" onclick="guildOrduSil(' + ordu.id + ')">🗑️ Sil</button>' +
+          '<button class="btn-action" style="width:auto;padding:3px 10px;font-size:11px;background:#333" onclick="guildOrduSil(' + ordu.id + ')">🗑️ Sil</button>' +
         '</div>';
       }
       html += '</div>';
@@ -1621,7 +1621,7 @@ async function renderTabOrdu(el, data) {
           '<input id="guild-egit-adet" type="number" min="1" value="10" style="padding:4px 8px;border:1px solid #333;background:#111;color:#ccc;border-radius:4px;font-size:11px;width:60px">' +
           '<button class="btn-action" style="width:auto;padding:4px 14px;font-size:10px" onclick="guildOrduEgit()">EGIT</button>' +
         '</div>' +
-        '<div style="font-size:9px;color:#555;margin-top:4px">Mevcut asker: ' + fmt(d.nufus.asker) + ' (her unite 1 asker harcar)</div>' +
+        '<div style="font-size:11px;color:#555;margin-top:4px">Mevcut asker: ' + fmt(d.nufus.asker) + ' (her unite 1 asker harcar)</div>' +
       '</div>';
     }
 
@@ -1785,7 +1785,7 @@ async function renderTabMarket(el, data) {
 
       var oto = otoAyarlar[key] || { aktif:false, esik:0 };
       var otoBorder = oto.aktif ? '#1a4a1a' : '#1e1e1e';
-      var otoBadge = oto.aktif ? '<span style="background:#103a10;color:#2ecc71;padding:1px 5px;border-radius:3px;font-size:9px;margin-left:4px">🔄 OTO</span>' : '';
+      var otoBadge = oto.aktif ? '<span style="background:#103a10;color:#2ecc71;padding:1px 5px;border-radius:3px;font-size:11px;margin-left:4px">🔄 OTO</span>' : '';
 
       html += '<div style="padding:6px 10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#111;border:1px solid ' + otoBorder + ';border-radius:4px;margin-bottom:2px">' +
         '<span style="font-size:20px;width:24px;text-align:center">' + ikon + '</span>' +
@@ -1822,7 +1822,7 @@ async function renderTabMarket(el, data) {
               ' onblur="guildOtoSatEsikKaydet(\'' + key + '\')"' +
               ' onkeydown="if(event.key===\'Enter\')this.blur()"' +
               ' style="width:80px;padding:2px 4px;background:#0a0a0a;border:1px solid #333;color:#ddd;border-radius:3px;font-size:10px">' +
-            '<span style="font-size:9px;color:#666">(stok > eşik ise fazlası satılır)</span>' +
+            '<span style="font-size:11px;color:#666">(stok > eşik ise fazlası satılır)</span>' +
           '</div>'
         : '') +
       '</div>';
@@ -2479,7 +2479,7 @@ async function renderTabMezarlik(el, data) {
         html += '<div class="card" style="padding:10px;margin-bottom:8px;border-left:2px solid #5a2a2a">' +
           '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
             '<span style="font-size:12px;color:#ccc">' + (k.unite_icon || '⚔️') + ' ' + (k.unite_adi || k.unite_id) + '</span>' +
-            '<span style="font-size:9px;color:#888">⏱ ' + sureTxt + ' kaldi</span>' +
+            '<span style="font-size:11px;color:#888">⏱ ' + sureTxt + ' kaldi</span>' +
           '</div>' +
           '<div style="font-size:10px;color:#aaa;margin-bottom:6px">' +
             'Toplam: <b>' + k.adet + '</b> | ' +
@@ -2490,7 +2490,7 @@ async function renderTabMezarlik(el, data) {
         if (yetkiler.guild_ordusu_kur && k.kalan_diriltme > 0) {
           html += '<div style="display:flex;gap:6px;align-items:center">' +
             '<input id="mez-adet-' + k.id + '" type="number" min="1" max="' + k.kalan_diriltme + '" value="' + Math.min(k.kalan_diriltme,5) + '" style="width:55px;padding:3px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:10px">' +
-            '<button class="btn-action" style="width:auto;padding:3px 10px;font-size:9px;background:#2a5a2a" onclick="guildMezarlikDirilt(' + gId + ',' + k.id + ')">Dirilt (' + fmt(k.birim_maliyet) + '/unit)</button>' +
+            '<button class="btn-action" style="width:auto;padding:3px 10px;font-size:11px;background:#2a5a2a" onclick="guildMezarlikDirilt(' + gId + ',' + k.id + ')">Dirilt (' + fmt(k.birim_maliyet) + '/unit)</button>' +
           '</div>';
         }
         html += '</div>';

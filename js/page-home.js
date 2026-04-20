@@ -69,7 +69,7 @@ async function loadDuyurular() {
       `<div style="background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-left:3px solid #c9a84c;border-radius:4px;padding:8px 12px;margin-bottom:6px">
         <div style="font-family:Cinzel,serif;font-size:11px;color:#c9a84c;font-weight:bold">📢 ${d.baslik}</div>
         <div style="font-size:10px;color:#999;margin-top:3px">${d.mesaj}</div>
-        <div style="font-size:8px;color:#555;margin-top:2px">${new Date(d.created_at).toLocaleString('tr-TR')}</div>
+        <div style="font-size:11px;color:#555;margin-top:2px">${new Date(d.created_at).toLocaleString('tr-TR')}</div>
       </div>`
     ).join('');
   } catch(e) { el.style.display = 'none'; }
@@ -153,7 +153,7 @@ async function loadSehirGorunum() {
         '<div style="position:relative;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.7))">' + homeBinaSVG(meta.col) +
           '<span style="position:absolute;top:-3px;right:-5px;background:#d4af37;color:#1a1005;font:bold 9px Cinzel,serif;min-width:18px;height:16px;border-radius:8px;padding:0 4px;display:flex;align-items:center;justify-content:center;border:1px solid #f0d050">' + b.lv + '</span>' +
         '</div>' +
-        '<div style="font-family:Cinzel,serif;font-size:9px;color:#c8a96e;margin-top:4px;text-align:center;letter-spacing:.3px">' + meta.ad + '</div>' +
+        '<div style="font-family:Cinzel,serif;font-size:11px;color:#c8a96e;margin-top:4px;text-align:center;letter-spacing:.3px">' + meta.ad + '</div>' +
         '</a>';
     }).join('');
   } catch(e) {

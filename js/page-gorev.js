@@ -51,7 +51,7 @@ function gorevKart(g) {
   if (g.odul && typeof g.odul === 'object') {
     var icons = {altin:'💰',odun:'🌳',metal:'⛏️',bugday:'🌾',balik:'🐟',kereste:'🪵',islenmis:'🔩',koylu:'👥'};
     odulStr = Object.entries(g.odul).map(function(e) {
-      return '<span style="font-size:9px;padding:1px 5px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.15);border-radius:3px">' + (icons[e[0]]||'📦') + ' +' + e[1].toLocaleString('tr-TR') + '</span>';
+      return '<span style="font-size:11px;padding:1px 5px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.15);border-radius:3px">' + (icons[e[0]]||'📦') + ' +' + e[1].toLocaleString('tr-TR') + '</span>';
     }).join(' ');
   }
 
@@ -65,16 +65,16 @@ function gorevKart(g) {
   // Butonlar
   var btnHTML = '';
   if (tamamlandi && !odulAlindi) {
-    btnHTML = '<button class="btn-action" style="width:auto;padding:4px 12px;font-size:9px;margin-top:4px" onclick="gorevOdulAl(' + g.id + ')">🎁 Odulu Al</button>';
+    btnHTML = '<button class="btn-action" style="width:auto;padding:4px 12px;font-size:11px;margin-top:4px" onclick="gorevOdulAl(' + g.id + ')">🎁 Odulu Al</button>';
   }
 
   return '<div class="card" style="padding:10px 12px;border-left-color:' + borderColor + ';opacity:' + opacity + '">' +
     '<div style="display:flex;justify-content:space-between;align-items:flex-start">' +
       '<div>' +
         '<div style="font-size:11px;font-weight:bold;color:' + (odulAlindi ? '#2ecc71' : tamamlandi ? '#f1c40f' : '#ddd') + '">' + durumIcon + ' ' + g.baslik + '</div>' +
-        (g.aciklama ? '<div style="font-size:9px;color:#888;margin-top:2px">' + g.aciklama + '</div>' : '') +
+        (g.aciklama ? '<div style="font-size:11px;color:#888;margin-top:2px">' + g.aciklama + '</div>' : '') +
       '</div>' +
-      '<div style="font-size:9px;color:#666;text-align:right">' + durumText + '</div>' +
+      '<div style="font-size:11px;color:#666;text-align:right">' + durumText + '</div>' +
     '</div>' +
     barHTML +
     '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px">' +

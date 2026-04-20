@@ -11,7 +11,25 @@
   --text-dim:rgba(232,220,200,0.4);
   --border:rgba(255,255,255,0.06);
   --gold:#d4a257;
+
+  /* v1.14.0.51 — Font scale (kullanim: var(--fs-sm) vb.) */
+  --fs-xs:   11px;  /* metadata / ipucu */
+  --fs-sm:   12px;  /* normal label */
+  --fs-base: 13px;  /* body text */
+  --fs-md:   14px;  /* vurgulu label */
+  --fs-lg:   16px;  /* alt baslik */
+  --fs-xl:   20px;  /* baslik */
+  --fs-2xl:  24px;  /* sayfa baslik */
 }
+
+/* v1.14.0.51 — Yardimci font-size class'lari (yeni kodda tercih) */
+.fs-xs   { font-size: var(--fs-xs); }
+.fs-sm   { font-size: var(--fs-sm); }
+.fs-base { font-size: var(--fs-base); }
+.fs-md   { font-size: var(--fs-md); }
+.fs-lg   { font-size: var(--fs-lg); }
+.fs-xl   { font-size: var(--fs-xl); }
+.fs-2xl  { font-size: var(--fs-2xl); }
 
 /* ===== TEMALAR: AYDINLIK TARAF ===== */
 /* Insan: Altin — dengeli, klasik */
@@ -303,7 +321,7 @@ body{padding-top:38px;}
 .hud-row-lbl{
   min-width:48px;
   text-align:center;
-  font-size:8px;
+  font-size:11px;
   letter-spacing:1.5px;
   font-family:'Cinzel',serif;
   font-weight:700;
@@ -367,9 +385,9 @@ body{padding-top:38px;}
 
 .res-icon{font-size:10px;flex-shrink:0;}
 .res-details{display:flex;align-items:center;gap:4px;line-height:1.2;}
-.res-label{font-size:6px;color:rgba(200,169,110,0.5);font-family:'Cinzel',serif;letter-spacing:0;min-width:0;overflow:hidden;text-overflow:ellipsis;}
+.res-label{font-size:11px;color:rgba(200,169,110,0.5);font-family:'Cinzel',serif;letter-spacing:0;min-width:0;overflow:hidden;text-overflow:ellipsis;}
 .res-amount{color:#f0e8d8;font-size:10px;font-weight:600;overflow:hidden;text-overflow:ellipsis;}
-.res-rate{font-size:8px;font-weight:500;}
+.res-rate{font-size:11px;font-weight:500;}
 .res-rate.pos{color:#2ecc71;}
 .res-rate.neg{color:#e74c3c;}
 .res-rate.neu{color:#888;}
@@ -384,7 +402,7 @@ body{padding-top:38px;}
   background:rgba(26,14,4,0.95);
   border:1px solid rgba(200,169,110,0.5);
   color:#c8a96e;
-  font-size:8px;
+  font-size:11px;
   letter-spacing:1.5px;
   padding:3px 8px;
   border-radius:2px;
@@ -408,7 +426,7 @@ body{padding-top:38px;}
   background:rgba(26,14,4,0.95);
   border:1px solid rgba(200,169,110,0.5);
   color:#c8a96e;
-  font-size:8px;
+  font-size:11px;
   letter-spacing:1.5px;
   padding:3px 8px;
   border-radius:2px;
@@ -430,7 +448,7 @@ body{padding-top:38px;}
 .city-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:12px;}
 .cstat{background:rgba(17,17,17,0.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:8px 6px;text-align:center;}
 .cstat .snum{font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:var(--race-color);display:block;}
-.cstat .slbl{font-size:8px;color:#999;margin-top:2px;display:block;letter-spacing:.3px;}
+.cstat .slbl{font-size:11px;color:#999;margin-top:2px;display:block;letter-spacing:.3px;}
 
 .q-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:#0d0d0d;border:1px solid #1e1e1e;border-left:2px solid #2ecc71;border-radius:6px;margin-bottom:5px;}
 .q-icon{font-size:16px;}
@@ -438,7 +456,7 @@ body{padding-top:38px;}
 .q-name{font-family:'Cinzel',serif;font-size:10px;color:#ddd;margin-bottom:3px;}
 .q-bar{height:2px;background:#1a1a1a;border-radius:2px;overflow:hidden;}
 .q-fill{height:100%;background:#2ecc71;border-radius:2px;transition:width 1s linear;}
-.q-time{font-size:9px;color:#2ecc71;font-family:'Cinzel',serif;white-space:nowrap;}
+.q-time{font-size:11px;color:#2ecc71;font-family:'Cinzel',serif;white-space:nowrap;}
 
 .filters{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;}
 .fbtn{padding:4px 10px;background:#111;border:1px solid #222;border-radius:12px;color:#888;cursor:pointer;font-size:10px;transition:.18s;}
@@ -485,7 +503,7 @@ body{padding-top:38px;}
 /* ORTA: maliyet — horizontal pills */
 .br-cost{grid-area:cost;display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-end}
 .citem{display:inline-flex;align-items:center;gap:3px;font-size:11px;padding:2px 6px;background:transparent;border:none;color:#ccc;white-space:nowrap}
-.citem small{color:#555;font-size:9px}
+.citem small{color:#555;font-size:11px}
 .citem.no{color:#e74c3c}
 .br-time{font-size:10px;color:#777;text-align:right;white-space:nowrap;padding:0 6px}
 
@@ -523,7 +541,7 @@ body{padding-top:38px;}
 .etag.pos{color:#2ecc71;border-color:#1a3020;background:#0a1a10;}
 .etag.neg{color:#e74c3c;border-color:#301a1a;background:#1a0a0a;}
 .bcost{padding:9px 16px;border-bottom:1px solid #181818;}
-.cost-lbl{font-size:9px;color:#888;font-family:'Cinzel',serif;letter-spacing:.5px;margin-bottom:6px;}
+.cost-lbl{font-size:11px;color:#888;font-family:'Cinzel',serif;letter-spacing:.5px;margin-bottom:6px;}
 .cost-row{display:flex;flex-wrap:wrap;gap:5px;}
 .citem{display:flex;align-items:center;gap:3px;font-size:11px;padding:3px 7px;background:#0d0d0d;border-radius:3px;border:1px solid #1e1e1e;}
 .citem.ok{color:#ccc;} .citem.no{color:#e74c3c;}
@@ -534,7 +552,7 @@ body{padding-top:38px;}
 .bprog-track{height:3px;background:#1a2a10;border-radius:2px;overflow:hidden;}
 .bprog-fill{height:100%;background:#2ecc71;border-radius:2px;transition:width 1s linear;}
 .maxbadge{display:inline-flex;align-items:center;gap:3px;background:#1a1500;border:1px solid var(--race-color);color:var(--race-color);border-radius:4px;padding:3px 8px;font-size:10px;font-family:'Cinzel',serif;}
-.lockbadge{position:absolute;top:10px;right:10px;background:#111;border:1px solid #2a2a2a;border-radius:4px;padding:2px 7px;font-size:9px;color:#999;font-family:'Cinzel',serif;}
+.lockbadge{position:absolute;top:10px;right:10px;background:#111;border:1px solid #2a2a2a;border-radius:4px;padding:2px 7px;font-size:11px;color:#999;font-family:'Cinzel',serif;}
 .btn-sm{padding:9px 16px;background:var(--race-color);border:none;border-radius:6px;font-family:'Cinzel',serif;font-weight:700;cursor:pointer;color:#000;font-size:12px;letter-spacing:.5px;transition:.18s;}
 .btn-sm:hover{opacity:.85;transform:translateY(-1px);}
 .btn-sm:disabled{opacity:.3;cursor:not-allowed;transform:none;}
@@ -583,7 +601,7 @@ body{padding-top:38px;}
 .lvc{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;}
 .lvc-col{background:#0d0d0d;border:1px solid #1e1e1e;border-radius:7px;padding:10px 12px;}
 .lvc-col.next{border-color:#2ecc71;}
-.lvc-col .lt{font-size:9px;color:#888;font-family:'Cinzel',serif;letter-spacing:.5px;margin-bottom:6px;}
+.lvc-col .lt{font-size:11px;color:#888;font-family:'Cinzel',serif;letter-spacing:.5px;margin-bottom:6px;}
 .lvc-col .lv{font-size:13px;color:#ccc;margin-bottom:2px;}
 .lvc-col.next .lv{color:#2ecc71;}
 .lvc-arr{font-size:18px;color:var(--race-color);text-align:center;}
@@ -687,7 +705,7 @@ body{padding-top:38px;}
   .urow .uico{width:44px;height:44px;font-size:20px}
   .urow .u-body{padding:5px 10px;gap:2px}
   .urow .u-name{font-size:12px}
-  .urow .u-meta{font-size:9px}
+  .urow .u-meta{font-size:11px}
   .urow .u-line2{font-size:10px}
   .urow .u-stats{display:none}  /* mobilde ATK/DEF gizli */
   .urow .u-ctrl{padding:0 6px;border-left:none}
@@ -711,8 +729,8 @@ body{padding-top:38px;}
 .uhead{padding:8px 10px 6px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #181818;}
 .uico{width:36px;height:36px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
 .uname{font-family:'Cinzel',serif;font-size:11px;color:#eee;margin:0 0 2px;font-weight:600;}
-.urole{font-size:9px;color:#999;margin:0;letter-spacing:.3px;}
-.utier{position:absolute;top:10px;right:10px;font-size:9px;padding:2px 7px;border-radius:3px;font-family:'Cinzel',serif;letter-spacing:.5px;}
+.urole{font-size:11px;color:#999;margin:0;letter-spacing:.3px;}
+.utier{position:absolute;top:10px;right:10px;font-size:11px;padding:2px 7px;border-radius:3px;font-family:'Cinzel',serif;letter-spacing:.5px;}
 .tier1{background:#0d1a0d;color:#2ecc71;border:1px solid #1a3020;}
 .tier2{background:#1a1500;color:#f1c40f;border:1px solid #2a2000;}
 .tier3{background:#1a0010;color:#e74c3c;border:1px solid #2a0020;}
@@ -720,7 +738,7 @@ body{padding-top:38px;}
 /* Stat bar */
 .ustat-row{display:flex;gap:4px;padding:5px 10px;border-bottom:1px solid #181818;}
 .ustat{flex:1;background:#0d0d0d;border-radius:4px;padding:4px 6px;}
-.ustat-lbl{font-size:8px;color:#888;font-family:'Cinzel',serif;letter-spacing:.3px;margin-bottom:2px;}
+.ustat-lbl{font-size:11px;color:#888;font-family:'Cinzel',serif;letter-spacing:.3px;margin-bottom:2px;}
 .ustat-val{font-size:12px;font-weight:700;color:#f5f0e8;}
 .ustat-val.atk{color:#e74c3c;}
 .ustat-val.def{color:#3498db;}
@@ -740,7 +758,7 @@ body{padding-top:38px;}
 .ucount-btn{width:24px;height:24px;background:#1a1a1a;color:#f5f0e8;border:1px solid #333;cursor:pointer;border-radius:4px;font-size:13px;line-height:1;transition:.15s;}
 .ucount-btn:hover{background:var(--race-color);color:#000;}
 .ucount-inp{width:48px;text-align:center;background:#0d0d0d;border:1px solid #222;color:#f5f0e8;padding:3px;border-radius:4px;font-size:11px;font-family:'Cinzel',serif;}
-.ucount-max{font-size:9px;color:#888;margin-left:auto;}
+.ucount-max{font-size:11px;color:#888;margin-left:auto;}
 .utrain-btn{padding:5px 10px;background:var(--race-color);border:none;border-radius:4px;font-family:'Cinzel',serif;font-weight:700;cursor:pointer;color:#000;font-size:10px;margin-left:auto;}
 .utrain-btn:hover{opacity:.85;}
 .utrain-btn:disabled{opacity:.3;cursor:not-allowed;}
@@ -1314,10 +1332,10 @@ body{padding-top:38px;}
   /* HUD bar — v1.13.61 sadece HAM sticky */
   body{padding-top:42px;}
   .hudbar{font-size:11px;}
-  .hud-row-lbl{min-width:32px;font-size:7px;padding:0 3px;}
+  .hud-row-lbl{min-width:32px;font-size:11px;padding:0 3px;}
   .stat-box{padding:3px 6px;gap:3px;}
   .res-amount{font-size:11px;}
-  .res-rate{font-size:8px;}
+  .res-rate{font-size:11px;}
   .res-icon{font-size:11px;}
 
   /* Şehir istatistik grid */
@@ -1331,7 +1349,7 @@ body{padding-top:38px;}
   .br-desc{font-size:10px}
   .br-act button,.br-act .btn-sm{padding:8px 12px;font-size:12px}
   .citem{font-size:10px;padding:2px 4px}
-  .citem small{font-size:8px}
+  .citem small{font-size:11px}
 
   /* Ünite satırları */
   .urow{flex-wrap:wrap;gap:6px;padding:8px;}
@@ -1398,7 +1416,7 @@ body{padding-top:38px;}
   .ob-logo{margin-bottom:16px;overflow:visible;}
   .ob-title{font-size:clamp(1.2rem,6vw,1.8rem) !important;letter-spacing:1px !important;overflow:visible;}
   .ob-card{padding:16px !important;overflow:visible;}
-  .ob-rune{font-size:9px !important;letter-spacing:4px !important;}
+  .ob-rune{font-size:11px !important;letter-spacing:4px !important;}
   .ob-sub{font-size:.5rem !important;letter-spacing:1px !important;}
   .ob-side-grid{grid-template-columns:1fr !important;gap:10px;}
   .ob-irk-grid{grid-template-columns:1fr !important;gap:8px;}
@@ -1412,11 +1430,11 @@ body{padding-top:38px;}
   body{padding-top:32px;}
   .hudbar{overflow:visible;} /* overlay icin visible */
   .hud-row-wrap{min-height:22px;}
-  .hud-row-lbl{min-width:20px;font-size:5px;padding:0 1px;}
+  .hud-row-lbl{min-width:20px;font-size:11px;padding:0 1px;}
   .stat-box{padding:1px 3px;gap:1px;}
-  .res-amount{font-size:9px;}
-  .res-rate{font-size:6px;display:none;}
-  .res-icon{font-size:9px;}
+  .res-amount{font-size:11px;}
+  .res-rate{font-size:11px;display:none;}
+  .res-icon{font-size:11px;}
   .hud-toggle-btn{display:block!important;}
 
   /* Şehir istatistik grid tek sütun */
@@ -1438,7 +1456,7 @@ body{padding-top:38px;}
   .br-name{font-size:11px;}
   .br-lv{width:auto;font-size:11px;}
   .br-fx{gap:2px;}
-  .etag{font-size:9px;padding:1px 5px;}
+  .etag{font-size:11px;padding:1px 5px;}
 
   /* Ünite kompakt */
   .uico{width:28px;height:28px;font-size:15px;}
@@ -1469,8 +1487,8 @@ body{padding-top:38px;}
   .main-content{padding:10px 8px;}
   .card{padding:12px;}
   .stat-box{padding:1px 3px;}
-  .res-amount{font-size:9px;}
-  .res-icon{font-size:9px;}
+  .res-amount{font-size:11px;}
+  .res-icon{font-size:11px;}
   .city-stats{grid-template-columns:1fr 1fr;}
   .cstat .snum{font-size:18px;}
   .ob-box{width:98vw;}

@@ -10,7 +10,7 @@ function _formatActivityRow(l, baseStyle) {
   if ((l.event_type === 'savas' || l.event_type === 'kadim_saldiri') && m) {
     const sid = m[1];
     const mesaj = l.mesaj.replace(/\s*\[#\d+\]\s*$/, '');
-    return '<div onclick="openSavasRaporFromLog('+sid+')" style="'+baseStyle+';color:#e0c080;cursor:pointer" onmouseover="this.style.background=\'rgba(201,168,76,0.08)\'" onmouseout="this.style.background=\'none\'">🔍 '+mesaj+' <span style="font-size:9px;color:#888">raporu gör ›</span></div>';
+    return '<div onclick="openSavasRaporFromLog('+sid+')" style="'+baseStyle+';color:#e0c080;cursor:pointer" onmouseover="this.style.background=\'rgba(201,168,76,0.08)\'" onmouseout="this.style.background=\'none\'">🔍 '+mesaj+' <span style="font-size:11px;color:#888">raporu gör ›</span></div>';
   }
   return '<div style="'+baseStyle+'">' + l.mesaj + '</div>';
 }
@@ -120,7 +120,7 @@ function renderActivity(gunler) {
     if (!loglar.length) return;
 
     contentHtml += '<div style="margin-bottom:18px">';
-    contentHtml += '<div style="color:#c8a96e;font-family:Cinzel,serif;font-size:12px;border-bottom:1px solid #2a2a1a;padding-bottom:4px;margin-bottom:6px;display:flex;justify-content:space-between"><span>' + g.tarih + '</span><span style="font-size:9px;color:#444">' + loglar.length + ' olay</span></div>';
+    contentHtml += '<div style="color:#c8a96e;font-family:Cinzel,serif;font-size:12px;border-bottom:1px solid #2a2a1a;padding-bottom:4px;margin-bottom:6px;display:flex;justify-content:space-between"><span>' + g.tarih + '</span><span style="font-size:11px;color:#444">' + loglar.length + ' olay</span></div>';
 
     if (aktifGruplama === 'tarih_tip') {
       // Tip bazlı gruplama
@@ -153,7 +153,7 @@ function renderActivity(gunler) {
           const mesaj = l.mesaj.replace(/\s*\[#\d+\]\s*$/, '');
           contentHtml += '<div onclick="openSavasRaporFromLog('+sid+')" style="display:flex;gap:6px;padding:3px 0;font-size:11px;color:#e0c080;cursor:pointer" onmouseover="this.style.background=\'rgba(201,168,76,0.08)\'" onmouseout="this.style.background=\'none\'">' +
             '<span style="width:18px;text-align:center;flex-shrink:0">'+ikon+'</span>' +
-            '<span>🔍 '+mesaj+' <span style="font-size:9px;color:#888">raporu gör ›</span></span></div>';
+            '<span>🔍 '+mesaj+' <span style="font-size:11px;color:#888">raporu gör ›</span></span></div>';
         } else {
           contentHtml += '<div style="display:flex;gap:6px;padding:2px 0;font-size:11px;color:#999">' +
             '<span style="width:18px;text-align:center;flex-shrink:0">' + ikon + '</span>' +

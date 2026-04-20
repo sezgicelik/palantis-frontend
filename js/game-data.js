@@ -585,7 +585,7 @@ function obApplyPlayer(p) {
       const renk = TARAF_RENK[r.taraf] || '#888';
       const bg = r.taraf === 'iyi' ? 'rgba(241,196,15,0.15)' : 'rgba(52,152,219,0.15)';
       return `<div title="Sezon ${r.sezon_no}: ${TARAF_ISIM[r.taraf]||r.taraf} ${CAG_ROMA[r.cag]||r.cag}. Çağ"
-        style="padding:2px 8px;border-radius:12px;font-size:8px;font-weight:bold;
+        style="padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold;
         border:1px solid ${renk};color:${renk};background:${bg};white-space:nowrap;cursor:default">
         S${r.sezon_no} ${r.taraf==='iyi'?'☀️':'🌙'} Ç${r.cag}
       </div>`;

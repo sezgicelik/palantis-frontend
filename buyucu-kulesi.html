@@ -356,9 +356,9 @@ function bkRenderKitap() {
             yapBtn = '<div style="width:100%;margin-top:4px;padding-top:4px;border-top:1px solid rgba(212,162,87,0.1);display:flex;align-items:center;gap:6px">' +
               (!selectedHedef ?
                 '<input id="bk-hedef-input" type="text" placeholder="Hedef kral adi..." style="flex:1;padding:3px 6px;background:#0a0a0a;border:1px solid #333;color:#ddd;border-radius:3px;font-size:10px" oninput="bkHedefAra(this.value)">' :
-                '<span style="font-size:9px;color:#2ecc71;flex:1">✅ ' + selectedHedef.kral + '</span>') +
-              '<button class="btn gold" style="font-size:9px;padding:4px 10px;flex-shrink:0" onclick="event.stopPropagation();bkBuyuYap(\'' + b.id + '\')" ' +
-                (!selectedHedef ? 'disabled style="opacity:0.3;font-size:9px;padding:4px 10px;flex-shrink:0"' : '') +
+                '<span style="font-size:11px;color:#2ecc71;flex:1">✅ ' + selectedHedef.kral + '</span>') +
+              '<button class="btn gold" style="font-size:11px;padding:4px 10px;flex-shrink:0" onclick="event.stopPropagation();bkBuyuYap(\'' + b.id + '\')" ' +
+                (!selectedHedef ? 'disabled style="opacity:0.3;font-size:11px;padding:4px 10px;flex-shrink:0"' : '') +
               '>⚡ YAP</button>' +
             '</div>' +
             (!selectedHedef ? '<ul class="hedef-list" id="bk-hedef-list" style="max-height:50px;margin-top:2px"></ul>' : '');
@@ -382,8 +382,8 @@ function bkRenderKitap() {
                     '<option value="' + u.id + '"' + (secDeger == u.id ? ' selected' : '') + '>👥 ' + u.kral + ' (' + rutbeLbl(u.rutbe) + ')</option>'
                   ).join('') +
                 '</select>' +
-                '<button class="btn gold" style="font-size:9px;padding:4px 10px;flex-shrink:0" onclick="event.stopPropagation();bkBuyuYap(\'' + b.id + '\')" ' +
-                  (!secYapilabilir ? 'disabled style="opacity:0.3;font-size:9px;padding:4px 10px;flex-shrink:0"' : '') +
+                '<button class="btn gold" style="font-size:11px;padding:4px 10px;flex-shrink:0" onclick="event.stopPropagation();bkBuyuYap(\'' + b.id + '\')" ' +
+                  (!secYapilabilir ? 'disabled style="opacity:0.3;font-size:11px;padding:4px 10px;flex-shrink:0"' : '') +
                 '>⚡ YAP</button>' +
               '</div>';
             }
@@ -396,7 +396,7 @@ function bkRenderKitap() {
             const kuleEtiket = yeterliKule
               ? '🗼 ' + b.cag + '/' + kuleAdet + ' Kule'
               : '🗼 <b>' + b.cag + ' Kule gerekli</b> (mevcut: ' + kuleAdet + ')';
-            maliyetStr = '<div style="font-size:9px;color:#666;margin-top:4px;line-height:1.5">' +
+            maliyetStr = '<div style="font-size:11px;color:#666;margin-top:4px;line-height:1.5">' +
               '<span class="mana-dot mana-' + b.mana_renk + '" style="width:8px;height:8px"></span> ' +
               '<span style="color:' + (yeterliMana ? '#888' : '#e74c3c') + '">' + (kd.mana||0) + ' ' + MANA_RENK_ISIM[b.mana_renk] + '</span>' +
               ' · <span style="color:' + (yeterliMalzeme ? '#888' : '#e74c3c') + '">' + (kd.malzeme||0) + ' ' + (MALZEME_ISIM[b.malzeme]||b.malzeme) + '</span>' +
@@ -414,11 +414,11 @@ function bkRenderKitap() {
             const titleTxt = !yeterliKule ? b.cag + ' Buyucu Kulesi gerekli (mevcut: ' + kuleAdet + ')'
                           : !yeterliMana ? 'Yetersiz mana'
                           : !yeterliMalzeme ? 'Yetersiz malzeme' : 'Buyuyu yap';
-            inlineBtn = '<button class="btn gold" title="' + titleTxt + '" style="font-size:9px;padding:4px 12px;white-space:nowrap;flex-shrink:0" onclick="event.stopPropagation();bkSelectAndCast(\'' + b.id + '\')" ' +
-              (!yapilabilir ? 'disabled style="opacity:0.3;font-size:9px;padding:4px 12px;white-space:nowrap;flex-shrink:0;cursor:not-allowed"' : '') +
+            inlineBtn = '<button class="btn gold" title="' + titleTxt + '" style="font-size:11px;padding:4px 12px;white-space:nowrap;flex-shrink:0" onclick="event.stopPropagation();bkSelectAndCast(\'' + b.id + '\')" ' +
+              (!yapilabilir ? 'disabled style="opacity:0.3;font-size:11px;padding:4px 12px;white-space:nowrap;flex-shrink:0;cursor:not-allowed"' : '') +
               '>⚡ YAP</button>';
           } else if (ogrenildi && cdAktif) {
-            inlineBtn = '<span style="font-size:8px;color:#e74c3c;white-space:nowrap;flex-shrink:0">CD ' + bkFormatKalan(cdBuyu.bitis) + '</span>';
+            inlineBtn = '<span style="font-size:11px;color:#e74c3c;white-space:nowrap;flex-shrink:0">CD ' + bkFormatKalan(cdBuyu.bitis) + '</span>';
           }
 
           return `<div class="buyu-card ${secili ? 'selected' : ''}" onclick="bkSelectBuyu('${b.id}')" style="opacity:${ogrenildi ? 1 : 0.4};flex-wrap:wrap">
@@ -426,11 +426,11 @@ function bkRenderKitap() {
               <div style="display:flex;align-items:center;gap:6px">
                 <span class="mana-dot mana-${b.mana_renk}" style="width:10px;height:10px;flex-shrink:0"></span>
                 <span class="buyu-isim" style="margin:0">${TIP_IKON[b.tip]||''} ${b.isim}</span>
-                <span style="font-size:9px;color:#555">${b.kategori === 'dusmana' ? 'Ofansif' : 'Kendine'}</span>
-                <span class="buyu-kademe" style="font-size:9px;margin:0">${ogrenildi ? 'K' + kademe : '—'}</span>
+                <span style="font-size:11px;color:#555">${b.kategori === 'dusmana' ? 'Ofansif' : 'Kendine'}</span>
+                <span class="buyu-kademe" style="font-size:11px;margin:0">${ogrenildi ? 'K' + kademe : '—'}</span>
               </div>
-              <div style="font-size:9px;color:#666;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${b.aciklama || ''}</div>
-              ${kd ? '<div style="font-size:8px;color:#555;margin-top:1px">' +
+              <div style="font-size:11px;color:#666;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${b.aciklama || ''}</div>
+              ${kd ? '<div style="font-size:11px;color:#555;margin-top:1px">' +
                 '<span style="color:' + (yeterliMana ? '#aaa' : '#e74c3c') + '">' + (kd.mana||0) + ' ' + MANA_RENK_ISIM[b.mana_renk] + '</span> · ' +
                 '<span style="color:' + (yeterliMalzeme ? '#aaa' : '#e74c3c') + '">' + (kd.malzeme||0) + ' ' + (MALZEME_ISIM[b.malzeme]||b.malzeme) + '</span>' +
                 ' · <span style="color:' + (yeterliKule ? '#2ecc71' : '#e74c3c') + ';font-weight:bold" title="' + b.cag + ' Buyucu Kulesi gerekli (mevcut: ' + kuleAdet + ')">🗼 ' + (yeterliKule ? b.cag + '/' + kuleAdet : b.cag + '≠' + kuleAdet) + '</span>' +

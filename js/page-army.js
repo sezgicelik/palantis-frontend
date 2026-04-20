@@ -457,7 +457,7 @@ function renderOrduListe(){
       konumLabel = '🏠 Sehirde';
       konumRenk = '#2ecc71';
     }
-    var mesgulBadge = o.is_busy ? '<span style="background:#e74c3c22;color:#e74c3c;padding:1px 6px;border-radius:3px;font-size:9px;margin-left:6px">YOLDA</span>' : '';
+    var mesgulBadge = o.is_busy ? '<span style="background:#e74c3c22;color:#e74c3c;padding:1px 6px;border-radius:3px;font-size:11px;margin-left:6px">YOLDA</span>' : '';
 
     return '<div class="card" style="padding:0;margin-bottom:14px;border:1px solid #333;border-radius:8px;overflow:hidden">' +
       // Baslik bar
@@ -987,8 +987,8 @@ function renderFormationGrid() {
         const adet = unitAdetMap[unitId] || 0;
         slot.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;cursor:pointer">' +
           '<div style="line-height:1">' + unitIcon(unitData, 40) + '</div>' +
-          '<div style="font-size:9px;color:#d4af37;font-weight:bold;margin-top:2px">(' + adet.toLocaleString('tr-TR') + ')</div>' +
-          '<div style="font-size:8px;color:#aaa;margin-top:1px">' + (unitData ? unitData.name : unitId) + '</div>' +
+          '<div style="font-size:11px;color:#d4af37;font-weight:bold;margin-top:2px">(' + adet.toLocaleString('tr-TR') + ')</div>' +
+          '<div style="font-size:11px;color:#aaa;margin-top:1px">' + (unitData ? unitData.name : unitId) + '</div>' +
         '</div>';
         (function(si, sj){ slot.onclick = function(){ removeFromSaf(si, sj); }; })(i, j);
       } else {

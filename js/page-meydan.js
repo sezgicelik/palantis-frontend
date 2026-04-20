@@ -47,10 +47,10 @@ async function loadMeydanMesajlar() {
     if (!data.length) { el.innerHTML = '<div style="color:#555;text-align:center;padding:40px">Henuz mesaj yok. Ilk mesaji siz yazin!</div>'; return; }
     el.innerHTML = data.map(function(m) {
       var tarafRenk = m.taraf === 'iyi' ? '#d4af37' : '#9370f7';
-      var guildTag = m.guild_tag ? '<span style="color:#888;font-size:9px">[' + m.guild_tag + ']</span> ' : '';
+      var guildTag = m.guild_tag ? '<span style="color:#888;font-size:11px">[' + m.guild_tag + ']</span> ' : '';
       var saat = new Date(m.created_at).toLocaleTimeString('tr-TR', {hour:'2-digit',minute:'2-digit'});
       return '<div style="padding:4px 0;border-bottom:1px solid #1a1a1a">' +
-        '<span style="color:#555;font-size:9px;margin-right:4px">' + saat + '</span>' +
+        '<span style="color:#555;font-size:11px;margin-right:4px">' + saat + '</span>' +
         guildTag +
         '<span style="color:' + tarafRenk + ';font-weight:bold;font-size:11px">' + m.kullanici_adi + ':</span> ' +
         '<span style="color:#ccc">' + escapeHtml(m.mesaj) + '</span>' +
@@ -104,7 +104,7 @@ async function loadOzelMesajlar() {
     el.innerHTML =
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
         '<span style="font-size:11px;color:#888">Gelen Mesajlar' + (okunmamis > 0 ? ' <span style="color:#e74c3c;font-weight:bold">(' + okunmamis + ' yeni)</span>' : '') + '</span>' +
-        '<button class="btn-action" style="width:auto;padding:4px 10px;font-size:9px" onclick="ozelMesajGonderModal()">Yeni Mesaj</button>' +
+        '<button class="btn-action" style="width:auto;padding:4px 10px;font-size:11px" onclick="ozelMesajGonderModal()">Yeni Mesaj</button>' +
       '</div>' +
       '<div id="ozel-gonder-modal" style="display:none;margin-bottom:8px"></div>' +
       (mesajlar.length === 0 ? '<div style="color:#555;font-size:11px">Mesaj yok.</div>' :
@@ -117,7 +117,7 @@ async function loadOzelMesajlar() {
               '<span style="color:#555">' + tarih + '</span>' +
             '</div>' +
             '<div style="font-size:10px;color:#ccc;margin-top:3px">' + escapeHtml(m.mesaj).substring(0, 200) + '</div>' +
-            (!m.okundu ? '<button style="background:none;border:none;color:#2ecc71;cursor:pointer;font-size:9px;margin-top:3px" onclick="ozelOku(' + m.id + ')">Okundu isaretle</button>' : '') +
+            (!m.okundu ? '<button style="background:none;border:none;color:#2ecc71;cursor:pointer;font-size:11px;margin-top:3px" onclick="ozelOku(' + m.id + ')">Okundu isaretle</button>' : '') +
           '</div>';
         }).join(''));
   } catch(e) { el.innerHTML = '<div style="color:#e74c3c">Hata</div>'; }
@@ -128,17 +128,17 @@ function ozelMesajGonderModal() {
   m.style.display = m.style.display === 'none' ? 'block' : 'none';
   m.innerHTML = '<div class="card" style="padding:10px">' +
     '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">Ozel Mesaj Gonder</div>' +
-    '<div style="margin-bottom:4px"><label style="font-size:9px;color:#888">Kime (isim yazin)</label>' +
+    '<div style="margin-bottom:4px"><label style="font-size:11px;color:#888">Kime (isim yazin)</label>' +
       '<div style="display:flex;gap:4px">' +
         '<input id="ozel-hedef-isim" type="text" placeholder="Kral ismi..." style="flex:1;padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:10px">' +
-        '<button onclick="ozelHedefAra()" style="padding:4px 8px;background:#333;border:1px solid #555;color:#ddd;border-radius:4px;cursor:pointer;font-size:9px">Ara</button>' +
+        '<button onclick="ozelHedefAra()" style="padding:4px 8px;background:#333;border:1px solid #555;color:#ddd;border-radius:4px;cursor:pointer;font-size:11px">Ara</button>' +
       '</div>' +
       '<div id="ozel-hedef-sonuc" style="font-size:10px;margin-top:4px;min-height:14px"></div>' +
       '<input id="ozel-hedef" type="hidden">' +
     '</div>' +
-    '<div style="margin-bottom:4px"><label style="font-size:9px;color:#888">Baslik</label><input id="ozel-baslik" maxlength="100" style="width:100%;padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:10px"></div>' +
+    '<div style="margin-bottom:4px"><label style="font-size:11px;color:#888">Baslik</label><input id="ozel-baslik" maxlength="100" style="width:100%;padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:10px"></div>' +
     '<div style="margin-bottom:6px"><textarea id="ozel-mesaj" rows="3" maxlength="2000" style="width:100%;padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:10px" placeholder="Mesajiniz..."></textarea></div>' +
-    '<button class="btn-action" style="width:auto;padding:4px 12px;font-size:9px" onclick="ozelGonder()">Gonder</button>' +
+    '<button class="btn-action" style="width:auto;padding:4px 12px;font-size:11px" onclick="ozelGonder()">Gonder</button>' +
     '<span id="ozel-gonder-msg" style="font-size:10px;margin-left:6px"></span>' +
   '</div>';
 }
@@ -154,7 +154,7 @@ async function ozelHedefAra() {
     if (!data.length) { sonuc.innerHTML = '<span style="color:#e74c3c">Oyuncu bulunamadi</span>'; return; }
     sonuc.innerHTML = data.map(function(p) {
       return '<div style="cursor:pointer;padding:2px 4px;border-radius:3px;margin:1px 0" onmouseover="this.style.background=\'#222\'" onmouseout="this.style.background=\'none\'" onclick="document.getElementById(\'ozel-hedef\').value=\'' + p.id + '\';document.getElementById(\'ozel-hedef-sonuc\').innerHTML=\'<span style=color:#2ecc71>Secildi: ' + p.kullanici_adi + '</span>\'">' +
-        '<span style="color:var(--race-color)">' + p.kullanici_adi + '</span> <span style="color:#555;font-size:9px">(' + p.koord_x + ':' + p.koord_y + ')</span>' +
+        '<span style="color:var(--race-color)">' + p.kullanici_adi + '</span> <span style="color:#555;font-size:11px">(' + p.koord_x + ':' + p.koord_y + ')</span>' +
       '</div>';
     }).join('');
   } catch(e) { sonuc.innerHTML = '<span style="color:#e74c3c">Hata</span>'; }

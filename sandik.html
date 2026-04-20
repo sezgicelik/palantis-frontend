@@ -21,9 +21,9 @@
   .chest.opened.r-nadide { border-color:#3060c0 } .chest.opened.r-efsanevi { border-color:#8030c0 }
   .chest.opened.r-kutsal { border-color:#c09010 }
   .chest-icon { font-size:24px; display:block; margin:4px 0 }
-  .chest-num { font-size:8px; color:#4a3870; font-family:'Cinzel',serif }
-  .chest-label { font-size:8px; color:#9a88c0 }
-  .rarity-badge { font-size:7px; padding:1px 4px; border-radius:3px; display:inline-block; margin-top:2px }
+  .chest-num { font-size:11px; color:#4a3870; font-family:'Cinzel',serif }
+  .chest-label { font-size:11px; color:#9a88c0 }
+  .rarity-badge { font-size:11px; padding:1px 4px; border-radius:3px; display:inline-block; margin-top:2px }
   .r-curuk .rarity-badge { background:rgba(106,106,122,0.2); color:#6a6a7a }
   .r-siradan .rarity-badge { background:rgba(138,96,64,0.2); color:#8a6040 }
   .r-nadide .rarity-badge { background:rgba(48,96,192,0.2); color:#3060c0 }
@@ -48,7 +48,7 @@
   .reward-items { margin-top:6px }
   .reward-item { display:flex; justify-content:space-between; font-size:10px; padding:2px 0; color:#9a88c0 }
   .reward-item-val { color:#f0d080; font-family:monospace }
-  .reward-buff { font-size:9px; color:#c9a84c; margin-top:4px; padding:3px 6px; background:rgba(201,168,76,0.08); border-radius:3px }
+  .reward-buff { font-size:11px; color:#c9a84c; margin-top:4px; padding:3px 6px; background:rgba(201,168,76,0.08); border-radius:3px }
 
   .hak-bar { display:flex; gap:4px; justify-content:center; margin-bottom:8px }
   .hak-dot { width:14px; height:14px; border-radius:50%; border:2px solid #2a2040 }
@@ -57,7 +57,7 @@
 
   .hist-entry { display:flex; align-items:center; gap:6px; padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.03); font-size:10px }
   .he-icon { font-size:14px }
-  .he-name { flex:1; color:#4a3870; font-size:9px }
+  .he-name { flex:1; color:#4a3870; font-size:11px }
 
   /* Opening overlay */
   .sd-overlay { position:fixed; inset:0; background:rgba(8,6,14,0.92); display:none; align-items:center; justify-content:center; z-index:100 }
@@ -93,7 +93,7 @@
 
     <div style="text-align:center;margin-bottom:8px">
       <div class="hak-bar" id="sdHakBar"></div>
-      <div style="font-size:9px;color:#4a3870" id="sdHakText">Kalan hak: 4/4</div>
+      <div style="font-size:11px;color:#4a3870" id="sdHakText">Kalan hak: 4/4</div>
     </div>
 
     <div class="sd-grid">
@@ -288,7 +288,7 @@ function renderHistory(gecmis) {
   if (!gecmis || !gecmis.length) { el.innerHTML = '<div style="color:#4a3870;font-size:10px;text-align:center;font-style:italic">Gecmis yok</div>'; return; }
   el.innerHTML = gecmis.map(h => {
     const ri = RARITY_INFO[h.rarity] || {};
-    return `<div class="hist-entry"><span class="he-icon">${ri.icon||'?'}</span><span class="he-name">${ri.title||h.rarity}</span><span style="font-size:8px;color:#4a3870">${ri.label||''}</span></div>`;
+    return `<div class="hist-entry"><span class="he-icon">${ri.icon||'?'}</span><span class="he-name">${ri.title||h.rarity}</span><span style="font-size:11px;color:#4a3870">${ri.label||''}</span></div>`;
   }).join('');
 }
 

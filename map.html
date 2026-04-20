@@ -14,12 +14,12 @@
 #map-canvas:hover { border-color: #d4af37; }
 .map-view-btn { padding:4px 12px; font-size:11px; }
 .map-view-btn.active { background:#d4af37; color:#000; border-color:#d4af37; }
-.map-legend { display:flex; gap:10px; flex-wrap:wrap; font-size:9px; color:#888; margin-top:6px; justify-content:center; }
+.map-legend { display:flex; gap:10px; flex-wrap:wrap; font-size:11px; color:#888; margin-top:6px; justify-content:center; }
 .map-legend span { display:flex; align-items:center; gap:3px; }
 .map-legend .dot { width:8px; height:8px; border-radius:2px; display:inline-block; }
-#map-grid-wrap table { border-collapse:collapse; table-layout:fixed; font-size:6px; width:auto; margin:0 auto; }
-#map-grid-wrap th { background:#1a1a00; color:#555; padding:0; border:1px solid #111; font-size:6px; }
-#map-grid-wrap td { border:1px solid #0a0a0a; padding:0; text-align:center; height:10px; line-height:10px; cursor:pointer; overflow:hidden; font-size:6px; width:48px; }
+#map-grid-wrap table { border-collapse:collapse; table-layout:fixed; font-size:11px; width:auto; margin:0 auto; }
+#map-grid-wrap th { background:#1a1a00; color:#555; padding:0; border:1px solid #111; font-size:11px; }
+#map-grid-wrap td { border:1px solid #0a0a0a; padding:0; text-align:center; height:10px; line-height:10px; cursor:pointer; overflow:hidden; font-size:11px; width:48px; }
 /* Klasik (parsomen) gorunum */
 #map-klasik-wrap { background:#1a1208; border:2px solid #7a5014; border-radius:6px; padding:6px; overflow:auto; max-height:600px; display:none; }
 #map-klasik-wrap table.kmap { border-collapse:collapse; margin:0 auto; background:
@@ -432,7 +432,7 @@ function renderGrid() {
         }
       }
       // v1.9.3: Konuşlanan ordu ikonu grid'de
-      var konusIkon = konusMap2[x + ':' + y] ? '<span style="color:#9b59b6;font-size:7px" title="Ordunuz konuslandi">⛨</span>' : '';
+      var konusIkon = konusMap2[x + ':' + y] ? '<span style="color:#9b59b6;font-size:11px" title="Ordunuz konuslandi">⛨</span>' : '';
       html += '<td style="background:' + bg + ';color:' + color + '" onclick="mapSecHucre(' + x + ',' + y + ')">' + content + konusIkon + '</td>';
     }
     html += '</tr>';
@@ -557,44 +557,44 @@ function mapSecHucre(x, y) {
     const k = kadimSehir;
     title.textContent = '★ ' + k.isim + ' (Kadim Sehir) (' + x + ':' + y + ')';
     content.innerHTML =
-      '<div><div style="color:#555;font-size:9px">Isim</div><div style="color:#f39c12;font-weight:bold">' + k.isim + '</div></div>' +
-      '<div><div style="color:#555;font-size:9px">Taraf</div><div style="color:' + (k.taraf === 'aydinlik' ? '#f39c12' : '#c0392b') + '">' + (k.taraf === 'aydinlik' ? 'Aydinlik' : 'Karanlik') + '</div></div>' +
-      '<div><div style="color:#555;font-size:9px">Durum</div><div>' + (k.state || '-') + '</div></div>' +
-      '<div><div style="color:#555;font-size:9px">Ordu Gucu</div><div style="color:#e74c3c">⚔️ ' + (k.ordu_gucu||0).toLocaleString() + '</div></div>' +
-      (k.holding_guild_id ? '<div><div style="color:#555;font-size:9px">Holding Guild</div><div>#' + k.holding_guild_id + '</div></div>' : '') +
-      '<div><div style="color:#555;font-size:9px">Mesafe</div><div>' + (k.mesafe??'—') + '</div></div>' +
+      '<div><div style="color:#555;font-size:11px">Isim</div><div style="color:#f39c12;font-weight:bold">' + k.isim + '</div></div>' +
+      '<div><div style="color:#555;font-size:11px">Taraf</div><div style="color:' + (k.taraf === 'aydinlik' ? '#f39c12' : '#c0392b') + '">' + (k.taraf === 'aydinlik' ? 'Aydinlik' : 'Karanlik') + '</div></div>' +
+      '<div><div style="color:#555;font-size:11px">Durum</div><div>' + (k.state || '-') + '</div></div>' +
+      '<div><div style="color:#555;font-size:11px">Ordu Gucu</div><div style="color:#e74c3c">⚔️ ' + (k.ordu_gucu||0).toLocaleString() + '</div></div>' +
+      (k.holding_guild_id ? '<div><div style="color:#555;font-size:11px">Holding Guild</div><div>#' + k.holding_guild_id + '</div></div>' : '') +
+      '<div><div style="color:#555;font-size:11px">Mesafe</div><div>' + (k.mesafe??'—') + '</div></div>' +
       '<div style="grid-column:1/-1;margin-top:6px;text-align:center"><a href="pazar.html" class="btn-action" style="padding:6px 16px;font-size:12px">🛒 Kadim Pazar</a></div>';
   } else if (guildSehir) {
     // v1.13.7: Guild sehir bilgi paneli
     const g = guildSehir;
     title.textContent = '🏰 [' + g.tag + '] ' + g.isim + ' (' + x + ':' + y + ')';
     content.innerHTML =
-      '<div><div style="color:#555;font-size:9px">Guild</div><div style="color:#9b59b6;font-weight:bold">[' + g.tag + '] ' + g.isim + '</div></div>' +
-      '<div><div style="color:#555;font-size:9px">Taraf</div><div style="color:' + (TARAF_RENK[g.taraf]||'#888') + '">' + (g.taraf === 'iyi' ? 'Aydinlik' : 'Karanlik') + '</div></div>' +
-      '<div><div style="color:#555;font-size:9px">Alan</div><div>' + (g.alan||0).toLocaleString() + '</div></div>' +
-      '<div><div style="color:#555;font-size:9px">Mesafe</div><div>' + (g.mesafe??'—') + '</div></div>';
+      '<div><div style="color:#555;font-size:11px">Guild</div><div style="color:#9b59b6;font-weight:bold">[' + g.tag + '] ' + g.isim + '</div></div>' +
+      '<div><div style="color:#555;font-size:11px">Taraf</div><div style="color:' + (TARAF_RENK[g.taraf]||'#888') + '">' + (g.taraf === 'iyi' ? 'Aydinlik' : 'Karanlik') + '</div></div>' +
+      '<div><div style="color:#555;font-size:11px">Alan</div><div>' + (g.alan||0).toLocaleString() + '</div></div>' +
+      '<div><div style="color:#555;font-size:11px">Mesafe</div><div>' + (g.mesafe??'—') + '</div></div>';
   } else if (oyuncu) {
     title.textContent = '📋 ' + oyuncu.kral + ' (' + x + ':' + y + ')';
     content.innerHTML =
-      '<div><div style="color:#555;font-size:9px">Kral</div><div style="color:#d4af37">' + oyuncu.kral + '</div></div>' +
-      '<div><div style="color:#555;font-size:9px">Şehir</div><div>' + (oyuncu.sehir||'—') + '</div></div>' +
-      '<div><div style="color:#555;font-size:9px">Irk</div><div>' + oyuncu.irk + '</div></div>' +
-      '<div><div style="color:#555;font-size:9px">Taraf</div><div style="color:' + (TARAF_RENK[oyuncu.taraf]||'#888') + '">' + (oyuncu.taraf==='iyi'?'Aydınlık':'Karanlık') + '</div></div>' +
-      '<div><div style="color:#555;font-size:9px">Çağ</div><div>' + oyuncu.cag + '. Çağ</div></div>' +
-      '<div><div style="color:#555;font-size:9px">Alan</div><div>' + (oyuncu.alan||0) + '</div></div>' +
-      '<div><div style="color:#555;font-size:9px">Nüfus</div><div>' + (oyuncu.nufus||0) + '</div></div>' +
-      '<div><div style="color:#555;font-size:9px">Şehir Değeri</div><div style="color:#d4a257">⚡ ' + (oyuncu.sehir_degeri||0).toLocaleString() + '</div></div>' +
-      '<div><div style="color:#555;font-size:9px">Mesafe</div><div>' + (oyuncu.mesafe??'—') + '</div></div>';
+      '<div><div style="color:#555;font-size:11px">Kral</div><div style="color:#d4af37">' + oyuncu.kral + '</div></div>' +
+      '<div><div style="color:#555;font-size:11px">Şehir</div><div>' + (oyuncu.sehir||'—') + '</div></div>' +
+      '<div><div style="color:#555;font-size:11px">Irk</div><div>' + oyuncu.irk + '</div></div>' +
+      '<div><div style="color:#555;font-size:11px">Taraf</div><div style="color:' + (TARAF_RENK[oyuncu.taraf]||'#888') + '">' + (oyuncu.taraf==='iyi'?'Aydınlık':'Karanlık') + '</div></div>' +
+      '<div><div style="color:#555;font-size:11px">Çağ</div><div>' + oyuncu.cag + '. Çağ</div></div>' +
+      '<div><div style="color:#555;font-size:11px">Alan</div><div>' + (oyuncu.alan||0) + '</div></div>' +
+      '<div><div style="color:#555;font-size:11px">Nüfus</div><div>' + (oyuncu.nufus||0) + '</div></div>' +
+      '<div><div style="color:#555;font-size:11px">Şehir Değeri</div><div style="color:#d4a257">⚡ ' + (oyuncu.sehir_degeri||0).toLocaleString() + '</div></div>' +
+      '<div><div style="color:#555;font-size:11px">Mesafe</div><div>' + (oyuncu.mesafe??'—') + '</div></div>';
   } else if (koloni) {
     title.textContent = '📋 Koloni (' + x + ':' + y + ')';
     const benimMi = koloni.sahip_player_id && OYUNCU && koloni.sahip_player_id === OYUNCU.id;
     const bos = !koloni.sahip_kral;
     content.innerHTML =
-      '<div><div style="color:#555;font-size:9px">Tür</div><div style="color:#f1c40f">' + (KAYNAK_IKON[koloni.kaynak_tipi]||'⛏') + ' ' + koloni.kaynak_tipi + '</div></div>' +
-      '<div><div style="color:#555;font-size:9px">Bonus</div><div>%' + koloni.bonus_oran + '</div></div>' +
-      '<div><div style="color:#555;font-size:9px">Durum</div><div>' + (koloni.sahip_kral ? '🔴 İşgal' : '🟢 Boş') + '</div></div>' +
-      (koloni.sahip_kral ? '<div><div style="color:#555;font-size:9px">İşgalci</div><div style="color:' + (TARAF_RENK[koloni.sahip_taraf]||'#888') + '">' + koloni.sahip_kral + '</div></div>' : '') +
-      '<div><div style="color:#555;font-size:9px">Mesafe</div><div>' + (koloni.mesafe??'—') + '</div></div>' +
+      '<div><div style="color:#555;font-size:11px">Tür</div><div style="color:#f1c40f">' + (KAYNAK_IKON[koloni.kaynak_tipi]||'⛏') + ' ' + koloni.kaynak_tipi + '</div></div>' +
+      '<div><div style="color:#555;font-size:11px">Bonus</div><div>%' + koloni.bonus_oran + '</div></div>' +
+      '<div><div style="color:#555;font-size:11px">Durum</div><div>' + (koloni.sahip_kral ? '🔴 İşgal' : '🟢 Boş') + '</div></div>' +
+      (koloni.sahip_kral ? '<div><div style="color:#555;font-size:11px">İşgalci</div><div style="color:' + (TARAF_RENK[koloni.sahip_taraf]||'#888') + '">' + koloni.sahip_kral + '</div></div>' : '') +
+      '<div><div style="color:#555;font-size:11px">Mesafe</div><div>' + (koloni.mesafe??'—') + '</div></div>' +
       '<div style="grid-column:1/-1;margin-top:8px;text-align:center">' +
         (bos ? '<select id="koloni-ordu-sec" style="padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:10px;margin-right:4px"><option value="">Ordu sec...</option></select><button class="btn-action" onclick="koloniFethet('+koloni.id+',false)" style="padding:6px 16px;font-size:12px;width:auto">⚔️ Fethet</button>' : '') +
         (!bos && !benimMi ? '<select id="koloni-ordu-sec" style="padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:10px;margin-right:4px"><option value="">Ordu sec...</option></select><button class="btn-action" onclick="koloniFethet('+koloni.id+',true)" style="padding:6px 16px;font-size:12px;width:auto;border-color:#e74c3c;color:#ff6b6b">⚔️ Saldır</button>' : '') +
@@ -613,7 +613,7 @@ function mapSecHucre(x, y) {
     content.innerHTML += '<div style="grid-column:1/-1;margin-top:6px;padding:6px 8px;background:rgba(155,89,182,.1);border:1px solid #9b59b633;border-radius:4px">' +
       '<span style="color:#9b59b6;font-size:10px;font-weight:bold">⛨ Ordunuz Konuslandi</span><br>' +
       '<span style="color:#ccc;font-size:10px">' + (konuslanan.army_isim||'Ordu') + '</span>' +
-      (konuslanan.hedef_kral ? '<span style="color:#888;font-size:9px"> → ' + konuslanan.hedef_kral + '</span>' : '') +
+      (konuslanan.hedef_kral ? '<span style="color:#888;font-size:11px"> → ' + konuslanan.hedef_kral + '</span>' : '') +
     '</div>';
   }
 }

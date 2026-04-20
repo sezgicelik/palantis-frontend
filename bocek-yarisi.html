@@ -17,13 +17,13 @@
   .lane { display:flex; align-items:center; height:32px; padding:0 8px; border-bottom:1px solid rgba(42,58,26,0.3); cursor:pointer; transition:0.15s; position:relative }
   .lane:hover { background:rgba(201,168,76,0.05) }
   .lane.selected { background:rgba(201,168,76,0.1); box-shadow:inset 3px 0 0 #c9a84c }
-  .lane-num { width:18px; font-size:9px; color:#555; font-family:'Cinzel',serif; text-align:center }
+  .lane-num { width:18px; font-size:11px; color:#555; font-family:'Cinzel',serif; text-align:center }
   .bug-wrap { position:absolute; left:30px; transition:left 0.05s linear; font-size:20px; line-height:1 }
   .bug-run { animation:bugBounce 0.15s ease infinite alternate }
   @keyframes bugBounce { from{transform:translateY(-1px)} to{transform:translateY(1px)} }
   .bug-winner { animation:bugWin 0.3s ease infinite alternate; filter:drop-shadow(0 0 6px gold) }
   @keyframes bugWin { from{transform:scale(1) rotate(-5deg)} to{transform:scale(1.15) rotate(5deg)} }
-  .lane-name { position:absolute; right:8px; font-size:9px; color:#5a5030; font-family:'Cinzel',serif }
+  .lane-name { position:absolute; right:8px; font-size:11px; color:#5a5030; font-family:'Cinzel',serif }
   .finish-line { position:absolute; right:16px; top:0; bottom:0; width:3px; background:repeating-linear-gradient(180deg,#c9a84c 0,#c9a84c 4px,transparent 4px,transparent 8px); opacity:0.4 }
 
   .status-bar { margin-top:8px; padding:6px 12px; background:rgba(0,0,0,0.3); border:1px solid #3a2e1a; border-radius:4px; font-family:'Cinzel',serif; font-size:10px; color:#7a6840; text-align:center }
@@ -39,7 +39,7 @@
   .sel-display { display:flex; align-items:center; gap:8px; padding:8px; background:rgba(0,0,0,0.2); border-radius:6px; margin-bottom:8px; min-height:44px }
   .sel-bug { font-size:28px }
   .sel-name { font-size:12px; color:#c9a84c; font-weight:700 }
-  .sel-hint { font-size:9px; color:#7a6840 }
+  .sel-hint { font-size:11px; color:#7a6840 }
 
   .bet-input { width:100%; padding:6px 8px 6px 28px; background:rgba(0,0,0,0.3); border:1px solid #3a2e1a; border-radius:4px; color:#c8b87a; font-size:12px; font-family:monospace }
   .bet-input:focus { border-color:#c9a84c; outline:none }
@@ -58,7 +58,7 @@
   .race-btn:disabled { opacity:0.3; cursor:not-allowed }
 
   .hist-item { display:flex; align-items:center; gap:6px; padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.03); font-size:10px }
-  .hist-bug { font-size:14px } .hist-name { flex:1; color:#7a6840; font-size:9px }
+  .hist-bug { font-size:14px } .hist-name { flex:1; color:#7a6840; font-size:11px }
   .hist-win { color:#5ad05a } .hist-lose { color:#d05a5a }
 
   .hak-bar { display:flex; gap:4px; margin-bottom:8px; justify-content:center }
@@ -96,7 +96,7 @@
     <!-- Hak gosterimi -->
     <div style="text-align:center;margin-bottom:8px">
       <div class="hak-bar" id="hakBar"></div>
-      <div style="font-size:9px;color:#7a6840" id="hakText">Kalan hak: 3/3</div>
+      <div style="font-size:11px;color:#7a6840" id="hakText">Kalan hak: 3/3</div>
     </div>
 
     <div class="race-grid">
@@ -123,7 +123,7 @@
             <div style="font-size:24px;opacity:0.3">?</div>
             <div><div class="sel-hint">Pistten bir bocek sec</div></div>
           </div>
-          <label style="font-size:9px;color:#7a6840">Bahis Miktari</label>
+          <label style="font-size:11px;color:#7a6840">Bahis Miktari</label>
           <div class="bet-wrap"><span class="bet-icon">🪙</span><input class="bet-input" type="number" id="betInput" placeholder="Miktar..." min="1" max="10000"></div>
           <div class="quick-bets">
             <button class="quick-btn" onclick="qBet(10)">10</button>

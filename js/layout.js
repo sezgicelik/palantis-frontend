@@ -70,7 +70,7 @@ function renderSidebar(){
       <a href="home.html" class="menu-item${isActive('home.html')}">🏠 Ana Ekran</a>
 
       ${hizliMenuler.length > 0 ? `
-      <div style="padding:6px 14px 4px;font-size:9px;color:#666;letter-spacing:1.5px;border-top:1px solid #1a1a1a;margin-top:4px">★ HIZLI ERİŞİM</div>
+      <div style="padding:6px 14px 4px;font-size:11px;color:#666;letter-spacing:1.5px;border-top:1px solid #1a1a1a;margin-top:4px">★ HIZLI ERİŞİM</div>
       ${hizliMenuler.map(h => `<a href="${h.href}" class="menu-item${isActive(h.href)}" style="padding-left:18px;border-left:2px solid #d4af37;font-size:12px">${h.icon||'⭐'} ${h.label}</a>`).join('')}
       <div style="border-bottom:1px solid #1a1a1a;margin:4px 0"></div>
       ` : ''}
@@ -100,7 +100,7 @@ function renderSidebar(){
         <a href="savas-baslat.html" class="menu-item sub-item${isActive('savas-baslat.html')}">🏹 Savaş Başlat</a>
         <a href="casus.html" class="menu-item sub-item${isActive('casus.html')}">🕵️ Casuslar</a>
         <a href="mezarlik.html" class="menu-item sub-item${isActive('mezarlik.html')}">💀 Mezarlık</a>
-        <a id="menu-simulator" href="simulator.html" class="menu-item sub-item${isActive('simulator.html')}" target="_blank" style="display:none">🧪 Simülatör <span style="color:#d4af37;font-size:9px;margin-left:4px">⚜</span></a>
+        <a id="menu-simulator" href="simulator.html" class="menu-item sub-item${isActive('simulator.html')}" target="_blank" style="display:none">🧪 Simülatör <span style="color:#d4af37;font-size:11px;margin-left:4px">⚜</span></a>
       </div>
 
       <a href="magic.html" class="menu-item${isBuyuler?' on':''}">🔮 Büyüler</a>
@@ -134,7 +134,7 @@ function renderSidebar(){
       <a href="reports.html" class="menu-item${isActive('reports.html')}">📊 Raporlar</a>
       <a href="siralama.html" class="menu-item${isActive('siralama.html')}">🏆 Sıralamalar</a>
       <a href="artifact.html" class="menu-item${isActive('artifact.html')}">🧰 Artifactlar</a>
-      <a href="gorev.html" class="menu-item${isActive('gorev.html')}">📜 Görevler <span id="gorev-badge" style="display:none;background:#e74c3c;color:#fff;font-size:8px;padding:1px 5px;border-radius:8px;margin-left:4px"></span></a>
+      <a href="gorev.html" class="menu-item${isActive('gorev.html')}">📜 Görevler <span id="gorev-badge" style="display:none;background:#e74c3c;color:#fff;font-size:11px;padding:1px 5px;border-radius:8px;margin-left:4px"></span></a>
 
       <a href="meydan.html" class="menu-item${isSosyal?' on':''}">🎭 Sosyal & Eğlence</a>
       <div class="submenu" style="display:${isSosyal?'block':'none'}">
@@ -182,8 +182,8 @@ function renderHUD(){
   mount.innerHTML = `
   <div class="hudbar" id="hudbar">
     <!-- Ateşkes / Tatil Banner -->
-    <div id="hud-ateskes-banner" style="display:none;background:rgba(231,76,60,0.15);border-bottom:1px solid rgba(231,76,60,0.3);padding:3px 10px;text-align:center;font-size:9px;color:#e74c3c;font-family:Cinzel,serif;letter-spacing:1px">⚔️ ATEŞKES AKTİF</div>
-    <div id="hud-tatil-banner" style="display:none;background:rgba(46,204,113,0.15);border-bottom:1px solid rgba(46,204,113,0.3);padding:3px 10px;text-align:center;font-size:9px;color:#2ecc71;font-family:Cinzel,serif;letter-spacing:1px">🏖️ TATİL MODU</div>
+    <div id="hud-ateskes-banner" style="display:none;background:rgba(231,76,60,0.15);border-bottom:1px solid rgba(231,76,60,0.3);padding:3px 10px;text-align:center;font-size:11px;color:#e74c3c;font-family:Cinzel,serif;letter-spacing:1px">⚔️ ATEŞKES AKTİF</div>
+    <div id="hud-tatil-banner" style="display:none;background:rgba(46,204,113,0.15);border-bottom:1px solid rgba(46,204,113,0.3);padding:3px 10px;text-align:center;font-size:11px;color:#2ecc71;font-family:Cinzel,serif;letter-spacing:1px">🏖️ TATİL MODU</div>
     <!-- v1.13.61: YENI HUD — 1 sticky HAM satiri + 4 satir overlay detay -->
     <!-- HAM (sticky, her zaman gorunur): Odun · Kereste · Metal · Isl.Metal · Altın · Tarih + ▼ Detay -->
     <div class="hud-row-wrap">
@@ -715,7 +715,7 @@ function renderKuyrukWidget() {
       '</div>';
     }
     if (liste.length > 3) {
-      html += '<div style="font-size:9px;color:#555;text-align:right">+' + (liste.length - 3) + ' daha…</div>';
+      html += '<div style="font-size:11px;color:#555;text-align:right">+' + (liste.length - 3) + ' daha…</div>';
     }
     html += '</a>';
   }

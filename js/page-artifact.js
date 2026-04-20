@@ -22,16 +22,16 @@ async function loadArtifact() {
         var aktifStr = '';
         if (a.aktif && a.aktif_bitis) {
           var kalan = new Date(a.aktif_bitis).getTime() - Date.now();
-          if (kalan > 0) aktifStr = '<div style="font-size:9px;color:#2ecc71;margin-top:3px">Aktif — ' + Math.ceil(kalan/3600000) + ' PG kaldi</div>';
-          else aktifStr = '<div style="font-size:9px;color:#888;margin-top:3px">Suresi doldu</div>';
+          if (kalan > 0) aktifStr = '<div style="font-size:11px;color:#2ecc71;margin-top:3px">Aktif — ' + Math.ceil(kalan/3600000) + ' PG kaldi</div>';
+          else aktifStr = '<div style="font-size:11px;color:#888;margin-top:3px">Suresi doldu</div>';
         }
         return '<div class="card" style="padding:10px;text-align:center">' +
           '<div style="font-size:24px">' + (t.ikon || '❓') + '</div>' +
           '<div style="font-size:11px;font-weight:bold;color:var(--race-color);margin-top:4px">' + (t.isim || a.artifact_id) + '</div>' +
-          '<div style="font-size:9px;color:#888;margin-top:2px">' + (t.aciklama || '') + '</div>' +
+          '<div style="font-size:11px;color:#888;margin-top:2px">' + (t.aciklama || '') + '</div>' +
           '<div style="font-size:10px;color:#d4af37;margin-top:4px">x' + a.adet + '</div>' +
           aktifStr +
-          (a.adet > 0 && !a.aktif ? '<button class="btn-action" style="width:auto;padding:3px 10px;font-size:9px;margin-top:6px" onclick="artifactKullan(' + a.id + ')">Kullan</button>' : '') +
+          (a.adet > 0 && !a.aktif ? '<button class="btn-action" style="width:auto;padding:3px 10px;font-size:11px;margin-top:6px" onclick="artifactKullan(' + a.id + ')">Kullan</button>' : '') +
         '</div>';
       }).join('') +
     '</div>';

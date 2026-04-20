@@ -123,7 +123,7 @@ function renderTurKomposizyonlari(turDetay, saldiranAdi, savunanAdi) {
       if (typeof birimAtk === 'number') toplamAtk += birimAtk * adet;
       if (typeof birimDef === 'number') toplamDef += birimDef * adet;
       const b = birimIsim(uid);
-      const kuleEt = b.isKule ? ' <span style="color:#9b59b6;font-size:9px">(Kule)</span>' : '';
+      const kuleEt = b.isKule ? ' <span style="color:#9b59b6;font-size:11px">(Kule)</span>' : '';
       satirlar += `<div style="display:grid;grid-template-columns:1fr 50px 35px 35px;gap:4px;padding:2px 0;font-size:10px;border-bottom:1px dotted #2a2a2a">
         <span style="color:#e8dcc4">${b.name}${kuleEt}</span>
         <span style="color:#c8a96e;text-align:right;font-family:'Courier New'">${fmt(adet)}</span>
@@ -133,7 +133,7 @@ function renderTurKomposizyonlari(turDetay, saldiranAdi, savunanAdi) {
     }
     return `<div class="sr-turn-side">
       <div class="side-hdr" style="color:${renk}">- ${kimAdi} -</div>
-      <div style="display:grid;grid-template-columns:1fr 50px 35px 35px;gap:4px;font-size:9px;color:#666;margin-bottom:3px;padding-bottom:2px;border-bottom:1px solid #2a2a2a">
+      <div style="display:grid;grid-template-columns:1fr 50px 35px 35px;gap:4px;font-size:11px;color:#666;margin-bottom:3px;padding-bottom:2px;border-bottom:1px solid #2a2a2a">
         <span>Unite</span><span style="text-align:right">Sayi</span><span style="text-align:right">ATK</span><span style="text-align:right">DEF</span>
       </div>
       ${satirlar}
@@ -258,7 +258,7 @@ function showSavasRapor(sonuc, benimTaraf, opts) {
       toplamAdet += adet;
       toplamAtk += birimAtk * adet;
       toplamDef += birimDef * adet;
-      const kule = info.isKule ? ' <span style="color:#9b59b6;font-size:9px">(Kule)</span>' : '';
+      const kule = info.isKule ? ' <span style="color:#9b59b6;font-size:11px">(Kule)</span>' : '';
       satirlar += `<div class="sr-army-stat">
         <span>${info.name}${kule}</span>
         <span style="color:#c8a96e;font-family:'Courier New'">${fmt(adet)}</span>
@@ -323,7 +323,7 @@ function showSavasRapor(sonuc, benimTaraf, opts) {
       const olen = parseInt(kayip?.[uid] ?? kayip?.[realId] ?? 0) || 0;
       const kalan = Math.max(0, adet - olen);
       lines.push(`<div class="sr-unit-row">
-        <span class="u-name">${info.name}${info.isKule ? ' <span style="color:#9b59b6;font-size:9px">Kule</span>' : ''}</span>
+        <span class="u-name">${info.name}${info.isKule ? ' <span style="color:#9b59b6;font-size:11px">Kule</span>' : ''}</span>
         <span class="u-start">${fmt(adet)} baslangic</span>
         <span class="u-dead">-${fmt(olen)}</span>
         <span class="u-rest">${fmt(kalan)}</span>

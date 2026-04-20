@@ -67,7 +67,7 @@ function renderBinaRow(grid, b, inQ, oyuncuCag) {
     }).join('');
     const sureSaniye = isMergeOnly ? 0 : (typeof b.time === 'function' ? b.time(1) : b.time || 3600);
     const surePG = sureSaniye / 3600;
-    const limitLabel = cagSinirsiz ? '' : (cagLimiti > 0 ? `<span style="color:#888;font-size:9px"> (${b.lv}/${cagLimiti})</span>` : '');
+    const limitLabel = cagSinirsiz ? '' : (cagLimiti > 0 ? `<span style="color:#888;font-size:11px"> (${b.lv}/${cagLimiti})</span>` : '');
     let action;
     if(cagKilitli) {
       let acilisCag = 6;
@@ -101,10 +101,10 @@ function renderBinaRow(grid, b, inQ, oyuncuCag) {
           <div style="flex:1;height:6px;background:#1a1a1a;border-radius:3px;overflow:hidden">
             <div style="width:${b._dayaniklilik}%;height:100%;background:${b._dayaniklilik > 60 ? '#2ecc71' : b._dayaniklilik > 30 ? '#f39c12' : '#e74c3c'};border-radius:3px"></div>
           </div>
-          <span style="font-size:8px;color:${b._dayaniklilik > 60 ? '#2ecc71' : b._dayaniklilik > 30 ? '#f39c12' : '#e74c3c'}">${b._dayaniklilik}%</span>
+          <span style="font-size:11px;color:${b._dayaniklilik > 60 ? '#2ecc71' : b._dayaniklilik > 30 ? '#f39c12' : '#e74c3c'}">${b._dayaniklilik}%</span>
           ${b._repairQueue
-            ? `<span style="font-size:8px;padding:1px 6px;color:#f39c12;border:1px solid rgba(243,156,18,0.3);border-radius:3px">🔧 Tamirde${b._repairGunKalan > 0 ? ' (' + fmtKalanSure(b._repairGunKalan * 3600) + ')' : ''}</span>`
-            : `<button style="font-size:8px;padding:1px 6px;background:rgba(46,204,113,0.15);border:1px solid rgba(46,204,113,0.3);color:#2ecc71;border-radius:3px;cursor:pointer" onclick="tamirBina('${b.id}')">🔧 Tamir</button>`}
+            ? `<span style="font-size:11px;padding:1px 6px;color:#f39c12;border:1px solid rgba(243,156,18,0.3);border-radius:3px">🔧 Tamirde${b._repairGunKalan > 0 ? ' (' + fmtKalanSure(b._repairGunKalan * 3600) + ')' : ''}</span>`
+            : `<button style="font-size:11px;padding:1px 6px;background:rgba(46,204,113,0.15);border:1px solid rgba(46,204,113,0.3);color:#2ecc71;border-radius:3px;cursor:pointer" onclick="tamirBina('${b.id}')">🔧 Tamir</button>`}
         </div>` : ''}
       <div class="br-fx">${fx}</div>
       ${!isMergeOnly&&!inC?`<div class="br-cost">${costH}</div>`:'<div class="br-cost"></div>'}
@@ -168,7 +168,7 @@ function openModal(id){
   const curFx=b.lv>0?b.fx(1).map(e=>`<div class="lv">${e.s}</div>`).join(''):'<div class="lv" style="color:#333">Henuz insa edilmedi</div>';
   const nxtFx=b.fx(1).map(e=>`<div class="lv">${e.s}</div>`).join('');
   document.getElementById('mlvc').innerHTML=`<div class="lvc-col"><div class="lt">Mevcut Adet: ${b.lv}</div>${curFx}</div><div class="lvc-arr">\u279c</div><div class="lvc-col next"><div class="lt">Yeni Adet: ${nLv}</div>${nxtFx}</div>`;
-  document.getElementById('mcost').innerHTML=Object.entries(cost).map(([r,a])=>`<span class="citem ${(RES[r]||0)>=a?'ok':'no'}">${RICONS[r]||'\ud83d\udce6'} ${a.toLocaleString()} <span style="color:#333;font-size:9px">(${(RES[r]||0).toLocaleString()} var)</span></span>`).join('');
+  document.getElementById('mcost').innerHTML=Object.entries(cost).map(([r,a])=>`<span class="citem ${(RES[r]||0)>=a?'ok':'no'}">${RICONS[r]||'\ud83d\udce6'} ${a.toLocaleString()} <span style="color:#333;font-size:11px">(${(RES[r]||0).toLocaleString()} var)</span></span>`).join('');
   document.getElementById('mtime').innerText=`\u23f1 ${fmtT(b.time(1))} / adet`;
   const btn=document.getElementById('mbtn');
   btn.disabled=!afford;

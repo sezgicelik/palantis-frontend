@@ -235,11 +235,11 @@ function renderBuyuDukkani() {
         <span style="font-size:18px">${MAL_IKON[m.id]||'📦'}</span>
         <div style="flex:1">
           <div style="font-size:11px;font-weight:bold;color:#d4af37">${MAL_ISIM[m.id]||m.isim}</div>
-          <div style="font-size:9px;color:#888">${m.fiyat.toLocaleString()} altin | Stok: <span style="color:${m.stok>0?'#2ecc71':'#e74c3c'}">${m.stok}/${m.max_stok}</span></div>
+          <div style="font-size:11px;color:#888">${m.fiyat.toLocaleString()} altin | Stok: <span style="color:${m.stok>0?'#2ecc71':'#e74c3c'}">${m.stok}/${m.max_stok}</span></div>
         </div>
         <input type="number" id="bd-mal-${m.id}" value="1" min="1" max="${m.stok}" style="padding:2px;width:35px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px;font-size:10px;text-align:center">
         <button class="btn-action" onclick="bdSatinAl('${m.id}',parseInt(document.getElementById('bd-mal-${m.id}').value)||1)" ${m.stok<1||!BD_KERVAN_ID?'disabled':''}
-          style="padding:2px 8px;font-size:9px;width:auto;${!BD_KERVAN_ID?'opacity:0.3':''}">Al</button>
+          style="padding:2px 8px;font-size:11px;width:auto;${!BD_KERVAN_ID?'opacity:0.3':''}">Al</button>
       </div>
     `).join('') + '</div>';
 
@@ -263,12 +263,12 @@ function renderBuyuDukkani() {
         return `
         <div style="background:#111;border:1px solid #2d1f4e;border-radius:6px;padding:10px;border-left:3px solid ${RENK_DOT[p.mana_renk]||'#888'}">
           <div style="font-size:12px;font-weight:bold;color:#8e44ad">${KAT_IKON[p.tip]||''} ${p.isim}</div>
-          <div style="font-size:9px;color:#888;margin:2px 0">Cag ${p.cag} | <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${RENK_DOT[p.mana_renk]};vertical-align:middle"></span> ${RENK_ISIM[p.mana_renk]} | ${p.kategori==='dusmana'?'Ofansif':'Kendine'}</div>
+          <div style="font-size:11px;color:#888;margin:2px 0">Cag ${p.cag} | <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${RENK_DOT[p.mana_renk]};vertical-align:middle"></span> ${RENK_ISIM[p.mana_renk]} | ${p.kategori==='dusmana'?'Ofansif':'Kendine'}</div>
           <div style="font-size:10px;color:#aaa;margin:3px 0">${p.aciklama||''}</div>
-          <div style="font-size:9px;color:#666;margin:2px 0">Malzeme: ${MAL_MAP[p.tip]||'?'}</div>
+          <div style="font-size:11px;color:#666;margin:2px 0">Malzeme: ${MAL_MAP[p.tip]||'?'}</div>
           ${k1 ? `<div style="margin-top:5px;border-top:1px solid #222;padding-top:4px">
-            <div style="font-size:8px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Kademe Detay</div>
-            <table style="width:100%;font-size:9px;color:#999;border-collapse:collapse">
+            <div style="font-size:11px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Kademe Detay</div>
+            <table style="width:100%;font-size:11px;color:#999;border-collapse:collapse">
               <tr style="color:#666"><td>Kd</td><td>Etki</td><td>Mana</td><td>Mlz</td><td>Basari</td>${k1.sure?'<td>Sure</td>':''}</tr>
               <tr style="color:#aaa"><td style="color:#8e44ad">1</td><td>${k1.etki}</td><td>${k1.mana}</td><td>${k1.malzeme}</td><td>%${k1.basari}</td>${k1.sure?`<td>${k1.sure}PG</td>`:''}</tr>
               ${k5?`<tr style="color:#aaa"><td style="color:#8e44ad">5</td><td>${k5.etki}</td><td>${k5.mana}</td><td>${k5.malzeme}</td><td>%${k5.basari}</td>${k5.sure?`<td>${k5.sure}PG</td>`:''}</tr>`:''}
@@ -279,7 +279,7 @@ function renderBuyuDukkani() {
             <span style="font-size:10px;color:#d4af37">${p.fiyat.toLocaleString()} altin</span>
             <span style="flex:1"></span>
             <button class="btn-action" onclick="bdSatinAl('${p.id}',1)" ${!BD_KERVAN_ID?'disabled':''}
-              style="padding:3px 10px;font-size:9px;width:auto;${!BD_KERVAN_ID?'opacity:0.3':''}">Al</button>
+              style="padding:3px 10px;font-size:11px;width:auto;${!BD_KERVAN_ID?'opacity:0.3':''}">Al</button>
           </div>
         </div>`;
       }).join('') + '</div>';
@@ -305,10 +305,10 @@ function renderBuyuDukkani() {
       manaHTML += `<div style="background:#111;border:1px solid #222;border-radius:6px;padding:8px;border-top:2px solid ${renkCSS};text-align:center">
         <div style="font-size:11px;font-weight:bold;color:${renkCSS}">${BOYUT_ISIM[m.boyut]}</div>
         <div style="font-size:16px;margin:4px 0">+${m.mana_miktari}</div>
-        <div style="font-size:9px;color:#888">${m.fiyat.toLocaleString()} altin</div>
-        <div style="font-size:9px;color:${m.stok>0?'#2ecc71':'#e74c3c'};margin:2px 0">Stok: ${m.stok}/${m.max_stok}</div>
+        <div style="font-size:11px;color:#888">${m.fiyat.toLocaleString()} altin</div>
+        <div style="font-size:11px;color:${m.stok>0?'#2ecc71':'#e74c3c'};margin:2px 0">Stok: ${m.stok}/${m.max_stok}</div>
         <button class="btn-action" onclick="bdSatinAl('${m.id}',1)" ${m.stok<1||!BD_KERVAN_ID?'disabled':''}
-          style="padding:2px 10px;font-size:9px;width:auto;${!BD_KERVAN_ID?'opacity:0.3':''}">Al</button>
+          style="padding:2px 10px;font-size:11px;width:auto;${!BD_KERVAN_ID?'opacity:0.3':''}">Al</button>
       </div>`;
     }
 

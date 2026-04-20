@@ -48,7 +48,7 @@ async function loadCasus() {
               if (kalan > 0) kalanStr = ' (' + Math.ceil(kalan/3600000) + ' PG kaldi)';
               else kalanStr = ' (Donus bekleniyor)';
             }
-            var canBar = c.can !== undefined ? '<div style="font-size:8px;color:#888;margin-top:2px">❤️ ' + (c.can||0) + '/100 | XP: ' + (c.deneyim||0) + '</div>' : '';
+            var canBar = c.can !== undefined ? '<div style="font-size:11px;color:#888;margin-top:2px">❤️ ' + (c.can||0) + '/100 | XP: ' + (c.deneyim||0) + '</div>' : '';
             // v1.13.43: Gorevdeki casus icin gorev + hedef bilgisi
             var gorevSatir = '';
             if (c.durum === 'gorevde' && c.gorev_tipi) {
@@ -56,16 +56,16 @@ async function loadCasus() {
               var gIsim = GOREV_ISIMLERI[c.gorev_tipi] || c.gorev_tipi;
               var gRenk = GOREV_RENK[c.gorev_tipi] || '#888';
               var hedefAdi = c.hedef_kral ? _escCasus(c.hedef_kral) : '?';
-              gorevSatir = '<div style="font-size:9px;margin-top:2px;color:' + gRenk + '">' +
+              gorevSatir = '<div style="font-size:11px;margin-top:2px;color:' + gRenk + '">' +
                 gIkon + ' <b>' + _escCasus(gIsim) + '</b> → ' + hedefAdi +
               '</div>';
             }
             return '<div style="padding:6px 0;border-bottom:1px solid #1a1a1a">' +
               '<div style="display:flex;align-items:center;justify-content:space-between">' +
-                '<div><span style="font-size:12px">🕵️</span> Casus #' + c.id + ' <span style="font-size:9px;color:#888">Sv.' + (c.seviye||1) + '</span>' + canBar + gorevSatir + '</div>' +
+                '<div><span style="font-size:12px">🕵️</span> Casus #' + c.id + ' <span style="font-size:11px;color:#888">Sv.' + (c.seviye||1) + '</span>' + canBar + gorevSatir + '</div>' +
                 '<div style="display:flex;align-items:center;gap:6px">' +
                   '<span style="font-size:10px;color:' + durumRenk + '">' + c.durum + kalanStr + '</span>' +
-                  (c.durum === 'hazir' ? '<button class="btn-action" style="width:auto;padding:3px 8px;font-size:9px" onclick="casusGonderModal(' + c.id + ')">Goreve Gonder</button>' : '') +
+                  (c.durum === 'hazir' ? '<button class="btn-action" style="width:auto;padding:3px 8px;font-size:11px" onclick="casusGonderModal(' + c.id + ')">Goreve Gonder</button>' : '') +
                 '</div>' +
               '</div>' +
             '</div>';
@@ -97,9 +97,9 @@ function casusGonderModal(casusId) {
     var isim = GOREV_ISIMLERI[tip] || tip;
     var ikon = GOREV_IKONLARI[tip] || '🕵️';
     var renk = GOREV_RENK[tip] || '#555';
-    return '<button style="padding:5px 10px;font-size:9px;background:' + renk + '22;border:1px solid ' + renk + '44;color:' + renk + ';border-radius:4px;cursor:pointer;font-family:Cinzel,serif;letter-spacing:0.5px" ' +
+    return '<button style="padding:5px 10px;font-size:11px;background:' + renk + '22;border:1px solid ' + renk + '44;color:' + renk + ';border-radius:4px;cursor:pointer;font-family:Cinzel,serif;letter-spacing:0.5px" ' +
       'onclick="casusGonder(' + casusId + ',\'' + tip + '\')" title="Sure: ' + g.sure + ' PG | Gizlilik: ' + g.gizlilik + ' | Basari: %' + g.baz_basari + '">' +
-      ikon + ' ' + isim + ' <span style="font-size:7px;color:#888">(' + g.sure + 'PG / ' + g.gizlilik + 'G)</span></button>';
+      ikon + ' ' + isim + ' <span style="font-size:11px;color:#888">(' + g.sure + 'PG / ' + g.gizlilik + 'G)</span></button>';
   }).join('');
 
   m.innerHTML = '<div class="card" style="margin-top:8px">' +
@@ -110,7 +110,7 @@ function casusGonderModal(casusId) {
       '<div id="casus-hedef-sonuc" style="font-size:10px;margin-top:4px;min-height:16px"></div>' +
       '<input id="casus-hedef" type="hidden">' +
     '</div>' +
-    '<div style="font-size:9px;color:#555;margin-bottom:6px">Gorev secin (hover ile detay gorun):</div>' +
+    '<div style="font-size:11px;color:#555;margin-bottom:6px">Gorev secin (hover ile detay gorun):</div>' +
     '<div style="display:flex;gap:4px;flex-wrap:wrap">' + butonlar + '</div>' +
   '</div>';
 }
@@ -126,7 +126,7 @@ async function casusHedefAra() {
     if (data.length === 0) { sonuc.innerHTML = '<span style="color:#e74c3c">Oyuncu bulunamadi</span>'; return; }
     sonuc.innerHTML = data.map(function(p) {
       return '<div style="cursor:pointer;padding:2px 4px;border-radius:3px;margin:1px 0" onmouseover="this.style.background=\'#222\'" onmouseout="this.style.background=\'none\'" onclick="document.getElementById(\'casus-hedef\').value=\'' + p.id + '\';document.getElementById(\'casus-hedef-sonuc\').innerHTML=\'<span style=color:#2ecc71>Secildi: ' + p.kullanici_adi + ' (' + p.koord_x + ':' + p.koord_y + ')</span>\'">' +
-        '<span style="color:var(--race-color)">' + p.kullanici_adi + '</span> <span style="color:#555;font-size:9px">(' + p.koord_x + ':' + p.koord_y + ') Cag ' + (p.cag||1) + '</span>' +
+        '<span style="color:var(--race-color)">' + p.kullanici_adi + '</span> <span style="color:#555;font-size:11px">(' + p.koord_x + ':' + p.koord_y + ') Cag ' + (p.cag||1) + '</span>' +
       '</div>';
     }).join('');
   } catch(e) { sonuc.innerHTML = '<span style="color:#e74c3c">Hata</span>'; }
@@ -219,15 +219,15 @@ async function loadCasusRaporlar() {
         var renk = r.basarili ? '#2ecc71' : '#e74c3c';
         var uzerimeGeldi = r.yon === 'uzerime_geldi';
         var yonBadge = uzerimeGeldi
-          ? '<span style="background:rgba(231,76,60,0.15);color:#e74c3c;padding:1px 5px;border-radius:3px;font-size:9px;margin-right:4px">⬅ ÜSTÜME</span>'
-          : '<span style="background:rgba(52,152,219,0.15);color:#3498db;padding:1px 5px;border-radius:3px;font-size:9px;margin-right:4px">➡ GÖNDERDİM</span>';
+          ? '<span style="background:rgba(231,76,60,0.15);color:#e74c3c;padding:1px 5px;border-radius:3px;font-size:11px;margin-right:4px">⬅ ÜSTÜME</span>'
+          : '<span style="background:rgba(52,152,219,0.15);color:#3498db;padding:1px 5px;border-radius:3px;font-size:11px;margin-right:4px">➡ GÖNDERDİM</span>';
         var yon = uzerimeGeldi
           ? ' ← <b style="color:#e74c3c">' + _escCasus(r.hedef_adi||'?') + '</b>'  // hedef_adi burada SALDIRAN oyuncu
           : ' → ' + _escCasus(r.hedef_adi||'?');
         return '<div style="font-size:10px;padding:6px 4px;border-bottom:1px solid #1a1a1a' + (uzerimeGeldi?';background:rgba(231,76,60,0.04)':'') + '">' +
           '<div style="display:flex;justify-content:space-between;gap:6px">' +
             '<span>' + yonBadge + icon + ' ' + gorevIkon + ' <b>' + _escCasus(gorevIsim) + '</b>' + yon + '</span>' +
-            '<span style="color:#555;font-size:9px;white-space:nowrap">' + new Date(r.created_at).toLocaleString('tr-TR') + '</span>' +
+            '<span style="color:#555;font-size:11px;white-space:nowrap">' + new Date(r.created_at).toLocaleString('tr-TR') + '</span>' +
           '</div>' +
           (detay ? '<div style="margin-top:3px;color:' + renk + ';padding-left:18px">' + detay + '</div>' : '') +
           '</div>';

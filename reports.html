@@ -321,14 +321,14 @@
                    border-bottom:1px solid #2a2a1a;padding-bottom:4px;margin-bottom:8px;
                    display:flex;justify-content:space-between;align-items:center">
                 <span>${g.tarih}</span>
-                <span style="font-size:9px;color:#444">${g.loglar.length} olay</span>
+                <span style="font-size:11px;color:#444">${g.loglar.length} olay</span>
               </div>
               ${Object.entries(gruplar).map(([tip, loglar]) => `
                 <div style="margin-bottom:6px">
                   <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px">
                     <span style="font-size:12px">${ACTIVITY_ICONS[tip]||'•'}</span>
-                    <span style="font-size:9px;color:#888;font-weight:bold;text-transform:uppercase;letter-spacing:.5px">${EVENT_LABELS[tip]||tip}</span>
-                    <span style="font-size:8px;color:#444">(${loglar.length})</span>
+                    <span style="font-size:11px;color:#888;font-weight:bold;text-transform:uppercase;letter-spacing:.5px">${EVENT_LABELS[tip]||tip}</span>
+                    <span style="font-size:11px;color:#444">(${loglar.length})</span>
                   </div>
                   ${loglar.map(l => {
                     // v1.13.50: savas event'i — mesaj sonunda [#savas_id] tag varsa tiklanabilir
@@ -336,7 +336,7 @@
                     if (l.event_type === 'savas' && m) {
                       const sid = m[1];
                       const mesaj = l.mesaj.replace(/\s*\[#\d+\]\s*$/, '');
-                      return `<div class="savas-click-row" data-savas-id="${sid}" onclick="openSavasRaporFromLog(${sid})" style="display:flex;gap:6px;padding:3px 0 3px 20px;border-bottom:1px solid #0d0d0d;font-size:10px;color:#e0c080;cursor:pointer;transition:background .1s" onmouseover="this.style.background='rgba(201,168,76,0.08)'" onmouseout="this.style.background='none'"><span>🔍 ${mesaj}</span><span style="font-size:9px;color:#888">raporu gör ›</span></div>`;
+                      return `<div class="savas-click-row" data-savas-id="${sid}" onclick="openSavasRaporFromLog(${sid})" style="display:flex;gap:6px;padding:3px 0 3px 20px;border-bottom:1px solid #0d0d0d;font-size:10px;color:#e0c080;cursor:pointer;transition:background .1s" onmouseover="this.style.background='rgba(201,168,76,0.08)'" onmouseout="this.style.background='none'"><span>🔍 ${mesaj}</span><span style="font-size:11px;color:#888">raporu gör ›</span></div>`;
                     }
                     return `<div style="display:flex;gap:6px;padding:2px 0 2px 20px;border-bottom:1px solid #0d0d0d;font-size:10px;color:#999"><span>${l.mesaj}</span></div>`;
                   }).join('')}
@@ -374,8 +374,8 @@
           const ikon = r.basarili ? '✅' : '❌';
           const gorevIsim = CASUS_GOREV_ISIM[r.gorev_tipi] || r.gorev_tipi;
           const yonBadge = uzerimeGeldi
-            ? '<span style="background:rgba(231,76,60,0.15);color:#e74c3c;padding:1px 6px;border-radius:3px;font-size:9px;margin-right:6px">⬅ ÜSTÜME</span>'
-            : '<span style="background:rgba(52,152,219,0.15);color:#3498db;padding:1px 6px;border-radius:3px;font-size:9px;margin-right:6px">➡ GÖNDERDİM</span>';
+            ? '<span style="background:rgba(231,76,60,0.15);color:#e74c3c;padding:1px 6px;border-radius:3px;font-size:11px;margin-right:6px">⬅ ÜSTÜME</span>'
+            : '<span style="background:rgba(52,152,219,0.15);color:#3498db;padding:1px 6px;border-radius:3px;font-size:11px;margin-right:6px">➡ GÖNDERDİM</span>';
           // Sonuc detayi
           let detayHTML = '';
           const d = r.sonuc?.detay || {};
@@ -390,7 +390,7 @@
           return `<div style="padding:8px 10px;margin-bottom:6px;background:rgba(0,0,0,0.3);border-left:3px solid ${renk};border-radius:4px;font-size:11px">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
               <span>${yonBadge}${ikon} <b>${gorevIsim}</b> ${uzerimeGeldi ? '←' : '→'} <span style="color:#e0c97f">${(r.hedef_adi||'?')}</span></span>
-              <span style="color:#555;font-size:9px;white-space:nowrap">${fmtT(r.created_at)}</span>
+              <span style="color:#555;font-size:11px;white-space:nowrap">${fmtT(r.created_at)}</span>
             </div>
             <div style="color:${renk};padding-left:4px;font-size:10px">${detayHTML}</div>
           </div>`;
