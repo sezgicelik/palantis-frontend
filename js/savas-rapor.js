@@ -96,6 +96,75 @@ function closeSavasRapor() {
   if (modal) modal.classList.remove('open');
 }
 
+// v1.14.0.10: Tur tur tam ordu kompozisyon tablosu — eski Palantis formati
+// Her tur icin saldiran + savunan komp yan yana, her birim icin Sayi/ATK/DEF
+function renderTurKomposizyonlari(turDetay, saldiranAdi, savunanAdi) {
+  const fmt = n => (n == null ? '—' : (+n).toLocaleString('tr-TR'));
+  function birimIsim(uid) {
+    const realId = (uid||'').replace(/^kule_/, '').replace(/__army_\d+$/, '');
+    const u = typeof UNITS !== 'undefined' ? UNITS[realId] : null;
+    return { name: u ? (u.name || realId) : realId, isKule: (uid||'').startsWith('kule_') };
+  }
+  function tablo(komp, kimAdi, renk) {
+    if (!komp || Object.keys(komp).length === 0) {
+      return `<div class="sr-turn-side">
+        <div class="side-hdr" style="color:${renk}">- ${kimAdi} -</div>
+        <div style="color:#c0392b;font-size:10px;padding:6px;text-align:center">💀 Ordu tamamen yok oldu</div>
+      </div>`;
+    }
+    let satirlar = '';
+    let toplamAdet = 0, toplamAtk = 0, toplamDef = 0;
+    for (const [uid, info] of Object.entries(komp)) {
+      const adet = info?.adet || 0;
+      const birimAtk = info?.atk ?? '?';
+      const birimDef = info?.def ?? '?';
+      if (!adet) continue;
+      toplamAdet += adet;
+      if (typeof birimAtk === 'number') toplamAtk += birimAtk * adet;
+      if (typeof birimDef === 'number') toplamDef += birimDef * adet;
+      const b = birimIsim(uid);
+      const kuleEt = b.isKule ? ' <span style="color:#9b59b6;font-size:9px">(Kule)</span>' : '';
+      satirlar += `<div style="display:grid;grid-template-columns:1fr 50px 35px 35px;gap:4px;padding:2px 0;font-size:10px;border-bottom:1px dotted #2a2a2a">
+        <span style="color:#e8dcc4">${b.name}${kuleEt}</span>
+        <span style="color:#c8a96e;text-align:right;font-family:'Courier New'">${fmt(adet)}</span>
+        <span style="color:#e74c3c;text-align:right">${birimAtk}</span>
+        <span style="color:#3498db;text-align:right">${birimDef}</span>
+      </div>`;
+    }
+    return `<div class="sr-turn-side">
+      <div class="side-hdr" style="color:${renk}">- ${kimAdi} -</div>
+      <div style="display:grid;grid-template-columns:1fr 50px 35px 35px;gap:4px;font-size:9px;color:#666;margin-bottom:3px;padding-bottom:2px;border-bottom:1px solid #2a2a2a">
+        <span>Unite</span><span style="text-align:right">Sayi</span><span style="text-align:right">ATK</span><span style="text-align:right">DEF</span>
+      </div>
+      ${satirlar}
+      <div style="display:grid;grid-template-columns:1fr 50px 35px 35px;gap:4px;padding:4px 0 0;margin-top:4px;border-top:1px solid #3a3020;font-size:10px;font-family:'Courier New'">
+        <span style="color:#d4af37">Toplam</span>
+        <span style="color:#d4af37;text-align:right">${fmt(toplamAdet)}</span>
+        <span style="color:#e74c3c;text-align:right">${fmt(toplamAtk)}</span>
+        <span style="color:#3498db;text-align:right">${fmt(toplamDef)}</span>
+      </div>
+    </div>`;
+  }
+
+  let html = '';
+  if (turDetay.some(t => t.saldiran_komp || t.savunan_komp)) {
+    html = '<div class="sr-sec-title">🔍 HER TUR BİRİM DETAYI</div>';
+    turDetay.forEach((t, i) => {
+      if (!t.saldiran_komp && !t.savunan_komp) return;
+      html += `<div class="sr-turn-detail">
+        <div class="turn-hdr">${i+1}. TUR — Ordu Durumu</div>
+        <div class="sr-turn-grid">
+          ${tablo(t.saldiran_komp, saldiranAdi, '#E8A0A0')}
+          ${tablo(t.savunan_komp, savunanAdi, '#A0C8F0')}
+        </div>
+      </div>`;
+    });
+  } else {
+    html = '<div class="sr-buyu-sec" style="text-align:center;color:#666;margin-top:10px">ℹ️ Eski savaşlar için tur bazlı detay yok. Yeni savaşlarda (v1.14.0.10+) otomatik görünecek.</div>';
+  }
+  return html;
+}
+
 // ═══════════════════════════════════════════════════
 // Ana gosterim fonksiyonu
 // ═══════════════════════════════════════════════════
@@ -297,6 +366,8 @@ function showSavasRapor(sonuc, benimTaraf, opts) {
         <tbody>${turRows}</tbody>
       </table>
     </div>
+
+    ${renderTurKomposizyonlari(sonuc.tur_detay || [], saldiranAdi, savunanAdi)}
 
     ${buyuBoluml ? `<div class="sr-sec-title">✨ TUR BAZLI BÜYÜLER</div>${buyuBoluml}` : '<div class="sr-buyu-sec" style="text-align:center;color:#666">Bu savaşta büyü kullanılmadı (Rahip mekaniği v1.14.1+ ile eklenecek).</div>'}
 
