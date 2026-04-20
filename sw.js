@@ -1,6 +1,6 @@
 // v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
 // Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
-const CACHE_NAME = 'noxara-v19'; // v1.14.0.6 KRITIK FIX: Sentetik ID bugu — 25K Selams ordusu savasmiyordu
+const CACHE_NAME = 'noxara-v20'; // v1.14.0.7 Zirh yuzdesel — flat armor hasari tamamen bloke ediyordu
 
 // Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [
