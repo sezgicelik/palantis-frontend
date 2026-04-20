@@ -43,7 +43,7 @@ const REHBER_ADIMLARI = [
     sayfa: 'population.html',
     hedef: '#isci-oduncu,.isci-row[data-tip="oduncu"],.worker-card[data-job="oduncu"]',
     pozisyon: 'right',
-    baslik: 'Isci Ata: Oduncu 👷',
+    baslik: 'İşçi Ata: Oduncu 👷',
     aciklama: 'Koylulerini isciye donustur. Oduncu iscileri her saat kereste uretir. En az 3 isci ata!',
     kosulTipi: 'isci_ata',
     kosulDeger: 'oduncu:3'

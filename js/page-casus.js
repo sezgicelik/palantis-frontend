@@ -4,7 +4,7 @@ var GOREV_TIPLERI = {};
 
 const GOREV_ISIMLERI = {
   bolge_incele:'Bolge Incele', koloni_incele:'Koloni Incele', ordu_incele:'Ordu Incele',
-  yemek_hirsizligi:'Yemek Hirsizligi', ordu_saldiri_incele:'Saldiri Istihbarat',
+  yemek_hirsizligi:'Yemek Hirsizligi', ordu_saldiri_incele:'Saldiri İstihbarat',
   kaynak_hirsizligi:'Kaynak Hirsizligi', kargasa:'Kargasa', bilim_hirsizligi:'Bilim Hirsizligi',
   stratejik_bilgiler:'Stratejik Bilgiler', katliam:'Katliam', sabotaj:'Sabotaj'
 };

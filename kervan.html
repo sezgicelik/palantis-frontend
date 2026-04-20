@@ -31,7 +31,7 @@
       <h3 style="color:#c8a96e;font-size:13px;margin-bottom:8px">Yeni Kervan Olustur</h3>
       <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
         <input id="kv-isim" placeholder="Kervan ismi" style="padding:6px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;width:120px;font-size:11px">
-        <label style="font-size:10px;color:#888">Esek:</label>
+        <label style="font-size:10px;color:#888">Eşek:</label>
         <input id="kv-essek-sayi" type="number" value="1" min="1" max="500" style="padding:6px;width:60px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">
         <span style="font-size:9px;color:#555" id="kv-kap-info">= 5.000 kapasite</span>
         <button class="btn-action" onclick="kvOlustur()" style="padding:5px 14px;font-size:11px;width:auto">Olustur</button>
@@ -65,8 +65,8 @@ const HEDEF_ISIM = { pazar:'Pazar', buyu_dukkani:'Buyu Dukkani' };
 const DURUM_RENK = { sehirde:'#2ecc71', yolda_gidis:'#f39c12', yolda_donus:'#f39c12', pazarda:'#3498db', buyu_dukkaninda:'#9b59b6' };
 const KAYNAKLAR = ['altin','odun','metal','islenmis','kereste','bugday','balik','cig_et','ekmek','pismis','pismis_et'];
 const KAYNAK_ISIM = {
-  altin:'Altin', odun:'Odun', metal:'Metal', islenmis:'Isl.Metal', kereste:'Kereste',
-  bugday:'Bugday', balik:'Balik', cig_et:'Cig Et', ekmek:'Ekmek', pismis:'Pismis', pismis_et:'Pismis Et',
+  altin:'Altın', odun:'Odun', metal:'Metal', islenmis:'Isl.Metal', kereste:'Kereste',
+  bugday:'Buğday', balik:'Balık', cig_et:'Çiğ Et', ekmek:'Ekmek', pismis:'Pişmiş', pismis_et:'Pişmiş Et',
   mana_beyaz:'Beyaz Mana', mana_kirmizi:'Kirmizi Mana', mana_mavi:'Mavi Mana', mana_yesil:'Yesil Mana',
   ates_tozu:'Kristal Tozu', ay_cigi:'Ay Tasi', golgeler_otu:'Karanlik Esans', ejderha_goz_damla:'Ejderha Pulu',
 };
@@ -109,7 +109,7 @@ function renderKervanlar() {
 
   const liste = document.getElementById('kv-liste');
   if (KV_DATA.kervanlar.length === 0) {
-    liste.innerHTML = '<div class="card" style="text-align:center;color:#666;padding:30px">Henuz kervan yok. Esek ile kervan olusturabilirsiniz.</div>';
+    liste.innerHTML = '<div class="card" style="text-align:center;color:#666;padding:30px">Henuz kervan yok. Eşek ile kervan olusturabilirsiniz.</div>';
     return;
   }
 

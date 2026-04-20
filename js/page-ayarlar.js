@@ -211,7 +211,7 @@ async function loadBakicilikDurum() {
     } else {
       var izinListesi = [
         { key:'bina_insaat', label:'Bina insaati baslatma', varsayilan:true },
-        { key:'isci_atama', label:'Isci atama/degistirme', varsayilan:true },
+        { key:'isci_atama', label:'İşçi atama/degistirme', varsayilan:true },
         { key:'unite_egitim', label:'Unite egitimi', varsayilan:true },
         { key:'festival', label:'Festival duzenleme', varsayilan:true },
         { key:'savunma_buyu', label:'Kendine buyu yapma', varsayilan:true },

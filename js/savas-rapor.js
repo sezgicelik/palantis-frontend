@@ -227,7 +227,7 @@ function showSavasRapor(sonuc, benimTaraf, opts) {
     diger.push(`<div class="sr-gani-item"><span class="ico">📐</span>Alan <span class="val">+${fmt(g.alan_transferi.miktar)}</span></div>`);
   }
   if (g.koylu_olum > 0) {
-    diger.push(`<div class="sr-gani-item neg"><span class="ico">💀</span>Olen Koylu <span class="val">${fmt(g.koylu_olum)}</span></div>`);
+    diger.push(`<div class="sr-gani-item neg"><span class="ico">💀</span>Olen Köylü <span class="val">${fmt(g.koylu_olum)}</span></div>`);
   }
   if (g.esir_alinan > 0) {
     diger.push(`<div class="sr-gani-item"><span class="ico">🔒</span>Esir Alindi <span class="val">+${fmt(g.esir_alinan)}</span></div>`);

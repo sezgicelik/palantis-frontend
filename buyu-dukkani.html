@@ -91,8 +91,8 @@ let buyuKervanlar = [];
 
 // Kaynak isim cevirici (kervan yukunde guzel gosterim)
 const BD_KAYNAK_ISIM = {
-  altin:'Altin', odun:'Odun', metal:'Metal', islenmis:'Isl.Metal', kereste:'Kereste',
-  bugday:'Bugday', balik:'Balik', cig_et:'Cig Et', ekmek:'Ekmek', pismis:'Pismis', pismis_et:'Pismis Et',
+  altin:'Altın', odun:'Odun', metal:'Metal', islenmis:'Isl.Metal', kereste:'Kereste',
+  bugday:'Buğday', balik:'Balık', cig_et:'Çiğ Et', ekmek:'Ekmek', pismis:'Pişmiş', pismis_et:'Pişmiş Et',
   mana_beyaz:'Beyaz Mana', mana_kirmizi:'Kirmizi Mana', mana_mavi:'Mavi Mana', mana_yesil:'Yesil Mana',
   ates_tozu:'Kristal Tozu', ay_cigi:'Ay Tasi', golgeler_otu:'Karanlik Esans', ejderha_goz_damla:'Ejderha Pulu',
 };
@@ -113,8 +113,8 @@ const PARSOMEN_LISTESI = [
   { id:'parsomen_ejderha_korkusu', buyu_id:'ejderha_korkusu', isim:'Ejderha Korkusu', cag:2, mana_renk:'kirmizi', tip:'saldiri', kategori:'dusmana', aciklama:'Dusman moralini dusurur', fiyat:2000 },
   { id:'parsomen_ejderha_sevinci', buyu_id:'ejderha_sevinci', isim:'Ejderha Sevinci', cag:2, mana_renk:'beyaz', tip:'destek', kategori:'kendine', aciklama:'Kendi moralini artirir', fiyat:2000 },
   { id:'parsomen_kesif', buyu_id:'kesif', isim:'Kesif', cag:2, mana_renk:'yesil', tip:'destek', kategori:'kendine', aciklama:'Izcilerin buldugu alan artar', fiyat:2000 },
-  { id:'parsomen_motivasyon_h', buyu_id:'motivasyon_h', isim:'Motivasyon (Hammadde)', cag:2, mana_renk:'yesil', tip:'ekonomi', kategori:'kendine', aciklama:'Altin, odun, metal uretimi artar', fiyat:2000 },
-  { id:'parsomen_motivasyon_y', buyu_id:'motivasyon_y', isim:'Motivasyon (Yiyecek)', cag:2, mana_renk:'yesil', tip:'ekonomi', kategori:'kendine', aciklama:'Bugday, balik, et uretimi artar', fiyat:2000 },
+  { id:'parsomen_motivasyon_h', buyu_id:'motivasyon_h', isim:'Motivasyon (Hammadde)', cag:2, mana_renk:'yesil', tip:'ekonomi', kategori:'kendine', aciklama:'Altın, odun, metal uretimi artar', fiyat:2000 },
+  { id:'parsomen_motivasyon_y', buyu_id:'motivasyon_y', isim:'Motivasyon (Yiyecek)', cag:2, mana_renk:'yesil', tip:'ekonomi', kategori:'kendine', aciklama:'Buğday, balik, et uretimi artar', fiyat:2000 },
   { id:'parsomen_olum_sisi', buyu_id:'olum_sisi', isim:'Olum Sisi', cag:2, mana_renk:'kirmizi', tip:'saldiri', kategori:'dusmana', aciklama:'Dusman koyluleri oldurur', fiyat:2000 },
   { id:'parsomen_sessizlik', buyu_id:'sessizlik', isim:'Sessizlik', cag:2, mana_renk:'mavi', tip:'anti_buyu', kategori:'dusmana', aciklama:'Dusman buyu yapamaz', fiyat:2000 },
   { id:'parsomen_koruma', buyu_id:'koruma', isim:'Koruma', cag:3, mana_renk:'beyaz', tip:'savunma', kategori:'kendine', aciklama:'Sehre saldiri engellenir', fiyat:5000 },

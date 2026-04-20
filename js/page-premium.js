@@ -5,13 +5,13 @@
 
 const PAKET_LABEL = {
   bronz: { isim: 'Bronz', renk: '#cd7f32', ikon: '🥉' },
-  gumus: { isim: 'Gumus', renk: '#c0c0c0', ikon: '🥈' },
-  altin_paket: { isim: 'Altin', renk: '#d4af37', ikon: '🥇' }
+  gumus: { isim: 'Gümüş', renk: '#c0c0c0', ikon: '🥈' },
+  altin_paket: { isim: 'Altın', renk: '#d4af37', ikon: '🥇' }
 };
 
 const BONUS_LABEL = {
-  ekstra_ordu: 'Ekstra ordu', altin_bonus: 'Altin bonus %', odun_bonus: 'Odun bonus %',
-  metal_bonus: 'Metal bonus %', islenmis_bonus: 'Islenmis bonus %',
+  ekstra_ordu: 'Ekstra ordu', altin_bonus: 'Altın bonus %', odun_bonus: 'Odun bonus %',
+  metal_bonus: 'Metal bonus %', islenmis_bonus: 'İşlenmiş bonus %',
   kereste_bonus: 'Kereste bonus %', max_vergi: 'Max vergi', koloni_bonus: 'Koloni bonus %',
   ekstra_kervan: 'Ekstra kervan'
 };

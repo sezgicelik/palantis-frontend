@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════
    NOXARA — GUILD SAYFASI
-   js/page-guild.js — v1.10 (Tab yapisi + Yetki + Isci + Ambar)
+   js/page-guild.js — v1.10 (Tab yapisi + Yetki + İşçi + Ambar)
 ═══════════════════════════════════════════════════════ */
 var GUILD_DATA = null;
 var GUILD_CONFIG = null;
@@ -58,7 +58,7 @@ function renderGuildYok(el) {
       '<h2 style="font-family:Cinzel,serif;color:var(--race-color);margin-bottom:8px">Guild</h2>' +
       '<p style="font-size:11px;color:#888;margin-bottom:20px">Bir guilde uye degilsiniz. Guild kurun veya mevcut bir guilde katillin.</p>' +
       '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">' +
-        '<button class="btn-action" style="width:auto;padding:8px 20px" onclick="guildKurModal()">🏰 Guild Kur (50K Altin)</button>' +
+        '<button class="btn-action" style="width:auto;padding:8px 20px" onclick="guildKurModal()">🏰 Guild Kur (50K Altın)</button>' +
         '<button class="btn-action" style="width:auto;padding:8px 20px;background:#333;color:#ccc" onclick="guildListele()">📋 Guild Listesi</button>' +
       '</div>' +
       '<div id="guild-liste-wrap" style="margin-top:20px"></div>' +
@@ -167,7 +167,7 @@ var GUILD_TABS = [
   { id: 'uyeler',   label: '👥 Uyeler',       aktif: true },
   { id: 'uye-ozet', label: '📊 Uye Ozeti',    aktif: true, yetki: 'ambar_gor' }, // v1.13.25
   { id: 'kasa',     label: '💰 Kasa',         aktif: true },
-  { id: 'isciler',  label: '⚒️ Isciler',     aktif: true },
+  { id: 'isciler',  label: '⚒️ İşçiler',     aktif: true },
   { id: 'binalar',  label: '🏗️ Binalar',     aktif: true },
   { id: 'ordu',     label: '🛡️ Ordu',        aktif: true },
   { id: 'market',   label: '🏪 Market',       aktif: true },
@@ -457,14 +457,14 @@ function renderTabGenel(el, data) {
       var doluYuzde = Math.min(100, Math.round(mevcutNufus / nufusSiniri * 100));
       var doluRenk = doluYuzde >= 95 ? '#e74c3c' : (doluYuzde >= 80 ? '#f39c12' : '#2ecc71');
       return '<div class="card">' +
-        '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">👥 Nufus & Isciler</div>' +
+        '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">👥 Nufus & İşçiler</div>' +
         '<div style="margin-bottom:6px;font-size:10px">' +
           '<div style="display:flex;justify-content:space-between;margin-bottom:2px"><span style="color:#888">Nufus</span><span style="color:' + doluRenk + ';font-weight:bold">' + fmt(mevcutNufus) + ' / ' + fmt(nufusSiniri) + '</span></div>' +
           '<div style="height:4px;background:#0a0a0a;border-radius:2px;overflow:hidden"><div style="width:' + doluYuzde + '%;height:100%;background:' + doluRenk + '"></div></div>' +
         '</div>' +
         '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-size:10px;margin-bottom:6px">' +
           '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center">' +
-            '<div style="color:#888;font-size:9px">Koylu</div><div style="color:#d4af37;font-weight:bold">' + fmt(n.koylu||0) + '</div>' +
+            '<div style="color:#888;font-size:9px">Köylü</div><div style="color:#d4af37;font-weight:bold">' + fmt(n.koylu||0) + '</div>' +
           '</div>' +
           '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center">' +
             '<div style="color:#888;font-size:9px">Asker</div><div style="color:#e74c3c;font-weight:bold">' + fmt(n.asker||0) + '</div>' +
@@ -478,7 +478,7 @@ function renderTabGenel(el, data) {
           (w.madenci ? '<span>⛏️ Madenci: ' + w.madenci + '</span>' : '') +
           (w.ciftci ? '<span>🌾 Ciftci: ' + w.ciftci + '</span>' : '') +
           (w.balikci ? '<span>🎣 Balikci: ' + w.balikci + '</span>' : '') +
-          (w.tuccar ? '<span>💼 Tuccar: ' + w.tuccar + '</span>' : '') +
+          (w.tuccar ? '<span>💼 Tüccar: ' + w.tuccar + '</span>' : '') +
         '</div>' +
       '</div>';
     })() +
@@ -891,8 +891,8 @@ async function guildYetkilerYukle(guildId) {
       oyuncu_kabul:'Oyuncu Kabul', oyuncu_at:'Oyuncu At', yetki_duzenle:'Yetki Duzenle',
       ambar_gor:'Ambar Gor', sehir_degeri_gor:'Sehir Degeri Gor', atk_def_gor:'ATK/DEF Gor',
       ambar_istek_onayla:'Istek Onayla', guild_ordusu_gonder:'Ordu Gonder', guild_ordusu_kur:'Ordu Kur',
-      guild_unite_uret:'Unite Uret', isci_ata:'Isci Ata', market_satis:'Market Satis',
-      koylu_bagisi:'Koylu Bagisi', vergi_dagit:'Vergi Dagit', market_otosatis:'Oto Satis',
+      guild_unite_uret:'Unite Uret', isci_ata:'İşçi Ata', market_satis:'Market Satis',
+      koylu_bagisi:'Köylü Bagisi', vergi_dagit:'Vergi Dagit', market_otosatis:'Oto Satis',
       guild_bina_yap:'Bina Yap'
     };
 
@@ -1020,12 +1020,12 @@ function renderTabKasa(el, data) {
   var limitInfo = '<div style="font-size:9px;color:#555;margin-top:4px">Max: kaynaklarinizin %' + ((GUILD_CONFIG && GUILD_CONFIG.bagis_yuzde_limit) || 20) + '\'i | ' +
     ((GUILD_CONFIG && GUILD_CONFIG.hammadde_bagis_24pg) || 3) + ' bagis/24PG ' + cdHText + '</div>';
 
-  // Koylu bagisi
+  // Köylü bagisi
   // v1.14.0.41: Input'a max attribute + frontend validation
   var koyluMax = (GUILD_CONFIG && GUILD_CONFIG.koylu_bagis_limit) || 100;
   var koyluTip = (GUILD_CONFIG && GUILD_CONFIG.koylu_bagis_tip) || 'adet';
   var koyluBagisHTML = '<div style="margin-top:8px;padding-top:8px;border-top:1px solid #222">' +
-    '<div style="font-size:10px;color:#aaa;margin-bottom:4px">👨‍🌾 Koylu Bagisi</div>' +
+    '<div style="font-size:10px;color:#aaa;margin-bottom:4px">👨‍🌾 Köylü Bagisi</div>' +
     '<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">' +
       '<input id="koylu-bagis-adet" type="number" min="1" max="' + koyluMax + '" placeholder="Max ' + koyluMax + '" style="width:100px;padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px" oninput="if(this.value>' + koyluMax + ')this.value=' + koyluMax + '">' +
       '<button class="btn-action" style="width:auto;padding:4px 10px;font-size:9px" onclick="guildKoyluBagis(' + g.id + ',' + koyluMax + ')">Gonder</button>' +
@@ -1161,15 +1161,15 @@ function renderTabIsciler(el, data) {
 
   var nufusHTML =
     '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-bottom:12px">' +
-      '<div class="card" style="text-align:center;padding:8px"><div style="font-size:18px">👨‍🌾</div><div style="font-size:14px;color:#d4af37;font-weight:bold">' + fmt(nufus.koylu) + '</div><div style="font-size:9px;color:#888">Koylu</div></div>' +
-      '<div class="card" style="text-align:center;padding:8px"><div style="font-size:18px">⚒️</div><div style="font-size:14px;color:#d4af37;font-weight:bold">' + fmt(toplam_isci) + '</div><div style="font-size:9px;color:#888">Isci</div></div>' +
+      '<div class="card" style="text-align:center;padding:8px"><div style="font-size:18px">👨‍🌾</div><div style="font-size:14px;color:#d4af37;font-weight:bold">' + fmt(nufus.koylu) + '</div><div style="font-size:9px;color:#888">Köylü</div></div>' +
+      '<div class="card" style="text-align:center;padding:8px"><div style="font-size:18px">⚒️</div><div style="font-size:14px;color:#d4af37;font-weight:bold">' + fmt(toplam_isci) + '</div><div style="font-size:9px;color:#888">İşçi</div></div>' +
       '<div class="card" style="text-align:center;padding:8px"><div style="font-size:18px">⚔️</div><div style="font-size:14px;color:#d4af37;font-weight:bold">' + fmt(nufus.asker) + '</div><div style="font-size:9px;color:#888">Asker</div></div>' +
       '<div class="card" style="text-align:center;padding:8px"><div style="font-size:18px">🙏</div><div style="font-size:14px;color:#d4af37;font-weight:bold">' + fmt(nufus.worshipper) + '</div><div style="font-size:9px;color:#888">Worshipper</div></div>' +
     '</div>';
 
-  // v1.13: Isci dagilimi (5 tip + kapasite gostergesi)
+  // v1.13: İşçi dagilimi (5 tip + kapasite gostergesi)
   var isciHTML = '<div class="card">' +
-    '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">⚒️ Isci Dagilimi</div>' +
+    '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">⚒️ İşçi Dagilimi</div>' +
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">' +
       ['oduncu','madenci','ciftci','balikci','tuccar'].map(function(tip) {
         var mevcut = isciler[tip] || 0;
@@ -1195,7 +1195,7 @@ function renderTabIsciler(el, data) {
       '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">⚔️ Asker Yap</div>' +
       '<div style="display:flex;gap:4px;align-items:center">' +
         '<input id="guild-asker-adet" type="number" min="1" placeholder="Adet" style="width:80px;padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
-        '<button class="btn-action" style="width:auto;padding:4px 10px;font-size:9px" onclick="guildAskerYap(' + g.id + ')">Koylu → Asker</button>' +
+        '<button class="btn-action" style="width:auto;padding:4px 10px;font-size:9px" onclick="guildAskerYap(' + g.id + ')">Köylü → Asker</button>' +
         '<span style="font-size:9px;color:#555">Mevcut koylu: ' + fmt(nufus.koylu) + '</span>' +
       '</div>' +
     '</div>';
@@ -1737,13 +1737,13 @@ async function renderTabMarket(el, data) {
     var fiyatlar = d.fiyatlar || {};
     var kurTarih = d.kur_guncelleme ? new Date(d.kur_guncelleme).toLocaleString('tr-TR') : '-';
 
-    // v1.13.45: Tuccar durumu gosterimi
+    // v1.13.45: Tüccar durumu gosterimi
     var tuccarSayi = (data.guild_isciler || {}).tuccar || 0;
     var toplamStok = Object.keys(fiyatlar).reduce(function(s,k){ return s + (parseInt(fiyatlar[k].miktar)||0); }, 0);
     if (tuccarSayi === 0) {
       html += '<div style="background:rgba(231,76,60,0.1);border:1px solid #e74c3c;padding:8px;border-radius:4px;margin-bottom:10px;font-size:11px;color:#e74c3c">' +
         '⚠️ <b>Hiç tüccar atanmamış!</b> Tüccar saatte 300-500 rastgele hammadde getirir. ' +
-        '<a href="#" onclick="guildTab(\'isciler\');return false" style="color:#f39c12;text-decoration:underline">İşçiler sekmesine git</a> ve köylülerden 💼 Tuccar ata.' +
+        '<a href="#" onclick="guildTab(\'isciler\');return false" style="color:#f39c12;text-decoration:underline">İşçiler sekmesine git</a> ve köylülerden 💼 Tüccar ata.' +
       '</div>';
     } else {
       html += '<div style="font-size:10px;color:#2ecc71;margin-bottom:6px">💼 ' + tuccarSayi + ' tüccar aktif — saatte ~' + (tuccarSayi*400) + ' hammadde (ortalama)' +
@@ -1949,7 +1949,7 @@ async function guildMarketSat(hammadde) {
 //   v1.13: TAB: DAGITIM (Kaynak dagitim oranlari)
 // ═══════════════════════════════════
 var DAGITIM_KAYNAKLAR = ['odun','metal','altin','bugday','balik','kereste','islenmis'];
-var DAGITIM_ISIM = { odun:'Odun', metal:'Metal', altin:'Altin', bugday:'Bugday', balik:'Balik', kereste:'Kereste', islenmis:'Islenmis Metal' };
+var DAGITIM_ISIM = { odun:'Odun', metal:'Metal', altin:'Altın', bugday:'Buğday', balik:'Balık', kereste:'Kereste', islenmis:'İşlenmiş Metal' };
 
 async function renderTabDagitim(el, data) {
   var gId = data.guild.id;
@@ -2355,8 +2355,8 @@ async function renderTabUyeOzet(el, data) {
       mana_beyaz:'🤍', mana_kirmizi:'❤️', mana_mavi:'💙', mana_yesil:'💚'
     };
     var KAYNAK_ISIM_LOCAL = {
-      koylu:'Koylu', altin:'Altin', odun:'Odun', metal:'Metal', bugday:'Bugday', balik:'Balik',
-      kereste:'Kereste', islenmis:'Islenmis', ekmek:'Ekmek', pismis:'Pis.Balik', pismis_et:'Pis.Et', cig_et:'Cig Et',
+      koylu:'Köylü', altin:'Altın', odun:'Odun', metal:'Metal', bugday:'Buğday', balik:'Balık',
+      kereste:'Kereste', islenmis:'İşlenmiş', ekmek:'Ekmek', pismis:'Pis.Balık', pismis_et:'Pis.Et', cig_et:'Çiğ Et',
       at:'At', kurt:'Kurt', gizlilik:'Gizlilik', buyulu_yumurta:'Buyulu Yumurta',
       mana_beyaz:'Beyaz Mana', mana_kirmizi:'Kirmizi Mana', mana_mavi:'Mavi Mana', mana_yesil:'Yesil Mana'
     };
@@ -2521,8 +2521,8 @@ async function guildMezarlikDirilt(guildId, mezId) {
 // v1.13.68.5: Guild Ekonomi Ozet tablosu (oyuncu sayfasindaki ile ayni format)
 var GUILD_OZET_SAAT = 24;
 var GUILD_KAYNAK_LABEL = {
-  altin:'💰 Altin', metal:'⛏️ Metal', odun:'🌳 Odun', kereste:'🪵 Kereste', islenmis:'⚙️ Islenmis',
-  bugday:'🌾 Bugday', balik:'🎣 Balik', cig_et:'🥩 Cig Et', ekmek:'🍞 Ekmek', pismis:'🍳 Pis.Balik', pismis_et:'🍖 Pis.Et',
+  altin:'💰 Altın', metal:'⛏️ Metal', odun:'🌳 Odun', kereste:'🪵 Kereste', islenmis:'⚙️ İşlenmiş',
+  bugday:'🌾 Buğday', balik:'🎣 Balık', cig_et:'🥩 Çiğ Et', ekmek:'🍞 Ekmek', pismis:'🍳 Pis.Balık', pismis_et:'🍖 Pis.Et',
   mana_beyaz:'🤍 B.Mana', mana_kirmizi:'❤️ K.Mana', mana_mavi:'💙 M.Mana', mana_yesil:'💚 Y.Mana'
 };
 
@@ -2540,7 +2540,7 @@ function renderTabEkonomiOzet(el, data) {
           '<button class="btn-action" onclick="loadGuildEkonomiOzet(' + g.id + ')" style="padding:4px 12px;font-size:11px;width:auto">↻ Yenile</button>' +
         '</div>' +
       '</div>' +
-      '<p style="font-size:11px;color:#888;margin-bottom:10px">Guild kasasindaki son N PG kaynak hareketleri. Isci uretim, uye bagisi, dagitim, savas ganimeti, yemek tuketim... hepsi burada.</p>' +
+      '<p style="font-size:11px;color:#888;margin-bottom:10px">Guild kasasindaki son N PG kaynak hareketleri. İşçi uretim, uye bagisi, dagitim, savas ganimeti, yemek tuketim... hepsi burada.</p>' +
       '<style>' +
         '.btn-gozet-saat { padding:4px 10px;font-size:10px;background:#1a1a1a;border:1px solid #333;color:#888;border-radius:4px;cursor:pointer }' +
         '.btn-gozet-saat.on { background:#c8a96e;color:#000;border-color:#c8a96e;font-weight:bold }' +

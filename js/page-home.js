@@ -89,7 +89,7 @@ const HOME_BINA_META = {
   pazar:{ad:'Pazar',col:'#b08030',ico:'💰'}, ahir:{ad:'Ahir',col:'#704020',ico:'🐴'},
   lonca:{ad:'Lonca',col:'#6040a0',ico:'🗡️'}, buyulu_tarla:{ad:'Buyulu Tarla',col:'#a040a0',ico:'🌸'},
   buyu_kulesi:{ad:'Buyu Kulesi',col:'#8050c0',ico:'🔮'}, kule:{ad:'Kule',col:'#7a7a7a',ico:'🗼'},
-  magara:{ad:'Magara',col:'#505050',ico:'⛰️'}, istihbarat:{ad:'Istihbarat',col:'#606060',ico:'🕵️'},
+  magara:{ad:'Mağara',col:'#505050',ico:'⛰️'}, istihbarat:{ad:'İstihbarat',col:'#606060',ico:'🕵️'},
   akademi:{ad:'Akademi',col:'#5080c0',ico:'🎓'}, sehir_meydani:{ad:'Sehir Meydani',col:'#d4af37',ico:'⛲'},
   guild_binasi:{ad:'Guild Binasi',col:'#9b59b6',ico:'🏰'},
   rathe_tapinagi:{ad:'Rathe Tapinagi',col:'#d0a040',ico:'⛪'},

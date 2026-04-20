@@ -3,7 +3,7 @@
    Extracted from index.html
 ══════════════════════════════════ */
 
-// Isci tipi -> bina eslesmesi
+// İşçi tipi -> bina eslesmesi
 // v1.13.15: demir_madeni kaldirildi, madenci serbest
 // v1.13.67: wood (oduncu) kapasite kontrolu kaldirildi — backend'de de yok (oduncu serbest ata)
 // SADECE ciftci→tarla enforce ediliyor (backend routes/game.js:311)
@@ -17,7 +17,7 @@ const ISCI_BINA_MAP = {
 
 function getWorkerCapacity(type) {
   const map = ISCI_BINA_MAP[type];
-  if (!map) return Infinity; // Tuccar vb. serbest
+  if (!map) return Infinity; // Tüccar vb. serbest
   const binaAdet = BLDGS[map.binaId]?.lv || 0;
   return binaAdet * map.kapasite;
 }
@@ -134,7 +134,7 @@ async function saveWorkers(){
       })
     });
     if (resp.ok) {
-      toast('Isci dagilimi kaydedildi!');
+      toast('İşçi dagilimi kaydedildi!');
       // v1.13.68.7: Kayittan sonra backend'le tam senkron (skipBackendFetch=false)
       if (typeof updatePopulationUI === 'function') updatePopulationUI(false);
     } else { const err = await resp.json(); toast(err.error || 'Hata'); }
@@ -362,7 +362,7 @@ function bonusEtkileriGuncelle() {
       }
     } catch(e) {}
   }
-  // Isci/Limit
+  // İşçi/Limit
   const isciLimitEl = document.getElementById('pop-isci-limit');
   if (isciLimitEl) {
     const isci = (population.wood||0)+(population.iron||0)+(population.farm||0)+(population.fish||0)+(population.merchant||0);

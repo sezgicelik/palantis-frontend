@@ -185,7 +185,7 @@ function renderHUD(){
     <div id="hud-ateskes-banner" style="display:none;background:rgba(231,76,60,0.15);border-bottom:1px solid rgba(231,76,60,0.3);padding:3px 10px;text-align:center;font-size:9px;color:#e74c3c;font-family:Cinzel,serif;letter-spacing:1px">⚔️ ATEŞKES AKTİF</div>
     <div id="hud-tatil-banner" style="display:none;background:rgba(46,204,113,0.15);border-bottom:1px solid rgba(46,204,113,0.3);padding:3px 10px;text-align:center;font-size:9px;color:#2ecc71;font-family:Cinzel,serif;letter-spacing:1px">🏖️ TATİL MODU</div>
     <!-- v1.13.61: YENI HUD — 1 sticky HAM satiri + 4 satir overlay detay -->
-    <!-- HAM (sticky, her zaman gorunur): Odun · Kereste · Metal · Isl.Metal · Altin · Tarih + ▼ Detay -->
+    <!-- HAM (sticky, her zaman gorunur): Odun · Kereste · Metal · Isl.Metal · Altın · Tarih + ▼ Detay -->
     <div class="hud-row-wrap">
       <div class="hud-row-lbl">HAM</div>
       <div class="hud-res-row hud-aligned">

@@ -116,8 +116,8 @@ function renderUpgrades(){
       <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">Mana: <b style="color:#9b59b6">${EXTRA_RES.mana||0}</b></div>
       <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">Gizlilik: <b style="color:#2ecc71">${(EXTRA_RES.gizlilik||0).toFixed(1)}</b></div>
       <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">B.Yumurta: <b style="color:#e67e22">${(EXTRA_RES.buyulu_yumurta||0).toFixed(1)}</b></div>
-      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">Cig Et: <b style="color:#c0392b">${RES.cig_et||0}</b></div>
-      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">Pismis Et: <b style="color:#e67e22">${RES.pismis_et||0}</b></div>
+      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">Çiğ Et: <b style="color:#c0392b">${RES.cig_et||0}</b></div>
+      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">Pişmiş Et: <b style="color:#e67e22">${RES.pismis_et||0}</b></div>
     </div>
   </div>`;
 

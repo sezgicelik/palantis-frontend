@@ -40,7 +40,7 @@ function renderNufus(d) {
   set('hud-nufus',        d.isci.toplam + d.asker.ham + d.worshipper.toplam); // atanan
   set('hud-nufus-sinir',  d.koylu.total);
 
-  // ── Nufus & Isci paneli (population.html veya HUD detay) ──
+  // ── Nufus & İşçi paneli (population.html veya HUD detay) ──
   set('pop-total',  d.nufus.mevcut);
   set('pop-free',   d.koylu.bos);
   set('pop-isci',   d.isci.toplam);
@@ -49,7 +49,7 @@ function renderNufus(d) {
   set('pop-unite',  d.unite.toplam);
   set('pop-max',    d.nufus.sinir);
 
-  // ── Sidebar / inline nufus bar (Koylu / Isci / Asker+Tapinak / Unite) ──
+  // ── Sidebar / inline nufus bar (Köylü / İşçi / Asker+Tapinak / Unite) ──
   const koylu  = d.koylu.bos;
   const isci   = d.isci.toplam;
   const sabit  = d.asker.ham + d.worshipper.toplam;
@@ -68,7 +68,7 @@ function renderNufus(d) {
     if (el) el.style.width = pct(vals[i]);
   });
 
-  // ── Isci sayilari (oduncu, madenci, vs) ──
+  // ── İşçi sayilari (oduncu, madenci, vs) ──
   set('w-wood',  d.isci.oduncu);
   set('w-iron',  d.isci.madenci);
   set('w-farm',  d.isci.ciftci);

@@ -293,7 +293,7 @@ async function loadGameData() {
     setText('hud-g',   RES.altin);
     if(typeof setRate==='function') setRate('hud-gg', prod.altin ?? 0); else setText('hud-gg', prod.altin ?? 0);
 
-    // Islenmis kaynaklar HUD
+    // İşlenmiş kaynaklar HUD
     setText('hud-ke',  RES.kereste);
     setText('hud-is',  RES.islenmis);
     setText('hud-ek',  RES.ekmek);
@@ -314,7 +314,7 @@ async function loadGameData() {
       setRate('hud-mana-yesil-g',   prod.mana_yesil ?? (parseInt(work?.worshipper_yesil)||0) * 0.1);
     }
 
-    // Nufus & Isciler
+    // Nufus & İşçiler
     if (work) {
       if (work.total !== undefined) population.total = parseInt(work.total) || 10;
       population.wood     = parseInt(work.oduncu)  || 0;
@@ -344,7 +344,7 @@ async function loadGameData() {
       updatePopulationUI();
     }
 
-    // Isci dagilimi guncelle
+    // İşçi dagilimi guncelle
     const isciMap = { oduncu:'w-oduncu', madenci:'w-madenci', ciftci:'w-ciftci', balikci:'w-balikci', tuccar:'w-tuccar' };
     for (const [key, elId] of Object.entries(isciMap)) {
       const inp = document.getElementById(elId);
@@ -460,7 +460,7 @@ async function loadBuildingsFromBackend() {
     if (typeof renderQueue === 'function') { renderQueue(); }
     // Pisirme kapasitesini guncelle (ocak/firin lv degisti)
     if (typeof updatePisirmeUI === 'function') { updatePisirmeUI(); }
-    // Isci kapasite badge'lerini guncelle
+    // İşçi kapasite badge'lerini guncelle
     if (typeof updatePopulationUI === 'function') { updatePopulationUI(); }
   } catch(e) {
     console.error('[loadBuildings]', e);

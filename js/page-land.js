@@ -119,7 +119,7 @@ function renderOffers(){
     div.innerHTML = `
       <div class="land-left">\ud83c\udf31 <b>+${o.amount}</b> Alan</div>
       <div class="land-right">
-        <span class="info">\ud83d\udcb0 ${o.price} Altin</span>
+        <span class="info">\ud83d\udcb0 ${o.price} Altın</span>
         <button class="btn-action land-buy" ${disabledAttr}>${label}</button>
       </div>
     `;
