@@ -3578,9 +3578,14 @@ async function loadKadimCfg() {
 
     document.getElementById('kadim-cfg-content').innerHTML = html;
 
-    // Sehirler durumu
-    const sehirHtml = '<table style="width:100%;font-size:11px"><thead><tr><th>ID</th><th>Isim</th><th>Taraf</th><th>X:Y</th><th>State</th><th>Ordu</th><th>Holding Guild</th></tr></thead><tbody>' +
-      KADIM_SEHIRLER.map(s => '<tr><td>'+s.id+'</td><td>'+s.isim+'</td><td>'+s.taraf+'</td><td>'+s.x+':'+s.y+'</td><td>'+(s.state||'-')+'</td><td>'+(s.ordu_gucu||0)+'</td><td>'+(s.holding_guild_id||'-')+'</td></tr>').join('') +
+    // Sehirler durumu + manuel ordu_gucu ayar
+    const sehirHtml = '<table style="width:100%;font-size:11px"><thead><tr><th>ID</th><th>Isim</th><th>Taraf</th><th>X:Y</th><th>State</th><th>Ordu Gücü</th><th>Yeni Gücü Ayarla</th><th>Holding</th></tr></thead><tbody>' +
+      KADIM_SEHIRLER.map(s =>
+        '<tr><td>'+s.id+'</td><td>'+s.isim+'</td><td>'+s.taraf+'</td><td>'+s.x+':'+s.y+'</td><td>'+(s.state||'-')+'</td>' +
+        '<td style="color:#e74c3c;font-weight:bold">'+(s.ordu_gucu||0).toLocaleString('tr-TR')+'</td>' +
+        '<td><input type="number" id="ks-ordu-'+s.id+'" placeholder="ör: 50000" style="width:100px;padding:3px;background:#000;border:1px solid #444;color:#e0c97f;font-size:11px;border-radius:3px"> <button class="act" style="font-size:10px;padding:3px 8px" onclick="kadimOrduAyarla('+s.id+')">Ayarla</button></td>' +
+        '<td>'+(s.holding_guild_id||'-')+'</td></tr>'
+      ).join('') +
       '</tbody></table>';
     document.getElementById('kadim-sehirler-content').innerHTML = sehirHtml;
 
@@ -3647,6 +3652,23 @@ async function kadimSaldirtTetikle() {
       msgEl.innerHTML = '<span style="color:#e74c3c">✗ '+(d.error||'Hata')+'</span>';
     }
   } catch(e) { msgEl.innerHTML = '<span style="color:#e74c3c">Hata: '+e.message+'</span>'; }
+}
+
+// v1.14.0.5: Kadim sehir ordu_gucu manuel ayarla
+async function kadimOrduAyarla(sehirId) {
+  const inp = document.getElementById('ks-ordu-' + sehirId);
+  const yeni = parseInt(inp?.value);
+  if (!yeni || yeni < 0) { alert('Geçerli yeni_guc girin (>=0)'); return; }
+  const sehir = KADIM_SEHIRLER.find(s => s.id === sehirId);
+  if (!confirm(`${sehir?.isim||'Sehir'} ordu gücü ${yeni.toLocaleString('tr-TR')} olarak ayarlansin mı?`)) return;
+  try {
+    const r = await fetch(API + '/api/admin/kadim-sehir/' + sehirId + '/ordu-ayarla', {
+      method: 'POST', headers: hdr(), body: JSON.stringify({ yeni_guc: yeni })
+    });
+    const d = await r.json();
+    if (d.ok) { alert(d.mesaj); loadKadimCfg(); }
+    else alert('Hata: ' + (d.error || ''));
+  } catch(e) { alert('Hata: ' + e.message); }
 }
 
 // v1.14.0.3: Oyunculari haritada topla (test araci)

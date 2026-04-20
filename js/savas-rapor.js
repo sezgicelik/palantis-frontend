@@ -96,6 +96,30 @@ function showSavasRapor(sonuc, benimTaraf, opts) {
     }).join(', ');
   }
 
+  // v1.14.0.5: Baslangic ordu kompozisyonu
+  function baslangicStr(uniteler) {
+    if (!uniteler || Object.keys(uniteler).length === 0) return 'Bilinmiyor';
+    // Sentetik ID'leri temizle (e.g. "piyade__army_47")
+    const temizlenmis = {};
+    for (const [key, adet] of Object.entries(uniteler)) {
+      const realId = key.replace(/__army_\d+$/, '');
+      temizlenmis[realId] = (temizlenmis[realId] || 0) + adet;
+    }
+    return Object.entries(temizlenmis).map(function(e) {
+      const uid = e[0], adet = e[1];
+      const u = typeof UNITS !== 'undefined' ? UNITS[uid] : null;
+      const name = u ? (u.name || uid) : uid;
+      return name + ': ' + fmt(adet);
+    }).join(', ');
+  }
+  function baslangicToplam(uniteler) {
+    if (!uniteler) return 0;
+    return Object.entries(uniteler).reduce(function(t, e) {
+      // Kule virtual uniteleri sayma (kule_okcu vs. zaten kule unit) — ama safety
+      return t + (parseInt(e[1]) || 0);
+    }, 0);
+  }
+
   // Tur detay satırlari
   let turRows = '';
   if (sonuc.tur_detay && sonuc.tur_detay.length > 0) {
@@ -165,12 +189,16 @@ function showSavasRapor(sonuc, benimTaraf, opts) {
     '<div class="sr-cards">' +
       '<div class="sr-card">' +
         '<div class="sr-card-title atk">⚔ ' + saldiranAdi + '</div>' +
+        (sonuc.saldiran_baslangic && Object.keys(sonuc.saldiran_baslangic).length > 0 ?
+          '<div class="sr-stat" style="align-items:flex-start"><span class="sr-stat-k">Başlangıç Ordusu</span><span class="sr-stat-v" style="color:#aaa;font-size:10px;text-align:right;max-width:60%">' + baslangicStr(sonuc.saldiran_baslangic) + ' <b style="color:#c8a96e">(Toplam: ' + fmt(baslangicToplam(sonuc.saldiran_baslangic)) + ')</b></span></div>' : '') +
         '<div class="sr-stat"><span class="sr-stat-k">Kalan Ünite</span><span class="sr-stat-v" style="color:' + (sonuc.saldiran_kalan > 0 ? 'var(--gold,#ffd700)' : '#dc3545') + '">' + fmt(sonuc.saldiran_kalan) + '</span></div>' +
         '<div class="sr-stat"><span class="sr-stat-k">Toplam Kayıp</span><span class="sr-stat-v" style="color:#dc3545">' + kayipStr(sonuc.saldiran_kayip) + '</span></div>' +
       '</div>' +
       '<div class="sr-vs">VS</div>' +
       '<div class="sr-card">' +
         '<div class="sr-card-title def">🛡 ' + savunanAdi + '</div>' +
+        (sonuc.savunan_baslangic && Object.keys(sonuc.savunan_baslangic).length > 0 ?
+          '<div class="sr-stat" style="align-items:flex-start"><span class="sr-stat-k">Başlangıç Ordusu</span><span class="sr-stat-v" style="color:#aaa;font-size:10px;text-align:right;max-width:60%">' + baslangicStr(sonuc.savunan_baslangic) + ' <b style="color:#c8a96e">(Toplam: ' + fmt(baslangicToplam(sonuc.savunan_baslangic)) + ')</b></span></div>' : '') +
         '<div class="sr-stat"><span class="sr-stat-k">Kalan Ünite</span><span class="sr-stat-v" style="color:' + (sonuc.savunan_kalan > 0 ? 'var(--gold,#ffd700)' : '#dc3545') + '">' + fmt(sonuc.savunan_kalan) + '</span></div>' +
         '<div class="sr-stat"><span class="sr-stat-k">Toplam Kayıp</span><span class="sr-stat-v" style="color:#dc3545">' + kayipStr(sonuc.savunan_kayip) + '</span></div>' +
       '</div>' +
