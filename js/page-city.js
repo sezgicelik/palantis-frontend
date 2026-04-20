@@ -109,7 +109,7 @@ function renderBinaRow(grid, b, inQ, oyuncuCag) {
       <div class="br-fx">${fx}</div>
       ${!isMergeOnly&&!inC?`<div class="br-cost">${costH}</div>`:'<div class="br-cost"></div>'}
       ${!isMergeOnly&&!inC?`<div class="br-time">\u23f1 ${fmtKalanSure(surePG * 3600)}</div>`:'<div class="br-time"></div>'}
-      <div class="br-act">${action}${mergeBtn}</div>
+      <div class="br-act">${action}${mergeBtn}${b.lv>0 && !isMergeOnly ? `<button class="btn-sm" style="margin-top:4px;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.4);color:#e74c3c;font-size:10px" onclick="yikBina('${b.id}')" title="Bu binadan yık (alan geri döner, kaynak iadesi YOK)">\ud83d\udd28 YIK</button>` : ''}</div>
       ${inC?`<div class="br-building-lbl">\ud83d\udd28 Insa ediliyor... <span id="bpct-${b.id}">\u2014</span></div><div class="br-prog"><div class="br-prog-fill" id="bfill-${b.id}" style="width:0%"></div></div>`:''}
     `;
     grid.appendChild(d);
@@ -275,6 +275,72 @@ async function tamirBina(binaId) {
       alert(data.error || 'Tamir hatasi');
     }
   } catch(e) { alert('Sunucu hatasi'); }
+}
+
+// v1.14.0: Yıkma fonksiyonu — kaynak iadesi YOK, sadece alan geri alınır
+async function yikBina(binaId) {
+  const b = BLDGS[binaId];
+  if (!b || b.lv <= 0) { alert('Bu bina yıkılamaz (zaten yok).'); return; }
+  if (b.mergeOnly) { alert(`${b.name} yıkılamaz — birleştirme ile oluşur.`); return; }
+
+  // Kaç adet input
+  const adetStr = prompt(`${b.name} kaç adet yıkılsın? (1-${b.lv})\n⚠ Kaynak iadesi YOK, sadece alan geri döner.`, '1');
+  if (!adetStr) return;
+  const adet = parseInt(adetStr);
+  if (!adet || adet < 1 || adet > b.lv) { alert('Geçersiz adet.'); return; }
+
+  const alanGeri = adet * (typeof binaAlanFE === 'function' ? binaAlanFE(binaId) : 1);
+  if (!confirm(`${adet} ${b.name} yıkılacak.\nAlan geri dönüşü: ${alanGeri}\nKaynak iadesi: YOK\n\nDevam?`)) return;
+
+  try {
+    const token = getToken();
+    const resp = await fetch(API_BASE + '/api/game/buildings/yik', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ binaId, adet })
+    });
+    const data = await resp.json();
+    if (resp.ok) {
+      toast(data.mesaj || `${adet} ${b.name} yıkıldı, ${alanGeri} alan geri döndü`);
+      if (typeof loadGameData === 'function') await loadGameData();
+      if (typeof loadBuildingsFromBackend === 'function') await loadBuildingsFromBackend();
+      renderGrid();
+    } else {
+      alert(data.error || 'Yıkım hatası');
+    }
+  } catch(e) { alert('Sunucu hatası: ' + e.message); }
+}
+
+// v1.14.0: Toplu tamir
+async function topluTamir() {
+  const esikStr = prompt('Dayanıklılık yüzdesi kaçın altındakiler tamir edilsin?\n(Örn: 30 → %30 altı olanlar)', '30');
+  if (!esikStr) return;
+  const esik = parseInt(esikStr);
+  if (!esik || esik < 1 || esik > 99) { alert('Geçersiz yüzde (1-99).'); return; }
+
+  const tip = confirm('Hızlı (anında) = OK\nNormal (kuyrukta, ucuz) = İptal') ? 'hizli' : 'normal';
+
+  try {
+    const token = getToken();
+    const resp = await fetch(API_BASE + '/api/game/buildings/tamir-toplu', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ tip, min_esik: esik })
+    });
+    const data = await resp.json();
+    if (resp.ok) {
+      if (data.tamir_edilen === 0) {
+        toast(`Dayanıklılık %${esik} altında bina yok.`);
+      } else {
+        toast(`${data.tamir_edilen} bina tamir edildi, toplam ${data.toplam_maliyet.toLocaleString('tr-TR')} altın harcandı (${tip})`);
+      }
+      if (typeof loadGameData === 'function') await loadGameData();
+      if (typeof loadBuildingsFromBackend === 'function') await loadBuildingsFromBackend();
+      renderGrid();
+    } else {
+      alert(data.error || 'Toplu tamir hatası');
+    }
+  } catch(e) { alert('Sunucu hatası: ' + e.message); }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
