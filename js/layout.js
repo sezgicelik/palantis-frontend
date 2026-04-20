@@ -33,21 +33,22 @@ function renderSidebar(){
     document.body.prepend(ov);
   }
 
-  // v1.13.13: 6 ana grup (Kralligim / Savas / Ticaret / Dunya / Aktivite / Eglence)
-  // v1.13.69: simulator.html Eğlence'den Savaş'a tasindi
+  // v1.14.0.49: 8 ana grup — temizlendi
+  // Krallığım / Ordu & Savaş / Büyüler / Ticaret / Harita & Dünya / Sosyal & Eğlence
+  // + Top-level: Guild, Raporlar (TEK link), Sıralamalar, Artifactlar, Görevler, Premium, Ayarlar
   const krallikPages = ['city.html','population.html','festival.html','land.html'];
-  const savasPages   = ['army.html','savas-baslat.html','mezarlik.html','casus.html','magic.html','buyucu-kulesi.html','simulator.html'];
+  const ordusavasPages = ['army.html','savas-baslat.html','mezarlik.html','casus.html','simulator.html'];
+  const buyulerPages = ['magic.html','buyucu-kulesi.html'];
   const ticPages     = ['market.html','kervan.html','pazar.html','buyu-dukkani.html'];
-  const dunyaPages   = ['map.html','guild.html','cag.html'];
-  const aktivitePages= ['gorev.html','reports.html','activity.html','siralama.html','artifact.html','meydan.html'];
-  const funPages     = ['bocek-yarisi.html','sandik.html'];
+  const dunyaPages   = ['map.html','cag.html'];
+  const sosyalPages  = ['meydan.html','bocek-yarisi.html','sandik.html'];
 
   const isKrallik  = krallikPages.includes(page);
-  const isSavas    = savasPages.includes(page);
+  const isOrduSavas= ordusavasPages.includes(page);
+  const isBuyuler  = buyulerPages.includes(page);
   const isTic      = ticPages.includes(page);
   const isDunya    = dunyaPages.includes(page);
-  const isAktivite = aktivitePages.includes(page);
-  const isFun      = funPages.includes(page);
+  const isSosyal   = sosyalPages.includes(page);
 
   // Hizli Erisim pinli menuler (localStorage, max 5)
   let hizliMenuler = [];
@@ -77,20 +78,42 @@ function renderSidebar(){
       <a href="city.html" class="menu-item${isKrallik?' on':''}">🏰 Krallığım</a>
       <div class="submenu" style="display:${isKrallik?'block':'none'}">
         <a href="city.html" class="menu-item sub-item${isActive('city.html')}">🏗️ Şehrim</a>
+        ${page==='city.html' ? `
+        <a href="city.html?tab=binalar" class="menu-item sub-item" style="padding-left:38px;font-size:11px;color:#aaa">↳ 🏗️ Binalar</a>
+        <a href="city.html?tab=gelistirmeler" class="menu-item sub-item" style="padding-left:38px;font-size:11px;color:#aaa">↳ 📈 Geliştirmeler</a>
+        <a href="city.html?tab=mutluluk" class="menu-item sub-item" style="padding-left:38px;font-size:11px;color:#aaa">↳ 😊 Mutluluk & GPS</a>
+        ` : ''}
         <a href="population.html" class="menu-item sub-item${isActive('population.html')}">👥 Nüfus & İşçiler</a>
         <a href="land.html" class="menu-item sub-item${isActive('land.html')}">🧭 Arazi</a>
         <a href="festival.html" class="menu-item sub-item${isActive('festival.html')}">🎉 Festival</a>
       </div>
 
-      <a href="army.html" class="menu-item${isSavas?' on':''}">⚔️ Savaş & Askeri</a>
-      <div class="submenu" style="display:${isSavas?'block':'none'}">
+      <a href="army.html" class="menu-item${isOrduSavas?' on':''}">⚔️ Ordu & Savaş</a>
+      <div class="submenu" style="display:${isOrduSavas?'block':'none'}">
         <a href="army.html" class="menu-item sub-item${isActive('army.html')}">🗡️ Ordu</a>
+        ${page==='army.html' ? `
+        <a href="army.html?tab=units" class="menu-item sub-item" style="padding-left:38px;font-size:11px;color:#aaa">↳ 🗡️ Asker Eğitimi</a>
+        <a href="army.html?tab=armies" class="menu-item sub-item" style="padding-left:38px;font-size:11px;color:#aaa">↳ 🏕️ Ordu Yönetimi</a>
+        <a href="army.html?tab=formation" class="menu-item sub-item" style="padding-left:38px;font-size:11px;color:#aaa">↳ ⚔️ Saf Dizilimi</a>
+        <a href="army.html?tab=upgrades" class="menu-item sub-item" style="padding-left:38px;font-size:11px;color:#aaa">↳ 📈 Geliştirmeler</a>
+        ` : ''}
         <a href="savas-baslat.html" class="menu-item sub-item${isActive('savas-baslat.html')}">🏹 Savaş Başlat</a>
-        <a href="mezarlik.html" class="menu-item sub-item${isActive('mezarlik.html')}">💀 Mezarlık</a>
         <a href="casus.html" class="menu-item sub-item${isActive('casus.html')}">🕵️ Casuslar</a>
+        <a href="mezarlik.html" class="menu-item sub-item${isActive('mezarlik.html')}">💀 Mezarlık</a>
+        <a id="menu-simulator" href="simulator.html" class="menu-item sub-item${isActive('simulator.html')}" target="_blank" style="display:none">🧪 Simülatör <span style="color:#d4af37;font-size:9px;margin-left:4px">⚜</span></a>
+      </div>
+
+      <a href="magic.html" class="menu-item${isBuyuler?' on':''}">🔮 Büyüler</a>
+      <div class="submenu" style="display:${isBuyuler?'block':'none'}">
         <a href="magic.html" class="menu-item sub-item${isActive('magic.html')}">🕯️ Tapınak & Mana</a>
         <a href="buyucu-kulesi.html" class="menu-item sub-item${isActive('buyucu-kulesi.html')}">🗼 Büyücü Kulesi</a>
-        <a id="menu-simulator" href="simulator.html" class="menu-item sub-item${isActive('simulator.html')}" target="_blank" style="display:none">⚔️ Savaş Simülatörü <span style="color:#d4af37;font-size:9px;margin-left:4px">⚜ Premium</span></a>
+        ${page==='buyucu-kulesi.html' ? `
+        <a href="buyucu-kulesi.html?tab=kitap" class="menu-item sub-item" style="padding-left:38px;font-size:11px;color:#aaa">↳ 📖 Büyü Kitabı</a>
+        <a href="buyucu-kulesi.html?tab=parsomen" class="menu-item sub-item" style="padding-left:38px;font-size:11px;color:#aaa">↳ 📜 Parşömenler</a>
+        <a href="buyucu-kulesi.html?tab=aktif" class="menu-item sub-item" style="padding-left:38px;font-size:11px;color:#aaa">↳ ✨ Aktif Büyüler</a>
+        <a href="buyucu-kulesi.html?tab=cooldown" class="menu-item sub-item" style="padding-left:38px;font-size:11px;color:#aaa">↳ ⏱️ Cooldownlar</a>
+        <a href="buyucu-kulesi.html?tab=bilge" class="menu-item sub-item" style="padding-left:38px;font-size:11px;color:#aaa">↳ 🧙 Bilge Seçimi</a>
+        ` : ''}
       </div>
 
       <a href="market.html" class="menu-item${isTic?' on':''}">💰 Ticaret</a>
@@ -101,27 +124,21 @@ function renderSidebar(){
         <a href="buyu-dukkani.html" class="menu-item sub-item${isActive('buyu-dukkani.html')}">🔮 Büyü Dükkanı</a>
       </div>
 
-      <a href="map.html" class="menu-item${isDunya?' on':''}">🌍 Dünya</a>
+      <a href="map.html" class="menu-item${isDunya?' on':''}">🗺️ Harita & Dünya</a>
       <div class="submenu" style="display:${isDunya?'block':'none'}">
         <a href="map.html" class="menu-item sub-item${isActive('map.html')}">🗺️ Harita</a>
-        <a id="menu-guild" href="guild.html" class="menu-item sub-item${isActive('guild.html')}" style="display:none">🏰 Guild</a>
         <a href="cag.html" class="menu-item sub-item${isActive('cag.html')}">📅 Çağ Atlama</a>
       </div>
 
-      <a href="gorev.html" class="menu-item${isAktivite?' on':''}">📊 Aktivite</a>
-      <div class="submenu" style="display:${isAktivite?'block':'none'}">
-        <a href="gorev.html" class="menu-item sub-item${isActive('gorev.html')}">📜 Görevler <span id="gorev-badge" style="display:none;background:#e74c3c;color:#fff;font-size:8px;padding:1px 5px;border-radius:8px;margin-left:4px"></span></a>
-        <a href="reports.html?tab=sehir" class="menu-item sub-item${isActive('reports.html')}">🏙️ Şehir Raporları</a>
-        <a href="reports.html?tab=askeri" class="menu-item sub-item">⚔️ Askeri Raporlar</a>
-        <a href="reports.html?tab=koloni" class="menu-item sub-item">🏰 Koloni Raporları</a>
-        <a href="reports.html?tab=ekonomi" class="menu-item sub-item">💰 Ekonomi Raporları</a>
-        <a href="siralama.html" class="menu-item sub-item${isActive('siralama.html')}">🏆 Sıralamalar</a>
-        <a href="artifact.html" class="menu-item sub-item${isActive('artifact.html')}">🧰 Artifactlar</a>
-        <a href="meydan.html" class="menu-item sub-item${isActive('meydan.html')}">💬 Şehir Meydanı</a>
-      </div>
+      <a id="menu-guild" href="guild.html" class="menu-item${isActive('guild.html')}" style="display:none">🏰 Guild</a>
+      <a href="reports.html" class="menu-item${isActive('reports.html')}">📊 Raporlar</a>
+      <a href="siralama.html" class="menu-item${isActive('siralama.html')}">🏆 Sıralamalar</a>
+      <a href="artifact.html" class="menu-item${isActive('artifact.html')}">🧰 Artifactlar</a>
+      <a href="gorev.html" class="menu-item${isActive('gorev.html')}">📜 Görevler <span id="gorev-badge" style="display:none;background:#e74c3c;color:#fff;font-size:8px;padding:1px 5px;border-radius:8px;margin-left:4px"></span></a>
 
-      <a href="bocek-yarisi.html" class="menu-item${isFun?' on':''}">🪲 Eğlence</a>
-      <div class="submenu" style="display:${isFun?'block':'none'}">
+      <a href="meydan.html" class="menu-item${isSosyal?' on':''}">🎭 Sosyal & Eğlence</a>
+      <div class="submenu" style="display:${isSosyal?'block':'none'}">
+        <a href="meydan.html" class="menu-item sub-item${isActive('meydan.html')}">💬 Şehir Meydanı</a>
         <a href="bocek-yarisi.html" class="menu-item sub-item${isActive('bocek-yarisi.html')}">🪲 Böcek Yarışı</a>
         <a href="sandik.html" class="menu-item sub-item${isActive('sandik.html')}">📦 Kader Sandıkları</a>
       </div>

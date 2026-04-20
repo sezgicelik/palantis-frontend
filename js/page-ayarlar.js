@@ -35,7 +35,7 @@ function renderAyarlar(el, data) {
 
   el.innerHTML =
     // Telegram Baglanti
-    '<div class="card">' +
+    '<div class="card" id="ayar-sec-telegram">' +
       '<div style="font-size:12px;font-weight:bold;color:var(--race-color);margin-bottom:8px;font-family:Cinzel,serif">📱 Telegram Bildirimler</div>' +
       (tg.bagli ?
         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">' +
@@ -66,7 +66,7 @@ function renderAyarlar(el, data) {
     '</div>' +
 
     // Bildirim Tercihleri
-    '<div class="card">' +
+    '<div class="card" id="ayar-sec-bildirim">' +
       '<div style="font-size:12px;font-weight:bold;color:var(--race-color);margin-bottom:8px;font-family:Cinzel,serif">🔔 Bildirim Tercihleri</div>' +
       '<div style="font-size:9px;color:#666;margin-bottom:8px">Hangi olaylarda Telegram bildirimi almak istiyorsunuz?</div>' +
       bildirimler.map(function(b) {
@@ -92,19 +92,19 @@ function renderAyarlar(el, data) {
     '</div>' +
 
     // Tatil Modu
-    '<div class="card" style="margin-top:12px">' +
+    '<div class="card" id="ayar-sec-tatil" style="margin-top:12px">' +
       '<div style="font-size:12px;font-weight:bold;color:var(--race-color);margin-bottom:8px;font-family:Cinzel,serif">🏖️ Tatil Modu</div>' +
       '<div id="tatil-content" style="font-size:11px;color:#888">Yukleniyor...</div>' +
     '</div>' +
 
     // Bakıcılık
-    '<div class="card" style="margin-top:12px">' +
+    '<div class="card" id="ayar-sec-bakici" style="margin-top:12px">' +
       '<div style="font-size:12px;font-weight:bold;color:var(--race-color);margin-bottom:8px;font-family:Cinzel,serif">🔑 Bakıcılık</div>' +
       '<div id="bakicilik-content" style="font-size:11px;color:#888">Yukleniyor...</div>' +
     '</div>' +
 
     // Rehber
-    '<div class="card" style="margin-top:12px">' +
+    '<div class="card" id="ayar-sec-rehber" style="margin-top:12px">' +
       '<div style="font-size:12px;font-weight:bold;color:var(--race-color);margin-bottom:8px;font-family:Cinzel,serif">📜 Oyun Rehberi</div>' +
       '<div style="font-size:10px;color:#888;margin-bottom:8px">Yeni oyuncu rehberini tekrar baslatabilirsiniz.</div>' +
       (localStorage.getItem('noxara_rehber_tamamlandi') === '1'

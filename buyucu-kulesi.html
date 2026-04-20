@@ -299,9 +299,19 @@ function bkUpdateKaynaklar() {
 function bkSwitchTab(tab) {
   document.querySelectorAll('.bk-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.bk-panel').forEach(p => p.classList.remove('active'));
-  document.querySelector(`.bk-tab[onclick*="${tab}"]`).classList.add('active');
-  document.getElementById('tab-' + tab).classList.add('active');
+  const btn = document.querySelector(`.bk-tab[onclick*="${tab}"]`);
+  if (btn) btn.classList.add('active');
+  const panel = document.getElementById('tab-' + tab);
+  if (panel) panel.classList.add('active');
 }
+// v1.14.0.49: ?tab=X parametresi destegi (sidebar sub-menusunden link)
+(function initTabFromUrl(){
+  const params = new URLSearchParams(window.location.search);
+  const tab = params.get('tab');
+  if (tab && ['kitap','parsomen','aktif','cooldown','log','bilge'].includes(tab)) {
+    setTimeout(() => bkSwitchTab(tab), 100);
+  }
+})();
 
 // ═══ BUYU KITABI ═══
 function bkRenderKitap() {
