@@ -131,6 +131,38 @@
   .t8-ctrl button{width:26px;height:26px;background:#0d0d0d;border:1px solid #333;color:#ccc;cursor:pointer;border-radius:3px;font-size:13px}
   .t8-ctrl input{flex:1;text-align:center;background:#0d0d0d;border:1px solid #333;color:#eee;padding:5px;border-radius:3px;font-size:13px}
   .t8-ctrl .t8-btn{flex-shrink:0;width:auto;padding:6px 14px;background:#2ecc71;color:#000;border:none;font-weight:700;border-radius:3px;cursor:pointer;font-family:'Cinzel',serif;font-size:11px;letter-spacing:.5px}
+
+  /* ═══ TASARIM 9: 5+8 KOMBINE — Altın Çerçeveli Accordion ═══ */
+  .t9-wrap{max-width:420px;margin:0 auto;background:radial-gradient(circle at top left,#14100a 0%,#0a0604 100%);border:1px solid #c8a96e;border-radius:10px;padding:16px;box-shadow:inset 0 0 0 1px rgba(200,169,110,0.1),0 0 30px rgba(212,175,55,0.08)}
+  .t9-cat{color:#d4af37;font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;text-shadow:0 0 6px rgba(212,175,55,0.3);margin-bottom:4px}
+  .t9-head{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:1px solid rgba(200,169,110,0.25);margin-bottom:10px}
+  .t9-title{color:#e0c97f;font-family:'Cinzel',serif;font-size:14px;font-weight:700}
+  .t9-count{color:#888;font-size:10px}
+  .t9-list{display:flex;flex-direction:column;gap:8px}
+  .t9-row{background:linear-gradient(135deg,#1a140a 0%,#0f0a06 100%);border:1px solid #3a3020;border-radius:6px;overflow:hidden;cursor:pointer;transition:.2s;position:relative}
+  .t9-row:hover{border-color:#c8a96e;box-shadow:0 0 12px rgba(212,175,55,0.15)}
+  .t9-row.open{border-color:#d4af37;box-shadow:0 0 18px rgba(212,175,55,0.25),inset 0 0 0 1px rgba(212,175,55,0.1)}
+  .t9-head-row{display:flex;align-items:center;gap:12px;padding:10px 12px}
+  .t9-ico{width:40px;height:40px;background:linear-gradient(135deg,#d4af37,#8b6914);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;box-shadow:0 0 10px rgba(212,175,55,0.35),inset 0 0 4px rgba(0,0,0,0.4);border:1px solid #e0c97f}
+  .t9-row.open .t9-ico{box-shadow:0 0 16px rgba(212,175,55,0.6),inset 0 0 6px rgba(0,0,0,0.4)}
+  .t9-info{flex:1;min-width:0}
+  .t9-name{color:#e0c97f;font-family:'Cinzel',serif;font-size:13px;font-weight:700;text-shadow:0 0 4px rgba(212,175,55,0.15)}
+  .t9-meta{color:#999;font-size:10px;margin-top:3px;letter-spacing:.4px}
+  .t9-meta b{color:#d4af37}
+  .t9-toggle{color:#d4af37;font-family:'Cinzel',serif;font-size:16px;font-weight:700;margin-left:6px;transition:transform .2s}
+  .t9-row.open .t9-toggle{transform:rotate(180deg)}
+  .t9-body{display:none;padding:10px 14px 12px;border-top:1px solid rgba(200,169,110,0.2);background:rgba(0,0,0,0.35)}
+  .t9-row.open .t9-body{display:block;animation:t9Fade .2s ease}
+  @keyframes t9Fade{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+  .t9-price{color:#ccc;font-size:11px;margin-bottom:10px;letter-spacing:.2px}
+  .t9-price span{color:#999;margin:0 5px}
+  .t9-price b{color:#e0c97f}
+  .t9-ctrl{display:flex;align-items:center;gap:6px}
+  .t9-ctrl button.minus,.t9-ctrl button.plus{width:28px;height:30px;background:rgba(212,175,55,0.08);border:1px solid #8b6914;color:#d4af37;cursor:pointer;border-radius:3px;font-size:14px;font-weight:700;transition:.15s}
+  .t9-ctrl button.minus:hover,.t9-ctrl button.plus:hover{background:#d4af37;color:#000}
+  .t9-ctrl input{flex:1;text-align:center;background:#0a0604;border:1px solid #3a3020;color:#e0c97f;padding:6px;border-radius:3px;font-size:13px;font-family:'Cinzel',serif}
+  .t9-btn{flex-shrink:0;background:transparent;color:#d4af37;border:1px solid #d4af37;padding:7px 18px;font-weight:700;border-radius:3px;cursor:pointer;font-family:'Cinzel',serif;font-size:11px;transition:.2s;letter-spacing:1.5px}
+  .t9-btn:hover{background:#d4af37;color:#0a0604;box-shadow:0 0 12px rgba(212,175,55,0.5)}
 </style>
 </head>
 <body>
@@ -144,6 +176,7 @@
   <button data-t="6" style="border-color:#16a085;color:#16a085">6) 📱 2 Kolon Grid</button>
   <button data-t="7" style="border-color:#16a085;color:#16a085">7) 📱 Ultra Sıkışık</button>
   <button data-t="8" style="border-color:#16a085;color:#16a085">8) 📱 Accordion</button>
+  <button data-t="9" style="border-color:#d4af37;color:#d4af37;background:rgba(212,175,55,0.08)">⚜ 9) 5+8 Kombine (Altın Accordion)</button>
   <button data-t="all">Hepsi</button>
 </div>
 
@@ -546,8 +579,150 @@
   </div>
 </div>
 
+<!-- ═══════════ TASARIM 9: 5+8 KOMBİNE — Altın Çerçeveli Accordion ═══════════ -->
+<div class="mockup-section" data-sec="9">
+  <h3 class="mockup-title">⚜ 9️⃣ 5+8 Kombine — Altın Çerçeveli Accordion</h3>
+  <p class="mockup-desc">Mockup 5'in altın/glow premium teması + Mockup 8'in accordion davranışı. Kapalıyken şık yuvarlak altın ikon + isim + tier + stat (tek bakışta tarama). Tıklayınca glow artar, maliyet + adet kontrol + altın EGIT açılır. Premium/ortaçağ hissi + mobil verimliliği.</p>
+  <div class="t9-wrap">
+    <div class="t9-cat">⚔ ASKERİ EGİTİM</div>
+    <div class="t9-head">
+      <span class="t9-title">Üniteler</span>
+      <span class="t9-count">14 Ünite</span>
+    </div>
+    <div class="t9-list">
+      <div class="t9-row" onclick="this.classList.toggle('open')">
+        <div class="t9-head-row">
+          <div class="t9-ico">🗡️</div>
+          <div class="t9-info">
+            <div class="t9-name">Piyade</div>
+            <div class="t9-meta">T1 · ATK <b>2</b> · DEF <b>10</b> · Zırh 20 · Maaş 20</div>
+          </div>
+          <span class="t9-toggle">▾</span>
+        </div>
+        <div class="t9-body">
+          <div class="t9-price">Maliyet: <b>3.000</b> altın <span>·</span> <b>75</b> odun <span>·</span> <b>50</b> işl.metal</div>
+          <div class="t9-ctrl">
+            <button class="minus">−</button>
+            <input value="0">
+            <button class="plus">+</button>
+            <button class="t9-btn">EGIT</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="t9-row" onclick="this.classList.toggle('open')">
+        <div class="t9-head-row">
+          <div class="t9-ico">🪓</div>
+          <div class="t9-info">
+            <div class="t9-name">Baltacı</div>
+            <div class="t9-meta">T1 · ATK <b>2</b> · DEF <b>7</b> · Zırh 15 · Maaş 15</div>
+          </div>
+          <span class="t9-toggle">▾</span>
+        </div>
+        <div class="t9-body">
+          <div class="t9-price">Maliyet: <b>2.000</b> altın <span>·</span> <b>75</b> odun <span>·</span> <b>50</b> işl.metal</div>
+          <div class="t9-ctrl">
+            <button class="minus">−</button><input value="0"><button class="plus">+</button>
+            <button class="t9-btn">EGIT</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="t9-row open" onclick="this.classList.toggle('open')">
+        <div class="t9-head-row">
+          <div class="t9-ico">🏹</div>
+          <div class="t9-info">
+            <div class="t9-name">Okçu</div>
+            <div class="t9-meta">T1 · ATK <b>5</b> · DEF <b>12</b> · Uzun menzil</div>
+          </div>
+          <span class="t9-toggle">▾</span>
+        </div>
+        <div class="t9-body">
+          <div class="t9-price">Maliyet: <b>6.000</b> altın <span>·</span> <b>300</b> odun <span>·</span> <b>50</b> işl.metal</div>
+          <div class="t9-ctrl">
+            <button class="minus">−</button><input value="5"><button class="plus">+</button>
+            <button class="t9-btn">EGIT</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="t9-row" onclick="this.classList.toggle('open')">
+        <div class="t9-head-row">
+          <div class="t9-ico">⚔️</div>
+          <div class="t9-info">
+            <div class="t9-name">Savaşçı</div>
+            <div class="t9-meta">T2 · ATK <b>6</b> · DEF <b>18</b> · Ağır piyade</div>
+          </div>
+          <span class="t9-toggle">▾</span>
+        </div>
+        <div class="t9-body">
+          <div class="t9-price">Maliyet: <b>12.000</b> altın <span>·</span> <b>800</b> metal <span>·</span> <b>120</b> işl.metal</div>
+          <div class="t9-ctrl">
+            <button class="minus">−</button><input value="0"><button class="plus">+</button>
+            <button class="t9-btn">EGIT</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="t9-row open" onclick="this.classList.toggle('open')">
+        <div class="t9-head-row">
+          <div class="t9-ico">🛡️</div>
+          <div class="t9-info">
+            <div class="t9-name">Paladin</div>
+            <div class="t9-meta">T3 · ATK <b>9</b> · DEF <b>33</b> · Elit savunma</div>
+          </div>
+          <span class="t9-toggle">▾</span>
+        </div>
+        <div class="t9-body">
+          <div class="t9-price">Maliyet: <b>28.000</b> altın <span>·</span> <b>1.500</b> metal <span>·</span> <b>1</b> at</div>
+          <div class="t9-ctrl">
+            <button class="minus">−</button><input value="2"><button class="plus">+</button>
+            <button class="t9-btn">EGIT</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="t9-row" onclick="this.classList.toggle('open')">
+        <div class="t9-head-row">
+          <div class="t9-ico">🐎</div>
+          <div class="t9-info">
+            <div class="t9-name">Süvari</div>
+            <div class="t9-meta">T2 · ATK <b>8</b> · DEF <b>26</b> · Hızlı</div>
+          </div>
+          <span class="t9-toggle">▾</span>
+        </div>
+        <div class="t9-body">
+          <div class="t9-price">Maliyet: <b>11.500</b> altın <span>·</span> <b>300</b> metal <span>·</span> <b>1</b> at</div>
+          <div class="t9-ctrl">
+            <button class="minus">−</button><input value="0"><button class="plus">+</button>
+            <button class="t9-btn">EGIT</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="t9-row" onclick="this.classList.toggle('open')">
+        <div class="t9-head-row">
+          <div class="t9-ico">🗡️</div>
+          <div class="t9-info">
+            <div class="t9-name">Kolcu</div>
+            <div class="t9-meta">T2 · ATK <b>10</b> · DEF <b>30</b> · Gizli asker</div>
+          </div>
+          <span class="t9-toggle">▾</span>
+        </div>
+        <div class="t9-body">
+          <div class="t9-price">Maliyet: <b>32.000</b> altın <span>·</span> <b>500</b> metal <span>·</span> <b>1</b> gizlilik</div>
+          <div class="t9-ctrl">
+            <button class="minus">−</button><input value="0"><button class="plus">+</button>
+            <button class="t9-btn">EGIT</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div style="padding:20px;text-align:center;color:#888;font-size:12px;border-top:1px solid #333">
-  <b style="color:#d4af37">👉 Hangisini beğendin?</b> "1 – 8" arası tek numara söyle, onu gerçek <code>page-army.js</code> + <code>main.css</code>'e implement ederim.
+  <b style="color:#d4af37">👉 Hangisini beğendin?</b> "1 – 9" arası tek numara söyle, onu gerçek <code>page-army.js</code> + <code>main.css</code>'e implement ederim.
 </div>
 
 <script>
