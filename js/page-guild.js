@@ -862,12 +862,15 @@ function renderTabKasa(el, data) {
     ((GUILD_CONFIG && GUILD_CONFIG.hammadde_bagis_24pg) || 3) + ' bagis/24PG ' + cdHText + '</div>';
 
   // Koylu bagisi
+  // v1.14.0.41: Input'a max attribute + frontend validation
+  var koyluMax = (GUILD_CONFIG && GUILD_CONFIG.koylu_bagis_limit) || 100;
+  var koyluTip = (GUILD_CONFIG && GUILD_CONFIG.koylu_bagis_tip) || 'adet';
   var koyluBagisHTML = '<div style="margin-top:8px;padding-top:8px;border-top:1px solid #222">' +
     '<div style="font-size:10px;color:#aaa;margin-bottom:4px">👨‍🌾 Koylu Bagisi</div>' +
     '<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">' +
-      '<input id="koylu-bagis-adet" type="number" min="1" placeholder="Adet" style="width:80px;padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
-      '<button class="btn-action" style="width:auto;padding:4px 10px;font-size:9px" onclick="guildKoyluBagis(' + g.id + ')">Gonder</button>' +
-      '<span style="font-size:9px;color:#555">Max ' + ((GUILD_CONFIG && GUILD_CONFIG.koylu_bagis_limit) || 100) + ' ' + ((GUILD_CONFIG && GUILD_CONFIG.koylu_bagis_tip) || 'adet') + ' | ' + ((GUILD_CONFIG && GUILD_CONFIG.koylu_bagis_24pg) || 2) + '/24PG</span>' +
+      '<input id="koylu-bagis-adet" type="number" min="1" max="' + koyluMax + '" placeholder="Max ' + koyluMax + '" style="width:100px;padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px" oninput="if(this.value>' + koyluMax + ')this.value=' + koyluMax + '">' +
+      '<button class="btn-action" style="width:auto;padding:4px 10px;font-size:9px" onclick="guildKoyluBagis(' + g.id + ',' + koyluMax + ')">Gonder</button>' +
+      '<span style="font-size:9px;color:#555">Max <b style="color:#aaa">' + koyluMax + '</b> ' + koyluTip + ' | ' + ((GUILD_CONFIG && GUILD_CONFIG.koylu_bagis_24pg) || 2) + '/24PG</span>' +
     '</div>' +
     '<div style="font-size:9px;margin-top:4px">' + cdKText + '</div>' +
   '</div>';
@@ -1112,9 +1115,17 @@ async function guildBagis(guildId, kaynak) {
   } catch(e) { alert('Hata'); }
 }
 
-async function guildKoyluBagis(guildId) {
+async function guildKoyluBagis(guildId, maxLimit) {
   var adet = parseInt(document.getElementById('koylu-bagis-adet')?.value);
   if (!adet || adet <= 0) { alert('Gecerli bir adet girin'); return; }
+  // v1.14.0.41: max limit frontend clamp (kullanici 6000 yazsa da 1000'e cekilir)
+  var max = parseInt(maxLimit) || (GUILD_CONFIG && GUILD_CONFIG.koylu_bagis_limit) || 1000;
+  if (adet > max) {
+    if (!confirm('⚠ Girdiğin ' + adet + ' adet, izin verilen MAX ' + max + '\'in üzerinde. ' + max + ' adet olarak gönderilsin mi?')) return;
+    adet = max;
+    var inp = document.getElementById('koylu-bagis-adet');
+    if (inp) inp.value = max;
+  }
   // v1.13.67: Cooldown durumunu confirm'e dahil et
   var cdK = GUILD_DATA && GUILD_DATA.bagis_cooldown && GUILD_DATA.bagis_cooldown.koylu;
   var cdMsg = '';
