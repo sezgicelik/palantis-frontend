@@ -1818,7 +1818,7 @@ async function renderTabDiplomasi(el, data) {
     var d = await resp.json();
     if (!resp.ok) { el.innerHTML = '<div style="color:#e74c3c">' + (d.error || 'Hata') + '</div>'; return; }
 
-    var isLider = data.uye && data.uye.rutbe === 'lider';
+    var isLider = data.benim_rutbem === 'lider';
     var iliskiler = d.iliskiler || [];
 
     // Durum badge'i
