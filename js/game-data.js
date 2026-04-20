@@ -204,8 +204,21 @@ async function loadGameData() {
       if (alanData.ordu_morali !== undefined) {
         setText('hud-moral', alanData.ordu_morali);
       }
-      // v1.13.70.2: hud-sehir-moral artik hud.js tarafindan _GPS_DATA ile yaziliyor
-      // (mutluluk_toplam / max + bina_bonus formatinda). Burada overwrite etmiyoruz.
+      // v1.13.70.3: Mutluluk = ham moral + bina bonusu (gps endpoint'inden)
+      // Onceden sadece alanData.sehir_morali yaziliyordu (ham value). Simdi bileske.
+      if (gpsRaw && gpsRaw.mutluluk_toplam !== undefined) {
+        const binaStr = gpsRaw.bina_moral_bonus > 0 ? ` +${gpsRaw.bina_moral_bonus}` : '';
+        setText('hud-sehir-moral', `${gpsRaw.mutluluk_toplam} / ${gpsRaw.moral_max}${binaStr}`);
+        // Tooltip guncelle
+        const el = document.getElementById('hud-sehir-moral');
+        if (el && el.parentElement && el.parentElement.parentElement) {
+          el.parentElement.parentElement.setAttribute('data-tip',
+            `MUTLULUK · GPS %${gpsRaw.gps} · Moral ${gpsRaw.sehir_morali} + Bina ${gpsRaw.bina_moral_bonus}`);
+        }
+      } else if (alanData.sehir_morali !== undefined) {
+        // Fallback — GPS endpoint yok ise eski davranis
+        setText('hud-sehir-moral', alanData.sehir_morali);
+      }
       window._palantisToplamAlan = toplamAlan;
       // landState (arazi sayfasi)
       if (typeof landState !== 'undefined') {
