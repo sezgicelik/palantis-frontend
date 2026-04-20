@@ -1844,12 +1844,32 @@ async function renderTabDiplomasi(el, data) {
 
     var html = '<div style="max-width:1200px;margin:0 auto">';
 
-    // LIDER teklif formu
+    // LIDER teklif formu — dropdown ile rakip guild secimi
     if (isLider) {
+      // Tum guildleri cek (kendi haric)
+      var kendiGid = data.guild.id;
+      var mevcutIliskiMap = {};
+      for (var ii = 0; ii < iliskiler.length; ii++) mevcutIliskiMap[iliskiler[ii].rakip.id] = iliskiler[ii].durum;
+      var guildListHTML = '<option value="">-- Rakip guild seç --</option>';
+      try {
+        var gResp = await fetch(API_BASE + '/api/guild/liste/tumu', { headers: guildHdr() });
+        var gData = await gResp.json();
+        if (Array.isArray(gData)) {
+          var sorted = gData.filter(function(g){ return g.id !== kendiGid; });
+          sorted.sort(function(a,b){ return (a.isim||'').localeCompare(b.isim||'','tr'); });
+          for (var gi = 0; gi < sorted.length; gi++) {
+            var g = sorted[gi];
+            var mevcut = mevcutIliskiMap[g.id];
+            var durumEki = mevcut ? ' [' + mevcut + ']' : '';
+            guildListHTML += '<option value="' + g.id + '">' + (g.isim || '?') + ' ' + (g.tag ? '[' + g.tag + ']' : '') + ' · ' + (g.uye_sayisi || 0) + ' üye' + durumEki + '</option>';
+          }
+        }
+      } catch(e) {}
+
       html += '<div class="card" style="margin-bottom:16px;padding:14px">' +
         '<h3 style="color:#3498db;margin-top:0">🤝 Yeni Teklif Gönder (Lider)</h3>' +
         '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
-          '<input id="dip-rakip" type="number" placeholder="Rakip guild ID" style="width:140px;padding:6px;background:#1a1a1a;color:#fff;border:1px solid #444;border-radius:3px">' +
+          '<select id="dip-rakip" style="padding:6px;background:#1a1a1a;color:#fff;border:1px solid #444;border-radius:3px;min-width:280px">' + guildListHTML + '</select>' +
           '<button class="btn-action" onclick="dipTeklif(\'antlasma\')" style="background:#27ae60;color:#fff">🤝 ANTLAŞMA Teklif Et</button>' +
           '<button class="btn-action" onclick="dipTeklif(\'savas\')" style="background:#e74c3c;color:#fff">⚔️ SAVAŞ İlan Et</button>' +
           '<button class="btn-action" onclick="dipTeklif(\'tabiyet\')" style="background:#9b59b6;color:#fff">👑 TABIYET Teklif (Hakim OL)</button>' +
