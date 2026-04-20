@@ -3867,6 +3867,19 @@ async function loadKadimTicaretTablosu() {
   } catch(e) { el.innerHTML = '<div style="color:#e74c3c">Hata: ' + e.message + '</div>'; }
 }
 
+// v1.14.0.26: Casus force-tamamla — bitis suresi gecmis tum gorevleri tetikle
+async function casusForceTamamla(playerId) {
+  if (!confirm('Bu oyuncunun bitmiş casus görevlerini manuel tamamla?\n\nCron kaçırdığında raporlar oluşmaz — bu buton onları hemen tetikler, activity_log ve Telegram bildirim gider.')) return;
+  try {
+    const r = await fetch(API + '/api/admin/casus/force-tamamla', {
+      method: 'POST', headers: hdr(), body: JSON.stringify({ player_id: playerId })
+    });
+    const d = await r.json();
+    if (d.ok) { alert('✅ ' + d.mesaj); loadBildirimTani(); }
+    else alert('Hata: ' + (d.error || ''));
+  } catch(e) { alert('Hata: ' + e.message); }
+}
+
 // v1.14.0.23: Telegram + casus tani
 async function loadBildirimTani() {
   const pid = parseInt(document.getElementById('bt-pid')?.value);
@@ -3913,8 +3926,13 @@ async function loadBildirimTani() {
 
     // AKTIF CASUSLAR
     if (d.aktif_casuslar && d.aktif_casuslar.length > 0) {
+      // v1.14.0.26: Bitis gecmisse force tamamla butonu
+      const bitmisSayisi = d.aktif_casuslar.filter(c => c.durum === 'gorevde' && c.kalan_sn <= 0).length;
       html += '<div style="margin-bottom:10px;padding:8px;border:1px solid #222;border-radius:4px">' +
         '<b style="color:#9b59b6">🕵️ Oyuncunun Casusları (' + d.aktif_casuslar.length + ')</b>';
+      if (bitmisSayisi > 0) {
+        html += ' <button onclick="casusForceTamamla(' + pid + ')" style="background:#9b59b6;color:#fff;border:none;padding:3px 8px;border-radius:3px;cursor:pointer;font-size:10px;margin-left:8px">▶ ' + bitmisSayisi + ' bitmiş görevi tamamla</button>';
+      }
       html += '<table style="width:100%;font-size:10px;margin-top:6px;border-collapse:collapse"><tr style="color:#666">' +
         '<th style="text-align:left;padding:3px">Görev</th><th style="text-align:left">Durum</th><th style="text-align:right">Can</th><th style="text-align:right">Sv</th><th style="text-align:right">Kalan</th></tr>';
       for (const c of d.aktif_casuslar) {
