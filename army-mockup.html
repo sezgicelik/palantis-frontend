@@ -163,6 +163,31 @@
   .t9-ctrl input{flex:1;text-align:center;background:#0a0604;border:1px solid #3a3020;color:#e0c97f;padding:6px;border-radius:3px;font-size:13px;font-family:'Cinzel',serif}
   .t9-btn{flex-shrink:0;background:transparent;color:#d4af37;border:1px solid #d4af37;padding:7px 18px;font-weight:700;border-radius:3px;cursor:pointer;font-family:'Cinzel',serif;font-size:11px;transition:.2s;letter-spacing:1.5px}
   .t9-btn:hover{background:#d4af37;color:#0a0604;box-shadow:0 0 12px rgba(212,175,55,0.5)}
+
+  /* ═══ TASARIM 10: 1+7 KOMBINE — Ultra Sade Toplu (eski Palantis/Travian hissi) ═══ */
+  .t10-wrap{max-width:460px;margin:0 auto;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:4px;padding:14px;font-family:'Crimson Pro','Times New Roman',serif}
+  .t10-header{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;margin-bottom:10px;border-bottom:2px solid #1f1f1f}
+  .t10-title{color:#e0c97f;font-family:'Cinzel',serif;font-size:13px;font-weight:700;letter-spacing:2px}
+  .t10-count{color:#666;font-size:10px;font-family:'Courier New',monospace}
+  .t10-list{display:flex;flex-direction:column}
+  .t10-row{display:grid;grid-template-columns:1fr auto auto auto 104px;gap:10px;align-items:center;padding:6px 4px;border-bottom:1px solid #131313;font-size:12px}
+  .t10-row:hover{background:rgba(212,175,55,0.03)}
+  .t10-row:last-child{border-bottom:none}
+  .t10-name{color:#e8e8e8;font-weight:600;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .t10-name small{color:#666;font-size:10px;margin-left:4px;font-weight:400}
+  .t10-stat{color:#888;font-family:'Courier New',monospace;font-size:10px;min-width:54px;text-align:right}
+  .t10-stat b{color:#aaa;font-weight:600}
+  .t10-cost{color:#d4af37;font-family:'Courier New',monospace;font-size:11px;min-width:42px;text-align:right;font-weight:600}
+  .t10-ctrl{display:flex;align-items:center;gap:2px}
+  .t10-ctrl button{width:24px;height:24px;background:#151515;border:1px solid #2a2a2a;color:#999;cursor:pointer;font-size:13px;line-height:1;padding:0;border-radius:2px;transition:.1s}
+  .t10-ctrl button:hover{background:#1f1f1f;color:#e0c97f;border-color:#555}
+  .t10-ctrl input{width:44px;text-align:center;background:#000;border:1px solid #2a2a2a;color:#e8e8e8;padding:3px;font-size:11px;font-family:'Courier New',monospace;border-radius:2px}
+  .t10-ctrl input:focus{outline:none;border-color:#e0c97f}
+  .t10-summary{margin-top:12px;padding:10px 12px;background:#0d0a05;border:1px solid #2f2815;border-radius:3px;font-size:11px;color:#aaa;display:flex;justify-content:space-between;align-items:center}
+  .t10-summary b{color:#e0c97f;font-family:'Courier New',monospace}
+  .t10-submit{width:100%;margin-top:8px;background:#000;color:#e0c97f;border:1px solid #e0c97f;padding:11px;font-weight:700;border-radius:3px;cursor:pointer;font-family:'Cinzel',serif;font-size:12px;letter-spacing:3px;transition:.2s}
+  .t10-submit:hover{background:#e0c97f;color:#000;letter-spacing:4px}
+  .t10-submit:disabled{background:#0a0a0a;color:#444;border-color:#222;cursor:not-allowed;letter-spacing:2px}
 </style>
 </head>
 <body>
@@ -177,6 +202,7 @@
   <button data-t="7" style="border-color:#16a085;color:#16a085">7) 📱 Ultra Sıkışık</button>
   <button data-t="8" style="border-color:#16a085;color:#16a085">8) 📱 Accordion</button>
   <button data-t="9" style="border-color:#d4af37;color:#d4af37;background:rgba(212,175,55,0.08)">⚜ 9) 5+8 Kombine (Altın Accordion)</button>
+  <button data-t="10" style="border-color:#95a5a6;color:#bdc3c7;background:rgba(149,165,166,0.08)">📜 10) 1+7 Kombine (Ultra Sade Toplu)</button>
   <button data-t="all">Hepsi</button>
 </div>
 
@@ -721,8 +747,90 @@
   </div>
 </div>
 
+<!-- ═══════════ TASARIM 10: 1+7 KOMBİNE — Ultra Sade Toplu (eski Palantis/Travian hissi) ═══════════ -->
+<div class="mockup-section" data-sec="10">
+  <h3 class="mockup-title">📜 🔟 1+7 Kombine — Ultra Sade Toplu</h3>
+  <p class="mockup-desc">Mockup 1'in "ikon yok, sade eski Palantis/Travian" hissi + Mockup 7'nin "ultra sıkışık tek satır + toplu EĞİT" davranışı. Monospace rakamlar, sessiz renkler, minimum dikkat dağıtması. Toplam özet alttada görünür; tek hamle ile tüm seçim eğitilir.</p>
+  <div class="t10-wrap">
+    <div class="t10-header">
+      <span class="t10-title">⚔ ASKERİ EĞİTİM</span>
+      <span class="t10-count">14 ünite · 7 mevcut</span>
+    </div>
+    <div class="t10-list">
+      <div class="t10-row">
+        <div class="t10-name">Piyade <small>T1</small></div>
+        <div class="t10-stat"><b>2</b>/<b>10</b></div>
+        <div class="t10-stat">zrh 20</div>
+        <div class="t10-cost">3k</div>
+        <div class="t10-ctrl"><button>−</button><input value="0"><button>+</button></div>
+      </div>
+      <div class="t10-row">
+        <div class="t10-name">Baltacı <small>T1</small></div>
+        <div class="t10-stat"><b>2</b>/<b>7</b></div>
+        <div class="t10-stat">zrh 15</div>
+        <div class="t10-cost">2k</div>
+        <div class="t10-ctrl"><button>−</button><input value="0"><button>+</button></div>
+      </div>
+      <div class="t10-row">
+        <div class="t10-name">Okçu <small>T1</small></div>
+        <div class="t10-stat"><b>5</b>/<b>12</b></div>
+        <div class="t10-stat">zrh 12</div>
+        <div class="t10-cost">6k</div>
+        <div class="t10-ctrl"><button>−</button><input value="10"><button>+</button></div>
+      </div>
+      <div class="t10-row">
+        <div class="t10-name">Savaşçı <small>T2</small></div>
+        <div class="t10-stat"><b>6</b>/<b>18</b></div>
+        <div class="t10-stat">zrh 25</div>
+        <div class="t10-cost">7.5k</div>
+        <div class="t10-ctrl"><button>−</button><input value="0"><button>+</button></div>
+      </div>
+      <div class="t10-row">
+        <div class="t10-name">Şövalye <small>T2</small></div>
+        <div class="t10-stat"><b>6</b>/<b>22</b></div>
+        <div class="t10-stat">zrh 30</div>
+        <div class="t10-cost">10k</div>
+        <div class="t10-ctrl"><button>−</button><input value="5"><button>+</button></div>
+      </div>
+      <div class="t10-row">
+        <div class="t10-name">Süvari <small>T2</small></div>
+        <div class="t10-stat"><b>8</b>/<b>26</b></div>
+        <div class="t10-stat">zrh 28</div>
+        <div class="t10-cost">11.5k</div>
+        <div class="t10-ctrl"><button>−</button><input value="0"><button>+</button></div>
+      </div>
+      <div class="t10-row">
+        <div class="t10-name">Paladin <small>T3</small></div>
+        <div class="t10-stat"><b>9</b>/<b>33</b></div>
+        <div class="t10-stat">zrh 40</div>
+        <div class="t10-cost">16k</div>
+        <div class="t10-ctrl"><button>−</button><input value="3"><button>+</button></div>
+      </div>
+      <div class="t10-row">
+        <div class="t10-name">Kolcu <small>T3</small></div>
+        <div class="t10-stat"><b>10</b>/<b>30</b></div>
+        <div class="t10-stat">zrh 35</div>
+        <div class="t10-cost">32k</div>
+        <div class="t10-ctrl"><button>−</button><input value="0"><button>+</button></div>
+      </div>
+      <div class="t10-row">
+        <div class="t10-name">Büyücü <small>T3</small></div>
+        <div class="t10-stat"><b>11</b>/<b>18</b></div>
+        <div class="t10-stat">zrh 18</div>
+        <div class="t10-cost">24k</div>
+        <div class="t10-ctrl"><button>−</button><input value="0"><button>+</button></div>
+      </div>
+    </div>
+    <div class="t10-summary">
+      <span>Seçilen: <b>18</b> ünite · <b>188k</b> altın · <b>3.4k</b> odun</span>
+      <span style="color:#666;font-size:10px">(P.G. süresi: 2-6)</span>
+    </div>
+    <button class="t10-submit">SEÇİLENLERİ EĞİT</button>
+  </div>
+</div>
+
 <div style="padding:20px;text-align:center;color:#888;font-size:12px;border-top:1px solid #333">
-  <b style="color:#d4af37">👉 Hangisini beğendin?</b> "1 – 9" arası tek numara söyle, onu gerçek <code>page-army.js</code> + <code>main.css</code>'e implement ederim.
+  <b style="color:#d4af37">👉 Hangisini beğendin?</b> "1 – 10" arası tek numara söyle, onu gerçek <code>page-army.js</code> + <code>main.css</code>'e implement ederim.
 </div>
 
 <script>
