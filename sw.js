@@ -1,6 +1,6 @@
 // v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
 // Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
-const CACHE_NAME = 'noxara-v38'; // v1.14.0.23 Telegram + casus tani araci
+const CACHE_NAME = 'noxara-v39'; // v1.14.0.24 iade duplicate guard + negatif kesme + username kolon fix
 
 // Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [
