@@ -20,6 +20,7 @@
     <div class="army-tabs" style="margin-bottom:16px">
       <button class="atab on" onclick="cityTab('binalar',this)">🏗️ Binalar</button>
       <button class="atab" onclick="cityTab('gelistirmeler',this)">📈 Geliştirmeler</button>
+      <button class="atab" onclick="cityTab('mutluluk',this)">😊 Mutluluk & GPS</button>
     </div>
 
     <!-- BINALAR TAB -->
@@ -75,13 +76,150 @@
       <div id="gel-container" style="display:none"></div>
     </div>
 
+    <!-- MUTLULUK & GPS TAB (v1.13.70) -->
+    <div id="ctab-mutluluk" style="display:none">
+      <div id="mutluluk-loading" style="color:#888;text-align:center;padding:40px">Yükleniyor...</div>
+      <div id="mutluluk-container" style="display:none">
+        <!-- Özet -->
+        <div class="card" style="padding:18px;margin-bottom:16px;border-left:3px solid #d4af37">
+          <h3 style="margin:0 0 14px;color:#d4af37">😊 Mutluluk Göstergesi</h3>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px">
+            <div class="cstat" style="background:rgba(212,175,55,0.08);padding:12px;border-radius:6px;text-align:center">
+              <div style="font-size:24px;font-weight:bold;color:#d4af37" id="mt-toplam">—</div>
+              <div style="font-size:10px;color:#888;letter-spacing:1px">MUTLULUK TOPLAM</div>
+            </div>
+            <div class="cstat" style="background:rgba(46,204,113,0.08);padding:12px;border-radius:6px;text-align:center">
+              <div style="font-size:24px;font-weight:bold;color:#2ecc71" id="mt-gps">—</div>
+              <div style="font-size:10px;color:#888;letter-spacing:1px">GPS (POP SEV.)</div>
+            </div>
+            <div class="cstat" style="background:rgba(52,152,219,0.08);padding:12px;border-radius:6px;text-align:center">
+              <div style="font-size:24px;font-weight:bold;color:#3498db" id="mt-moral">—</div>
+              <div style="font-size:10px;color:#888;letter-spacing:1px">HAM MORAL</div>
+            </div>
+            <div class="cstat" style="background:rgba(155,89,182,0.08);padding:12px;border-radius:6px;text-align:center">
+              <div style="font-size:24px;font-weight:bold;color:#9b59b6" id="mt-bina">—</div>
+              <div style="font-size:10px;color:#888;letter-spacing:1px">BİNA BONUSU</div>
+            </div>
+          </div>
+          <div id="mt-aciklama" style="margin-top:14px;padding:10px;background:#0f0f0f;border-radius:4px;font-size:11px;color:#aaa"></div>
+        </div>
+
+        <!-- 5 Alan Progress -->
+        <div class="card" style="padding:18px;margin-bottom:16px">
+          <h3 style="margin:0 0 14px;color:#c8a96e">🏛️ Populasyon Seviyesi — 5 İlgi Alanı</h3>
+          <p style="font-size:11px;color:#888;margin:0 0 12px">
+            Her alanın şehir binaları halkın ne kadarını kapsıyor. GPS = 5 alanın ortalaması.<br>
+            <b style="color:#d4af37">Vergi Sistemi 2 aktifse</b> GPS %30 altındaki oyuncu vergi alamaz.
+          </p>
+          <div id="mt-alanlar" style="display:flex;flex-direction:column;gap:10px"></div>
+        </div>
+
+        <!-- Bina Moral Bonusu Detay -->
+        <div class="card" style="padding:18px">
+          <h3 style="margin:0 0 14px;color:#9b59b6">🏰 Bina Pasif Moral Bonusları</h3>
+          <p style="font-size:11px;color:#888;margin:0 0 12px">
+            Bu binalar yaptığınız sürece mutluluğa sabit bonus ekler. Bina yıkılırsa bonus kaybolur.
+          </p>
+          <div id="mt-bina-list" style="display:flex;flex-direction:column;gap:6px;font-size:12px"></div>
+        </div>
+      </div>
+    </div>
+
     <script>
+    const ALAN_ISIMLER = { egitim:'🎓 Eğitim', bilgi:'📚 Bilgi', kultur:'🎭 Kültür', eglence:'⚔️ Eğlence', sehir:'🏛️ Şehir' };
+    const ALAN_RENKLER = { egitim:'#3498db', bilgi:'#d4af37', kultur:'#e91e63', eglence:'#e74c3c', sehir:'#2ecc71' };
+    const BINA_ISIMLER = {
+      okul:'Okul', universite:'Üniversite', akademi:'Akademi',
+      kutuphane:'Kütüphane', buyuk_kutuphane:'Büyük Kütüphane',
+      tiyatro:'Tiyatro', opera_evi:'Opera Evi',
+      arena:'Arena', koliseum:'Koliseum', taverna:'Taverna',
+      asma_bahceler:'Asma Bahçeler', muze:'Müze', noxara_hani:'Noxara Hanı', katedral:'Katedral',
+      lonca:'Lonca', sehir_meydani:'Şehir Meydanı',
+      rathe_tapinagi:'Rathe Tapınağı', xegony_tapinagi:'Xegony Tapınağı',
+      fennin_tapinagi:'Fennin Tapınağı', tunare_tapinagi:'Tunare Tapınağı'
+    };
+
+    async function loadMutluluk() {
+      const token = getToken();
+      if (!token) return;
+      const loading = document.getElementById('mutluluk-loading');
+      const container = document.getElementById('mutluluk-container');
+      loading.style.display = 'block';
+      container.style.display = 'none';
+      try {
+        const resp = await fetch(API_BASE + '/api/game/gps', { headers: { 'Authorization': 'Bearer ' + token } });
+        if (!resp.ok) throw new Error('GPS verisi alinamadi');
+        const d = await resp.json();
+        // Ozet
+        const fmt = n => (n || 0).toLocaleString('tr-TR');
+        document.getElementById('mt-toplam').textContent = `${fmt(d.mutluluk_toplam)} / ${fmt(d.moral_max)}`;
+        document.getElementById('mt-gps').textContent = `%${d.gps}`;
+        document.getElementById('mt-moral').textContent = fmt(d.sehir_morali);
+        document.getElementById('mt-bina').textContent = `+${fmt(d.bina_moral_bonus)}`;
+
+        // Aciklama
+        const aciklamaEl = document.getElementById('mt-aciklama');
+        let acklm = `<b>Cag:</b> ${d.cag} · <b>Mutluluk yuzde:</b> %${d.mutluluk_yuzde} · <b>Moral aralık:</b> ${fmt(d.moral_min)} ile ${fmt(d.moral_max)}`;
+        if (d.gps >= 100) acklm += ` · <span style="color:#2ecc71">✓ GPS %100 — saatlik +6 pasif moral kazaniyorsun</span>`;
+        else if (d.gps >= 90) acklm += ` · <span style="color:#27ae60">✓ GPS %90+ — saatlik +4 pasif moral kazaniyorsun</span>`;
+        else if (d.gps >= 30) acklm += ` · <span style="color:#f39c12">⚠ GPS %90 altında — pasif moral recovery yok</span>`;
+        else acklm += ` · <span style="color:#e74c3c">⚠ GPS %30 altında — Vergi Sistemi 2 aktifse vergi alamazsın!</span>`;
+        aciklamaEl.innerHTML = acklm;
+
+        // 5 Alan Progress
+        const alanlarEl = document.getElementById('mt-alanlar');
+        const alanHtml = Object.entries(ALAN_ISIMLER).map(([k, isim]) => {
+          const yuzde = d.alan[k] || 0;
+          const detay = d.alan_detay?.[k] || {};
+          const renk = ALAN_RENKLER[k];
+          const binaDetay = (detay.detay || []).filter(b => b.adet > 0).map(b =>
+            `${BINA_ISIMLER[b.bina] || b.bina} ×${b.adet} (${fmt(b.katki)})`
+          ).join(' · ') || '<span style="color:#555">Henuz bu alanda bina yok</span>';
+          return `
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:12px">
+                <span style="color:${renk};font-weight:bold">${isim}</span>
+                <span style="color:#ccc"><b style="color:${renk}">${yuzde}%</b> (${fmt(detay.kapsama)}/${fmt(d.toplam_nufus)})</span>
+              </div>
+              <div style="background:#111;border-radius:3px;height:12px;overflow:hidden;border:1px solid #222">
+                <div style="background:${renk};height:100%;width:${yuzde}%;transition:width .3s"></div>
+              </div>
+              <div style="font-size:10px;color:#888;margin-top:3px">${binaDetay}</div>
+            </div>`;
+        }).join('');
+        alanlarEl.innerHTML = alanHtml;
+
+        // Bina Moral Listesi
+        const binaListEl = document.getElementById('mt-bina-list');
+        if ((d.bina_moral_detay || []).length === 0) {
+          binaListEl.innerHTML = '<div style="color:#666;text-align:center;padding:14px">Moral veren bina henuz yok.<br><small>Lonca, Taverna, Tapinak (4 tip), Sehir Meydani, Noxara Hani, Muze, Asma Bahceler, Katedral</small></div>';
+        } else {
+          binaListEl.innerHTML = d.bina_moral_detay.map(b =>
+            `<div style="display:flex;justify-content:space-between;padding:6px 10px;background:rgba(155,89,182,0.06);border-left:2px solid #9b59b6;border-radius:3px">
+              <span>${BINA_ISIMLER[b.bina] || b.bina} <span style="color:#888;font-size:10px">×${b.adet}</span></span>
+              <span style="color:#9b59b6;font-weight:bold">+${fmt(b.toplam)} moral</span>
+            </div>`
+          ).join('') + `
+            <div style="margin-top:10px;padding:10px;background:#1a0d1f;border-radius:4px;text-align:right">
+              <b style="color:#9b59b6">TOPLAM BİNA BONUSU: +${fmt(d.bina_moral_bonus)} moral</b>
+            </div>`;
+        }
+
+        loading.style.display = 'none';
+        container.style.display = 'block';
+      } catch(e) {
+        loading.innerHTML = '<span style="color:#e74c3c">Hata: ' + e.message + '</span>';
+      }
+    }
+
     function cityTab(tab, el) {
       document.getElementById('ctab-binalar').style.display = tab==='binalar' ? 'block' : 'none';
       document.getElementById('ctab-gelistirmeler').style.display = tab==='gelistirmeler' ? 'block' : 'none';
+      document.getElementById('ctab-mutluluk').style.display = tab==='mutluluk' ? 'block' : 'none';
       document.querySelectorAll('.army-tabs .atab').forEach(b => b.classList.remove('on'));
       if (el) el.classList.add('on');
       if (tab === 'gelistirmeler') loadSehirGel();
+      if (tab === 'mutluluk') loadMutluluk();
     }
 
     const GEL_KAT_ISIM = { kaynak:'⛏️ Kaynak Üretimi', isleme:'🔥 İşleme', ekonomi:'🏛️ Ekonomi', askeri:'⚔️ Askeri Destek', mana:'✨ Mana' };

@@ -76,7 +76,21 @@ function setHUD(d){
   setText('hud-pbg',d.islenmis.pismis_balik_g);
 
   // GENEL
-  if (d.genel.sehir_morali !== undefined) setText('hud-sehir-moral', d.genel.sehir_morali);
+  // v1.13.70: Mutluluk artik sehir_morali + bina_moral_bonus gosterimi (eger GPS data var ise)
+  const gps = window._GPS_DATA;
+  if (gps && gps.mutluluk_toplam !== undefined) {
+    // "1500 / 5000 (+250 bina)" formati
+    const binaStr = gps.bina_moral_bonus > 0 ? ` +${gps.bina_moral_bonus}` : '';
+    setText('hud-sehir-moral', `${gps.mutluluk_toplam} / ${gps.moral_max}${binaStr}`);
+    // Tooltip'i gun icinde guncelle (data-tip)
+    const el = document.getElementById('hud-sehir-moral');
+    if (el && el.parentElement && el.parentElement.parentElement) {
+      el.parentElement.parentElement.setAttribute('data-tip',
+        `MUTLULUK · GPS %${gps.gps} · Moral ${gps.sehir_morali} + Bina ${gps.bina_moral_bonus}`);
+    }
+  } else if (d.genel.sehir_morali !== undefined) {
+    setText('hud-sehir-moral', d.genel.sehir_morali);
+  }
   setText('hud-moral',  d.genel.moral);
   setText('hud-hunger', d.genel.aclik + '%');
 

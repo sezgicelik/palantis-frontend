@@ -114,7 +114,7 @@ async function loadGameData() {
     // 14 endpoint paralel (eskiden 10 + 3 sequential = 13)
     const [
       pData, resRaw, prodRaw, workRaw, alanRaw, takvimRaw,
-      armyRaw, kvRaw, tatilRaw, ateskesRaw, gorevRaw, gRaw, maliyetRaw, nufusRaw
+      armyRaw, kvRaw, tatilRaw, ateskesRaw, gorevRaw, gRaw, maliyetRaw, nufusRaw, gpsRaw
     ] = await Promise.all([
       fetchJson('/api/player/me'),
       fetchJson('/api/game/resources'),
@@ -127,10 +127,13 @@ async function loadGameData() {
       fetchJson('/api/game/tatil'),
       fetchJson('/api/game/ateskes'),
       fetchJson('/api/gorev/liste'),
-      fetchJson('/api/guild/benim'),       // Guild artik paralel (guilde degilse null)
+      fetchJson('/api/guild/benim'),
       fetchJson('/api/game/bina-maliyetler'),
-      fetchJson('/api/game/nufus'),        // v1.13.35
+      fetchJson('/api/game/nufus'),
+      fetchJson('/api/game/gps'),          // v1.13.70: GPS + bina bonus + mutluluk
     ]);
+    // v1.13.70: GPS verisini globale koy (HUD + city page kullanir)
+    window._GPS_DATA = gpsRaw || null;
 
     // Null guard + downstream degiskenleri (eski isimlerle uyumluluk)
     const res       = resRaw   || {};
