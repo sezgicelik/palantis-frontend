@@ -29,6 +29,10 @@ async function openSavasRaporFromLog(savasId) {
       showSavasRapor(data.sonuc, data.benim_taraf, {
         saldiranAdi: data.saldiran_kral || 'Saldiran',
         savunanAdi: data.savunan_kral || (data.tip === 'koloni' ? 'Koloni' : 'Savunan'),
+        saldiranKoord: data.saldiran_koord,
+        savunanKoord: data.savunan_koord,
+        saldiranMoral: data.saldiran_moral,
+        savunanMoral: data.savunan_moral,
         tip: data.tip
       });
     } else { alert('Savas rapor modulu yuklenmedi'); }
