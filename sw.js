@@ -1,6 +1,6 @@
 // v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
 // Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
-const CACHE_NAME = 'noxara-v23'; // v1.14.0.10 Savas rapor TUR TUR komp snapshot (eski Palantis: her tur ordu durumu)
+const CACHE_NAME = 'noxara-v24'; // v1.14.0.11 NPC ordu cag-bazli birim mix (oyuncu cag'ına göre)
 
 // Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [
