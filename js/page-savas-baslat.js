@@ -326,8 +326,8 @@ async function sbHareketleriYukle() {
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center">
             <span style="color:#666;font-size:11px">
-              Kalan: ${h.kalan_saat} PG | Sure: ${h.efektif_sure} PG
-              ${h.hiz_bonus > 0 ? ` | Hiz: %${h.hiz_bonus}` : ''}
+              <b style="color:#c8a96e">${Math.max(0, (h.efektif_sure||0) - (h.kalan_saat||0))}/${h.efektif_sure||0}</b> PG
+              ${h.hiz_bonus > 0 ? ` · Hiz: %${h.hiz_bonus}` : ''}
             </span>
             ${h.iptal_edilebilir ? `<button class="btn ghost" style="font-size:10px;padding:2px 10px" onclick="sbGorevIptal(${h.id})">Iptal</button>` : ''}
           </div>

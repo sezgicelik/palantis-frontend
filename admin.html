@@ -84,6 +84,7 @@
     <button onclick="switchTab('moral-tar',this)" style="background:linear-gradient(135deg,#c0392b 0%,#922b21 100%);color:#fff">🛡️ Moral Teshis</button>
     <button onclick="switchTab('bina-nufus',this)" style="background:linear-gradient(135deg,#16a085 0%,#117864 100%);color:#fff">🏘️ Bina Nufus</button>
     <button onclick="switchTab('vergi-sistem',this)" style="background:linear-gradient(135deg,#d4af37 0%,#8a6a1a 100%);color:#fff">💰 Vergi Sistemi</button>
+    <button onclick="switchTab('top-ordular',this)" style="background:linear-gradient(135deg,#8e44ad 0%,#5b2c6f 100%);color:#fff">🏆 Top Ordular</button>
   </div>
 
   <!-- CRON TAB -->
@@ -854,6 +855,18 @@
     </div>
   </div>
 
+  <!-- TOP ORDULAR TAB (v1.14.0.2) -->
+  <div id="tab-top-ordular" class="panel">
+    <h3 style="color:#9b59b6">🏆 Sunucudaki En Guclu 20 Ordu</h3>
+    <p style="font-size:11px;color:#888;margin-bottom:12px">
+      Reyting hesabi bu listenin <b style="color:#9b59b6">1. sirasina</b> gore yapilir.
+      Eger buradaki en guclu ordu asiri fazlaysa (test/NPC), diger oyuncularin reyting'i 0'a yakin gorunur.<br>
+      Hammadde: (baseAtk × saldiriCarpan + baseDef) × adet — gelistirme, moral, irk bonusu haric.
+    </p>
+    <button class="act" onclick="loadTopOrdular()" style="margin-bottom:10px">🔄 Listeyi Yenile</button>
+    <div id="top-ordular-content">Henuz yuklenmedi — butona tikla.</div>
+  </div>
+
   <!-- VERGI SISTEMI TAB (v1.13.70) — 5 farkli vergi modeli -->
   <div id="tab-vergi-sistem" class="panel">
     <h3 style="color:#d4af37">💰 Vergi Sistemi Secimi (5 Model)</h3>
@@ -1041,6 +1054,74 @@ function switchTab(tab, el) {
   if (tab === 'moral-tar') { /* kullanici manuel fetch */ }
   if (tab === 'bina-nufus') loadBinaNufus();
   if (tab === 'vergi-sistem') loadVergiSistem();
+  if (tab === 'top-ordular') loadTopOrdular();
+}
+
+// v1.14.0.2: Sunucu top 20 ordu
+async function loadTopOrdular() {
+  const el = document.getElementById('top-ordular-content');
+  el.innerHTML = '<div style="color:#888">Yukleniyor...</div>';
+  try {
+    const r = await fetch(API + '/api/admin/top-ordular', { headers: hdr() });
+    const d = await r.json();
+    if (!d.ok) { el.innerHTML = '<div style="color:#e74c3c">'+(d.error||'Hata')+'</div>'; return; }
+    const fmt = n => (n||0).toLocaleString('tr-TR');
+    if (!d.top_ordular || d.top_ordular.length === 0) {
+      el.innerHTML = '<div style="color:#666">Hic ordu yok.</div>'; return;
+    }
+    let html = '<table style="width:100%;font-size:11px;border-collapse:collapse">' +
+      '<thead><tr style="background:#1a1a1a">' +
+      '<th style="padding:6px;text-align:left">#</th>' +
+      '<th style="padding:6px;text-align:left">Kral</th>' +
+      '<th style="padding:6px;text-align:left">Ordu</th>' +
+      '<th style="padding:6px;text-align:right">Asker</th>' +
+      '<th style="padding:6px;text-align:right">Guc</th>' +
+      '<th style="padding:6px;text-align:left">Ilk 5 Unite</th>' +
+      '<th style="padding:6px">Aksiyon</th>' +
+      '</tr></thead><tbody>';
+    d.top_ordular.forEach((o, i) => {
+      const vurgu = i === 0 ? 'background:rgba(231,76,60,0.08);color:#e74c3c;font-weight:bold' : '';
+      html += '<tr style="border-bottom:1px solid #222;'+vurgu+'">' +
+        '<td style="padding:6px">' + (i+1) + '</td>' +
+        '<td style="padding:6px">' + (o.kral||'?') + ' <span style="color:#666;font-size:9px">(id:'+o.player_id+')</span></td>' +
+        '<td style="padding:6px">' + (o.army_isim||'Ordu '+o.army_id) + '</td>' +
+        '<td style="padding:6px;text-align:right">' + fmt(o.toplam_asker) + '</td>' +
+        '<td style="padding:6px;text-align:right;font-weight:bold">' + fmt(o.guc) + '</td>' +
+        '<td style="padding:6px;font-size:10px;color:#aaa">' + (o.en_cok_unite||'-') + '</td>' +
+        '<td style="padding:6px"><button class="act" style="font-size:10px;padding:3px 8px" onclick="reytingDetayAc(' + o.player_id + ')">Reyting Detay</button></td>' +
+        '</tr>';
+    });
+    html += '</tbody></table>';
+    html += '<div style="margin-top:10px;padding:8px;background:#0a0a0a;border-left:3px solid #9b59b6;font-size:11px;color:#ccc">' +
+      '<b>Yorum:</b> 1. sirada olan ordu maxOrduGuc\'u belirler. Eger bu ordu cok buyukse, senin ordunun ham_guc/max_guc orani kucuk olur -> reyting %0-1.' +
+      '</div>';
+    el.innerHTML = html;
+  } catch(e) { el.innerHTML = '<div style="color:#e74c3c">Hata: '+e.message+'</div>'; }
+}
+
+async function reytingDetayAc(playerId) {
+  try {
+    const r = await fetch(API + '/api/admin/player/' + playerId + '/reyting-detay', { headers: hdr() });
+    const d = await r.json();
+    if (!d.ok) { alert(d.error||'Hata'); return; }
+    const fmt = n => (n||0).toLocaleString('tr-TR');
+    let msg = 'OYUNCU: ' + d.player.kral + '\n';
+    msg += 'Moral: ' + d.player.ordu_morali + ' (carpan ' + d.player.moralCarpani.toFixed(2) + ')\n';
+    msg += 'Irk ATK bonus: +' + ((d.player.irkAtkBonus-1)*100).toFixed(0) + '%\n';
+    msg += '─────\n';
+    msg += 'ORDULAR:\n';
+    d.ordular.forEach(o => {
+      msg += '• ' + o.isim + ': ATK_ham=' + fmt(o.atk_ham) + ' DEF_ham=' + fmt(o.def_ham) + ' -> hamGuc=' + fmt(o.hamGuc) + ' Reyting=%' + o.reyting + ' (oran: ' + o.oran + ')\n';
+    });
+    msg += '─────\n';
+    msg += 'benimMax: ' + fmt(d.benimMax) + '\n';
+    msg += 'dbMax: ' + fmt(d.dbMax) + ' (' + (d.dbMax_sahibi ? d.dbMax_sahibi.kral : '?') + ')\n';
+    msg += 'maxOrduGuc: ' + fmt(d.maxOrduGuc) + '\n';
+    msg += 'Toplam Reyting: %' + d.toplam_reyting + '\n';
+    msg += '─────\n';
+    msg += d.aciklama;
+    alert(msg);
+  } catch(e) { alert('Hata: ' + e.message); }
 }
 
 // ═══════════════════════════════════════

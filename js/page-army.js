@@ -427,12 +427,21 @@ function renderOrduListe(){
     var poolDragons = dragonUnits.filter(function(u){ return u.count > 0; });
     var allPool = poolUnits.concat(poolDragons);
 
-    // Konum bilgisi hesapla — v1.9.3: 3 durum: sehirde / yolda / korumada
+    // Konum bilgisi hesapla — v1.14.0.2: 4 durum: sehirde / yolda / korumada / kolonide
     var konumLabel = '';
     var konumRenk = '#2ecc71';
     var konumKoord = (typeof OYUNCU !== 'undefined' && OYUNCU ? (OYUNCU.koord_x||'?') + ':' + (OYUNCU.koord_y||'?') : '?:?');
     var korumada = o.konum_tipi === 'korumada';
-    if (korumada && o.takviye) {
+    if (o.is_busy && o.aktif_gorev) {
+      // v1.14.0.2 FIX: Yoldaysa gercek hedef goster, "Sehirde" deme
+      var g = o.aktif_gorev;
+      var tipKisa = g.tip === 'saldiri' ? '⚔️ Saldiri' : g.tip === 'takviye' ? '🛡️ Takviye' :
+        g.tip === 'donus' ? '🏠 Donus' : g.tip.startsWith('donus') ? '🏠 Donus' :
+        g.tip === 'koloni' ? '🏰 Koloni' : g.tip.startsWith('rolu') ? '🔀 Relay' : '🚀';
+      konumLabel = tipKisa;
+      konumKoord = (g.hedef_x||'?') + ':' + (g.hedef_y||'?');
+      konumRenk = g.tip.startsWith('donus') ? '#27ae60' : '#e67e22';
+    } else if (korumada && o.takviye) {
       var tkLabel = o.takviye.hedef_kral ? o.takviye.hedef_kral + '\'de' : (o.takviye.koloni_isim ? o.takviye.koloni_isim + ' Ussu' : 'Konuslandi');
       konumLabel = '📍 Korumada: ' + tkLabel;
       konumKoord = o.takviye.konum_x + ':' + o.takviye.konum_y;
@@ -440,6 +449,10 @@ function renderOrduListe(){
     } else if (korumada) {
       konumLabel = '📍 Korumada';
       konumRenk = '#9b59b6';
+    } else if (o.konum_tipi === 'koloni' || o.konum === 'kolonide') {
+      konumLabel = '🏕️ Kolonide';
+      konumKoord = o.koloni_bilgi ? (o.koloni_bilgi.x + ':' + o.koloni_bilgi.y) : '?:?';
+      konumRenk = '#3498db';
     } else {
       konumLabel = '🏠 Sehirde';
       konumRenk = '#2ecc71';
