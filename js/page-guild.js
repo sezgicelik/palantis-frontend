@@ -640,26 +640,50 @@ async function guildYetkilerYukle(guildId) {
       guild_bina_yap:'Bina Yap'
     };
 
-    var html = '<div style="overflow-x:auto"><table style="width:100%;font-size:9px;border-collapse:collapse">' +
-      '<thead><tr style="color:#888;border-bottom:1px solid #333"><th style="text-align:left;padding:4px">Uye</th><th style="text-align:left;padding:4px">Rutbe</th>';
-    Object.keys(YETKI_LABEL).forEach(function(k) {
-      html += '<th style="padding:4px;text-align:center;white-space:nowrap" title="' + YETKI_LABEL[k] + '">' + YETKI_LABEL[k].substring(0,6) + '</th>';
-    });
-    html += '</tr></thead><tbody>';
+    // v1.14.0.37: Toggle switch kart formati (ayarlar.html ile ayni stil)
+    var YETKI_IKON = {
+      oyuncu_kabul:'👋', oyuncu_at:'🚪', yetki_duzenle:'🔑',
+      ambar_gor:'📦', sehir_degeri_gor:'🏰', atk_def_gor:'⚔️',
+      ambar_istek_onayla:'✅', guild_ordusu_gonder:'🚀', guild_ordusu_kur:'🛡️',
+      guild_unite_uret:'⚒️', isci_ata:'👷', market_satis:'🏪',
+      koylu_bagisi:'🎁', vergi_dagit:'💰', market_otosatis:'🔄',
+      guild_bina_yap:'🏗️'
+    };
 
+    var html = '';
     (data.uyeler || []).forEach(function(u) {
       var isLdr = u.rutbe === 'lider';
-      html += '<tr style="border-bottom:1px solid #1a1a1a"><td style="padding:4px;color:#ccc">' + u.kullanici_adi + '</td><td style="padding:4px;color:#888">' + u.rutbe + '</td>';
-      Object.keys(YETKI_LABEL).forEach(function(k) {
-        var checked = u.yetkiler[k] ? 'checked' : '';
-        var disabled = isLdr ? 'disabled' : '';
-        html += '<td style="text-align:center;padding:2px"><input type="checkbox" ' + checked + ' ' + disabled +
-          ' onchange="guildYetkiDegistir(' + guildId + ',' + u.player_id + ',\'' + k + '\',this.checked)" style="cursor:pointer"></td>';
-      });
-      html += '</tr>';
-    });
+      var rutbeIkon = isLdr ? '👑' : u.rutbe === 'yardimci' ? '⭐' : '🏅';
+      var rutbeRenk = isLdr ? '#f1c40f' : u.rutbe === 'yardimci' ? '#3498db' : '#95a5a6';
 
-    html += '</tbody></table></div>';
+      html += '<div class="card" style="margin-bottom:10px;padding:10px;border-left:3px solid ' + rutbeRenk + '">' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #222">' +
+          '<span style="font-size:18px">' + rutbeIkon + '</span>' +
+          '<div style="flex:1">' +
+            '<div style="font-size:12px;color:' + rutbeRenk + ';font-weight:bold">' + (u.kullanici_adi || '?') + '</div>' +
+            '<div style="font-size:9px;color:#888;text-transform:uppercase">' + u.rutbe + '</div>' +
+          '</div>' +
+          (isLdr ? '<span style="font-size:9px;color:#666;font-style:italic">lider tüm yetkilere sahip</span>' : '') +
+        '</div>' +
+        (isLdr ? '' : '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px">');
+      if (!isLdr) {
+        Object.keys(YETKI_LABEL).forEach(function(k) {
+          var acik = !!u.yetkiler[k];
+          var inputId = 'yetki-' + u.player_id + '-' + k;
+          html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 8px;background:#0f0f0f;border-radius:4px">' +
+            '<span style="font-size:10px;color:#ccc">' + (YETKI_IKON[k]||'•') + ' ' + YETKI_LABEL[k] + '</span>' +
+            '<label style="position:relative;display:inline-block;width:32px;height:18px;cursor:pointer;flex-shrink:0">' +
+              '<input type="checkbox" id="' + inputId + '" ' + (acik ? 'checked' : '') + ' onchange="guildYetkiToggle(' + guildId + ',' + u.player_id + ',\'' + k + '\',this.checked,\'' + inputId + '\')" style="opacity:0;width:0;height:0">' +
+              '<span class="yetki-slider" style="position:absolute;inset:0;background:' + (acik ? '#2ecc71' : '#333') + ';border-radius:10px;transition:.2s"></span>' +
+              '<span class="yetki-knob" style="position:absolute;left:' + (acik ? '16px' : '2px') + ';top:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:.2s"></span>' +
+            '</label>' +
+          '</div>';
+        });
+        html += '</div>';
+      }
+      html += '</div>';
+    });
+    if (!html) html = '<div style="color:#666;font-size:10px;padding:10px">Üye yok</div>';
     el.innerHTML = html;
   } catch(e) { el.innerHTML = '<span style="color:#e74c3c">Hata</span>'; }
 }
@@ -679,6 +703,20 @@ async function guildYetkiDegistir(guildId, playerId, yetki, deger) {
     });
     toast('Yetki guncellendi');
   } catch(e) { alert('Hata'); }
+}
+
+// v1.14.0.37: Toggle switch — anlik UI update + backend kaydet
+async function guildYetkiToggle(guildId, playerId, yetki, deger, inputId) {
+  // Anlik UI guncelle (slider rengi + knob pozisyonu)
+  var inp = document.getElementById(inputId);
+  if (inp) {
+    var label = inp.parentElement;
+    var slider = label.querySelector('.yetki-slider');
+    var knob = label.querySelector('.yetki-knob');
+    if (slider) slider.style.background = deger ? '#2ecc71' : '#333';
+    if (knob) knob.style.left = deger ? '16px' : '2px';
+  }
+  await guildYetkiDegistir(guildId, playerId, yetki, deger);
 }
 
 // ═══════════════════════════════════
