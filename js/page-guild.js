@@ -634,16 +634,8 @@ function renderTabUyeler(el, data) {
 
     // Lider islemleri
     if (isLider && u.player_id !== g.lider_id) {
-      // v1.14.0.43: Liderlik devri — sadece AYNI TARAF uyelerine izinli
-      var benimKayit = uyeler.find(function(x){ return x.player_id === data.benim_player_id; });
-      var benimTaraf = benimKayit ? benimKayit.taraf : null;
-      var ayniTaraf = benimTaraf && u.taraf && benimTaraf === u.taraf;
-      if (ayniTaraf) {
-        aksiyonlar += '<button style="background:none;border:1px solid #f1c40f;color:#f1c40f;cursor:pointer;font-size:9px;border-radius:3px;padding:1px 6px" onclick="guildLiderlikDevret(' + g.id + ',' + u.player_id + ',\'' + (u.kullanici_adi||'').replace(/\'/g,'') + '\')">👑 Lider Yap</button>';
-      } else {
-        aksiyonlar += '<span title="Farklı tarafa liderlik devri yasak (ordu karışmasın diye)" style="border:1px dashed #555;color:#555;font-size:9px;border-radius:3px;padding:1px 6px">👑 Farklı Taraf</span>';
-      }
-      aksiyonlar +=
+      // v1.14.0.44: Taraf kisiti kaldirildi — guildler.taraf kuruluste sabit, lider degisse bile uretim ayni
+      aksiyonlar += '<button style="background:none;border:1px solid #f1c40f;color:#f1c40f;cursor:pointer;font-size:9px;border-radius:3px;padding:1px 6px" onclick="guildLiderlikDevret(' + g.id + ',' + u.player_id + ',\'' + (u.kullanici_adi||'').replace(/\'/g,'') + '\')">👑 Lider Yap</button>' +
         '<button style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:9px" onclick="guildAt(' + g.id + ',' + u.player_id + ')">At</button>' +
         '<select style="background:#111;border:1px solid #333;color:#ddd;font-size:9px;border-radius:3px;padding:1px" onchange="guildRutbe(' + g.id + ',' + u.player_id + ',this.value)">' +
           '<option value="uye"' + (u.rutbe==='uye'?' selected':'') + '>Uye</option>' +
