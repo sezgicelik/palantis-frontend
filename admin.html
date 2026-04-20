@@ -3700,7 +3700,9 @@ async function loadKadimTicaretTablosu() {
     html += '<th style="padding:6px;text-align:right;color:#2ecc71">TOPLAM</th>' +
       '<th style="padding:6px;text-align:center">Denge</th>' +
       '<th style="padding:6px;text-align:center">Saldıran</th>' +
+      '<th style="padding:6px;text-align:right">Pencere (240PG)</th>' +
       '<th style="padding:6px;text-align:right">Tahmini İntikam (altın)</th>' +
+      '<th style="padding:6px;text-align:center">Faz / Kalan PG</th>' +
       '<th style="padding:6px;text-align:center">Uyarı</th>' +
       '</tr></thead><tbody>';
 
@@ -3724,13 +3726,29 @@ async function loadKadimTicaretTablosu() {
       html += '<td style="padding:6px;text-align:center;color:' + dengeRenk + ';font-family:Courier New">%' + o.denge_orani + '</td>';
       const saldiran = o.saldiracak_sehir_id ? sehirMap[o.saldiracak_sehir_id] : null;
       html += '<td style="padding:6px;text-align:center;color:' + (saldiran ? '#e74c3c' : '#444') + '">' + (saldiran ? saldiran.isim : '-') + '</td>';
+      // Pencere ticareti (240 PG penceresindeki birikim)
+      html += '<td style="padding:6px;text-align:right;color:' + ((o.max_pencere_ticaret||0)>0?'#3498db':'#444') + ';font-family:Courier New">' + fmt(o.max_pencere_ticaret||0) + '</td>';
       html += '<td style="padding:6px;text-align:right;color:#e67e22;font-weight:bold;font-family:Courier New">' + fmt(o.tahmini_intikam_altin) + '</td>';
+      // Faz + kalan PG
+      let fazStr = '-';
+      if (o.faz === 'yolda') {
+        fazStr = '<span style="color:#e74c3c;font-weight:bold">⚔ YOLDA: ' + (o.kalan_pg!=null?o.kalan_pg+' PG':'?') + '</span>';
+      } else if (o.faz === 'geri_sayim') {
+        const renk = o.kalan_pg < 24 ? '#e67e22' : '#3498db';
+        fazStr = '<span style="color:' + renk + '">⏳ ' + (o.kalan_pg!=null?o.kalan_pg+' PG':'?') + '</span>';
+      } else if (o.faz === 'hareket_bekleniyor') {
+        fazStr = '<span style="color:#e74c3c">🔥 HAREKET!</span>';
+      }
+      html += '<td style="padding:6px;text-align:center;font-size:10px">' + fazStr + '</td>';
       if (o.kurnaz_esit) kurnazSayi++;
       // Uyari durumu
       let uyariStr = '-';
       for (const s of d.sehirler) {
         const info = o.sehirler[s.id];
-        if (info?.saldiri_uyari_at) {
+        if (info?.saldiri_yolda_at) {
+          uyariStr = '<span style="color:#e74c3c">⚔ ' + s.isim + '</span>';
+          break;
+        } else if (info?.saldiri_uyari_at) {
           uyariStr = '<span style="color:#f39c12">⚠ ' + s.isim + '</span>';
           break;
         } else if (info?.saldiri_planli) {
@@ -3742,14 +3760,29 @@ async function loadKadimTicaretTablosu() {
       html += '</tr>';
     });
     html += '</tbody></table>';
+    // Sehir savunma butcesi ozet kartlari (toplam ticaret × carpan)
+    let sehirOzet = '<div style="display:flex;gap:10px;margin:10px 0">';
+    for (const s of d.sehirler) {
+      const renk = s.taraf==='isik' ? '#d4af37' : '#9b59b6';
+      sehirOzet += '<div style="flex:1;padding:10px;background:#111;border-left:3px solid '+renk+';border-radius:4px">' +
+        '<div style="color:'+renk+';font-weight:bold">'+s.isim+'</div>' +
+        '<div style="color:#888;font-size:10px;margin-top:2px">Tüm oyuncular toplam ticaret:</div>' +
+        '<div style="color:#2ecc71;font-family:Courier New;font-size:13px">'+fmt(s.toplam_yapilan_ticaret||0)+' altın</div>' +
+        '<div style="color:#888;font-size:10px;margin-top:4px">Şehir savunma bütçesi (× '+(s.carpan||2)+'):</div>' +
+        '<div style="color:#e74c3c;font-family:Courier New;font-size:13px;font-weight:bold">'+fmt(s.savunma_butce_altin||0)+' altın</div>' +
+        '</div>';
+    }
+    sehirOzet += '</div>';
+    html = sehirOzet + html;
     html += '<div style="margin-top:10px;padding:8px;background:#1a0a1a;border-left:3px solid #9b59b6;font-size:10px;color:#aaa">' +
       '<b>Sütunlar:</b><br>' +
       '• <b>Ticaret</b>: Oyuncunun o kadim şehirden aldığı altın tutarı (kümüle)<br>' +
       '• <b>TOPLAM</b>: İki kadim şehirle yaptığı tüm ticaret (yeşil)<br>' +
       '• <b>Denge</b>: (max-min)/max — %0 tam eşit dağıtmış (kurnaz 🦊), %100 tek taraflı<br>' +
       '• <b>Saldıran</b>: Eğer saldırı tetiklenirse hangi kadim şehir saldırır (çapraz)<br>' +
-      '• <b>Tahmini İntikam</b>: En yüksek ticaret × çarpan (admin config)<br>' +
-      '• <b>Uyarı</b>: 🔔 eşik aşıldı / ⚠ uyarı gönderildi, sayaç işliyor' +
+      '• <b>Pencere (240PG)</b>: İlk ticaretten beri 240 PG penceresinde biriken altın — saldırı bütçesi bu<br>' +
+      '• <b>Tahmini İntikam</b>: Pencere × çarpan (cron 240 PG sonra ordu yollar, 3 PG sonra varır)<br>' +
+      '• <b>Faz</b>: ⏳ Geri sayım (ilk ticaret → 240 PG) / ⚔ Yolda (3 PG) / 🔥 Hareket bekleniyor' +
       '</div>';
     if (kurnazSayi > 0) {
       html += '<div style="margin-top:6px;padding:8px;background:rgba(241,196,15,.08);border-left:3px solid #f1c40f;font-size:10px;color:#f1c40f">' +
