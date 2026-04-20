@@ -3697,15 +3697,20 @@ async function loadKadimTicaretTablosu() {
     for (const s of d.sehirler) {
       html += '<th style="padding:6px;text-align:right;color:' + (s.taraf==='isik'?'#d4af37':'#9b59b6') + '">' + s.isim + ' Ticaret</th>';
     }
-    html += '<th style="padding:6px;text-align:center">Saldıran</th>' +
+    html += '<th style="padding:6px;text-align:right;color:#2ecc71">TOPLAM</th>' +
+      '<th style="padding:6px;text-align:center">Denge</th>' +
+      '<th style="padding:6px;text-align:center">Saldıran</th>' +
       '<th style="padding:6px;text-align:right">Tahmini İntikam (altın)</th>' +
       '<th style="padding:6px;text-align:center">Uyarı</th>' +
       '</tr></thead><tbody>';
 
+    let kurnazSayi = 0;
     d.oyuncular.forEach((o, i) => {
-      html += '<tr style="border-bottom:1px solid #222">';
+      const kurnazStyle = o.kurnaz_esit ? 'background:rgba(241,196,15,0.08);' : '';
+      html += '<tr style="border-bottom:1px solid #222;' + kurnazStyle + '">';
       html += '<td style="padding:6px;color:#666">' + (i+1) + '</td>';
-      html += '<td style="padding:6px;font-weight:bold">' + (o.kral||'?') + ' <span style="color:#555;font-size:9px">(' + o.player_id + ')</span></td>';
+      html += '<td style="padding:6px;font-weight:bold">' + (o.kral||'?') + ' <span style="color:#555;font-size:9px">(' + o.player_id + ')</span>' +
+        (o.kurnaz_esit ? ' <span style="color:#f1c40f;font-size:9px" title="Ticaretleri iki sehir arasinda esit dagittigi icin saldiri tetiklenmiyor olabilir">🦊 KURNAZ</span>' : '') + '</td>';
       html += '<td style="padding:6px;text-align:center;color:#888">' + (o.cag||'?') + '</td>';
       html += '<td style="padding:6px;text-align:center;font-size:10px">' + (o.player_taraf||'-') + '</td>';
       for (const s of d.sehirler) {
@@ -3713,9 +3718,14 @@ async function loadKadimTicaretTablosu() {
         const t = info ? info.toplam_ticaret : 0;
         html += '<td style="padding:6px;text-align:right;color:' + (t > 0 ? '#e0c97f' : '#444') + ';font-family:Courier New">' + fmt(t) + '</td>';
       }
+      html += '<td style="padding:6px;text-align:right;color:#2ecc71;font-weight:bold;font-family:Courier New">' + fmt(o.toplam_ticaret) + '</td>';
+      // Denge (0-100%) — düşükse kurnaz oyuncu
+      const dengeRenk = o.denge_orani < 10 && o.toplam_ticaret > 0 ? '#f1c40f' : (o.denge_orani < 30 ? '#e67e22' : '#888');
+      html += '<td style="padding:6px;text-align:center;color:' + dengeRenk + ';font-family:Courier New">%' + o.denge_orani + '</td>';
       const saldiran = o.saldiracak_sehir_id ? sehirMap[o.saldiracak_sehir_id] : null;
       html += '<td style="padding:6px;text-align:center;color:' + (saldiran ? '#e74c3c' : '#444') + '">' + (saldiran ? saldiran.isim : '-') + '</td>';
       html += '<td style="padding:6px;text-align:right;color:#e67e22;font-weight:bold;font-family:Courier New">' + fmt(o.tahmini_intikam_altin) + '</td>';
+      if (o.kurnaz_esit) kurnazSayi++;
       // Uyari durumu
       let uyariStr = '-';
       for (const s of d.sehirler) {
@@ -3735,10 +3745,19 @@ async function loadKadimTicaretTablosu() {
     html += '<div style="margin-top:10px;padding:8px;background:#1a0a1a;border-left:3px solid #9b59b6;font-size:10px;color:#aaa">' +
       '<b>Sütunlar:</b><br>' +
       '• <b>Ticaret</b>: Oyuncunun o kadim şehirden aldığı altın tutarı (kümüle)<br>' +
+      '• <b>TOPLAM</b>: İki kadim şehirle yaptığı tüm ticaret (yeşil)<br>' +
+      '• <b>Denge</b>: (max-min)/max — %0 tam eşit dağıtmış (kurnaz 🦊), %100 tek taraflı<br>' +
       '• <b>Saldıran</b>: Eğer saldırı tetiklenirse hangi kadim şehir saldırır (çapraz)<br>' +
       '• <b>Tahmini İntikam</b>: En yüksek ticaret × çarpan (admin config)<br>' +
       '• <b>Uyarı</b>: 🔔 eşik aşıldı / ⚠ uyarı gönderildi, sayaç işliyor' +
       '</div>';
+    if (kurnazSayi > 0) {
+      html += '<div style="margin-top:6px;padding:8px;background:rgba(241,196,15,.08);border-left:3px solid #f1c40f;font-size:10px;color:#f1c40f">' +
+        '🦊 <b>KURNAZ oyuncu tespiti</b>: ' + kurnazSayi + ' oyuncu iki kadim sehir ile neredeyse esit ticaret yapiyor ' +
+        '(denge <%10). Cron "tA === tB" kuraliyla saldiri tetiklenmeyebilir.<br>' +
+        '<b>Onerilen cozum:</b> TOPLAM_ticaret × 0.5 × carpan ile ceza -- ileride eklenebilir.' +
+        '</div>';
+    }
     el.innerHTML = html;
   } catch(e) { el.innerHTML = '<div style="color:#e74c3c">Hata: ' + e.message + '</div>'; }
 }

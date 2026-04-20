@@ -1,6 +1,6 @@
 // v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
 // Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
-const CACHE_NAME = 'noxara-v26'; // v1.14.0.13 Intikam Butcesi: ticaret x2 = altın budget + Ticaret Tablosu
+const CACHE_NAME = 'noxara-v27'; // v1.14.0.14 Ticaret tablosu: TOPLAM kolonu + Denge + Kurnaz tespiti
 
 // Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [
