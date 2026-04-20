@@ -1036,7 +1036,22 @@
 
   <!-- IZ SURME TAB (v1.14.0.18) -->
   <div id="tab-iz-surme" class="panel">
-    <h3 style="color:#16a085">🕵️ Oyuncu Kaynak İz Sürme (son 48h)</h3>
+    <!-- v1.14.0.22: Kayip tarama + iade aracï -->
+    <h3 style="color:#e74c3c">⚠️ Ani Kaynak Kaybı Tarama (son 24h)</h3>
+    <p style="font-size:11px;color:#888;margin-bottom:10px">
+      Cron catch-up bug / double-fire gibi durumlarda oyuncuların altını bir anda sıfırlanabiliyor.
+      Burada otomatik tarama yapılır, 24 saatte büyük düşüş yaşayanlar listelenir. Tek-tık iade edebilirsin.
+    </p>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
+      <label style="font-size:11px;color:#aaa">Min düşüş:</label>
+      <input id="kt-min-dusus" type="number" value="10000000" style="width:140px;padding:4px;background:#222;color:#fff;border:1px solid #555;border-radius:3px">
+      <label style="font-size:11px;color:#aaa">Min %:</label>
+      <input id="kt-min-yuzde" type="number" value="50" style="width:80px;padding:4px;background:#222;color:#fff;border:1px solid #555;border-radius:3px">
+      <button class="act" onclick="loadKayipTarama()" style="background:linear-gradient(135deg,#e74c3c 0%,#922b21 100%);color:#fff">🔍 Kayıp Tara</button>
+    </div>
+    <div id="kayip-tarama-content" style="font-size:11px;color:#888;margin-bottom:20px">"Kayıp Tara" butonuna bas.</div>
+
+    <h3 style="color:#16a085;border-top:1px solid #222;padding-top:14px">🕵️ Oyuncu Kaynak İz Sürme (son 48h)</h3>
     <p style="font-size:11px;color:#888;margin-bottom:12px">
       Bir oyuncunun TÜM kaynaklarındaki saatlik değişimleri + activity_log gösterir.
       "50M altınım bir anda kayboldu", "odun bitti ama nereye gittiği belli değil" gibi vakaları çözmek için.<br>
@@ -3837,6 +3852,66 @@ async function loadKadimTicaretTablosu() {
     }
     el.innerHTML = html;
   } catch(e) { el.innerHTML = '<div style="color:#e74c3c">Hata: ' + e.message + '</div>'; }
+}
+
+// v1.14.0.22: Kayip tarama — 24h icinde buyuk dusus yasayan oyunculari bul + iade
+async function loadKayipTarama() {
+  const minDusus = parseInt(document.getElementById('kt-min-dusus')?.value) || 10000000;
+  const minYuzde = parseFloat(document.getElementById('kt-min-yuzde')?.value) || 50;
+  const el = document.getElementById('kayip-tarama-content');
+  el.innerHTML = '<div style="color:#888">Taranıyor...</div>';
+  try {
+    const r = await fetch(API + '/api/admin/kaynak-kayip-tarama?min_dusus=' + minDusus + '&min_yuzde=' + minYuzde, { headers: hdr() });
+    const d = await r.json();
+    if (!d.ok) { el.innerHTML = '<div style="color:#e74c3c">' + (d.error||'Hata') + '</div>'; return; }
+    const fmt = n => (n||0).toLocaleString('tr-TR');
+    const fmtT = ts => new Date(ts).toLocaleString('tr-TR', { hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit' });
+    if (!d.oyuncular || d.oyuncular.length === 0) {
+      el.innerHTML = '<div style="color:#2ecc71;padding:6px">✅ 24 saatte ' + fmt(minDusus) + '+ altın düşüşü yaşayan oyuncu yok.</div>';
+      return;
+    }
+    let html = '<table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:#1a1a1a">' +
+      '<th style="padding:6px;text-align:left">Kral (ID)</th>' +
+      '<th style="padding:6px;text-align:center">Çağ</th>' +
+      '<th style="padding:6px;text-align:right">Max Düşüş</th>' +
+      '<th style="padding:6px;text-align:right">% Düşüş</th>' +
+      '<th style="padding:6px;text-align:center">Zaman</th>' +
+      '<th style="padding:6px;text-align:right">Mevcut</th>' +
+      '<th style="padding:6px;text-align:center">İade</th>' +
+      '</tr></thead><tbody>';
+    for (const o of d.oyuncular) {
+      html += '<tr style="border-bottom:1px solid #222;background:rgba(231,76,60,0.04)">' +
+        '<td style="padding:6px;font-weight:bold">' + (o.kral||'?') + ' <span style="color:#555;font-size:9px">(' + o.player_id + ')</span></td>' +
+        '<td style="padding:6px;text-align:center;color:#888">' + (o.cag||'?') + '</td>' +
+        '<td style="padding:6px;text-align:right;color:#e74c3c;font-family:Courier New;font-weight:bold">-' + fmt(o.max_dusus) + '</td>' +
+        '<td style="padding:6px;text-align:right;color:#e74c3c">%' + o.max_yuzde + '</td>' +
+        '<td style="padding:6px;text-align:center;color:#888;font-size:10px">' + fmtT(o.olay_zamani) + '</td>' +
+        '<td style="padding:6px;text-align:right;color:#d4af37;font-family:Courier New">' + fmt(o.mevcut_altin) + '</td>' +
+        '<td style="padding:6px;text-align:center">' +
+          '<button onclick="iadeEt(' + o.player_id + ',' + o.max_dusus + ',\'' + (o.kral||'?').replace(/\'/g,'') + '\')" style="background:#27ae60;color:#fff;border:none;padding:4px 10px;border-radius:3px;cursor:pointer;font-size:10px">💰 İade Et</button>' +
+        '</td>' +
+        '</tr>';
+    }
+    html += '</tbody></table>';
+    html += '<div style="margin-top:8px;padding:8px;background:rgba(46,204,113,0.06);border-left:3px solid #27ae60;font-size:10px;color:#aaa">' +
+      'İade butonu: oyuncunun altınına <b>max düşüş</b> miktarı kadar altın ekler + activity_log\'a "admin_iade" kaydı yazar (oyuncu görür).' +
+      '</div>';
+    el.innerHTML = html;
+  } catch(e) { el.innerHTML = '<div style="color:#e74c3c">Hata: ' + e.message + '</div>'; }
+}
+
+async function iadeEt(playerId, miktar, kral) {
+  const onay = prompt(`${kral} (ID ${playerId}) oyuncusuna ${miktar.toLocaleString('tr-TR')} altın iade edilecek.\n\nNot (opsiyonel, örn "catch-up maas bug"):`, 'catch-up maas bug iadesi');
+  if (onay === null) return;
+  try {
+    const r = await fetch(API + '/api/admin/player/' + playerId + '/kaynak-iade', {
+      method: 'POST', headers: hdr(),
+      body: JSON.stringify({ miktar, kaynak: 'altin', not: onay })
+    });
+    const d = await r.json();
+    if (d.ok) { alert('✅ ' + d.mesaj); loadKayipTarama(); }
+    else alert('Hata: ' + (d.error || ''));
+  } catch(e) { alert('Hata: ' + e.message); }
 }
 
 // v1.14.0.18: Kaynak iz surme — TUM kaynaklar icin snapshot diff + activity_log
