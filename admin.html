@@ -779,6 +779,25 @@
     <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">Sehir Kasasina Kaynak Ekle/Cikar</h3>
     <p style="font-size:10px;color:#888;margin-bottom:10px">Secilen kadim sehrin stoguna kaynak ekle (pozitif) veya cikar (negatif)</p>
     <div id="kadim-kasa-content">Yukleniyor...</div>
+
+    <!-- v1.14.0: Manuel NPC Saldiri Tetikle (test araci) -->
+    <h3 style="margin-top:24px;border-top:1px solid #e74c3c;padding-top:16px;color:#e74c3c">⚔ Manuel NPC Saldiri Tetikle (Test)</h3>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">
+      Secilen kadim sehri secilen oyuncuya hemen saldirtir. Tam savas motoru (surlar + kuleler + asker kaybi) + savas_log kaydi + Telegram.<br>
+      <b style="color:#e67e22">Dikkat:</b> Esik/uyari kontrolu yok — aninda saldiri!
+    </p>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px;background:#1a0a08;border:1px solid #4a1a15;border-radius:4px">
+      <label style="font-size:11px;color:#aaa">Sehir:
+        <select id="ks-saldirt-sehir" style="padding:6px;background:#000;border:1px solid var(--border);color:#e0c97f;border-radius:3px;font-size:11px;margin-left:4px">
+          <option value="">(Sehirler yukleniyor...)</option>
+        </select>
+      </label>
+      <label style="font-size:11px;color:#aaa">Hedef player_id:
+        <input id="ks-saldirt-pid" type="number" placeholder="123" style="padding:6px;width:90px;background:#000;border:1px solid var(--border);color:#e0c97f;border-radius:3px;font-size:11px;margin-left:4px">
+      </label>
+      <button class="act" onclick="kadimSaldirtTetikle()" style="background:#c0392b;color:#fff">💥 SALDIRT</button>
+      <span id="ks-saldirt-msg" style="font-size:11px"></span>
+    </div>
   </div>
 
   <!-- EKONOMI AYAR TAB (v1.13.4) — 25 denge parametresi tek yerde -->
@@ -3473,7 +3492,49 @@ async function loadKadimCfg() {
         '<button class="act" onclick="kadimKasaEkle()">Ekle/Cikar (neg=cikar)</button>' +
         '<span id="kk-msg" style="font-size:10px"></span>' +
       '</div>';
+
+    // v1.14.0: Manuel saldiri sehir secici
+    const saldirtSelect = document.getElementById('ks-saldirt-sehir');
+    if (saldirtSelect) {
+      saldirtSelect.innerHTML = KADIM_SEHIRLER.map(s =>
+        '<option value="'+s.id+'">'+s.isim+' ('+s.taraf+') · Ordu: '+(s.ordu_gucu||0)+'</option>'
+      ).join('');
+    }
   } catch(e) { document.getElementById('kadim-cfg-content').innerHTML = '<div style="color:#e74c3c">Hata: '+e.message+'</div>'; }
+}
+
+// v1.14.0: Manuel NPC saldiri tetikle
+async function kadimSaldirtTetikle() {
+  const sehirId = parseInt(document.getElementById('ks-saldirt-sehir').value);
+  const playerId = parseInt(document.getElementById('ks-saldirt-pid').value);
+  const msgEl = document.getElementById('ks-saldirt-msg');
+  if (!sehirId || !playerId) { msgEl.innerHTML = '<span style="color:#e74c3c">Sehir ve player_id secilmeli!</span>'; return; }
+  if (!confirm('DIKKAT: ' + (KADIM_SEHIRLER.find(s=>s.id===sehirId)?.isim||'?') + ' sehri player_id=' + playerId + ' uzerine saldiracak. Emin misiniz?')) return;
+  msgEl.innerHTML = '<span style="color:#888">Saldiri yapiliyor...</span>';
+  try {
+    const r = await fetch(API + '/api/admin/kadim-sehir/' + sehirId + '/saldirt', {
+      method: 'POST', headers: hdr(), body: JSON.stringify({ player_id: playerId })
+    });
+    const d = await r.json();
+    if (d.ok) {
+      const renk = d.sonuc.npcKazandi ? '#e74c3c' : '#2ecc71';
+      let html = '<div style="margin-top:8px;padding:10px;background:#000;border-left:3px solid '+renk+';font-size:11px">';
+      html += '<b style="color:'+renk+'">'+d.mesaj+'</b><br>';
+      html += 'Savas Log ID: <b>' + (d.sonuc.savasLogId||'?') + '</b> — raporu gormek icin oyuncu Activity Log\'dan [#' + (d.sonuc.savasLogId||'?') + ']\'e tikla<br>';
+      if (d.sonuc.yagma && Object.keys(d.sonuc.yagma).length > 0) {
+        html += 'Yagma: ' + Object.entries(d.sonuc.yagma).map(([k,v])=>v+' '+k).join(', ');
+      }
+      if (d.sonuc.kayip && Object.keys(d.sonuc.kayip).length > 0) {
+        const toplamKayip = Object.values(d.sonuc.kayip).reduce((a,b)=>a+b,0);
+        html += ' · Oyuncu Asker Kaybi: <b>' + toplamKayip + '</b>';
+      }
+      html += '</div>';
+      msgEl.innerHTML = html;
+      loadKadimCfg(); // Guncel sehir ordu_gucu'nu refresh et
+    } else {
+      msgEl.innerHTML = '<span style="color:#e74c3c">✗ '+(d.error||'Hata')+'</span>';
+    }
+  } catch(e) { msgEl.innerHTML = '<span style="color:#e74c3c">Hata: '+e.message+'</span>'; }
 }
 
 async function kadimCfgKaydet() {
