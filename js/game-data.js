@@ -204,9 +204,8 @@ async function loadGameData() {
       if (alanData.ordu_morali !== undefined) {
         setText('hud-moral', alanData.ordu_morali);
       }
-      if (alanData.sehir_morali !== undefined) {
-        setText('hud-sehir-moral', alanData.sehir_morali);
-      }
+      // v1.13.70.2: hud-sehir-moral artik hud.js tarafindan _GPS_DATA ile yaziliyor
+      // (mutluluk_toplam / max + bina_bonus formatinda). Burada overwrite etmiyoruz.
       window._palantisToplamAlan = toplamAlan;
       // landState (arazi sayfasi)
       if (typeof landState !== 'undefined') {
