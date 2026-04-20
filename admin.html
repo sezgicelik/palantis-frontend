@@ -438,6 +438,50 @@
       <button class="btn" onclick="confirmAction('Buyu dukkani ayarlari kaydedilecek. Emin misiniz?',saveBuyuConfig)">Kaydet</button>
       <div id="bc-msg" style="color:var(--green);font-size:11px;margin-top:6px"></div>
     </div>
+
+    <!-- v1.14.0.47: Oyuncu Buyu Mudahale Araclari -->
+    <div class="card" style="margin-top:10px;border-top:2px solid #8e44ad">
+      <h3 style="color:#bb8fce">🧪 Oyuncu Buyu Mudahale (Test/Admin)</h3>
+      <p style="font-size:10px;color:var(--muted);margin-bottom:10px">
+        Oyuncunun buyu kitabina dogrudan buyu ekle, mana+malzeme ekle veya cooldown sil.
+      </p>
+
+      <h4 style="color:var(--gold);font-size:11px;margin:10px 0 6px">📚 Buyu Ekle (Kitap)</h4>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+        <label style="font-size:10px;color:#aaa">player_id:
+          <input id="bm-pid" type="number" placeholder="123" style="padding:4px;width:80px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);font-size:11px;border-radius:3px;margin-left:4px">
+        </label>
+        <label style="font-size:10px;color:#aaa">buyu_id:
+          <input id="bm-buyu-id" type="text" placeholder="ornek: motivasyon" style="padding:4px;width:160px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);font-size:11px;border-radius:3px;margin-left:4px">
+        </label>
+        <label style="font-size:10px;color:#aaa">kademe:
+          <input id="bm-kademe" type="number" value="3" min="1" max="10" style="padding:4px;width:50px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);font-size:11px;border-radius:3px;margin-left:4px">
+        </label>
+        <button class="act" onclick="adminBuyuEkle()" style="background:#8e44ad">➕ Buyu Ekle</button>
+        <span id="bm-msg" style="font-size:10px"></span>
+      </div>
+
+      <h4 style="color:var(--gold);font-size:11px;margin:10px 0 6px">🔮 Mana + Malzeme Ekle (paket: 100×4 mana + 50×4 malzeme)</h4>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+        <label style="font-size:10px;color:#aaa">player_id:
+          <input id="bme-pid" type="number" placeholder="123" style="padding:4px;width:80px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);font-size:11px;border-radius:3px;margin-left:4px">
+        </label>
+        <button class="act" onclick="adminBuyuMalzemeEkle()" style="background:#2980b9">🔮 Mana+Malzeme Ekle</button>
+        <span id="bme-msg" style="font-size:10px"></span>
+      </div>
+
+      <h4 style="color:var(--gold);font-size:11px;margin:10px 0 6px">⏱ Cooldown Sil</h4>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <label style="font-size:10px;color:#aaa">player_id:
+          <input id="bcd-pid" type="number" placeholder="123" style="padding:4px;width:80px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);font-size:11px;border-radius:3px;margin-left:4px">
+        </label>
+        <label style="font-size:10px;color:#aaa">buyu_id (bos=hepsi):
+          <input id="bcd-buyu-id" type="text" placeholder="(bos=tum CD)" style="padding:4px;width:140px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);font-size:11px;border-radius:3px;margin-left:4px">
+        </label>
+        <button class="act" onclick="adminBuyuCdSil()" style="background:#c0392b">🗑 CD Sil</button>
+        <span id="bcd-msg" style="font-size:10px"></span>
+      </div>
+    </div>
   </div>
 
   <!-- IRK BONUSLARI TAB -->
@@ -604,6 +648,21 @@
   <div id="tab-anomali" class="panel">
     <h3>Anomali & Guvenlik Loglari</h3>
     <p style="font-size:10px;color:var(--muted);margin-bottom:10px">Harcamasiz uretim, hizli insaat, muhasebe denetimi sonuclari</p>
+
+    <!-- v1.14.0.47: Anomali esik config (admin'den ayarlanabilir) -->
+    <div style="margin-bottom:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px;background:#1a0e08;border:1px solid #3a1f10;border-radius:4px">
+      <span style="font-size:11px;color:#e67e22;font-weight:bold">⚠️ Anomali Tespit Esigi:</span>
+      <label style="font-size:10px;color:#aaa">Altin sapma (min):
+        <input id="anom-altin-sapma" type="number" value="100000" min="0" step="10000" style="width:100px;padding:3px;background:#111;border:1px solid #333;color:#ddd;font-size:11px;margin-left:4px">
+      </label>
+      <label style="font-size:10px;color:#aaa">Yuzde esigi:
+        <input id="anom-yuzde" type="number" value="30" min="0" max="500" style="width:60px;padding:3px;background:#111;border:1px solid #333;color:#ddd;font-size:11px;margin-left:4px">
+        <span style="font-size:9px;color:#555">%</span>
+      </label>
+      <button class="act" onclick="anomaliEsikKaydet()" style="background:#e67e22">💾 Kaydet</button>
+      <span id="anom-esik-msg" style="font-size:10px;color:#27ae60"></span>
+    </div>
+
     <div style="margin-bottom:10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
       <span style="font-size:10px;color:var(--muted)">Muhasebe esik:</span>
       <input id="muh-esik" type="number" value="30" min="1" max="100" style="width:50px;padding:2px;background:#111;border:1px solid #333;color:#ddd">
@@ -787,8 +846,14 @@
     <button class="act" onclick="kadimCfgKaydet()" style="margin-top:8px">Config Kaydet</button>
 
     <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">Kadim Sehirler Durumu</h3>
-    <p style="font-size:10px;color:#888;margin-bottom:10px">2 sehir + anlik state + ordu_gucu + saldiri sayaclari</p>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">2 sehir + anlik state + ordu_gucu + saldiri sayaclari. "Kusatma Reset" = state idle + holding temizle + ordu_gucu >= 500 + kusatmadaki ordular donusa gecer.</p>
     <div id="kadim-sehirler-content">Yukleniyor...</div>
+
+    <!-- v1.14.0.47: Kusatma Durum Paneli -->
+    <h3 style="margin-top:24px;border-top:1px solid #9b59b6;padding-top:16px;color:#bb8fce">🏰 Kusatma Durum Paneli</h3>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">Sehirlerin canli state + kusatan ordular (varis/donus zamanlari)</p>
+    <button class="act" onclick="loadKusatmaDurum()" style="margin-bottom:8px;background:#8e44ad">🔄 Durumu Yenile</button>
+    <div id="kusatma-durum-content">Yukleniyor...</div>
 
     <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">Sehir Kasasina Kaynak Ekle/Cikar</h3>
     <p style="font-size:10px;color:#888;margin-bottom:10px">Secilen kadim sehrin stoguna kaynak ekle (pozitif) veya cikar (negatif)</p>
@@ -1161,7 +1226,7 @@ function switchTab(tab, el) {
   if (tab === 'gorevler') loadGorevlerAdmin();
   if (tab === 'davet') loadDavetAdmin();
   if (tab === 'duyuru') loadDuyuruAdmin();
-  if (tab === 'anomali') loadAnomaliAdmin();
+  if (tab === 'anomali') { loadAnomaliAdmin(); anomaliEsikLoad(); }
   if (tab === 'tatil-cfg') loadTatilAdmin();
   if (tab === 'savas-cfg') { loadSavasCfg(); loadSavasDegerAraligi(); }
   if (tab === 'dayaniklilik-cfg') loadDayaniklikCfg();
@@ -1169,7 +1234,7 @@ function switchTab(tab, el) {
   if (tab === 'casus-cfg') loadCasusCfg();
   if (tab === 'guild-cfg') { loadGuildCfg(); loadGuildDagitimCfg(); loadGuildMoraliCfg(); loadGuildWsCfg(); loadDiplomasiCfg(); loadArastirmaCfg(); }
   if (tab === 'pazar-deger') loadPazarDegerCfg();
-  if (tab === 'kadim-cfg') loadKadimCfg();
+  if (tab === 'kadim-cfg') { loadKadimCfg(); loadKusatmaDurum(); }
   if (tab === 'ekonomi') loadEkonomiCfg();
   if (tab === 'moral-tar') { /* kullanici manuel fetch */ }
   if (tab === 'bina-nufus') loadBinaNufus();
@@ -3676,12 +3741,14 @@ async function loadKadimCfg() {
     document.getElementById('kadim-cfg-content').innerHTML = html;
 
     // Sehirler durumu + manuel ordu_gucu ayar
-    const sehirHtml = '<table style="width:100%;font-size:11px"><thead><tr><th>ID</th><th>Isim</th><th>Taraf</th><th>X:Y</th><th>State</th><th>Ordu Gücü</th><th>Yeni Gücü Ayarla</th><th>Holding</th></tr></thead><tbody>' +
+    const sehirHtml = '<table style="width:100%;font-size:11px"><thead><tr><th>ID</th><th>Isim</th><th>Taraf</th><th>X:Y</th><th>State</th><th>Ordu Gücü</th><th>Yeni Gücü Ayarla</th><th>Holding</th><th>Kusatma</th></tr></thead><tbody>' +
       KADIM_SEHIRLER.map(s =>
         '<tr><td>'+s.id+'</td><td>'+s.isim+'</td><td>'+s.taraf+'</td><td>'+s.x+':'+s.y+'</td><td>'+(s.state||'-')+'</td>' +
         '<td style="color:#e74c3c;font-weight:bold">'+(s.ordu_gucu||0).toLocaleString('tr-TR')+'</td>' +
         '<td><input type="number" id="ks-ordu-'+s.id+'" placeholder="ör: 50000" style="width:100px;padding:3px;background:#000;border:1px solid #444;color:#e0c97f;font-size:11px;border-radius:3px"> <button class="act" style="font-size:10px;padding:3px 8px" onclick="kadimOrduAyarla('+s.id+')">Ayarla</button></td>' +
-        '<td>'+(s.holding_guild_id||'-')+'</td></tr>'
+        '<td>'+(s.holding_guild_id||'-')+'</td>' +
+        '<td><button class="act" style="font-size:10px;padding:3px 8px;background:#8e44ad" onclick="kadimKusatmaReset('+s.id+',\''+s.isim.replace(/'/g,'')+'\')">🏰 Reset</button></td>' +
+        '</tr>'
       ).join('') +
       '</tbody></table>';
     document.getElementById('kadim-sehirler-content').innerHTML = sehirHtml;
@@ -4503,6 +4570,151 @@ async function ekonomiCfgKaydet() {
     alert(d.ok ? (d.mesaj||'Kaydedildi') : (d.error||'Hata'));
     if (d.ok) loadEkonomiCfg();
   } catch(e) { alert('Hata: '+e.message); }
+}
+
+/* ═══════════════════════════════════════════
+   v1.14.0.47 — ANOMALI / BUYU MUDAHALE / KUSATMA
+═══════════════════════════════════════════ */
+
+// --- ANOMALI ESIK ---
+async function anomaliEsikLoad() {
+  try {
+    const d = await fetch(API + '/api/admin/anomali-esik', { headers: hdr() }).then(r=>r.json());
+    if (d.ok) {
+      const a = document.getElementById('anom-altin-sapma'); if (a) a.value = d.altin_sapma;
+      const y = document.getElementById('anom-yuzde'); if (y) y.value = d.yuzde;
+    }
+  } catch(e) {}
+}
+async function anomaliEsikKaydet() {
+  const altin_sapma = document.getElementById('anom-altin-sapma').value;
+  const yuzde = document.getElementById('anom-yuzde').value;
+  const msgEl = document.getElementById('anom-esik-msg');
+  try {
+    const r = await fetch(API + '/api/admin/anomali-esik', {
+      method:'POST', headers:hdr(),
+      body: JSON.stringify({ altin_sapma, yuzde })
+    });
+    const d = await r.json();
+    if (d.ok) {
+      msgEl.textContent = `✓ Kaydedildi (altin_sapma=${d.altin_sapma}, yuzde=${d.yuzde}%)`;
+      msgEl.style.color = '#27ae60';
+    } else {
+      msgEl.textContent = 'Hata: ' + (d.error || r.status); msgEl.style.color = '#e74c3c';
+    }
+    setTimeout(() => { msgEl.textContent = ''; }, 5000);
+  } catch(e) { msgEl.textContent = 'Hata: ' + e.message; msgEl.style.color = '#e74c3c'; }
+}
+
+// --- BUYU MUDAHALE (3 endpoint) ---
+async function adminBuyuEkle() {
+  const player_id = parseInt(document.getElementById('bm-pid').value);
+  const buyu_id = document.getElementById('bm-buyu-id').value.trim();
+  const kademe = parseInt(document.getElementById('bm-kademe').value) || 3;
+  const msg = document.getElementById('bm-msg');
+  if (!player_id || !buyu_id) { msg.textContent = '⚠️ player_id + buyu_id gerekli'; msg.style.color = '#e74c3c'; return; }
+  try {
+    const r = await fetch(API + '/api/admin/buyu-ekle', {
+      method:'POST', headers:hdr(),
+      body: JSON.stringify({ player_id, buyu_id, kademe })
+    });
+    const d = await r.json();
+    msg.textContent = d.ok ? ('✓ ' + d.mesaj) : ('Hata: ' + (d.error || r.status));
+    msg.style.color = d.ok ? '#27ae60' : '#e74c3c';
+  } catch(e) { msg.textContent = 'Hata: ' + e.message; msg.style.color = '#e74c3c'; }
+}
+async function adminBuyuMalzemeEkle() {
+  const player_id = parseInt(document.getElementById('bme-pid').value);
+  const msg = document.getElementById('bme-msg');
+  if (!player_id) { msg.textContent = '⚠️ player_id gerekli'; msg.style.color = '#e74c3c'; return; }
+  if (!confirm(`player ${player_id}'e 100×4 mana + 50×4 malzeme eklensin mi?`)) return;
+  try {
+    const r = await fetch(API + '/api/admin/buyu-malzeme-ekle', {
+      method:'POST', headers:hdr(),
+      body: JSON.stringify({ player_id })
+    });
+    const d = await r.json();
+    msg.textContent = d.ok ? '✓ Eklendi' : ('Hata: ' + (d.error || r.status));
+    msg.style.color = d.ok ? '#27ae60' : '#e74c3c';
+  } catch(e) { msg.textContent = 'Hata: ' + e.message; msg.style.color = '#e74c3c'; }
+}
+async function adminBuyuCdSil() {
+  const player_id = parseInt(document.getElementById('bcd-pid').value);
+  const buyu_id = document.getElementById('bcd-buyu-id').value.trim() || null;
+  const msg = document.getElementById('bcd-msg');
+  if (!player_id) { msg.textContent = '⚠️ player_id gerekli'; msg.style.color = '#e74c3c'; return; }
+  try {
+    const body = buyu_id ? { player_id, buyu_id } : { player_id };
+    const r = await fetch(API + '/api/admin/buyu-cd-sil', {
+      method:'POST', headers:hdr(), body: JSON.stringify(body)
+    });
+    const d = await r.json();
+    msg.textContent = d.ok ? ('✓ ' + d.mesaj) : ('Hata: ' + (d.error || r.status));
+    msg.style.color = d.ok ? '#27ae60' : '#e74c3c';
+  } catch(e) { msg.textContent = 'Hata: ' + e.message; msg.style.color = '#e74c3c'; }
+}
+
+// --- KADIM KUSATMA (reset + durum paneli) ---
+async function kadimKusatmaReset(sehirId, sehirIsim) {
+  if (!confirm(`${sehirIsim} sehrinin kusatmasi sifirlanacak.\n\nSonuc: state=idle, holding temizlenir, ordu_gucu >= 500, kusatmadaki ordular donusa gecer.\n\nEmin misin?`)) return;
+  try {
+    const r = await fetch(API + '/api/admin/kadim-sehir/' + sehirId + '/kusatma-reset', {
+      method:'POST', headers:hdr()
+    });
+    const d = await r.json();
+    alert(d.ok ? ('✓ ' + d.mesaj) : ('Hata: ' + (d.error || r.status)));
+    if (d.ok) { loadKadimCfg(); loadKusatmaDurum(); }
+  } catch(e) { alert('Hata: ' + e.message); }
+}
+
+async function loadKusatmaDurum() {
+  const el = document.getElementById('kusatma-durum-content');
+  if (!el) return;
+  el.innerHTML = '<div style="color:#888">Yukleniyor...</div>';
+  try {
+    const d = await fetch(API + '/api/admin/kusatma-durum', { headers: hdr() }).then(r=>r.json());
+    if (!d.ok && !d.sehirler) {
+      el.innerHTML = '<div style="color:#e74c3c">Yuklenemedi: ' + (d.error || '?') + '</div>'; return;
+    }
+    const sehirler = d.sehirler || [];
+    const ordular = d.ordular || [];
+    const fmtDate = (x) => x ? new Date(x).toLocaleString('tr-TR') : '-';
+
+    let h = '<div style="margin-bottom:12px"><b>Sehir State:</b></div>';
+    h += '<table style="width:100%;font-size:11px;margin-bottom:16px"><thead><tr><th>ID</th><th>Isim</th><th>Durum</th><th>Holding</th><th>Holding Basladi</th><th>Zafer</th><th>Grace Bitis</th><th>Ordu Gucu</th></tr></thead><tbody>';
+    for (const s of sehirler) {
+      h += `<tr>
+        <td>${s.id}</td><td>${s.isim}</td>
+        <td style="color:${s.kusatma_durumu==='idle'?'#888':'#e67e22'};font-weight:bold">${s.kusatma_durumu || 'idle'}</td>
+        <td>${s.holding_guild_id || '-'}</td>
+        <td>${fmtDate(s.holding_start_at)}</td>
+        <td>${fmtDate(s.zafer_zamani)}</td>
+        <td>${fmtDate(s.grace_bitis)}</td>
+        <td style="color:#e74c3c">${(s.ordu_gucu || 0).toLocaleString('tr-TR')}</td>
+      </tr>`;
+    }
+    h += '</tbody></table>';
+
+    h += '<div style="margin-bottom:8px"><b>Aktif Kusatan/Donen Ordular (' + ordular.length + '):</b></div>';
+    if (ordular.length === 0) {
+      h += '<div style="color:#888;font-size:11px">Aktif ordu yok</div>';
+    } else {
+      h += '<table style="width:100%;font-size:11px"><thead><tr><th>Ordu ID</th><th>Guild</th><th>Ordu Isim</th><th>Durum</th><th>Toplam Unite</th><th>Hedef Sehir</th><th>Varis</th></tr></thead><tbody>';
+      for (const o of ordular) {
+        h += `<tr>
+          <td>${o.id}</td><td>${o.guild_id || '-'}</td><td>${o.isim || '-'}</td>
+          <td style="color:#e67e22">${o.durum}</td>
+          <td>${(o.toplam_unite||0).toLocaleString('tr-TR')}</td>
+          <td>${o.hedef_kadim_sehir_id || '-'}</td>
+          <td>${fmtDate(o.varis_zamani)}</td>
+        </tr>`;
+      }
+      h += '</tbody></table>';
+    }
+    el.innerHTML = h;
+  } catch(e) {
+    el.innerHTML = '<div style="color:#e74c3c">Yuklenemedi: ' + e.message + '</div>';
+  }
 }
 
 /* ═══════════════════════════════════════════
