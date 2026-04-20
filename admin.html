@@ -750,6 +750,18 @@
     <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">Guild WS (Worshipper) Ekle</h3>
     <p style="font-size:10px;color:#888;margin-bottom:10px">Secilen guildin worshipper sayisini degistir (renk bazli)</p>
     <div id="guild-ws-content">Yukleniyor...</div>
+
+    <!-- v1.14.0.46 DIPLOMASI CONFIG -->
+    <h3 style="margin-top:32px;border-top:2px solid #8e44ad;padding-top:16px;color:#bb8fce">🤝 Diplomasi Ayarlari (v1.14.0.30)</h3>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">Antlasma, savas hazirlik, ihanet debuff, tabiyet parametreleri</p>
+    <div id="diplomasi-cfg-content">Yukleniyor...</div>
+    <button class="act" onclick="diplomasiCfgKaydet()" style="margin-top:8px;background:#8e44ad">💾 Diplomasi Kaydet</button>
+
+    <!-- v1.14.0.46 ARASTIRMA CONFIG (Tech Tree) -->
+    <h3 style="margin-top:32px;border-top:2px solid #16a085;padding-top:16px;color:#48c9b0">🔬 Guild Arastirma / Tech Tree (v1.14.0.42)</h3>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">5 teknoloji (uretim/savunma/atk/insaat/ekonomi) + baz maliyet + sure</p>
+    <div id="arastirma-cfg-content">Yukleniyor...</div>
+    <button class="act" onclick="arastirmaCfgKaydet()" style="margin-top:8px;background:#16a085">💾 Arastirma Kaydet</button>
   </div>
 
   <!-- PAZAR DEGER TAB (v1.13.1) -->
@@ -1155,7 +1167,7 @@ function switchTab(tab, el) {
   if (tab === 'dayaniklilik-cfg') loadDayaniklikCfg();
   if (tab === 'bilge-cfg') loadBilgeCfg();
   if (tab === 'casus-cfg') loadCasusCfg();
-  if (tab === 'guild-cfg') { loadGuildCfg(); loadGuildDagitimCfg(); loadGuildMoraliCfg(); loadGuildWsCfg(); }
+  if (tab === 'guild-cfg') { loadGuildCfg(); loadGuildDagitimCfg(); loadGuildMoraliCfg(); loadGuildWsCfg(); loadDiplomasiCfg(); loadArastirmaCfg(); }
   if (tab === 'pazar-deger') loadPazarDegerCfg();
   if (tab === 'kadim-cfg') loadKadimCfg();
   if (tab === 'ekonomi') loadEkonomiCfg();
@@ -4491,6 +4503,133 @@ async function ekonomiCfgKaydet() {
     alert(d.ok ? (d.mesaj||'Kaydedildi') : (d.error||'Hata'));
     if (d.ok) loadEkonomiCfg();
   } catch(e) { alert('Hata: '+e.message); }
+}
+
+/* ═══════════════════════════════════════════
+   v1.14.0.46 — DIPLOMASI & ARASTIRMA CONFIG UI
+═══════════════════════════════════════════ */
+
+// ---- DIPLOMASI ----
+const DIPLOMASI_FIELDS = [
+  { key:'antlasma_iptal_uyari_pg', label:'Antlasma iptal uyari (PG)', def:48, min:1, max:720 },
+  { key:'savas_hazirlik_pg', label:'Savas hazirlik suresi (PG)', def:24, min:1, max:168 },
+  { key:'ihanet_debuff_yuzde', label:'Ihanet ATK/DEF debuff (%)', def:6, min:0, max:50 },
+  { key:'tabiyet_tazminat_yuzde', label:'Tabiyet tazminat (% uretim)', def:30, min:0, max:100 },
+  { key:'tabiyet_sure_pg', label:'Tabiyet suresi (PG)', def:336, min:24, max:1680 },
+  { key:'savas_baris_cooldown_pg', label:'Savas sonrasi baris cooldown (PG)', def:24, min:0, max:168 },
+  { key:'savas_teklif_timeout_pg', label:'Savas teklifi timeout (PG)', def:5, min:1, max:72 },
+  { key:'antlasma_teklif_timeout_pg', label:'Antlasma teklifi timeout (PG)', def:10, min:1, max:72 }
+];
+
+async function loadDiplomasiCfg() {
+  const el = document.getElementById('diplomasi-cfg-content');
+  if (!el) return;
+  el.innerHTML = '<div style="color:#888">Yukleniyor...</div>';
+  try {
+    const d = await fetch(API + '/api/admin/diplomasi-config', { headers: hdr() }).then(r=>r.json());
+    let html = '<table><thead><tr><th>Parametre</th><th>Deger</th><th>Varsayilan / Sinir</th></tr></thead><tbody>';
+    for (const f of DIPLOMASI_FIELDS) {
+      const v = (d[f.key] !== undefined && d[f.key] !== null) ? d[f.key] : f.def;
+      html += `<tr>
+        <td>${f.label}</td>
+        <td><input type="number" id="dip-${f.key}" value="${v}" min="${f.min}" max="${f.max}" style="width:90px"></td>
+        <td style="color:#888;font-size:10px">${f.def} / ${f.min}-${f.max}</td>
+      </tr>`;
+    }
+    html += '</tbody></table>';
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = '<div style="color:#e74c3c">Yuklenemedi: ' + e.message + '</div>';
+  }
+}
+
+async function diplomasiCfgKaydet() {
+  const body = {};
+  for (const f of DIPLOMASI_FIELDS) {
+    const inp = document.getElementById('dip-' + f.key);
+    if (inp) body[f.key] = inp.value;
+  }
+  try {
+    const r = await fetch(API + '/api/admin/diplomasi-config', {
+      method:'POST', headers:hdr(), body:JSON.stringify(body)
+    });
+    const d = await r.json();
+    alert(d.ok ? 'Diplomasi config kaydedildi' : ('Hata: ' + (d.error || r.status)));
+    if (d.ok) loadDiplomasiCfg();
+  } catch(e) { alert('Hata: ' + e.message); }
+}
+
+// ---- ARASTIRMA ----
+const TEKNOLOJILER = [
+  { key:'uretim',   emoji:'🌾', varsayilan:{ isim:'Uretim Artirici', max_sev:5, etki_yuzde:2, aciklama:'Her kademe tum uyelerin uretiminde +2% bonus' } },
+  { key:'savunma',  emoji:'🛡️', varsayilan:{ isim:'Savunma Kalkani', max_sev:5, etki_yuzde:2, aciklama:'Her kademe +2% DEF (savasta)' } },
+  { key:'atk',      emoji:'⚔️', varsayilan:{ isim:'Ordu Disiplini', max_sev:5, etki_yuzde:2, aciklama:'Her kademe +2% ATK (savasta)' } },
+  { key:'insaat',   emoji:'🏗️', varsayilan:{ isim:'Hizli Insaat', max_sev:3, etki_yuzde:5, aciklama:'Her kademe bina insa suresi -5%' } },
+  { key:'ekonomi',  emoji:'💰', varsayilan:{ isim:'Ekonomi', max_sev:5, etki_yuzde:1, aciklama:'Her kademe +1% altin geliri' } }
+];
+
+async function loadArastirmaCfg() {
+  const el = document.getElementById('arastirma-cfg-content');
+  if (!el) return;
+  el.innerHTML = '<div style="color:#888">Yukleniyor...</div>';
+  try {
+    const d = await fetch(API + '/api/admin/arastirma-config', { headers: hdr() }).then(r=>r.json());
+    let html = '<table><thead><tr><th>Teknoloji</th><th>Isim</th><th>Max Sev.</th><th>Etki %/sev</th><th>Aciklama</th></tr></thead><tbody>';
+    for (const t of TEKNOLOJILER) {
+      const src = d[t.key] || t.varsayilan;
+      html += `<tr>
+        <td>${t.emoji} <code>${t.key}</code></td>
+        <td><input id="ar-${t.key}-isim" value="${(src.isim||'').replace(/"/g,'&quot;')}" style="width:160px"></td>
+        <td><input type="number" id="ar-${t.key}-max" value="${src.max_sev ?? t.varsayilan.max_sev}" min="1" max="20" style="width:60px"></td>
+        <td><input type="number" id="ar-${t.key}-etki" value="${src.etki_yuzde ?? t.varsayilan.etki_yuzde}" min="0" max="50" step="0.1" style="width:70px"></td>
+        <td><input id="ar-${t.key}-acik" value="${(src.aciklama||'').replace(/"/g,'&quot;')}" style="width:320px"></td>
+      </tr>`;
+    }
+    html += '</tbody></table>';
+
+    const bm = d.baz_maliyet || { odun:50000, metal:50000, altin:10000, islenmis:5000 };
+    html += `<div style="margin-top:16px">
+      <h4 style="margin:0 0 8px 0;color:#48c9b0">Baz Maliyet (K1 — her kademe × 2)</h4>
+      <table><tr>
+        <td>Odun: <input type="number" id="ar-bm-odun" value="${bm.odun}" style="width:100px"></td>
+        <td>Metal: <input type="number" id="ar-bm-metal" value="${bm.metal}" style="width:100px"></td>
+        <td>Altin: <input type="number" id="ar-bm-altin" value="${bm.altin}" style="width:100px"></td>
+        <td>Islenmis: <input type="number" id="ar-bm-islenmis" value="${bm.islenmis}" style="width:100px"></td>
+      </tr></table>
+      <div style="margin-top:12px">Sure (PG): <input type="number" id="ar-sure" value="${d.sure_pg ?? 12}" min="1" max="720" style="width:80px"></div>
+    </div>`;
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = '<div style="color:#e74c3c">Yuklenemedi: ' + e.message + '</div>';
+  }
+}
+
+async function arastirmaCfgKaydet() {
+  const body = {};
+  for (const t of TEKNOLOJILER) {
+    body[t.key] = {
+      isim:      document.getElementById('ar-' + t.key + '-isim').value,
+      max_sev:   document.getElementById('ar-' + t.key + '-max').value,
+      etki_yuzde:document.getElementById('ar-' + t.key + '-etki').value,
+      aciklama:  document.getElementById('ar-' + t.key + '-acik').value
+    };
+  }
+  body.baz_maliyet = {
+    odun:     document.getElementById('ar-bm-odun').value,
+    metal:    document.getElementById('ar-bm-metal').value,
+    altin:    document.getElementById('ar-bm-altin').value,
+    islenmis: document.getElementById('ar-bm-islenmis').value
+  };
+  body.sure_pg = document.getElementById('ar-sure').value;
+
+  try {
+    const r = await fetch(API + '/api/admin/arastirma-config', {
+      method:'POST', headers:hdr(), body:JSON.stringify(body)
+    });
+    const d = await r.json();
+    alert(d.ok ? 'Arastirma config kaydedildi' : ('Hata: ' + (d.error || r.status)));
+    if (d.ok) loadArastirmaCfg();
+  } catch(e) { alert('Hata: ' + e.message); }
 }
 </script>
 </body>
