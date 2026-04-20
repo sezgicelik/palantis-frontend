@@ -244,6 +244,14 @@ function renderHUD(){
               <span class="res-amount" id="hud-sald-sayi" style="color:#e74c3c">0</span>
             </div>
           </div>
+          <!-- v1.14.0.15: Kadim sehirden gelen saldiri (240 PG geri sayim) -->
+          <div id="hud-kadim-btn" class="stat-box" data-tip="KADIM SEHIR ORDUSU (TOPLANIYOR/YOLDA)" onclick="toggleGelenOrdular()" style="display:none;cursor:pointer;border-left:2px solid #9b59b6;background:rgba(155,89,182,0.08)">
+            <span class="res-icon">🏛️</span>
+            <div class="res-details">
+              <span class="res-label" style="color:#9b59b6">Kadim</span>
+              <span class="res-amount" id="hud-kadim-sayi" style="color:#9b59b6">0</span>
+            </div>
+          </div>
           <div id="hud-takv-btn" class="stat-box" data-tip="GELEN DESTEK ORDUSU" onclick="toggleGelenOrdular()" style="display:none;cursor:pointer;border-left:2px solid #2ecc71;background:rgba(46,204,113,0.08)">
             <span class="res-icon">🛡️</span>
             <div class="res-details">
@@ -766,6 +774,7 @@ async function loadGelenOrdular() {
       else { btn.style.display = 'none'; }
     };
     show('hud-sald-btn',  'hud-sald-sayi',  data.saldiri_sayisi || 0);
+    show('hud-kadim-btn', 'hud-kadim-sayi', data.kadim_saldiri_sayisi || 0);
     show('hud-takv-btn',  'hud-takv-sayi',  data.takviye_sayisi || 0);
     show('hud-buagr-btn', 'hud-buagr-sayi', data.ustume_buyu_agresif || 0);
     show('hud-budef-btn', 'hud-budef-sayi', data.ustume_buyu_defansif || 0);
@@ -920,7 +929,8 @@ function renderGelenOrdularPanel() {
   const d = _gelenOrdularCache;
   const ordular = d?.ordular || [];
   const buyuler = d?.ustume_buyu_detay || [];
-  if (ordular.length === 0 && buyuler.length === 0) {
+  const kadim = (d?.kadim_saldiri_detay || []).filter(k => k.faz === 'yolda' || k.faz === 'uyari' || k.faz === 'geri_sayim');
+  if (ordular.length === 0 && buyuler.length === 0 && kadim.length === 0) {
     wrap.innerHTML = '<div style="color:#555;text-align:center;padding:14px">Hiç bir şey yok</div>';
     return;
   }
@@ -944,6 +954,26 @@ function renderGelenOrdularPanel() {
         </div>
         <div style="color:#ccc;font-size:11px">${ad}${sehir}</div>
         <div style="color:#666;font-size:10px;margin-top:2px">${koord} ${o.ordu_isim || 'Ordu'}</div>
+      </div>`;
+    }).join('');
+  }
+  // v1.14.0.15: Kadim sehir saldirilari
+  if (kadim.length > 0) {
+    html += '<div style="font-size:10px;color:#9b59b6;margin:10px 0 4px;font-weight:bold;padding-top:8px;border-top:1px dashed #3a3020">🏛️ KADIM SEHIR ORDULARI</div>';
+    html += kadim.map(k => {
+      const yolda = k.faz === 'yolda';
+      const uyari = k.faz === 'uyari';
+      const renk = yolda ? '#e74c3c' : (uyari ? '#f39c12' : '#9b59b6');
+      const ikon = yolda ? '⚔️' : (uyari ? '⚠️' : '⏳');
+      const fazStr = yolda ? 'YOLDA' : (uyari ? 'HAREKETE HAZIR' : 'GERI SAYIM');
+      const altin = (k.tahmini_altin || 0).toLocaleString('tr-TR');
+      return `<div style="padding:8px 10px;margin-bottom:6px;background:rgba(0,0,0,0.3);border-left:3px solid ${renk};border-radius:4px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+          <span style="color:${renk};font-weight:bold;font-size:12px">${ikon} ${fazStr}</span>
+          <span style="color:#c8a96e;font-size:10px;font-weight:bold">${k.kalan_pg!=null?k.kalan_pg+' PG':'?'}</span>
+        </div>
+        <div style="color:#ccc;font-size:11px">${k.saldiran_sehir} → sana saldiriyor</div>
+        <div style="color:#666;font-size:10px;margin-top:2px">Tetikleyici: ${k.ticaret_sehri} ticareti · Butce: ~${altin} altin</div>
       </div>`;
     }).join('');
   }
