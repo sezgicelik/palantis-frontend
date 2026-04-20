@@ -1,6 +1,6 @@
 // v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
 // Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
-const CACHE_NAME = 'noxara-v44'; // v1.14.0.29 NPC saldirida TUM binalar -savas_bina (PvP ile tutarli)
+const CACHE_NAME = 'noxara-v45'; // v1.14.0.30 Guild Diplomasi + v1.14.1 Multi-guild kusatma
 
 // Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [

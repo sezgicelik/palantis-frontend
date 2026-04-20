@@ -138,6 +138,7 @@ var GUILD_TABS = [
   { id: 'dagitim',  label: '📦 Dagitim',     aktif: true },
   { id: 'mezarlik', label: '⚰️ Mezarlik',    aktif: true },
   { id: 'kusatma',  label: '⚔️ Kusatma',      aktif: true },  // v1.13.39 Faz 3b.0
+  { id: 'diplomasi', label: '🤝 Diplomasi', aktif: true }, // v1.14.0.30
   { id: 'savas',    label: '⚔️ Savas Odasi', aktif: false },
   { id: 'raporlar', label: '📜 Raporlar',     aktif: true },
   // v1.13.68.5: Ekonomi Ozet Tablosu (oyuncu sayfasindaki ile ayni format)
@@ -239,6 +240,7 @@ function guildTabIcerikGoster(data) {
     case 'dagitim':  renderTabDagitim(el, data); break;
     case 'mezarlik': renderTabMezarlik(el, data); break;
     case 'raporlar': renderTabRaporlar(el, data); break;
+    case 'diplomasi': renderTabDiplomasi(el, data); break;
     case 'ekonomi-ozet': renderTabEkonomiOzet(el, data); break;
     case 'uye-ozet': renderTabUyeOzet(el, data); break;
     case 'kusatma':  renderTabKusatma(el, data); break;
@@ -1804,6 +1806,178 @@ function guildRaporFiltre(filtre) {
     var el = document.getElementById('guild-tab-content');
     if (el) renderTabRaporlar(el, GUILD_DATA);
   }
+}
+
+// ═══════════════════════════════════
+//   TAB: DIPLOMASI (v1.14.0.30)
+// ═══════════════════════════════════
+async function renderTabDiplomasi(el, data) {
+  el.innerHTML = '<div style="text-align:center;padding:20px;color:#888">Yukleniyor...</div>';
+  try {
+    var resp = await fetch(API_BASE + '/api/guild-iliski/benim', { headers: guildHdr() });
+    var d = await resp.json();
+    if (!resp.ok) { el.innerHTML = '<div style="color:#e74c3c">' + (d.error || 'Hata') + '</div>'; return; }
+
+    var isLider = data.uye && data.uye.rutbe === 'lider';
+    var iliskiler = d.iliskiler || [];
+
+    // Durum badge'i
+    function durumBadge(durum) {
+      var colors = {
+        BARIS: { bg: 'rgba(149,165,166,0.15)', fg: '#95a5a6', ikon: '☮️' },
+        ANTLASMA: { bg: 'rgba(46,204,113,0.15)', fg: '#2ecc71', ikon: '🤝' },
+        SAVAS: { bg: 'rgba(231,76,60,0.18)', fg: '#e74c3c', ikon: '⚔️' },
+        TABIYET: { bg: 'rgba(155,89,182,0.15)', fg: '#9b59b6', ikon: '👑' }
+      };
+      var c = colors[durum] || colors.BARIS;
+      return '<span style="background:' + c.bg + ';color:' + c.fg + ';padding:2px 8px;border-radius:3px;font-size:11px;font-weight:bold">' + c.ikon + ' ' + durum + '</span>';
+    }
+
+    function fmtT(ts) { return ts ? new Date(ts).toLocaleString('tr-TR', {hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'}) : '-'; }
+    function fmtKalan(bitisAt) {
+      if (!bitisAt) return '-';
+      var ms = new Date(bitisAt).getTime() - Date.now();
+      if (ms <= 0) return '<span style="color:#e74c3c">geçti</span>';
+      var h = Math.floor(ms / 3600000);
+      return h + ' PG';
+    }
+
+    var html = '<div style="max-width:1200px;margin:0 auto">';
+
+    // LIDER teklif formu
+    if (isLider) {
+      html += '<div class="card" style="margin-bottom:16px;padding:14px">' +
+        '<h3 style="color:#3498db;margin-top:0">🤝 Yeni Teklif Gönder (Lider)</h3>' +
+        '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
+          '<input id="dip-rakip" type="number" placeholder="Rakip guild ID" style="width:140px;padding:6px;background:#1a1a1a;color:#fff;border:1px solid #444;border-radius:3px">' +
+          '<button class="btn-action" onclick="dipTeklif(\'antlasma\')" style="background:#27ae60;color:#fff">🤝 ANTLAŞMA Teklif Et</button>' +
+          '<button class="btn-action" onclick="dipTeklif(\'savas\')" style="background:#e74c3c;color:#fff">⚔️ SAVAŞ İlan Et</button>' +
+          '<button class="btn-action" onclick="dipTeklif(\'tabiyet\')" style="background:#9b59b6;color:#fff">👑 TABIYET Teklif (Hakim OL)</button>' +
+        '</div>' +
+        '<div style="font-size:10px;color:#888;margin-top:8px">• ANTLAŞMA: karşılıklı saldırı yasağı. İptal = 48+24 PG uyarı sonra SAVAŞ (ihanet kaydı -6% ATK/DEF)<br>• SAVAŞ: direkt ilan, onay gerektirmez.<br>• TABIYET: kabul ederse onların üretiminin %30\'u size akar (336 PG)</div>' +
+        '</div>';
+    }
+
+    // BEKLEYEN TEKLIFLER
+    var bekleyenler = iliskiler.filter(function(i){ return i.bekleyen_teklif && !i.ben_teklif_ettim; });
+    if (bekleyenler.length > 0) {
+      html += '<div class="card" style="margin-bottom:16px;padding:14px;border-left:3px solid #f39c12">' +
+        '<h3 style="color:#f39c12;margin-top:0">🔔 Gelen Teklifler (' + bekleyenler.length + ')</h3>';
+      for (var i = 0; i < bekleyenler.length; i++) {
+        var il = bekleyenler[i];
+        var aciklama = il.teklif_tip === 'ANTLASMA' ? 'Size ANTLAŞMA teklif ediyor (karşılıklı saldırı yasağı)'
+                     : il.teklif_tip === 'BARIS' ? 'Size BARIŞ teklif ediyor (savaşı bitir)'
+                     : il.teklif_tip === 'TABIYET' ? 'Sizi TABIYET altına almak istiyor (onlar HAKIM, siz BAĞLI)' : '';
+        html += '<div style="padding:10px;background:#111;border-radius:4px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">' +
+          '<div><b style="color:#f39c12">' + (il.rakip.isim || '?') + '</b> <span style="color:#666">(ID ' + il.rakip.id + ')</span><br><span style="color:#ccc;font-size:11px">' + aciklama + '</span></div>' +
+          (isLider ? '<div style="display:flex;gap:6px"><button class="btn-action" onclick="dipKabul(\'' + il.teklif_tip + '\',' + il.rakip.id + ')" style="background:#27ae60;color:#fff;font-size:11px">✅ Kabul</button>' +
+          '<button class="btn-action" onclick="dipRed(' + il.rakip.id + ')" style="background:#95a5a6;color:#fff;font-size:11px">❌ Reddet</button></div>' : '<span style="color:#666">Lider kabul/red eder</span>') +
+          '</div>';
+      }
+      html += '</div>';
+    }
+
+    // AKTIF ILISKILER
+    html += '<div class="card" style="padding:14px">' +
+      '<h3 style="color:#3498db;margin-top:0">📋 Aktif İlişkiler (' + iliskiler.length + ')</h3>';
+    if (iliskiler.length === 0) {
+      html += '<div style="color:#666;padding:8px">Henüz ilişki yok. Yukarıdan teklif gönderin.</div>';
+    } else {
+      for (var j = 0; j < iliskiler.length; j++) {
+        var il = iliskiler[j];
+        var extra = '';
+        if (il.durum === 'ANTLASMA' && il.savas_hazirlik_bitis_at) {
+          extra = '<div style="color:#e74c3c;font-size:11px;margin-top:4px">⚠ İPTAL SÜRECİ: ' + fmtKalan(il.savas_hazirlik_bitis_at) + ' sonra SAVAŞ' + (il.ben_ihanet_eden ? ' (siz ihanet ediyorsunuz)' : ' (rakip ihanet ediyor)') + '</div>';
+        } else if (il.durum === 'TABIYET') {
+          var rolStr = il.ben_hakim ? '👑 Siz HAKIM' : '⛓ Siz BAĞLI';
+          extra = '<div style="color:#9b59b6;font-size:11px;margin-top:4px">' + rolStr + ' — Bitiş: ' + fmtKalan(il.tabiyet_bitis_at) + '</div>';
+        } else if (il.durum === 'SAVAS') {
+          extra = '<div style="color:#e74c3c;font-size:11px;margin-top:4px">⚔️ Savaş başlangıç: ' + fmtT(il.savas_baslangic_at) + (il.ben_ihanet_eden ? ' · <b>Siz ihanet eden</b> (-6% ATK/DEF)' : il.ihanet_eden_id ? ' · <b>Rakip ihanet eden</b> (-6% onlarda)' : '') + '</div>';
+        }
+        var aksiyon = '';
+        if (isLider) {
+          if (il.durum === 'ANTLASMA' && !il.savas_hazirlik_bitis_at) {
+            aksiyon = '<button class="btn-action" onclick="dipIptalAntlasma(' + il.rakip.id + ')" style="background:#e74c3c;color:#fff;font-size:11px">⚠️ Antlaşmayı İptal Et</button>';
+          } else if (il.durum === 'SAVAS' && !il.bekleyen_teklif) {
+            aksiyon = '<button class="btn-action" onclick="dipTeklifBaris(' + il.rakip.id + ')" style="background:#2ecc71;color:#fff;font-size:11px">🕊️ Barış Teklif Et</button>';
+          } else if (il.durum === 'TABIYET' && il.ben_hakim) {
+            aksiyon = '<button class="btn-action" onclick="dipSonlandirTabiyet(' + il.rakip.id + ')" style="background:#f39c12;color:#fff;font-size:11px">🔓 Tabiyeti Sonlandır</button>';
+          } else if (il.bekleyen_teklif && il.ben_teklif_ettim) {
+            aksiyon = '<span style="color:#888;font-size:11px">⌛ Teklif bekleniyor</span>';
+          }
+        }
+        html += '<div style="padding:10px;background:#111;border-radius:4px;margin-bottom:6px">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">' +
+            '<div><b>' + (il.rakip.isim || '?') + '</b> <span style="color:#666">(ID ' + il.rakip.id + ', ' + (il.rakip.taraf||'?') + ')</span></div>' +
+            '<div>' + durumBadge(il.durum) + '</div>' +
+            '<div>' + aksiyon + '</div>' +
+          '</div>' + extra +
+          '</div>';
+      }
+    }
+    html += '</div></div>';
+
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = '<div style="color:#e74c3c">Hata: ' + e.message + '</div>';
+  }
+}
+
+async function dipTeklif(tip) {
+  var rakip = parseInt(document.getElementById('dip-rakip').value);
+  if (!rakip) { alert('Rakip guild ID gir'); return; }
+  var endpoint = tip === 'antlasma' ? 'teklif-antlasma' : tip === 'savas' ? 'ilan-savas' : 'teklif-tabiyet';
+  var onayMsj = tip === 'antlasma' ? 'Antlaşma teklif edilecek. Onayla?' : tip === 'savas' ? '⚠️ SAVAŞ İLAN EDİLECEK! Geri dönüşsüz. Onayla?' : 'TABIYET teklif edilecek (siz HAKIM olacaksınız). Onayla?';
+  if (!confirm(onayMsj)) return;
+  try {
+    var r = await fetch(API_BASE + '/api/guild-iliski/' + endpoint, { method:'POST', headers:guildHdr(), body:JSON.stringify({rakip_gid:rakip}) });
+    var d = await r.json();
+    if (d.ok) { alert('✅ ' + (d.mesaj||'Tamam')); renderTabDiplomasi(document.getElementById('guild-tab-content'), GUILD_DATA); }
+    else alert('Hata: ' + (d.error||''));
+  } catch(e) { alert('Hata: ' + e.message); }
+}
+async function dipKabul(tip, rakip) {
+  var endpoint = tip === 'ANTLASMA' ? 'kabul-antlasma' : tip === 'BARIS' ? 'kabul-baris' : 'kabul-tabiyet';
+  try {
+    var r = await fetch(API_BASE + '/api/guild-iliski/' + endpoint, { method:'POST', headers:guildHdr(), body:JSON.stringify({rakip_gid:rakip}) });
+    var d = await r.json();
+    if (d.ok) { alert('✅ ' + (d.mesaj||'Tamam')); renderTabDiplomasi(document.getElementById('guild-tab-content'), GUILD_DATA); }
+    else alert('Hata: ' + (d.error||''));
+  } catch(e) { alert('Hata: ' + e.message); }
+}
+async function dipRed(rakip) {
+  try {
+    var r = await fetch(API_BASE + '/api/guild-iliski/red-teklif', { method:'POST', headers:guildHdr(), body:JSON.stringify({rakip_gid:rakip}) });
+    var d = await r.json();
+    if (d.ok) renderTabDiplomasi(document.getElementById('guild-tab-content'), GUILD_DATA);
+    else alert('Hata: ' + (d.error||''));
+  } catch(e) { alert('Hata: ' + e.message); }
+}
+async function dipIptalAntlasma(rakip) {
+  if (!confirm('⚠️ Antlaşmayı iptal edeceksin — SİZ İHANET EDEN olarak kayıt edileceksin. Savaşta -6% ATK/DEF debuff alacaksın. 48+24=72 PG sonra SAVAŞ. Onayla?')) return;
+  try {
+    var r = await fetch(API_BASE + '/api/guild-iliski/iptal-antlasma', { method:'POST', headers:guildHdr(), body:JSON.stringify({rakip_gid:rakip}) });
+    var d = await r.json();
+    if (d.ok) { alert('⚠️ ' + (d.mesaj||'')); renderTabDiplomasi(document.getElementById('guild-tab-content'), GUILD_DATA); }
+    else alert('Hata: ' + (d.error||''));
+  } catch(e) { alert('Hata: ' + e.message); }
+}
+async function dipTeklifBaris(rakip) {
+  try {
+    var r = await fetch(API_BASE + '/api/guild-iliski/teklif-baris', { method:'POST', headers:guildHdr(), body:JSON.stringify({rakip_gid:rakip}) });
+    var d = await r.json();
+    if (d.ok) { alert('🕊️ ' + (d.mesaj||'')); renderTabDiplomasi(document.getElementById('guild-tab-content'), GUILD_DATA); }
+    else alert('Hata: ' + (d.error||''));
+  } catch(e) { alert('Hata: ' + e.message); }
+}
+async function dipSonlandirTabiyet(rakip) {
+  if (!confirm('TABİYETİ erken sonlandıracaksın. Tazminat akışı kesilir. Onayla?')) return;
+  try {
+    var r = await fetch(API_BASE + '/api/guild-iliski/sonlandir-tabiyet', { method:'POST', headers:guildHdr(), body:JSON.stringify({rakip_gid:rakip}) });
+    var d = await r.json();
+    if (d.ok) { alert('🔓 ' + (d.mesaj||'')); renderTabDiplomasi(document.getElementById('guild-tab-content'), GUILD_DATA); }
+    else alert('Hata: ' + (d.error||''));
+  } catch(e) { alert('Hata: ' + e.message); }
 }
 
 // ═══════════════════════════════════
