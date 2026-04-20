@@ -175,6 +175,8 @@ var GUILD_TABS = [
   { id: 'mezarlik', label: '⚰️ Mezarlik',    aktif: true },
   { id: 'kusatma',  label: '⚔️ Kusatma',      aktif: true },  // v1.13.39 Faz 3b.0
   { id: 'diplomasi', label: '🤝 Diplomasi', aktif: true }, // v1.14.0.30
+  { id: 'sohbet',   label: '💬 Sohbet',       aktif: true }, // v1.14.0.42 A2
+  { id: 'arastirma',label: '🔬 Araştırma',    aktif: true }, // v1.14.0.42 D
   { id: 'savas',    label: '⚔️ Savas Odasi', aktif: false },
   { id: 'raporlar', label: '📜 Raporlar',     aktif: true },
   // v1.13.68.5: Ekonomi Ozet Tablosu (oyuncu sayfasindaki ile ayni format)
@@ -277,6 +279,8 @@ function guildTabIcerikGoster(data) {
     case 'mezarlik': renderTabMezarlik(el, data); break;
     case 'raporlar': renderTabRaporlar(el, data); break;
     case 'diplomasi': renderTabDiplomasi(el, data); break;
+    case 'sohbet':   renderTabSohbet(el, data); break;
+    case 'arastirma':renderTabArastirma(el, data); break;
     case 'ekonomi-ozet': renderTabEkonomiOzet(el, data); break;
     case 'uye-ozet': renderTabUyeOzet(el, data); break;
     case 'kusatma':  renderTabKusatma(el, data); break;
@@ -630,7 +634,8 @@ function renderTabUyeler(el, data) {
 
     // Lider islemleri
     if (isLider && u.player_id !== g.lider_id) {
-      aksiyonlar += '<button style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:9px" onclick="guildAt(' + g.id + ',' + u.player_id + ')">At</button>' +
+      aksiyonlar += '<button style="background:none;border:1px solid #f1c40f;color:#f1c40f;cursor:pointer;font-size:9px;border-radius:3px;padding:1px 6px" onclick="guildLiderlikDevret(' + g.id + ',' + u.player_id + ',\'' + (u.kullanici_adi||'').replace(/\'/g,'') + '\')">👑 Lider Yap</button>' +
+        '<button style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:9px" onclick="guildAt(' + g.id + ',' + u.player_id + ')">At</button>' +
         '<select style="background:#111;border:1px solid #333;color:#ddd;font-size:9px;border-radius:3px;padding:1px" onchange="guildRutbe(' + g.id + ',' + u.player_id + ',this.value)">' +
           '<option value="uye"' + (u.rutbe==='uye'?' selected':'') + '>Uye</option>' +
           '<option value="yardimci"' + (u.rutbe==='yardimci'?' selected':'') + '>Yardimci</option>' +
@@ -716,6 +721,159 @@ async function istekRed(guildId, playerId) {
     var r = await fetch(API_BASE + '/api/guild/' + guildId + '/uyelik-istek/' + playerId + '/red', { method:'POST', headers: guildHdr() });
     var d = await r.json();
     if (r.ok) { _loadGelenIstekler(guildId); }
+    else alert(d.error || 'Hata');
+  } catch(e) { alert(e.message); }
+}
+
+// v1.14.0.42 B1: Liderlik devret
+async function guildLiderlikDevret(guildId, playerId, isim) {
+  if (!confirm('⚠️ LİDERLİK DEVRİ!\n\n' + isim + ' oyuncusuna liderliği devretmek istediğine EMİN MİSİN?\n\nSen "yardımcı" rütbesine düşeceksin. Geri alınamaz (yeni lider tekrar sana devretmedikçe).')) return;
+  try {
+    var r = await fetch(API_BASE + '/api/guild/' + guildId + '/liderlik-devret', {
+      method:'POST', headers: guildHdr(), body: JSON.stringify({ yeni_lider_id: playerId })
+    });
+    var d = await r.json();
+    if (r.ok) { alert('👑 ' + (d.mesaj || 'Devredildi')); loadGuild(); }
+    else alert(d.error || 'Hata');
+  } catch(e) { alert(e.message); }
+}
+
+// v1.14.0.42 A2: Guild Sohbet
+async function renderTabSohbet(el, data) {
+  var gId = data.guild.id;
+  el.innerHTML = '<div class="card" style="padding:12px"><h3 style="color:#3498db;margin-top:0">💬 Guild Sohbet</h3>' +
+    '<div id="sohbet-list" style="max-height:450px;overflow-y:auto;background:#0a0a0a;border:1px solid #222;border-radius:4px;padding:8px;font-size:11px;margin-bottom:8px">Yükleniyor...</div>' +
+    '<div style="display:flex;gap:4px">' +
+      '<input id="sohbet-inp" type="text" maxlength="500" placeholder="Mesajın..." onkeypress="if(event.key===\'Enter\')sohbetGonder(' + gId + ')" style="flex:1;padding:6px;background:#111;border:1px solid #444;color:#ddd;border-radius:4px;font-size:11px">' +
+      '<button class="btn-action" style="width:auto;padding:6px 14px;font-size:11px" onclick="sohbetGonder(' + gId + ')">Gönder</button>' +
+    '</div>' +
+    '<div style="font-size:9px;color:#666;margin-top:6px">Son 50 mesaj · Lider/yardımcı tüm mesajları silebilir, diğer üyeler sadece kendi mesajını</div></div>';
+  await _loadSohbet(gId, data.benim_player_id, data.benim_rutbem);
+  // Auto-refresh 20 sn
+  if (window._sohbetIntv) clearInterval(window._sohbetIntv);
+  window._sohbetIntv = setInterval(function(){ _loadSohbet(gId, data.benim_player_id, data.benim_rutbem); }, 20000);
+}
+
+async function _loadSohbet(gId, benId, benRutbe) {
+  var wrap = document.getElementById('sohbet-list');
+  if (!wrap) return;
+  try {
+    var r = await fetch(API_BASE + '/api/guild/' + gId + '/chat', { headers: guildHdr() });
+    var d = await r.json();
+    if (!r.ok) { wrap.innerHTML = '<span style="color:#e74c3c">' + (d.error||'Hata') + '</span>'; return; }
+    var ms = d.mesajlar || [];
+    if (!ms.length) { wrap.innerHTML = '<div style="color:#666;text-align:center;padding:10px">Henüz mesaj yok. İlk olmaya cesaret et!</div>'; return; }
+    var silYetki = benRutbe === 'lider' || benRutbe === 'yardimci';
+    wrap.innerHTML = ms.map(function(m){
+      var ikon = m.yazan_rutbe === 'lider' ? '👑' : m.yazan_rutbe === 'yardimci' ? '⭐' : '🏅';
+      var renk = m.yazan_rutbe === 'lider' ? '#f1c40f' : m.yazan_rutbe === 'yardimci' ? '#3498db' : '#95a5a6';
+      var tarih = new Date(m.created_at).toLocaleString('tr-TR',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'});
+      var silBtn = (silYetki || m.player_id === benId) ? ' <button onclick="sohbetSil(' + gId + ',' + m.id + ')" style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:10px" title="Sil">🗑</button>' : '';
+      return '<div style="padding:5px 6px;border-bottom:1px solid #1a1a1a">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center">' +
+          '<span>' + ikon + ' <b style="color:' + renk + '">' + (m.kral || '?') + '</b></span>' +
+          '<span style="color:#555;font-size:9px">' + tarih + silBtn + '</span>' +
+        '</div>' +
+        '<div style="color:#ddd;margin-top:2px;word-break:break-word">' + (m.mesaj||'').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>' +
+      '</div>';
+    }).join('');
+    wrap.scrollTop = wrap.scrollHeight;
+  } catch(e) { wrap.innerHTML = '<span style="color:#e74c3c">' + e.message + '</span>'; }
+}
+
+async function sohbetGonder(gId) {
+  var inp = document.getElementById('sohbet-inp');
+  var msj = (inp?.value || '').trim();
+  if (!msj) return;
+  try {
+    var r = await fetch(API_BASE + '/api/guild/' + gId + '/chat', {
+      method:'POST', headers: guildHdr(), body: JSON.stringify({ mesaj: msj })
+    });
+    var d = await r.json();
+    if (r.ok) { inp.value = ''; _loadSohbet(gId, GUILD_DATA.benim_player_id, GUILD_DATA.benim_rutbem); }
+    else alert(d.error || 'Hata');
+  } catch(e) { alert(e.message); }
+}
+async function sohbetSil(gId, mid) {
+  if (!confirm('Mesajı sil?')) return;
+  try {
+    var r = await fetch(API_BASE + '/api/guild/' + gId + '/chat/' + mid, { method:'DELETE', headers: guildHdr() });
+    if (r.ok) _loadSohbet(gId, GUILD_DATA.benim_player_id, GUILD_DATA.benim_rutbem);
+    else { var d = await r.json(); alert(d.error || 'Hata'); }
+  } catch(e) { alert(e.message); }
+}
+
+// v1.14.0.42 D: Arastirma / Tech Tree
+async function renderTabArastirma(el, data) {
+  var gId = data.guild.id;
+  var isLiderYard = data.benim_rutbem === 'lider' || data.benim_rutbem === 'yardimci';
+  el.innerHTML = '<div class="card" style="padding:12px"><h3 style="color:#9b59b6;margin-top:0">🔬 Guild Araştırma (Tech Tree)</h3>' +
+    '<div id="arastirma-content" style="font-size:11px">Yükleniyor...</div></div>';
+  try {
+    var r = await fetch(API_BASE + '/api/guild/' + gId + '/arastirma', { headers: guildHdr() });
+    var d = await r.json();
+    if (!r.ok) { document.getElementById('arastirma-content').innerHTML = '<span style="color:#e74c3c">' + (d.error||'Hata') + '</span>'; return; }
+    var cfg = d.config || {};
+    var sev = d.seviyeler || {};
+    var kyr = {};
+    (d.kuyruk || []).forEach(function(k){ kyr[k.teknoloji] = k; });
+
+    var html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px">';
+    Object.keys(cfg).forEach(function(key){
+      var tek = cfg[key];
+      if (!tek || !tek.max_sev) return; // baz_maliyet/sure_pg gibi ayar alanlarını atla
+      var mev = sev[key] || 0;
+      var hedef = mev + 1;
+      var kuyruk = kyr[key];
+      var maxSev = tek.max_sev;
+      var yuzde = tek.etki_yuzde || 0;
+      var toplamYuzde = mev * yuzde;
+      var bitisMs = kuyruk ? new Date(kuyruk.bitis).getTime() - Date.now() : 0;
+      var kalanPg = kuyruk ? Math.ceil(bitisMs / 3600000) : 0;
+
+      // Maliyet K{hedef}
+      var baz = cfg.baz_maliyet || { odun:50000, metal:50000, altin:10000, islenmis:5000 };
+      var carpan = Math.pow(2, hedef - 1);
+      var maliyetStr = Object.entries(baz).map(function(kv){ return '<span style="color:#d4af37">' + (kv[1] * carpan).toLocaleString('tr-TR') + ' ' + kv[0] + '</span>'; }).join(' · ');
+
+      html += '<div style="padding:10px;background:#111;border-left:3px solid ' + (mev >= maxSev ? '#2ecc71' : '#9b59b6') + ';border-radius:4px">' +
+        '<div style="font-size:13px;color:#9b59b6;font-weight:bold">' + (tek.isim || key) + '</div>' +
+        '<div style="font-size:10px;color:#888;margin:2px 0 6px">' + (tek.aciklama || '') + '</div>' +
+        '<div style="margin-bottom:6px">' +
+          '<span style="color:#ccc">Seviye: <b>' + mev + '/' + maxSev + '</b></span>' +
+          (toplamYuzde > 0 ? ' · <span style="color:#2ecc71">+' + toplamYuzde + '% aktif</span>' : '') +
+        '</div>' +
+        '<div style="height:6px;background:#0a0a0a;border-radius:3px;overflow:hidden;margin-bottom:6px">' +
+          '<div style="width:' + (mev/maxSev*100) + '%;height:100%;background:#9b59b6"></div>' +
+        '</div>' +
+        (kuyruk ? '<div style="color:#f39c12;font-size:10px">⏳ K' + kuyruk.hedef_seviye + ' araştırılıyor · ' + kalanPg + ' PG kaldı</div>'
+         : mev >= maxSev ? '<div style="color:#2ecc71;font-size:10px">✅ Max seviye</div>'
+         : isLiderYard ?
+            '<div style="font-size:9px;color:#888;margin-bottom:4px">K' + hedef + ' maliyet: ' + maliyetStr + '</div>' +
+            '<button class="btn-action" style="width:auto;padding:4px 12px;font-size:10px;background:#9b59b6;color:#fff" onclick="arastirmaBaslat(' + gId + ',\'' + key + '\')">🔬 K' + hedef + ' Başlat (' + (cfg.sure_pg || 12) + ' PG)</button>'
+         : '<div style="font-size:10px;color:#666">Lider/yardımcı başlatabilir</div>'
+        ) +
+      '</div>';
+    });
+    html += '</div>';
+    html += '<div style="font-size:10px;color:#888;margin-top:10px;padding:8px;background:#0a0a0a;border-left:2px solid #666">' +
+      '<b>NOT:</b> <b>Üretim</b> ve <b>Ekonomi</b> teknolojileri aktif — tüm üyelerin saatlik üretiminde bonus. ' +
+      '<b>Savunma / Ordu Disiplini / Hızlı İnşaat</b> teknolojileri seviyeleri kaydedilir; savaş motoru entegrasyonu bir sonraki sürümde (şimdilik görünür, pasif).' +
+      '</div>';
+    document.getElementById('arastirma-content').innerHTML = html;
+  } catch(e) {
+    document.getElementById('arastirma-content').innerHTML = '<span style="color:#e74c3c">' + e.message + '</span>';
+  }
+}
+
+async function arastirmaBaslat(gId, teknoloji) {
+  if (!confirm('Bu teknolojiyi araştırmaya başlatmak istiyor musun? Guild kasasından maliyet düşülecek.')) return;
+  try {
+    var r = await fetch(API_BASE + '/api/guild/' + gId + '/arastirma/yukselt', {
+      method:'POST', headers: guildHdr(), body: JSON.stringify({ teknoloji: teknoloji })
+    });
+    var d = await r.json();
+    if (r.ok) { alert('🔬 ' + (d.mesaj || 'Başlatıldı')); renderTabArastirma(document.getElementById('guild-tab-content'), GUILD_DATA); }
     else alert(d.error || 'Hata');
   } catch(e) { alert(e.message); }
 }
