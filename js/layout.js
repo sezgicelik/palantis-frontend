@@ -145,6 +145,7 @@ function renderSidebar(){
 
       <a href="premium.html" class="menu-item${isActive('premium.html')}" style="color:#d4af37">⚜ Premium</a>
       <a href="bug-bildir.html" class="menu-item${isActive('bug-bildir.html')}" style="color:#e74c3c">🐛 Bug Bildir</a>
+      <a href="codex.html" class="menu-item${isActive('codex.html')}" style="color:#d4a257">📖 Codex</a>
       <a href="icon-mockup.html" class="menu-item${isActive('icon-mockup.html')}" style="color:#9b59b6">🎨 İkon Mockup</a>
       <a href="ayarlar.html" class="menu-item${isActive('ayarlar.html')}">⚙️ Ayarlar</a>
 
