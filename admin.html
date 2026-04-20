@@ -85,6 +85,7 @@
     <button onclick="switchTab('bina-nufus',this)" style="background:linear-gradient(135deg,#16a085 0%,#117864 100%);color:#fff">🏘️ Bina Nufus</button>
     <button onclick="switchTab('vergi-sistem',this)" style="background:linear-gradient(135deg,#d4af37 0%,#8a6a1a 100%);color:#fff">💰 Vergi Sistemi</button>
     <button onclick="switchTab('top-ordular',this)" style="background:linear-gradient(135deg,#8e44ad 0%,#5b2c6f 100%);color:#fff">🏆 Top Ordular</button>
+    <button onclick="switchTab('iz-surme',this)" style="background:linear-gradient(135deg,#16a085 0%,#0e6b52 100%);color:#fff">🕵️ Iz Surme</button>
   </div>
 
   <!-- CRON TAB -->
@@ -816,18 +817,6 @@
     <button class="act" onclick="loadKadimTicaretTablosu()" style="margin-bottom:8px">🔄 Tabloyu Yenile</button>
     <div id="kadim-ticaret-tablosu-content">Yüklemek için butona tıkla.</div>
 
-    <!-- v1.14.0.17: Altin izleme araci -->
-    <h3 style="margin-top:24px;border-top:1px solid #f1c40f;padding-top:16px;color:#f1c40f">💰 Oyuncu Altın İz Sürme (son 48h)</h3>
-    <p style="font-size:10px;color:#888;margin-bottom:10px">
-      Bir oyuncunun altın değişim geçmişini göster — snapshot diff'leri + activity_log.
-      Altın aniden 0'a düştüyse nereden kesildiği buradan anlaşılır (maaş, ticaret, inşa, saldırı yağması vb).
-    </p>
-    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
-      <label style="font-size:11px;color:#aaa">player_id:</label>
-      <input id="altin-izle-pid" type="number" placeholder="ornek 1" style="width:120px;padding:4px;background:#222;color:#fff;border:1px solid #555;border-radius:3px">
-      <button class="act" onclick="loadAltinIzle()">🔍 İzle</button>
-    </div>
-    <div id="altin-izle-content" style="font-size:11px;color:#888">—</div>
 
     <!-- v1.14.0.3: Oyunculari haritada topla (test araci) -->
     <h3 style="margin-top:24px;border-top:1px solid #3498db;padding-top:16px;color:#3498db">🗺 Test: Oyunculari Haritada Topla</h3>
@@ -1043,6 +1032,48 @@
       <button onclick="moralTarPickPlayer()" style="background:#555">Oyuncu Listesinden Sec</button>
     </div>
     <div id="moral-tar-content" style="font-size:12px">Oyuncu ID gir, 'Raporu Getir'e bas.</div>
+  </div>
+
+  <!-- IZ SURME TAB (v1.14.0.18) -->
+  <div id="tab-iz-surme" class="panel">
+    <h3 style="color:#16a085">🕵️ Oyuncu Kaynak İz Sürme (son 48h)</h3>
+    <p style="font-size:11px;color:#888;margin-bottom:12px">
+      Bir oyuncunun TÜM kaynaklarındaki saatlik değişimleri + activity_log gösterir.
+      "50M altınım bir anda kayboldu", "odun bitti ama nereye gittiği belli değil" gibi vakaları çözmek için.<br>
+      <b style="color:#e74c3c">Snapshot her saat 00 dakikada alınır</b> — arada olan işlem burada görünmez ama activity_log'dan izlenir.
+    </p>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+      <label style="font-size:11px;color:#aaa">player_id:</label>
+      <input id="iz-pid" type="number" placeholder="ornek 1" style="width:120px;padding:4px;background:#222;color:#fff;border:1px solid #555;border-radius:3px">
+      <button onclick="izPickPlayer()" style="background:#555;color:#fff;border:none;padding:4px 10px;border-radius:3px;cursor:pointer">Oyuncu Listesinden Sec</button>
+      <label style="font-size:11px;color:#aaa;margin-left:10px">Kaynak filtresi:</label>
+      <select id="iz-kaynak" style="padding:4px;background:#222;color:#fff;border:1px solid #555;border-radius:3px">
+        <option value="hepsi">Hepsi (grid)</option>
+        <option value="altin" selected>Altın</option>
+        <option value="odun">Odun</option>
+        <option value="metal">Metal</option>
+        <option value="bugday">Buğday</option>
+        <option value="balik">Balık</option>
+        <option value="kereste">Kereste</option>
+        <option value="islenmis">İşlenmiş</option>
+        <option value="mana_beyaz">Mana Beyaz</option>
+        <option value="mana_kirmizi">Mana Kırmızı</option>
+        <option value="mana_mavi">Mana Mavi</option>
+        <option value="mana_yesil">Mana Yeşil</option>
+        <option value="total_worker">Toplam İşçi</option>
+        <option value="asker">Asker</option>
+      </select>
+      <label style="font-size:11px;color:#aaa;margin-left:10px">Log:</label>
+      <select id="iz-log-filtre" style="padding:4px;background:#222;color:#fff;border:1px solid #555;border-radius:3px">
+        <option value="ekonomi">Ekonomi (altın/maaş/ticaret/savaş)</option>
+        <option value="hepsi">Tüm event_type</option>
+        <option value="maas">Sadece maaş</option>
+        <option value="savas">Sadece savaş</option>
+        <option value="ticaret">Sadece ticaret</option>
+      </select>
+      <button class="act" onclick="loadIzSurme()">🔍 İzle</button>
+    </div>
+    <div id="iz-surme-content" style="font-size:11px;color:#888">player_id gir ve "İzle"ye bas.</div>
   </div>
 
 </div>
@@ -3808,69 +3839,145 @@ async function loadKadimTicaretTablosu() {
   } catch(e) { el.innerHTML = '<div style="color:#e74c3c">Hata: ' + e.message + '</div>'; }
 }
 
-// v1.14.0.17: Altin iz surme — snapshot diff + activity_log
-async function loadAltinIzle() {
-  const pid = parseInt(document.getElementById('altin-izle-pid')?.value);
-  const el = document.getElementById('altin-izle-content');
+// v1.14.0.18: Kaynak iz surme — TUM kaynaklar icin snapshot diff + activity_log
+const IZ_KAYNAK_ETIKET = {
+  altin:'💰 Altın', odun:'🌳 Odun', metal:'⛏️ Metal', bugday:'🌾 Buğday', balik:'🐟 Balık',
+  kereste:'🪵 Kereste', islenmis:'🔩 İşlenmiş',
+  mana_beyaz:'⚪ Mana B.', mana_kirmizi:'🔴 Mana K.', mana_mavi:'🔵 Mana M.', mana_yesil:'🟢 Mana Y.',
+  total_worker:'👥 Toplam İşçi', oduncu:'🪓 Oduncu', madenci:'⛏ Madenci',
+  ciftci:'🌾 Çiftçi', balikci:'🎣 Balıkçı', asker:'⚔️ Asker'
+};
+const IZ_KAYNAK_RENK = {
+  altin:'#d4af37', odun:'#8b4513', metal:'#7f8c8d', bugday:'#f39c12', balik:'#3498db',
+  kereste:'#a0522d', islenmis:'#95a5a6',
+  mana_beyaz:'#ecf0f1', mana_kirmizi:'#e74c3c', mana_mavi:'#3498db', mana_yesil:'#2ecc71',
+  total_worker:'#9b59b6', oduncu:'#8b4513', madenci:'#7f8c8d',
+  ciftci:'#f39c12', balikci:'#3498db', asker:'#e74c3c'
+};
+
+function izPickPlayer() {
+  const pid = prompt('player_id gir (oyuncu listesinden)');
+  if (pid) document.getElementById('iz-pid').value = pid;
+}
+
+async function loadIzSurme() {
+  const pid = parseInt(document.getElementById('iz-pid')?.value);
+  const kaynakSec = document.getElementById('iz-kaynak')?.value || 'altin';
+  const logFiltre = document.getElementById('iz-log-filtre')?.value || 'ekonomi';
+  const el = document.getElementById('iz-surme-content');
   if (!pid) { el.innerHTML = '<div style="color:#e74c3c">player_id girin</div>'; return; }
   el.innerHTML = '<div style="color:#888">Yükleniyor...</div>';
   try {
-    const r = await fetch(API + '/api/admin/player/' + pid + '/altin-izle', { headers: hdr() });
+    const r = await fetch(API + '/api/admin/player/' + pid + '/kaynak-izle?log_filtre=' + encodeURIComponent(logFiltre), { headers: hdr() });
     const d = await r.json();
     if (!d.ok) { el.innerHTML = '<div style="color:#e74c3c">' + (d.error||'Hata') + '</div>'; return; }
     const fmt = n => (n||0).toLocaleString('tr-TR');
     const fmtT = ts => new Date(ts).toLocaleString('tr-TR', { hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit' });
 
-    let html = '<div style="margin-bottom:8px;padding:8px;background:#111;border-left:3px solid #f1c40f;border-radius:4px">' +
-      '<b style="color:#f1c40f">' + d.player.kral + '</b> (ID ' + d.player.id + ', Çağ ' + d.player.cag + ')<br>' +
-      '<span style="color:#d4af37">Şu anki altın: ' + fmt(d.player.altin_simdi) + '</span>' +
-      '</div>';
+    // Oyuncu basligi + mevcut degerler ozet
+    let html = '<div style="margin-bottom:10px;padding:10px;background:#111;border-left:3px solid #16a085;border-radius:4px">' +
+      '<b style="color:#16a085;font-size:13px">' + d.player.kral + '</b> ' +
+      '<span style="color:#666">(ID ' + d.player.id + ', Çağ ' + d.player.cag + ')</span>' +
+      '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:4px;margin-top:8px">';
+    for (const k of d.kaynaklar) {
+      const v = d.player.mevcut[k] || 0;
+      const sifir = v === 0 ? 'color:#e74c3c' : 'color:' + (IZ_KAYNAK_RENK[k]||'#aaa');
+      html += '<div style="font-size:10px;padding:3px 6px;background:#1a1a1a;border-radius:3px">' +
+        '<span style="color:#666">' + (IZ_KAYNAK_ETIKET[k]||k) + ':</span> ' +
+        '<span style="' + sifir + ';font-family:Courier New">' + fmt(v) + '</span>' +
+        '</div>';
+    }
+    html += '</div></div>';
 
-    // Saatlik diff tablosu (sifirdan farkli)
-    if (d.diffs.length === 0) {
-      html += '<div style="color:#666;padding:6px">Son 48 saatte snapshot farkı yok.</div>';
-    } else {
-      html += '<div style="font-size:11px;color:#aaa;margin:6px 0 4px"><b>Saatlik Snapshot Farkları (48h)</b> — aniden düşüşleri yakala</div>';
-      html += '<table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:#1a1a1a">' +
-        '<th style="padding:4px;text-align:left">Zaman</th>' +
-        '<th style="padding:4px;text-align:right">Önceki</th>' +
-        '<th style="padding:4px;text-align:right">Yeni</th>' +
-        '<th style="padding:4px;text-align:right">Fark</th>' +
-        '</tr></thead><tbody>';
-      // Son 20 diff (yeniden eskiye)
-      const sonDiffs = d.diffs.slice(-30).reverse();
-      for (const x of sonDiffs) {
-        const renk = x.fark < 0 ? '#e74c3c' : '#2ecc71';
-        const sifirduzenek = x.yeni === 0 ? 'background:rgba(231,76,60,0.12)' : '';
-        html += '<tr style="border-bottom:1px solid #222;' + sifirduzenek + '">' +
-          '<td style="padding:4px;color:#888">' + fmtT(x.at) + '</td>' +
-          '<td style="padding:4px;text-align:right;color:#888;font-family:Courier New">' + fmt(x.onceki) + '</td>' +
-          '<td style="padding:4px;text-align:right;color:#d4af37;font-family:Courier New">' + fmt(x.yeni) + (x.yeni===0?' ⚠':'') + '</td>' +
-          '<td style="padding:4px;text-align:right;color:' + renk + ';font-weight:bold;font-family:Courier New">' + (x.fark>0?'+':'') + fmt(x.fark) + '</td>' +
-          '</tr>';
+    // Kaynak diff tablosu
+    if (kaynakSec === 'hepsi') {
+      // Her kaynak icin kompakt saatlik grid (son 24h)
+      html += '<div style="font-size:12px;color:#16a085;margin:10px 0 4px"><b>📊 Tüm Kaynaklar — Saatlik Değişim Grid (48h)</b></div>';
+      // Her kaynagin son 10 diff'ini kompakt goster
+      for (const k of d.kaynaklar) {
+        const diffs = d.diffs[k] || [];
+        if (diffs.length === 0) continue;
+        const toplam = diffs.reduce((s,x) => s + x.fark, 0);
+        const sifirVar = diffs.some(x => x.yeni === 0 && x.fark < 0);
+        const renk = IZ_KAYNAK_RENK[k] || '#aaa';
+        html += '<details style="margin-bottom:4px;border:1px solid #222;border-radius:4px' + (sifirVar?';border-color:#e74c3c':'') + '">' +
+          '<summary style="padding:6px 10px;cursor:pointer;background:#111;font-size:11px">' +
+          '<span style="color:' + renk + ';font-weight:bold">' + (IZ_KAYNAK_ETIKET[k]||k) + '</span> ' +
+          '<span style="color:#888">— ' + diffs.length + ' değişim, ' +
+          (sifirVar?'<span style="color:#e74c3c">⚠ sıfırlandı</span>, ':'') +
+          'net ' + (toplam>0?'+':'') + fmt(toplam) + '</span>' +
+          '</summary><div style="padding:6px 10px;background:#0a0a0a">' + renderDiffMini(diffs, fmt, fmtT) + '</div></details>';
       }
-      html += '</tbody></table>';
+    } else {
+      // Tek kaynak detayli
+      const diffs = d.diffs[kaynakSec] || [];
+      const etiket = IZ_KAYNAK_ETIKET[kaynakSec] || kaynakSec;
+      html += '<div style="font-size:12px;color:' + (IZ_KAYNAK_RENK[kaynakSec]||'#aaa') + ';margin:10px 0 4px">' +
+        '<b>📊 ' + etiket + ' — Saatlik Snapshot Farkları (48h)</b></div>';
+      if (diffs.length === 0) {
+        html += '<div style="color:#666;padding:6px">Son 48 saatte değişim yok.</div>';
+      } else {
+        html += '<table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:#1a1a1a">' +
+          '<th style="padding:4px;text-align:left">Zaman</th>' +
+          '<th style="padding:4px;text-align:right">Önceki</th>' +
+          '<th style="padding:4px;text-align:right">Yeni</th>' +
+          '<th style="padding:4px;text-align:right">Fark</th>' +
+          '</tr></thead><tbody>';
+        const sonDiffs = diffs.slice(-40).reverse();
+        for (const x of sonDiffs) {
+          const renk = x.fark < 0 ? '#e74c3c' : '#2ecc71';
+          const sifirduzenek = x.yeni === 0 ? 'background:rgba(231,76,60,0.12)' : '';
+          html += '<tr style="border-bottom:1px solid #222;' + sifirduzenek + '">' +
+            '<td style="padding:4px;color:#888">' + fmtT(x.at) + '</td>' +
+            '<td style="padding:4px;text-align:right;color:#888;font-family:Courier New">' + fmt(x.onceki) + '</td>' +
+            '<td style="padding:4px;text-align:right;color:#d4af37;font-family:Courier New">' + fmt(x.yeni) + (x.yeni===0?' ⚠':'') + '</td>' +
+            '<td style="padding:4px;text-align:right;color:' + renk + ';font-weight:bold;font-family:Courier New">' + (x.fark>0?'+':'') + fmt(x.fark) + '</td>' +
+            '</tr>';
+        }
+        html += '</tbody></table>';
+      }
     }
 
     // Activity log
     if (d.activity.length > 0) {
-      html += '<div style="font-size:11px;color:#aaa;margin:10px 0 4px"><b>Activity Log (altın/maaş/ticaret/savaş/vergi olayları)</b></div>';
-      html += '<div style="max-height:400px;overflow-y:auto;border:1px solid #222;border-radius:4px">';
+      html += '<div style="font-size:12px;color:#16a085;margin:14px 0 4px"><b>📜 Activity Log (' + d.activity.length + ' kayıt, filtre: ' + logFiltre + ')</b></div>';
+      html += '<div style="max-height:500px;overflow-y:auto;border:1px solid #222;border-radius:4px">';
       for (const a of d.activity) {
-        const renkMap = { maas:'#e67e22', vergi:'#f1c40f', kadim_ticaret:'#9b59b6', kadim_saldiri:'#e74c3c', savas:'#e74c3c', ekonomi:'#2ecc71', ticaret:'#3498db', pazar:'#3498db', artifact:'#c0392b' };
+        const renkMap = { maas:'#e67e22', vergi:'#f1c40f', kadim_ticaret:'#9b59b6', kadim_saldiri:'#e74c3c', savas:'#e74c3c', ekonomi:'#2ecc71', ticaret:'#3498db', pazar:'#3498db', kervan:'#3498db', artifact:'#c0392b', bocek:'#9b59b6', sandik:'#f1c40f', mezarlik:'#95a5a6', buyu:'#3498db', guild_dagitim:'#2ecc71', guild_bagis:'#e67e22', premium:'#d4af37', yagma:'#e74c3c', sezon:'#d4af37' };
         const renk = renkMap[a.event_type] || '#888';
         html += '<div style="padding:6px 8px;border-bottom:1px solid #181818;font-size:11px">' +
           '<span style="color:#666">' + fmtT(a.at) + '</span> ' +
           '<span style="color:' + renk + ';font-weight:bold">[' + a.event_type + ']</span> ' +
-          '<span style="color:#ccc">' + (a.mesaj||'').replace(/</g,'&lt;') + '</span>' +
+          '<span style="color:#ccc">' + (a.mesaj||'').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span>' +
           '</div>';
       }
       html += '</div>';
     } else {
-      html += '<div style="color:#666;padding:6px">Altın ile ilgili activity_log kaydı yok.</div>';
+      html += '<div style="color:#666;padding:6px">Activity_log kaydı yok (filtre: ' + logFiltre + ').</div>';
     }
     el.innerHTML = html;
   } catch(e) { el.innerHTML = '<div style="color:#e74c3c">Hata: ' + e.message + '</div>'; }
+}
+
+function renderDiffMini(diffs, fmt, fmtT) {
+  const son = diffs.slice(-10).reverse();
+  let h = '<table style="width:100%;font-size:10px;border-collapse:collapse"><thead><tr style="color:#666">' +
+    '<th style="padding:2px 4px;text-align:left">Zaman</th>' +
+    '<th style="padding:2px 4px;text-align:right">Önceki</th>' +
+    '<th style="padding:2px 4px;text-align:right">Yeni</th>' +
+    '<th style="padding:2px 4px;text-align:right">Fark</th>' +
+    '</tr></thead><tbody>';
+  for (const x of son) {
+    const renk = x.fark < 0 ? '#e74c3c' : '#2ecc71';
+    h += '<tr' + (x.yeni===0?' style="background:rgba(231,76,60,0.1)"':'') + '>' +
+      '<td style="padding:2px 4px;color:#666">' + fmtT(x.at) + '</td>' +
+      '<td style="padding:2px 4px;text-align:right;color:#888;font-family:Courier New">' + fmt(x.onceki) + '</td>' +
+      '<td style="padding:2px 4px;text-align:right;color:#d4af37;font-family:Courier New">' + fmt(x.yeni) + '</td>' +
+      '<td style="padding:2px 4px;text-align:right;color:' + renk + ';font-family:Courier New">' + (x.fark>0?'+':'') + fmt(x.fark) + '</td>' +
+      '</tr>';
+  }
+  h += '</tbody></table>';
+  return h;
 }
 
 // v1.14.0.5: Kadim sehir ordu_gucu manuel ayarla
