@@ -320,21 +320,39 @@ function renderBuyuDukkani() {
 }
 
 async function bdSatinAl(urunId, miktar) {
-  if (!BD_KERVAN_ID) { showToast('Once kervan secin!','error'); return; }
-  const token = getToken(); if (!token) return;
-  const r = await fetch(API_BASE+'/api/buyu-dukkani/satin-al',{method:'POST',
-    headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
-    body:JSON.stringify({kervan_id:BD_KERVAN_ID, urun_id:urunId, miktar})}).then(r=>r.json());
+  console.log('[bdSatinAl]', { urunId, miktar, BD_KERVAN_ID });
+  if (!BD_KERVAN_ID) {
+    showToast('Önce bir kervan seçin!','error');
+    const el = document.getElementById('bd-msg');
+    if (el) { el.innerHTML = `<div style="padding:10px;background:rgba(231,76,60,0.15);border:1px solid #e74c3c;border-radius:6px;color:#e74c3c">❌ Kervan seçilmedi — üstten bir kervan seç</div>`; setTimeout(() => { if(el) el.innerHTML = ''; }, 5000); }
+    return;
+  }
+  const token = getToken();
+  if (!token) { showToast('Oturum gerekli','error'); return; }
   const el = document.getElementById('bd-msg');
-  if (r.ok) {
-    el.innerHTML = `<div style="padding:10px;background:rgba(46,204,113,0.15);border:1px solid #2ecc71;border-radius:6px;color:#2ecc71;font-size:14px;font-weight:bold">✅ ${r.mesaj}</div>`;
-    showToast(r.mesaj, 'success');
-    loadBuyuDukkani();
-    if(typeof loadGameData==='function')loadGameData();
-    setTimeout(() => { if(el) el.innerHTML = ''; }, 4000);
-  } else {
-    el.innerHTML = `<div style="padding:10px;background:rgba(231,76,60,0.15);border:1px solid #e74c3c;border-radius:6px;color:#e74c3c;font-size:13px">❌ ${r.error||'Hata'}</div>`;
-    setTimeout(() => { if(el) el.innerHTML = ''; }, 5000);
+  try {
+    const resp = await fetch(API_BASE+'/api/buyu-dukkani/satin-al',{method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body:JSON.stringify({kervan_id:BD_KERVAN_ID, urun_id:urunId, miktar})});
+    let r = null;
+    try { r = await resp.json(); } catch(e) { r = { ok:false, error: 'JSON parse hatasi (HTTP ' + resp.status + ')' }; }
+    console.log('[bdSatinAl response]', resp.status, r);
+    if (r && r.ok) {
+      if (el) el.innerHTML = `<div style="padding:10px;background:rgba(46,204,113,0.15);border:1px solid #2ecc71;border-radius:6px;color:#2ecc71;font-size:14px;font-weight:bold">✅ ${r.mesaj}</div>`;
+      showToast(r.mesaj, 'success');
+      loadBuyuDukkani();
+      if(typeof loadGameData==='function')loadGameData();
+      setTimeout(() => { if(el) el.innerHTML = ''; }, 4000);
+    } else {
+      const hata = (r && r.error) ? r.error : ('HTTP ' + resp.status);
+      if (el) el.innerHTML = `<div style="padding:10px;background:rgba(231,76,60,0.15);border:1px solid #e74c3c;border-radius:6px;color:#e74c3c;font-size:13px">❌ ${hata}</div>`;
+      showToast(hata, 'error');
+      setTimeout(() => { if(el) el.innerHTML = ''; }, 5000);
+    }
+  } catch(netErr) {
+    console.error('[bdSatinAl network]', netErr);
+    if (el) el.innerHTML = `<div style="padding:10px;background:rgba(231,76,60,0.15);border:1px solid #e74c3c;border-radius:6px;color:#e74c3c;font-size:13px">❌ Bağlantı hatası: ${netErr.message}</div>`;
+    showToast('Bağlantı hatası: ' + netErr.message, 'error');
   }
 }
 
