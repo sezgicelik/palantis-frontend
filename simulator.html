@@ -581,24 +581,95 @@ function hideTT() { document.getElementById('tt').style.display = 'none'; }
 document.getElementById('atkMoral')?.addEventListener('input', e => { document.getElementById('atkMoralVal').textContent = e.target.value + '%'; });
 document.getElementById('defMoral')?.addEventListener('input', e => { document.getElementById('defMoralVal').textContent = e.target.value + '%'; });
 
-// ── ŞEHRİMDEKİ ÜNİTELERİ YÜKLE (Paket 3) ──
+// ── ŞEHRİMDEKİ ÜNİTELERİ YÜKLE (v1.14.0.8: ordu secim modali)
 async function loadMyArmy() {
   try {
     const r = await fetch(API_BASE + '/api/army/state', { headers: { 'Authorization': 'Bearer ' + getToken() } });
     if (!r.ok) { alert('Ordu bilgisi alınamadı'); return; }
     const data = await r.json();
-    clearAll('atk');
-    let idx = 0;
-    const havuz = data.havuz || data.units || [];
-    for (const h of havuz) {
-      if (h.adet <= 0 || idx >= SLOTS) continue;
-      const u = ALL_UNITS.find(x => x.id === h.unite_id);
-      if (!u) continue;
-      ST.atk.sl[idx] = { ...u, count: h.adet };
-      idx++;
+    const armies = data.armies || [];
+    const havuz = data.havuz || [];
+
+    // Secenekler listesi: "TUM ORDULAR", "HAVUZ", her ordu ayri
+    const secenekler = [];
+    // 1. Tum ordular birlesik (adet toplami)
+    if (armies.length > 0) {
+      secenekler.push({ label: '🏆 TUM ORDULAR (Birlesik)', tip: 'tum_ordular', armies });
     }
-    buildF('atk'); buildList('atk'); updateOz('atk');
+    // 2. Her ordu ayri
+    for (const a of armies) {
+      const toplam = (a.units||[]).reduce((t,u)=>t+(u.adet||0),0);
+      if (toplam > 0) secenekler.push({ label: `⚔️ ${a.isim||'Ordu '+a.id} (${toplam.toLocaleString('tr-TR')} asker)`, tip: 'tek_ordu', army: a });
+    }
+    // 3. Havuz (henuz orduya atanmamis uniteler)
+    const havuzToplam = havuz.reduce((t,u)=>t+(u.adet||0),0);
+    if (havuzToplam > 0) secenekler.push({ label: `📦 HAVUZ (${havuzToplam.toLocaleString('tr-TR')} asker)`, tip: 'havuz', havuz });
+
+    if (secenekler.length === 0) {
+      alert('Hic ordun/unitenın yok.');
+      return;
+    }
+
+    // Modal olustur
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px';
+    const box = document.createElement('div');
+    box.style.cssText = 'background:#1a1a2e;border:1px solid #d4af37;border-radius:8px;padding:20px;max-width:420px;width:100%;color:#e0e0e0;font-family:"Segoe UI",sans-serif';
+    box.innerHTML = '<h3 style="margin:0 0 14px;color:#d4af37;font-family:Cinzel,serif;font-size:14px;text-align:center">📥 Orduyu Seç</h3>' +
+      '<p style="font-size:11px;color:#888;margin:0 0 14px;text-align:center">Hangi orduyu simulator\'e yukleyelim?</p>' +
+      '<div id="armyOpts" style="display:flex;flex-direction:column;gap:6px"></div>' +
+      '<button id="armyClose" style="margin-top:14px;width:100%;padding:8px;background:#333;color:#ccc;border:1px solid #555;border-radius:4px;cursor:pointer;font-size:12px">İptal</button>';
+    modal.appendChild(box);
+    document.body.appendChild(modal);
+
+    const optsWrap = box.querySelector('#armyOpts');
+    secenekler.forEach((s, i) => {
+      const btn = document.createElement('button');
+      btn.style.cssText = 'padding:10px;background:rgba(212,175,55,.1);border:1px solid #d4af37;color:#e0c97f;border-radius:4px;cursor:pointer;font-size:12px;text-align:left;transition:.15s';
+      btn.onmouseenter = () => btn.style.background = 'rgba(212,175,55,.25)';
+      btn.onmouseleave = () => btn.style.background = 'rgba(212,175,55,.1)';
+      btn.textContent = s.label;
+      btn.onclick = () => {
+        uygulaSecim(s);
+        document.body.removeChild(modal);
+      };
+      optsWrap.appendChild(btn);
+    });
+    box.querySelector('#armyClose').onclick = () => document.body.removeChild(modal);
   } catch(e) { alert('Hata: ' + e.message); }
+}
+
+// Secilen kaynagi simulator slotlarina yukle
+function uygulaSecim(secim) {
+  clearAll('atk');
+  let idx = 0;
+
+  // Unite agrege et (tip: 'tum_ordular' -> tum ordulardan, 'tek_ordu' -> bir ordu, 'havuz' -> havuz)
+  const toplamMap = {};  // { unite_id: toplam_adet }
+  if (secim.tip === 'havuz') {
+    for (const u of secim.havuz) toplamMap[u.unite_id] = (toplamMap[u.unite_id]||0) + (u.adet||0);
+  } else if (secim.tip === 'tek_ordu') {
+    for (const u of (secim.army.units||[])) toplamMap[u.unite_id] = (toplamMap[u.unite_id]||0) + (u.adet||0);
+  } else if (secim.tip === 'tum_ordular') {
+    for (const a of secim.armies) {
+      for (const u of (a.units||[])) toplamMap[u.unite_id] = (toplamMap[u.unite_id]||0) + (u.adet||0);
+    }
+  }
+
+  let atlanan = [];
+  for (const [uid, adet] of Object.entries(toplamMap)) {
+    if (adet <= 0) continue;
+    if (idx >= SLOTS) { atlanan.push(uid); continue; }
+    const u = ALL_UNITS.find(x => x.id === uid);
+    if (!u) continue;
+    ST.atk.sl[idx] = { ...u, count: adet };
+    idx++;
+  }
+
+  buildF('atk'); buildList('atk'); updateOz('atk');
+  if (atlanan.length > 0) {
+    alert(`Slot dolu — ${atlanan.length} birim atlandi: ${atlanan.join(', ')}`);
+  }
 }
 
 // ── SAVAŞ SİMÜLASYONU (Backend API) ──
