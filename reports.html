@@ -46,6 +46,11 @@
         <h2 style="color:#c8a96e;font-family:'Cinzel',serif;margin:0;font-size:clamp(16px,4vw,22px)">⚔️ Askeri Raporlar</h2>
         <button class="btn-action" onclick="loadFilteredReport('askeri')" style="padding:4px 14px;font-size:11px;width:auto">↻ Yenile</button>
       </div>
+      <!-- v1.14.0.27: Casus operasyonlari ayri kart (zengin detay) -->
+      <div id="askeri-casus-wrap" style="margin-bottom:20px;display:none">
+        <div style="font-size:12px;color:#9b59b6;font-weight:bold;margin-bottom:8px">🕵️ Casus Operasyonları</div>
+        <div id="askeri-casus-list"></div>
+      </div>
       <div id="askeri-loading" style="color:#888;font-size:13px;text-align:center;padding:40px">Yükleniyor...</div>
       <div id="askeri-list" style="display:none"></div>
       <div id="askeri-empty" style="display:none;color:#777;font-size:13px;text-align:center;padding:40px">
@@ -260,6 +265,8 @@
       if (loading) loading.style.display = 'block';
       if (list) list.style.display = 'none';
       if (empty) empty.style.display = 'none';
+      // v1.14.0.27: Askeri sekmesinde zengin casus raporlari
+      if (tab === 'askeri') loadCasusRaporlariReports(token);
       try {
         const resp = await fetch(API_BASE + '/api/game/activity', {
           headers: { 'Authorization': 'Bearer ' + token }
@@ -341,6 +348,54 @@
       } catch(e) {
         if (loading) { loading.style.display='block'; loading.innerText='Bağlantı hatası.'; }
       }
+    }
+
+    // v1.14.0.27: Casus raporlari zengin detay (askeri sekmesi)
+    const CASUS_GOREV_ISIM = {
+      incele:'🔍 Şehir İnceleme', hirsizlik:'💰 Kaynak Hırsızlığı', kargasa:'🔥 Kargaşa',
+      katliam:'⚔️ Katliam', sabotaj:'💣 Sabotaj', yemek_hirsizligi:'🥩 Yemek Hırsızlığı',
+      buyu_calma:'🔮 Büyü Çalma', moral_dusurme:'😡 Moral Düşürme', artifact_calma:'🧰 Artifact Çalma',
+      altin_calma:'💰 Altın Çalma', ordu_incele:'🏰 Ordu İnceleme'
+    };
+    async function loadCasusRaporlariReports(token) {
+      const wrap = document.getElementById('askeri-casus-wrap');
+      const list = document.getElementById('askeri-casus-list');
+      if (!wrap || !list) return;
+      try {
+        const resp = await fetch(API_BASE + '/api/casus/raporlar', { headers: { 'Authorization': 'Bearer ' + token } });
+        if (!resp.ok) return;
+        const data = await resp.json();
+        if (!Array.isArray(data) || data.length === 0) { wrap.style.display = 'none'; return; }
+        wrap.style.display = 'block';
+        const fmtT = ts => new Date(ts).toLocaleString('tr-TR', { hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit' });
+        list.innerHTML = data.map(r => {
+          const uzerimeGeldi = r.yon === 'uzerime_geldi';
+          const renk = r.basarili ? '#2ecc71' : '#e74c3c';
+          const ikon = r.basarili ? '✅' : '❌';
+          const gorevIsim = CASUS_GOREV_ISIM[r.gorev_tipi] || r.gorev_tipi;
+          const yonBadge = uzerimeGeldi
+            ? '<span style="background:rgba(231,76,60,0.15);color:#e74c3c;padding:1px 6px;border-radius:3px;font-size:9px;margin-right:6px">⬅ ÜSTÜME</span>'
+            : '<span style="background:rgba(52,152,219,0.15);color:#3498db;padding:1px 6px;border-radius:3px;font-size:9px;margin-right:6px">➡ GÖNDERDİM</span>';
+          // Sonuc detayi
+          let detayHTML = '';
+          const d = r.sonuc?.detay || {};
+          if (r.basarili) {
+            if (d.calinan && Object.keys(d.calinan).length > 0) {
+              detayHTML = 'Çalınan: ' + Object.entries(d.calinan).map(([k,v]) => `<b style="color:#d4af37">${v.toLocaleString('tr-TR')} ${k}</b>`).join(', ');
+            } else if (d.olenler) detayHTML = 'Öldürülen: ' + Object.entries(d.olenler).map(([k,v])=>`${v} ${k}`).join(', ');
+            else if (d.inceleme) detayHTML = 'İnceleme: ' + JSON.stringify(d.inceleme).substring(0,200);
+            else if (d.mesaj) detayHTML = d.mesaj;
+            else detayHTML = 'Başarılı';
+          } else detayHTML = d.mesaj || 'Casus başaramadı';
+          return `<div style="padding:8px 10px;margin-bottom:6px;background:rgba(0,0,0,0.3);border-left:3px solid ${renk};border-radius:4px;font-size:11px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <span>${yonBadge}${ikon} <b>${gorevIsim}</b> ${uzerimeGeldi ? '←' : '→'} <span style="color:#e0c97f">${(r.hedef_adi||'?')}</span></span>
+              <span style="color:#555;font-size:9px;white-space:nowrap">${fmtT(r.created_at)}</span>
+            </div>
+            <div style="color:${renk};padding-left:4px;font-size:10px">${detayHTML}</div>
+          </div>`;
+        }).join('');
+      } catch(e) { /* sessiz */ }
     }
 
     const urlParams = new URLSearchParams(window.location.search);
