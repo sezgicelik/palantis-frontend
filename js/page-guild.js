@@ -1871,10 +1871,9 @@ async function renderTabDiplomasi(el, data) {
         '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
           '<select id="dip-rakip" style="padding:6px;background:#1a1a1a;color:#fff;border:1px solid #444;border-radius:3px;min-width:280px">' + guildListHTML + '</select>' +
           '<button class="btn-action" onclick="dipTeklif(\'antlasma\')" style="background:#27ae60;color:#fff">🤝 ANTLAŞMA Teklif Et</button>' +
-          '<button class="btn-action" onclick="dipTeklif(\'savas\')" style="background:#e74c3c;color:#fff">⚔️ SAVAŞ İlan Et</button>' +
-          '<button class="btn-action" onclick="dipTeklif(\'tabiyet\')" style="background:#9b59b6;color:#fff">👑 TABIYET Teklif (Hakim OL)</button>' +
+          '<button class="btn-action" onclick="dipTeklif(\'savas\')" style="background:#e74c3c;color:#fff">⚔️ SAVAŞ Teklif Et</button>' +
         '</div>' +
-        '<div style="font-size:10px;color:#888;margin-top:8px">• ANTLAŞMA: karşılıklı saldırı yasağı. İptal = 48+24 PG uyarı sonra SAVAŞ (ihanet kaydı -6% ATK/DEF)<br>• SAVAŞ: direkt ilan, onay gerektirmez.<br>• TABIYET: kabul ederse onların üretiminin %30\'u size akar (336 PG)</div>' +
+        '<div style="font-size:10px;color:#888;margin-top:8px">• <b>ANTLAŞMA</b>: karşılıklı saldırı yasağı. İptal = 48+24 PG uyarı + SAVAŞ (ihanet -6% ATK/DEF)<br>• <b>SAVAŞ</b>: karşı tarafa teklif, 5 PG içinde <i>Kabul = eşit savaş</i>, <i>Red veya zaman aşımı = savaş başlar + reddedene -6% debuff</i><br>• <b>TABIYET</b>: yalnızca SAVAŞ aktifken teklif edilebilir (savaş kartında buton çıkar)</div>' +
         '</div>';
     }
 
@@ -1887,11 +1886,15 @@ async function renderTabDiplomasi(el, data) {
         var il = bekleyenler[i];
         var aciklama = il.teklif_tip === 'ANTLASMA' ? 'Size ANTLAŞMA teklif ediyor (karşılıklı saldırı yasağı)'
                      : il.teklif_tip === 'BARIS' ? 'Size BARIŞ teklif ediyor (savaşı bitir)'
-                     : il.teklif_tip === 'TABIYET' ? 'Sizi TABIYET altına almak istiyor (onlar HAKIM, siz BAĞLI)' : '';
+                     : il.teklif_tip === 'TABIYET' ? 'Sizi TABIYET altına almak istiyor (onlar HAKIM, siz BAĞLI)'
+                     : il.teklif_tip === 'SAVAS' ? '⚠️ Size SAVAŞ teklif ediyor. Red = savaş yine başlar + sizde -6% debuff! Zaman aşımı da aynı sonuç.' : '';
+        var kalan = fmtKalan(il.teklif_bitis_at);
         html += '<div style="padding:10px;background:#111;border-radius:4px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">' +
-          '<div><b style="color:#f39c12">' + (il.rakip.isim || '?') + '</b> <span style="color:#666">(ID ' + il.rakip.id + ')</span><br><span style="color:#ccc;font-size:11px">' + aciklama + '</span></div>' +
+          '<div><b style="color:#f39c12">' + (il.rakip.isim || '?') + '</b> ' + durumBadge(il.teklif_tip) + ' <span style="color:#666">(ID ' + il.rakip.id + ')</span>' +
+          (il.teklif_bitis_at ? ' <span style="color:#e74c3c;font-size:10px">⏳ Kalan: ' + kalan + '</span>' : '') +
+          '<br><span style="color:#ccc;font-size:11px">' + aciklama + '</span></div>' +
           (isLider ? '<div style="display:flex;gap:6px"><button class="btn-action" onclick="dipKabul(\'' + il.teklif_tip + '\',' + il.rakip.id + ')" style="background:#27ae60;color:#fff;font-size:11px">✅ Kabul</button>' +
-          '<button class="btn-action" onclick="dipRed(' + il.rakip.id + ')" style="background:#95a5a6;color:#fff;font-size:11px">❌ Reddet</button></div>' : '<span style="color:#666">Lider kabul/red eder</span>') +
+          '<button class="btn-action" onclick="dipRed(\'' + il.teklif_tip + '\',' + il.rakip.id + ')" style="background:#95a5a6;color:#fff;font-size:11px">❌ Reddet</button></div>' : '<span style="color:#666">Lider kabul/red eder</span>') +
           '</div>';
       }
       html += '</div>';
@@ -1919,7 +1922,8 @@ async function renderTabDiplomasi(el, data) {
           if (il.durum === 'ANTLASMA' && !il.savas_hazirlik_bitis_at) {
             aksiyon = '<button class="btn-action" onclick="dipIptalAntlasma(' + il.rakip.id + ')" style="background:#e74c3c;color:#fff;font-size:11px">⚠️ Antlaşmayı İptal Et</button>';
           } else if (il.durum === 'SAVAS' && !il.bekleyen_teklif) {
-            aksiyon = '<button class="btn-action" onclick="dipTeklifBaris(' + il.rakip.id + ')" style="background:#2ecc71;color:#fff;font-size:11px">🕊️ Barış Teklif Et</button>';
+            aksiyon = '<button class="btn-action" onclick="dipTeklifBaris(' + il.rakip.id + ')" style="background:#2ecc71;color:#fff;font-size:11px;margin-right:4px">🕊️ Barış Teklif Et</button>' +
+                      '<button class="btn-action" onclick="dipTeklifTabiyet(' + il.rakip.id + ')" style="background:#9b59b6;color:#fff;font-size:11px">👑 TABIYET Teklif (Hakim OL)</button>';
           } else if (il.durum === 'TABIYET' && il.ben_hakim) {
             aksiyon = '<button class="btn-action" onclick="dipSonlandirTabiyet(' + il.rakip.id + ')" style="background:#f39c12;color:#fff;font-size:11px">🔓 Tabiyeti Sonlandır</button>';
           } else if (il.bekleyen_teklif && il.ben_teklif_ettim) {
@@ -1944,10 +1948,13 @@ async function renderTabDiplomasi(el, data) {
 }
 
 async function dipTeklif(tip) {
-  var rakip = parseInt(document.getElementById('dip-rakip').value);
-  if (!rakip) { alert('Rakip guild ID gir'); return; }
-  var endpoint = tip === 'antlasma' ? 'teklif-antlasma' : tip === 'savas' ? 'ilan-savas' : 'teklif-tabiyet';
-  var onayMsj = tip === 'antlasma' ? 'Antlaşma teklif edilecek. Onayla?' : tip === 'savas' ? '⚠️ SAVAŞ İLAN EDİLECEK! Geri dönüşsüz. Onayla?' : 'TABIYET teklif edilecek (siz HAKIM olacaksınız). Onayla?';
+  var sel = document.getElementById('dip-rakip');
+  var rakip = parseInt(sel ? sel.value : 0);
+  if (!rakip) { alert('Rakip guild seç'); return; }
+  var endpoint = tip === 'antlasma' ? 'teklif-antlasma' : tip === 'savas' ? 'teklif-savas' : 'teklif-tabiyet';
+  var onayMsj = tip === 'antlasma' ? 'Antlaşma teklif edilecek. Onayla?'
+              : tip === 'savas' ? '⚔️ SAVAŞ teklif edilecek. Karşı taraf 5 PG içinde kabul/red etmezse savaş otomatik başlar ve reddedene -6% debuff gelir. Onayla?'
+              : 'TABIYET teklif edilecek (siz HAKIM olacaksınız). Onayla?';
   if (!confirm(onayMsj)) return;
   try {
     var r = await fetch(API_BASE + '/api/guild-iliski/' + endpoint, { method:'POST', headers:guildHdr(), body:JSON.stringify({rakip_gid:rakip}) });
@@ -1957,7 +1964,10 @@ async function dipTeklif(tip) {
   } catch(e) { alert('Hata: ' + e.message); }
 }
 async function dipKabul(tip, rakip) {
-  var endpoint = tip === 'ANTLASMA' ? 'kabul-antlasma' : tip === 'BARIS' ? 'kabul-baris' : 'kabul-tabiyet';
+  var endpoint = tip === 'ANTLASMA' ? 'kabul-antlasma'
+               : tip === 'BARIS' ? 'kabul-baris'
+               : tip === 'SAVAS' ? 'kabul-savas'
+               : 'kabul-tabiyet';
   try {
     var r = await fetch(API_BASE + '/api/guild-iliski/' + endpoint, { method:'POST', headers:guildHdr(), body:JSON.stringify({rakip_gid:rakip}) });
     var d = await r.json();
@@ -1965,11 +1975,32 @@ async function dipKabul(tip, rakip) {
     else alert('Hata: ' + (d.error||''));
   } catch(e) { alert('Hata: ' + e.message); }
 }
-async function dipRed(rakip) {
+async function dipRed(tip, rakip) {
+  // SAVAS teklifi reddi -> ozel endpoint + debuff uyarisi
+  if (tip === 'SAVAS') {
+    if (!confirm('⚠️ Savaş teklifini reddetsen de SAVAŞ otomatik başlar ve sen -6% ATK/DEF debuff alırsın. Kabul etmek daha avantajlı olabilir. Yine de reddet?')) return;
+    try {
+      var r = await fetch(API_BASE + '/api/guild-iliski/red-savas', { method:'POST', headers:guildHdr(), body:JSON.stringify({rakip_gid:rakip}) });
+      var d = await r.json();
+      if (d.ok) { alert('⚔️ ' + (d.mesaj||'')); renderTabDiplomasi(document.getElementById('guild-tab-content'), GUILD_DATA); }
+      else alert('Hata: ' + (d.error||''));
+    } catch(e) { alert('Hata: ' + e.message); }
+    return;
+  }
+  // ANTLASMA/TABIYET/BARIS teklifi reddi -> genel red-teklif
   try {
     var r = await fetch(API_BASE + '/api/guild-iliski/red-teklif', { method:'POST', headers:guildHdr(), body:JSON.stringify({rakip_gid:rakip}) });
     var d = await r.json();
     if (d.ok) renderTabDiplomasi(document.getElementById('guild-tab-content'), GUILD_DATA);
+    else alert('Hata: ' + (d.error||''));
+  } catch(e) { alert('Hata: ' + e.message); }
+}
+async function dipTeklifTabiyet(rakip) {
+  if (!confirm('TABIYET teklif edeceksin (siz HAKIM olacaksınız). Karşı kabul ederse 336 PG boyunca üretimin %30\'u kasanıza akar. Onayla?')) return;
+  try {
+    var r = await fetch(API_BASE + '/api/guild-iliski/teklif-tabiyet', { method:'POST', headers:guildHdr(), body:JSON.stringify({rakip_gid:rakip}) });
+    var d = await r.json();
+    if (d.ok) { alert('👑 ' + (d.mesaj||'Tamam')); renderTabDiplomasi(document.getElementById('guild-tab-content'), GUILD_DATA); }
     else alert('Hata: ' + (d.error||''));
   } catch(e) { alert('Hata: ' + e.message); }
 }
