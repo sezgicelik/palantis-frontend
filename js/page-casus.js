@@ -209,16 +209,24 @@ async function loadCasusRaporlar() {
     var resp = await fetch(API_BASE + '/api/casus/raporlar', { headers: { 'Authorization': 'Bearer ' + token } });
     var data = await resp.json();
     if (!data.length) { el.innerHTML = '<div class="card"><div style="font-size:10px;color:#555">Henuz rapor yok</div></div>'; return; }
-    el.innerHTML = '<div class="card"><div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">📋 Raporlar</div>' +
+    // v1.14.0.19: "Gonderdigim" + "Uzerime Gelen" raporlari ayri renkle
+    el.innerHTML = '<div class="card"><div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">📋 Raporlar (gönderdiğim + üstüme gelen)</div>' +
       data.map(function(r) {
         var icon = r.basarili ? '✅' : '❌';
         var gorevIkon = GOREV_IKONLARI[r.gorev_tipi] || '🕵️';
         var gorevIsim = GOREV_ISIMLERI[r.gorev_tipi] || r.gorev_tipi;
         var detay = casusDetayMetin(r);
         var renk = r.basarili ? '#2ecc71' : '#e74c3c';
-        return '<div style="font-size:10px;padding:6px 4px;border-bottom:1px solid #1a1a1a">' +
+        var uzerimeGeldi = r.yon === 'uzerime_geldi';
+        var yonBadge = uzerimeGeldi
+          ? '<span style="background:rgba(231,76,60,0.15);color:#e74c3c;padding:1px 5px;border-radius:3px;font-size:9px;margin-right:4px">⬅ ÜSTÜME</span>'
+          : '<span style="background:rgba(52,152,219,0.15);color:#3498db;padding:1px 5px;border-radius:3px;font-size:9px;margin-right:4px">➡ GÖNDERDİM</span>';
+        var yon = uzerimeGeldi
+          ? ' ← <b style="color:#e74c3c">' + _escCasus(r.hedef_adi||'?') + '</b>'  // hedef_adi burada SALDIRAN oyuncu
+          : ' → ' + _escCasus(r.hedef_adi||'?');
+        return '<div style="font-size:10px;padding:6px 4px;border-bottom:1px solid #1a1a1a' + (uzerimeGeldi?';background:rgba(231,76,60,0.04)':'') + '">' +
           '<div style="display:flex;justify-content:space-between;gap:6px">' +
-            '<span>' + icon + ' ' + gorevIkon + ' <b>' + _escCasus(gorevIsim) + '</b> → ' + _escCasus(r.hedef_adi||'?') + '</span>' +
+            '<span>' + yonBadge + icon + ' ' + gorevIkon + ' <b>' + _escCasus(gorevIsim) + '</b>' + yon + '</span>' +
             '<span style="color:#555;font-size:9px;white-space:nowrap">' + new Date(r.created_at).toLocaleString('tr-TR') + '</span>' +
           '</div>' +
           (detay ? '<div style="margin-top:3px;color:' + renk + ';padding-left:18px">' + detay + '</div>' : '') +
