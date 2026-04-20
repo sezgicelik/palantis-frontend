@@ -103,25 +103,61 @@ async function guildListele() {
     var resp = await fetch(API_BASE + '/api/guild/liste/tumu', { headers: { 'Authorization': 'Bearer ' + token } });
     var data = await resp.json();
     if (!data.length) { wrap.innerHTML = '<p style="color:#888;font-size:11px">Henuz guild yok.</p>'; return; }
+    // v1.14.0.39: Bekleyen istekler + 'Uyelik Iste' butonu
+    var bekR = {};
+    try {
+      var bResp = await fetch(API_BASE + '/api/guild/bekleyen-isteklerim', { headers: { 'Authorization': 'Bearer ' + token } });
+      var bD = await bResp.json();
+      (bD.istekler || []).forEach(function(i){ bekR[i.guild_id] = i; });
+    } catch(e) {}
     wrap.innerHTML = '<div style="font-size:10px;color:#888;margin-bottom:6px">Aktif Guildler:</div>' +
       data.map(function(g) {
+        var bekliyor = !!bekR[g.id];
+        var btn = bekliyor
+          ? '<button class="btn-action" style="width:auto;padding:4px 12px;font-size:10px;background:#555;color:#fff" onclick="guildIstegiIptal(' + g.id + ')">⏳ Bekliyor (İptal)</button>'
+          : '<button class="btn-action" style="width:auto;padding:4px 12px;font-size:10px" onclick="guildIstekGonder(' + g.id + ',\'' + (g.isim||'').replace(/[\'"]/g,'') + '\')">📨 Üyelik İste</button>';
         return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:#111;border:1px solid #222;border-radius:6px;margin-bottom:4px">' +
-          '<div><span style="color:var(--race-color);font-weight:bold;font-size:12px">[' + g.tag + ']</span> <span style="font-size:11px">' + g.isim + '</span> <span style="font-size:9px;color:#888">(' + g.uye_sayisi + ' uye)</span></div>' +
-          '<button class="btn-action" style="width:auto;padding:4px 12px;font-size:10px" onclick="guildKatil(' + g.id + ')">Katil</button>' +
+          '<div><span style="color:var(--race-color);font-weight:bold;font-size:12px">[' + (g.tag||'?') + ']</span> <span style="font-size:11px">' + (g.isim||'?') + '</span> <span style="font-size:9px;color:#888">(' + (g.uye_sayisi||0) + ' uye)</span></div>' +
+          btn +
         '</div>';
       }).join('');
   } catch(e) { wrap.innerHTML = '<span style="color:#e74c3c">Hata</span>'; }
 }
 
-async function guildKatil(guildId) {
+async function guildIstekGonder(guildId, guildIsim) {
   var token = getToken(); if (!token) return;
+  var mesaj = prompt(guildIsim + ' guildine mesajınız (opsiyonel, guild yetkilileri görür):', '');
+  if (mesaj === null) return; // cancel
   try {
-    var resp = await fetch(API_BASE + '/api/guild/' + guildId + '/katil', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } });
+    var resp = await fetch(API_BASE + '/api/guild/' + guildId + '/katil', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mesaj: mesaj })
+    });
     var data = await resp.json();
-    if (resp.ok) { if (typeof toast === 'function') toast(data.mesaj); loadGuild(); }
-    else { alert(data.error || 'Hata'); }
+    if (resp.ok) {
+      if (typeof toast === 'function') toast(data.mesaj);
+      else alert(data.mesaj);
+      loadGuild();
+    } else alert(data.error || 'Hata');
   } catch(e) { alert('Baglanti hatasi'); }
 }
+
+async function guildIstegiIptal(guildId) {
+  if (!confirm('Bekleyen üyelik isteğini iptal etmek istediğine emin misin?')) return;
+  var token = getToken(); if (!token) return;
+  try {
+    var resp = await fetch(API_BASE + '/api/guild/' + guildId + '/istegim-iptal', {
+      method: 'POST', headers: { 'Authorization': 'Bearer ' + token }
+    });
+    var data = await resp.json();
+    if (resp.ok) { if (typeof toast === 'function') toast('İstek iptal edildi'); loadGuild(); }
+    else alert(data.error || 'Hata');
+  } catch(e) { alert('Baglanti hatasi'); }
+}
+
+// Geri uyumluluk: eski guildKatil cagrilari
+async function guildKatil(guildId) { return guildIstekGonder(guildId, ''); }
 
 // ═══════════════════════════════════
 //   TAB YAPISI
@@ -573,6 +609,16 @@ function renderTabUyeler(el, data) {
   var isLider = data.benim_rutbem === 'lider';
   var myYetkiler = data.benim_yetkilerim || {};
 
+  // v1.14.0.39: Gelen uyelik istekleri paneli (oyuncu_kabul yetkisi)
+  var istekHTML = '';
+  if (myYetkiler.oyuncu_kabul) {
+    istekHTML = '<div class="card" style="margin-bottom:10px;padding:10px;border-left:3px solid #f39c12">' +
+      '<div style="font-size:12px;font-weight:bold;color:#f39c12;margin-bottom:8px">📨 Gelen Üyelik İstekleri <span id="gi-count" style="color:#888;font-size:10px">(yükleniyor)</span></div>' +
+      '<div id="gelen-istekler-wrap" style="font-size:11px;color:#888">Yükleniyor...</div>' +
+    '</div>';
+    setTimeout(function(){ _loadGelenIstekler(g.id); }, 100);
+  }
+
   var uyeHTML = uyeler.map(function(u) {
     var rutbeIcon = u.rutbe === 'lider' ? '👑' : u.rutbe === 'yardimci' ? '⭐' : '🏅';
     var aksiyonlar = '';
@@ -614,6 +660,7 @@ function renderTabUyeler(el, data) {
   }
 
   el.innerHTML =
+    istekHTML +
     '<div class="card">' +
       '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">👥 Uyeler (' + uyeler.length + ')</div>' +
       uyeHTML +
@@ -621,6 +668,56 @@ function renderTabUyeler(el, data) {
     yetkiHTML;
 
   if (myYetkiler.yetki_duzenle) guildYetkilerYukle(g.id);
+}
+
+// v1.14.0.39: Gelen uyelik istekleri
+async function _loadGelenIstekler(guildId) {
+  var wrap = document.getElementById('gelen-istekler-wrap');
+  var cnt = document.getElementById('gi-count');
+  if (!wrap) return;
+  try {
+    var r = await fetch(API_BASE + '/api/guild/' + guildId + '/uyelik-istekleri', { headers: guildHdr() });
+    var d = await r.json();
+    if (!r.ok) { wrap.innerHTML = '<span style="color:#e74c3c">' + (d.error||'Hata') + '</span>'; return; }
+    var ist = d.istekler || [];
+    if (cnt) cnt.textContent = '(' + ist.length + ')';
+    if (ist.length === 0) { wrap.innerHTML = '<div style="color:#666;font-size:10px">Bekleyen istek yok</div>'; return; }
+    wrap.innerHTML = ist.map(function(i){
+      var tarih = new Date(i.created_at).toLocaleString('tr-TR',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'});
+      return '<div style="padding:8px 10px;background:#111;border-radius:4px;margin-bottom:6px;border-left:3px solid #f39c12">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap">' +
+          '<div>' +
+            '<div><b style="color:#f39c12">' + (i.kral||'?') + '</b> <span style="color:#666;font-size:9px">ID ' + i.player_id + ' · Çağ ' + (i.cag||1) + ' · ' + (i.taraf||'?') + ' · ' + (i.irk||'?') + '</span></div>' +
+            (i.mesaj ? '<div style="color:#ccc;font-size:10px;font-style:italic;margin-top:3px">"' + i.mesaj.replace(/</g,'&lt;') + '"</div>' : '') +
+            '<div style="color:#555;font-size:9px;margin-top:2px">' + tarih + '</div>' +
+          '</div>' +
+          '<div style="display:flex;gap:4px">' +
+            '<button class="btn-action" onclick="istekKabul(' + guildId + ',' + i.player_id + ')" style="background:#27ae60;color:#fff;font-size:10px;padding:4px 10px">✅ Kabul</button>' +
+            '<button class="btn-action" onclick="istekRed(' + guildId + ',' + i.player_id + ')" style="background:#95a5a6;color:#fff;font-size:10px;padding:4px 10px">❌ Reddet</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  } catch(e) { wrap.innerHTML = '<span style="color:#e74c3c">' + e.message + '</span>'; }
+}
+
+async function istekKabul(guildId, playerId) {
+  try {
+    var r = await fetch(API_BASE + '/api/guild/' + guildId + '/uyelik-istek/' + playerId + '/kabul', { method:'POST', headers: guildHdr() });
+    var d = await r.json();
+    if (r.ok) { if (typeof toast === 'function') toast(d.mesaj); loadGuild(); }
+    else alert(d.error || 'Hata');
+  } catch(e) { alert(e.message); }
+}
+
+async function istekRed(guildId, playerId) {
+  if (!confirm('Bu isteği reddetmek istediğine emin misin?')) return;
+  try {
+    var r = await fetch(API_BASE + '/api/guild/' + guildId + '/uyelik-istek/' + playerId + '/red', { method:'POST', headers: guildHdr() });
+    var d = await r.json();
+    if (r.ok) { _loadGelenIstekler(guildId); }
+    else alert(d.error || 'Hata');
+  } catch(e) { alert(e.message); }
 }
 
 async function guildYetkilerYukle(guildId) {
