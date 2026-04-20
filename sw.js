@@ -1,6 +1,6 @@
 // v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
 // Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
-const CACHE_NAME = 'noxara-v29'; // v1.14.0.16 HUD Kadim rozeti + dehset-tier NPC ordu isimleri
+const CACHE_NAME = 'noxara-v30'; // v1.14.0.17 Admin saldirt 240 PG akisina uyumlu
 
 // Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [
