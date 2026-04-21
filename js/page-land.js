@@ -67,10 +67,35 @@ function next2h(now){
   return t;
 }
 
-function generateOffers(){
+// v1.14.0.64: Deterministik seed — ayni (player_id + cycleKey) kombinasyonu hep ayni teklifleri uretir
+function _seedFromString(s) {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return (h >>> 0) || 1;
+}
+function _seededPRNG(seed) {
+  let x = seed;
+  return function() {
+    x = Math.imul(x, 1597334677) + 1013904243 >>> 0;
+    return (x >>> 0) / 4294967295;
+  };
+}
+function _seededRandInt(rng, min, max) {
+  return Math.floor(rng() * (max - min + 1)) + min;
+}
+
+function generateOffers(cycleKey){
   const r = offerRange(landState.age);
   const remaining = landState.landLimit - landState.land;
   if (remaining <= 0) return [];
+
+  // Player ID + cycle key → deterministik seed
+  const playerId = (typeof OYUNCU !== 'undefined' && OYUNCU?.id) ? OYUNCU.id : 0;
+  const seed = _seedFromString('land:' + playerId + ':' + (cycleKey || landState.cycleKey || 'x'));
+  const rng = _seededPRNG(seed);
 
   const used = new Set();
   const arr = [];
@@ -81,7 +106,7 @@ function generateOffers(){
     const maxAllowed = Math.min(r.max, remaining);
     const minAllowed = Math.min(r.min, maxAllowed);
     if (maxAllowed < 1) break;
-    const amount = randInt(minAllowed, maxAllowed);
+    const amount = _seededRandInt(rng, minAllowed, maxAllowed);
     if (used.has(amount)) continue;
     used.add(amount);
 
@@ -179,7 +204,7 @@ function landTick(){
   if(landState.cycleKey !== key){
     landState.cycleKey = key;
     landState.chosenThisCycle = false;
-    landState.offers = generateOffers();
+    landState.offers = generateOffers(key);
     applyLandCapRules();
     refreshLandNumbers();
     renderOffers();
