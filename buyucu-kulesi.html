@@ -41,7 +41,10 @@
 
 .hedef-input { background:rgba(0,0,0,0.3); border:1px solid rgba(212,162,87,0.2); border-radius:6px; padding:6px 10px; color:#e8dcc8; font-size:12px; width:100% }
 .hedef-input:focus { border-color:#c9a84c; outline:none }
-.hedef-list { list-style:none; padding:0; margin:4px 0 0; max-height:120px; overflow-y:auto }
+.hedef-list { list-style:none; padding:0; margin:4px 0 0; max-height:200px; overflow-y:auto;
+  background:#0a0a0a; border:1px solid #333; border-radius:4px;
+  position:absolute; z-index:50; left:0; right:0; top:100%;
+  box-shadow:0 4px 12px rgba(0,0,0,0.6) }
 .hedef-list li { padding:5px 8px; font-size:11px; cursor:pointer; border-radius:4px; color:#ccc }
 .hedef-list li:hover { background:rgba(212,162,87,0.1); color:#c9a84c }
 
@@ -354,15 +357,15 @@ function bkRenderKitap() {
           // Ofansif büyü seçili ise hedef arama + yap butonu (kart altında)
           let yapBtn = '';
           if (secili && isOfansif && kd) {
-            yapBtn = '<div style="width:100%;margin-top:4px;padding-top:4px;border-top:1px solid rgba(212,162,87,0.1);display:flex;align-items:center;gap:6px">' +
+            yapBtn = '<div style="width:100%;margin-top:4px;padding-top:4px;border-top:1px solid rgba(212,162,87,0.1);display:flex;align-items:center;gap:6px;position:relative" onclick="event.stopPropagation()">' +
               (!selectedHedef ?
-                '<input id="bk-hedef-input" type="text" placeholder="Hedef kral adi..." style="flex:1;padding:3px 6px;background:#0a0a0a;border:1px solid #333;color:#ddd;border-radius:3px;font-size:10px" oninput="bkHedefAra(this.value)">' :
-                '<span style="font-size:11px;color:#2ecc71;flex:1">✅ ' + selectedHedef.kral + '</span>') +
+                '<input id="bk-hedef-input" type="text" placeholder="Hedef kral adi..." autocomplete="off" style="flex:1;padding:3px 6px;background:#0a0a0a;border:1px solid #333;color:#ddd;border-radius:3px;font-size:10px" oninput="bkHedefAra(this.value)" onclick="event.stopPropagation()">' :
+                '<span style="font-size:11px;color:#2ecc71;flex:1">✅ ' + selectedHedef.kral + ' <a href="#" onclick="event.stopPropagation();event.preventDefault();bkHedefTemizle()" style="color:#888;margin-left:6px;font-size:10px">(değiştir)</a></span>') +
               '<button class="btn gold" style="font-size:11px;padding:4px 10px;flex-shrink:0" onclick="event.stopPropagation();bkBuyuYap(\'' + b.id + '\')" ' +
                 (!selectedHedef ? 'disabled style="opacity:0.3;font-size:11px;padding:4px 10px;flex-shrink:0"' : '') +
               '>⚡ YAP</button>' +
-            '</div>' +
-            (!selectedHedef ? '<ul class="hedef-list" id="bk-hedef-list" style="max-height:50px;margin-top:2px"></ul>' : '');
+              (!selectedHedef ? '<ul class="hedef-list" id="bk-hedef-list"></ul>' : '') +
+            '</div>';
           }
 
           // v1.13.29: Kendine buyu + secili + guild uyesi varsa hedef dropdown
@@ -455,8 +458,11 @@ function bkRenderKitap() {
 }
 
 function bkSelectBuyu(buyuId) {
+  // v1.14.0.72: Ayni kart tekrar tiklaninca kapat; farkli karta gecerken hedefi koru
+  const oldBuyu = selectedBuyu;
   selectedBuyu = selectedBuyu === buyuId ? null : buyuId;
-  selectedHedef = null;
+  // Sadece karti kapatirken hedefi resetle (baska karta gecerken hedef korunur)
+  if (!selectedBuyu) selectedHedef = null;
   bkRenderKitap();
   if (!selectedBuyu) {
     document.getElementById('bk-buyu-yap-panel').style.display = 'none';
@@ -566,6 +572,13 @@ async function bkHedefAra(q) {
 function bkSelectHedef(id, kral, taraf) {
   selectedHedef = { id, kral, taraf };
   bkRenderBuyuYap();
+  // v1.14.0.72: kitap card'indaki input'u da guncelle (ofansif secim varsa)
+  bkRenderKitap();
+}
+function bkHedefTemizle() {
+  selectedHedef = null;
+  bkRenderKitap();
+  bkRenderBuyuYap();
 }
 
 // v1.13.29: Kendine buyu icin hedef secimi (dropdown onchange)
@@ -586,8 +599,10 @@ async function bkSelectAndCast(buyuId) {
   if (!buyu) return;
   if (buyu.kategori === 'dusmana') {
     // Ofansif: kartı seç, hedef girişi göster
+    // v1.14.0.72: URL param preset veya onceki secim korunur, sadece buyu degistiginde resetle
+    const farkliBuyu = selectedBuyu !== buyuId;
     selectedBuyu = buyuId;
-    selectedHedef = null;
+    if (farkliBuyu) selectedHedef = null; // yeni buyuye gecince hedef reset
     bkRenderKitap();
     return;
   }
