@@ -86,6 +86,7 @@
     <button onclick="switchTab('top-ordular',this)" style="background:linear-gradient(135deg,#8e44ad 0%,#5b2c6f 100%);color:#fff">🏆 Top Ordular</button>
     <button onclick="switchTab('iz-surme',this)" style="background:linear-gradient(135deg,#16a085 0%,#0e6b52 100%);color:#fff">🕵️ Iz Surme</button>
     <button onclick="switchTab('bug-bildirimleri',this)" style="background:linear-gradient(135deg,#e74c3c 0%,#922b21 100%);color:#fff">🐛 Bug Bildirimleri</button>
+    <button onclick="switchTab('insaat-mod',this)" style="background:linear-gradient(135deg,#d4a257 0%,#8a6a1a 100%);color:#fff">🏗️ İnşaat Modu</button>
   </div>
 
   <!-- CRON TAB -->
@@ -1192,6 +1193,76 @@
     <div id="iz-surme-content" style="font-size:11px;color:#888">player_id gir ve "İzle"ye bas.</div>
   </div>
 
+  <!-- v1.14.0.59 INSAAT MODU TAB -->
+  <div id="tab-insaat-mod" class="panel">
+    <h3 style="color:#d4a257">🏗️ İnşaat İşçi Paketi</h3>
+    <p style="font-size:11px;color:#888;margin-bottom:10px">
+      5 farklı inşaat modu. Seçilen mod tüm oyunculara uygulanır.
+      <b style="color:#d4a257">Klasik</b> = mevcut davranış (0 değişim).
+    </p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-bottom:16px">
+      <label style="padding:10px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:4px;cursor:pointer" class="im-mod-lbl">
+        <input type="radio" name="insaat_mod" value="klasik" style="margin-right:6px">
+        <b style="color:#95a5a6">📜 Klasik</b>
+        <div style="font-size:10px;color:#666;margin-top:4px">Mevcut davranış — köylü şart değil, serial kuyruk</div>
+      </label>
+      <label style="padding:10px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:4px;cursor:pointer" class="im-mod-lbl">
+        <input type="radio" name="insaat_mod" value="kilit" style="margin-right:6px">
+        <b style="color:#3498db">🔒 Kilit</b>
+        <div style="font-size:10px;color:#666;margin-top:4px">Köylü meşgul olur, bina bitince serbest (Civilization tarzı)</div>
+      </label>
+      <label style="padding:10px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:4px;cursor:pointer" class="im-mod-lbl">
+        <input type="radio" name="insaat_mod" value="slot" style="margin-right:6px">
+        <b style="color:#9b59b6">⚙️ Slot</b>
+        <div style="font-size:10px;color:#666;margin-top:4px">N eşzamanlı bina (default 2, premium +2). Aynı tipten paralel yapım</div>
+      </label>
+      <label style="padding:10px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:4px;cursor:pointer" class="im-mod-lbl">
+        <input type="radio" name="insaat_mod" value="hizlandirma" style="margin-right:6px">
+        <b style="color:#e67e22">⚡ Hızlandırma</b>
+        <div style="font-size:10px;color:#666;margin-top:4px">Kilit + ek köylü ile süre azaltma (her köylü -%5, max instant)</div>
+      </label>
+      <label style="padding:10px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:4px;cursor:pointer" class="im-mod-lbl">
+        <input type="radio" name="insaat_mod" value="usta_basi" style="margin-right:6px">
+        <b style="color:#16a085">🧔 Usta Başı</b>
+        <div style="font-size:10px;color:#666;margin-top:4px">Çağ-bazlı usta başı havuzu (Ç1=2 → Ç5=10). Akademi ile yetiştir</div>
+      </label>
+    </div>
+
+    <h4 style="color:#d4a257;margin-top:14px">🏗️ Bina Başına Köylü Maliyeti (Kilit/Slot/Hızlandırma)</h4>
+    <p style="font-size:10px;color:#888;margin-bottom:8px">Her bina için meşgul edilecek köylü sayısı. Klasik modda etkisiz.</p>
+    <div id="im-bina-koylu-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:4px;margin-bottom:16px"></div>
+
+    <h4 style="color:#e67e22;margin-top:14px">⚡ Hızlandırma Parametreleri</h4>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px">
+      <label>Oran %/köylü: <input id="im-hiz-oran" type="number" value="5" min="1" max="50" style="width:60px;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px"></label>
+      <label>Max ek köylü: <input id="im-hiz-max" type="number" value="20" min="1" max="100" style="width:60px;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px"></label>
+      <span style="font-size:10px;color:#666">20 köylü × %5 = %100 (instant)</span>
+    </div>
+
+    <h4 style="color:#9b59b6;margin-top:14px">⚙️ Slot Parametreleri</h4>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px">
+      <label>Varsayılan slot: <input id="im-slot-var" type="number" value="2" min="1" max="10" style="width:60px;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px"></label>
+      <label>Premium bonus: <input id="im-slot-prem" type="number" value="2" min="0" max="10" style="width:60px;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px"></label>
+    </div>
+
+    <h4 style="color:#16a085;margin-top:14px">🧔 Usta Başı Parametreleri</h4>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:8px">
+      <div><label style="font-size:10px;color:#aaa">Çağ 1</label><input id="im-usta-1" type="number" value="2" style="width:100%;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px"></div>
+      <div><label style="font-size:10px;color:#aaa">Çağ 2</label><input id="im-usta-2" type="number" value="3" style="width:100%;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px"></div>
+      <div><label style="font-size:10px;color:#aaa">Çağ 3</label><input id="im-usta-3" type="number" value="5" style="width:100%;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px"></div>
+      <div><label style="font-size:10px;color:#aaa">Çağ 4</label><input id="im-usta-4" type="number" value="7" style="width:100%;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px"></div>
+      <div><label style="font-size:10px;color:#aaa">Çağ 5</label><input id="im-usta-5" type="number" value="10" style="width:100%;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px"></div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px">
+      <label>Yetiştirme süresi (PG): <input id="im-usta-sure" type="number" value="72" style="width:70px;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px"></label>
+      <label>Altın: <input id="im-usta-altin" type="number" value="50000" style="width:100px;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px"></label>
+    </div>
+
+    <button class="act" onclick="insaatModKaydet()" style="background:#d4a257;color:#000;padding:8px 20px;font-weight:bold">💾 Kaydet</button>
+    <span id="im-msg" style="margin-left:10px;font-size:11px"></span>
+  </div>
+
   <!-- v1.14.0.52 BUG BILDIRIMLERI TAB -->
   <div id="tab-bug-bildirimleri" class="panel">
     <h3 style="color:#e74c3c">🐛 Oyuncu Bug Bildirimleri</h3>
@@ -1287,6 +1358,7 @@ function switchTab(tab, el) {
   if (tab === 'vergi-sistem') loadVergiSistem();
   if (tab === 'top-ordular') loadTopOrdular();
   if (tab === 'bug-bildirimleri') loadBugList();
+  if (tab === 'insaat-mod') loadInsaatMod();
 }
 
 // v1.14.0.2: Sunucu top 20 ordu
@@ -4963,6 +5035,88 @@ async function bugDurumKaydet(id) {
     if (d.ok) { loadBugList(); }
     else alert('Hata: ' + (d.error || r.status));
   } catch (e) { alert('Hata: ' + e.message); }
+}
+
+/* ═══════════════════════════════════════════
+   v1.14.0.59 — INSAAT ISCI PAKETI ADMIN UI
+═══════════════════════════════════════════ */
+const BINA_LISTESI = [
+  'ev','koy','kasaba','oduncu','kereste_atolyesi','tarla','balikci','ocak','isleme','firin',
+  'ahir','lonca','buyulu_tarla','magara','rathe_tapinagi','xegony_tapinagi','fennin_tapinagi',
+  'tunare_tapinagi','buyucu_kulesi','surlar','okcu_kulesi','mizrak_kulesi','balista_kulesi',
+  'istihbarat','meydan','taverna','akademi','katedral','pazar','ciftlik'
+];
+
+async function loadInsaatMod() {
+  try {
+    const r = await fetch(API + '/api/admin/insaat-config', { headers: hdr() });
+    const d = await r.json();
+    // Radio
+    const radios = document.querySelectorAll('input[name="insaat_mod"]');
+    radios.forEach(rd => { rd.checked = (rd.value === (d.aktif || 'klasik')); });
+    // Parametreler
+    if (document.getElementById('im-hiz-oran')) document.getElementById('im-hiz-oran').value = d.hizlandirma_oran_yuzde ?? 5;
+    if (document.getElementById('im-hiz-max')) document.getElementById('im-hiz-max').value = d.hizlandirma_max_koylu ?? 20;
+    if (document.getElementById('im-slot-var')) document.getElementById('im-slot-var').value = d.slot_sayisi_varsayilan ?? 2;
+    if (document.getElementById('im-slot-prem')) document.getElementById('im-slot-prem').value = d.slot_sayisi_premium_bonus ?? 2;
+    for (let c = 1; c <= 5; c++) {
+      const el = document.getElementById('im-usta-' + c);
+      if (el) el.value = d.usta_basi_cag?.[c] ?? (c === 1 ? 2 : c === 2 ? 3 : c === 3 ? 5 : c === 4 ? 7 : 10);
+    }
+    if (document.getElementById('im-usta-sure')) document.getElementById('im-usta-sure').value = d.usta_basi_yetistirme_sure_pg ?? 72;
+    if (document.getElementById('im-usta-altin')) document.getElementById('im-usta-altin').value = d.usta_basi_yetistirme_altin ?? 50000;
+    // Bina başına köylü grid
+    const grid = document.getElementById('im-bina-koylu-grid');
+    const bk = d.bina_koylu || {};
+    grid.innerHTML = BINA_LISTESI.map(b => `
+      <label style="padding:6px 8px;background:#0d0d0d;border:1px solid #1e1e1e;border-radius:3px;font-size:10px;color:#aaa">
+        <span style="display:block;font-size:9px;color:#888;margin-bottom:2px">${b}</span>
+        <input id="im-bk-${b}" type="number" value="${bk[b] ?? 0}" min="0" max="999" style="width:100%;padding:3px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px">
+      </label>`).join('');
+  } catch(e) {
+    document.getElementById('im-msg').textContent = 'Yüklenemedi: ' + e.message;
+    document.getElementById('im-msg').style.color = '#e74c3c';
+  }
+}
+
+async function insaatModKaydet() {
+  const aktif = document.querySelector('input[name="insaat_mod"]:checked')?.value || 'klasik';
+  const body = {
+    aktif,
+    bina_koylu: {},
+    hizlandirma_oran_yuzde: document.getElementById('im-hiz-oran').value,
+    hizlandirma_max_koylu: document.getElementById('im-hiz-max').value,
+    slot_sayisi_varsayilan: document.getElementById('im-slot-var').value,
+    slot_sayisi_premium_bonus: document.getElementById('im-slot-prem').value,
+    usta_basi_cag: {},
+    usta_basi_yetistirme_sure_pg: document.getElementById('im-usta-sure').value,
+    usta_basi_yetistirme_altin: document.getElementById('im-usta-altin').value,
+  };
+  for (const b of BINA_LISTESI) {
+    const el = document.getElementById('im-bk-' + b);
+    if (el) body.bina_koylu[b] = parseInt(el.value) || 0;
+  }
+  for (let c = 1; c <= 5; c++) {
+    body.usta_basi_cag[c] = parseInt(document.getElementById('im-usta-' + c).value) || 0;
+  }
+  const msg = document.getElementById('im-msg');
+  try {
+    const r = await fetch(API + '/api/admin/insaat-config', {
+      method: 'POST', headers: hdr(), body: JSON.stringify(body)
+    });
+    const d = await r.json();
+    if (d.ok) {
+      msg.textContent = '✓ Kaydedildi — mod: ' + d.cfg.aktif;
+      msg.style.color = '#2ecc71';
+    } else {
+      msg.textContent = 'Hata: ' + (d.error || r.status);
+      msg.style.color = '#e74c3c';
+    }
+    setTimeout(() => msg.textContent = '', 5000);
+  } catch(e) {
+    msg.textContent = 'Hata: ' + e.message;
+    msg.style.color = '#e74c3c';
+  }
 }
 
 async function bugSil(id) {
