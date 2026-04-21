@@ -35,6 +35,13 @@
         <button class="btn-action" onclick="loadSavaslarim()" style="padding:4px 14px;font-size:11px;width:auto">↻ Yenile</button>
       </div>
       <p style="font-size:11px;color:#888;margin-bottom:12px">Son 20 PvP & Koloni savaşı. Satıra tıklayınca detaylı rapor açılır.</p>
+
+      <!-- Aktif Hareketler Paneli (debug için) -->
+      <div id="savaslarim-hareketler" style="margin-bottom:16px;padding:10px 12px;background:#0f0d08;border:1px solid #2a1f0e;border-radius:4px;display:none">
+        <div style="font-size:12px;color:#d4a257;font-weight:bold;margin-bottom:6px">🚩 Aktif Ordu Hareketleri</div>
+        <div id="savaslarim-hareketler-list" style="font-size:11px;color:#ccc"></div>
+      </div>
+
       <div id="savaslarim-loading" style="color:#888;font-size:13px;text-align:center;padding:40px">Yükleniyor...</div>
       <div id="savaslarim-list" style="display:none"></div>
       <div id="savaslarim-empty" style="display:none;color:#777;font-size:13px;text-align:center;padding:40px">
@@ -185,6 +192,37 @@
       const list    = document.getElementById('savaslarim-list');
       const empty   = document.getElementById('savaslarim-empty');
       loading.style.display = 'block'; list.style.display = 'none'; empty.style.display = 'none';
+
+      // v1.14.0.68: Aktif hareketler (debug paneli)
+      try {
+        const hr = await fetch(API_BASE + '/api/savas/hareketler', { headers:{ 'Authorization':'Bearer '+token } });
+        const hd = await hr.json();
+        const hwrap = document.getElementById('savaslarim-hareketler');
+        const hlist = document.getElementById('savaslarim-hareketler-list');
+        const hareketler = Array.isArray(hd) ? hd : (hd.hareketler || []);
+        const hwrapTitle = document.querySelector('#savaslarim-hareketler > div');
+        if (hareketler.length) {
+          hwrap.style.display = 'block';
+          if (hwrapTitle) hwrapTitle.textContent = `🚩 Aktif Ordu Hareketleri (${hareketler.length})`;
+          const fmt = (x) => x ? new Date(x).toLocaleString('tr-TR') : '-';
+          hlist.innerHTML = hareketler.map(h => {
+            const hedef = h.hedef_kral || h.hedef_sehir || h.hedef_koord || '?';
+            const kalanMin = h.varis ? Math.max(0, Math.round((new Date(h.varis) - Date.now())/60000)) : 0;
+            const tipRenk = h.tip === 'saldiri' ? '#e74c3c' : (h.tip === 'takviye' ? '#3498db' : '#f39c12');
+            return `<div style="padding:4px 0;border-bottom:1px solid #1a1a1a">
+              <b style="color:${tipRenk}">[${h.tip||'?'}]</b>
+              ${h.ordu_isim} → <b>${hedef}</b>
+              · varış: ${fmt(h.varis)} ${kalanMin>0?('('+kalanMin+' dk kaldı · %'+h.ilerleme_yuzde+')'):'(vardı — cron bekliyor)'}
+              · görev#${h.id}
+            </div>`;
+          }).join('');
+        } else {
+          hwrap.style.display = 'block';
+          if (hwrapTitle) hwrapTitle.textContent = '🚩 Aktif Ordu Hareketleri';
+          hlist.innerHTML = '<div style="color:#888;font-style:italic">Yolda ordu yok — savaşlar tamamlanmış olmalı. Liste boşsa savas_log yazılmamış, admin\'e bildir.</div>';
+        }
+      } catch(e) { /* sessiz */ }
+
       try {
         const r = await fetch(API_BASE + '/api/savas/gecmis', { headers:{ 'Authorization':'Bearer '+token } });
         const rows = await r.json();
