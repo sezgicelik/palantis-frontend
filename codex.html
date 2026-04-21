@@ -39,9 +39,23 @@ tailwind.config = {
   .cx-kilit { background: repeating-linear-gradient(45deg, rgba(50,50,50,0.1), rgba(50,50,50,0.1) 8px, transparent 8px, transparent 16px) }
   #codex-graph-canvas { cursor: grab; touch-action: none }
   #codex-graph-canvas:active { cursor: grabbing }
+
+  /* v1.14.0.55 — Codex sayfasi icin global max-width kisitini kaldir */
+  body.codex-page .layout { max-width: none !important; width: 100% !important }
+  body.codex-page .main-content { padding: 0 !important; overflow:visible !important }
+  body.codex-page { overflow:auto }
+
+  /* Zengin icerik gorsel hiyerarsi */
+  .cx-section-h { font-family:'Cinzel',serif; font-size:13px; color:#d4a257; letter-spacing:1.5px; margin:16px 0 8px; padding-bottom:4px; border-bottom:1px solid rgba(212,162,87,0.2); display:flex; align-items:center; gap:6px }
+  .cx-p { font-size:14px; line-height:1.65; margin-bottom:10px; color:#d4cbb8 }
+  .cx-bullet { font-size:13px; line-height:1.55; padding:4px 0 4px 20px; position:relative; color:#c8c0ad }
+  .cx-bullet::before { content:'◆'; position:absolute; left:6px; color:#d4a257; font-size:10px; top:7px }
+  .cx-warn { background:rgba(231,76,60,0.08); border-left:3px solid #e74c3c; padding:8px 12px; border-radius:0 4px 4px 0; font-size:13px; color:#f1c4bf }
+  .cx-tip { background:rgba(52,152,219,0.08); border-left:3px solid #3498db; padding:8px 12px; border-radius:0 4px 4px 0; font-size:13px; color:#c4dcf1 }
+  .cx-quote { font-family:'Crimson Pro',serif; font-style:italic; font-size:14px; color:#a89878; padding:6px 14px; border-left:2px solid #6a5a3a; margin:8px 0 }
 </style>
 </head>
-<body class="bg-nox-dark text-nox-text">
+<body class="bg-nox-dark text-nox-text codex-page">
 <div id="hudbar-mount"></div>
 <div class="layout">
   <div id="sidebar-mount"></div>
@@ -76,6 +90,12 @@ tailwind.config = {
 ═══════════════════════════════════════════════════════ */
 
 const { useState, useMemo, useEffect, useRef, useCallback } = React;
+
+// Inline markdown: **bold** + HTML escape (XSS guard)
+function mdInline(s) {
+  const esc = String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  return esc.replace(/\*\*([^*]+)\*\*/g, '<strong style="color:#d4a257">$1</strong>');
+}
 
 const KATEGORILER = window.CODEX_KATEGORILER;
 const NODES = window.CODEX_NODES;
@@ -401,7 +421,47 @@ function NodeDetay({ node, onGit, breadcrumb, geri, kilitli }) {
         </div>
       </div>
       {node.stats && <StatGrid stats={node.stats} />}
-      {node.aciklama && <div className="cx-drop text-sm leading-relaxed my-3">{node.aciklama}</div>}
+
+      {node.aciklama && (
+        <>
+          <div className="cx-section-h">📖 <span>Genel Bilgi</span></div>
+          {node.aciklama.split('\n\n').map((p, i) => <div key={i} className="cx-p" dangerouslySetInnerHTML={{__html: mdInline(p)}} />)}
+        </>
+      )}
+
+      {node.detay && (
+        <>
+          <div className="cx-section-h">📜 <span>Detaylı Bilgi</span></div>
+          {node.detay.split('\n\n').map((p, i) => <div key={i} className="cx-p" dangerouslySetInnerHTML={{__html: mdInline(p)}} />)}
+        </>
+      )}
+
+      {node.strateji && (
+        <>
+          <div className="cx-section-h">⚔️ <span>Strateji</span></div>
+          {Array.isArray(node.strateji)
+            ? node.strateji.map((s, i) => <div key={i} className="cx-bullet">{s}</div>)
+            : <div className="cx-p">{node.strateji}</div>}
+        </>
+      )}
+
+      {node.ipucu && (
+        <>
+          <div className="cx-section-h">💡 <span>İpucu</span></div>
+          <div className="cx-tip">{node.ipucu}</div>
+        </>
+      )}
+
+      {node.dikkat && (
+        <>
+          <div className="cx-section-h">⚠️ <span>Dikkat</span></div>
+          <div className="cx-warn">{node.dikkat}</div>
+        </>
+      )}
+
+      {node.quote && (
+        <div className="cx-quote">"{node.quote}"</div>
+      )}
     </div>
   );
 }
@@ -558,7 +618,7 @@ function CodexApp() {
       </div>
 
       <div className="flex">
-        <aside className={`fixed md:static inset-y-0 left-0 z-30 bg-nox-dark border-r border-nox-gold/20 w-56 transform transition ${mobileDrawer ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:flex-shrink-0 overflow-y-auto cx-scroll pt-16 md:pt-0`}>
+        <aside className={`fixed md:static inset-y-0 left-0 z-30 bg-nox-dark border-r border-nox-gold/20 w-60 transform transition ${mobileDrawer ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:flex-shrink-0 overflow-y-auto cx-scroll pt-16 md:pt-0 md:sticky md:top-0 md:h-screen`}>
           <div className="cx-h text-xs uppercase tracking-wider text-nox-gold p-3">Kategoriler</div>
           <div className="flex flex-col gap-1 p-2">
             <button onClick={() => setAktifKategori(null)}
@@ -590,7 +650,7 @@ function CodexApp() {
 
         {mobileDrawer && <div onClick={() => setMobileDrawer(false)} className="md:hidden fixed inset-0 bg-black/60 z-20" />}
 
-        <main className="flex-1 min-w-0 p-3 md:p-6">
+        <main className="flex-1 min-w-0 p-3 md:p-8 max-w-4xl md:mx-auto">
           {viewMode === 'graph' ? (
             <div>
               <GraphView cag={cag} kesfedilen={kesfedilen} onSec={git} filtreliNodes={filtreliNodes} seciliId={secili} />
@@ -619,7 +679,7 @@ function CodexApp() {
         </main>
 
         {viewMode === 'list' && (
-          <aside className="hidden md:block w-64 border-l border-nox-gold/20 bg-black/30 flex-shrink-0 overflow-y-auto cx-scroll">
+          <aside className="hidden md:block w-72 border-l border-nox-gold/20 bg-black/30 flex-shrink-0 overflow-y-auto cx-scroll sticky top-0 h-screen">
             <div className="cx-h text-xs uppercase tracking-wider text-nox-gold p-3 sticky top-0 bg-nox-dark/95 backdrop-blur">İlişkili</div>
             {selNode && !selKilitli && <IliskiliPanel node={selNode} nodeMap={nodeMap} onGit={git} cag={cag} />}
           </aside>
