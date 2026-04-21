@@ -326,16 +326,18 @@ async function loadKadimHudBanner() {
   const banner = document.getElementById("hud-kadim-banner");
   if (!banner) return;
   try {
-    const r = await fetch(API_BASE + "/api/kadim-sehir/", { headers: { Authorization: "Bearer " + token } });
+    // v1.14.0.77: cache-bust query param + no-cache header (SW olsa bile taze data)
+    const r = await fetch(API_BASE + "/api/kadim-sehir/?_t=" + Date.now(), {
+      headers: { Authorization: "Bearer " + token, "Cache-Control": "no-cache" },
+      cache: "no-store"
+    });
     if (!r.ok) { banner.style.display = "none"; return; }
     const d = await r.json();
     if (!d.ok || !d.sehirler) { banner.style.display = "none"; return; }
 
-    // Geri sayimi olan / yolda olan sehirler
     const aktifler = d.sehirler.filter(s => s.faz === "yolda" || s.faz === "uyari" || s.faz === "hareket_bekleniyor" || (s.faz === "geri_sayim" && s.kalan_pg != null));
     if (!aktifler.length) { banner.style.display = "none"; return; }
 
-    // En yakin saldiri (en dusuk kalan_pg)
     aktifler.sort((a, b) => {
       const ap = a.faz === "yolda" ? -1000 + (a.kalan_pg || 0) : (a.kalan_pg || 999);
       const bp = b.faz === "yolda" ? -1000 + (b.kalan_pg || 0) : (b.kalan_pg || 999);
@@ -343,23 +345,37 @@ async function loadKadimHudBanner() {
     });
     const s = aktifler[0];
 
-    let ikon, metin, renk;
+    // v1.14.0.77: Kutu görünüm — büyük PG sayısı + yan açıklama
+    let ikon, renk, aciklama, labelMetin;
     if (s.faz === "yolda") {
-      ikon = "⚔️";
-      metin = s.isim + " ORDUSU YOLDA! Varis: " + s.kalan_pg + " PG · Butce: " + (s.tahmini_saldiri_altin||0).toLocaleString("tr-TR") + " altin";
-      renk = "rgba(231,76,60,0.35)";
+      ikon = "⚔️"; renk = "#e74c3c";
+      labelMetin = "VARIŞA";
+      aciklama = s.isim + " ordusu yolda! Bütçe: " + (s.tahmini_saldiri_altin||0).toLocaleString("tr-TR") + " altın";
     } else if (s.faz === "uyari" || s.faz === "hareket_bekleniyor") {
-      ikon = "⚠️";
-      metin = s.isim + " saldiriya HAZIRLANIYOR — " + s.kalan_pg + " PG sonra ordu yola cikacak";
-      renk = "rgba(230,126,34,0.30)";
+      ikon = "⚠️"; renk = "#e67e22";
+      labelMetin = "HAREKETE";
+      aciklama = s.isim + " saldırıya hazırlanıyor! Bütçe: " + (s.tahmini_saldiri_altin||0).toLocaleString("tr-TR") + " altın";
     } else {
-      ikon = "⏳";
-      metin = s.isim + " geri sayim — " + s.kalan_pg + " PG sonra ordu hareket eder (butce: " + (s.tahmini_saldiri_altin||0).toLocaleString("tr-TR") + " altin)";
-      renk = "rgba(155,89,182,0.20)";
+      ikon = "⏳"; renk = "#9b59b6";
+      labelMetin = "KALAN";
+      aciklama = s.isim + " geri sayım — bütçe: " + (s.tahmini_saldiri_altin||0).toLocaleString("tr-TR") + " altın";
     }
 
-    banner.innerHTML = ikon + " " + metin + (aktifler.length > 1 ? " +" + (aktifler.length-1) + " daha" : "") + " <span style=\"color:#888;font-size:10px;margin-left:6px\">(tikla →)</span>";
-    banner.style.background = "linear-gradient(90deg, " + renk + ", rgba(0,0,0,0.2))";
+    const extra = aktifler.length > 1 ? ' <span style="color:#888;font-size:10px">+' + (aktifler.length-1) + ' daha</span>' : '';
+
+    banner.innerHTML =
+      '<div style="display:inline-flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center">' +
+        '<span style="font-size:18px">' + ikon + '</span>' +
+        // Büyük PG kutu
+        '<span style="display:inline-flex;flex-direction:column;align-items:center;padding:2px 12px;background:rgba(0,0,0,0.4);border:1.5px solid ' + renk + ';border-radius:6px;min-width:72px">' +
+          '<span style="font-size:18px;font-weight:bold;color:' + renk + ';line-height:1;font-family:Cinzel,serif">' + s.kalan_pg + ' PG</span>' +
+          '<span style="font-size:9px;color:#888;letter-spacing:1px;margin-top:2px">' + labelMetin + '</span>' +
+        '</span>' +
+        '<span style="color:#d4a257">' + aciklama + '</span>' +
+        extra +
+        '<span style="color:#888;font-size:10px">(tıkla →)</span>' +
+      '</div>';
+    banner.style.background = 'linear-gradient(90deg, rgba(0,0,0,0.4), rgba(0,0,0,0.1))';
     banner.style.display = "block";
   } catch (e) { banner.style.display = "none"; }
 }
