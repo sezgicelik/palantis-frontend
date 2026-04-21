@@ -54,6 +54,31 @@ function renderFestival(data) {
     takvimEl.textContent = `Noxara Takvimi: ${data.takvim.gun}. gün, ${data.takvim.ay}. ay, ${data.takvim.yil}. yıl`;
   }
 
+  // v1.14.0.58: Aktif festival kart (üstte)
+  const aktifWrap = document.getElementById('aktif-fest-wrap');
+  if (aktifWrap) {
+    if (data.aktif_festival) {
+      const af = data.aktif_festival;
+      aktifWrap.innerHTML = `
+        <div class="card" style="border:2px solid #d4a257;padding:16px;background:linear-gradient(135deg,rgba(212,162,87,0.15),rgba(212,162,87,0.02));margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <div style="font-size:32px">🎊</div>
+            <div style="flex:1;min-width:160px">
+              <div style="font-family:'Cinzel',serif;color:#d4a257;font-size:14px;font-weight:700">
+                ${af.isim} DEVAM EDİYOR
+              </div>
+              <div style="font-size:11px;color:#aaa;margin-top:2px">
+                Saatlik moral: <b style="color:#2ecc71">+${af.saatlik_bonus}</b> ·
+                Kalan: <b style="color:#d4a257">${af.kalan_pg} PG</b>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    } else {
+      aktifWrap.innerHTML = '';
+    }
+  }
+
   // Festival kartları
   const container = document.getElementById('fest-cards');
   if (!container) return;
@@ -79,7 +104,8 @@ function renderFestival(data) {
             ${yetersizAltin ? '<span style="color:#e74c3c;font-size:10px"> (yetersiz)</span>' : ''}</div>
           <div>🍞 <b>${f.ekmek.toLocaleString('tr-TR')}</b> ekmek
             ${yetersizEkmek ? '<span style="color:#e74c3c;font-size:10px"> (yetersiz)</span>' : ''}</div>
-          <div style="color:${renk};margin-top:4px">😊 +${f.moral_bonus} şehir morali</div>
+          <div style="color:${renk};margin-top:4px">😊 +${f.moral_bonus} anlık moral</div>
+          ${f.saatlik_bonus ? `<div style="color:#2ecc71;font-size:11px">⏱️ +${f.saatlik_bonus}/saat × ${f.sure_pg} PG = +${f.saatlik_bonus * f.sure_pg} toplam</div>` : ''}
         </div>
 
         ${cooldownAktif
