@@ -1,6 +1,6 @@
 // v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
 // Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
-const CACHE_NAME = 'noxara-v67'; // v1.14.0.67 PWA tam entegrasyon: offline fallback + global register
+const CACHE_NAME = 'noxara-v76'; // v1.14.0.76 kadim HUD banner + tick-based system
 
 // Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [
