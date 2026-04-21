@@ -2041,29 +2041,49 @@ var GUILD_EVENT_IKON = {
 };
 var GUILD_RAPOR_FILTRE = 'hepsi';
 
+// v1.14.0.61: event_type -> Türkçe etiket (okunabilirlik)
+var GUILD_EVENT_LABEL = {
+  bina_tamam:'Bina Tamamlandı', egitim_tamam:'Ünite Eğitimi Bitti',
+  maas:'Maaş Kesildi', isci_uretim:'İşçi Üretimi',
+  ekonomi:'Ekonomi Hareketi', bolge_bonus:'Bölge Bonusu', irk_bonus:'Irk Bonusu',
+  mana_uretim:'Mana Üretimi', pisirme:'Pişirme',
+  savas:'Savaş', kadim_saldiri:'Kadim Saldırı', takviye:'Takviye',
+  ambar:'Ambar Hareketi', bagis:'Bağış', tasi:'Kaynak Taşıma',
+  dagitim:'Kaynak Dağıtımı', pazar:'Pazar Satışı', market:'Market',
+  guild_kurma:'Guild Kuruluşu', uye_katildi:'Üye Katıldı', uye_ayrildi:'Üye Ayrıldı',
+  uye_kick:'Üye Atıldı', lider_degisim:'Lider Değişti',
+  diplomasi:'Diplomasi', kusatma:'Kuşatma',
+  arastirma:'Araştırma', admin:'Admin Müdahalesi'
+};
+
 async function renderTabRaporlar(el, data) {
   var gId = data.guild.id;
-  el.innerHTML = '<div style="text-align:center;padding:20px;color:#888">Yukleniyor...</div>';
+  el.innerHTML = '<div style="text-align:center;padding:40px;color:#888;font-size:13px">📜 Raporlar yükleniyor...</div>';
   try {
     var resp = await fetch(API_BASE + '/api/guild/' + gId + '/raporlar', { headers: guildHdr() });
     var d = await resp.json();
-    if (!resp.ok) { el.innerHTML = '<div style="color:#e74c3c">' + (d.error || 'Hata') + '</div>'; return; }
+    if (!resp.ok) { el.innerHTML = '<div style="color:#e74c3c;padding:20px">' + (d.error || 'Hata') + '</div>'; return; }
 
-    var html = '<h3 style="font-family:Cinzel,serif;color:var(--race-color);margin-bottom:10px">📜 Guild Raporlari</h3>';
+    var html = '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px">';
+    html += '<h3 style="font-family:Cinzel,serif;color:var(--race-color);margin:0;font-size:16px">📜 Guild Raporlari</h3>';
+    html += '<span style="font-size:11px;color:#666">(' + (d.liste?.length || 0) + ' kayıt)</span>';
+    html += '</div>';
 
-    // Filtre butonlari
-    html += '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">';
-    html += '<button onclick="guildRaporFiltre(\'hepsi\')" style="padding:3px 10px;border:none;border-radius:4px;font-size:10px;cursor:pointer;' +
-      (GUILD_RAPOR_FILTRE === 'hepsi' ? 'background:var(--race-color);color:#000' : 'background:#1a1a1a;color:#888') + '">Hepsi</button>';
+    // Filtre butonlari — pill stili, daha büyük
+    html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">';
+    html += '<button onclick="guildRaporFiltre(\'hepsi\')" style="padding:5px 14px;border:1px solid ' +
+      (GUILD_RAPOR_FILTRE === 'hepsi' ? 'var(--race-color)' : '#2a2a2a') + ';border-radius:12px;font-size:11px;font-weight:bold;cursor:pointer;' +
+      (GUILD_RAPOR_FILTRE === 'hepsi' ? 'background:rgba(212,162,87,0.2);color:var(--race-color)' : 'background:#111;color:#888') + '">Hepsi</button>';
     for (var kat in GUILD_RAPOR_KATEGORI) {
       var k = GUILD_RAPOR_KATEGORI[kat];
-      html += '<button onclick="guildRaporFiltre(\'' + kat + '\')" style="padding:3px 10px;border:none;border-radius:4px;font-size:10px;cursor:pointer;' +
-        (GUILD_RAPOR_FILTRE === kat ? 'background:' + k.renk + ';color:#000' : 'background:#1a1a1a;color:' + k.renk) + '">' + k.isim + '</button>';
+      var aktif = GUILD_RAPOR_FILTRE === kat;
+      html += '<button onclick="guildRaporFiltre(\'' + kat + '\')" style="padding:5px 14px;border:1px solid ' +
+        (aktif ? k.renk : '#2a2a2a') + ';border-radius:12px;font-size:11px;font-weight:bold;cursor:pointer;' +
+        (aktif ? 'background:' + k.renk + '22;color:' + k.renk : 'background:#111;color:' + k.renk + 'bb') + '">' + k.isim + '</button>';
     }
     html += '</div>';
 
-    // v1.13.25 FIX: Backend {raporlar:[{palantis_yil,palantis_ay,palantis_gun,olaylar:[]}], liste:[]}
-    // Eskiden event_type direkt raporlar[] icinde aranıyordu → undefined. Simdi d.liste kullaniyoruz.
+    // v1.13.25 FIX: Backend {raporlar:[{palantis_yil,...,olaylar:[]}], liste:[]}
     var events = d.liste || [];
     if (GUILD_RAPOR_FILTRE !== 'hepsi') {
       var tipler = GUILD_RAPOR_KATEGORI[GUILD_RAPOR_FILTRE]?.tipler || [];
@@ -2071,27 +2091,38 @@ async function renderTabRaporlar(el, data) {
     }
 
     if (events.length === 0) {
-      html += '<div class="card" style="padding:20px;text-align:center;color:#555;font-size:11px">Rapor bulunamadi</div>';
+      html += '<div class="card" style="padding:40px;text-align:center;color:#666;font-size:13px">📭<br>Bu filtreye uyan rapor yok.</div>';
     } else {
       // Tarih bazli gruplama
       var gruplar = {};
       events.forEach(function(r) {
-        var tarih = r.palantis_gun + '/' + r.palantis_ay + '/' + r.palantis_yil;
+        var tarih = r.palantis_gun + '. ay ' + r.palantis_ay + ' / yıl ' + r.palantis_yil;
         if (!gruplar[tarih]) gruplar[tarih] = [];
         gruplar[tarih].push(r);
       });
 
       for (var tarih in gruplar) {
-        html += '<div style="font-size:10px;color:#888;margin:8px 0 4px;border-bottom:1px solid #222;padding-bottom:2px">📅 ' + tarih + ' (' + gruplar[tarih].length + ' kayit)</div>';
+        // Tarih başlığı — büyük + belirgin
+        html += '<div style="font-family:Cinzel,serif;font-size:13px;color:var(--race-color);margin:18px 0 8px;padding:6px 12px;background:rgba(212,162,87,0.08);border-left:3px solid var(--race-color);border-radius:0 4px 4px 0">' +
+          '📅 ' + tarih + ' <span style="color:#888;font-size:11px;margin-left:6px">(' + gruplar[tarih].length + ' olay)</span></div>';
+
         gruplar[tarih].forEach(function(r) {
           var renk = '#888';
           var ikon = GUILD_EVENT_IKON[r.event_type] || '•';
+          var label = GUILD_EVENT_LABEL[r.event_type] || r.event_type || 'Bilinmeyen';
           for (var kat2 in GUILD_RAPOR_KATEGORI) {
             if (GUILD_RAPOR_KATEGORI[kat2].tipler.indexOf(r.event_type) >= 0) { renk = GUILD_RAPOR_KATEGORI[kat2].renk; break; }
           }
-          html += '<div style="font-size:10px;color:#aaa;padding:2px 0;border-left:2px solid ' + renk + ';padding-left:8px">' +
-            '<span style="color:' + renk + '">' + ikon + ' ' + (r.event_type || '?') + '</span> ' + (r.mesaj || '—') +
-            (r.oyuncu_adi ? ' <span style="color:#555">(' + r.oyuncu_adi + ')</span>' : '') +
+          // Kart bazlı — daha okunabilir
+          html += '<div style="display:flex;gap:10px;padding:10px 12px;background:#0d0d0d;border:1px solid #1a1a1a;border-left:3px solid ' + renk + ';border-radius:3px;margin-bottom:6px">' +
+            '<div style="font-size:18px;flex-shrink:0">' + ikon + '</div>' +
+            '<div style="flex:1;min-width:0">' +
+              '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap">' +
+                '<span style="color:' + renk + ';font-size:11px;font-weight:bold;text-transform:uppercase;letter-spacing:0.3px">' + label + '</span>' +
+                (r.oyuncu_adi ? '<span style="color:#888;font-size:11px">· 👤 ' + r.oyuncu_adi + '</span>' : '') +
+              '</div>' +
+              '<div style="color:#d4cbb8;font-size:12px;line-height:1.4">' + (r.mesaj || '—') + '</div>' +
+            '</div>' +
           '</div>';
         });
       }
@@ -2099,7 +2130,7 @@ async function renderTabRaporlar(el, data) {
 
     el.innerHTML = html;
   } catch(e) {
-    el.innerHTML = '<div style="color:#e74c3c">Baglanti hatasi</div>';
+    el.innerHTML = '<div style="color:#e74c3c;padding:20px">Baglanti hatasi: ' + e.message + '</div>';
   }
 }
 
