@@ -203,7 +203,7 @@ function renderSavasPlanKart(p) {
       (p.ben_katildim
         ? '<span style="padding:4px 10px;background:#1a4a1a;color:#2ecc71;border-radius:3px;font-size:11px">✓ Katıldın</span>'
         : '<button class="btn-action" onclick="savasPlanKatilModal(' + p.id + ')" style="padding:4px 10px;font-size:11px;background:#8B0000;color:#fff;width:auto">⚔️ Katıl</button>') +
-      '<a href="buyucu-kulesi.html?hedef_id=' + p.hedef.player_id + '&hedef_kral=' + encodeURIComponent(p.hedef.kral) + '&kategori=dusmana" style="padding:4px 10px;background:#5a3a8a;color:#fff;border-radius:3px;font-size:11px;text-decoration:none">🔮 Büyü At</a>' +
+      '<button class="btn-action" onclick="savasOdasiAcEylemModal(' + p.hedef.player_id + ',\'' + escAttr(p.hedef.kral) + '\',' + p.hedef.koord_x + ',' + p.hedef.koord_y + ')" style="padding:4px 10px;background:#5a3a8a;color:#fff;border-radius:3px;font-size:11px;border:none;cursor:pointer">🔮 Büyü At</button>' +
       (canIptal ? '<button class="btn-action" onclick="savasPlanIptal(' + p.id + ')" style="padding:4px 10px;font-size:11px;background:#333;color:#aaa;width:auto">✕ İptal</button>' : '') +
     '</div>' +
   '</div>';
