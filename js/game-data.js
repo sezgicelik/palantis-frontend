@@ -98,6 +98,8 @@ let modalId=null;
 async function loadGameData() {
   const token = getToken();
   if (!token) return;
+  // v1.14.0.65: Skeleton UI — data yuklenene kadar body'de data-loaded class YOK
+  try { document.body.classList.remove('data-loaded'); } catch(e) {}
   try {
     // v1.13.36: Tum API cagrilari TEK Promise.all'da paralel + cache layer
     // Eskiden guild/gorev SIRALI idi (+1.2sn). Simdi hepsi paralel.
@@ -399,6 +401,9 @@ async function loadGameData() {
 
   } catch(e) {
     console.error('[loadGameData]', e);
+  } finally {
+    // v1.14.0.65: Skeleton UI bitir — success/fail fark etmez, skeleton gizle
+    try { document.body.classList.add('data-loaded'); } catch(e) {}
   }
 }
 
