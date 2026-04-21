@@ -204,6 +204,8 @@ function renderHUD(){
     <!-- Ateşkes / Tatil Banner -->
     <div id="hud-ateskes-banner" style="display:none;background:rgba(231,76,60,0.15);border-bottom:1px solid rgba(231,76,60,0.3);padding:3px 10px;text-align:center;font-size:11px;color:#e74c3c;font-family:Cinzel,serif;letter-spacing:1px">⚔️ ATEŞKES AKTİF</div>
     <div id="hud-tatil-banner" style="display:none;background:rgba(46,204,113,0.15);border-bottom:1px solid rgba(46,204,113,0.3);padding:3px 10px;text-align:center;font-size:11px;color:#2ecc71;font-family:Cinzel,serif;letter-spacing:1px">🏖️ TATİL MODU</div>
+    <!-- v1.14.0.76: Kadim sehir saldiri geri sayim banner -->
+    <div id="hud-kadim-banner" style="display:none;background:linear-gradient(90deg,rgba(155,89,182,0.18),rgba(215,120,50,0.18));border-bottom:1px solid rgba(215,120,50,0.4);padding:4px 10px;text-align:center;font-size:11px;color:#d4a257;font-family:Cinzel,serif;letter-spacing:1px;cursor:pointer" onclick="location.href='pazar.html?tab=kadim'" title="Kadim sehir saldiri durumu — ayrintilar icin tikla"></div>
     <!-- v1.13.61: YENI HUD — 1 sticky HAM satiri + 4 satir overlay detay -->
     <!-- HAM (sticky, her zaman gorunur): Odun · Kereste · Metal · Isl.Metal · Altın · Tarih + ▼ Detay -->
     <div class="hud-row-wrap">

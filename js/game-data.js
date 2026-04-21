@@ -399,6 +399,11 @@ async function loadGameData() {
       }
     } catch(e) {}
 
+    // v1.14.0.76: Kadim sehir saldiri geri sayim
+    try {
+      if (typeof loadKadimHudBanner === 'function') loadKadimHudBanner();
+    } catch(e) {}
+
   } catch(e) {
     console.error('[loadGameData]', e);
   } finally {
