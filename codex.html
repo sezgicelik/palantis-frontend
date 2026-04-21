@@ -53,6 +53,146 @@ tailwind.config = {
   .cx-warn { background:rgba(231,76,60,0.08); border-left:3px solid #e74c3c; padding:8px 12px; border-radius:0 4px 4px 0; font-size:13px; color:#f1c4bf }
   .cx-tip { background:rgba(52,152,219,0.08); border-left:3px solid #3498db; padding:8px 12px; border-radius:0 4px 4px 0; font-size:13px; color:#c4dcf1 }
   .cx-quote { font-family:'Crimson Pro',serif; font-style:italic; font-size:14px; color:#a89878; padding:6px 14px; border-left:2px solid #6a5a3a; margin:8px 0 }
+
+  /* v1.14.0.63 — MEDIEVAL/PARŞÖMEN TEMA */
+  /* Arka plan parşömen dokusu (subtle) */
+  body.codex-page .main-content {
+    background:
+      radial-gradient(ellipse at top, rgba(212,162,87,0.03), transparent 70%),
+      radial-gradient(ellipse at bottom, rgba(212,162,87,0.02), transparent 60%),
+      #0a0a0f;
+  }
+  /* Node kartı (sol sidebar ve iliskili panel) — hover medieval feel */
+  .cx-node-card {
+    transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+    position: relative;
+  }
+  .cx-node-card:hover {
+    transform: translateY(-2px) translateX(1px);
+    box-shadow: 0 4px 20px -4px rgba(212,162,87,0.35), 0 0 0 1px rgba(212,162,87,0.25);
+  }
+  .cx-node-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg, transparent 0%, rgba(212,162,87,0.08) 50%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .cx-node-card:hover::before { opacity: 1; }
+
+  /* Dekoratif baslik ornament (her cx-section-h yanina) */
+  .cx-section-h::before { content:'❖ '; opacity:0.6; font-size:10px }
+  .cx-section-h::after  { content:' ❖'; opacity:0.6; font-size:10px }
+
+  /* Node icon — medallion cerceve */
+  .cx-icon-medallion {
+    width: 64px; height: 64px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(212,162,87,0.18), rgba(212,162,87,0.05));
+    border: 2px solid rgba(212,162,87,0.35);
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.4), 0 0 12px -2px rgba(212,162,87,0.2);
+    flex-shrink: 0;
+    font-size: 34px;
+  }
+
+  /* Stat grid — medieval taş-kap görünümü */
+  .cx-stat-cell {
+    background: linear-gradient(180deg, rgba(20,18,14,0.9), rgba(14,12,8,0.9)) !important;
+    border: 1px solid rgba(212,162,87,0.15) !important;
+    position: relative;
+    overflow: hidden;
+  }
+  .cx-stat-cell::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(212,162,87,0.3), transparent);
+  }
+
+  /* Altın vurgu hover — bağlantı butonları */
+  .cx-link-btn {
+    transition: all 0.2s;
+    position: relative;
+  }
+  .cx-link-btn:hover {
+    background: rgba(212,162,87,0.1) !important;
+    border-color: #d4a257 !important;
+    transform: translateX(3px);
+  }
+
+  /* Graph canvas — altın çerçeve + parşömen arka plan */
+  #codex-graph-canvas {
+    background:
+      radial-gradient(ellipse at center, rgba(20,18,14,0.95), rgba(5,5,8,0.98)) !important;
+  }
+  .cx-graph-frame {
+    border: 2px solid rgba(212,162,87,0.35) !important;
+    box-shadow: inset 0 0 20px rgba(212,162,87,0.08), 0 0 20px -4px rgba(212,162,87,0.2);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  /* Graph fullscreen modal */
+  #codex-graph-fullscreen {
+    position: fixed; inset: 0; z-index: 9990;
+    background: rgba(5,5,8,0.98);
+    display: none;
+    flex-direction: column;
+  }
+  #codex-graph-fullscreen.on { display: flex; }
+  #codex-graph-fullscreen-header {
+    padding: 10px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(20,18,14,0.95);
+    border-bottom: 1px solid rgba(212,162,87,0.3);
+  }
+  #codex-graph-fullscreen canvas {
+    flex: 1; width: 100%; cursor: grab;
+  }
+
+  /* Altın buton hover */
+  .cx-gold-btn {
+    background: linear-gradient(135deg, #d4a257, #a67a3e);
+    color: #1a1208 !important;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(212,162,87,0.25);
+    transition: all 0.2s;
+  }
+  .cx-gold-btn:hover {
+    background: linear-gradient(135deg, #e6b168, #b88547);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(212,162,87,0.35);
+  }
+
+  /* Breadcrumb keşif animasyonu */
+  .cx-fade-in {
+    animation: fadeInPolish 0.35s ease-out;
+  }
+  @keyframes fadeInPolish {
+    from { opacity: 0; transform: translateY(12px); }
+    70% { opacity: 1; transform: translateY(-2px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Kategori butonu — aktif halde altın kenar efekti */
+  .cx-cat-active {
+    background: linear-gradient(90deg, rgba(212,162,87,0.12), transparent) !important;
+    box-shadow: inset 3px 0 0 currentColor;
+  }
+
+  /* Mobil — stat grid 2 kolon */
+  @media (max-width: 640px) {
+    .cx-icon-medallion { width: 48px; height: 48px; font-size: 24px; }
+    .cx-section-h { font-size: 12px; }
+  }
 </style>
 </head>
 <body class="bg-nox-dark text-nox-text codex-page">
@@ -61,6 +201,22 @@ tailwind.config = {
   <div id="sidebar-mount"></div>
   <div class="main-content p-0 md:p-4">
     <div id="codex-root"></div>
+  </div>
+</div>
+
+<!-- v1.14.0.63 Graph fullscreen modal -->
+<div id="codex-graph-fullscreen">
+  <div id="codex-graph-fullscreen-header">
+    <span style="font-family:'Cinzel Decorative',serif;font-size:16px;color:#d4a257">📖 Codex Graph</span>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span id="codex-graph-fullscreen-info" style="font-size:11px;color:#888"></span>
+      <button onclick="document.getElementById('codex-graph-fullscreen').classList.remove('on');window._codexGraphFullscreen=false" style="background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.4);color:#e74c3c;padding:6px 14px;border-radius:4px;cursor:pointer;font-family:'Cinzel',serif;font-size:11px">✕ Kapat (ESC)</button>
+    </div>
+  </div>
+  <canvas id="codex-graph-fs-canvas" style="flex:1;touch-action:none"></canvas>
+  <div style="padding:6px 16px;font-size:11px;color:#888;background:rgba(20,18,14,0.95);border-top:1px solid rgba(212,162,87,0.2);display:flex;justify-content:space-between;align-items:center;gap:8px">
+    <span>🖱 Sürükle · 🖲 Wheel zoom · 👆 Tıkla = Detay · 📱 Pinch zoom</span>
+    <span id="codex-graph-fs-meta"></span>
   </div>
 </div>
 
@@ -163,7 +319,7 @@ function GraphView({ cag, kesfedilen, onSec, filtreliNodes, seciliId }) {
   const nodesRef = useRef([]);
   const edgesRef = useRef([]);
   const rafRef = useRef(null);
-  const panRef = useRef({ x: 0, y: 0, dragging: false, lastX: 0, lastY: 0 });
+  const panRef = useRef({ x: 0, y: 0, dragging: false, lastX: 0, lastY: 0, zoom: 1, pinchDist: 0 });
   const hoveredRef = useRef(null);
   const [hoveredId, setHoveredId] = useState(null);
   const [edgeCount, setEdgeCount] = useState(0);
@@ -252,7 +408,11 @@ function GraphView({ cag, kesfedilen, onSec, filtreliNodes, seciliId }) {
       // render
       ctx.clearRect(0, 0, r.width, r.height);
       ctx.save();
-      ctx.translate(panRef.current.x, panRef.current.y);
+      // Zoom: ekran merkezi etrafinda + pan
+      const zoom = panRef.current.zoom || 1;
+      ctx.translate(r.width/2 + panRef.current.x, r.height/2 + panRef.current.y);
+      ctx.scale(zoom, zoom);
+      ctx.translate(-r.width/2, -r.height/2);
       // edges
       ctx.globalAlpha = 0.25;
       for (const e of edges) {
@@ -296,11 +456,15 @@ function GraphView({ cag, kesfedilen, onSec, filtreliNodes, seciliId }) {
 
     function getPointerNode(evt) {
       const r = canvas.getBoundingClientRect();
-      const x = evt.clientX - r.left - panRef.current.x;
-      const y = evt.clientY - r.top - panRef.current.y;
+      const zoom = panRef.current.zoom || 1;
+      // Ekran koordinatindan canvas koordinatina (zoom + pan ters uygula)
+      const cx = r.width / 2, cy = r.height / 2;
+      const x = (evt.clientX - r.left - cx - panRef.current.x) / zoom + cx;
+      const y = (evt.clientY - r.top  - cy - panRef.current.y) / zoom + cy;
+      const hitR = 20 / zoom; // zoom içinde node yarıçapı
       for (const n of nodesRef.current) {
         const dx = n.x - x, dy = n.y - y;
-        if (dx*dx + dy*dy < 20*20) return n;
+        if (dx*dx + dy*dy < hitR*hitR) return n;
       }
       return null;
     }
@@ -321,10 +485,40 @@ function GraphView({ cag, kesfedilen, onSec, filtreliNodes, seciliId }) {
       panRef.current.lastX = e.clientX; panRef.current.lastY = e.clientY;
     }
     function onUp() { panRef.current.dragging = false; }
+    // Wheel zoom
+    function onWheel(e) {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? 0.9 : 1.1;
+      panRef.current.zoom = Math.max(0.3, Math.min(3, (panRef.current.zoom || 1) * delta));
+    }
+    // Touch pinch zoom
+    function onTouchStart(e) {
+      if (e.touches.length === 2) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        panRef.current.pinchDist = Math.sqrt(dx*dx + dy*dy);
+      }
+    }
+    function onTouchMove(e) {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (panRef.current.pinchDist > 0) {
+          const factor = dist / panRef.current.pinchDist;
+          panRef.current.zoom = Math.max(0.3, Math.min(3, (panRef.current.zoom || 1) * factor));
+        }
+        panRef.current.pinchDist = dist;
+      }
+    }
 
     canvas.addEventListener('pointermove', onMove);
     canvas.addEventListener('pointerdown', onDown);
     window.addEventListener('pointerup', onUp);
+    canvas.addEventListener('wheel', onWheel, { passive: false });
+    canvas.addEventListener('touchstart', onTouchStart, { passive: true });
+    canvas.addEventListener('touchmove', onTouchMove, { passive: false });
 
     return () => {
       cancelAnimationFrame(rafRef.current);
@@ -332,14 +526,26 @@ function GraphView({ cag, kesfedilen, onSec, filtreliNodes, seciliId }) {
       canvas.removeEventListener('pointermove', onMove);
       canvas.removeEventListener('pointerdown', onDown);
       window.removeEventListener('pointerup', onUp);
+      canvas.removeEventListener('wheel', onWheel);
+      canvas.removeEventListener('touchstart', onTouchStart);
+      canvas.removeEventListener('touchmove', onTouchMove);
     };
   }, [cag, seciliId, hoveredId]);
 
   return (
-    <div className="relative w-full h-[60vh] md:h-[70vh] bg-black/30 rounded border border-white/10">
+    <div className="cx-graph-frame relative w-full h-[60vh] md:h-[70vh] bg-black/30">
       <canvas id="codex-graph-canvas" ref={canvasRef} className="absolute inset-0 w-full h-full" />
       <div className="absolute top-2 left-2 bg-black/70 text-xs px-2 py-1 rounded pointer-events-none text-nox-dim">
-        {filtreliNodes.length} node · {edgeCount} bağlantı · sürükle/tıkla
+        {filtreliNodes.length} node · {edgeCount} bağlantı
+      </div>
+      <div className="absolute top-2 right-2 flex gap-1">
+        <button onClick={() => {
+          const fs = document.getElementById('codex-graph-fullscreen');
+          if (fs) { fs.classList.add('on'); window._codexGraphFullscreen = true; }
+        }} className="bg-black/70 hover:bg-nox-gold/20 text-xs px-2 py-1 rounded text-nox-gold border border-nox-gold/30" title="Tam ekran">⛶ Tam Ekran</button>
+      </div>
+      <div className="absolute bottom-2 right-2 text-[10px] text-nox-dim bg-black/70 px-2 py-1 rounded pointer-events-none">
+        🖱 Sürükle · 🖲 Wheel zoom · 👆 Tıkla
       </div>
     </div>
   );
@@ -352,7 +558,7 @@ function StatGrid({ stats }) {
   return (
     <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 my-3">
       {entries.map(([k, v]) => (
-        <div key={k} className="bg-black/30 rounded p-2 text-center border border-white/5">
+        <div key={k} className="cx-stat-cell rounded p-2 text-center">
           <div className="text-[10px] uppercase tracking-wider text-nox-dim">{k}</div>
           <div className="text-sm font-bold text-nox-gold cx-h">{v}</div>
         </div>
@@ -365,9 +571,9 @@ function NodeKart({ node, onClick, kilitli, kesfedilen }) {
   const kat = KATEGORILER.find(k => k.id === node.kategori);
   return (
     <button onClick={onClick}
-      className={`text-left p-3 rounded border transition hover:-translate-y-0.5 ${kilitli ? 'cx-kilit border-white/10 opacity-60' : 'border-white/10 hover:border-nox-gold'}`}
+      className={`cx-node-card text-left p-3 rounded border ${kilitli ? 'cx-kilit border-white/10 opacity-60' : 'border-white/10'}`}
       style={{ background: kilitli ? 'rgba(20,18,14,0.4)' : 'rgba(20,18,14,0.85)' }}>
-      <div className="flex items-center gap-2 mb-1">
+      <div className="flex items-center gap-2 mb-1 relative z-[1]">
         <span className="text-2xl">{kilitli ? '🔒' : node.ikon}</span>
         <div className="flex-1 min-w-0">
           <div className="text-sm font-bold truncate" style={{ color: kat?.renk || '#d4a257' }}>
@@ -408,7 +614,7 @@ function NodeDetay({ node, onGit, breadcrumb, geri, kilitli }) {
         </div>
       )}
       <div className="flex items-start gap-3 mb-3">
-        <div className="text-5xl">{node.ikon}</div>
+        <div className="cx-icon-medallion">{node.ikon}</div>
         <div className="flex-1 min-w-0">
           <div className="cx-h-big text-xl md:text-2xl" style={{ color: kat?.renk || '#d4a257' }}>{node.baslik}</div>
           <div className="flex items-center gap-2 mt-1 text-xs flex-wrap">
@@ -490,7 +696,7 @@ function IliskiliPanel({ node, nodeMap, onGit, cag }) {
                 const kat = KATEGORILER.find(k => k.id === n.kategori);
                 return (
                   <button key={n.id} onClick={() => onGit(n.id)}
-                    className="text-left p-2 rounded border transition hover:-translate-x-0.5 hover:border-nox-gold flex items-center gap-2"
+                    className="cx-link-btn text-left p-2 rounded border flex items-center gap-2"
                     style={{ borderColor: 'rgba(255,255,255,0.08)', background: 'rgba(20,18,14,0.5)' }}>
                     <span className="text-base">{kilitli ? '🔒' : n.ikon}</span>
                     <span className="text-sm flex-1 truncate" style={{ color: kat?.renk || '#d4a257' }}>
@@ -587,9 +793,53 @@ function CodexApp() {
         e.preventDefault();
         document.getElementById('codex-arama-input')?.focus();
       }
+      // v1.14.0.63 — ESC kapat fullscreen
+      if (e.key === 'Escape') {
+        const fs = document.getElementById('codex-graph-fullscreen');
+        if (fs && fs.classList.contains('on')) {
+          fs.classList.remove('on');
+          window._codexGraphFullscreen = false;
+        }
+      }
     };
     window.addEventListener('keydown', h);
     return () => window.removeEventListener('keydown', h);
+  }, []);
+
+  // v1.14.0.63 — Fullscreen acildiginda canvas'i tasimak icin observer
+  useEffect(() => {
+    const fs = document.getElementById('codex-graph-fullscreen');
+    if (!fs) return;
+    const mo = new MutationObserver(() => {
+      const isOpen = fs.classList.contains('on');
+      const srcCanvas = document.getElementById('codex-graph-canvas');
+      const fsCanvasSlot = fs.querySelector('canvas');
+      if (!srcCanvas) return;
+      if (isOpen && fsCanvasSlot) {
+        // Normal canvas'i fullscreen slot'a tasi (parent degisir, ref aynı)
+        if (srcCanvas.parentElement !== fs) {
+          srcCanvas.dataset._originalParent = 'true';
+          fsCanvasSlot.replaceWith(srcCanvas);
+          // Fullscreen'de daha buyuk
+          srcCanvas.style.cssText = 'flex:1;width:100%;height:100%;touch-action:none;background:radial-gradient(ellipse at center,rgba(20,18,14,0.95),rgba(5,5,8,0.98))';
+        }
+      } else if (!isOpen && srcCanvas.parentElement === fs) {
+        // Geri tasi
+        const frame = document.querySelector('.cx-graph-frame');
+        if (frame) {
+          srcCanvas.style.cssText = '';
+          srcCanvas.className = 'absolute inset-0 w-full h-full';
+          frame.insertBefore(srcCanvas, frame.firstChild);
+          // Fullscreen slot'u geri ekle (yeni canvas, gerektiginde)
+          const newSlot = document.createElement('canvas');
+          newSlot.id = 'codex-graph-fs-canvas';
+          newSlot.style.cssText = 'flex:1;touch-action:none';
+          fs.insertBefore(newSlot, fs.children[1]);
+        }
+      }
+    });
+    mo.observe(fs, { attributes: true, attributeFilter: ['class'] });
+    return () => mo.disconnect();
   }, []);
 
   return (
