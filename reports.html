@@ -500,8 +500,20 @@
 
     const urlParams = new URLSearchParams(window.location.search);
     const tabParam = urlParams.get('tab');
+    const raporParam = urlParams.get('rapor'); // v1.14.0.69: Telegram rapor linki
     document.addEventListener('DOMContentLoaded', () => {
       const openTab = () => {
+        // Rapor paramı varsa Savaşlarım sekmesini zorla + modal'ı otomatik aç
+        if (raporParam) {
+          const btn = document.getElementById('rtab-btn-savaslarim');
+          if (btn) reportTab('savaslarim', btn);
+          setTimeout(() => {
+            if (typeof openSavasRaporFromLog === 'function') {
+              openSavasRaporFromLog(parseInt(raporParam));
+            }
+          }, 500);
+          return;
+        }
         if (tabParam) {
           const btn = document.getElementById('rtab-btn-' + tabParam);
           if (btn) reportTab(tabParam, btn);
