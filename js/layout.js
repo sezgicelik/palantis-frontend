@@ -132,6 +132,7 @@ function renderSidebar(){
 
       <a id="menu-guild" href="guild.html" class="menu-item${isActive('guild.html')}" style="display:none">🏰 Guild</a>
       <a href="reports.html" class="menu-item${isActive('reports.html')}">📊 Raporlar</a>
+      <a href="reports.html?tab=savaslarim" class="menu-item sub-item" style="padding-left:28px;font-size:12px;color:#c8a96e">⚔️ Savaşlarım</a>
       <a href="siralama.html" class="menu-item${isActive('siralama.html')}">🏆 Sıralamalar</a>
       <a href="artifact.html" class="menu-item${isActive('artifact.html')}">🧰 Artifactlar</a>
       <a href="gorev.html" class="menu-item${isActive('gorev.html')}">📜 Görevler <span id="gorev-badge" style="display:none;background:#e74c3c;color:#fff;font-size:11px;padding:1px 5px;border-radius:8px;margin-left:4px"></span></a>

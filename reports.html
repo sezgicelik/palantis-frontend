@@ -20,11 +20,26 @@
     <!-- Rapor Sekmeleri -->
     <div class="army-tabs" style="margin-bottom:20px">
       <button class="atab on" id="rtab-btn-sehir" onclick="reportTab('sehir',this)">🏙️ Şehir</button>
-      <button class="atab" id="rtab-btn-askeri" onclick="reportTab('askeri',this)">⚔️ Askeri</button>
+      <button class="atab" id="rtab-btn-savaslarim" onclick="reportTab('savaslarim',this)">⚔️ Savaşlarım</button>
+      <button class="atab" id="rtab-btn-askeri" onclick="reportTab('askeri',this)">🛡️ Askeri</button>
       <button class="atab" id="rtab-btn-koloni" onclick="reportTab('koloni',this)">🏰 Koloni</button>
       <button class="atab" id="rtab-btn-ekonomi" onclick="reportTab('ekonomi',this)">💰 Ekonomi</button>
       <button class="atab" id="rtab-btn-ticaret" onclick="reportTab('ticaret',this)">🏪 Ticaret</button>
       <button class="atab" id="rtab-btn-ozet-tablo" onclick="reportTab('ozet-tablo',this)">📊 Ozet Tablo</button>
+    </div>
+
+    <!-- v1.14.0.68: Savaşlarım sekmesi (dedicated PvP report list) -->
+    <div id="rtab-savaslarim" class="report-section" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+        <h2 style="color:#c8a96e;font-family:'Cinzel',serif;margin:0;font-size:clamp(16px,4vw,22px)">⚔️ Savaşlarım</h2>
+        <button class="btn-action" onclick="loadSavaslarim()" style="padding:4px 14px;font-size:11px;width:auto">↻ Yenile</button>
+      </div>
+      <p style="font-size:11px;color:#888;margin-bottom:12px">Son 20 PvP & Koloni savaşı. Satıra tıklayınca detaylı rapor açılır.</p>
+      <div id="savaslarim-loading" style="color:#888;font-size:13px;text-align:center;padding:40px">Yükleniyor...</div>
+      <div id="savaslarim-list" style="display:none"></div>
+      <div id="savaslarim-empty" style="display:none;color:#777;font-size:13px;text-align:center;padding:40px">
+        Henüz savaş yok.<br><small style="color:#555">Saldırı yap veya savun — savaş raporun burada görünür.</small>
+      </div>
     </div>
 
     <!-- Şehir Raporları -->
@@ -160,6 +175,52 @@
       }
       if (tab === 'askeri' || tab === 'ekonomi' || tab === 'ticaret' || tab === 'koloni') loadFilteredReport(tab);
       if (tab === 'ozet-tablo') { loadOzetTablo(); }
+      if (tab === 'savaslarim') { loadSavaslarim(); }
+    }
+
+    // v1.14.0.68: Savaşlarım — dedicated PvP/Koloni savaş listesi
+    async function loadSavaslarim() {
+      const token = getToken(); if (!token) return;
+      const loading = document.getElementById('savaslarim-loading');
+      const list    = document.getElementById('savaslarim-list');
+      const empty   = document.getElementById('savaslarim-empty');
+      loading.style.display = 'block'; list.style.display = 'none'; empty.style.display = 'none';
+      try {
+        const r = await fetch(API_BASE + '/api/savas/gecmis', { headers:{ 'Authorization':'Bearer '+token } });
+        const rows = await r.json();
+        loading.style.display = 'none';
+        if (!Array.isArray(rows) || !rows.length) { empty.style.display='block'; return; }
+        // Oyuncu id'yi bul (benim_taraf'i ayirt etmek icin)
+        let myId = null;
+        try { const meR = await fetch(API_BASE + '/api/player/profil', { headers:{ 'Authorization':'Bearer '+token } }); const me = await meR.json(); myId = me.player?.id || me.id || null; } catch{}
+        const fmt = (x) => x ? new Date(x).toLocaleString('tr-TR') : '-';
+        const html = rows.map(s => {
+          const benSaldiran = s.saldiran_id === myId;
+          const benKazandim = s.kazanan_id === myId;
+          const rakip = benSaldiran ? (s.savunan_adi || 'Savunan') : (s.saldiran_adi || 'Saldiran');
+          const tipIcon = s.tip === 'koloni' ? '🏰' : '⚔️';
+          const yonIcon = benSaldiran ? '🗡️ Saldırdım' : '🛡️ Savundum';
+          const sonuc = s.kazanan_id ? (benKazandim ? '<span style="color:#2ecc71;font-weight:bold">✓ Kazandım</span>' : '<span style="color:#e74c3c;font-weight:bold">✗ Kaybettim</span>') : '<span style="color:#888">Berabere</span>';
+          return `<div onclick="openSavasRaporFromLog(${s.id})" style="padding:10px 12px;background:#0d0d0d;border:1px solid #1a1a1a;border-left:3px solid ${benKazandim?'#2ecc71':(s.kazanan_id?'#e74c3c':'#888')};border-radius:4px;margin-bottom:6px;cursor:pointer;transition:background .1s" onmouseover="this.style.background='rgba(201,168,76,0.08)'" onmouseout="this.style.background='#0d0d0d'">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                <span style="font-size:16px">${tipIcon}</span>
+                <span style="font-size:11px;color:#888">${yonIcon}</span>
+                <span style="font-size:13px;color:#e8dcc8;font-weight:600">${rakip}</span>
+                <span style="font-size:10px;color:#666">(${s.tip||'pvp'})</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                ${sonuc}
+                <span style="font-size:10px;color:#666">${fmt(s.created_at)}</span>
+                <span style="font-size:10px;color:#c8a96e">raporu gör ›</span>
+              </div>
+            </div>
+          </div>`;
+        }).join('');
+        list.innerHTML = html; list.style.display = 'block';
+      } catch(e) {
+        loading.textContent = 'Hata: ' + e.message;
+      }
     }
 
     // ═══ v1.13.26: Ozet Tablo (Excel tarzi) ═══
