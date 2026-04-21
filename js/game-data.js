@@ -423,9 +423,14 @@ async function loadBuildingsFromBackend() {
     });
     if (!resp.ok) return;
     const buildings = await resp.json();
+    // v1.14.0.60: İnşaat mod bilgisi — BLDGS dışında ayrı global
+    window._insaatInfo = buildings._insaat || { mod: 'klasik' };
+    delete buildings._insaat;
     let usedArea = 0;
     for (const [binaId, data] of Object.entries(buildings)) {
       if (BLDGS[binaId]) {
+        // Kilit koylu aktar
+        BLDGS[binaId]._kilitKoylu = data.kilitKoylu || 0;
         if (data.inQueue && data.queueEnd) {
           const endTime = new Date(data.queueEnd).getTime();
           if (Date.now() >= endTime) {

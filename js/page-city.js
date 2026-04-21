@@ -3,9 +3,44 @@
    Extracted from index.html
 ══════════════════════════════════ */
 
+// v1.14.0.60: İnşaat modu banner — kilit/slot/usta durumu göster
+function renderInsaatBanner() {
+  const el = document.getElementById('insaat-mod-banner');
+  if (!el) return;
+  const info = window._insaatInfo;
+  if (!info || info.mod === 'klasik') { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  let icerik = '';
+  if (info.mod === 'kilit') {
+    icerik = `<div style="padding:10px 14px;background:rgba(52,152,219,0.08);border:1px solid rgba(52,152,219,0.3);border-left:3px solid #3498db;border-radius:4px;font-size:12px;color:#6db3e0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <span>🔒 <b>Kilit Modu</b> — İnşaat başladığında köylüler meşgul olur.</span>
+      <span style="color:#aaa">Meşgul: <b style="color:#e67e22">${info.insaat_kilitli}</b> · Boş: <b style="color:#2ecc71">${info.bos_koylu_reel}</b></span>
+    </div>`;
+  } else if (info.mod === 'slot') {
+    const aktif = info.slot_dolu || 0;
+    const max = info.slot_sayisi || 2;
+    icerik = `<div style="padding:10px 14px;background:rgba(155,89,182,0.08);border:1px solid rgba(155,89,182,0.3);border-left:3px solid #9b59b6;border-radius:4px;font-size:12px;color:#b894c9;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <span>⚙️ <b>Slot Modu</b> — Aynı anda birden fazla bina paralel yapılabilir.</span>
+      <span style="color:#aaa">Slot: <b style="color:#d4a257">${aktif}/${max}</b> dolu ${aktif >= max ? '<span style="color:#e74c3c">(DOLU — yeni inşaat kuyruğa alınamaz)</span>' : ''}</span>
+    </div>`;
+  } else if (info.mod === 'hizlandirma') {
+    icerik = `<div style="padding:10px 14px;background:rgba(230,126,34,0.08);border:1px solid rgba(230,126,34,0.3);border-left:3px solid #e67e22;border-radius:4px;font-size:12px;color:#e8a56b;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <span>⚡ <b>Hızlandırma Modu</b> — Kuyrukta olan binaya ek köylü atayarak süreyi azaltabilirsin (%${info.hizlandirma_oran_yuzde}/köylü, max ${info.hizlandirma_max_koylu}).</span>
+      <span style="color:#aaa">Meşgul: <b style="color:#e67e22">${info.insaat_kilitli}</b> · Boş: <b style="color:#2ecc71">${info.bos_koylu_reel}</b></span>
+    </div>`;
+  } else if (info.mod === 'usta_basi') {
+    icerik = `<div style="padding:10px 14px;background:rgba(22,160,133,0.08);border:1px solid rgba(22,160,133,0.3);border-left:3px solid #16a085;border-radius:4px;font-size:12px;color:#48c9b0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <span>🧔 <b>Usta Başı Modu</b> — Her inşaat 1 usta başı rezerve eder. Akademi ile yetiştir.</span>
+      <span style="color:#aaa">Usta Başı: <b style="color:#d4a257">${info.usta_basi}/${info.usta_basi_max}</b> ${info.usta_basi === 0 ? '<span style="color:#e74c3c">(TÜKENDİ)</span>' : ''}</span>
+    </div>`;
+  }
+  el.innerHTML = icerik;
+}
+
 function renderGrid(){
   const grid=document.getElementById('bg-grid');
   if(!grid)return;
+  renderInsaatBanner();
   const inQ=new Set(QUEUE.map(q=>q.id));
   const list=Object.values(BLDGS).filter(b=>activeCat==='all'||b.cat===activeCat);
   grid.innerHTML='';
@@ -68,6 +103,16 @@ function renderBinaRow(grid, b, inQ, oyuncuCag) {
     const sureSaniye = isMergeOnly ? 0 : (typeof b.time === 'function' ? b.time(1) : b.time || 3600);
     const surePG = sureSaniye / 3600;
     const limitLabel = cagSinirsiz ? '' : (cagLimiti > 0 ? `<span style="color:#888;font-size:11px"> (${b.lv}/${cagLimiti})</span>` : '');
+    // v1.14.0.60: İnşaat modu — ek UI buton/badge
+    const iInfo = window._insaatInfo || { mod: 'klasik' };
+    const koyluMaliyet = iInfo.bina_koylu?.[b.id] || 0;
+    const koyluBadge = (iInfo.mod !== 'klasik' && koyluMaliyet > 0)
+      ? `<span style="font-size:9px;padding:1px 5px;background:rgba(52,152,219,0.15);color:#3498db;border:1px solid rgba(52,152,219,0.3);border-radius:3px;margin-left:3px" title="Bu bina ${koyluMaliyet} köylü meşgul eder">👷 ${koyluMaliyet}</span>`
+      : '';
+    const hizlandirBtn = (inC && iInfo.mod === 'hizlandirma')
+      ? `<button class="btn-sm" style="margin-left:3px;padding:1px 6px;font-size:10px;background:rgba(230,126,34,0.15);border:1px solid rgba(230,126,34,0.4);color:#e67e22;border-radius:3px;cursor:pointer" onclick="hizlandirModal('${b.id}','${b.name.replace(/'/g,"\\'")}')">⚡ Hızlandır</button>`
+      : '';
+
     let action;
     if(cagKilitli) {
       let acilisCag = 6;
@@ -77,8 +122,8 @@ function renderBinaRow(grid, b, inQ, oyuncuCag) {
     else if(limitDoldu) action=`<span style="color:#f59e0b;font-size:10px;font-family:'Cinzel',serif">\u26a0\ufe0f Limit doldu (${cagLimiti})</span>`;
     // v1.13.42.2: Kuyrukta olsa bile INSA butonu aktif (kalan_insa artirabilmek icin)
     else if(isMergeOnly) action=`<span style="color:#888;font-size:10px">\ud83d\udd17 Birlestirme ile olusur</span>`;
-    else if(inC) action=`<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap"><span style="color:#2ecc71;font-size:10px;font-family:'Cinzel',serif">\ud83d\udd28 Insada</span><button class="btn-sm" ${afford?'':'disabled'} onclick="openModal('${b.id}')">+ INSA</button></div>`;
-    else action=`<button class="btn-sm" ${afford?'':'disabled'} onclick="openModal('${b.id}')">\ud83c\udfd7\ufe0f INSA</button>`;
+    else if(inC) action=`<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap"><span style="color:#2ecc71;font-size:10px;font-family:'Cinzel',serif">\ud83d\udd28 Insada</span>${b._kilitKoylu > 0 ? `<span style="font-size:9px;padding:1px 5px;background:rgba(243,156,18,0.15);color:#e67e22;border-radius:3px">👷 ${b._kilitKoylu} meşgul</span>` : ''}<button class="btn-sm" ${afford?'':'disabled'} onclick="openModal('${b.id}')">+ INSA</button>${hizlandirBtn}</div>`;
+    else action=`<button class="btn-sm" ${afford?'':'disabled'} onclick="openModal('${b.id}')">\ud83c\udfd7\ufe0f INSA</button>${koyluBadge}`;
     const mergeKural=BINA_BIRLESTIRME_FE[b.id];
     let mergeBtn='';
     if(mergeKural){
@@ -340,6 +385,41 @@ async function topluTamir() {
       renderGrid();
     } else {
       alert(data.error || 'Toplu tamir hatası');
+    }
+  } catch(e) { alert('Sunucu hatası: ' + e.message); }
+}
+
+// v1.14.0.60: Hızlandırma modal (Hızlandırma modunda inşaata ek köylü ekle)
+async function hizlandirModal(binaId, binaName) {
+  const info = window._insaatInfo || {};
+  const maxKoylu = Math.min(info.hizlandirma_max_koylu || 20, info.bos_koylu_reel || 0);
+  if (maxKoylu <= 0) { alert('Boş köylün yok — hızlandırma için köylü gerekli.'); return; }
+  const oran = info.hizlandirma_oran_yuzde || 5;
+  const girdi = prompt(
+    `⚡ ${binaName} inşaatını hızlandır\n\n` +
+    `Her ek köylü: %${oran} süre azaltır\n` +
+    `Maksimum: ${maxKoylu} köylü (%${Math.min(100, maxKoylu*oran)} hızlanma)\n` +
+    `Boş köylün: ${info.bos_koylu_reel}\n\n` +
+    `Kaç köylü atamak istersin? (1-${maxKoylu})`,
+    String(Math.min(5, maxKoylu))
+  );
+  const ek = parseInt(girdi);
+  if (!ek || ek < 1 || ek > maxKoylu) return;
+  try {
+    const resp = await fetch(API_BASE + '/api/game/buildings/hizlandir', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + getToken(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bina_id: binaId, ek_koylu: ek })
+    });
+    const data = await resp.json();
+    if (data.success) {
+      toast(`⚡ ${ek} köylü atandı — süre %${data.azaltma_yuzde} azaldı`);
+      if (typeof loadBuildingsFromBackend === 'function') await loadBuildingsFromBackend();
+      if (typeof loadNufus === 'function') loadNufus();
+      renderGrid();
+      renderQueue();
+    } else {
+      alert(data.error || 'Hızlandırma hatası');
     }
   } catch(e) { alert('Sunucu hatası: ' + e.message); }
 }
