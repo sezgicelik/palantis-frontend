@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noxara — Baglanti Yok</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css?v=13460">
+<style>
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(ellipse at top, rgba(212,162,87,0.06), transparent 70%),
+      radial-gradient(ellipse at bottom, rgba(212,162,87,0.03), transparent 60%),
+      #0a0a0f;
+    font-family: 'Crimson Pro', serif;
+    color: #e8dcc8;
+    padding: 20px;
+  }
+  .offline-card {
+    max-width: 560px;
+    padding: 40px 32px;
+    background: rgba(20,18,14,0.85);
+    border: 2px solid rgba(212,162,87,0.35);
+    border-radius: 12px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(212,162,87,0.2);
+    text-align: center;
+    position: relative;
+  }
+  .offline-card::before, .offline-card::after {
+    content: '❖';
+    position: absolute;
+    color: rgba(212,162,87,0.4);
+    font-size: 18px;
+  }
+  .offline-card::before { top: 12px; left: 16px; }
+  .offline-card::after { bottom: 12px; right: 16px; }
+  .offline-icon { font-size: 64px; margin-bottom: 16px; }
+  .offline-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 26px;
+    color: #d4a257;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+  .offline-msg {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #c8c0ad;
+    margin-bottom: 20px;
+  }
+  .offline-tip {
+    font-size: 13px;
+    color: #888;
+    padding: 10px 14px;
+    background: rgba(52,152,219,0.06);
+    border-left: 3px solid #3498db;
+    border-radius: 0 4px 4px 0;
+    text-align: left;
+    margin-bottom: 20px;
+  }
+  .offline-btn {
+    display: inline-block;
+    padding: 10px 24px;
+    background: linear-gradient(135deg, #d4a257, #a67a3e);
+    color: #1a1208;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    letter-spacing: 1.5px;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(212,162,87,0.25);
+    transition: all 0.2s;
+  }
+  .offline-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(212,162,87,0.4);
+  }
+  .offline-status {
+    margin-top: 16px;
+    font-size: 11px;
+    color: #666;
+  }
+  .offline-status .dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #e74c3c;
+    margin-right: 6px;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+</style>
+</head>
+<body>
+  <div class="offline-card">
+    <div class="offline-icon">🏰</div>
+    <div class="offline-title">Baglanti Yok</div>
+    <div class="offline-msg">
+      Kralligina ulasilamiyor. İnternetin kesilmis ya da sunucu gecici olarak erisilemez.
+    </div>
+    <div class="offline-tip">
+      💡 <b>Ipucu:</b> Oyun verileri tarayicinda onbelleklendi — internet geri gelince
+      kaldigin yerden devam edebilirsin. Hicbir ilerlemen kaybolmaz.
+    </div>
+    <a href="/" class="offline-btn">🔄 Tekrar Dene</a>
+    <div class="offline-status">
+      <span class="dot"></span>
+      <span id="online-status">Baglanti kontrolu...</span>
+    </div>
+  </div>
+  <script>
+    function checkOnline() {
+      const el = document.getElementById('online-status');
+      if (navigator.onLine) {
+        el.innerHTML = '<span class="dot" style="background:#2ecc71;animation:none"></span> İnternet bagli — yenile';
+      } else {
+        el.innerHTML = 'Cevrimdisi';
+      }
+    }
+    checkOnline();
+    window.addEventListener('online', () => {
+      checkOnline();
+      setTimeout(() => window.location.href = '/', 1000);
+    });
+    window.addEventListener('offline', checkOnline);
+  </script>
+</body>
+</html>

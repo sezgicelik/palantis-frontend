@@ -1,12 +1,13 @@
 // v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
 // Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
-const CACHE_NAME = 'noxara-v56'; // v1.14.0.44 guildler.taraf kurulusta sabit (lider degisse de degismez)
+const CACHE_NAME = 'noxara-v67'; // v1.14.0.67 PWA tam entegrasyon: offline fallback + global register
 
 // Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [
   './',
   './index.html',
   './home.html',
+  './offline.html',
   './manifest.json',
   './css/main.css',
   './icons/icon-192.svg',
@@ -104,7 +105,11 @@ async function networkFirst(req) {
   } catch (e) {
     const cached = await caches.match(req);
     if (cached) return cached;
-    // Network yok + cache'de de yok → 503
+    // Network yok + cache'de de yok → offline.html fallback (navigate için)
+    if (req.destination === 'document' || req.headers.get('accept')?.includes('text/html')) {
+      const offline = await caches.match('./offline.html');
+      if (offline) return offline;
+    }
     return new Response('Offline ve cache yok', { status: 503, statusText: 'Offline' });
   }
 }
