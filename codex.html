@@ -37,6 +37,8 @@ tailwind.config = {
   .cx-pulse { animation: pulse 1.8s infinite }
   @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: 0.6 } }
   .cx-kilit { background: repeating-linear-gradient(45deg, rgba(50,50,50,0.1), rgba(50,50,50,0.1) 8px, transparent 8px, transparent 16px) }
+  #codex-graph-canvas { cursor: grab; touch-action: none }
+  #codex-graph-canvas:active { cursor: grabbing }
 </style>
 </head>
 <body class="bg-nox-dark text-nox-text">
@@ -56,339 +58,76 @@ tailwind.config = {
 <script src="js/hud.js"></script>
 <script src="js/nufus-render.js"></script><script src="js/layout.js?v=13422"></script>
 
-<!-- React 18 UMD + Babel JSX transform (tek dosya sadelik icin build yok) -->
+<!-- Externalize data (palette + tooltip ile paylasimli) -->
+<script src="js/codex-data.js?v=13454"></script>
+
+<!-- React 18 UMD + Babel JSX -->
 <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
 <script type="text/babel" data-type="module">
 /* ═══════════════════════════════════════════════════════
-   NOXARA CODEX — Kesif Kitabi (v1.14.0.53 MVP)
-   20 node, 11 kategori, kilit mantigi, search, breadcrumb
+   NOXARA CODEX — v1.14.0.54
+   - Data externalize (codex-data.js)
+   - Backend discovered API + localStorage fallback
+   - Graph view (canvas force-directed)
+   - Ctrl+K search
 ═══════════════════════════════════════════════════════ */
 
-const { useState, useMemo, useEffect, useRef } = React;
+const { useState, useMemo, useEffect, useRef, useCallback } = React;
 
-/* ══ KATEGORILER ══ */
-const KATEGORILER = [
-  { id:'unite',  isim:'Üniteler',  ikon:'⚔️', renk:'#e74c3c' },
-  { id:'bina',   isim:'Binalar',   ikon:'🏛️', renk:'#c9a84c' },
-  { id:'kaynak', isim:'Kaynaklar', ikon:'💎', renk:'#3498db' },
-  { id:'savas',  isim:'Savaş',     ikon:'🛡️', renk:'#9b59b6' },
-  { id:'buyu',   isim:'Büyüler',   ikon:'🔮', renk:'#8e44ad' },
-  { id:'casus',  isim:'Casus',     ikon:'🕵️', renk:'#2ecc71' },
-  { id:'cag',    isim:'Çağ',       ikon:'⏳', renk:'#f39c12' },
-  { id:'moral',  isim:'Moral',     ikon:'😊', renk:'#1abc9c' },
-  { id:'guild',  isim:'Guild',     ikon:'🏰', renk:'#16a085' },
-  { id:'kadim',  isim:'Kadim',     ikon:'🏺', renk:'#d4af37' },
-  { id:'irk',    isim:'Irklar',    ikon:'👑', renk:'#e67e22' },
-];
+const KATEGORILER = window.CODEX_KATEGORILER;
+const NODES = window.CODEX_NODES;
+const BAG_LABEL = window.CODEX_BAG_LABEL;
 
-/* ══ NODE VERISI (20 ornek, gercek Noxara mekanigi) ══ */
-const NODES = [
-  // ORNEK CEKIRDEK: UNITELER
-  { id:'piyade', baslik:'Piyade', kategori:'unite', tier:'T1', ikon:'🗡️',
-    ozet:'Hafif piyade. Her krallığın ilk savaş birimi.',
-    stats:{ ATK:2, DEF:10, Zirh:20, İska:10, Maaş:20, Tur:'4-6' },
-    aciklama:'Saf 1 veya 2\'ye yerleştirilir. Zirhı orta, hasarı düşük ama ucuz ve hızlı eğitilir. Sayısal üstünlükle galip gelir. Her asker = 1 altın maliyet (tier farketmez).',
-    baglantilar:[
-      { id:'asker',    tip:'gereklilik' },
-      { id:'altin',    tip:'gereklilik' },
-      { id:'savas-saf',tip:'ilgili' },
-      { id:'okcu',     tip:'karsilastir' },
-      { id:'sovalye',  tip:'karsilastir' },
-    ]},
+const API_BASE_CODEX = (typeof API_BASE !== 'undefined' ? API_BASE : '');
 
-  { id:'okcu', baslik:'Okçu', kategori:'unite', tier:'T1', ikon:'🏹',
-    ozet:'Menzilli birim. Arka saftan ateş eder.',
-    stats:{ ATK:5, DEF:12, Zirh:10, İska:20, Maaş:28, Tur:'1-3' },
-    aciklama:'İlk 3 turda saldırır (menzilli). Zirhı düşük ama düşmanın zırhına bakmadan hasar verir. Okçu kuleleri savunmaya ekstra.',
-    baglantilar:[
-      { id:'asker',    tip:'gereklilik' },
-      { id:'zirh-iska',tip:'ilgili' },
-      { id:'piyade',   tip:'karsilastir' },
-      { id:'kule',     tip:'ilgili' },
-    ]},
-
-  { id:'sovalye', baslik:'Şövalye', kategori:'unite', tier:'T2', ikon:'🐴',
-    ozet:'Ağır süvari. Çağ 2+ at gerektirir.',
-    stats:{ ATK:6, DEF:22, Zirh:20, İska:15, Maaş:40, Tur:'4-6' },
-    aciklama:'Dayanıklı ağır birim. 1 at + 1 asker + altın = 1 şövalye. Saf 2-3 tercih edilir.',
-    kilit:{ aktif:true, sart:{ tip:'cag', deger:2 }, ipucu:'2. Çağa geç, ardından Ahır kur' },
-    baglantilar:[
-      { id:'at',       tip:'gereklilik' },
-      { id:'ahir',     tip:'gereklilik' },
-      { id:'piyade',   tip:'karsilastir' },
-      { id:'paladin',  tip:'sonra' },
-    ]},
-
-  { id:'paladin', baslik:'Paladin', kategori:'unite', tier:'T3', ikon:'⚜️',
-    ozet:'Elit agır piyade. Kutsal birimler.',
-    stats:{ ATK:9, DEF:33, Zirh:35, İska:20, Maaş:52 },
-    aciklama:'Yüksek zırh + def. Yeni sistemde her birim kendi zırhıyla hasarı emer → paladin gerçekten tanklık yapar.',
-    kilit:{ aktif:true, sart:{ tip:'cag', deger:3 }, ipucu:'3. Çağa ulaş' },
-    baglantilar:[
-      { id:'sovalye',  tip:'karsilastir' },
-      { id:'zirh-iska',tip:'ilgili' },
-      { id:'isin-savasci', tip:'sonra' },
-    ]},
-
-  { id:'isin-savasci', baslik:'Işığın Savaşçısı', kategori:'unite', tier:'T4', ikon:'✨',
-    ozet:'Elit iyi taraf savaşçısı.',
-    stats:{ ATK:40, DEF:100, Zirh:40, İska:10 },
-    aciklama:'Sadece iyi taraf üretebilir (İnsan/Elf/Cüce/Bucukluk). Ağır maliyet, büyük etki. Kötü taraf eşdeğeri: Gölge Savaşçısı.',
-    kilit:{ aktif:true, sart:{ tip:'cag', deger:4 } },
-    baglantilar:[
-      { id:'paladin',  tip:'karsilastir' },
-      { id:'irk',      tip:'ilgili' },
-    ]},
-
-  // BINALAR
-  { id:'oduncu', baslik:'Oduncu Kampı', kategori:'bina', ikon:'🌲',
-    ozet:'Odun üretir. Başlangıç binası.',
-    stats:{ Üretim:'10/PG/isci', Kapasite:'40 oduncu' },
-    aciklama:'Yeni oyuncuya 2 oduncu kampı verilir. Her oduncu işçisi saatte 10 odun getirir. Oduncu kapasitesi kampa bağlı.',
-    baglantilar:[{ id:'odun', tip:'saglar' }, { id:'isci', tip:'gereklilik' }] },
-
-  { id:'tarla', baslik:'Tarla', kategori:'bina', ikon:'🌾',
-    ozet:'Çiftçi için kapasite + buğday.',
-    stats:{ Kapasite:'50 çiftçi / tarla', Üretim:'8/PG/çiftçi' },
-    aciklama:'Tarla yoksa çiftçi atanamaz. Balıkçılar 4-8-12-16-20-24. Palantis günlerinde üretir; tarla buğdayı düzenli üretir.',
-    baglantilar:[{ id:'bugday', tip:'saglar' }, { id:'isci', tip:'gereklilik' }] },
-
-  { id:'ahir', baslik:'Ahır', kategori:'bina', ikon:'🐎',
-    ozet:'At ve kurt üretir. Süvari temeli.',
-    stats:{ Üretim:'%0.1/saat/ahir', Çağ:'≥2' },
-    aciklama:'Süvari + şövalye birimleri için at gerekir. Kurt kötü taraf süvarisinde kullanılır.',
-    kilit:{ aktif:true, sart:{ tip:'cag', deger:2 } },
-    baglantilar:[{ id:'at', tip:'saglar' }, { id:'sovalye', tip:'ilgili' }] },
-
-  { id:'tapinak-rathe', baslik:'Rathe Tapınağı (Beyaz)', kategori:'bina', ikon:'⛪',
-    ozet:'Beyaz worshipper üretir → Beyaz mana.',
-    stats:{ Çağ:'≥2', Mana:'Beyaz' },
-    aciklama:'4 tapınaktan biri. Worshipper geri döndürülemez (köylü → worshipper tek yön). Her worshipper saatte 0.1 mana üretir. Bilge sistemi mana 2x verir.',
-    kilit:{ aktif:true, sart:{ tip:'cag', deger:2 } },
-    baglantilar:[
-      { id:'mana-beyaz', tip:'saglar' },
-      { id:'bilge',     tip:'ilgili' },
-      { id:'buyucu-kulesi', tip:'ilgili' },
-    ]},
-
-  { id:'buyucu-kulesi', baslik:'Büyücü Kulesi', kategori:'bina', ikon:'🗼',
-    ozet:'Büyü öğrenme + hazırlama merkezi.',
-    stats:{ MaxAdet:5, Kural:'Her kule 1 çağ büyüsü açar' },
-    aciklama:'1 kule = Çağ 1 büyüleri, 5 kule = Çağ 5 büyüleri. 28 büyü, 10 kademe. Parşömen okuyarak veya Büyü Dükkanı\'ndan satın alarak öğrenilir.',
-    baglantilar:[
-      { id:'mana-beyaz', tip:'gereklilik' },
-      { id:'buyu-sistem',tip:'ilgili' },
-      { id:'bilge',      tip:'ilgili' },
-    ]},
-
-  // KAYNAKLAR
-  { id:'altin', baslik:'Altın', kategori:'kaynak', ikon:'🪙',
-    ozet:'Evrensel birim. Tüm üretim/maliyette kullanılır.',
-    aciklama:'Vergi (köylüden), ticaret, ganimet, sandık, arazi satışı ile kazanılır. Ordu maaşı her saat altınla ödenir; ödenmeyince Ordu Morali -10.',
-    baglantilar:[
-      { id:'vergi',     tip:'saglar' },
-      { id:'ordu-maas', tip:'ilgili' },
-      { id:'sehir-moral', tip:'karsilastir' },
-    ]},
-
-  { id:'mana-beyaz', baslik:'Beyaz Mana', kategori:'kaynak', ikon:'⚪',
-    ozet:'Iyileşme & buff büyüleri için.',
-    aciklama:'Beyaz worshipper (Rathe Tapınağı) tarafından üretilir. Her renk mana kendi okulunu besler.',
-    baglantilar:[
-      { id:'tapinak-rathe', tip:'gereklilik' },
-      { id:'buyu-sistem',    tip:'ilgili' },
-    ]},
-
-  { id:'at', baslik:'At', kategori:'kaynak', ikon:'🐎',
-    ozet:'Süvari birimlerinin temel bileşeni.',
-    aciklama:'Ahır ile üretilir. Şövalye, süvari, paladin gibi birimler için 1 at gerekir. Manuel kesimle 50 çiğ et verir.',
-    baglantilar:[{ id:'ahir', tip:'gereklilik' }, { id:'sovalye', tip:'ilgili' }] },
-
-  { id:'asker', baslik:'Asker (Ham)', kategori:'kaynak', ikon:'🎖️',
-    ozet:'Ünite eğitimi için gerekli ham nüfus.',
-    aciklama:'Köylülerden dönüştürülür. Her ünite 1 asker + altın + özel kaynak (at/mana/vs) gerektirir. Geri köylüye çevrilebilir.',
-    baglantilar:[
-      { id:'koylu', tip:'gereklilik' },
-      { id:'nufus', tip:'ilgili' },
-    ]},
-
-  // SAVAŞ SISTEMI
-  { id:'savas-motor', baslik:'6 Turlu Savaş Motoru', kategori:'savas', ikon:'⚔️',
-    ozet:'Palantis\'in kalbi — 6 tur bazlı çatışma.',
-    stats:{ Tur:6, Saf:4 },
-    aciklama:'Her tur belirli saflar hasarlaşır. Tur 1-2: saf_1. Tur 3: saf_1+2. Tur 4: +saf_3. Tur 5-6: tüm saflar. 6 tur sonunda ayakta kalan kazanır.',
-    baglantilar:[
-      { id:'savas-saf',tip:'ilgili' },
-      { id:'zirh-iska',tip:'ilgili' },
-      { id:'ordu-moral', tip:'ilgili' },
-      { id:'kale-bonus', tip:'ilgili' },
-    ]},
-
-  { id:'savas-saf', baslik:'Saf Dizilimi (4 saf)', kategori:'savas', ikon:'🪖',
-    ozet:'Hangi birim hangi safta? = strateji.',
-    aciklama:'Her tipten 1 birim 1 safa. Adet farketmez. Saf 1 = ön hat (erken hasar), Saf 4 = korumalı elit (son tur).',
-    baglantilar:[
-      { id:'savas-motor',tip:'ilgili' },
-      { id:'piyade',     tip:'ornek' },
-      { id:'okcu',       tip:'ornek' },
-    ]},
-
-  { id:'zirh-iska', baslik:'Zırh & İska (v1.14.0.45)', kategori:'savas', ikon:'🛡️',
-    ozet:'Birim bazlı — her ünite kendi zırhıyla.',
-    aciklama:'YENİ: Zırh artık havuz değil, her birim kendi zırhıyla hasarı emer (Albion formülü: hasar / (1 + zırh/50)). İska deterministik: atk × (1 - iska/100). Simülatör tutarlı.',
-    baglantilar:[
-      { id:'savas-motor', tip:'ilgili' },
-      { id:'piyade',      tip:'ornek' },
-      { id:'paladin',     tip:'ornek' },
-    ]},
-
-  // BUYU
-  { id:'buyu-sistem', baslik:'Büyü Sistemi (28 büyü)', kategori:'buyu', ikon:'🔮',
-    ozet:'10 kademe, 4 renk mana, 5 çağ.',
-    stats:{ Büyü:28, Kademe:10, Renk:4 },
-    aciklama:'Mistik Atak, Motivasyon, Ejderha Sevinci, Hipnoz, Sadakat, Yakarış... Her büyü bir veya iki renk mana kullanır. Mana maliyeti v1.13.70.2 ile ×10 ayarlandı (ordu vs ekonomi tradeoff).',
-    baglantilar:[
-      { id:'buyucu-kulesi', tip:'gereklilik' },
-      { id:'mana-beyaz',    tip:'gereklilik' },
-      { id:'bilge',         tip:'ilgili' },
-    ]},
-
-  { id:'bilge', baslik:'Bilge Sistemi', kategori:'buyu', ikon:'🧙',
-    ozet:'4 bilge, seçim periyodu 336 PG.',
-    aciklama:'Her 168 PG\'de bilge seçebilirsin. Bilge 2× mana verir. 336 PG\'de dünya bilgesi değişir — global döngü.',
-    kilit:{ aktif:true, sart:{ tip:'cag', deger:2 } },
-    baglantilar:[
-      { id:'tapinak-rathe', tip:'ilgili' },
-      { id:'buyu-sistem',   tip:'ilgili' },
-    ]},
-
-  // CASUS
-  { id:'casus-sistem', baslik:'Casus Sistemi (11 operasyon)', kategori:'casus', ikon:'🕵️',
-    ozet:'İstihbarat binasından eğitilir. 11 tip görev.',
-    aciklama:'İncele, Hırsızlık, Kargaşa, Katliam, Sabotaj, Parşömen Çal... Her casus can + deneyim + ölüm mekaniği ile. Başarı = gizlilik kaynağı × eğitim × hedef savunma.',
-    kilit:{ aktif:true, sart:{ tip:'cag', deger:2 } },
-    baglantilar:[
-      { id:'istihbarat', tip:'gereklilik' },
-      { id:'gizlilik',   tip:'gereklilik' },
-    ]},
-
-  { id:'gizlilik', baslik:'Gizlilik (Kaynak)', kategori:'kaynak', ikon:'🎭',
-    ozet:'Lonca binası üretir. Casus ekonomisi.',
-    aciklama:'Lonca her saat gizlilik üretir. Casus operasyonlarında maliyet/başarı şansı.',
-    baglantilar:[
-      { id:'casus-sistem', tip:'saglar' },
-    ]},
-
-  { id:'istihbarat', baslik:'İstihbarat Binası', kategori:'bina', ikon:'🏛️',
-    ozet:'Casus üretim merkezi.',
-    kilit:{ aktif:true, sart:{ tip:'cag', deger:2 } },
-    baglantilar:[{ id:'casus-sistem', tip:'ilgili' }] },
-
-  // ÇAĞ
-  { id:'cag', baslik:'5 Çağ Sistemi', kategori:'cag', ikon:'⏳',
-    ozet:'Sonatas → Heonteas → Kronitas → Rashnotor → Noxara',
-    stats:{ Çağ:5, Uzunluk:'1 PG = 1 saat' },
-    aciklama:'Her çağ yeni binalar/birimler/büyüler açar. Çağ atlamak için kaynak + zaman. 1. Çağ koruması: savunan çağı < 2 ise saldırılamaz.',
-    baglantilar:[
-      { id:'sovalye',      tip:'ornek-kilit' },
-      { id:'paladin',      tip:'ornek-kilit' },
-      { id:'tapinak-rathe',tip:'ornek-kilit' },
-    ]},
-
-  // MORAL (KRITIK — IKI AYRI SISTEM)
-  { id:'sehir-moral', baslik:'Şehir Morali 🏛️', kategori:'moral', ikon:'😊',
-    ozet:'Halkın memnuniyeti (0-5000). Vergi ile ilgili.',
-    stats:{ Max:'Çağ5=5000', Min:-1500 },
-    aciklama:'**ORDU MORALİ DEĞİL!** Halkın mutluluğu. Vergi cezası, açlık, festival, Ejderha Sevinci, bina bonusu (Lonca/Tapınak/Meydan) etkiler. Düşük moral → işçi üretimi düşer + köylü kaçışı.',
-    baglantilar:[
-      { id:'vergi',       tip:'ilgili' },
-      { id:'gps',         tip:'ilgili' },
-      { id:'ordu-moral',  tip:'karsilastir' },
-    ]},
-
-  { id:'ordu-moral', baslik:'Ordu Morali ⚔️', kategori:'moral', ikon:'🎖️',
-    ozet:'Askerin savaş gücü (0-100). Maaş ile ilgili.',
-    stats:{ Max:100, Min:0 },
-    aciklama:'**ŞEHİR MORALİ İLE HİÇBİR İLİŞKİSİ YOK!** Maaş öderse +5, ödemezse -10. ATK/DEF çarpanı = moral/100 (MIN 0.2). Moral 0 olsa bile %20 güçte. Hipnoz büyüsü düşürür, Sadakat artırır.',
-    baglantilar:[
-      { id:'ordu-maas',   tip:'ilgili' },
-      { id:'sehir-moral', tip:'karsilastir' },
-      { id:'savas-motor', tip:'ilgili' },
-    ]},
-
-  { id:'gps', baslik:'GPS (5 İlgi Alanı)', kategori:'moral', ikon:'📊',
-    ozet:'Populasyon Seviyesi — 5 alan kapsama %.',
-    aciklama:'Eğitim/Bilgi/Kültür/Eğlence/Şehir — her alan bina kapsama oranının ortalaması. GPS ≥ %90 → +4 moral/saat pasif. Vergi Sistemi 2 (GPS kilitli) GPS\'e göre max vergi belirler.',
-    baglantilar:[{ id:'sehir-moral', tip:'ilgili' }] },
-
-  // GUILD
-  { id:'guild', baslik:'Guild Sistemi', kategori:'guild', ikon:'🏰',
-    ozet:'Oyuncu toplulukları. Ortak şehir + ordu.',
-    aciklama:'Guild kurulunca taraf kilitli (v1.14.0.44 — lider değişse de taraf değişmez). Faz 1: üyelik/ambar. Faz 2: bina/ordu/market. Faz 3: Kadim şehir kuşatma.',
-    kilit:{ aktif:true, sart:{ tip:'cag', deger:3 } },
-    baglantilar:[
-      { id:'diplomasi', tip:'ilgili' },
-      { id:'tech-tree', tip:'ilgili' },
-      { id:'kadim',     tip:'ilgili' },
-    ]},
-
-  { id:'diplomasi', baslik:'Diplomasi (v1.14.0.30)', kategori:'guild', ikon:'🤝',
-    ozet:'4 durum: BARIŞ / ANTLAŞMA / SAVAŞ / TABİYET.',
-    aciklama:'Guildler arası antlaşma imzalanabilir, savaş ilan edilebilir, tabiyete alınabilir (Hakim — Bağlı). İhanet debuff: savaşta -%6 ATK/DEF. Tabiyet: bağlı üretiminin %30\'u Hakim\'e akar.',
-    kilit:{ aktif:true, sart:{ tip:'cag', deger:3 } },
-    baglantilar:[{ id:'guild', tip:'ilgili' }] },
-
-  { id:'tech-tree', baslik:'Guild Tech Tree', kategori:'guild', ikon:'🔬',
-    ozet:'5 teknoloji — üretim/savunma/atk/inşaat/ekonomi.',
-    aciklama:'Guild ortak araştırma. Her kademe +%X bonus tüm üyelere. K1=baz maliyet × 1, K2 × 2, K3 × 4...',
-    kilit:{ aktif:true, sart:{ tip:'cag', deger:3 } },
-    baglantilar:[{ id:'guild', tip:'ilgili' }] },
-
-  // KADIM
-  { id:'kadim', baslik:'Kadim Şehirler', kategori:'kadim', ikon:'🏺',
-    ozet:'Aurium (Işık) + Gorathul (Karanlık). Ticaret + NPC saldırı.',
-    aciklama:'Mananın, atın, gizliliğin, ejderha yumurtasının kadim kaynakları. Ticaret yap → 240 PG sonra o şehrin çapraz eşi sana saldırır (ticaret × 2 altın bütçeli NPC ordu).',
-    kilit:{ aktif:true, sart:{ tip:'cag', deger:2 } },
-    baglantilar:[
-      { id:'at',       tip:'saglar' },
-      { id:'mana-beyaz',tip:'saglar' },
-      { id:'gizlilik', tip:'saglar' },
-      { id:'guild',    tip:'ilgili' },
-    ]},
-
-  // IRKLAR
-  { id:'irk', baslik:'8 Irk (İyi / Kötü)', kategori:'irk', ikon:'👑',
-    ozet:'İnsan/Elf/Cüce/Bucukluk × Kara Elf/Ork/Ogre/Undead',
-    aciklama:'Irk seçimi taraf kilitli. Her ırk ATK/DEF/kaynak bonusu verir. İyi tarafta Paladin, kötüde Kara Şövalye gibi birimler.',
-    baglantilar:[
-      { id:'isin-savasci', tip:'ornek' },
-      { id:'paladin',      tip:'ornek' },
-    ]},
-];
-
-const BAG_LABEL = {
-  gereklilik: { label:'Gereklilik',  ikon:'⬅',  renk:'#e74c3c' },
-  saglar:     { label:'Sağlar',      ikon:'➜',  renk:'#2ecc71' },
-  ilgili:     { label:'İlgili',      ikon:'◌',  renk:'#3498db' },
-  karsilastir:{ label:'Karşılaştır', ikon:'⚖',  renk:'#d4a257' },
-  sonra:      { label:'Sonrası',     ikon:'→',  renk:'#9b59b6' },
-  ornek:      { label:'Örnek',       ikon:'◆',  renk:'#1abc9c' },
-  'ornek-kilit':{label:'Örnek (Kilitli)', ikon:'◆', renk:'#95a5a6' },
-};
-
-/* ══ LOCALSTORAGE: kesfedilen + mevcut cag simulasyonu ══ */
+/* ══ LOCALSTORAGE + API kesif sistemi ══ */
 function useKesifDurum() {
   const [cag, setCag] = useState(() => parseInt(localStorage.getItem('codex_sim_cag') || '1'));
   const [kesfedilen, setKesfedilen] = useState(() => {
     try { return new Set(JSON.parse(localStorage.getItem('codex_kesfedilen') || '[]')); } catch { return new Set(); }
   });
+
+  // Backend'den fetch (login varsa)
+  useEffect(() => {
+    const token = localStorage.getItem('palantis_token');
+    if (!token || !API_BASE_CODEX) return;
+    fetch(API_BASE_CODEX + '/api/codex/discovered', { headers:{ 'Authorization':'Bearer '+token } })
+      .then(r => r.json())
+      .then(d => {
+        if (d?.ok && Array.isArray(d.discovered)) {
+          setKesfedilen(prev => {
+            const merged = new Set([...prev, ...d.discovered]);
+            localStorage.setItem('codex_kesfedilen', JSON.stringify([...merged]));
+            return merged;
+          });
+        }
+      })
+      .catch(()=>{});
+  }, []);
+
   useEffect(() => { localStorage.setItem('codex_sim_cag', String(cag)); }, [cag]);
   useEffect(() => { localStorage.setItem('codex_kesfedilen', JSON.stringify([...kesfedilen])); }, [kesfedilen]);
 
-  const kesfet = (id) => setKesfedilen(prev => { const s = new Set(prev); s.add(id); return s; });
+  const kesfet = useCallback((id) => {
+    setKesfedilen(prev => {
+      if (prev.has(id)) return prev;
+      const s = new Set(prev); s.add(id);
+      // Backend'e fire-and-forget
+      const token = localStorage.getItem('palantis_token');
+      if (token && API_BASE_CODEX) {
+        fetch(API_BASE_CODEX + '/api/codex/discover', {
+          method:'POST',
+          headers:{ 'Authorization':'Bearer '+token, 'Content-Type':'application/json' },
+          body: JSON.stringify({ node_id: id })
+        }).catch(()=>{});
+      }
+      return s;
+    });
+  }, []);
+
   return { cag, setCag, kesfedilen, kesfet };
 }
 
@@ -398,52 +137,195 @@ function isKilitli(node, cag) {
   return true;
 }
 
-/* ══ COMPONENTS ══ */
+/* ══ GRAPH VIEW — Canvas force-directed ══ */
+function GraphView({ cag, kesfedilen, onSec, filtreliNodes, seciliId }) {
+  const canvasRef = useRef(null);
+  const nodesRef = useRef([]);
+  const edgesRef = useRef([]);
+  const rafRef = useRef(null);
+  const panRef = useRef({ x: 0, y: 0, dragging: false, lastX: 0, lastY: 0 });
+  const hoveredRef = useRef(null);
+  const [hoveredId, setHoveredId] = useState(null);
+  const [edgeCount, setEdgeCount] = useState(0);
 
-function KategoriFilter({ aktif, setAktif }) {
+  useEffect(() => {
+    const nodeMap = Object.fromEntries(filtreliNodes.map(n => [n.id, n]));
+    // init nodes (keep position if reused)
+    const prevMap = Object.fromEntries(nodesRef.current.map(p => [p.id, p]));
+    const W = 800, H = 600;
+    nodesRef.current = filtreliNodes.map((n, i) => {
+      const prev = prevMap[n.id];
+      if (prev) return { ...prev, ...n };
+      const angle = (i / filtreliNodes.length) * Math.PI * 2;
+      return {
+        ...n,
+        x: W/2 + Math.cos(angle) * 200 + (Math.random()-0.5) * 40,
+        y: H/2 + Math.sin(angle) * 200 + (Math.random()-0.5) * 40,
+        vx: 0, vy: 0,
+      };
+    });
+    // build edges (only between filtered nodes)
+    const edges = [];
+    for (const n of filtreliNodes) {
+      for (const b of (n.baglantilar || [])) {
+        if (nodeMap[b.id]) edges.push({ from: n.id, to: b.id, tip: b.tip });
+      }
+    }
+    edgesRef.current = edges;
+    setEdgeCount(edges.length);
+  }, [filtreliNodes]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const resize = () => {
+      const r = canvas.getBoundingClientRect();
+      canvas.width = r.width * dpr; canvas.height = r.height * dpr;
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    const REPEL = 4500;
+    const SPRING = 0.02;
+    const DAMP = 0.88;
+    const CENTER = 0.002;
+
+    function tick() {
+      const nodes = nodesRef.current;
+      const edges = edgesRef.current;
+      const r = canvas.getBoundingClientRect();
+      const cx = r.width / 2, cy = r.height / 2;
+
+      // repel pairs
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i+1; j < nodes.length; j++) {
+          const a = nodes[i], b = nodes[j];
+          const dx = b.x - a.x, dy = b.y - a.y;
+          const d2 = Math.max(30, dx*dx + dy*dy);
+          const f = REPEL / d2;
+          const d = Math.sqrt(d2);
+          const fx = (dx/d) * f, fy = (dy/d) * f;
+          a.vx -= fx; a.vy -= fy;
+          b.vx += fx; b.vy += fy;
+        }
+      }
+      // spring edges
+      const nodeMap = Object.fromEntries(nodes.map(n => [n.id, n]));
+      for (const e of edges) {
+        const a = nodeMap[e.from], b = nodeMap[e.to];
+        if (!a || !b) continue;
+        const dx = b.x - a.x, dy = b.y - a.y;
+        a.vx += dx * SPRING; a.vy += dy * SPRING;
+        b.vx -= dx * SPRING; b.vy -= dy * SPRING;
+      }
+      // center pull
+      for (const n of nodes) {
+        n.vx += (cx - n.x) * CENTER;
+        n.vy += (cy - n.y) * CENTER;
+        n.vx *= DAMP; n.vy *= DAMP;
+        n.x += n.vx; n.y += n.vy;
+      }
+
+      // render
+      ctx.clearRect(0, 0, r.width, r.height);
+      ctx.save();
+      ctx.translate(panRef.current.x, panRef.current.y);
+      // edges
+      ctx.globalAlpha = 0.25;
+      for (const e of edges) {
+        const a = nodeMap[e.from], b = nodeMap[e.to];
+        if (!a || !b) continue;
+        ctx.strokeStyle = BAG_LABEL[e.tip]?.renk || '#666';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+      // nodes
+      for (const n of nodes) {
+        const kilitli = isKilitli(n, cag);
+        const kat = KATEGORILER.find(k => k.id === n.kategori);
+        const isSel = n.id === seciliId;
+        const isHover = n.id === hoveredRef.current;
+        const R = isSel || isHover ? 20 : 14;
+        ctx.fillStyle = kilitli ? '#1a1a1a' : (kat?.renk || '#d4a257');
+        ctx.strokeStyle = isSel ? '#fff' : (kilitli ? '#333' : '#000');
+        ctx.lineWidth = isSel ? 3 : (isHover ? 2 : 1);
+        ctx.beginPath(); ctx.arc(n.x, n.y, R, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+        // icon label
+        ctx.fillStyle = '#fff';
+        ctx.font = `${R}px sans-serif`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(kilitli ? '🔒' : n.ikon, n.x, n.y);
+        // name label (hover/selected only)
+        if (isSel || isHover) {
+          ctx.font = 'bold 11px sans-serif';
+          ctx.fillStyle = '#fff';
+          ctx.strokeStyle = '#000'; ctx.lineWidth = 3;
+          const txt = kilitli ? '???' : n.baslik;
+          ctx.strokeText(txt, n.x, n.y + R + 12);
+          ctx.fillText(txt, n.x, n.y + R + 12);
+        }
+      }
+      ctx.restore();
+      rafRef.current = requestAnimationFrame(tick);
+    }
+    tick();
+
+    function getPointerNode(evt) {
+      const r = canvas.getBoundingClientRect();
+      const x = evt.clientX - r.left - panRef.current.x;
+      const y = evt.clientY - r.top - panRef.current.y;
+      for (const n of nodesRef.current) {
+        const dx = n.x - x, dy = n.y - y;
+        if (dx*dx + dy*dy < 20*20) return n;
+      }
+      return null;
+    }
+    function onMove(e) {
+      const n = getPointerNode(e);
+      hoveredRef.current = n?.id || null;
+      if ((n?.id || null) !== hoveredId) setHoveredId(n?.id || null);
+      if (panRef.current.dragging) {
+        panRef.current.x += e.clientX - panRef.current.lastX;
+        panRef.current.y += e.clientY - panRef.current.lastY;
+        panRef.current.lastX = e.clientX; panRef.current.lastY = e.clientY;
+      }
+    }
+    function onDown(e) {
+      const n = getPointerNode(e);
+      if (n) { onSec(n.id); return; }
+      panRef.current.dragging = true;
+      panRef.current.lastX = e.clientX; panRef.current.lastY = e.clientY;
+    }
+    function onUp() { panRef.current.dragging = false; }
+
+    canvas.addEventListener('pointermove', onMove);
+    canvas.addEventListener('pointerdown', onDown);
+    window.addEventListener('pointerup', onUp);
+
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      window.removeEventListener('resize', resize);
+      canvas.removeEventListener('pointermove', onMove);
+      canvas.removeEventListener('pointerdown', onDown);
+      window.removeEventListener('pointerup', onUp);
+    };
+  }, [cag, seciliId, hoveredId]);
+
   return (
-    <div className="flex flex-col gap-1 p-2">
-      <button
-        onClick={() => setAktif(null)}
-        className={`text-left px-3 py-2 rounded transition text-sm cx-h ${aktif===null ? 'bg-nox-gold/20 text-nox-gold border-l-2 border-nox-gold' : 'hover:bg-white/5'}`}
-      >🌑 Tümü</button>
-      {KATEGORILER.map(k => (
-        <button key={k.id}
-          onClick={() => setAktif(k.id)}
-          className={`text-left px-3 py-2 rounded transition text-sm cx-h flex items-center gap-2 ${aktif===k.id ? 'bg-white/10' : 'hover:bg-white/5'}`}
-          style={aktif===k.id ? { borderLeft: `2px solid ${k.renk}`, color: k.renk } : {}}
-        >
-          <span className="text-lg">{k.ikon}</span>
-          <span>{k.isim}</span>
-        </button>
-      ))}
+    <div className="relative w-full h-[60vh] md:h-[70vh] bg-black/30 rounded border border-white/10">
+      <canvas id="codex-graph-canvas" ref={canvasRef} className="absolute inset-0 w-full h-full" />
+      <div className="absolute top-2 left-2 bg-black/70 text-xs px-2 py-1 rounded pointer-events-none text-nox-dim">
+        {filtreliNodes.length} node · {edgeCount} bağlantı · sürükle/tıkla
+      </div>
     </div>
   );
 }
 
-function NodeKart({ node, onClick, kilitli, kesfedilen }) {
-  const kat = KATEGORILER.find(k => k.id === node.kategori);
-  return (
-    <button
-      onClick={onClick}
-      className={`text-left p-3 rounded border transition hover:-translate-y-0.5 ${kilitli ? 'cx-kilit border-white/10 opacity-60' : 'border-white/10 hover:border-nox-gold'}`}
-      style={{ background: kilitli ? 'rgba(20,18,14,0.4)' : 'rgba(20,18,14,0.85)' }}
-    >
-      <div className="flex items-center gap-2 mb-1">
-        <span className="text-2xl">{kilitli ? '🔒' : node.ikon}</span>
-        <div className="flex-1 min-w-0">
-          <div className="text-sm font-bold truncate" style={{ color: kat?.renk || '#d4a257' }}>
-            {kilitli ? '???' : node.baslik}
-            {node.tier && <span className="ml-1 text-xs opacity-60">{node.tier}</span>}
-            {!kilitli && !kesfedilen.has(node.id) && <span className="ml-1 text-xs text-nox-gold cx-pulse">YENİ</span>}
-          </div>
-          <div className="text-xs text-nox-dim truncate">{kilitli ? node.kilit.ipucu : node.ozet}</div>
-        </div>
-      </div>
-    </button>
-  );
-}
-
+/* ══ Mevcut node detay + ilişkili panelleri ══ */
 function StatGrid({ stats }) {
   const entries = Object.entries(stats);
   if (!entries.length) return null;
@@ -459,7 +341,28 @@ function StatGrid({ stats }) {
   );
 }
 
-function NodeDetay({ node, nodeMap, onGit, breadcrumb, geri, kilitli }) {
+function NodeKart({ node, onClick, kilitli, kesfedilen }) {
+  const kat = KATEGORILER.find(k => k.id === node.kategori);
+  return (
+    <button onClick={onClick}
+      className={`text-left p-3 rounded border transition hover:-translate-y-0.5 ${kilitli ? 'cx-kilit border-white/10 opacity-60' : 'border-white/10 hover:border-nox-gold'}`}
+      style={{ background: kilitli ? 'rgba(20,18,14,0.4)' : 'rgba(20,18,14,0.85)' }}>
+      <div className="flex items-center gap-2 mb-1">
+        <span className="text-2xl">{kilitli ? '🔒' : node.ikon}</span>
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-bold truncate" style={{ color: kat?.renk || '#d4a257' }}>
+            {kilitli ? '???' : node.baslik}
+            {node.tier && <span className="ml-1 text-xs opacity-60">{node.tier}</span>}
+            {!kilitli && !kesfedilen.has(node.id) && <span className="ml-1 text-xs text-nox-gold cx-pulse">YENİ</span>}
+          </div>
+          <div className="text-xs text-nox-dim truncate">{kilitli ? node.kilit.ipucu : node.ozet}</div>
+        </div>
+      </div>
+    </button>
+  );
+}
+
+function NodeDetay({ node, onGit, breadcrumb, geri, kilitli }) {
   const kat = KATEGORILER.find(k => k.id === node.kategori);
   if (kilitli) {
     return (
@@ -473,7 +376,6 @@ function NodeDetay({ node, nodeMap, onGit, breadcrumb, geri, kilitli }) {
   }
   return (
     <div className="cx-fade-in">
-      {/* Breadcrumb */}
       {breadcrumb.length > 1 && (
         <div className="flex items-center gap-1 mb-3 text-xs text-nox-dim overflow-x-auto cx-scroll">
           <button onClick={geri} className="hover:text-nox-gold">←</button>
@@ -485,8 +387,6 @@ function NodeDetay({ node, nodeMap, onGit, breadcrumb, geri, kilitli }) {
           ))}
         </div>
       )}
-
-      {/* Header */}
       <div className="flex items-start gap-3 mb-3">
         <div className="text-5xl">{node.ikon}</div>
         <div className="flex-1 min-w-0">
@@ -500,14 +400,8 @@ function NodeDetay({ node, nodeMap, onGit, breadcrumb, geri, kilitli }) {
           <div className="text-nox-text mt-2">{node.ozet}</div>
         </div>
       </div>
-
-      {/* Stats */}
       {node.stats && <StatGrid stats={node.stats} />}
-
-      {/* Aciklama */}
-      {node.aciklama && (
-        <div className="cx-drop text-sm leading-relaxed my-3">{node.aciklama}</div>
-      )}
+      {node.aciklama && <div className="cx-drop text-sm leading-relaxed my-3">{node.aciklama}</div>}
     </div>
   );
 }
@@ -528,16 +422,14 @@ function IliskiliPanel({ node, nodeMap, onGit, cag }) {
         return (
           <div key={tip}>
             <div className="cx-h text-xs uppercase tracking-wider mb-1 flex items-center gap-1" style={{ color: meta.renk }}>
-              <span>{meta.ikon}</span>
-              <span>{meta.label}</span>
+              <span>{meta.ikon}</span><span>{meta.label}</span>
             </div>
             <div className="flex flex-col gap-1.5">
               {nodes.map(n => {
                 const kilitli = isKilitli(n, cag);
                 const kat = KATEGORILER.find(k => k.id === n.kategori);
                 return (
-                  <button key={n.id}
-                    onClick={() => onGit(n.id)}
+                  <button key={n.id} onClick={() => onGit(n.id)}
                     className="text-left p-2 rounded border transition hover:-translate-x-0.5 hover:border-nox-gold flex items-center gap-2"
                     style={{ borderColor: 'rgba(255,255,255,0.08)', background: 'rgba(20,18,14,0.5)' }}>
                     <span className="text-base">{kilitli ? '🔒' : n.ikon}</span>
@@ -559,17 +451,14 @@ function IliskiliPanel({ node, nodeMap, onGit, cag }) {
 function Arama({ value, setValue, aktifSonuclar, onSec }) {
   return (
     <div className="relative">
-      <input
-        value={value}
+      <input id="codex-arama-input" value={value}
         onChange={e => setValue(e.target.value)}
-        placeholder="🔍 Ara... (ornek: piyade, savas, mana)"
-        className="w-full px-3 py-2 bg-black/40 border border-white/10 rounded text-sm text-nox-text focus:border-nox-gold focus:outline-none"
-      />
+        placeholder="🔍 Ara... (Ctrl+K)"
+        className="w-full px-3 py-2 bg-black/40 border border-white/10 rounded text-sm text-nox-text focus:border-nox-gold focus:outline-none" />
       {value && aktifSonuclar.length > 0 && (
         <div className="absolute top-full left-0 right-0 mt-1 bg-nox-dark border border-nox-gold/50 rounded shadow-xl z-30 max-h-64 overflow-y-auto cx-scroll">
           {aktifSonuclar.slice(0, 8).map(n => (
-            <button key={n.id}
-              onClick={() => { onSec(n.id); setValue(''); }}
+            <button key={n.id} onClick={() => { onSec(n.id); setValue(''); }}
               className="w-full text-left px-3 py-2 hover:bg-white/5 flex items-center gap-2 border-b border-white/5">
               <span>{n.ikon}</span>
               <span className="text-sm flex-1 truncate">{n.baslik}</span>
@@ -586,19 +475,22 @@ function Arama({ value, setValue, aktifSonuclar, onSec }) {
 function CodexApp() {
   const { cag, setCag, kesfedilen, kesfet } = useKesifDurum();
   const [aktifKategori, setAktifKategori] = useState(null);
-  const [secili, setSecili] = useState('piyade');
-  const [breadcrumb, setBreadcrumb] = useState(['Piyade']);
-  const [history, setHistory] = useState(['piyade']);
+  const [viewMode, setViewMode] = useState('list');
+  const [secili, setSecili] = useState(() => {
+    const qs = new URLSearchParams(window.location.search);
+    return qs.get('node') || 'piyade';
+  });
+  const [breadcrumb, setBreadcrumb] = useState([NODES.find(n=>n.id===(new URLSearchParams(window.location.search).get('node')||'piyade'))?.baslik || 'Piyade']);
+  const [history, setHistory] = useState([secili]);
   const [arama, setArama] = useState('');
   const [mobileDrawer, setMobileDrawer] = useState(false);
-  const [mobileTab, setMobileTab] = useState('detay'); // detay | ilgili | kategori
+  const [mobileTab, setMobileTab] = useState('detay');
 
   const nodeMap = useMemo(() => Object.fromEntries(NODES.map(n => [n.id, n])), []);
   const filtreliNodes = useMemo(() => {
     if (!aktifKategori) return NODES;
     return NODES.filter(n => n.kategori === aktifKategori);
   }, [aktifKategori]);
-
   const aramaSonuclari = useMemo(() => {
     if (!arama || arama.length < 2) return [];
     const q = arama.toLowerCase();
@@ -609,10 +501,9 @@ function CodexApp() {
 
   const selNode = nodeMap[secili];
   const selKilitli = selNode ? isKilitli(selNode, cag) : false;
-
   useEffect(() => { if (selNode && !selKilitli) kesfet(selNode.id); }, [secili, selKilitli]);
 
-  const git = (id) => {
+  const git = useCallback((id) => {
     const node = nodeMap[id];
     if (!node) return;
     setSecili(id);
@@ -620,7 +511,7 @@ function CodexApp() {
     setHistory(prev => [...prev, id]);
     setMobileTab('detay');
     setMobileDrawer(false);
-  };
+  }, [nodeMap]);
 
   const geri = () => {
     if (history.length <= 1) return;
@@ -630,13 +521,11 @@ function CodexApp() {
     setBreadcrumb(prev => prev.slice(0, -1));
   };
 
-  // Ctrl+K arama kisayolu
   useEffect(() => {
     const h = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
-        const inp = document.getElementById('codex-arama');
-        inp && inp.focus();
+        document.getElementById('codex-arama-input')?.focus();
       }
     };
     window.addEventListener('keydown', h);
@@ -645,15 +534,20 @@ function CodexApp() {
 
   return (
     <div className="cx-wrap min-h-screen">
-      {/* HEADER — her zaman gorunur */}
       <div className="sticky top-0 bg-nox-dark/95 backdrop-blur border-b border-nox-gold/30 z-20 p-3 md:p-4">
         <div className="flex items-center gap-2 md:gap-4 flex-wrap">
           <button onClick={() => setMobileDrawer(v => !v)} className="md:hidden px-3 py-2 bg-white/10 rounded">☰</button>
           <h1 className="cx-h-big text-lg md:text-2xl text-nox-gold flex-shrink-0">📖 Codex</h1>
-          <div className="flex-1 min-w-[180px]" id="codex-arama-wrap">
+          <div className="flex-1 min-w-[180px]">
             <Arama value={arama} setValue={setArama} aktifSonuclar={aramaSonuclari} onSec={git} />
           </div>
-          {/* Sim: Çağ seçici */}
+          {/* View toggle */}
+          <div className="flex gap-1 bg-black/40 rounded p-0.5 border border-white/10">
+            <button onClick={() => setViewMode('list')}
+              className={`px-2 py-1 text-xs rounded cx-h ${viewMode==='list' ? 'bg-nox-gold/20 text-nox-gold' : 'text-nox-dim'}`}>📋 Liste</button>
+            <button onClick={() => setViewMode('graph')}
+              className={`px-2 py-1 text-xs rounded cx-h ${viewMode==='graph' ? 'bg-nox-gold/20 text-nox-gold' : 'text-nox-dim'}`}>🕸 Graph</button>
+          </div>
           <div className="flex items-center gap-1 text-xs">
             <span className="text-nox-dim hidden sm:inline">Çağ:</span>
             <select value={cag} onChange={e => setCag(parseInt(e.target.value))} className="bg-black/40 border border-white/10 px-2 py-1 rounded">
@@ -663,59 +557,77 @@ function CodexApp() {
         </div>
       </div>
 
-      {/* 3-PANE LAYOUT */}
       <div className="flex">
-        {/* Sol: kategori (desktop) / drawer (mobil) */}
         <aside className={`fixed md:static inset-y-0 left-0 z-30 bg-nox-dark border-r border-nox-gold/20 w-56 transform transition ${mobileDrawer ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:flex-shrink-0 overflow-y-auto cx-scroll pt-16 md:pt-0`}>
           <div className="cx-h text-xs uppercase tracking-wider text-nox-gold p-3">Kategoriler</div>
-          <KategoriFilter aktif={aktifKategori} setAktif={(k) => { setAktifKategori(k); setMobileDrawer(false); }} />
-          {/* Node listesi */}
-          <div className="cx-h text-xs uppercase tracking-wider text-nox-gold p-3 pt-6">Node\'lar ({filtreliNodes.length})</div>
           <div className="flex flex-col gap-1 p-2">
-            {filtreliNodes.map(n => (
-              <NodeKart key={n.id} node={n}
-                onClick={() => git(n.id)}
-                kilitli={isKilitli(n, cag)}
-                kesfedilen={kesfedilen} />
-            ))}
+            <button onClick={() => setAktifKategori(null)}
+              className={`text-left px-3 py-2 rounded text-sm cx-h ${aktifKategori===null ? 'bg-nox-gold/20 text-nox-gold border-l-2 border-nox-gold' : 'hover:bg-white/5'}`}>🌑 Tümü ({NODES.length})</button>
+            {KATEGORILER.map(k => {
+              const count = NODES.filter(n => n.kategori === k.id).length;
+              return (
+                <button key={k.id} onClick={() => setAktifKategori(k.id)}
+                  className={`text-left px-3 py-2 rounded text-sm cx-h flex items-center gap-2 ${aktifKategori===k.id ? 'bg-white/10' : 'hover:bg-white/5'}`}
+                  style={aktifKategori===k.id ? { borderLeft: `2px solid ${k.renk}`, color: k.renk } : {}}>
+                  <span className="text-lg">{k.ikon}</span>
+                  <span className="flex-1">{k.isim}</span>
+                  <span className="text-xs opacity-60">{count}</span>
+                </button>
+              );
+            })}
           </div>
+          {viewMode === 'list' && (
+            <>
+              <div className="cx-h text-xs uppercase tracking-wider text-nox-gold p-3 pt-6">Node\'lar ({filtreliNodes.length})</div>
+              <div className="flex flex-col gap-1 p-2">
+                {filtreliNodes.map(n => (
+                  <NodeKart key={n.id} node={n} onClick={() => git(n.id)} kilitli={isKilitli(n, cag)} kesfedilen={kesfedilen} />
+                ))}
+              </div>
+            </>
+          )}
         </aside>
 
-        {/* Mobile overlay */}
         {mobileDrawer && <div onClick={() => setMobileDrawer(false)} className="md:hidden fixed inset-0 bg-black/60 z-20" />}
 
-        {/* Orta: Node detay */}
         <main className="flex-1 min-w-0 p-3 md:p-6">
-          {/* Mobile tab bar */}
-          <div className="md:hidden flex gap-2 mb-3">
-            {[['detay','📖 Detay'],['ilgili','🔗 İlişkili']].map(([k,l]) => (
-              <button key={k}
-                onClick={() => setMobileTab(k)}
-                className={`flex-1 py-2 rounded text-sm cx-h ${mobileTab===k ? 'bg-nox-gold/20 border border-nox-gold text-nox-gold' : 'bg-white/5'}`}>{l}</button>
-            ))}
-          </div>
-
-          <div className={mobileTab === 'detay' ? 'block' : 'hidden md:block'}>
-            {selNode && <NodeDetay node={selNode} nodeMap={nodeMap} onGit={git}
-                          breadcrumb={breadcrumb} geri={history.length > 1 ? geri : null}
-                          kilitli={selKilitli} />}
-          </div>
-
-          <div className={mobileTab === 'ilgili' ? 'block md:hidden' : 'hidden'}>
-            {selNode && !selKilitli && <IliskiliPanel node={selNode} nodeMap={nodeMap} onGit={git} cag={cag} />}
-          </div>
+          {viewMode === 'graph' ? (
+            <div>
+              <GraphView cag={cag} kesfedilen={kesfedilen} onSec={git} filtreliNodes={filtreliNodes} seciliId={secili} />
+              <div className="mt-4 p-3 border border-white/10 rounded bg-black/30">
+                {selNode && <NodeDetay node={selNode} onGit={git} breadcrumb={breadcrumb}
+                              geri={history.length > 1 ? geri : null} kilitli={selKilitli} />}
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="md:hidden flex gap-2 mb-3">
+                {[['detay','📖 Detay'],['ilgili','🔗 İlişkili']].map(([k,l]) => (
+                  <button key={k} onClick={() => setMobileTab(k)}
+                    className={`flex-1 py-2 rounded text-sm cx-h ${mobileTab===k ? 'bg-nox-gold/20 border border-nox-gold text-nox-gold' : 'bg-white/5'}`}>{l}</button>
+                ))}
+              </div>
+              <div className={mobileTab === 'detay' ? 'block' : 'hidden md:block'}>
+                {selNode && <NodeDetay node={selNode} onGit={git} breadcrumb={breadcrumb}
+                              geri={history.length > 1 ? geri : null} kilitli={selKilitli} />}
+              </div>
+              <div className={mobileTab === 'ilgili' ? 'block md:hidden' : 'hidden'}>
+                {selNode && !selKilitli && <IliskiliPanel node={selNode} nodeMap={nodeMap} onGit={git} cag={cag} />}
+              </div>
+            </>
+          )}
         </main>
 
-        {/* Sag: Iliskili (desktop) */}
-        <aside className="hidden md:block w-64 border-l border-nox-gold/20 bg-black/30 flex-shrink-0 overflow-y-auto cx-scroll">
-          <div className="cx-h text-xs uppercase tracking-wider text-nox-gold p-3 sticky top-0 bg-nox-dark/95 backdrop-blur">İlişkili</div>
-          {selNode && !selKilitli && <IliskiliPanel node={selNode} nodeMap={nodeMap} onGit={git} cag={cag} />}
-        </aside>
+        {viewMode === 'list' && (
+          <aside className="hidden md:block w-64 border-l border-nox-gold/20 bg-black/30 flex-shrink-0 overflow-y-auto cx-scroll">
+            <div className="cx-h text-xs uppercase tracking-wider text-nox-gold p-3 sticky top-0 bg-nox-dark/95 backdrop-blur">İlişkili</div>
+            {selNode && !selKilitli && <IliskiliPanel node={selNode} nodeMap={nodeMap} onGit={git} cag={cag} />}
+          </aside>
+        )}
       </div>
 
-      {/* Footer: ip ucu */}
       <div className="fixed bottom-2 right-2 text-xs text-nox-dim bg-black/70 px-3 py-1.5 rounded border border-white/10 pointer-events-none">
-        <kbd className="px-1 py-0.5 bg-white/10 rounded text-[10px]">Ctrl+K</kbd> ara · <span>Keşfedilen: {kesfedilen.size}/{NODES.length}</span>
+        <kbd className="px-1 py-0.5 bg-white/10 rounded text-[10px]">Ctrl+K</kbd> ara · Keşfedilen: {kesfedilen.size}/{NODES.length}
       </div>
     </div>
   );

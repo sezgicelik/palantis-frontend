@@ -160,6 +160,22 @@ function renderSidebar(){
   `;
 }
 
+// v1.14.0.54: Codex palette + tooltip global yukleme
+(function loadCodexGlobal() {
+  if (window._codexGlobalLoaded) return;
+  window._codexGlobalLoaded = true;
+  const load = (src) => {
+    const s = document.createElement('script');
+    s.src = src + '?v=13454';
+    s.async = true;
+    document.head.appendChild(s);
+  };
+  // Sadece codex.html'de zaten yüklenmediyse
+  if (!document.querySelector('script[src*="codex-data.js"]')) load('js/codex-data.js');
+  load('js/codex-palette.js');
+  load('js/codex-tooltip.js');
+})();
+
 function renderHUD(){
   const mount = document.getElementById('hudbar-mount');
   if(!mount) return;

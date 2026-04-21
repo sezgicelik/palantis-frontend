@@ -89,10 +89,11 @@ function renderBinaRow(grid, b, inQ, oyuncuCag) {
 
     const d=document.createElement('div');
     d.className=`brow${inC?' building':''}${b.lv===0&&!inC?' locked':''}`;
+    // v1.14.0.54: data-codex-id — hover'da Codex tooltip
     d.innerHTML=`
-      <div class="br-ico" style="background:${b.bg}">${b.icon}</div>
+      <div class="br-ico" style="background:${b.bg}" data-codex-id="${b.id}">${b.icon}</div>
       <div class="br-main">
-        <div class="br-name">${b.name} ${b.lv>0?`<span style="color:#2ecc71;font-size:10px">${b.lv} adet</span>`:''}${limitLabel}</div>
+        <div class="br-name" data-codex-id="${b.id}">${b.name} ${b.lv>0?`<span style="color:#2ecc71;font-size:10px">${b.lv} adet</span>`:''}${limitLabel}</div>
         <div class="br-desc">${b.desc}</div>
       </div>
       <div class="br-lv">${b.lv} adet</div>
