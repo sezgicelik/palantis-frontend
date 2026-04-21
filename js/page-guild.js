@@ -2257,8 +2257,8 @@ async function renderTabDiplomasi(el, data) {
           if (il.durum === 'ANTLASMA' && !il.savas_hazirlik_bitis_at) {
             aksiyon = '<button class="btn-action" onclick="dipIptalAntlasma(' + il.rakip.id + ')" style="background:#e74c3c;color:#fff;font-size:11px">⚠️ Antlaşmayı İptal Et</button>';
           } else if (il.durum === 'SAVAS' && !il.bekleyen_teklif) {
-            aksiyon = '<button class="btn-action" onclick="dipTeklifBaris(' + il.rakip.id + ')" style="background:#2ecc71;color:#fff;font-size:11px;margin-right:4px">🕊️ Barış Teklif Et</button>' +
-                      '<button class="btn-action" onclick="dipTeklifTabiyet(' + il.rakip.id + ')" style="background:#9b59b6;color:#fff;font-size:11px">👑 TABIYET Teklif (Hakim OL)</button>';
+            aksiyon = '<button class="btn-action" onclick="dipTeklifBaris(' + il.rakip.id + ')" style="background:#2ecc71;color:#fff;font-size:11px;margin-right:4px" title="Savaşı bitir. Kabul ederlerse BARIŞ durumuna geçer.">🕊️ Barış Teklif Et</button>' +
+                      '<button class="btn-action" onclick="dipTeklifTabiyet(' + il.rakip.id + ')" style="background:#9b59b6;color:#fff;font-size:11px" title="Teslim ol teklifi: rakip kabul ederse savaş biter ve onlar senin HAKIMIYETINE girer (%30 üretim sana akar). Reddederlerse savaş devam eder.">👑 Teslim Ol Teklif Et (sen HAKIM)</button>';
           } else if (il.durum === 'TABIYET' && il.ben_hakim) {
             aksiyon = '<button class="btn-action" onclick="dipSonlandirTabiyet(' + il.rakip.id + ')" style="background:#f39c12;color:#fff;font-size:11px">🔓 Tabiyeti Sonlandır</button>';
           } else if (il.bekleyen_teklif && il.ben_teklif_ettim) {
