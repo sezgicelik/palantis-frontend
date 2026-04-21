@@ -21,12 +21,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     _sbRelayArmyId = parseInt(relayId);
   }
 
+  // v1.14.0.70: Savas odasindan gelen hedef preset (id + koord + isim URL'den)
+  const hedefId = params.get('hedef_id') || params.get('hedef');
+  const hedefX = params.get('hedef_x');
+  const hedefY = params.get('hedef_y');
+  const hedefKral = params.get('hedef_kral');
+  if (hedefId && hedefX && hedefY && hedefKral) {
+    // Direkt sec — arama yapma
+    setTimeout(() => {
+      if (typeof sbHedefSec === 'function') {
+        sbHedefSec({ id: parseInt(hedefId), kral: decodeURIComponent(hedefKral),
+                     koord_x: parseInt(hedefX), koord_y: parseInt(hedefY) });
+      }
+    }, 300);
+  }
+
   sbOrdulariYukle();
   sbHareketleriYukle();
 
   // 60 saniyede bir otomatik güncelle
   _sbHareketTimer = setInterval(sbHareketleriYukle, 60000);
 });
+
 
 // ══════════════════════════════════
 //   HEDEF ARAMA

@@ -802,6 +802,25 @@ async function bilgeSec(renk) {
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(bkLoad, 500);
   setTimeout(bilgeLoad, 600);
+
+  // v1.14.0.70: Savas odasindan gelen hedef preset
+  const qp = new URLSearchParams(window.location.search);
+  const hedefId = qp.get('hedef_id');
+  const hedefKral = qp.get('hedef_kral');
+  const kategori = qp.get('kategori');
+  if (hedefId && hedefKral) {
+    setTimeout(() => {
+      if (typeof bkSelectHedef === 'function') {
+        bkSelectHedef(parseInt(hedefId), decodeURIComponent(hedefKral), '');
+      }
+      // Kategori dusmana ise scroll ipucu
+      if (kategori === 'dusmana') {
+        const toastEl = (typeof showToast === 'function') ? showToast : null;
+        if (toastEl) toastEl('🎯 Hedef seçildi: ' + decodeURIComponent(hedefKral) + '. Saldırı büyüsü seç ve uygula.', 'info');
+      }
+    }, 800);
+  }
+
   // Her 30 saniyede guncelle (aktif buyuler countdown)
   setInterval(() => {
     if (bkData) {

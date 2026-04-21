@@ -177,7 +177,7 @@ var GUILD_TABS = [
   { id: 'diplomasi', label: '🤝 Diplomasi', aktif: true }, // v1.14.0.30
   { id: 'sohbet',   label: '💬 Sohbet',       aktif: true }, // v1.14.0.42 A2
   { id: 'arastirma',label: '🔬 Araştırma',    aktif: true }, // v1.14.0.42 D
-  { id: 'savas',    label: '⚔️ Savas Odasi', aktif: false },
+  { id: 'savas',    label: '⚔️ Savas Odasi', aktif: true }, // v1.14.0.70
   { id: 'raporlar', label: '📜 Raporlar',     aktif: true },
   // v1.13.68.5: Ekonomi Ozet Tablosu (oyuncu sayfasindaki ile ayni format)
   { id: 'ekonomi-ozet', label: '📊 Ekonomi Ozet', aktif: true }
@@ -284,6 +284,7 @@ function guildTabIcerikGoster(data) {
     case 'ekonomi-ozet': renderTabEkonomiOzet(el, data); break;
     case 'uye-ozet': renderTabUyeOzet(el, data); break;
     case 'kusatma':  renderTabKusatma(el, data); break;
+    case 'savas':    if (typeof renderTabSavasOdasi === 'function') renderTabSavasOdasi(el, data); else el.innerHTML = '<div class="card" style="padding:20px;color:#e74c3c">page-guild-savas.js yuklenemedi</div>'; break;
     default:        el.innerHTML = '<div class="card" style="text-align:center;padding:30px;color:#555"><div style="font-size:30px;margin-bottom:8px">🔒</div><p style="font-size:12px">Bu ozellik Faz 3\'te aktif olacak.</p></div>';
   }
 }
