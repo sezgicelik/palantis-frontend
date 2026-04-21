@@ -456,12 +456,20 @@ function savasOdasiAcEylemModal(hedefId, hedefKral, hx, hy) {
         '<div id="savas-buyu-list" style="color:#888;font-size:11px;text-align:center;padding:16px">Büyüler yükleniyor...</div>' +
       '</div>' +
 
+      // v1.14.0.73: Inline casus gonder
+      '<div id="savas-casus-panel" style="padding-top:12px;margin-top:12px;border-top:1px solid #3a1515">' +
+        '<div style="color:#c8a96e;font-family:Cinzel,serif;font-size:13px;margin-bottom:8px">🕵️ Casus Operasyonları</div>' +
+        '<div id="savas-casus-list" style="color:#888;font-size:11px;text-align:center;padding:16px">Casuslar yükleniyor...</div>' +
+      '</div>' +
+
       '<div style="margin-top:14px;color:#666;font-size:10px;text-align:center">İpucu: Eş zamanlı saldırı için üyelerle chat üstünden anlaş.</div>' +
     '</div>';
   modal.onclick = function(e) { if (e.target === modal) modal.remove(); };
 
   // Ofansif buyuleri yukle
   loadSavasOdasiBuyuler(hedefId, hedefKral);
+  // Casuslari yukle
+  loadSavasOdasiCasuslar(hedefId, hedefKral);
 }
 
 // v1.14.0.72: Savas odasi modal'inda ofansif buyuleri inline goster + yap butonu
@@ -552,6 +560,86 @@ async function savasOdasiBuyuYap(buyuId, hedefId, hedefKral) {
     // Reload buyuler (mana/cooldown guncel)
     _savasBkData = null;
     loadSavasOdasiBuyuler(hedefId, hedefKral);
+  } catch(e) { alert('Sunucu hatasi: ' + e.message); }
+}
+
+/* ══════════════════════════════════════
+   v1.14.0.73: INLINE CASUS GONDER
+══════════════════════════════════════ */
+var _savasCasusData = null;
+
+async function loadSavasOdasiCasuslar(hedefId, hedefKral) {
+  var list = document.getElementById('savas-casus-list');
+  if (!list) return;
+  try {
+    var token = getToken();
+    var r = await fetch(API_BASE + '/api/casus/liste', { headers: { Authorization: 'Bearer ' + token } });
+    var d = await r.json();
+    _savasCasusData = d;
+    renderSavasOdasiCasuslar(hedefId, hedefKral);
+  } catch(e) {
+    list.innerHTML = '<div style="color:#e74c3c">Casus verisi alınamadı: ' + e.message + '</div>';
+  }
+}
+
+function renderSavasOdasiCasuslar(hedefId, hedefKral) {
+  var list = document.getElementById('savas-casus-list');
+  if (!list || !_savasCasusData) return;
+  var d = _savasCasusData;
+  var casuslar = (d.casuslar || []).filter(c => c.durum === 'hazir');
+  var gorevler = d.gorev_tipleri || {};
+  var gizlilik = Math.floor(d.gizlilik || 0);
+
+  if (!casuslar.length) {
+    list.innerHTML = '<div style="color:#888;padding:8px">Hazır casusun yok. <a href="casus.html" style="color:#c8a96e">Casus sayfası</a>\'ndan eğit veya iyileşmesini bekle.</div>';
+    return;
+  }
+
+  // Casus seçici + görev seçici
+  var casusOpts = casuslar.map(c =>
+    '<option value="' + c.id + '">' + escHtml(c.isim || ('Casus #' + c.id)) + ' (Sev ' + (c.seviye || 1) + ')</option>'
+  ).join('');
+
+  var gorevOpts = Object.entries(gorevler).map(([tip, g]) => {
+    var gizY = g.gizlilik || 1;
+    var yeterGiz = gizlilik >= gizY;
+    var disabled = yeterGiz ? '' : 'disabled';
+    var ikon = yeterGiz ? '✓' : '🔒';
+    return '<option value="' + tip + '" ' + disabled + ' data-gizlilik="' + gizY + '" data-sure="' + (g.sure||3) + '">' +
+      ikon + ' ' + escHtml(g.isim || tip) + ' (gz: ' + gizY + ', ' + (g.sure||3) + ' PG)' +
+    '</option>';
+  }).join('');
+
+  list.innerHTML =
+    '<div style="text-align:left">' +
+      '<div style="color:#aaa;font-size:10px;margin-bottom:6px">Mevcut gizlilik: <b style="color:#9b59b6">' + gizlilik + '</b></div>' +
+      '<label style="color:#aaa;font-size:10px">Casus:' +
+        '<select id="savas-casus-sec" style="width:100%;margin:4px 0 8px;padding:6px;background:#1a1a1a;border:1px solid #333;color:#fff;border-radius:3px;font-size:11px">' + casusOpts + '</select>' +
+      '</label>' +
+      '<label style="color:#aaa;font-size:10px">Görev Tipi:' +
+        '<select id="savas-casus-gorev" style="width:100%;margin:4px 0 10px;padding:6px;background:#1a1a1a;border:1px solid #333;color:#fff;border-radius:3px;font-size:11px">' + gorevOpts + '</select>' +
+      '</label>' +
+      '<button class="btn-action" onclick="savasOdasiCasusGonder(' + hedefId + ',\'' + escAttr(hedefKral) + '\')" style="padding:8px 14px;background:#9b59b6;color:#fff;font-weight:bold;width:100%;font-size:11px">🕵️ Casusu Gönder</button>' +
+    '</div>';
+}
+
+async function savasOdasiCasusGonder(hedefId, hedefKral) {
+  var casusId = parseInt(document.getElementById('savas-casus-sec').value);
+  var gorevTipi = document.getElementById('savas-casus-gorev').value;
+  if (!casusId || !gorevTipi) { alert('Casus ve görev tipi seç'); return; }
+  if (!confirm('🕵️ Casus #' + casusId + ' → ' + hedefKral + ' (' + gorevTipi + ')?\nGizlilik harcanacak.')) return;
+  try {
+    var token = getToken();
+    var r = await fetch(API_BASE + '/api/casus/gonder', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ casusId: casusId, gorevTipi: gorevTipi, hedefPlayerId: hedefId })
+    });
+    var d = await r.json();
+    if (!d.basarili) { alert('Hata: ' + (d.error || '?')); return; }
+    alert('🕵️ ' + (d.mesaj || 'Casus gönderildi'));
+    _savasCasusData = null;
+    loadSavasOdasiCasuslar(hedefId, hedefKral);
   } catch(e) { alert('Sunucu hatasi: ' + e.message); }
 }
 
