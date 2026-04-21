@@ -100,6 +100,14 @@ function closeSavasRapor() {
 // Her tur icin saldiran + savunan komp yan yana, her birim icin Sayi/ATK/DEF
 function renderTurKomposizyonlari(turDetay, saldiranAdi, savunanAdi) {
   const fmt = n => (n == null ? '—' : (+n).toLocaleString('tr-TR'));
+  // v1.14.0.68.3: float precision fix — ATK/DEF tek ondalık, toplam virgülle ayır
+  const fmtStat = n => {
+    if (n == null || n === '-' || n === '?') return n;
+    const num = +n;
+    if (isNaN(num)) return n;
+    return Number.isInteger(num) ? num.toString() : num.toFixed(1);
+  };
+  const fmtTotal = n => (n == null ? '—' : Math.round(+n).toLocaleString('tr-TR'));
   function birimIsim(uid) {
     const realId = (uid||'').replace(/^kule_/, '').replace(/__army_\d+$/, '');
     const u = typeof UNITS !== 'undefined' ? UNITS[realId] : null;
@@ -127,8 +135,8 @@ function renderTurKomposizyonlari(turDetay, saldiranAdi, savunanAdi) {
       satirlar += `<div style="display:grid;grid-template-columns:1fr 50px 35px 35px;gap:4px;padding:2px 0;font-size:10px;border-bottom:1px dotted #2a2a2a">
         <span style="color:#e8dcc4">${b.name}${kuleEt}</span>
         <span style="color:#c8a96e;text-align:right;font-family:'Courier New'">${fmt(adet)}</span>
-        <span style="color:#e74c3c;text-align:right">${birimAtk}</span>
-        <span style="color:#3498db;text-align:right">${birimDef}</span>
+        <span style="color:#e74c3c;text-align:right">${fmtStat(birimAtk)}</span>
+        <span style="color:#3498db;text-align:right">${fmtStat(birimDef)}</span>
       </div>`;
     }
     return `<div class="sr-turn-side">
@@ -140,8 +148,8 @@ function renderTurKomposizyonlari(turDetay, saldiranAdi, savunanAdi) {
       <div style="display:grid;grid-template-columns:1fr 50px 35px 35px;gap:4px;padding:4px 0 0;margin-top:4px;border-top:1px solid #3a3020;font-size:10px;font-family:'Courier New'">
         <span style="color:#d4af37">Toplam</span>
         <span style="color:#d4af37;text-align:right">${fmt(toplamAdet)}</span>
-        <span style="color:#e74c3c;text-align:right">${fmt(toplamAtk)}</span>
-        <span style="color:#3498db;text-align:right">${fmt(toplamDef)}</span>
+        <span style="color:#e74c3c;text-align:right">${fmtTotal(toplamAtk)}</span>
+        <span style="color:#3498db;text-align:right">${fmtTotal(toplamDef)}</span>
       </div>
     </div>`;
   }
