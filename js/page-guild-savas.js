@@ -275,10 +275,11 @@ async function savasPlanKatilModal(planId) {
   // Ordu sec
   try {
     var token = getToken();
-    var r = await fetch(API_BASE + '/api/army', { headers: { Authorization: 'Bearer ' + token } });
+    var r = await fetch(API_BASE + '/api/army/state', { headers: { Authorization: 'Bearer ' + token } });
+    if (!r.ok) { alert('Ordu listesi alinamadi (HTTP ' + r.status + ')'); return; }
     var d = await r.json();
-    var ordular = (d.armies || d || []).filter(a => !a.is_busy);
-    if (!ordular.length) { alert('Müsait ordu yok'); return; }
+    var ordular = (d.armies || []).filter(a => !a.is_busy);
+    if (!ordular.length) { alert('Müsait (mesgul olmayan) ordu yok'); return; }
 
     var modal = document.createElement('div');
     modal.id = 'savas-plan-katil-modal';
@@ -431,11 +432,11 @@ function savasOdasiAcEylemModal(hedefId, hedefKral, hx, hy) {
   if (!modal) {
     modal = document.createElement('div');
     modal.id = 'savas-odasi-eylem-modal';
-    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:9999';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:9999;overflow-y:auto;padding:20px';
     document.body.appendChild(modal);
   }
   modal.innerHTML =
-    '<div class="card" style="max-width:400px;padding:20px;background:#0f0805;border:1px solid #5a3020">' +
+    '<div class="card" style="max-width:480px;width:100%;max-height:90vh;overflow-y:auto;padding:20px;background:#0f0805;border:1px solid #5a3020">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">' +
         '<h3 style="color:#c8a96e;font-family:Cinzel,serif;margin:0">⚔️ Saldırı Seçenekleri</h3>' +
         '<button onclick="document.getElementById(\'savas-odasi-eylem-modal\').remove()" style="background:none;border:none;color:#888;font-size:20px;cursor:pointer">×</button>' +
@@ -444,14 +445,114 @@ function savasOdasiAcEylemModal(hedefId, hedefKral, hx, hy) {
         '<div style="color:#E8A0A0;font-weight:bold">🎯 ' + escHtml(hedefKral) + '</div>' +
         '<div style="color:#888;font-size:11px;margin-top:4px">Koordinat: ' + hx + ':' + hy + '</div>' +
       '</div>' +
-      '<div style="display:grid;gap:10px">' +
-        '<a href="savas-baslat.html?hedef_id=' + hedefId + '&hedef_x=' + hx + '&hedef_y=' + hy + '&hedef_kral=' + encodeURIComponent(hedefKral) + '" style="padding:12px;background:#8B0000;color:#fff;text-align:center;border-radius:4px;text-decoration:none;font-weight:bold">⚔️ Ordu Gönder</a>' +
-        '<a href="buyucu-kulesi.html?hedef_id=' + hedefId + '&hedef_kral=' + encodeURIComponent(hedefKral) + '&kategori=dusmana" style="padding:12px;background:#5a3a8a;color:#fff;text-align:center;border-radius:4px;text-decoration:none;font-weight:bold">🔮 Saldırı Büyüsü Yap</a>' +
-        '<a href="map.html?x=' + hx + '&y=' + hy + '" style="padding:12px;background:#1a4a1a;color:#fff;text-align:center;border-radius:4px;text-decoration:none;font-weight:bold">📍 Haritada Göster</a>' +
+      '<div style="display:grid;gap:8px;margin-bottom:14px">' +
+        '<a href="savas-baslat.html?hedef_id=' + hedefId + '&hedef_x=' + hx + '&hedef_y=' + hy + '&hedef_kral=' + encodeURIComponent(hedefKral) + '" style="padding:10px;background:#8B0000;color:#fff;text-align:center;border-radius:4px;text-decoration:none;font-weight:bold">⚔️ Ordu Gönder (savaş sayfası)</a>' +
+        '<a href="map.html?x=' + hx + '&y=' + hy + '" style="padding:8px;background:#1a4a1a;color:#fff;text-align:center;border-radius:4px;text-decoration:none;font-size:12px">📍 Haritada Göster</a>' +
       '</div>' +
+
+      // v1.14.0.72: Inline ofansif buyu listesi
+      '<div id="savas-buyu-panel" style="padding-top:12px;border-top:1px solid #3a1515">' +
+        '<div style="color:#c8a96e;font-family:Cinzel,serif;font-size:13px;margin-bottom:8px">🔮 Saldırı Büyüleri</div>' +
+        '<div id="savas-buyu-list" style="color:#888;font-size:11px;text-align:center;padding:16px">Büyüler yükleniyor...</div>' +
+      '</div>' +
+
       '<div style="margin-top:14px;color:#666;font-size:10px;text-align:center">İpucu: Eş zamanlı saldırı için üyelerle chat üstünden anlaş.</div>' +
     '</div>';
   modal.onclick = function(e) { if (e.target === modal) modal.remove(); };
+
+  // Ofansif buyuleri yukle
+  loadSavasOdasiBuyuler(hedefId, hedefKral);
+}
+
+// v1.14.0.72: Savas odasi modal'inda ofansif buyuleri inline goster + yap butonu
+var _savasBkData = null;
+async function loadSavasOdasiBuyuler(hedefId, hedefKral) {
+  var list = document.getElementById('savas-buyu-list');
+  if (!list) return;
+  try {
+    var token = getToken();
+    var r = await fetch(API_BASE + '/api/buyucu-kulesi/durum', { headers: { Authorization: 'Bearer ' + token } });
+    var d = await r.json();
+    if (!d.ok) { list.innerHTML = '<div style="color:#e74c3c">Buyucu kulesi verisi alinamadi</div>'; return; }
+    _savasBkData = d;
+    renderSavasOdasiBuyuler(hedefId, hedefKral);
+  } catch(e) {
+    list.innerHTML = '<div style="color:#e74c3c">Hata: ' + e.message + '</div>';
+  }
+}
+
+function renderSavasOdasiBuyuler(hedefId, hedefKral) {
+  var list = document.getElementById('savas-buyu-list');
+  if (!list || !_savasBkData) return;
+  var d = _savasBkData;
+  var kitapMap = {};
+  (d.kitap || []).forEach(k => kitapMap[k.buyu_id] = k.kademe);
+  var cooldownMap = {};
+  (d.cooldownlar || []).forEach(c => cooldownMap[c.buyu_id] = c.bitis);
+
+  // Ofansif + ogrenilmis buyuler
+  var ofansif = (d.buyuler || []).filter(b => b.kategori === 'dusmana' && (kitapMap[b.id] || 0) > 0);
+
+  if (!ofansif.length) {
+    list.innerHTML = '<div style="color:#888;padding:8px">Henüz ofansif büyü öğrenmedin. <a href="buyucu-kulesi.html" style="color:#c8a96e">Büyücü Kulesi</a>\'nden parsömen oku.</div>';
+    return;
+  }
+
+  var kuleAdet = parseInt(d.buyu_kulesi_adet) || 0;
+  var k = d.kaynaklar || {};
+
+  list.innerHTML = ofansif.map(b => {
+    var kademe = kitapMap[b.id];
+    var kd = b.kademeler ? b.kademeler[kademe - 1] : null;
+    if (!kd) return '';
+    var manaKey = 'mana_' + b.mana_renk;
+    var mevcutMana = Math.floor(k[manaKey] || 0);
+    var mevcutMalzeme = k[b.malzeme] || 0;
+    var yeterliMana = mevcutMana >= (kd.mana || 0);
+    var yeterliMalzeme = mevcutMalzeme >= (kd.malzeme || 0);
+    var cdBitis = cooldownMap[b.id];
+    var cdAktif = cdBitis && new Date(cdBitis) > new Date();
+    var yeterliKule = b.cag <= kuleAdet;
+    var yapilabilir = yeterliMana && yeterliMalzeme && !cdAktif && yeterliKule;
+
+    var hata = '';
+    if (!yeterliKule) hata = '🔒 Kule cag ' + b.cag + ' gerek';
+    else if (cdAktif) hata = '⏱ Cooldown: ' + Math.ceil((new Date(cdBitis) - Date.now()) / 60000) + ' dk';
+    else if (!yeterliMana) hata = '💧 Mana yok (' + mevcutMana + '/' + kd.mana + ')';
+    else if (!yeterliMalzeme) hata = '🧪 ' + b.malzeme + ' yok (' + mevcutMalzeme + '/' + kd.malzeme + ')';
+
+    var manaIkon = b.mana_renk === 'beyaz' ? '🤍' : b.mana_renk === 'kirmizi' ? '❤️' : b.mana_renk === 'mavi' ? '💙' : '💚';
+
+    return '<div style="padding:10px;background:#1a1a1a;border-left:3px solid ' + (yapilabilir ? '#9b59b6' : '#555') + ';border-radius:4px;margin-bottom:6px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">' +
+        '<div style="flex:1;min-width:140px">' +
+          '<div style="color:#e8dcc4;font-weight:bold;font-size:12px">' + escHtml(b.isim) + ' <span style="color:#888;font-size:10px">K' + kademe + '</span></div>' +
+          '<div style="color:#888;font-size:10px;margin-top:2px">' + manaIkon + ' ' + kd.mana + ' · 🧪 ' + kd.malzeme + ' ' + b.malzeme + '</div>' +
+        '</div>' +
+        (yapilabilir
+          ? '<button class="btn-action" onclick="savasOdasiBuyuYap(\'' + b.id + '\',' + hedefId + ',\'' + escAttr(hedefKral) + '\')" style="padding:6px 14px;background:#9b59b6;color:#fff;font-size:11px;font-weight:bold;width:auto">⚡ YAP</button>'
+          : '<span style="padding:4px 8px;background:#2a2a2a;color:#e74c3c;font-size:10px;border-radius:3px">' + hata + '</span>') +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+async function savasOdasiBuyuYap(buyuId, hedefId, hedefKral) {
+  if (!confirm('🔮 ' + hedefKral + ' oyuncusuna "' + buyuId + '" büyüsü yapmak istiyor musun?')) return;
+  try {
+    var token = getToken();
+    var r = await fetch(API_BASE + '/api/buyucu-kulesi/buyu-yap', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ buyu_id: buyuId, hedef_id: hedefId })
+    });
+    var d = await r.json();
+    if (!d.ok) { alert('Hata: ' + (d.error || '?')); return; }
+    alert('⚡ Büyü yapıldı: ' + (d.mesaj || hedefKral + '\'e büyü atıldı'));
+    // Reload buyuler (mana/cooldown guncel)
+    _savasBkData = null;
+    loadSavasOdasiBuyuler(hedefId, hedefKral);
+  } catch(e) { alert('Sunucu hatasi: ' + e.message); }
 }
 
 // ─── Utility ─────────────
