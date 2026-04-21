@@ -518,6 +518,158 @@ window.CODEX_NODES = [
     ozet:'Ölümsüz, soğuk.',
     stats:{ ATK:'+8', DEF:'+8' },
     baglantilar:[{id:'irk',tip:'ilgili'}]},
+
+  // ══════════════════════════════════════════════════════════════
+  // v1.14.0.62 REHBER VERILERI — Eksik üniteler + detay
+  // Aydınlık: Baltacı (T1 iyi alternatif)
+  // Karanlık: İskelet, Goblin, İskelet Okçu, Ogre Savaşçı, Troll, Ork, Golem, Kara Şövalye, Kara Elf
+  // 4 Ejderha ayrı node (Mavi/Altın/Kırmızı/Siyah)
+  // ══════════════════════════════════════════════════════════════
+
+  { id:'baltaci', baslik:'Baltacı', kategori:'unite', tier:'T1', ikon:'🪓',
+    ozet:'Aydınlık hafif saldırgan. Piyade kardeşi ama daha ucuz.',
+    stats:{ ATK:2, DEF:7, Zirh:15, İska:20, Maaş:15, Tur:'4-6', Tier:1 },
+    aciklama:'Aydınlık tarafın ikinci T1 birimi. Piyadeye göre daha düşük DEF ama daha ucuz. Yüksek iska oranı (%20) ile saldırıda bazı darbeler tamamen kaçar. Saldırgan-temelli kısa ömürlü birim.',
+    detay:'**Maliyet**: 2,000 altın + 75 odun + 50 metal (Piyade: 3,000 altın + 75 odun + 50 işlenmiş)\n\n**Eğitim süresi**: 2 PG\n\n**Saldırı turları**: 4-6 (geç giriş)\n\n**İska %20**: Yeni sisteme göre her saldırıdan %80 hasar geçer (deterministik).\n\n**Gelişim**: ATK +0.5/sv, DEF +0.5/sv, max 10',
+    strateji:[
+      'Piyadenin yerine değil yanında kullan — sayı çokluğu avantajı',
+      'Zırhı düşük, saf 1\'e koyma',
+      'Erken oyun ekonomisinde tercih sebebi (ucuz)'
+    ],
+    baglantilar:[{id:'asker',tip:'gereklilik'},{id:'piyade',tip:'karsilastir'},{id:'savas-saf',tip:'ilgili'}]},
+
+  // KARANLIK TARAF ÜNİTELERİ
+  { id:'iskelet', baslik:'İskelet', kategori:'unite', tier:'T1', ikon:'💀',
+    ozet:'Karanlık T1 piyade. Undead ordu çekirdeği.',
+    stats:{ ATK:1, DEF:8, Zirh:10, İska:10, Maaş:15, Tur:'4-6', Tier:1 },
+    aciklama:'Piyadenin karanlık eşdeğeri. Daha düşük ATK (1) ama ucuz. Sayıca baskın ordu için temel.',
+    detay:'**Maliyet**: 3,000 altın + 75 odun + 50 işlenmiş\n**Eğitim**: 2 PG\n**Saf tercihi**: 4-6 turda saldırır\n**Gelişim**: ATK/DEF +0.5/sv max 10',
+    strateji:['Sayı üstünlüğü kur','Saf 1-2\'de koru','Goblin ile karışık dizilim dengeli'],
+    baglantilar:[{id:'asker',tip:'gereklilik'},{id:'piyade',tip:'karsilastir'},{id:'goblin',tip:'karsilastir'}]},
+
+  { id:'goblin', baslik:'Goblin', kategori:'unite', tier:'T1', ikon:'👺',
+    ozet:'Karanlık saldırgan T1. Yüksek zırh ve iska.',
+    stats:{ ATK:3, DEF:9, Zirh:25, İska:20, Maaş:20, Tur:'4-6', Tier:1 },
+    aciklama:'Karanlık Baltacı eşdeğeri ama DAHA İYİ — zırh 25, ATK 3. Saldırı gücü erken oyunda ciddi.',
+    detay:'**Maliyet**: 3,000 altın + 75 odun + 50 işlenmiş (İskelete eşit, ATK üstün)\n**Zırh avantajı**: 25 → %33 azaltma\n**Gelişim**: ATK/DEF +0.5/sv',
+    strateji:['İskeletten tercih et — ATK 3 vs 1','Saf 2-3\'e koy','Erken yağmalar için ideal'],
+    baglantilar:[{id:'asker',tip:'gereklilik'},{id:'iskelet',tip:'karsilastir'},{id:'baltaci',tip:'karsilastir'}]},
+
+  { id:'iskelet-okcu', baslik:'İskelet Okçu', kategori:'unite', tier:'T1', ikon:'🏹',
+    ozet:'Karanlık menzilli T1. Saf 1-3 sürekli hasar.',
+    stats:{ ATK:6, DEF:11, Zirh:15, İska:25, Maaş:32, Tur:'1-3', Tier:1 },
+    aciklama:'Okçunun karanlık eşdeğeri — ATK daha yüksek (6 vs 5) ama iska da yüksek (%25 vs %20).',
+    detay:'**Maliyet**: 6,500 altın + 300 odun + 50 işlenmiş\n**İska %25**: atk × 0.75 = her saldırıda %75 hasar geçer\n**Tur 1-3 menzilli**\n**Zırh 15** — saf 3-4\'te tut',
+    strateji:['Okçu + İskelet Okçu savaşında ATK eşit, iska farkı belirleyici','Arka safta koru','Kara Elf ile kombinle (menzilli stack)'],
+    baglantilar:[{id:'asker',tip:'gereklilik'},{id:'okcu',tip:'karsilastir'},{id:'zirh-iska',tip:'ilgili'}]},
+
+  { id:'ogre-savasci', baslik:'Ogre Savaşçı', kategori:'unite', tier:'T2', ikon:'👹',
+    ozet:'Karanlık T2 dev asker. Dayanıklı ama yavaş.',
+    stats:{ ATK:5, DEF:19, Zirh:20, İska:15, Maaş:28, Tur:'2-6', Tier:2 },
+    aciklama:'Savasci eşdeğeri — DEF biraz düşük (19 vs 18), Zırh düşük (20 vs 25).',
+    detay:'**Maliyet**: 7,000 altın + 150 odun + 50 metal + 100 işlenmiş\n**Eğitim 4 PG**\n**Saf 2-6** (erken giriş)\n**Gelişim**: ATK +0.5, DEF +1/sv',
+    strateji:['Erken-orta oyun kası','Troll ile kombinle'],
+    baglantilar:[{id:'asker',tip:'gereklilik'},{id:'savasci',tip:'karsilastir'},{id:'metal',tip:'gereklilik'}]},
+
+  { id:'troll', baslik:'Troll', kategori:'unite', tier:'T2', ikon:'🧌',
+    ozet:'Karanlık ağır T2. Şövalyenin eşdeğeri.',
+    stats:{ ATK:7, DEF:21, Zirh:25, İska:20, Maaş:35, Tur:'3-6', Tier:2 },
+    aciklama:'Şövalye karanlık karşılığı. ATK 7 (Şövalye 6), ama DEF 21 (Şövalye 22). Neredeyse ayar.',
+    detay:'**Maliyet**: 10,500 altın + 120 metal + 80 işlenmiş (at gerekmez!)\n**Şövalyeye göre avantaj**: At gerekmiyor\n**Eğitim 5 PG**\n**Zırh 25**: %33 azaltma',
+    strateji:['Şövalye + at ekonomisinden kurtul — Troll at kullanmıyor','Saf 2-3','Kara Şövalye ile birlikte'],
+    kilit:{aktif:true,sart:{tip:'cag',deger:2}},
+    baglantilar:[{id:'asker',tip:'gereklilik'},{id:'sovalye',tip:'karsilastir'},{id:'kara-sovalye',tip:'sonra'}]},
+
+  { id:'ork', baslik:'Ork (Ünite)', kategori:'unite', tier:'T2', ikon:'💪',
+    ozet:'Karanlık süvari eşdeğeri. Kurt gerektirir.',
+    stats:{ ATK:8, DEF:24, Zirh:25, İska:15, Maaş:40, Tur:'3-6', Tier:2 },
+    aciklama:'Süvari karanlık karşılığı — at yerine KURT kullanır. Zırh 25 (Süvari 20 — daha iyi).',
+    detay:'**Maliyet**: 11,500 altın + 80 metal + 120 işlenmiş + 1 KURT\n**Süvariye göre avantaj**: Kurt Ahır\'da üretilir (at gibi), zırh +5\n**Eğitim 6 PG**',
+    strateji:['Ahır kurtları yetiştir','Saf 3\'e','Kara Şövalye ile ağır dizilim'],
+    kilit:{aktif:true,sart:{tip:'cag',deger:2}},
+    baglantilar:[{id:'kurt',tip:'gereklilik'},{id:'ahir',tip:'gereklilik'},{id:'suvari',tip:'karsilastir'}]},
+
+  { id:'golem', baslik:'Golem', kategori:'unite', tier:'T3', ikon:'🗿',
+    ozet:'Karanlık elit tank. Paladin karşılığı.',
+    stats:{ ATK:11, DEF:29, Zirh:30, İska:25, Maaş:80, Tur:'2-6', Tier:3 },
+    aciklama:'Paladin eşdeğeri ama daha ATK\'lı (11 vs 9), daha az DEF (29 vs 33). İska 25 yüksek.',
+    detay:'**Maliyet**: 33,000 altın + 250 odun + 150 metal + 150 işlenmiş + 1 KURT\n**Paladine göre**: Kurt (at değil), daha ucuz zırh değişimi\n**Eğitim 6 PG** · **Gelişim**: ATK +1, DEF +2/sv',
+    strateji:['Paladine alternatif elit tank','Saf 2-3 ön hat','Kara Şövalye ile kombin'],
+    kilit:{aktif:true,sart:{tip:'cag',deger:3}},
+    baglantilar:[{id:'kurt',tip:'gereklilik'},{id:'paladin',tip:'karsilastir'},{id:'kara-sovalye',tip:'ilgili'}]},
+
+  { id:'kara-sovalye', baslik:'Kara Şövalye', kategori:'unite', tier:'T3', ikon:'⚔️',
+    ozet:'Karanlık Kolcu karşılığı. Saldırı çarpanı x2.',
+    stats:{ ATK:8, DEF:36, Zirh:25, İska:15, Maaş:48, Tur:'2-6', Tier:3, Çarpan:'x2' },
+    aciklama:'Saldırı çarpanı **x2**: ATK 8 × 2 = gerçek 16 hasar. Yüksek DEF (36) + x2 çarpan = ciddi birim.',
+    detay:'**Maliyet**: 15,250 altın + 150 odun + 100 metal + 150 işlenmiş + 1 GİZLİLİK\n**Gizlilik**: Lonca binası üretir\n**Saldırı x2**: Kolcu ile aynı mekanik\n**Eğitim 6 PG** · **Gelişim**: ATK +1, DEF +2/sv',
+    strateji:['x2 saldırı çarpanı — piyadeden 8 kat etkili','Lonca kurmadan üretilmez','Saf 2-4 her yerde işe yarar'],
+    kilit:{aktif:true,sart:{tip:'cag',deger:3}},
+    baglantilar:[{id:'gizlilik',tip:'gereklilik'},{id:'lonca',tip:'gereklilik'},{id:'kolcu',tip:'karsilastir'}]},
+
+  { id:'kara-elf-unite', baslik:'Kara Elf (Ünite)', kategori:'unite', tier:'T3', ikon:'🏴',
+    ozet:'Karanlık Büyücü eşdeğeri. Mana kullanır.',
+    stats:{ ATK:10, DEF:19, Zirh:15, İska:10, Maaş:120, Tur:'1-3', Tier:3, Çarpan:'x2' },
+    aciklama:'Büyücü karanlık karşılığı — ATK 10 (Büyücü 11), saldırı x2. Menzilli (Tur 1-3). Zırh düşük (15).',
+    detay:'**Maliyet**: 24,500 altın + 5 MANA\n**Mana**: Tapınak worshipperlarından\n**x2 çarpan**: Her saldırıda 2 kat hasar\n**Eğitim 10 PG** — pahalı birim\n**Not**: Bu ÜNITE, Kara Elf IRK\'ı ayrı node',
+    strateji:['Mana ekonomisi kur','Arka safta zırh 15 ile koru','İskelet Okçu ile menzilli ordu'],
+    kilit:{aktif:true,sart:{tip:'cag',deger:3}},
+    baglantilar:[{id:'mana-kirmizi',tip:'gereklilik'},{id:'buyucu',tip:'karsilastir'},{id:'kara-elf',tip:'ilgili'}]},
+
+  // EJDERHA 4 TİP (eski tek node'u zenginleştir + 4 tip)
+  { id:'mavi-ejderha', baslik:'Mavi Ejderha', kategori:'unite', tier:'T4', ikon:'🔵',
+    ozet:'Aydınlık küçük ejderha. Buz nefesi.',
+    stats:{ ATK:7500, DEF:2500, Zirh:70, İska:10, Maaş:0, Tur:'1-6' },
+    aciklama:'Mağaradan %80 sansla cıkan nadir Aydınlık ejderhası. Her turda savaşa katılır. Maaş yok, geliştirilmez.',
+    detay:'**Çıkış**: Mağara binası — %0.005-0.0005 sans/PG\n**Aydınlık 2 ejderhadan küçük olanı** (Altın 10K ATK)\n**Zırh 70 → %58 azaltma**\n**Her tur aktif** (1-6)\n**Üretilemez, gelişmez, maaş almaz**',
+    strateji:['İlk ejderhanı koru — çıkış şansı düşük','Arka safta (4) düşman erişimini zorlaştır','Kale bonusu ile zırh 84\'e çıkar'],
+    kilit:{aktif:true,sart:{tip:'cag',deger:4}},
+    baglantilar:[{id:'magara',tip:'gereklilik'},{id:'altin-ejderha',tip:'karsilastir'},{id:'kirmizi-ejderha',tip:'karsilastir'}]},
+
+  { id:'altin-ejderha', baslik:'Altın Ejderha', kategori:'unite', tier:'T4', ikon:'🟡',
+    ozet:'Aydınlık büyük ejderha. Tanrısal güç.',
+    stats:{ ATK:10000, DEF:5000, Zirh:75, İska:10, Maaş:0, Tur:'1-6' },
+    aciklama:'Aydınlığın en güçlü birimi. Mağaradan %20 sansla çıkar — mavi\'den nadir.',
+    detay:'**Çıkış**: Mağara %20 sans (içinde mavi %80)\n**ATK 10K** — savaşın kaderini değiştirir\n**Zırh 75 → %60 azaltma** (en yüksek)\n**Her tur savaşa**: 1-6\n**1 Altın Ejderha = ~1500 Piyade ATK gücü**',
+    strateji:['Bu birim kayıp = krallık sonu. Asla tek başına gönderme.','Arka saf, kale bonusu, zırh %72\'ye çıkar','Düşman büyücü/elit birim önceliği = ejderhayı koru'],
+    kilit:{aktif:true,sart:{tip:'cag',deger:4}},
+    baglantilar:[{id:'magara',tip:'gereklilik'},{id:'mavi-ejderha',tip:'karsilastir'},{id:'siyah-ejderha',tip:'karsilastir'}]},
+
+  { id:'kirmizi-ejderha', baslik:'Kırmızı Ejderha', kategori:'unite', tier:'T4', ikon:'🔴',
+    ozet:'Karanlık küçük ejderha. Ateş nefesi.',
+    stats:{ ATK:7500, DEF:2500, Zirh:70, İska:10, Maaş:0, Tur:'1-6' },
+    aciklama:'Mavi Ejderha\'nın karanlık eşdeğeri. Aynı ATK/DEF ama Karanlık Kadim\'den (Gorathul) gelir.',
+    detay:'**Çıkış**: Mağara %80 sans\n**Karanlık 2 ejderhadan küçük**\n**Zırh 70 → %58 azaltma**\n**Mavi Ejderha ile tamamen ayar** (simetri)',
+    strateji:['Aydınlık Mavi eşdeğeri — stratejiler aynı','Gorathul yakın — kadim ticarette al'],
+    kilit:{aktif:true,sart:{tip:'cag',deger:4}},
+    baglantilar:[{id:'magara',tip:'gereklilik'},{id:'siyah-ejderha',tip:'karsilastir'},{id:'mavi-ejderha',tip:'karsilastir'},{id:'kadim',tip:'ilgili'}]},
+
+  { id:'siyah-ejderha', baslik:'Siyah Ejderha', kategori:'unite', tier:'T4', ikon:'⚫',
+    ozet:'Karanlığın en güçlü birimi. Altın Ejderha eşdeğeri.',
+    stats:{ ATK:10000, DEF:5000, Zirh:75, İska:10, Maaş:0, Tur:'1-6' },
+    aciklama:'Altın Ejderha\'nın karanlık eşdeğeri. ATK/DEF/Zırh aynı.',
+    detay:'**Çıkış**: Mağara %20 sans\n**Karanlığın en yüksek ATK** (10K)\n**Zırh 75**\n**Altın Ejderha ile simetri**',
+    strateji:['Altın Ejderha stratejisi ile aynı','Koruma önemli','1 Siyah Ejderha savaşı çevirebilir'],
+    kilit:{aktif:true,sart:{tip:'cag',deger:4}},
+    baglantilar:[{id:'magara',tip:'gereklilik'},{id:'altin-ejderha',tip:'karsilastir'},{id:'kirmizi-ejderha',tip:'karsilastir'}]},
+
+  // EK SİSTEM NODE'LARI
+  { id:'saldiri-carpan', baslik:'Saldırı Çarpanı', kategori:'savas', ikon:'⚔️',
+    ozet:'Bazı ünitelerin ATK değerinin kaç katı hasar verdiği.',
+    stats:{ x1:'Piyade/Okçu/Şövalye', x2:'Kolcu/Kara Şövalye/Büyücü/Kara Elf', x3:'Işığın/Gölge Savaşçısı' },
+    aciklama:'Saldırı çarpanı, savaş motorunda atk × adet × saldiriCarpan formülüyle uygulanır. Yüksek çarpanlı birimler az ama elit.',
+    detay:'**x3 birimleri**: 40 ATK × 3 = **120 gerçek hasar** — bir işığın savaşçısı 120 piyade ATK\'sına eşit\n\n**x2 birimleri**: Elit tier 2/3 — %2 adet ama %4 etki\n\n**x1 birimler**: Ana ordular, sayı ağırlıklı',
+    strateji:['Az sayıda elit birim yüksek çarpan sayesinde çok iş yapar','x3 saldırganlık + kale koruması = güçlü savunma'],
+    baglantilar:[{id:'savas-motor',tip:'ilgili'},{id:'isin-savasci',tip:'ornek'},{id:'kolcu',tip:'ornek'},{id:'siyah-ejderha',tip:'ornek'}]},
+
+  { id:'cesaret', baslik:'Cesaret Puanı', kategori:'savas', ikon:'🎖️',
+    ozet:'Savaş kazanımı + kaybı kümülatif skor.',
+    stats:{ Kazanınca:'+2', Kaybedince:'+1' },
+    aciklama:'Her savaşta her iki taraf da cesaret puanı kazanır — kazanan daha fazla. Uzun dönemli siralama parametresi.',
+    detay:'**Kazanınca**: +2 cesaret\n**Kaybedince**: +1 (yine de bir miktar kazanırsın — savaşmaktan kaçınma)\n**Artifact "Cesaret Puanı" (Sonsuz)**: +2 cesaret (kullanım)',
+    strateji:['Savaşmak = kazanç, kaçmak = stagnasyon','Küçük zaferler = büyük cesaret','Siralama sezonunda önem kazanir'],
+    baglantilar:[{id:'savas-motor',tip:'ilgili'}]},
+
 ];
 
 window.CODEX_BAG_LABEL = {
