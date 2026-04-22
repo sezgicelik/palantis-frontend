@@ -10,41 +10,29 @@ const _HP_FMTK = (typeof fmtK === 'function') ? (n) => fmtK(n, 0) : _HP_FMT;
 function _hpSet(id, html) { const el = document.getElementById(id); if (el) el.innerHTML = html; }
 function _hpText(id, text) { const el = document.getElementById(id); if (el) el.textContent = text; }
 
-/* ── 1) Sehir Basligi ── */
-async function hpLoadBaslik() {
+/* ── 1) Sehir Basligi — OYUNCU global + HUD deger elementlerinden ── */
+function hpLoadBaslik() {
   try {
-    const token = getToken(); if (!token) return;
-    const r = await fetch(API_BASE + '/api/player/info', { headers: { Authorization: 'Bearer ' + token } });
-    if (!r.ok) return;
-    const p = await r.json();
+    const p = (typeof OYUNCU !== 'undefined' && OYUNCU) ? OYUNCU : {};
     const cagRoman = ['','I','II','III','IV','V'][p.cag || 1] || p.cag;
     const tarafIkon = p.taraf === 'iyi' ? '☀' : '🌑';
-    _hpText('hp-sehir-baslik', `🏰 ${p.sehir || p.kral || 'Noxara'} ${tarafIkon}`);
+    _hpText('hp-sehir-baslik', '🏰 ' + (p.sehir || p.kral || 'Noxara') + ' ' + tarafIkon);
     _hpText('hp-irk', (p.irk_ad || p.irk || '—'));
     _hpText('hp-cag', cagRoman + '. Çağ');
     _hpText('hp-koord', (p.koord_x || '?') + ':' + (p.koord_y || '?'));
-    if (p.sehir_morali !== undefined) {
-      const moralMax = p.moral_max || 1500;
-      _hpText('hp-mutluluk', p.sehir_morali + ' / ' + moralMax);
-    }
-    if (p.ordu_morali !== undefined) {
-      _hpText('hp-ordu-moral', '%' + p.ordu_morali);
-    }
+    // Sehir degeri — HUD'daki hud-sehir-deger'den
+    const sdEl = document.getElementById('hud-sehir-deger');
+    if (sdEl && sdEl.textContent && sdEl.textContent !== '0') _hpText('hp-sehir-deger', sdEl.textContent);
+    // Mutluluk — HUD'daki hud-sehir-moral'den
+    const smEl = document.getElementById('hud-sehir-moral');
+    if (smEl && smEl.textContent) _hpText('hp-mutluluk', smEl.textContent);
+    // Ordu morali — HUD'daki hud-moral'den
+    const omEl = document.getElementById('hud-moral');
+    if (omEl && omEl.textContent) _hpText('hp-ordu-moral', '%' + omEl.textContent);
   } catch(e) { console.warn('[hpBaslik]', e.message); }
 }
-
-/* ── Sehir degeri ── */
-async function hpLoadDeger() {
-  try {
-    const token = getToken(); if (!token) return;
-    const r = await fetch(API_BASE + '/api/game/sehir-degeri?_cb=' + Date.now(), {
-      headers: { Authorization: 'Bearer ' + token }, cache: 'no-store'
-    });
-    if (!r.ok) return;
-    const d = await r.json();
-    if (d.sehir_degeri !== undefined) _hpText('hp-sehir-deger', _HP_FMT(d.sehir_degeri));
-  } catch(e) {}
-}
+// Eski ismi korurmek icin
+async function hpLoadDeger() { hpLoadBaslik(); }
 
 /* ── 2) Gelen Saldırı ── */
 async function hpLoadGelen() {
@@ -134,21 +122,22 @@ async function hpLoadInsaat() {
   if (!el) return;
   try {
     const token = getToken(); if (!token) return;
-    const r = await fetch(API_BASE + '/api/game/bina-kuyruk?_cb=' + Date.now(), {
+    // v1.14.1.01 FIX: /api/game/kuyruk-ozet dogru endpoint
+    const r = await fetch(API_BASE + '/api/game/kuyruk-ozet?_cb=' + Date.now(), {
       headers: { Authorization: 'Bearer ' + token }, cache: 'no-store'
     });
-    if (!r.ok) { el.innerHTML = '<span class="loading">API hata</span>'; return; }
+    if (!r.ok) { el.innerHTML = '<span class="loading">—</span>'; return; }
     const d = await r.json();
-    const kuyruk = d.kuyruk || d.queue || [];
+    const kuyruk = d.bina_kuyrugu || d.bina || [];
     if (!kuyruk.length) { el.innerHTML = '<div style="color:#555;text-align:center">Boş</div>'; return; }
     el.innerHTML = kuyruk.slice(0, 3).map(k => {
-      const kalan = k.kalan_insa || 0;
-      const sure = k.toplam_sure || 1;
+      const kalan = k.kalan_insa || k.kalan || 0;
+      const sure = k.toplam_sure || k.insa_sure || 1;
       const yuzde = Math.min(100, Math.max(0, Math.round(((sure - kalan) / sure) * 100)));
-      return '<div class="kv"><span class="lbl">' + (k.bina_adi || k.bina_id) + '</span><span class="val">%' + yuzde + '</span></div>' +
+      return '<div class="kv"><span class="lbl">' + (k.bina_adi || k.bina_id) + (k.yeni_seviye ? ' → Sv ' + k.yeni_seviye : '') + '</span><span class="val">%' + yuzde + '</span></div>' +
              '<div class="bar"><div class="bar-fill" style="width:' + yuzde + '%"></div></div>';
     }).join('');
-  } catch(e) { el.innerHTML = '<span class="loading">API hata</span>'; }
+  } catch(e) { el.innerHTML = '<span class="loading">—</span>'; }
 }
 
 /* ── 6) Ünite Eğitimi ── */
@@ -157,17 +146,20 @@ async function hpLoadUniteKuyruk() {
   if (!el) return;
   try {
     const token = getToken(); if (!token) return;
-    const r = await fetch(API_BASE + '/api/game/training-queue?_cb=' + Date.now(), {
+    // v1.14.1.01 FIX: /api/game/army/queue dogru endpoint
+    const r = await fetch(API_BASE + '/api/game/army/queue?_cb=' + Date.now(), {
       headers: { Authorization: 'Bearer ' + token }, cache: 'no-store'
     });
-    if (!r.ok) { el.innerHTML = '<span class="loading">API hata</span>'; return; }
+    if (!r.ok) { el.innerHTML = '<span class="loading">—</span>'; return; }
     const d = await r.json();
-    const kuyruk = Array.isArray(d) ? d : (d.kuyruk || []);
+    const kuyruk = Array.isArray(d) ? d : (d.kuyruk || d.queue || []);
     if (!kuyruk.length) { el.innerHTML = '<div style="color:#555;text-align:center">Boş</div>'; return; }
     el.innerHTML = kuyruk.slice(0, 3).map(k => {
-      return '<div class="kv"><span class="lbl">' + (k.unite_id || k.unite_adi) + '</span><span class="val">×' + _HP_FMT(k.adet || 0) + '</span></div>';
+      const uDef = (typeof UNITS !== 'undefined') ? UNITS[k.unite_id] : null;
+      const ad = uDef?.name || k.unite_id || k.unite_adi || '?';
+      return '<div class="kv"><span class="lbl">' + (uDef?.icon || '⚔') + ' ' + ad + '</span><span class="val">×' + _HP_FMT(k.adet || 0) + '</span></div>';
     }).join('');
-  } catch(e) { el.innerHTML = '<span class="loading">API hata</span>'; }
+  } catch(e) { el.innerHTML = '<span class="loading">—</span>'; }
 }
 
 /* ── 7) Birimler (unit pool) ── */
@@ -207,18 +199,19 @@ async function hpLoadBuyuler() {
   if (!el) return;
   try {
     const token = getToken(); if (!token) return;
-    const r = await fetch(API_BASE + '/api/buyucu-kulesi?_cb=' + Date.now(), {
+    // v1.14.1.01 FIX: /api/buyucu-kulesi/aktif dogru endpoint
+    const r = await fetch(API_BASE + '/api/buyucu-kulesi/aktif?_cb=' + Date.now(), {
       headers: { Authorization: 'Bearer ' + token }, cache: 'no-store'
     });
-    if (!r.ok) { el.innerHTML = '<span class="loading">API hata</span>'; return; }
+    if (!r.ok) { el.innerHTML = '<div style="color:#555;text-align:center">—</div>'; return; }
     const d = await r.json();
-    const aktif = (d.aktif_buyuler || []).slice(0, 4);
+    const aktif = (d.buyuler || d.aktif_buyuler || []).slice(0, 4);
     if (!aktif.length) { el.innerHTML = '<div style="color:#555;text-align:center">Aktif büyü yok</div>'; return; }
     el.innerHTML = aktif.map(b => {
       const kalan = b.kalan_pg || b.kalan_sure || 0;
-      return '<div class="kv"><span class="lbl">' + (b.buyu_ad || b.buyu_id) + '</span><span class="val">' + kalan + ' PG</span></div>';
+      return '<div class="kv"><span class="lbl">' + (b.buyu_ad || b.buyu_id || '?') + '</span><span class="val">' + kalan + ' PG</span></div>';
     }).join('');
-  } catch(e) { el.innerHTML = '<span class="loading">API hata</span>'; }
+  } catch(e) { el.innerHTML = '<div style="color:#555;text-align:center">—</div>'; }
 }
 
 /* ── 9) Aktif Etkiler ── */
@@ -236,21 +229,25 @@ async function hpLoadRaporlar() {
   if (!el) return;
   try {
     const token = getToken(); if (!token) return;
-    const r = await fetch(API_BASE + '/api/savas/raporlar?limit=3&_cb=' + Date.now(), {
+    // v1.14.1.01 FIX: /api/savas/gecmis dogru endpoint
+    const r = await fetch(API_BASE + '/api/savas/gecmis?limit=3&_cb=' + Date.now(), {
       headers: { Authorization: 'Bearer ' + token }, cache: 'no-store'
     });
-    if (!r.ok) { el.innerHTML = '<span class="loading">API hata</span>'; return; }
+    if (!r.ok) { el.innerHTML = '<div style="color:#555;text-align:center">—</div>'; return; }
     const d = await r.json();
-    const raporlar = d.raporlar || d.savaslar || [];
+    const raporlar = d.savaslar || d.raporlar || (Array.isArray(d) ? d : []);
     if (!raporlar.length) { el.innerHTML = '<div style="color:#555;text-align:center">Henüz savaş yok</div>'; return; }
+    const myId = d.benim_id;
     el.innerHTML = raporlar.slice(0, 3).map(rp => {
-      const kazandi = rp.kazanan_id === rp.saldiran_id ? 'saldiran' : 'savunan';
-      const benKazandi = (rp.saldiran_id === rp.benim_id && kazandi === 'saldiran') ||
-                         (rp.savunan_id === rp.benim_id && kazandi === 'savunan');
+      const benSaldiran = rp.saldiran_id === myId;
+      const benSavunan = rp.savunan_id === myId;
+      const kazandi = rp.kazanan === 'saldiran' || rp.kazanan_id === rp.saldiran_id ? 'saldiran' : 'savunan';
+      const benKazandi = (benSaldiran && kazandi === 'saldiran') || (benSavunan && kazandi === 'savunan');
+      const hasim = benSaldiran ? (rp.savunan_kral || rp.savunan_sehir || '?') : (rp.saldiran_kral || rp.saldiran_sehir || '?');
       return '<div class="kv"><span class="' + (benKazandi ? 'ok' : 'alert') + '">' + (benKazandi ? '✓ Zafer' : '✗ Kayıp') +
-             '</span><span style="font-size:10px;color:#888">' + (rp.hedef_isim || '?') + '</span></div>';
+             '</span><span style="font-size:10px;color:#888">' + hasim + '</span></div>';
     }).join('');
-  } catch(e) { el.innerHTML = '<span class="loading">Rapor yok</span>'; }
+  } catch(e) { el.innerHTML = '<div style="color:#555;text-align:center">—</div>'; }
 }
 
 /* ── 11) Guild ── */
