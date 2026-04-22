@@ -118,12 +118,13 @@ body{
   border-bottom:1px solid var(--race-color);
 }
 .menu-item{
-  padding:7px 12px;
+  padding:9px 14px;
   cursor:pointer;
   border-bottom:1px solid rgba(255,255,255,0.03);
   color:#d4cbb8;
   transition:.2s;
-  font-size:11px;
+  /* v1.14.0.97: Font buyutme — 11px -> 13px (okunakli) */
+  font-size:13px;
   text-decoration:none;
   display:block;
 }
@@ -139,8 +140,9 @@ body{
 }
 /* Alt menu maddeleri */
 .menu-item.sub-item{
-  padding:5px 8px 5px 22px !important;
-  font-size:10px !important;
+  padding:6px 8px 6px 24px !important;
+  /* v1.14.0.97: Font buyutme — 10px -> 12px */
+  font-size:12px !important;
   color:#999;
   border-bottom:1px solid rgba(255,255,255,0.02);
   position:relative;
@@ -172,6 +174,12 @@ body{
   border-left:2px solid rgba(200,169,110,0.15);
   margin:0;
   padding:2px 0;
+}
+
+/* v1.14.0.97: Mobil ekranda sidebar font'unu kucult (900px alti) */
+@media (max-width: 900px) {
+  .menu-item { font-size: 11px !important; padding: 7px 12px !important; }
+  .menu-item.sub-item { font-size: 10px !important; padding: 5px 8px 5px 22px !important; }
 }
 
 /* ===== ORTA ALAN ===== */
