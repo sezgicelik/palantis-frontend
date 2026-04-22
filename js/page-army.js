@@ -469,13 +469,14 @@ function renderOrduListe(){
     var mesgulBadge = o.is_busy ? '<span style="background:#e74c3c22;color:#e74c3c;padding:1px 6px;border-radius:3px;font-size:11px;margin-left:6px">YOLDA</span>' : '';
 
     // v1.14.0.92: Collapsible — varsayilan kapali (sadece ozet). Tikla -> expand
-    var collapsed = (typeof window._orduCollapse !== 'undefined' && window._orduCollapse[o.id] === false) ? false : true;
-    var bodyDisplay = collapsed ? 'none' : 'grid';
+    // v1.14.0.93: state mantigi duzeltildi (true=acik, false/undefined=kapali)
+    var acik = !!(window._orduCollapse && window._orduCollapse[o.id]);
+    var bodyDisplay = acik ? 'grid' : 'none';
     return '<div class="card ordu-card" data-ordu-id="' + o.id + '" style="padding:0;margin-bottom:14px;border:1px solid #333;border-radius:8px;overflow:hidden">' +
       // Baslik bar — TIKLANABİLİR, toggle
-      '<div onclick="orduCardToggle(' + o.id + ')" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(212,175,55,.08);border-bottom:' + (collapsed?'none':'1px solid #333') + ';flex-wrap:wrap;gap:6px;cursor:pointer" onmouseover="this.style.background=\'rgba(212,175,55,.14)\'" onmouseout="this.style.background=\'rgba(212,175,55,.08)\'">' +
+      '<div onclick="orduCardToggle(' + o.id + ')" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(212,175,55,.08);border-bottom:' + (acik?'1px solid #333':'none') + ';flex-wrap:wrap;gap:6px;cursor:pointer" onmouseover="this.style.background=\'rgba(212,175,55,.14)\'" onmouseout="this.style.background=\'rgba(212,175,55,.08)\'">' +
         '<div style="display:flex;align-items:center;gap:8px">' +
-          '<span style="color:#d4af37;font-size:12px;width:14px;transition:transform .2s;transform:rotate(' + (collapsed?'0':'90') + 'deg)">▶</span>' +
+          '<span style="color:#d4af37;font-size:12px;width:14px;transition:transform .2s;transform:rotate(' + (acik?'90':'0') + 'deg)">▶</span>' +
           '<span style="font-family:Cinzel,serif;font-size:14px;font-weight:bold;color:#d4af37">' + o.isim + '</span>' +
           mesgulBadge +
         '</div>' +
@@ -638,10 +639,10 @@ function toggleUniteYonetimi(armyId) {
   window._openUniteYon[armyId] = nowOpen;
 }
 
-// v1.14.0.92: Ordu kartini genislet/daralt (collapse state global)
+// v1.14.0.92/93: Ordu kartini genislet/daralt (true=acik, false/undefined=kapali)
 window._orduCollapse = window._orduCollapse || {};
 function orduCardToggle(armyId) {
-  window._orduCollapse[armyId] = !(window._orduCollapse[armyId] === false);
+  window._orduCollapse[armyId] = !window._orduCollapse[armyId];
   // Yeniden render
   if (typeof renderOrduListe === 'function') renderOrduListe();
 }
@@ -868,8 +869,10 @@ async function loadArmyPool(){
   const token = getToken(); if(!token) return;
   try {
     // v1.2.0: /api/army/state — tek seferde tum ordu verisi
-    const resp = await fetch(API_BASE + '/api/army/state', {
-      headers: { 'Authorization': 'Bearer ' + token }
+    // v1.14.0.93: cache-bust + no-store (ETag 304 stale bug)
+    const resp = await fetch(API_BASE + '/api/army/state?_cb=' + Date.now(), {
+      headers: { 'Authorization': 'Bearer ' + token, 'Cache-Control': 'no-cache' },
+      cache: 'no-store'
     });
     if(!resp.ok) return;
     const data = await resp.json();
