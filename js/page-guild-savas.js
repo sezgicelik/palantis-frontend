@@ -199,14 +199,69 @@ function renderSavasPlanKart(p) {
     '</div>' +
     (p.not_metin ? '<div style="color:#888;font-size:10px;margin-bottom:6px">📝 ' + escHtml(p.not_metin) + '</div>' : '') +
     '<div style="color:#666;font-size:10px;margin-bottom:4px">Katılım (' + kat.length + '): ' + (kat.length ? katilimMetin : '<em>henüz kimse katılmadı</em>') + '</div>' +
-    '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
+    // v1.14.0.88: Inline dropdown katil (modal yok)
+    '<div id="splan-inline-' + p.id + '" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">' +
       (p.ben_katildim
         ? '<span style="padding:4px 10px;background:#1a4a1a;color:#2ecc71;border-radius:3px;font-size:11px">✓ Katıldın</span>'
-        : '<button class="btn-action" onclick="savasPlanKatilModal(' + p.id + ')" style="padding:4px 10px;font-size:11px;background:#8B0000;color:#fff;width:auto">⚔️ Katıl</button>') +
+        : ('<select id="splan-ordu-' + p.id + '" style="padding:4px 8px;background:#1a1a1a;border:1px solid #333;color:#fff;border-radius:3px;font-size:11px;flex:1;min-width:180px" onfocus="savasPlanOrduYukle(' + p.id + ')"><option value="">Ordu seç...</option></select>' +
+           '<button class="btn-action" onclick="savasPlanKatilInline(' + p.id + ')" style="padding:4px 10px;font-size:11px;background:#8B0000;color:#fff;width:auto">⚔️ Katıl</button>')) +
       '<button class="btn-action" onclick="savasOdasiAcEylemModal(' + p.hedef.player_id + ',\'' + escAttr(p.hedef.kral) + '\',' + p.hedef.koord_x + ',' + p.hedef.koord_y + ')" style="padding:4px 10px;background:#5a3a8a;color:#fff;border-radius:3px;font-size:11px;border:none;cursor:pointer">🔮 Büyü At</button>' +
       (canIptal ? '<button class="btn-action" onclick="savasPlanIptal(' + p.id + ')" style="padding:4px 10px;font-size:11px;background:#333;color:#aaa;width:auto">✕ İptal</button>' : '') +
     '</div>' +
+    '<div id="splan-sonuc-' + p.id + '" style="margin-top:4px;font-size:10px;color:#888"></div>' +
   '</div>';
+}
+
+// v1.14.0.88: Ordu dropdown lazy-load (ilk focus'ta doldur)
+async function savasPlanOrduYukle(planId) {
+  const sel = document.getElementById('splan-ordu-' + planId);
+  if (!sel || sel.dataset.loaded === '1') return;
+  sel.dataset.loaded = '1';
+  sel.innerHTML = '<option value="">Yükleniyor...</option>';
+  try {
+    const token = getToken();
+    const r = await fetch(API_BASE + '/api/army/state?_cb=' + Date.now(), {
+      headers: { Authorization: 'Bearer ' + token },
+      cache: 'no-store'
+    });
+    const d = await r.json();
+    const musait = (d.armies || []).filter(a => !a.is_busy && (a.total_units || a.toplam_unite) > 0);
+    if (!musait.length) {
+      sel.innerHTML = '<option value="">Müsait ordu yok</option>';
+      return;
+    }
+    sel.innerHTML = '<option value="">Ordu seç...</option>' + musait.map(a => {
+      const u = a.total_units || a.toplam_unite || 0;
+      return '<option value="' + a.id + '">' + escHtml(a.isim || 'Ordu #' + a.id) + ' — ' + u + ' ünite</option>';
+    }).join('');
+  } catch(e) {
+    sel.innerHTML = '<option value="">Hata: ' + e.message + '</option>';
+  }
+}
+
+async function savasPlanKatilInline(planId) {
+  const sel = document.getElementById('splan-ordu-' + planId);
+  const sonuc = document.getElementById('splan-sonuc-' + planId);
+  const armyId = parseInt(sel?.value || 0);
+  if (!armyId) { sonuc.textContent = '✗ Ordu seç'; sonuc.style.color = '#e74c3c'; return; }
+  sonuc.textContent = 'Katılıyorsun...'; sonuc.style.color = '#888';
+  try {
+    const token = getToken();
+    const r = await fetch(API_BASE + '/api/guild/savas-plan/' + planId + '/katil', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ army_id: armyId })
+    });
+    const d = await r.json();
+    if (!d.ok) { sonuc.textContent = '✗ ' + (d.error || '?'); sonuc.style.color = '#e74c3c'; return; }
+    sonuc.textContent = '✓ Katıldın! Kalkış ' + d.dakika_kala + ' dk sonra';
+    sonuc.style.color = '#2ecc71';
+    var savas = (SAVAS_ODASI_DATA && SAVAS_ODASI_DATA.savaslar) ? SAVAS_ODASI_DATA.savaslar[SAVAS_ODASI_AKTIF_SAVAS_IDX] : null;
+    if (savas) setTimeout(() => loadSavasPlanlari(savas.rakip_guild.id), 500);
+  } catch(e) {
+    sonuc.textContent = '✗ Sunucu hatası: ' + e.message;
+    sonuc.style.color = '#e74c3c';
+  }
 }
 
 function savasPlanAcOlusturModal(rakipGuildId) {

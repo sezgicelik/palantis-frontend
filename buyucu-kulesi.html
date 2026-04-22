@@ -650,16 +650,23 @@ function bkRenderParsomenler() {
   if (!parsomenler.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
   empty.style.display = 'none';
 
+  // v1.14.0.88: Mevcut kademe bilgisi (kitap'tan)
+  const kitapMap = {};
+  (bkData.kitap || []).forEach(k => kitapMap[k.buyu_id] = k.kademe);
+
   list.innerHTML = parsomenler.map(p => {
     const buyu = (bkData.buyuler || []).find(b => b.id === p.buyu_id);
     const isim = buyu ? buyu.isim : p.buyu_id;
     const renk = buyu ? buyu.mana_renk : 'beyaz';
+    const kademe = kitapMap[p.buyu_id] || 0;
+    const max = kademe >= 10;
+    const kademeBadge = `<span style="display:inline-block;padding:1px 6px;background:${max?'#5a0000':'#1a1a1a'};color:${max?'#e74c3c':'#d4af37'};border-radius:3px;font-size:10px;margin-left:6px" title="Mevcut kademe: ${kademe}/10">K${kademe}${max?' MAX':''}</span>`;
     return `<div class="parsomen-card">
       <div>
-        <div class="p-isim"><span class="mana-dot mana-${renk}"></span> ${isim}</div>
+        <div class="p-isim"><span class="mana-dot mana-${renk}"></span> ${isim} ${kademeBadge}</div>
         <div class="p-adet">${p.adet} adet</div>
       </div>
-      <button class="btn gold" style="font-size:11px;padding:4px 12px" onclick="bkParsomenOku('${p.buyu_id}')">Oku</button>
+      <button class="btn gold" style="font-size:11px;padding:4px 12px${max?';opacity:0.4;cursor:not-allowed':''}" ${max?'disabled title="Max kademe 10 — okumaya gerek yok"':''} onclick="bkParsomenOku('${p.buyu_id}')">${max?'MAX':'Oku'}</button>
     </div>`;
   }).join('');
 }
@@ -738,12 +745,14 @@ async function bkLoadLog() {
   } catch(e) {}
 }
 
+// v1.14.0.88: PG format (1 saat = 1 PG). Dakika da gosterilir tam hizalama icin.
 function bkFormatKalan(bitisTarih) {
   const kalan = new Date(bitisTarih) - new Date();
   if (kalan <= 0) return 'Bitti';
-  const saat = Math.floor(kalan / 3600000);
+  const pg = Math.floor(kalan / 3600000);
   const dk = Math.floor((kalan % 3600000) / 60000);
-  return saat > 0 ? `${saat}s ${dk}dk` : `${dk}dk`;
+  if (pg > 0) return `${pg} PG ${dk} dk`;
+  return `${dk} dk`;
 }
 
 // ═══ BİLGE SEÇİMİ ═══
