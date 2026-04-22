@@ -490,7 +490,7 @@ function renderOrduListe(){
         '<div style="padding:10px 12px;border-right:1px solid #222;min-width:130px">' +
           '<div style="font-size:10px;color:#888;margin-bottom:6px;font-weight:bold">Islemler</div>' +
           '<div style="display:flex;flex-direction:column;gap:6px">' +
-            '<button class="btn ghost" style="font-size:10px;padding:5px 8px" onclick="armyTab(\'formation\');document.getElementById(\'formation-army-select\').value=\'' + o.id + '\';loadFormationForArmy()">⚔️ Ordu Dizilimi</button>' +
+            '<button class="btn ghost" style="font-size:10px;padding:5px 8px" onclick="toggleFormationPanel(' + o.id + ')">⚔️ Saf Dizilimi</button>' +
             '<button class="btn ghost" style="font-size:10px;padding:5px 8px" onclick="toggleUniteYonetimi(' + o.id + ')">🗡️ Unite Yonetimi</button>' +
             (!o.is_busy && o.total_units >= 100 ?
               '<button class="btn ghost" style="font-size:10px;padding:5px 8px;color:#d4af37;border-color:#d4af3744" onclick="toggleOrduGonderPanel(' + o.id + ',\'' + (korumada ? 'korumada' : 'sehir') + '\')">📤 Ordu Gonder</button>'
@@ -545,6 +545,13 @@ function renderOrduListe(){
               '</div>';
             }).join('') +
           '</div>' : '') +
+      '</div>' +
+      // v1.14.0.90: Inline saf dizilimi paneli (gizli, toggle ile acilir)
+      '<div id="formation-panel-' + o.id + '" style="display:none;padding:12px;border-top:1px solid #333;background:rgba(0,0,0,.25)">' +
+        (o.is_busy || (o.konum_tipi && o.konum_tipi !== 'sehir')
+          ? '<div style="padding:12px;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);border-radius:6px;color:#e74c3c;font-size:12px">🔒 Saf dizilimi sadece ordu <b>Sehirde</b> iken duzenlenebilir. Bu ordu su an yolda/konuslanmis.</div>'
+          : '<div id="formation-body-' + o.id + '"><div style="color:#888;font-size:11px;padding:10px">Yukleniyor...</div></div>'
+        ) +
       '</div>' +
       // v1.9.3: Yoldaki görev bilgi barı
       (o.is_busy && o.aktif_gorev ? (function(){
@@ -1446,4 +1453,158 @@ async function orduGeriCagir(armyId) {
     if (typeof loadGameData === 'function') await loadGameData();
     renderOrduListe();
   } catch(e) { showToast('Baglanti hatasi', 'error'); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   v1.14.0.90: INLINE SAF DIZILIMI (ordu karti icinde)
+═══════════════════════════════════════════════════════════ */
+
+function toggleFormationPanel(armyId) {
+  var panel = document.getElementById('formation-panel-' + armyId);
+  if (!panel) return;
+  var isOpen = panel.style.display === 'block';
+  document.querySelectorAll('[id^="formation-panel-"]').forEach(function(el){ el.style.display = 'none'; });
+  if (isOpen) return;
+  panel.style.display = 'block';
+
+  FORMATION_ARMY_ID = armyId;
+  FORMATION_STATE = [[], [], [], []];
+  var army = ORDULAR.find(function(o){ return o.id === armyId; });
+  if (army && army.dizilim && army.dizilim.saflar) {
+    for (var i = 0; i < 4; i++) FORMATION_STATE[i] = (army.dizilim.saflar[i] || []).slice();
+  }
+  if (army && !army.is_busy && (!army.konum_tipi || army.konum_tipi === 'sehir')) {
+    renderInlineFormation(armyId);
+  }
+}
+
+function renderInlineFormation(armyId) {
+  var host = document.getElementById('formation-body-' + armyId);
+  if (!host) return;
+  var army = ORDULAR.find(function(o){ return o.id === armyId; });
+  if (!army) { host.innerHTML = '<div style="color:#888">Ordu bulunamadi</div>'; return; }
+
+  var unitAdetMap = {};
+  (army.units || []).forEach(function(u){ unitAdetMap[u.unite_id] = u.adet; });
+
+  var html = '<div style="display:flex;flex-direction:column;gap:10px">';
+  for (var i = 0; i < 4; i++) {
+    var prevFull = i === 0 || FORMATION_STATE[i-1].length >= SAF_LIMITS[i-1];
+    html += '<div class="saf-row' + (!prevFull ? ' locked' : '') + '">' +
+      '<div class="saf-label" style="font-size:11px;color:' + (prevFull ? '#d4a257' : '#555') + ';margin-bottom:4px">' + (i+1) + '. SAF (' + SAF_LIMITS[i] + ' birim)</div>' +
+      '<div class="saf-slots" style="display:flex;gap:8px;flex-wrap:wrap">';
+    for (var j = 0; j < SAF_LIMITS[i]; j++) {
+      var uid = FORMATION_STATE[i][j];
+      if (uid) {
+        var udata = UNITS[uid];
+        var adet = unitAdetMap[uid] || 0;
+        html += '<div class="saf-slot filled" style="width:90px;height:110px;border:2px solid #d4a257;border-radius:6px;background:#1a1510;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer" onclick="inlineFormRemove(' + armyId + ',' + i + ',' + j + ')" title="Kaldirmak icin tikla">' +
+          '<div style="line-height:1">' + unitIcon(udata, 36) + '</div>' +
+          '<div style="font-size:10px;color:#d4af37;font-weight:bold;margin-top:2px">(' + adet.toLocaleString('tr-TR') + ')</div>' +
+          '<div style="font-size:9px;color:#aaa;margin-top:1px;text-align:center;padding:0 2px">' + (udata ? udata.name : uid) + '</div>' +
+        '</div>';
+      } else {
+        html += '<div class="saf-slot" style="width:90px;height:110px;border:2px dashed ' + (prevFull ? '#555' : '#2a2a2a') + ';border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:24px;color:' + (prevFull ? '#888' : '#333') + ';' + (prevFull ? 'cursor:pointer' : '') + '"' + (prevFull ? ' onclick="inlineFormPick(' + armyId + ',' + i + ',' + j + ')"' : '') + '>+</div>';
+      }
+    }
+    html += '</div></div>';
+  }
+  html += '</div>';
+
+  var placed = {};
+  FORMATION_STATE.forEach(function(r){ r.forEach(function(u){ placed[u] = true; }); });
+  var available = (army.units || []).filter(function(u){ return u.adet > 0 && !placed[u.unite_id]; });
+  if (available.length) {
+    html += '<div style="margin-top:14px"><div style="font-size:11px;color:#d4a257;font-weight:bold;margin-bottom:6px">Kullanilabilir Uniteler (tikla ekle):</div><div style="display:flex;gap:6px;flex-wrap:wrap">';
+    available.forEach(function(u){
+      var udata = UNITS[u.unite_id];
+      if (!udata) return;
+      html += '<div onclick="inlineFormAddAuto(' + armyId + ',\'' + u.unite_id + '\')" style="padding:6px 10px;background:#1a1a1a;border:1px solid #333;border-radius:4px;cursor:pointer;font-size:11px;color:#ccc;display:flex;align-items:center;gap:4px">' +
+        unitIcon(udata, 20) + ' ' + udata.name + ' <b style="color:#d4af37">(' + u.adet.toLocaleString('tr-TR') + ')</b>' +
+      '</div>';
+    });
+    html += '</div></div>';
+  }
+
+  html += '<div style="margin-top:14px;display:flex;gap:8px">' +
+    '<button class="btn" onclick="inlineFormSave(' + armyId + ')" style="flex:1">💾 Dizilimi Kaydet</button>' +
+    '<button class="btn ghost" onclick="inlineFormReset(' + armyId + ')">🔄 Sifirla</button>' +
+  '</div>';
+  html += '<div id="inline-form-msg-' + armyId + '" style="margin-top:8px;font-size:11px;color:#888;min-height:16px"></div>';
+
+  host.innerHTML = html;
+}
+
+function inlineFormAddAuto(armyId, unitId) {
+  var zaten = false;
+  FORMATION_STATE.forEach(function(r){ if (r.indexOf(unitId) !== -1) zaten = true; });
+  if (zaten) { if (typeof toast === 'function') toast('Bu unite zaten saflarda'); return; }
+  for (var i = 0; i < 4; i++) {
+    if (i > 0 && FORMATION_STATE[i-1].length < SAF_LIMITS[i-1]) break;
+    if (FORMATION_STATE[i].length < SAF_LIMITS[i]) {
+      FORMATION_STATE[i].push(unitId);
+      renderInlineFormation(armyId);
+      return;
+    }
+  }
+  if (typeof toast === 'function') toast('Saf dolu');
+}
+
+function inlineFormRemove(armyId, saf, slot) {
+  FORMATION_STATE[saf].splice(slot, 1);
+  renderInlineFormation(armyId);
+}
+
+function inlineFormPick(armyId, saf, slot) {
+  var army = ORDULAR.find(function(o){ return o.id === armyId; });
+  if (!army) return;
+  var placed = {};
+  FORMATION_STATE.forEach(function(r){ r.forEach(function(u){ placed[u] = true; }); });
+  var firstFree = (army.units || []).find(function(u){ return u.adet > 0 && !placed[u.unite_id]; });
+  if (!firstFree) { if (typeof toast === 'function') toast('Musait unite yok'); return; }
+  FORMATION_STATE[saf].splice(slot, 0, firstFree.unite_id);
+  if (FORMATION_STATE[saf].length > SAF_LIMITS[saf]) FORMATION_STATE[saf].pop();
+  renderInlineFormation(armyId);
+}
+
+async function inlineFormSave(armyId) {
+  var msg = document.getElementById('inline-form-msg-' + armyId);
+  if (msg) { msg.textContent = 'Kaydediliyor...'; msg.style.color = '#888'; }
+  try {
+    var token = getToken();
+    var r = await fetch(API_BASE + '/api/army/armies/' + armyId + '/formation', {
+      method: 'PUT',
+      headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+token },
+      body: JSON.stringify({
+        saf_1: FORMATION_STATE[0],
+        saf_2: FORMATION_STATE[1],
+        saf_3: FORMATION_STATE[2],
+        saf_4: FORMATION_STATE[3]
+      })
+    });
+    var d = await r.json();
+    if (!r.ok) {
+      if (msg) { msg.textContent = 'X ' + (d.error || 'Hata'); msg.style.color = '#e74c3c'; }
+      return;
+    }
+    if (msg) { msg.textContent = 'Dizilim kaydedildi'; msg.style.color = '#2ecc71'; }
+    setTimeout(function(){ if (typeof loadOrdular === 'function') loadOrdular(); }, 700);
+  } catch(e) {
+    if (msg) { msg.textContent = 'Sunucu hatasi: ' + e.message; msg.style.color = '#e74c3c'; }
+  }
+}
+
+function inlineFormReset(armyId) {
+  FORMATION_STATE = [[], [], [], []];
+  renderInlineFormation(armyId);
+}
+
+if (typeof window !== 'undefined') {
+  window.toggleFormationPanel = toggleFormationPanel;
+  window.renderInlineFormation = renderInlineFormation;
+  window.inlineFormAddAuto = inlineFormAddAuto;
+  window.inlineFormRemove = inlineFormRemove;
+  window.inlineFormPick = inlineFormPick;
+  window.inlineFormSave = inlineFormSave;
+  window.inlineFormReset = inlineFormReset;
 }
