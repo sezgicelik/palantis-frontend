@@ -275,7 +275,10 @@ async function savasPlanKatilModal(planId) {
   // Ordu sec
   try {
     var token = getToken();
-    var r = await fetch(API_BASE + '/api/army/state', { headers: { Authorization: 'Bearer ' + token } });
+    var r = await fetch(API_BASE + '/api/army/state?_cb=' + Date.now(), {
+      headers: { Authorization: 'Bearer ' + token, 'Cache-Control': 'no-cache' },
+      cache: 'no-store'
+    });
     if (!r.ok) { alert('Ordu listesi alinamadi (HTTP ' + r.status + ')'); return; }
     var d = await r.json();
     var ordular = (d.armies || []).filter(a => !a.is_busy);
@@ -486,7 +489,11 @@ async function loadSavasOdasiOrdular(hedefId, hedefKral, hx, hy) {
   if (!list) return;
   try {
     const token = getToken();
-    const r = await fetch(API_BASE + '/api/army/state', { headers: { Authorization: 'Bearer ' + token } });
+    // v1.14.0.85.5: cache-bust + no-store (ETag 304 bypass)
+    const r = await fetch(API_BASE + '/api/army/state?_cb=' + Date.now(), {
+      headers: { Authorization: 'Bearer ' + token, 'Cache-Control': 'no-cache' },
+      cache: 'no-store'
+    });
     if (!r.ok) { list.innerHTML = '<div style="color:#e74c3c">Ordu listesi alınamadı (HTTP ' + r.status + ')</div>'; return; }
     const d = await r.json();
     const tumOrdular = d.armies || [];
