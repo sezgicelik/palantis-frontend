@@ -440,9 +440,10 @@ function renderOrduListe(){
         g.tip === 'donus' ? '🏠 Donus' : g.tip.startsWith('donus') ? '🏠 Donus' :
         g.tip === 'koloni' ? '🏰 Koloni' : g.tip.startsWith('rolu') ? '🔀 Relay' : '🚀';
       // v1.14.0.92: N/M PG progress gosterimi
+      // v1.14.1.00 FIX: +1 kaldirildi — ilk dakikalarda 0/3 gostersin (zaten 1 saat gecmeden 1/3 olamaz)
       var toplamPG = parseInt(g.efektif_sure) || parseInt(g.ham_sure) || 1;
       var gecenMs = Date.now() - new Date(g.baslangic || Date.now()).getTime();
-      var gecenPG = Math.max(0, Math.min(toplamPG, Math.floor(gecenMs / 3600000) + 1)); // +1 ki 0/N degil 1/N baslar
+      var gecenPG = Math.max(0, Math.min(toplamPG, Math.floor(gecenMs / 3600000)));
       konumLabel = tipKisa + ' ' + gecenPG + '/' + toplamPG + ' PG';
       konumKoord = (g.hedef_x||'?') + ':' + (g.hedef_y||'?');
       konumRenk = g.tip.startsWith('donus') ? '#27ae60' : '#e67e22';
@@ -468,6 +469,11 @@ function renderOrduListe(){
       konumRenk = '#2ecc71';
     }
     var mesgulBadge = o.is_busy ? '<span style="background:#e74c3c22;color:#e74c3c;padding:1px 6px;border-radius:3px;font-size:11px;margin-left:6px">YOLDA</span>' : '';
+    // v1.14.1.00: Geri Cagir butonu — saldiri/takviye/kolonide yoldayken (donus HARIC)
+    var geriCagirBtn = '';
+    if (o.is_busy && o.aktif_gorev && o.aktif_gorev.id && !(o.aktif_gorev.tip || '').startsWith('donus')) {
+      geriCagirBtn = '<button onclick="event.stopPropagation();orduGeriCagir(' + o.aktif_gorev.id + ',\'' + (o.isim||'Ordu').replace(/'/g,"\\'") + '\')" style="padding:3px 10px;background:linear-gradient(180deg,#c0392b,#8b1a1a);color:#fff;border:1px solid #5a0f0f;border-radius:3px;cursor:pointer;font-family:Cinzel,serif;font-size:10px;font-weight:700;letter-spacing:.5px;margin-left:6px" title="Orduyu geri cagir (donus yolu olusur)">🔙 GERI CAGIR</button>';
+    }
 
     // v1.14.0.92: Collapsible — varsayilan kapali (sadece ozet). Tikla -> expand
     // v1.14.0.93: state mantigi duzeltildi (true=acik, false/undefined=kapali)
@@ -479,7 +485,7 @@ function renderOrduListe(){
         '<div style="display:flex;align-items:center;gap:8px">' +
           '<span style="color:#d4af37;font-size:12px;width:14px;transition:transform .2s;transform:rotate(' + (acik?'90':'0') + 'deg)">▶</span>' +
           '<span style="font-family:Cinzel,serif;font-size:14px;font-weight:bold;color:#d4af37">' + o.isim + '</span>' +
-          mesgulBadge +
+          mesgulBadge + geriCagirBtn +
         '</div>' +
         '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">' +
           '<span style="font-size:10px;color:' + konumRenk + ';background:' + konumRenk + '15;padding:2px 8px;border-radius:4px;border:1px solid ' + konumRenk + '33">' + konumLabel + (konumKoord ? ' <b>' + konumKoord + '</b>' : '') + '</span>' +
@@ -648,6 +654,34 @@ function orduCardToggle(armyId) {
   if (typeof renderOrduListe === 'function') renderOrduListe();
 }
 if (typeof window !== 'undefined') window.orduCardToggle = orduCardToggle;
+
+/* v1.14.1.00: Ordu geri cagir — POST /api/savas/iptal */
+async function orduGeriCagir(gorevId, orduIsim) {
+  if (!gorevId) return;
+  if (!confirm('🔙 "' + orduIsim + '" ordusunu geri cagirmak istiyor musun?\n\nOrdu simdiye kadar gittigi mesafe kadar donus yolunda olacak. Donus yolundayken iptal edilemez.')) return;
+  const token = getToken();
+  if (!token) return;
+  try {
+    const r = await fetch(API_BASE + '/api/savas/iptal', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ gorevId: gorevId })
+    });
+    const d = await r.json();
+    if (r.ok && d.basarili) {
+      if (typeof showToast === 'function') showToast('🔙 Ordu geri cagrildi — ' + (d.efektif_sure||'?') + ' PG sonra evde', 'success');
+      else alert('Ordu geri cagrildi!');
+      await loadArmyPool();
+      if (typeof renderOrduListe === 'function') renderOrduListe();
+      if (typeof refreshOrdularim === 'function') refreshOrdularim();
+    } else {
+      alert('Hata: ' + (d.error || 'Bilinmeyen'));
+    }
+  } catch(e) {
+    alert('Baglanti hatasi: ' + e.message);
+  }
+}
+if (typeof window !== 'undefined') window.orduGeriCagir = orduGeriCagir;
 
 // v1.14.0.89: Unite ekle/cikar input helpers (preset +10/+100/+1K/MAX + input bazli)
 function uksStepInp(inputId, delta, max) {
