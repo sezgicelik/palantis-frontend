@@ -318,8 +318,9 @@ function renderKusatmaIcerik(el, data) {
   var gonderebilir = isLider || yetkiler.guild_ordusu_gonder;
 
   // Mevcut guild ordulari (sehirde ve yeterli unite)
+  // v1.14.1.01 FIX: r.ordu_listesi (kusatma-durum response) — data.ordu_listesi DEGIL
   var minOrdu = (r.config && r.config.kusatma_min_ordu) || 500;
-  var orduListesi = (data.ordu_listesi || data.guild_ordular || []).filter(function(o) {
+  var orduListesi = (r.ordu_listesi || r.guild_ordular || data.ordu_listesi || []).filter(function(o) {
     return (o.durum === 'sehirde' || !o.durum) && (o.toplam_unite || 0) >= minOrdu;
   });
 
