@@ -64,13 +64,13 @@ function setHudNum(id, value) {
 }
 
 /* HUD rate guncelle — kisa format + renk + tam deger tooltip
-   HUD'da "+1,84K" gibi kisa; hover tooltip'te "+1.840 / Palantis Gunu" */
+   HUD'da "+1,8K" gibi kisa (1 ondalik); hover tooltip'te "+1.840 / Palantis Gunu" */
 function setHudRate(id, value) {
   const el = document.getElementById(id);
   if (!el) return;
   const v = Number(value) || 0;
   const sign = v >= 0 ? '+' : '';
-  el.textContent = sign + fmtK(v);
+  el.textContent = sign + fmtK(v, 1);
   el.className = 'res-rate ' + (v > 0 ? 'pos' : v < 0 ? 'neg' : 'neu');
   el.title = sign + Math.floor(v).toLocaleString('tr-TR') + ' / Palantis Günü';
 }
