@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noxara – Şehir Görsel Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  body {
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(180deg,#8a7a55 0%,#9b8960 30%,#7a6944 60%,#5a4a2d 100%);
+    font-family: 'Cinzel', serif;
+    min-height: 100vh;
+  }
+
+  /* Klanlar'daki gibi kahve border ekrani */
+  .sehir-panel {
+    max-width: 680px;
+    margin: 0 auto;
+    background: transparent;
+    border: 2px solid #7d510f;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+  .sehir-panel-head {
+    background: linear-gradient(180deg,#c1a264,#a98a54);
+    border-bottom: 2px solid #6c4824;
+    padding: 8px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #1a1208;
+    font-size: 14px;
+    font-weight: 700;
+    text-shadow: 0 1px 0 rgba(255,245,220,0.4);
+  }
+
+  /* Asil sahne: yesil cayir + daire sur + binalar */
+  .sehir-sahne {
+    position: relative;
+    height: 470px;
+    background:
+      radial-gradient(ellipse at 20% 20%, #3f5a2a 0%, #2d4218 40%, transparent 70%),
+      radial-gradient(ellipse at 80% 30%, #4a6832 0%, #375124 40%, transparent 70%),
+      radial-gradient(ellipse at 40% 85%, #5a7a3a 0%, #3f5a2a 40%, transparent 70%),
+      linear-gradient(180deg,#5a7a3a 0%,#4a6832 50%,#3f5a2a 100%);
+    overflow: hidden;
+  }
+
+  /* Etraf orman (dekoratif kenar agac gorseli) */
+  .orman-ust-sol, .orman-ust-sag, .orman-alt-sol, .orman-alt-sag {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    font-size: 64px;
+    line-height: 1;
+    opacity: 0.7;
+    filter: drop-shadow(2px 4px 2px rgba(0,0,0,0.3));
+    pointer-events: none;
+  }
+  .orman-ust-sol { top: -10px; left: 0; }
+  .orman-ust-sag { top: -10px; right: 0; transform: scaleX(-1); }
+  .orman-alt-sol { bottom: 10px; left: -5px; }
+  .orman-alt-sag { bottom: 10px; right: -5px; transform: scaleX(-1); }
+
+  /* Buyulu daire sur */
+  .surlar {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    width: 440px;
+    height: 360px;
+    border: 8px solid #6c4824;
+    border-radius: 50%;
+    background: linear-gradient(135deg,rgba(200,170,110,0.25),rgba(140,110,65,0.15));
+    box-shadow:
+      inset 0 0 30px rgba(108,72,36,0.4),
+      0 0 30px rgba(0,0,0,0.35);
+  }
+  .surlar::before {
+    /* Sur ici zemin dairesel */
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border-radius: 50%;
+    background:
+      radial-gradient(ellipse at center, #a68557 0%, #8c7042 50%, #6e5530 100%);
+  }
+
+  /* Sur uzerinde burç isaretleri (her 45 derecede) */
+  .burc {
+    position: absolute;
+    width: 12px; height: 12px;
+    background: #3a2410;
+    border-radius: 3px;
+    border: 2px solid #c1a264;
+    z-index: 2;
+  }
+
+  /* Binalar - icine pozisyonlu */
+  .bina {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.15s;
+    z-index: 5;
+  }
+  .bina:hover { transform: scale(1.1); z-index: 10; }
+  .bina:hover .bina-ad { display: block; }
+
+  .bina-svg { filter: drop-shadow(1px 2px 2px rgba(0,0,0,0.4)); }
+
+  .bina-ad {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 4px);
+    background: rgba(0,0,0,0.85);
+    color: #f4e7c7;
+    padding: 3px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+    font-size: 10px;
+    letter-spacing: 0.3px;
+    pointer-events: none;
+  }
+
+  /* Klanlar gibi — yeşil seviye rozeti */
+  .sv-rozet {
+    position: absolute;
+    top: -6px;
+    right: -12px;
+    background: linear-gradient(180deg,#5a9642,#3d7a22);
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: Arial, sans-serif;
+    border: 1px solid #2a5a16;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    min-width: 18px;
+    text-align: center;
+    z-index: 6;
+  }
+  .sv-rozet .tmr {
+    display: block;
+    font-size: 9px;
+    color: #d4eaa8;
+    font-weight: 400;
+    margin-top: 1px;
+  }
+
+  /* Ortadaki meydan */
+  .meydan {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    width: 60px;
+    height: 60px;
+    background: radial-gradient(circle,#d4af37 0%,#a68537 70%);
+    border-radius: 50%;
+    border: 3px solid #6c4824;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+    z-index: 4;
+  }
+
+  /* Ust info bar (sehir adi) */
+  .sehir-panel-head .puan {
+    font-weight: 400;
+    opacity: 0.85;
+  }
+
+  .aciklama {
+    max-width: 680px;
+    margin: 16px auto 0;
+    font-family: 'Cinzel', serif;
+    color: #f4e7c7;
+    font-size: 12px;
+    background: rgba(0,0,0,0.4);
+    padding: 14px;
+    border-radius: 6px;
+    border: 1px solid rgba(212,175,55,0.25);
+    line-height: 1.6;
+  }
+  .aciklama b { color: #d4af37; }
+  .aciklama a { color: #d4af37; }
+</style>
+</head>
+<body>
+
+<div class="sehir-panel">
+  <div class="sehir-panel-head">
+    <span>🏰 NORFALL <span class="puan">(10.316 puan)</span></span>
+    <span style="color:#6c4824">▼</span>
+  </div>
+  <div class="sehir-sahne">
+
+    <!-- Cevre orman -->
+    <div class="orman-ust-sol">🌲🌳</div>
+    <div class="orman-ust-sag">🌳🌲</div>
+    <div class="orman-alt-sol">🌲🏔️</div>
+    <div class="orman-alt-sag">🏔️🌲</div>
+
+    <!-- Daire surlar -->
+    <div class="surlar"></div>
+
+    <!-- Burc isaretleri 4 kose -->
+    <div class="burc" style="top:31%;left:21%"></div>
+    <div class="burc" style="top:31%;right:21%"></div>
+    <div class="burc" style="bottom:19%;left:21%"></div>
+    <div class="burc" style="bottom:19%;right:21%"></div>
+    <div class="burc" style="top:19%;left:50%;transform:translateX(-50%)"></div>
+    <div class="burc" style="bottom:9%;left:50%;transform:translateX(-50%)"></div>
+
+    <!-- Ortadaki meydan -->
+    <div class="meydan" title="Sehir Meydani">⚜</div>
+
+    <!-- ═══ BINALAR ═══ -->
+
+    <!-- Akademi (sag ust) -->
+    <div class="bina" style="top:22%;right:25%" onclick="location.href='city.html#akademi'">
+      <svg class="bina-svg" width="54" height="54" viewBox="0 0 60 60">
+        <rect x="8" y="22" width="44" height="28" fill="#8a6a3a" stroke="#3e2610" stroke-width="2"/>
+        <polygon points="6,22 30,6 54,22" fill="#c0392b" stroke="#6a1b0e" stroke-width="2"/>
+        <rect x="26" y="32" width="8" height="16" fill="#3e2610"/>
+        <rect x="14" y="28" width="6" height="6" fill="#87ceeb" stroke="#3e2610"/>
+        <rect x="40" y="28" width="6" height="6" fill="#87ceeb" stroke="#3e2610"/>
+      </svg>
+      <span class="sv-rozet">25</span>
+      <span class="bina-ad">Akademi</span>
+    </div>
+
+    <!-- Kale/Sehir Meydani (ust orta) -->
+    <div class="bina" style="top:16%;left:46%" onclick="location.href='city.html#sehir_meydani'">
+      <svg class="bina-svg" width="56" height="56" viewBox="0 0 60 60">
+        <rect x="12" y="20" width="36" height="32" fill="#b8b0a0" stroke="#3e2610" stroke-width="2"/>
+        <rect x="8" y="12" width="10" height="40" fill="#a8a090" stroke="#3e2610" stroke-width="2"/>
+        <rect x="42" y="12" width="10" height="40" fill="#a8a090" stroke="#3e2610" stroke-width="2"/>
+        <polygon points="8,12 13,4 18,12" fill="#c0392b"/>
+        <polygon points="42,12 47,4 52,12" fill="#c0392b"/>
+        <rect x="26" y="34" width="8" height="18" fill="#3e2610"/>
+      </svg>
+      <span class="sv-rozet">10</span>
+      <span class="bina-ad">Sehir Meydani</span>
+    </div>
+
+    <!-- Ana Bina (sol ust) -->
+    <div class="bina" style="top:22%;left:24%" onclick="location.href='city.html#ana_bina'">
+      <svg class="bina-svg" width="52" height="52" viewBox="0 0 60 60">
+        <rect x="10" y="24" width="40" height="28" fill="#b89666" stroke="#3e2610" stroke-width="2"/>
+        <polygon points="8,24 30,8 52,24" fill="#d2691e" stroke="#6e3510" stroke-width="2"/>
+        <rect x="26" y="34" width="8" height="18" fill="#3e2610"/>
+        <rect x="14" y="30" width="6" height="6" fill="#ffd700" stroke="#3e2610"/>
+        <rect x="40" y="30" width="6" height="6" fill="#ffd700" stroke="#3e2610"/>
+      </svg>
+      <span class="sv-rozet">30 <span class="tmr">20:17:25</span></span>
+      <span class="bina-ad">Ana Bina</span>
+    </div>
+
+    <!-- Kisla/Asker egitim (sol orta) -->
+    <div class="bina" style="top:45%;left:14%" onclick="location.href='army.html'">
+      <svg class="bina-svg" width="50" height="50" viewBox="0 0 60 60">
+        <rect x="8" y="20" width="44" height="32" fill="#8b6b3a" stroke="#3e2610" stroke-width="2"/>
+        <polygon points="6,20 30,8 54,20" fill="#5a3a1a" stroke="#3e2610" stroke-width="2"/>
+        <rect x="26" y="32" width="8" height="20" fill="#3e2610"/>
+        <circle cx="18" cy="30" r="3" fill="#ffd700"/>
+        <circle cx="42" cy="30" r="3" fill="#ffd700"/>
+      </svg>
+      <span class="sv-rozet">20 <span class="tmr">78:28:59</span></span>
+      <span class="bina-ad">Kışla</span>
+    </div>
+
+    <!-- Buyucu Kulesi (sag orta) -->
+    <div class="bina" style="top:45%;right:14%" onclick="location.href='buyucu-kulesi.html'">
+      <svg class="bina-svg" width="46" height="56" viewBox="0 0 50 60">
+        <rect x="16" y="26" width="18" height="28" fill="#6a5a45" stroke="#3e2610" stroke-width="2"/>
+        <rect x="14" y="18" width="22" height="10" fill="#4a3a2a" stroke="#3e2610" stroke-width="2"/>
+        <polygon points="14,18 25,4 36,18" fill="#8b1a1a" stroke="#3e2610" stroke-width="2"/>
+        <rect x="22" y="34" width="6" height="10" fill="#ffd700" stroke="#3e2610"/>
+      </svg>
+      <span class="sv-rozet">2</span>
+      <span class="bina-ad">Buyucu Kulesi</span>
+    </div>
+
+    <!-- Tapinak (sag orta) -->
+    <div class="bina" style="top:32%;right:8%" onclick="location.href='city.html#tapinak'">
+      <svg class="bina-svg" width="40" height="48" viewBox="0 0 50 60">
+        <rect x="10" y="28" width="30" height="24" fill="#e0dcc0" stroke="#3e2610" stroke-width="2"/>
+        <polygon points="8,28 25,8 42,28" fill="#d4af37" stroke="#6a5010" stroke-width="2"/>
+        <circle cx="25" cy="38" r="5" fill="#ffd700" stroke="#3e2610"/>
+      </svg>
+      <span class="sv-rozet">1</span>
+      <span class="bina-ad">Tunare Tapinagi</span>
+    </div>
+
+    <!-- Ahir (alt sag) -->
+    <div class="bina" style="bottom:30%;right:24%" onclick="location.href='city.html#ahir'">
+      <svg class="bina-svg" width="52" height="46" viewBox="0 0 60 52">
+        <rect x="8" y="18" width="44" height="28" fill="#6a4a2a" stroke="#3e2610" stroke-width="2"/>
+        <polygon points="6,18 30,4 54,18" fill="#8b4513" stroke="#3e2610" stroke-width="2"/>
+        <rect x="12" y="26" width="36" height="18" fill="#4a3020" stroke="#3e2610"/>
+      </svg>
+      <span class="sv-rozet">25 <span class="tmr">67:03:08</span></span>
+      <span class="bina-ad">Ahir</span>
+    </div>
+
+    <!-- Oduncu (alt sol) -->
+    <div class="bina" style="bottom:12%;left:13%" onclick="location.href='city.html#oduncu'">
+      <svg class="bina-svg" width="48" height="48" viewBox="0 0 60 60">
+        <rect x="12" y="22" width="36" height="30" fill="#8b4513" stroke="#3e2610" stroke-width="2"/>
+        <polygon points="10,22 30,8 50,22" fill="#5a2a0e" stroke="#3e2610" stroke-width="2"/>
+        <text x="30" y="42" text-anchor="middle" font-size="20" fill="#ffd700">🪓</text>
+      </svg>
+      <span class="sv-rozet">30</span>
+      <span class="bina-ad">Oduncu Kampi</span>
+    </div>
+
+    <!-- Tarla (alt orta) -->
+    <div class="bina" style="bottom:8%;left:43%" onclick="location.href='city.html#tarla'">
+      <svg class="bina-svg" width="50" height="36" viewBox="0 0 60 40">
+        <rect x="4" y="6" width="52" height="28" fill="#d4ae1a" stroke="#6a5010" stroke-width="2"/>
+        <line x1="4" y1="14" x2="56" y2="14" stroke="#8a6010" stroke-width="1"/>
+        <line x1="4" y1="22" x2="56" y2="22" stroke="#8a6010" stroke-width="1"/>
+        <line x1="4" y1="30" x2="56" y2="30" stroke="#8a6010" stroke-width="1"/>
+      </svg>
+      <span class="sv-rozet">15 <span class="tmr">21:21:27</span></span>
+      <span class="bina-ad">Bugday Tarlasi</span>
+    </div>
+
+    <!-- Ocak/Maden (alt sag) -->
+    <div class="bina" style="bottom:14%;right:12%" onclick="location.href='city.html#ocak'">
+      <svg class="bina-svg" width="48" height="46" viewBox="0 0 60 54">
+        <rect x="10" y="22" width="40" height="28" fill="#555" stroke="#2a2a2a" stroke-width="2"/>
+        <polygon points="8,22 30,8 52,22" fill="#333" stroke="#2a2a2a" stroke-width="2"/>
+        <rect x="24" y="36" width="12" height="14" fill="#222"/>
+      </svg>
+      <span class="sv-rozet">30</span>
+      <span class="bina-ad">Ocak</span>
+    </div>
+
+    <!-- Pazar (alt orta saga) -->
+    <div class="bina" style="bottom:22%;left:62%" onclick="location.href='pazar.html'">
+      <svg class="bina-svg" width="42" height="42" viewBox="0 0 50 50">
+        <rect x="6" y="18" width="38" height="26" fill="#c18f3a" stroke="#3e2610" stroke-width="2"/>
+        <polygon points="4,18 25,6 46,18" fill="#8a5a25" stroke="#3e2610" stroke-width="2"/>
+        <rect x="20" y="28" width="10" height="16" fill="#3e2610"/>
+      </svg>
+      <span class="sv-rozet">5</span>
+      <span class="bina-ad">Pazar</span>
+    </div>
+
+    <!-- Kule (sur uzerinde sol) -->
+    <div class="bina" style="top:38%;left:6%" onclick="location.href='city.html#kule'">
+      <svg class="bina-svg" width="30" height="46" viewBox="0 0 40 60">
+        <rect x="10" y="20" width="20" height="36" fill="#808080" stroke="#3e2610" stroke-width="2"/>
+        <rect x="6" y="12" width="28" height="12" fill="#6a6a6a" stroke="#3e2610" stroke-width="2"/>
+        <polygon points="6,12 20,2 34,12" fill="#8b1a1a" stroke="#3e2610"/>
+      </svg>
+      <span class="sv-rozet">30</span>
+      <span class="bina-ad">Gozleme Kulesi</span>
+    </div>
+
+  </div>
+</div>
+
+<div class="aciklama">
+  🎨 <b>Bu bir SVG mockup'i</b> — Klanlar.org'daki gibi isometric gorsel hissini verir ama
+  gercek Innogames asset'lerine sahip degiliz.
+  <br><br>
+  <b>Ne gorursun:</b> Daire surlar, ortada meydan (⚜), 12 bina etrafinda pozisyonlu.
+  Her binanin ustunde <b style="color:#5a9642">yesil seviye rozeti</b>, aktif insaatta zamanlayici (20:17:25).
+  Hover ile bina adi gorunur, tıkla → ilgili sayfaya gidilir.
+  <br><br>
+  <b>Gercek "Klanlar kalitesi" icin:</b> Her bina icin detayli isometric illustration asset'i lazim.
+  Secenekler:
+  <ul style="margin:6px 0 0 0;padding-left:20px">
+    <li><b>AI uretimi</b> (DALL-E/Midjourney) — $20-50, 1-2 saat, tam isometric tutarlilik</li>
+    <li><b>OpenGameArt/itch.io</b> — ucretsiz/ucretli tileset pack, medieval fantasy</li>
+    <li><b>Illustrator tuttur</b> — Fiverr'da medieval village illustrator, 3-7 gun</li>
+  </ul>
+  <br>
+  <a href="sehir-ozet-mockup.html">← 12 Panel Dashboard Mockup</a> ·
+  <a href="home.html">Ana Ekran →</a>
+</div>
+
+</body>
+</html>
