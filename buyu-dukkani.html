@@ -278,9 +278,11 @@ function renderBuyuDukkani() {
           </div>` : ''}
           <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
             <span style="font-size:10px;color:#d4af37">${p.fiyat.toLocaleString()} altin</span>
+            ${p.mevcut_kademe !== undefined ? `<span style="font-size:9px;color:${p.full?'#e74c3c':'#888'};background:#1a1a1a;padding:1px 6px;border-radius:3px" title="Kademe: ${p.mevcut_kademe}, Envanter: ${p.envanterde}, Kervan: ${p.kervanda}. Kalan alim: ${p.max_alim}">${p.full?'MAX':'K'+p.mevcut_kademe+' +'+p.envanterde+'env +'+p.kervanda+'krv'}</span>`:''}
             <span style="flex:1"></span>
-            <button class="btn-action" onclick="bdSatinAl('${p.id}',1)" ${!BD_KERVAN_ID?'disabled':''}
-              style="padding:3px 10px;font-size:11px;width:auto;${!BD_KERVAN_ID?'opacity:0.3':''}">Al</button>
+            <button class="btn-action" onclick="bdSatinAl('${p.id}',1)" ${(!BD_KERVAN_ID || p.full)?'disabled':''}
+              style="padding:3px 10px;font-size:11px;width:auto;${(!BD_KERVAN_ID || p.full)?'opacity:0.3;cursor:not-allowed':''}"
+              title="${p.full?'Bu buyu max kademe + envanter + kervan = 10\'a ulasti':''}">${p.full?'MAX':'Al'}</button>
           </div>
         </div>`;
       }).join('') + '</div>';
