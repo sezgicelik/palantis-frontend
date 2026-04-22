@@ -309,15 +309,36 @@ function showSavasRapor(sonuc, benimTaraf, opts) {
       </tr>`;
     }).join('');
 
-    // v1.14.0.9: Tur tur "Yapilan Buyuler" placeholder (Rahip mekanigi eklenmediginde statik)
-    // Mevcut: buyu verisi yok ise "Bu turda buyu kullanilmadi" notu gosterilir
-    // Ileride savasSimilasyonu turDetay[i].buyuler icine kaydederse buraya dolar
+    // v1.14.0.9: Tur tur "Yapilan Buyuler" placeholder
     buyuBoluml = sonuc.tur_detay.map(function(t, i) {
       const buyular = t.buyuler || [];
       if (buyular.length === 0) return '';
       const buyuSatir = buyular.map(b => `<div class="sr-buyu-sec">${i+1}. Tur — <b>${b.buyu||b.isim}</b>: ${b.etki||b.aciklama}</div>`).join('');
       return buyuSatir;
     }).join('');
+
+    // v1.14.1.03: Rahip dirilis bolumu — her tur diriltilen birimler
+    var rahipBoluml = sonuc.tur_detay.map(function(t, i) {
+      const sD = t.saldiran_dirilis;
+      const svD = t.savunan_dirilis;
+      const rows = [];
+      if (sD && sD.toplamDirilen > 0) {
+        const dets = Object.entries(sD.dirilen || {}).map(([uid, adet]) => {
+          const info = (typeof birimInfo === 'function') ? birimInfo(uid) : { name: uid };
+          return `${fmt(adet)} ${info.name}`;
+        }).join(', ');
+        rows.push(`<div class="sr-buyu-sec" style="color:#f1c40f">${i+1}. Tur · ⚔ SALDIRAN · <b>${sD.rahipSayi} rahip</b> → <b>${fmt(sD.toplamDirilen)} birim</b> canlandırdı <span style="color:#888">(${dets})</span></div>`);
+      }
+      if (svD && svD.toplamDirilen > 0) {
+        const dets = Object.entries(svD.dirilen || {}).map(([uid, adet]) => {
+          const info = (typeof birimInfo === 'function') ? birimInfo(uid) : { name: uid };
+          return `${fmt(adet)} ${info.name}`;
+        }).join(', ');
+        rows.push(`<div class="sr-buyu-sec" style="color:#f1c40f">${i+1}. Tur · 🛡 SAVUNAN · <b>${svD.rahipSayi} rahip</b> → <b>${fmt(svD.toplamDirilen)} birim</b> canlandırdı <span style="color:#888">(${dets})</span></div>`);
+      }
+      return rows.join('');
+    }).join('');
+    if (rahipBoluml) buyuBoluml = (buyuBoluml || '') + rahipBoluml;
   }
 
   // ── UNIT-LEVEL DETAIL (başlangıç - ölü = kalan) ──
@@ -377,7 +398,7 @@ function showSavasRapor(sonuc, benimTaraf, opts) {
 
     ${renderTurKomposizyonlari(sonuc.tur_detay || [], saldiranAdi, savunanAdi)}
 
-    ${buyuBoluml ? `<div class="sr-sec-title">✨ TUR BAZLI BÜYÜLER</div>${buyuBoluml}` : '<div class="sr-buyu-sec" style="text-align:center;color:#666">Bu savaşta büyü kullanılmadı (Rahip mekaniği v1.14.1+ ile eklenecek).</div>'}
+    ${buyuBoluml ? `<div class="sr-sec-title">✨ TUR BAZLI BÜYÜLER & RAHİP DİRİLTMESİ</div>${buyuBoluml}` : '<div class="sr-buyu-sec" style="text-align:center;color:#666">Bu savaşta büyü kullanılmadı, rahip canlandırması da olmadı.</div>'}
 
     <div class="sr-sec-title">📋 BİRİM SEVİYESİNDE DETAY (Başlangıç → Ölü → Kalan)</div>
     <div class="sr-unit-detay">

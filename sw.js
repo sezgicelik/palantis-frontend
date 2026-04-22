@@ -1,6 +1,6 @@
 // v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
 // Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
-const CACHE_NAME = 'noxara-v101'; // v1.14.1.01 G1 — home.html 12 panel dashboard (Klanlar overview canli)
+const CACHE_NAME = 'noxara-v103'; // v1.14.1.03 Rahip Faz 1 — rahip + kara_rahip unit + savas motoru dirilis
 
 // Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [
