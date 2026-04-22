@@ -490,7 +490,8 @@ async function loadSavasOdasiOrdular(hedefId, hedefKral, hx, hy) {
     if (!r.ok) { list.innerHTML = '<div style="color:#e74c3c">Ordu listesi alınamadı (HTTP ' + r.status + ')</div>'; return; }
     const d = await r.json();
     const tumOrdular = d.armies || [];
-    const ordular = tumOrdular.filter(a => !a.is_busy && (parseInt(a.toplam_unite) || 0) > 0);
+    // v1.14.0.85.1: /api/army/state 'total_units' doner, 'toplam_unite' degil
+    const ordular = tumOrdular.filter(a => !a.is_busy && (parseInt(a.total_units || a.toplam_unite) || 0) > 0);
 
     if (!ordular.length) {
       if (tumOrdular.length === 0) {
@@ -501,9 +502,12 @@ async function loadSavasOdasiOrdular(hedefId, hedefKral, hx, hy) {
       return;
     }
 
-    const opts = ordular.map(a =>
-      '<option value="' + a.id + '">' + escHtml(a.isim || 'Ordu #'+a.id) + ' — ' + (a.toplam_unite || 0) + ' ünite (ATK ' + Math.round(a.toplam_atk||0) + ' / DEF ' + Math.round(a.toplam_def||0) + ')</option>'
-    ).join('');
+    const opts = ordular.map(a => {
+      const units = a.total_units || a.toplam_unite || 0;
+      const atk = a.atk || a.toplam_atk || 0;
+      const def = a.def || a.toplam_def || 0;
+      return '<option value="' + a.id + '">' + escHtml(a.isim || 'Ordu #'+a.id) + ' — ' + units + ' ünite (ATK ' + Math.round(atk) + ' / DEF ' + Math.round(def) + ')</option>';
+    }).join('');
 
     list.innerHTML =
       '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
