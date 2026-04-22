@@ -397,9 +397,10 @@ async function loadEsirler() {
 
     const e = d.esir || {};
     const toplam = (e.bos||0) + (e.oduncu||0) + (e.madenci||0) + (e.ciftci||0) + (e.balikci||0) + (e.tuccar||0);
-    const kampSev = d.kamp_seviye || 0;
-    const kampKap = d.kamp_kapasite || 0;
-    const izinli = d.izinli_uniteler || [];
+    // v1.14.1.02 FIX: Backend d.kamp objesi doner (d.kamp.seviye), d.kamp_seviye top-level degil
+    const kampSev = d.kamp?.seviye || d.kamp_seviye || 0;
+    const kampKap = d.kamp?.kapasite || d.kamp_kapasite || 0;
+    const izinli = d.donusum_izinli_uniteler || d.izinli_uniteler || [];
 
     if (kampSev === 0) {
       wrap.innerHTML = '<div style="padding:16px;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);border-radius:6px;color:#e74c3c">🔒 <b>Esir Kampi yok!</b> Savas sonrasi gelen esirler kacar. <a href="city.html" style="color:#f1c40f">Sehir sayfasindan</a> Esir Kampi insa et.</div>';
