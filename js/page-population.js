@@ -379,4 +379,98 @@ document.addEventListener('DOMContentLoaded', () => {
   kesimInit();
   vergiYukle();
   setTimeout(bonusEtkileriGuncelle, 2000);
+  setTimeout(loadEsirler, 400);
 });
+
+/* ════════════════════════════════════════
+   v1.14.0.80: Esirler panel
+════════════════════════════════════════ */
+async function loadEsirler() {
+  const wrap = document.getElementById('esir-icerik');
+  if (!wrap) return;
+  const token = (typeof getToken === 'function') ? getToken() : localStorage.getItem('palantis_token');
+  if (!token) { wrap.textContent = 'Giris gerekli'; return; }
+  try {
+    const r = await fetch(API_BASE + '/api/game/esirler', { headers: { Authorization: 'Bearer ' + token } });
+    const d = await r.json();
+    if (!r.ok) { wrap.innerHTML = '<span style="color:#e74c3c">Hata: ' + (d.error||'?') + '</span>'; return; }
+
+    const e = d.esir || {};
+    const toplam = (e.bos||0) + (e.oduncu||0) + (e.madenci||0) + (e.ciftci||0) + (e.balikci||0) + (e.tuccar||0);
+    const kampSev = d.kamp_seviye || 0;
+    const kampKap = d.kamp_kapasite || 0;
+    const izinli = d.izinli_uniteler || [];
+
+    if (kampSev === 0) {
+      wrap.innerHTML = '<div style="padding:16px;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);border-radius:6px;color:#e74c3c">🔒 <b>Esir Kampi yok!</b> Savas sonrasi gelen esirler kacar. <a href="city.html" style="color:#f1c40f">Sehir sayfasindan</a> Esir Kampi insa et.</div>';
+      return;
+    }
+
+    const satir = (ad, sayi, icon) =>
+      '<div style="display:flex;justify-content:space-between;padding:4px 8px;background:#1a0f15;border:1px solid #3a2030;border-radius:4px;min-width:120px">' +
+        '<span style="color:#c9a4c4">' + icon + ' ' + ad + '</span>' +
+        '<span style="color:#9b59b6;font-weight:bold">' + (sayi||0).toLocaleString('tr-TR') + '</span>' +
+      '</div>';
+
+    let html =
+      '<div style="display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px;padding:10px;background:#0f0815;border:1px solid #2a1a2a;border-radius:6px">' +
+        '<div><div style="font-size:10px;color:#888">Kapasite</div><div style="font-size:14px;color:#9b59b6;font-weight:bold">' + toplam.toLocaleString("tr-TR") + ' / ' + kampKap.toLocaleString("tr-TR") + '</div></div>' +
+        '<div><div style="font-size:10px;color:#888">Kamp Seviyesi</div><div style="font-size:14px;color:#9b59b6;font-weight:bold">' + kampSev + '</div></div>' +
+      '</div>' +
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">' +
+        satir('Bosta', e.bos, '⛓️') +
+        satir('Oduncu', e.oduncu, '🪓') +
+        satir('Madenci', e.madenci, '⛏️') +
+        satir('Ciftci', e.ciftci, '🌾') +
+        satir('Balikci', e.balikci, '🎣') +
+        satir('Tuccar', e.tuccar, '💼') +
+      '</div>';
+
+    if (izinli.length > 0 && (e.bos||0) > 0) {
+      const opts = izinli.map(u => '<option value="' + u + '">' + u + '</option>').join('');
+      html +=
+        '<div style="padding:10px;background:#0d0d0d;border:1px solid #2a2a2a;border-radius:6px">' +
+          '<div style="color:#c8a96e;font-weight:bold;margin-bottom:8px">⚔️ Esir\'den Unite Olustur</div>' +
+          '<div style="font-size:11px;color:#888;margin-bottom:8px">Maliyet: normal unite altin fiyatinin %50\'si. Aninda egitilir, havuza eklenir.</div>' +
+          '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
+            '<select id="esir-unite-sec" style="padding:6px;background:#1a1a1a;border:1px solid #333;color:#fff;border-radius:3px;font-size:12px">' + opts + '</select>' +
+            '<input id="esir-unite-adet" type="number" min="1" max="' + (e.bos||0) + '" value="1" style="width:80px;padding:6px;background:#1a1a1a;border:1px solid #333;color:#fff;border-radius:3px;font-size:12px">' +
+            '<button class="btn" onclick="esirUniteyeCevir()" style="padding:6px 14px;font-size:12px">✓ Cevir</button>' +
+          '</div>' +
+          '<div id="esir-sonuc" style="margin-top:6px;font-size:11px;color:#888"></div>' +
+        '</div>';
+    } else if ((e.bos||0) === 0) {
+      html += '<div style="color:#666;font-size:11px;padding:8px;background:#1a1a1a;border-radius:4px">Bosta esir yok.</div>';
+    }
+
+    wrap.innerHTML = html;
+  } catch(err) {
+    wrap.innerHTML = '<span style="color:#e74c3c">Sunucu hatasi: ' + err.message + '</span>';
+  }
+}
+
+async function esirUniteyeCevir() {
+  const unite = document.getElementById('esir-unite-sec').value;
+  const adet = parseInt(document.getElementById('esir-unite-adet').value) || 0;
+  const sonuc = document.getElementById('esir-sonuc');
+  if (!unite || adet <= 0) { sonuc.textContent = 'Unite ve adet sec'; return; }
+  sonuc.textContent = 'Isleniyor...';
+  sonuc.style.color = '#888';
+  try {
+    const token = getToken();
+    const r = await fetch(API_BASE + '/api/game/esir/uniteye-cevir', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ adet, unite_id: unite })
+    });
+    const d = await r.json();
+    if (!r.ok) { sonuc.textContent = '✗ ' + (d.error || 'Hata'); sonuc.style.color = '#e74c3c'; return; }
+    sonuc.textContent = '✓ ' + (d.mesaj || adet + ' ' + unite + ' olusturuldu');
+    sonuc.style.color = '#2ecc71';
+    loadEsirler();
+    if (typeof loadGameData === 'function') loadGameData();
+  } catch(e) {
+    sonuc.textContent = '✗ Sunucu hatasi';
+    sonuc.style.color = '#e74c3c';
+  }
+}

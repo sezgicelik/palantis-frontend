@@ -204,8 +204,8 @@ function renderHUD(){
     <!-- Ateşkes / Tatil Banner -->
     <div id="hud-ateskes-banner" style="display:none;background:rgba(231,76,60,0.15);border-bottom:1px solid rgba(231,76,60,0.3);padding:3px 10px;text-align:center;font-size:11px;color:#e74c3c;font-family:Cinzel,serif;letter-spacing:1px">⚔️ ATEŞKES AKTİF</div>
     <div id="hud-tatil-banner" style="display:none;background:rgba(46,204,113,0.15);border-bottom:1px solid rgba(46,204,113,0.3);padding:3px 10px;text-align:center;font-size:11px;color:#2ecc71;font-family:Cinzel,serif;letter-spacing:1px">🏖️ TATİL MODU</div>
-    <!-- v1.14.0.76: Kadim sehir saldiri geri sayim banner -->
-    <div id="hud-kadim-banner" style="display:none;background:linear-gradient(90deg,rgba(155,89,182,0.18),rgba(215,120,50,0.18));border-bottom:1px solid rgba(215,120,50,0.4);padding:4px 10px;text-align:center;font-size:11px;color:#d4a257;font-family:Cinzel,serif;letter-spacing:1px;cursor:pointer" onclick="location.href='pazar.html?tab=kadim'" title="Kadim sehir saldiri durumu — ayrintilar icin tikla"></div>
+    <!-- v1.14.0.80: Kadim banner kaldirildi, HAM satirina K.SALDIRI kutu olarak tasindi -->
+    <div id="hud-kadim-banner" style="display:none"></div>
     <!-- v1.13.61: YENI HUD — 1 sticky HAM satiri + 4 satir overlay detay -->
     <!-- HAM (sticky, her zaman gorunur): Odun · Kereste · Metal · Isl.Metal · Altın · Tarih + ▼ Detay -->
     <div class="hud-row-wrap">
@@ -216,7 +216,15 @@ function renderHUD(){
         <div class="stat-box" data-tip="METAL"><span class="res-icon">${metalSvg}</span><div class="res-details"><span class="res-label">Metal</span><span class="res-amount" id="hud-m">0</span><span class="res-rate pos" id="hud-mg">+0</span></div></div>
         <div class="stat-box" data-tip="İŞL.METAL"><span class="res-icon">${islSvg}</span><div class="res-details"><span class="res-label">İşl.Metal</span><span class="res-amount" id="hud-is">0</span></div></div>
         ${sb('ALTIN','💰','Altın','hud-g','hud-gg')}
-        ${sb('TARİH','📅','Tarih','hud-takvim',null)}
+        <!-- v1.14.0.80: K.SALDIRI kutu (kadim sehir geri sayim) — banner yerine compact HUD -->
+        <div id="hud-ksaldiri-box" class="stat-box" data-tip="KADİM SALDIRI — tıkla → pazar.html" style="display:none;cursor:pointer;border-left:2px solid #9b59b6" onclick="window.location.href='pazar.html?tab=kadim'">
+          <span class="res-icon">⚔️</span>
+          <div class="res-details">
+            <span class="res-label" style="color:#d4a257">K.Saldırı</span>
+            <span class="res-amount" id="hud-ksaldiri-pg" style="color:#9b59b6;font-weight:bold">—</span>
+            <span class="res-rate" id="hud-ksaldiri-sehir" style="color:#888;font-size:9px"></span>
+          </div>
+        </div>
         <!-- Overlay toggle butonu -->
         <button id="hud-detay-toggle" onclick="toggleHudDetay()" style="margin-left:auto;background:linear-gradient(135deg,#d4af37,#c8a96e);color:#0a0604;border:none;padding:3px 10px;cursor:pointer;font-size:10px;font-weight:700;border-radius:3px;white-space:nowrap;font-family:Cinzel,serif;letter-spacing:1px" title="Detay panelini aç/kapa">▼ DETAY</button>
       </div>
@@ -245,6 +253,7 @@ function renderHUD(){
           <div class="stat-box mana-box" data-tip="MAVİ MANA" style="border-left:2px solid #3498db"><span class="res-icon">💙</span><div class="res-details"><span class="res-label" style="color:#3498db">M.Mana</span><span class="res-amount" id="hud-mana-mavi">0</span><span class="res-rate" id="hud-mana-mavi-g"></span></div></div>
           <div class="stat-box mana-box" data-tip="YEŞİL MANA" style="border-left:2px solid #2ecc71"><span class="res-icon">💚</span><div class="res-details"><span class="res-label" style="color:#2ecc71">Y.Mana</span><span class="res-amount" id="hud-mana-yesil">0</span><span class="res-rate" id="hud-mana-yesil-g"></span></div></div>
           ${sb('EŞEK','🫏','Eşek','hud-essek',null)}
+          ${sb('TARİH','📅','Tarih','hud-takvim',null)}
         </div>
       </div>
       <!-- GUILD (sadece guilddeyse gorunur) -->

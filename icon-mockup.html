@@ -83,6 +83,20 @@
         <p>Her satirda solda <b style="color:#d4a257">mevcut ikon</b> (altın border), saginda <b>ortacag/ejderha alternatifleri</b>. Tıkla ve sec.</p>
         <p>Seçimlerin localStorage'da saklanir. Hepsini seçtikten sonra aşağıdaki JSON'u al, uygulamaya bas.</p>
         <p style="color:#888;font-size:11px">Alternatifler karisik: 🎭 emoji, 🏛️ unicode sembol, ⚔️ FontAwesome. Her birinden zengin secim.</p>
+
+        <!-- v1.14.0.80: NOXARA SVG ICON SET LINKI -->
+        <div style="margin-top:12px;padding:10px;background:#0a0604;border:2px solid #d4a257;border-radius:6px">
+          <div style="font-family:'Cinzel',serif;color:#d4a257;font-size:14px;margin-bottom:6px">⚔️ YENİ: Noxara SVG İkon Seti (131 ikon)</div>
+          <div style="color:#bbb;font-size:12px;margin-bottom:8px">game-icons.net CC BY 3.0 — siyah silüet SVG, ortaçağ/fantezi tema. Altın tint CSS ile renk değişir.</div>
+          <a href="icons/noxara/preview.html" style="display:inline-block;padding:6px 14px;background:#d4a257;color:#0a0604;border-radius:4px;font-weight:bold;text-decoration:none;font-size:12px">📂 131 İkonu Gör (preview.html)</a>
+        </div>
+      </div>
+
+      <!-- v1.14.0.80: Noxara SVG Icon Seti -->
+      <div class="im-kat" style="border:2px solid #d4a257;padding:16px;border-radius:8px;background:rgba(212,162,87,0.05)">
+        <div class="im-kat-h" style="color:#d4a257">⚔️ Noxara SVG İkon Seti (game-icons.net)</div>
+        <p style="color:#aaa;font-size:12px;margin-bottom:12px">Önerilen kullanım: emoji yerine <code style="background:#1a1510;padding:2px 6px;border-radius:3px">&lt;img src="icons/noxara/X.svg"&gt;</code> + altın tint CSS.</p>
+        <div id="nox-preview" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px"></div>
       </div>
 
       <!-- ═══════ MENÜ / NAVIGASYON ═══════ -->
@@ -513,6 +527,20 @@ function renderAll() {
   renderKategori('unite', IKONLAR.unite);
   renderKategori('sistem', IKONLAR.sistem);
   renderSum();
+  // v1.14.0.80: Noxara SVG set preview
+  renderNoxaraPreview();
+}
+
+function renderNoxaraPreview() {
+  const el = document.getElementById('nox-preview');
+  if (!el) return;
+  const names = "ahir akademi altin-borazan altin-ejderha altin-kumpas altin-sikke altin-torbasi arena asma-bahceler at ates-tozu ates ay-cigi balik balikci-binasi balikci-teknesi balista-kulesi baltaci baris bocek-yarisi bugday buyu-kulesi buyucu buyuk-kutuphane buyulu-maden buyulu-tarla buyulu-yumurta casus-evi casus celik-kalkan cennet-vadisi cesaret-puani chat ciftlik cig-et deli-balta demir-balta demir-saban diplomasi ejderha-gozyasi ekmek esaret-zinciri esir-kampi ev festival-art firin gizlilik gocmen-koylu golge-savascisi golgeler-otu gorunmez-kubbe goz guc-yuzugu guild harita hayvan-art hazine-sandigi hizli-kervan isin-savascisi isleme islenmis ittifak kale kalp kara-bayrak kara-elf kara-sovalye kasaba katedral kereste-atolyesi kereste kervan kilic kizgin-lav kizil-sise kolcu koliseum korona koruma-buyusu koy kurt kutuphane lonca madalya magara mana-beyaz mana-kirmizi mana-mavi mana-yesil mana mavi-balik mavi-ejderha metal mizrak-kulesi mizrakci muze noxara-hani ocak odun-art odun oduncu okcu-kulesi okcu okul opera-evi ordu paladin parsomen pazar perili-ev piyade sandik sari-basak savas-buyucusu savas savasci sehir-meydani sihirli-essek sihirli-malzeme simsek-migferi skull sovalye sur suvari tabiyet tapinak taverna tiktak-gelisim tiyatro universite zirhli-binek".split(' ').sort();
+  el.innerHTML = names.map(n =>
+    '<div style="background:linear-gradient(135deg,#1a0f08,#0a0604);border:1px solid #3a2a15;border-radius:6px;padding:10px 6px;text-align:center;transition:.2s" onmouseover="this.style.borderColor=\'#d4a257\'" onmouseout="this.style.borderColor=\'#3a2a15\'">' +
+      '<img src="icons/noxara/' + n + '.svg" loading="lazy" style="width:42px;height:42px;filter:invert(78%) sepia(35%) saturate(330%) hue-rotate(5deg) drop-shadow(0 0 3px rgba(212,162,87,0.3))">' +
+      '<div style="font-size:9px;color:#888;margin-top:4px;font-family:monospace">' + n + '</div>' +
+    '</div>'
+  ).join('');
 }
 
 function renderSum() {

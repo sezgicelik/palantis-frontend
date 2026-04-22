@@ -323,20 +323,21 @@ function finishBuild(q){
 async function loadKadimHudBanner() {
   const token = (typeof getToken === "function") ? getToken() : localStorage.getItem("palantis_token");
   if (!token) return;
-  const banner = document.getElementById("hud-kadim-banner");
-  if (!banner) return;
+  const box = document.getElementById("hud-ksaldiri-box");
+  const pgEl = document.getElementById("hud-ksaldiri-pg");
+  const sehirEl = document.getElementById("hud-ksaldiri-sehir");
+  if (!box || !pgEl) return;
   try {
-    // v1.14.0.77: cache-bust query param + no-cache header (SW olsa bile taze data)
     const r = await fetch(API_BASE + "/api/kadim-sehir/?_t=" + Date.now(), {
       headers: { Authorization: "Bearer " + token, "Cache-Control": "no-cache" },
       cache: "no-store"
     });
-    if (!r.ok) { banner.style.display = "none"; return; }
+    if (!r.ok) { box.style.display = "none"; return; }
     const d = await r.json();
-    if (!d.ok || !d.sehirler) { banner.style.display = "none"; return; }
+    if (!d.ok || !d.sehirler) { box.style.display = "none"; return; }
 
     const aktifler = d.sehirler.filter(s => s.faz === "yolda" || s.faz === "uyari" || s.faz === "hareket_bekleniyor" || (s.faz === "geri_sayim" && s.kalan_pg != null));
-    if (!aktifler.length) { banner.style.display = "none"; return; }
+    if (!aktifler.length) { box.style.display = "none"; return; }
 
     aktifler.sort((a, b) => {
       const ap = a.faz === "yolda" ? -1000 + (a.kalan_pg || 0) : (a.kalan_pg || 999);
@@ -345,39 +346,22 @@ async function loadKadimHudBanner() {
     });
     const s = aktifler[0];
 
-    // v1.14.0.77: Kutu görünüm — büyük PG sayısı + yan açıklama
-    let ikon, renk, aciklama, labelMetin;
-    if (s.faz === "yolda") {
-      ikon = "⚔️"; renk = "#e74c3c";
-      labelMetin = "VARIŞA";
-      aciklama = s.isim + " ordusu yolda! Bütçe: " + (s.tahmini_saldiri_altin||0).toLocaleString("tr-TR") + " altın";
-    } else if (s.faz === "uyari" || s.faz === "hareket_bekleniyor") {
-      ikon = "⚠️"; renk = "#e67e22";
-      labelMetin = "HAREKETE";
-      aciklama = s.isim + " saldırıya hazırlanıyor! Bütçe: " + (s.tahmini_saldiri_altin||0).toLocaleString("tr-TR") + " altın";
-    } else {
-      ikon = "⏳"; renk = "#9b59b6";
-      labelMetin = "KALAN";
-      aciklama = s.isim + " geri sayım — bütçe: " + (s.tahmini_saldiri_altin||0).toLocaleString("tr-TR") + " altın";
-    }
+    let renk, fazIkon;
+    if (s.faz === "yolda")                              { renk = "#e74c3c"; fazIkon = "⚔️"; }
+    else if (s.faz === "uyari" || s.faz === "hareket_bekleniyor") { renk = "#e67e22"; fazIkon = "⚠️"; }
+    else                                                 { renk = "#9b59b6"; fazIkon = "⏳"; }
 
-    const extra = aktifler.length > 1 ? ' <span style="color:#888;font-size:10px">+' + (aktifler.length-1) + ' daha</span>' : '';
-
-    banner.innerHTML =
-      '<div style="display:inline-flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center">' +
-        '<span style="font-size:18px">' + ikon + '</span>' +
-        // Büyük PG kutu
-        '<span style="display:inline-flex;flex-direction:column;align-items:center;padding:2px 12px;background:rgba(0,0,0,0.4);border:1.5px solid ' + renk + ';border-radius:6px;min-width:72px">' +
-          '<span style="font-size:18px;font-weight:bold;color:' + renk + ';line-height:1;font-family:Cinzel,serif">' + s.kalan_pg + ' PG</span>' +
-          '<span style="font-size:9px;color:#888;letter-spacing:1px;margin-top:2px">' + labelMetin + '</span>' +
-        '</span>' +
-        '<span style="color:#d4a257">' + aciklama + '</span>' +
-        extra +
-        '<span style="color:#888;font-size:10px">(tıkla →)</span>' +
-      '</div>';
-    banner.style.background = 'linear-gradient(90deg, rgba(0,0,0,0.4), rgba(0,0,0,0.1))';
-    banner.style.display = "block";
-  } catch (e) { banner.style.display = "none"; }
+    pgEl.textContent = s.kalan_pg + " PG";
+    pgEl.style.color = renk;
+    const sehirAd = s.isim.length > 8 ? s.isim.slice(0,7) + "…" : s.isim;
+    const extra = aktifler.length > 1 ? " +" + (aktifler.length - 1) : "";
+    sehirEl.textContent = fazIkon + " " + sehirAd + extra;
+    box.style.borderLeftColor = renk;
+    box.title = "KADİM SALDIRI: " + s.isim + " — " + s.kalan_pg + " PG · Bütçe: " + (s.tahmini_saldiri_altin || 0).toLocaleString("tr-TR") + " altın (tıkla → pazar)";
+    box.style.display = "flex";
+  } catch (e) {
+    box.style.display = "none";
+  }
 }
 
 // 60 sn de bir yenile
