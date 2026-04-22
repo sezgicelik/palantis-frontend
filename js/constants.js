@@ -468,17 +468,17 @@ const UNITS = {
     trainTime:1200,maxCount:99999,count:0,
     desc:"Aydınlığın en güçlüsü. x3 çarpan. 1 Büyülü Yumurta gerekli. 1-2-3-4-5. turlarda."},
 
-  /* ─── RAHIP (v1.14.1.03 Faz 1: diriltici) ─── */
-  rahip:{id:'rahip',side:'light',icon:'✨',img:'img/units/rahip.png',name:'Rahip',role:'Diriltici',tier:3,trainDays:10,
+  /* ─── RAHIP (v1.14.1.04 Faz 1 revize: ÜRETİLEMEZ — tapınaktan spawn) ─── */
+  rahip:{id:'rahip',side:'light',icon:'✨',img:'img/units/rahip.png',name:'Rahip',role:'Diriltici',tier:3,trainDays:0,
     baseAtk:0,baseDef:2,zirh:15,iska:0,maas:100,
     atkGelArtis:0,defGelArtis:0.5,atkGelMax:10,defGelMax:10,
     saldiriCarpan:0, savasTurlari:[],
     dirilt_orani:8,
-    cost:{altin:20000,odun:200,islenmis:150},
-    extraCost:{mana:5},
-    traits:['Saldırmaz','4. safa koy','1 rahip → 8 birim/tur canlandırır','Mana gerekli'],
-    trainTime:600,maxCount:99999,count:0,
-    desc:"Arka safta savaş sırasında ölen birimleri canlandırır. Saldırmaz. 4. safa koy, önündekileri korunakla tut."},
+    cost:{},extraCost:{},
+    producible:false,
+    traits:['Üretilemez — Tapınaktan spawn','Saldırmaz','4. safa koy','1 rahip → 8 birim/tur canlandırır'],
+    trainTime:0,maxCount:99999,count:0,
+    desc:"Üretilemez — 4 Tapınak (Rathe/Xegony/Fennin/Tunare) seviyelerine göre saatlik şansla ortaya çıkar. Arka safta savaş sırasında ölen birimleri canlandırır. Saldırmaz."},
 
   /* ─── AYDINLIK EJDERHALAR (üretilemez) ─── */
   mavi_ejderha:{id:'mavi_ejderha',side:'light',icon:'🐲',img:'img/units/mavi_ejderha.png',name:'Mavi Ejderha',role:'Ejderha',tier:4,
@@ -600,17 +600,17 @@ const UNITS = {
     trainTime:1500,maxCount:99999,count:0,
     desc:"Karanlığın en güçlüsü. x3 çarpan. 1 Büyülü Yumurta gerekli. 1-2-3-4-5. turlarda."},
 
-  /* ─── KARA RAHIP (v1.14.1.03 Faz 1: diriltici) ─── */
-  kara_rahip:{id:'kara_rahip',side:'dark',icon:'🕯️',img:'img/units/kara_rahip.png',name:'Kara Rahip',role:'Diriltici',tier:3,trainDays:10,
-    baseAtk:0,baseDef:4,zirh:15,iska:0,maas:100,
+  /* ─── KARA RAHIP (v1.14.1.04 Faz 1 revize: ÜRETİLEMEZ — tapınaktan spawn) ─── */
+  kara_rahip:{id:'kara_rahip',side:'dark',icon:'🕯️',img:'img/units/kara_rahip.png',name:'Kara Rahip',role:'Diriltici',tier:3,trainDays:0,
+    baseAtk:0,baseDef:2,zirh:15,iska:0,maas:100,
     atkGelArtis:0,defGelArtis:0.5,atkGelMax:10,defGelMax:10,
     saldiriCarpan:0, savasTurlari:[],
     dirilt_orani:8,
-    cost:{altin:20000,odun:200,islenmis:150},
-    extraCost:{mana:5},
-    traits:['Saldırmaz','4. safa koy','1 kara rahip → 8 birim/tur canlandırır','Mana gerekli'],
-    trainTime:600,maxCount:99999,count:0,
-    desc:"Kara rahiplerin ölümden çağırma gücü. Arka safta ölen birimleri canlandırır. Saldırmaz."},
+    cost:{},extraCost:{},
+    producible:false,
+    traits:['Üretilemez — Tapınaktan spawn','Saldırmaz','4. safa koy','1 kara rahip → 8 birim/tur canlandırır'],
+    trainTime:0,maxCount:99999,count:0,
+    desc:"Üretilemez — 4 Tapınak seviyelerine göre saatlik şansla ortaya çıkar. Kara rahiplerin ölümden çağırma gücü. Saldırmaz, arka safta korunmalı."},
 
   /* ─── KARANLIK EJDERHALAR (üretilemez) ─── */
   kirmizi_ejderha:{id:'kirmizi_ejderha',side:'dark',icon:'🐲',img:'img/units/kirmizi_ejderha.png',name:'Kırmızı Ejderha',role:'Ejderha',tier:4,
