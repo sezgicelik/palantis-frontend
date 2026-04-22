@@ -438,9 +438,18 @@ function renderOrduListe(){
       var tipKisa = g.tip === 'saldiri' ? '⚔️ Saldiri' : g.tip === 'takviye' ? '🛡️ Takviye' :
         g.tip === 'donus' ? '🏠 Donus' : g.tip.startsWith('donus') ? '🏠 Donus' :
         g.tip === 'koloni' ? '🏰 Koloni' : g.tip.startsWith('rolu') ? '🔀 Relay' : '🚀';
-      konumLabel = tipKisa;
+      // v1.14.0.92: N/M PG progress gosterimi
+      var toplamPG = parseInt(g.efektif_sure) || parseInt(g.ham_sure) || 1;
+      var gecenMs = Date.now() - new Date(g.baslangic || Date.now()).getTime();
+      var gecenPG = Math.max(0, Math.min(toplamPG, Math.floor(gecenMs / 3600000) + 1)); // +1 ki 0/N degil 1/N baslar
+      konumLabel = tipKisa + ' ' + gecenPG + '/' + toplamPG + ' PG';
       konumKoord = (g.hedef_x||'?') + ':' + (g.hedef_y||'?');
       konumRenk = g.tip.startsWith('donus') ? '#27ae60' : '#e67e22';
+    } else if (o.is_busy) {
+      // is_busy=TRUE ama aktif_gorev null (cron catch-up sirasinda gorev silinebilir)
+      konumLabel = '⚠️ Mesgul (gorev bilgisi yok)';
+      konumKoord = '';
+      konumRenk = '#e74c3c';
     } else if (korumada && o.takviye) {
       var tkLabel = o.takviye.hedef_kral ? o.takviye.hedef_kral + '\'de' : (o.takviye.koloni_isim ? o.takviye.koloni_isim + ' Ussu' : 'Konuslandi');
       konumLabel = '📍 Korumada: ' + tkLabel;
@@ -459,21 +468,26 @@ function renderOrduListe(){
     }
     var mesgulBadge = o.is_busy ? '<span style="background:#e74c3c22;color:#e74c3c;padding:1px 6px;border-radius:3px;font-size:11px;margin-left:6px">YOLDA</span>' : '';
 
-    return '<div class="card" style="padding:0;margin-bottom:14px;border:1px solid #333;border-radius:8px;overflow:hidden">' +
-      // Baslik bar
-      '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(212,175,55,.08);border-bottom:1px solid #333;flex-wrap:wrap;gap:6px">' +
+    // v1.14.0.92: Collapsible — varsayilan kapali (sadece ozet). Tikla -> expand
+    var collapsed = (typeof window._orduCollapse !== 'undefined' && window._orduCollapse[o.id] === false) ? false : true;
+    var bodyDisplay = collapsed ? 'none' : 'grid';
+    return '<div class="card ordu-card" data-ordu-id="' + o.id + '" style="padding:0;margin-bottom:14px;border:1px solid #333;border-radius:8px;overflow:hidden">' +
+      // Baslik bar — TIKLANABİLİR, toggle
+      '<div onclick="orduCardToggle(' + o.id + ')" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(212,175,55,.08);border-bottom:' + (collapsed?'none':'1px solid #333') + ';flex-wrap:wrap;gap:6px;cursor:pointer" onmouseover="this.style.background=\'rgba(212,175,55,.14)\'" onmouseout="this.style.background=\'rgba(212,175,55,.08)\'">' +
         '<div style="display:flex;align-items:center;gap:8px">' +
+          '<span style="color:#d4af37;font-size:12px;width:14px;transition:transform .2s;transform:rotate(' + (collapsed?'0':'90') + 'deg)">▶</span>' +
           '<span style="font-family:Cinzel,serif;font-size:14px;font-weight:bold;color:#d4af37">' + o.isim + '</span>' +
           mesgulBadge +
         '</div>' +
-        '<div style="display:flex;align-items:center;gap:12px">' +
-          '<span style="font-size:10px;color:' + konumRenk + ';background:' + konumRenk + '15;padding:2px 8px;border-radius:4px;border:1px solid ' + konumRenk + '33">' + konumLabel + ' <b>' + konumKoord + '</b></span>' +
+        '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">' +
+          '<span style="font-size:10px;color:' + konumRenk + ';background:' + konumRenk + '15;padding:2px 8px;border-radius:4px;border:1px solid ' + konumRenk + '33">' + konumLabel + (konumKoord ? ' <b>' + konumKoord + '</b>' : '') + '</span>' +
           '<span style="font-size:11px;color:#aaa">ATK: <span style="color:#e74c3c">' + fmt(o.atk) + '</span> DEF: <span style="color:#3498db">' + fmt(o.def) + '</span></span>' +
           '<span style="font-size:11px;color:#d4af37">' + fmt(o.total_units) + ' asker</span>' +
+          '<span style="font-size:11px;color:#f39c12">📊 %' + (o.reyting || 0) + '</span>' +
         '</div>' +
       '</div>' +
-      // Icerik: 3 sutun
-      '<div style="display:grid;grid-template-columns:1fr auto 1fr;gap:0">' +
+      // Icerik: 3 sutun (varsayilan gizli)
+      '<div class="ordu-card-body" style="display:' + bodyDisplay + ';grid-template-columns:1fr auto 1fr;gap:0">' +
         // Sol: Ordu Bilgileri
         '<div style="padding:10px 12px;border-right:1px solid #222">' +
           '<div style="font-size:10px;color:#888;margin-bottom:6px;font-weight:bold">Ordu Bilgileri</div>' +
@@ -508,7 +522,7 @@ function renderOrduListe(){
         '</div>' +
       '</div>' +
       // Alt: Unite yonetimi (gizli, toggle ile acilir)
-      '<div id="unite-yon-' + o.id + '" style="display:none;padding:10px 12px;border-top:1px solid #333;background:rgba(0,0,0,.2)">' +
+      '<div id="unite-yon-' + o.id + '" style="display:' + ((window._openUniteYon && window._openUniteYon[o.id]) ? 'block' : 'none') + ';padding:10px 12px;border-top:1px solid #333;background:rgba(0,0,0,.2)">' +
         '<div style="font-size:10px;color:#888;margin-bottom:6px;font-weight:bold">Havuzdan Unite Ekle / Cikar</div>' +
         '<div style="display:flex;flex-wrap:wrap;gap:4px">' +
           allPool.map(function(u){
@@ -547,7 +561,7 @@ function renderOrduListe(){
           '</div>' : '') +
       '</div>' +
       // v1.14.0.90: Inline saf dizilimi paneli (gizli, toggle ile acilir)
-      '<div id="formation-panel-' + o.id + '" style="display:none;padding:12px;border-top:1px solid #333;background:rgba(0,0,0,.25)">' +
+      '<div id="formation-panel-' + o.id + '" style="display:' + ((window._openFormation && window._openFormation[o.id]) ? 'block' : 'none') + ';padding:12px;border-top:1px solid #333;background:rgba(0,0,0,.25)">' +
         (o.is_busy || (o.konum_tipi && o.konum_tipi !== 'sehir')
           ? '<div style="padding:12px;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);border-radius:6px;color:#e74c3c;font-size:12px">🔒 Saf dizilimi sadece ordu <b>Sehirde</b> iken duzenlenebilir. Bu ordu su an yolda/konuslanmis.</div>'
           : '<div id="formation-body-' + o.id + '"><div style="color:#888;font-size:11px;padding:10px">Yukleniyor...</div></div>'
@@ -581,33 +595,57 @@ function renderOrduListe(){
           '</div>' +
         '</div>';
       })() : '') +
-      // v1.9.3: Ordu Gonder paneli — koordinat girişli (gizli, toggle ile açılır)
-      '<div id="ordu-gonder-panel-' + o.id + '" style="display:none;padding:12px;border-top:1px solid #d4af3744;background:rgba(212,175,55,.04)">' +
+      // v1.9.3: Ordu Gonder paneli — koordinat + v1.14.0.92 oyuncu ara
+      '<div id="ordu-gonder-panel-' + o.id + '" style="display:' + ((window._openOrduGonder && window._openOrduGonder[o.id]) ? 'block' : 'none') + ';padding:12px;border-top:1px solid #d4af3744;background:rgba(212,175,55,.04)">' +
         '<div style="font-size:11px;color:#d4af37;font-weight:bold;margin-bottom:8px">📤 Ordu Gonder — ' + o.isim + '</div>' +
-        '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:8px">' +
-          '<div>' +
-            '<label style="color:#aaa;font-size:10px;display:block;margin-bottom:3px">X Koordinat</label>' +
-            '<input id="og-x-' + o.id + '" type="number" min="1" max="200" placeholder="X" ' +
-              'style="width:70px;background:#1a1a1a;border:1px solid #444;color:#eee;padding:6px 8px;border-radius:5px;font-size:12px;text-align:center">' +
-          '</div>' +
-          '<span style="color:#555;font-size:16px;padding-bottom:4px">:</span>' +
-          '<div>' +
-            '<label style="color:#aaa;font-size:10px;display:block;margin-bottom:3px">Y Koordinat</label>' +
-            '<input id="og-y-' + o.id + '" type="number" min="1" max="50" placeholder="Y" ' +
-              'style="width:70px;background:#1a1a1a;border:1px solid #444;color:#eee;padding:6px 8px;border-radius:5px;font-size:12px;text-align:center">' +
-          '</div>' +
-          '<button class="btn ghost" style="font-size:11px;padding:6px 14px;color:#d4af37;border-color:#d4af3744" onclick="orduGonderAra(' + o.id + ')">Ara</button>' +
+        // Sekme: Oyuncu Ara / Koordinat
+        '<div style="display:flex;gap:4px;margin-bottom:10px">' +
+          '<button class="btn ghost" id="og-tab-oyuncu-' + o.id + '" onclick="orduGonderTab(' + o.id + ',\'oyuncu\')" style="font-size:10px;padding:4px 10px;background:#d4af3722">🔍 Oyuncu Ara</button>' +
+          '<button class="btn ghost" id="og-tab-koord-' + o.id + '" onclick="orduGonderTab(' + o.id + ',\'koord\')" style="font-size:10px;padding:4px 10px">📍 Koordinat</button>' +
         '</div>' +
-        '<div id="og-sonuc-' + o.id + '" style="font-size:11px;color:#888;min-height:20px"></div>' +
+        // Oyuncu ara
+        '<div id="og-panel-oyuncu-' + o.id + '" style="display:block">' +
+          '<input id="og-oyuncu-' + o.id + '" type="text" placeholder="Oyuncu adi (min 2 harf)" oninput="orduGonderOyuncuAra(' + o.id + ',this.value)" style="width:100%;background:#1a1a1a;border:1px solid #444;color:#eee;padding:6px 10px;border-radius:5px;font-size:12px;margin-bottom:4px">' +
+          '<div id="og-oyuncu-sonuc-' + o.id + '" style="max-height:200px;overflow-y:auto"></div>' +
+        '</div>' +
+        // Koordinat
+        '<div id="og-panel-koord-' + o.id + '" style="display:none">' +
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">' +
+            '<div>' +
+              '<label style="color:#aaa;font-size:10px;display:block;margin-bottom:3px">X</label>' +
+              '<input id="og-x-' + o.id + '" type="number" min="1" max="200" placeholder="X" style="width:70px;background:#1a1a1a;border:1px solid #444;color:#eee;padding:6px 8px;border-radius:5px;font-size:12px;text-align:center">' +
+            '</div>' +
+            '<span style="color:#555;font-size:16px;padding-bottom:4px">:</span>' +
+            '<div>' +
+              '<label style="color:#aaa;font-size:10px;display:block;margin-bottom:3px">Y</label>' +
+              '<input id="og-y-' + o.id + '" type="number" min="1" max="50" placeholder="Y" style="width:70px;background:#1a1a1a;border:1px solid #444;color:#eee;padding:6px 8px;border-radius:5px;font-size:12px;text-align:center">' +
+            '</div>' +
+            '<button class="btn ghost" style="font-size:11px;padding:6px 14px;color:#d4af37;border-color:#d4af3744" onclick="orduGonderAra(' + o.id + ')">🔍 Ara</button>' +
+          '</div>' +
+        '</div>' +
+        '<div id="og-sonuc-' + o.id + '" style="font-size:11px;color:#888;min-height:20px;margin-top:8px"></div>' +
       '</div>' +
     '</div>';
   }).join('');
 }
 
+window._openUniteYon = window._openUniteYon || {};
 function toggleUniteYonetimi(armyId) {
   var el = document.getElementById('unite-yon-' + armyId);
-  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+  if (!el) return;
+  var nowOpen = el.style.display === 'none';
+  el.style.display = nowOpen ? 'block' : 'none';
+  window._openUniteYon[armyId] = nowOpen;
 }
+
+// v1.14.0.92: Ordu kartini genislet/daralt (collapse state global)
+window._orduCollapse = window._orduCollapse || {};
+function orduCardToggle(armyId) {
+  window._orduCollapse[armyId] = !(window._orduCollapse[armyId] === false);
+  // Yeniden render
+  if (typeof renderOrduListe === 'function') renderOrduListe();
+}
+if (typeof window !== 'undefined') window.orduCardToggle = orduCardToggle;
 
 // v1.14.0.89: Unite ekle/cikar input helpers (preset +10/+100/+1K/MAX + input bazli)
 function uksStepInp(inputId, delta, max) {
@@ -1240,15 +1278,88 @@ document.addEventListener('DOMContentLoaded', () => {
 
 let _ogAramaSonuc = {}; // { armyId: { oyuncu, koloni, ... } }
 
+// v1.14.0.92: Ordu Gonder tab switch (oyuncu/koord) + oyuncu ara
+function orduGonderTab(armyId, tab) {
+  var oy = document.getElementById('og-panel-oyuncu-' + armyId);
+  var ko = document.getElementById('og-panel-koord-' + armyId);
+  var tOy = document.getElementById('og-tab-oyuncu-' + armyId);
+  var tKo = document.getElementById('og-tab-koord-' + armyId);
+  if (tab === 'oyuncu') {
+    oy.style.display = 'block'; ko.style.display = 'none';
+    if (tOy) tOy.style.background = '#d4af3722';
+    if (tKo) tKo.style.background = '';
+  } else {
+    oy.style.display = 'none'; ko.style.display = 'block';
+    if (tOy) tOy.style.background = '';
+    if (tKo) tKo.style.background = '#d4af3722';
+  }
+}
+window._ogAraTimer = window._ogAraTimer || {};
+async function orduGonderOyuncuAra(armyId, q) {
+  clearTimeout(window._ogAraTimer[armyId]);
+  var sonuc = document.getElementById('og-oyuncu-sonuc-' + armyId);
+  if (!sonuc) return;
+  if (!q || q.length < 2) { sonuc.innerHTML = ''; return; }
+  window._ogAraTimer[armyId] = setTimeout(async function(){
+    try {
+      var token = getToken();
+      var r = await fetch(API_BASE + '/api/player/ara?isim=' + encodeURIComponent(q), {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (!r.ok) { sonuc.innerHTML = '<div style="color:#e74c3c;font-size:11px">Arama hatasi</div>'; return; }
+      var data = await r.json();
+      if (!data.length) {
+        sonuc.innerHTML = '<div style="color:#888;font-size:11px;padding:6px">Sonuc yok</div>';
+        return;
+      }
+      sonuc.innerHTML = data.slice(0, 8).map(function(p){
+        var uygun = p.saldiri_uygun !== false;
+        var renk = uygun ? '#2ecc71' : '#c0392b';
+        var detay = p.red_sebebi ? ' <span style="color:#c0392b;font-size:9px">(' + p.red_sebebi + ')</span>' : '';
+        return '<div style="padding:6px 8px;margin-bottom:3px;background:#1a1a1a;border:1px solid ' + renk + '33;border-radius:4px;cursor:' + (uygun?'pointer':'not-allowed') + ';opacity:' + (uygun?'1':'0.55') + ';font-size:11px" ' +
+          (uygun ? 'onclick="orduGonderOyuncuSec(' + armyId + ',' + p.id + ',' + p.koord_x + ',' + p.koord_y + ',\'' + (p.kullanici_adi||'').replace(/\'/g,'') + '\')"' : '') + '>' +
+          '<b style="color:' + renk + '">' + (p.kullanici_adi||'?') + '</b> ' +
+          '<span style="color:#888;font-size:9px">· C' + (p.cag||'?') + ' · ' + (p.taraf||'?') + ' · ' + (p.koord_x||'?') + ':' + (p.koord_y||'?') + '</span>' +
+          detay +
+        '</div>';
+      }).join('');
+    } catch(e) {
+      sonuc.innerHTML = '<div style="color:#e74c3c;font-size:11px">Hata: ' + e.message + '</div>';
+    }
+  }, 350);
+}
+function orduGonderOyuncuSec(armyId, hedefId, x, y, kral) {
+  // Secilen oyuncunun koordinati X/Y inputlarina yaz + auto ara
+  var xEl = document.getElementById('og-x-' + armyId);
+  var yEl = document.getElementById('og-y-' + armyId);
+  if (xEl) xEl.value = x;
+  if (yEl) yEl.value = y;
+  var sonuc = document.getElementById('og-sonuc-' + armyId);
+  if (sonuc) sonuc.innerHTML = '<span style="color:#2ecc71">🎯 Hedef: ' + (kral||'?') + ' (' + x + ':' + y + ')</span>';
+  // Oyuncu tabindayken auto-ara
+  if (typeof orduGonderAra === 'function') orduGonderAra(armyId);
+}
+if (typeof window !== 'undefined') {
+  window.orduGonderTab = orduGonderTab;
+  window.orduGonderOyuncuAra = orduGonderOyuncuAra;
+  window.orduGonderOyuncuSec = orduGonderOyuncuSec;
+}
+
+window._openOrduGonder = window._openOrduGonder || {};
 function toggleOrduGonderPanel(armyId, konumTipi) {
-  // Tüm diğer panelleri kapat
+  // Tüm diğer panelleri kapat + state temizle
   document.querySelectorAll('[id^="ordu-gonder-panel-"]').forEach(function(el) {
-    if (el.id !== 'ordu-gonder-panel-' + armyId) el.style.display = 'none';
+    if (el.id !== 'ordu-gonder-panel-' + armyId) {
+      el.style.display = 'none';
+      var aid = parseInt(el.id.replace('ordu-gonder-panel-','')) || null;
+      if (aid) window._openOrduGonder[aid] = false;
+    }
   });
   var el = document.getElementById('ordu-gonder-panel-' + armyId);
   if (!el) return;
   var visible = el.style.display !== 'none';
   el.style.display = visible ? 'none' : 'block';
+  window._openOrduGonder[armyId] = !visible;
   if (!visible) {
     _ogAramaSonuc[armyId] = null;
     var sonucEl = document.getElementById('og-sonuc-' + armyId);
@@ -1459,13 +1570,20 @@ async function orduGeriCagir(armyId) {
    v1.14.0.90: INLINE SAF DIZILIMI (ordu karti icinde)
 ═══════════════════════════════════════════════════════════ */
 
+window._openFormation = window._openFormation || {};
 function toggleFormationPanel(armyId) {
   var panel = document.getElementById('formation-panel-' + armyId);
   if (!panel) return;
   var isOpen = panel.style.display === 'block';
-  document.querySelectorAll('[id^="formation-panel-"]').forEach(function(el){ el.style.display = 'none'; });
+  // Diger formation panellerini kapat + state temizle
+  document.querySelectorAll('[id^="formation-panel-"]').forEach(function(el){
+    el.style.display = 'none';
+    var aid = parseInt(el.id.replace('formation-panel-','')) || null;
+    if (aid) window._openFormation[aid] = false;
+  });
   if (isOpen) return;
   panel.style.display = 'block';
+  window._openFormation[armyId] = true;
 
   FORMATION_ARMY_ID = armyId;
   FORMATION_STATE = [[], [], [], []];
