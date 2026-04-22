@@ -64,28 +64,43 @@
       return inflight.get(key);
     }
 
-    // 3) Network fetch
+    // 3) Network fetch — v1.14.0.84: retry on 500/503/timeout (Railway cold start)
     stats.miss++;
     const t0 = performance.now();
     const fetchOpts = Object.assign({}, opts);
     delete fetchOpts.force;
 
-    const p = fetch(key, fetchOpts)
-      .then(async r => {
+    async function attempt(tryNo) {
+      try {
+        const r = await fetch(key, fetchOpts);
         if (!r.ok) {
+          // 500/502/503/504 gecici hata -> retry. 401 auth -> donderik (retry yok)
+          if ((r.status >= 500) && tryNo < 2) {
+            await new Promise(res => setTimeout(res, 400 + tryNo * 800));
+            return attempt(tryNo + 1);
+          }
+          // v1.14.0.84: Son denemede de fail ise stale cache varsa onu don
+          if (hit) { stats.stale_fallback = (stats.stale_fallback || 0) + 1; return hit.data; }
           return null;
         }
         const data = await r.json();
         const t1 = performance.now();
         stats.network_ms_total += (t1 - t0);
         cache.set(key, { ts: Date.now(), data });
-        inflight.delete(key);
         return data;
-      })
-      .catch(e => {
-        inflight.delete(key);
+      } catch(e) {
+        // Network hata -> retry
+        if (tryNo < 2) {
+          await new Promise(res => setTimeout(res, 400 + tryNo * 800));
+          return attempt(tryNo + 1);
+        }
+        // Stale fallback
+        if (hit) { stats.stale_fallback = (stats.stale_fallback || 0) + 1; return hit.data; }
         return null;
-      });
+      }
+    }
+
+    const p = attempt(0).finally(() => { inflight.delete(key); });
 
     inflight.set(key, p);
     return p;

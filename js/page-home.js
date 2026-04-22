@@ -122,8 +122,16 @@ async function loadSehirGorunum() {
   const token = getToken();
   if (!token) { grid.innerHTML = '<div style="grid-column:1/-1;color:#444;font-size:11px;text-align:center;padding:20px 0">Giris yapinca gorunur.</div>'; return; }
   try {
-    const resp = await fetch(API_BASE + '/api/game/buildings', { headers: { 'Authorization': 'Bearer ' + token } });
-    if (!resp.ok) { grid.innerHTML = '<div style="grid-column:1/-1;color:#444">Yuklenemedi</div>'; return; }
+    // v1.14.0.84: Tek retry (Railway cold start 500 olursa)
+    let resp = await fetch(API_BASE + '/api/game/buildings', { headers: { 'Authorization': 'Bearer ' + token } });
+    if (!resp.ok && resp.status >= 500) {
+      await new Promise(r => setTimeout(r, 800));
+      resp = await fetch(API_BASE + '/api/game/buildings', { headers: { 'Authorization': 'Bearer ' + token } });
+    }
+    if (!resp.ok) {
+      grid.innerHTML = '<div style="grid-column:1/-1;color:#888;font-size:11px;text-align:center;padding:16px">Yuklenemedi (HTTP ' + resp.status + '). <button onclick="loadSehirGorunum()" style="background:#c8a96e;color:#000;border:none;padding:3px 10px;border-radius:3px;cursor:pointer;margin-left:8px">↻ Tekrar</button></div>';
+      return;
+    }
     const buildings = await resp.json();
     const aktif = [];
     let toplam = 0;
