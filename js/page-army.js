@@ -428,9 +428,10 @@ function renderOrduListe(){
     var allPool = poolUnits.concat(poolDragons);
 
     // Konum bilgisi hesapla — v1.14.0.2: 4 durum: sehirde / yolda / korumada / kolonide
+    // v1.14.0.95: default konumKoord bos (sehirdeki ordu icin "?:?" gostermeyelim)
     var konumLabel = '';
     var konumRenk = '#2ecc71';
-    var konumKoord = (typeof OYUNCU !== 'undefined' && OYUNCU ? (OYUNCU.koord_x||'?') + ':' + (OYUNCU.koord_y||'?') : '?:?');
+    var konumKoord = '';
     var korumada = o.konum_tipi === 'korumada';
     if (o.is_busy && o.aktif_gorev) {
       // v1.14.0.2 FIX: Yoldaysa gercek hedef goster, "Sehirde" deme
@@ -971,6 +972,8 @@ async function loadArmyPool(){
     }
 
     // Ordular listesi
+    // v1.14.0.95 FIX: aktif_gorev / reyting / konum_tipi / takviye alanlari backend'den geliyor
+    // ama map'te drop ediliyordu — "Mesgul (gorev bilgisi yok)" ve "Reyting %0" bug'inin kaynagi.
     if(data.armies) {
       ORDULAR = data.armies.map(a => ({
         id: a.id,
@@ -982,6 +985,14 @@ async function loadArmyPool(){
         total_units: a.total_units || 0,
         atk: a.atk || 0,
         def: a.def || 0,
+        // v1.14.0.95: eksik alanlar eklendi
+        aktif_gorev: a.aktif_gorev || null,
+        reyting: a.reyting || 0,
+        guc_base: a.guc_base || 0,
+        konum_tipi: a.konum_tipi || 'sehir',
+        konum: a.konum || null,
+        takviye: a.takviye || null,
+        koloni_bilgi: a.koloni_bilgi || null,
         dizilim: { saflar: [a.formation?.saf_1 || a.formation?.on_saf || [], a.formation?.saf_2 || [], a.formation?.saf_3 || [], a.formation?.saf_4 || a.formation?.arka_saf || []] }
       }));
     }
