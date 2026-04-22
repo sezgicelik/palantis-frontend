@@ -7,13 +7,83 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/main.css?v=13496">
-<link rel="stylesheet" href="css/tema-parsomen.css?v=13496">
+<link rel="stylesheet" href="css/main.css?v=13500">
+<link rel="stylesheet" href="css/tema-parsomen.css?v=13500">
 <link rel="stylesheet" href="css/rehber.css">
-<!-- v1.13.48: PWA manifest (v1.13.49.2: relative path fix) -->
 <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#0a0a0a">
 <link rel="apple-touch-icon" href="./icons/icon-192.svg">
+<style>
+  /* v1.14.1.00 — Dashboard stili (Klanlar.org esinli) */
+  .ovr-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 10px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .ovr-grid .panel.full  { grid-column: 1 / -1; }
+  .ovr-grid .panel.wide2 { grid-column: span 2; }
+  .ovr-grid .panel.wide3 { grid-column: span 3; }
+
+  .panel {
+    border: 1px solid #7d510f;
+    border-radius: 5px;
+    background: rgba(212,175,55,0.03);
+    overflow: hidden;
+  }
+  body.tema-parsomen .panel {
+    background: linear-gradient(180deg,#f4e7c7 0%,#ebdbb5 100%);
+    box-shadow: 0 1px 3px rgba(80,50,20,0.1);
+  }
+  .panel-head {
+    background: linear-gradient(180deg,rgba(212,175,55,0.14),rgba(139,105,20,0.05));
+    padding: 6px 10px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid #7d510f;
+    cursor: pointer;
+    user-select: none;
+  }
+  body.tema-parsomen .panel-head {
+    background: linear-gradient(180deg,#c1a264,#a98a54);
+    border-bottom-color: #6c4824;
+  }
+  .panel-head h4 {
+    margin: 0;
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    color: var(--gold,#d4af37);
+    font-weight: 700;
+  }
+  body.tema-parsomen .panel-head h4 { color: #1a1208; text-shadow: 0 1px 0 rgba(255,245,220,0.4); }
+  .panel-toggle { color: var(--gold,#d4af37); font-size: 10px; }
+  body.tema-parsomen .panel-toggle { color: #6c4824; }
+
+  .panel-body { padding: 10px 12px; font-size: 12px; line-height: 1.55; }
+  .panel-body .loading { color: #555; font-style: italic; font-size: 11px }
+
+  .kv { display: flex; justify-content: space-between; padding: 2px 0; font-size: 11px; }
+  .kv:not(:last-child) { border-bottom: 1px dashed rgba(125,81,15,0.25); }
+  .kv .lbl { color: var(--text-dim,rgba(232,220,200,0.4)); }
+  body.tema-parsomen .kv .lbl { color: #6c4824; }
+  .kv .val { color: var(--gold,#d4af37); font-weight: 600; font-family: 'Cinzel', serif; }
+  body.tema-parsomen .kv .val { color: #3d2810; }
+
+  .alert { color: #e74c3c; font-weight: 600; }
+  .ok { color: #2ecc71; font-weight: 600; }
+
+  .ilink { color: var(--gold,#d4af37); text-decoration: none; font-size: 11px; }
+  .ilink:hover { text-decoration: underline; }
+
+  .bar { background: rgba(125,81,15,0.15); height: 8px; border-radius: 2px; overflow: hidden; border: 1px solid rgba(125,81,15,0.3); margin: 3px 0; }
+  .bar-fill { height: 100%; background: linear-gradient(90deg,#d4af37,#b08f4d); }
+
+  @media (max-width: 900px) {
+    .ovr-grid { grid-template-columns: 1fr 1fr; }
+    .ovr-grid .panel.full, .ovr-grid .panel.wide2, .ovr-grid .panel.wide3 { grid-column: span 2; }
+  }
+</style>
 </head>
 <body>
 <div id="hudbar-mount"></div>
@@ -21,95 +91,193 @@
   <div id="sidebar-mount"></div>
   <div class="main-content">
 
-    <!-- Kral Bilgi Kartı -->
-    <!-- Gizli ID'ler (JS uyumu için) -->
+    <!-- Gizli ID'ler (JS uyumu icin, degistirme) -->
     <span id="home-kral" style="display:none">—</span>
     <span id="home-sehir" style="display:none">—</span>
     <span id="home-irk" style="display:none">—</span>
     <span id="home-cag" style="display:none">I. Çağ</span>
+    <div id="main-welcome" style="display:none">—</div>
+    <div id="home-irk-icon" style="display:none"></div>
+    <div id="home-sehir-lbl" style="display:none"></div>
+    <div id="home-irk-lbl" style="display:none"></div>
+    <div id="home-cag-lbl" style="display:none"></div>
+    <div id="home-premium-badge" style="display:none"></div>
+    <div id="home-premium-info" style="display:none"></div>
+    <div id="home-rozetler" style="display:none"></div>
+    <div id="home-koord" style="display:none"></div>
+    <div id="home-duyurular" style="display:none"></div>
+    <div id="home-bonus-card" style="display:none"><div id="home-bonus-content"></div></div>
+    <div id="home-sehir-card" style="display:none">
+      <div id="home-sehir-stats"><span id="hsc-total">—</span><span id="hsc-tip">—</span><span id="hsc-alan">—</span></div>
+      <div id="home-sehir-grid"></div>
+    </div>
+    <div id="cag1-uyari" class="card" style="display:none;padding:16px;border-left:3px solid #e67e22;margin-bottom:16px">
+      <h3 style="color:#e67e22;margin-bottom:8px">⚠️ I. Çağ Kısıtlamaları</h3>
+      <p style="font-size:13px;color:#888;line-height:1.7">Diğer oyuncularla savaşamazsın · Guild'lere katılamazsın · II. Çağa geçince tüm özellikler açılır</p>
+    </div>
 
-    <!-- Kurulduktan sonra ana ekran -->
-    <div id="main-home">
+    <!-- ═══════════ DASHBOARD GRID ═══════════ -->
+    <div class="ovr-grid" style="margin-top:4px">
 
-      <!-- Gizli ID'ler (JS uyumu için, profil bandı kaldırıldı) -->
-      <div id="main-welcome" style="display:none">—</div>
-      <div id="home-irk-icon" style="display:none"></div>
-      <div id="home-sehir-lbl" style="display:none"></div>
-      <div id="home-irk-lbl" style="display:none"></div>
-      <div id="home-cag-lbl" style="display:none"></div>
-      <div id="home-premium-badge" style="display:none"></div>
-      <div id="home-premium-info" style="display:none"></div>
-      <div id="home-rozetler" style="display:none"></div>
-      <div id="home-koord" style="display:none"></div>
-
-      <!-- Duyurular -->
-      <div id="home-duyurular" style="display:none"></div>
-
-      <!-- Bonus Özet Kartı (en üstte) -->
-      <div class="card" style="padding:16px;margin-bottom:14px" id="home-bonus-card">
-        <h3 style="color:var(--race-color,#c8a96e);font-family:'Cinzel',serif;font-size:13px;margin-bottom:10px">📊 Bonus Ozeti</h3>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px" id="home-bonus-content">
-          <div style="color:#555;font-size:12px">Yukleniyor...</div>
+      <!-- 1. Şehir Başlığı (full) -->
+      <div class="panel full">
+        <div class="panel-head" onclick="hpToggle(this)">
+          <h4 id="hp-sehir-baslik">🏰 Yükleniyor…</h4>
+          <span class="panel-toggle">▼</span>
         </div>
-      </div>
-
-      <!-- Sehir Gorunumu (v1.13.8) — binalar + adet -->
-      <div class="card" style="padding:16px;margin-bottom:14px;background:linear-gradient(180deg,#0d0a06 0%,#110d07 100%);border:1px solid rgba(201,160,32,0.25)" id="home-sehir-card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <h3 style="color:#d4af37;font-family:'Cinzel',serif;font-size:13px;margin:0">🏰 Sehrim — Binalar</h3>
-          <a href="city.html" style="color:#888;font-size:10px;text-decoration:none">yonet →</a>
-        </div>
-        <div id="home-sehir-stats" style="display:flex;gap:10px;margin-bottom:10px;font-size:10px;color:#888;flex-wrap:wrap">
-          <span>Toplam: <b id="hsc-total" style="color:#d4af37">—</b></span>
-          <span>Bina Tipi: <b id="hsc-tip" style="color:#c8a96e">—</b></span>
-          <span>Alan: <b id="hsc-alan" style="color:#c8a96e">—</b></span>
-        </div>
-        <div id="home-sehir-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;padding:10px;background:linear-gradient(180deg,#0a1424 0%,#0c1a14 55%,#0e1408 100%);border-radius:4px;min-height:140px">
-          <div style="grid-column:1/-1;color:#444;font-size:11px;text-align:center;padding:20px 0">Yukleniyor...</div>
-        </div>
-      </div>
-
-      <!-- Tarih + Aktivite yan yana -->
-      <div style="display:grid;grid-template-columns:220px 1fr;gap:12px;margin-bottom:14px">
-        <!-- Tarih -->
-        <div style="padding:14px 16px;background:#0d0a06;border:1px solid rgba(200,169,110,0.12);border-radius:4px;display:flex;flex-direction:column;justify-content:center">
-          <div style="color:#c8a96e;font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;margin-bottom:6px">NOXARA TAKVİMİ</div>
-          <div id="home-tarih" style="color:#f0e8d8;font-size:18px;font-family:'Cinzel',serif;font-weight:700">— — —</div>
-          <div style="color:#333;font-size:10px;margin-top:8px">GERÇEK SAAT</div>
-          <div id="home-real-saat" style="color:#666;font-size:14px">—:—</div>
-        </div>
-        <!-- Bugün olanlar -->
-        <div style="padding:14px 16px;background:#0d0a06;border:1px solid rgba(200,169,110,0.12);border-radius:4px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <span style="font-family:'Cinzel',serif;font-size:11px;color:#c8a96e;letter-spacing:1px">📜 SON NOXARA GÜNÜ</span>
-            <a href="activity.html" style="color:#3a2a10;font-size:10px;text-decoration:none">tümünü gör →</a>
-          </div>
-          <div id="home-activity" style="font-size:12px;color:#555;line-height:1.9">
-            <span style="color:#2a1a08">Yükleniyor...</span>
+        <div class="panel-body">
+          <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:11px">
+            <div><span class="lbl" style="color:var(--text-dim)">Irk:</span> <b class="val" id="hp-irk">—</b></div>
+            <div><span class="lbl" style="color:var(--text-dim)">Çağ:</span> <b class="val" id="hp-cag">—</b></div>
+            <div><span class="lbl" style="color:var(--text-dim)">Koordinat:</span> <b class="val" id="hp-koord">—</b></div>
+            <div><span class="lbl" style="color:var(--text-dim)">Şehir Değeri:</span> <b class="val" id="hp-sehir-deger">—</b></div>
+            <div><span class="lbl" style="color:var(--text-dim)">Mutluluk:</span> <b class="val" id="hp-mutluluk">—</b></div>
+            <div><span class="lbl" style="color:var(--text-dim)">Ordu Morali:</span> <b class="val" id="hp-ordu-moral">—</b></div>
           </div>
         </div>
       </div>
 
-      <!-- 1. Çağ uyarısı -->
-      <div id="cag1-uyari" class="card" style="padding:16px;border-left:3px solid #e67e22;margin-bottom:16px">
-        <h3 style="color:#e67e22;margin-bottom:8px">⚠️ I. Çağ Kısıtlamaları</h3>
-        <p style="font-size:13px;color:#888;line-height:1.7">
-          • Diğer oyuncularla savaşamazsın<br>
-          • Guild'lere katılamazsın<br>
-          • Pazar alanını 30 reel gün boyunca özgürce kullanabilirsin<br>
-          • II. Çağa geçince tüm özellikler açılır
-        </p>
-      </div>
-
-      <!-- Haber paneli (savaş raporları örneği) -->
-      <div class="card" style="padding:20px">
-        <h3 style="margin-bottom:14px">📜 Şehir Haberleri</h3>
-        <div id="haberler" style="font-size:13px;color:#666;line-height:2">
-          <div>• Krallığın kuruldu. İlk binaları inşa etmeye başla.</div>
-          <div>• Balıkçılar her ayın 4-8-12-16-20-24. günlerinde limana uğrar.</div>
-          <div>• Hasat ayları: Haziran, Ağustos, Ekim — kaynak üretimi artar.</div>
+      <!-- 2. Gelen Saldırı (wide2) -->
+      <div class="panel wide2">
+        <div class="panel-head" onclick="hpToggle(this)">
+          <h4>⚔️ Gelen Saldırı / Büyü</h4>
+          <span class="panel-toggle">▼</span>
+        </div>
+        <div class="panel-body">
+          <div id="hp-gelen" class="loading">Yükleniyor…</div>
         </div>
       </div>
+
+      <!-- 3. Ordularım (wide2) -->
+      <div class="panel wide2">
+        <div class="panel-head" onclick="hpToggle(this)">
+          <h4>🛡️ Ordularım</h4>
+          <span class="panel-toggle">▼</span>
+        </div>
+        <div class="panel-body">
+          <div id="hp-ordularim" class="loading">Yükleniyor…</div>
+          <div style="margin-top:6px;text-align:right"><a href="army.html?tab=armies" class="ilink">Detay →</a></div>
+        </div>
+      </div>
+
+      <!-- 4. Üretim -->
+      <div class="panel">
+        <div class="panel-head" onclick="hpToggle(this)">
+          <h4>📈 Üretim</h4>
+          <span class="panel-toggle">▼</span>
+        </div>
+        <div class="panel-body">
+          <div class="kv"><span class="lbl">🌳 Odun</span> <span class="val" id="hp-prod-odun">—</span></div>
+          <div class="kv"><span class="lbl">⛓️ Metal</span> <span class="val" id="hp-prod-metal">—</span></div>
+          <div class="kv"><span class="lbl">🌾 Buğday</span> <span class="val" id="hp-prod-bugday">—</span></div>
+          <div class="kv"><span class="lbl">🐟 Balık</span> <span class="val" id="hp-prod-balik">—</span></div>
+          <div class="kv"><span class="lbl">💰 Altın</span> <span class="val" id="hp-prod-altin">—</span></div>
+        </div>
+      </div>
+
+      <!-- 5. İnşa Kuyruğu -->
+      <div class="panel">
+        <div class="panel-head" onclick="hpToggle(this)">
+          <h4>🏗️ İnşa Kuyruğu</h4>
+          <span class="panel-toggle">▼</span>
+        </div>
+        <div class="panel-body">
+          <div id="hp-insaat" class="loading">Yükleniyor…</div>
+          <div style="margin-top:6px;text-align:right"><a href="city.html" class="ilink">Tümü →</a></div>
+        </div>
+      </div>
+
+      <!-- 6. Ünite Eğitimi -->
+      <div class="panel">
+        <div class="panel-head" onclick="hpToggle(this)">
+          <h4>⚔️ Ünite Eğitimi</h4>
+          <span class="panel-toggle">▼</span>
+        </div>
+        <div class="panel-body">
+          <div id="hp-unite-kuyruk" class="loading">Yükleniyor…</div>
+        </div>
+      </div>
+
+      <!-- 7. Birimler -->
+      <div class="panel">
+        <div class="panel-head" onclick="hpToggle(this)">
+          <h4>👥 Birimler</h4>
+          <span class="panel-toggle">▼</span>
+        </div>
+        <div class="panel-body">
+          <div id="hp-birimler" class="loading">Yükleniyor…</div>
+          <div style="margin-top:4px;text-align:right"><a href="army.html" class="ilink">Ordu →</a></div>
+        </div>
+      </div>
+
+      <!-- 8. Aktif Büyüler -->
+      <div class="panel">
+        <div class="panel-head" onclick="hpToggle(this)">
+          <h4>🔮 Aktif Büyüler</h4>
+          <span class="panel-toggle">▼</span>
+        </div>
+        <div class="panel-body">
+          <div id="hp-buyuler" class="loading">Yükleniyor…</div>
+        </div>
+      </div>
+
+      <!-- 9. Aktif Etkiler -->
+      <div class="panel">
+        <div class="panel-head" onclick="hpToggle(this)">
+          <h4>✨ Aktif Etkiler</h4>
+          <span class="panel-toggle">▼</span>
+        </div>
+        <div class="panel-body">
+          <div id="hp-etkiler" class="loading">Yükleniyor…</div>
+        </div>
+      </div>
+
+      <!-- 10. Son Raporlar -->
+      <div class="panel">
+        <div class="panel-head" onclick="hpToggle(this)">
+          <h4>📜 Son Raporlar</h4>
+          <span class="panel-toggle">▼</span>
+        </div>
+        <div class="panel-body">
+          <div id="hp-raporlar" class="loading">Yükleniyor…</div>
+          <div style="margin-top:4px;text-align:right"><a href="reports.html" class="ilink">Tümü →</a></div>
+        </div>
+      </div>
+
+      <!-- 11. Guild -->
+      <div class="panel">
+        <div class="panel-head" onclick="hpToggle(this)">
+          <h4>⚔️ Guild</h4>
+          <span class="panel-toggle">▼</span>
+        </div>
+        <div class="panel-body">
+          <div id="hp-guild" class="loading">Yükleniyor…</div>
+        </div>
+      </div>
+
+      <!-- 12. Takvim + Not -->
+      <div class="panel">
+        <div class="panel-head" onclick="hpToggle(this)">
+          <h4>📅 Takvim & Not</h4>
+          <span class="panel-toggle">▼</span>
+        </div>
+        <div class="panel-body">
+          <div class="kv"><span class="lbl">Noxara Tarih</span> <b class="val" id="home-tarih">—</b></div>
+          <div class="kv"><span class="lbl">Gerçek Saat</span> <b class="val" id="home-real-saat">—:—</b></div>
+          <textarea id="hp-not" style="width:100%;min-height:40px;margin-top:8px;font-size:11px;font-family:inherit;background:rgba(0,0,0,0.15);border:1px solid rgba(125,81,15,0.3);border-radius:3px;padding:6px;resize:vertical;color:inherit" placeholder="Not tut..."></textarea>
+          <div style="margin-top:3px;text-align:right"><button onclick="hpNotKaydet()" style="font-size:10px;padding:3px 10px">💾 Kaydet</button></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Aktivite (altta genis) -->
+    <div style="max-width:1100px;margin:12px auto 0;padding:12px 16px;background:rgba(212,175,55,0.04);border:1px solid rgba(125,81,15,0.3);border-radius:5px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-family:'Cinzel',serif;font-size:11px;color:var(--gold);letter-spacing:1px">📜 SON NOXARA GÜNÜ</span>
+        <a href="activity.html" class="ilink">tümünü gör →</a>
+      </div>
+      <div id="home-activity" style="font-size:12px;line-height:1.8;color:var(--text-dim)">Yükleniyor...</div>
     </div>
 
   </div>
@@ -124,15 +292,33 @@
 <script src="js/toast.js"></script>
 <script src="js/theme.js"></script>
 <script src="js/cache-fetch.js"></script>
-<script src="js/game-data.js?v=13499"></script>
+<script src="js/game-data.js?v=13500"></script>
 <script src="js/hud.js?v=13500"></script>
 <script src="js/nufus-render.js"></script>
-<script src="js/layout.js?v=13499"></script>
+<script src="js/layout.js?v=13500"></script>
 <script src="js/rehber.js"></script>
-<script src="js/page-home.js"></script>
+<script src="js/page-home.js?v=13500"></script>
+<script src="js/page-home-dashboard.js?v=13500"></script>
 <script src="js/bildirim-popup.js"></script>
 <script>
-// v1.13.48: Service worker register (PWA) — v1.13.49.2: relative path
+// Panel toggle
+function hpToggle(head){
+  const body = head.nextElementSibling;
+  const tgl = head.querySelector('.panel-toggle');
+  if (body.style.display === 'none') { body.style.display = ''; tgl.textContent = '▼'; }
+  else { body.style.display = 'none'; tgl.textContent = '▶'; }
+}
+// Not kaydet (localStorage)
+function hpNotKaydet(){
+  try { localStorage.setItem('noxara_hp_not', document.getElementById('hp-not').value); } catch(e) {}
+  if (typeof showToast === 'function') showToast('✓ Not kaydedildi', 'success');
+}
+(function() {
+  try {
+    const not = localStorage.getItem('noxara_hp_not');
+    if (not) setTimeout(() => { const el = document.getElementById('hp-not'); if (el) el.value = not; }, 200);
+  } catch(e) {}
+})();
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('./sw.js').catch(function(e) { console.log('[SW] register failed:', e.message); });
