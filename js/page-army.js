@@ -718,6 +718,13 @@ function renderUnitGrid(side, gridId){
   const units = Object.values(UNITS).filter(u=>u.side===side && u.producible !== false);
   grid.innerHTML = '';
 
+  // v1.14.0.94: Sablon seciminden gore render
+  var sablon = 'klasik';
+  try { sablon = localStorage.getItem('noxara_asker_egitim_sablon') || 'klasik'; } catch(e) {}
+  if (sablon === 'accordion') {
+    return renderUnitGridAccordion(units, grid, side);
+  }
+
   units.forEach(u=>{
     const rc = realCost(u.cost);
     const TIER_ASKER = { 1:1, 2:1, 3:1, 4:0 };
@@ -791,6 +798,83 @@ function renderUnitGrid(side, gridId){
 
   updateArmyStats();
 }
+
+/* ═══════════════════════════════════════════════════════════
+   v1.14.0.94: Asker Egitim Sablon 2 — Altin Cerceveli Accordion
+═══════════════════════════════════════════════════════════ */
+function renderUnitGridAccordion(units, grid, side) {
+  grid.className = 'ugrid-accordion';
+  const catLabel = side === 'light' ? 'AYDINLIK BİRLİKLER' : 'KARANLIK BİRLİKLER';
+  var html = '<div class="t9-cat">⚔ ' + catLabel + '</div>' +
+    '<div class="t9-head">' +
+      '<span class="t9-title">Üniteler</span>' +
+      '<span class="t9-count">' + units.length + ' ünite</span>' +
+    '</div>' +
+    '<div class="t9-list">';
+
+  units.forEach(function(u) {
+    const rc = realCost(u.cost);
+    const TIER_ASKER = { 1:1, 2:1, 3:1, 4:0 };
+    const askerGerekli = TIER_ASKER[u.tier] || 0;
+    const askerVar = population.asker || 0;
+    const askerOk = askerGerekli === 0 || askerVar >= askerGerekli;
+    const afford = canAfford(rc) && canAffordExtra(u.extraCost) && askerOk;
+    const uAtk = realAtk(u.id);
+    const uDef = realDef(u.id);
+    const uMaas = realMaas(u.maas);
+    const trainDays = u.trainDays || (u.tier===1?1:u.tier===2?2:3);
+    const tierLbl = 'T' + u.tier;
+
+    // Maliyet satiri
+    var costParts = [];
+    Object.entries(rc).forEach(function(e){
+      var r = e[0], a = e[1];
+      var have = RES[r] || 0;
+      costParts.push('<b class="' + (have>=a?'cost-ok':'cost-no') + '">' + a.toLocaleString('tr-TR') + '</b> ' + (r==='islenmis'?'işl.metal':r));
+    });
+    if (askerGerekli > 0) costParts.push('<b class="' + (askerOk?'cost-ok':'cost-no') + '">' + askerGerekli + '</b> asker');
+    Object.entries(u.extraCost || {}).forEach(function(e){
+      var r = e[0], a = e[1];
+      var have = EXTRA_RES[r] || 0;
+      costParts.push('<b class="' + (have>=a?'cost-ok':'cost-no') + '">' + a + '</b> ' + r);
+    });
+    var priceHTML = costParts.join('<span class="sep">·</span>');
+
+    html += '<div class="t9-row" data-uid="' + u.id + '">' +
+      '<div class="t9-head-row" onclick="t9Toggle(event, \'' + u.id + '\')">' +
+        '<div class="t9-ico">' + (u.icon || '⚔') + '</div>' +
+        '<div class="t9-info">' +
+          '<div class="t9-name">' + u.name + '</div>' +
+          '<div class="t9-meta">' + tierLbl + ' · ATK <b>' + uAtk + '</b> · DEF <b>' + uDef + '</b> · Maaş <b>' + uMaas + '</b> · ⏱ ' + trainDays + ' PG</div>' +
+        '</div>' +
+        '<span class="t9-toggle">▾</span>' +
+      '</div>' +
+      '<div class="t9-body">' +
+        '<div class="t9-price">Maliyet: ' + priceHTML + '</div>' +
+        '<div class="t9-ctrl">' +
+          '<button class="minus" onclick="changeCount(\'' + u.id + '\',-1)">−</button>' +
+          '<input id="cnt-' + u.id + '" value="' + u.count + '" type="number" min="0" onchange="setCount(\'' + u.id + '\',this.value)">' +
+          '<button class="plus" onclick="changeCount(\'' + u.id + '\',1)">+</button>' +
+          '<button class="t9-btn" ' + (afford?'':'disabled') + ' onclick="trainUnit(\'' + u.id + '\')">EGIT</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  });
+  html += '</div>';
+  grid.innerHTML = html;
+  updateArmyStats();
+}
+
+// Accordion toggle (input/button tiklamasinda propagate etmez)
+function t9Toggle(ev, uid) {
+  if (ev && ev.target) {
+    var tag = ev.target.tagName;
+    if (tag === 'INPUT' || tag === 'BUTTON') return;
+  }
+  var row = ev?.currentTarget?.closest('.t9-row');
+  if (row) row.classList.toggle('open');
+}
+if (typeof window !== 'undefined') window.t9Toggle = t9Toggle;
 
 function changeCount(id, delta){
   const u = UNITS[id]; if(!u) return;

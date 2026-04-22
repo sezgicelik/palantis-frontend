@@ -9,6 +9,40 @@
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
 <link rel="manifest" href="./manifest.json">
 <link rel="stylesheet" href="css/main.css?v=13422">
+<style>
+/* v1.14.0.94: Asker egitim sablon — Altin Cerceveli Accordion (t9) */
+.ugrid-accordion { max-width:640px; margin:0 auto; background:radial-gradient(circle at top left,#14100a 0%,#0a0604 100%); border:1px solid #c8a96e; border-radius:10px; padding:16px; box-shadow:inset 0 0 0 1px rgba(200,169,110,0.1),0 0 30px rgba(212,175,55,0.08) }
+.ugrid-accordion .t9-cat { color:#d4af37; font-family:'Cinzel',serif; font-size:11px; letter-spacing:2px; text-shadow:0 0 6px rgba(212,175,55,0.3); margin-bottom:4px }
+.ugrid-accordion .t9-head { display:flex; justify-content:space-between; align-items:center; padding-bottom:10px; border-bottom:1px solid rgba(200,169,110,0.25); margin-bottom:10px }
+.ugrid-accordion .t9-title { color:#e0c97f; font-family:'Cinzel',serif; font-size:14px; font-weight:700 }
+.ugrid-accordion .t9-count { color:#888; font-size:10px }
+.ugrid-accordion .t9-list { display:flex; flex-direction:column; gap:8px }
+.ugrid-accordion .t9-row { background:linear-gradient(135deg,#1a140a 0%,#0f0a06 100%); border:1px solid #3a3020; border-radius:6px; overflow:hidden; cursor:pointer; transition:.2s }
+.ugrid-accordion .t9-row:hover { border-color:#c8a96e; box-shadow:0 0 12px rgba(212,175,55,0.15) }
+.ugrid-accordion .t9-row.open { border-color:#d4af37; box-shadow:0 0 18px rgba(212,175,55,0.25),inset 0 0 0 1px rgba(212,175,55,0.1) }
+.ugrid-accordion .t9-head-row { display:flex; align-items:center; gap:12px; padding:10px 12px }
+.ugrid-accordion .t9-ico { width:40px; height:40px; background:linear-gradient(135deg,#d4af37,#8b6914); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; box-shadow:0 0 10px rgba(212,175,55,0.35),inset 0 0 4px rgba(0,0,0,0.4); border:1px solid #e0c97f }
+.ugrid-accordion .t9-row.open .t9-ico { box-shadow:0 0 16px rgba(212,175,55,0.6),inset 0 0 6px rgba(0,0,0,0.4) }
+.ugrid-accordion .t9-info { flex:1; min-width:0 }
+.ugrid-accordion .t9-name { color:#e0c97f; font-family:'Cinzel',serif; font-size:13px; font-weight:700; text-shadow:0 0 4px rgba(212,175,55,0.15) }
+.ugrid-accordion .t9-meta { color:#999; font-size:10px; margin-top:3px; letter-spacing:.4px }
+.ugrid-accordion .t9-meta b { color:#d4af37 }
+.ugrid-accordion .t9-toggle { color:#d4af37; font-family:'Cinzel',serif; font-size:16px; font-weight:700; margin-left:6px; transition:transform .2s }
+.ugrid-accordion .t9-row.open .t9-toggle { transform:rotate(180deg) }
+.ugrid-accordion .t9-body { display:none; padding:10px 14px 12px; border-top:1px solid rgba(200,169,110,0.2); background:rgba(0,0,0,0.35) }
+.ugrid-accordion .t9-row.open .t9-body { display:block }
+.ugrid-accordion .t9-price { color:#ccc; font-size:11px; margin-bottom:10px; letter-spacing:.2px }
+.ugrid-accordion .t9-price span.sep { color:#999; margin:0 5px }
+.ugrid-accordion .t9-price b { color:#e0c97f }
+.ugrid-accordion .t9-ctrl { display:flex; align-items:center; gap:6px }
+.ugrid-accordion .t9-ctrl button.minus, .ugrid-accordion .t9-ctrl button.plus { width:28px; height:30px; background:rgba(212,175,55,0.08); border:1px solid #8b6914; color:#d4af37; cursor:pointer; border-radius:3px; font-size:14px; font-weight:700; transition:.15s }
+.ugrid-accordion .t9-ctrl button.minus:hover, .ugrid-accordion .t9-ctrl button.plus:hover { background:#d4af37; color:#000 }
+.ugrid-accordion .t9-ctrl input { flex:1; text-align:center; background:#0a0604; border:1px solid #3a3020; color:#e0c97f; padding:6px; border-radius:3px; font-size:13px; font-family:'Cinzel',serif }
+.ugrid-accordion .t9-btn { flex-shrink:0; background:transparent; color:#d4af37; border:1px solid #d4af37; padding:7px 18px; font-weight:700; border-radius:3px; cursor:pointer; font-family:'Cinzel',serif; font-size:11px; transition:.2s; letter-spacing:1.5px }
+.ugrid-accordion .t9-btn:hover { background:#d4af37; color:#0a0604; box-shadow:0 0 12px rgba(212,175,55,0.5) }
+.ugrid-accordion .t9-btn:disabled { opacity:0.35; cursor:not-allowed }
+.ugrid-accordion .cost-ok { color:#e0c97f } .ugrid-accordion .cost-no { color:#e74c3c }
+</style>
 </head>
 <body>
 <div id="hudbar-mount"></div>
