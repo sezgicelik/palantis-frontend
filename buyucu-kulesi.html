@@ -431,7 +431,7 @@ function bkRenderKitap() {
                 <span class="mana-dot mana-${b.mana_renk}" style="width:10px;height:10px;flex-shrink:0"></span>
                 <span class="buyu-isim" style="margin:0">${TIP_IKON[b.tip]||''} ${b.isim}</span>
                 <span style="font-size:11px;color:#555">${b.kategori === 'dusmana' ? 'Ofansif' : 'Kendine'}</span>
-                <span class="buyu-kademe" style="font-size:11px;margin:0">${ogrenildi ? 'K' + kademe : '—'}</span>
+                <span class="buyu-kademe" style="font-size:11px;margin:0;padding:1px 6px;background:${kademe>=10?'#5a0000':'#1a1a1a'};color:${kademe>=10?'#e74c3c':'#d4af37'};border-radius:3px;font-weight:bold">${ogrenildi ? (kademe + '/10' + (kademe>=10?' MAX':'')) : '—'}</span>
               </div>
               <div style="font-size:11px;color:#666;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${b.aciklama || ''}</div>
               ${kd ? '<div style="font-size:11px;color:#555;margin-top:1px">' +
@@ -660,7 +660,7 @@ function bkRenderParsomenler() {
     const renk = buyu ? buyu.mana_renk : 'beyaz';
     const kademe = kitapMap[p.buyu_id] || 0;
     const max = kademe >= 10;
-    const kademeBadge = `<span style="display:inline-block;padding:1px 6px;background:${max?'#5a0000':'#1a1a1a'};color:${max?'#e74c3c':'#d4af37'};border-radius:3px;font-size:10px;margin-left:6px" title="Mevcut kademe: ${kademe}/10">K${kademe}${max?' MAX':''}</span>`;
+    const kademeBadge = `<span style="display:inline-block;padding:1px 6px;background:${max?'#5a0000':'#1a1a1a'};color:${max?'#e74c3c':'#d4af37'};border-radius:3px;font-size:10px;margin-left:6px;font-weight:bold" title="Büyü kademesi">${kademe}/10${max?' MAX':''}</span>`;
     return `<div class="parsomen-card">
       <div>
         <div class="p-isim"><span class="mana-dot mana-${renk}"></span> ${isim} ${kademeBadge}</div>
