@@ -17,23 +17,41 @@ if (typeof window !== 'undefined') {
   window.numFmt = numFmt;
   window.fmt = numFmt;
 }
+/* v1.14.0.99: HUD format modu — ayarlardan/hud-ornek.html'den secilir
+   'tam'          : 15.061.038 / +1.840   (ikisi de uzun — klasik)
+   'sayi-kisa'    : 15.061.038 / +1,8K    (kaynak tam, rate kisa)
+   'kaynak-kisa'  : 15M / +1.840          (kaynak kisa, rate tam — DEFAULT)
+   localStorage anahtari: noxara_hud_format */
+function getHudFormat() {
+  try { return localStorage.getItem('noxara_hud_format') || 'kaynak-kisa'; }
+  catch(e) { return 'kaynak-kisa'; }
+}
+
 function setText(id, value){
   const el = document.getElementById(id);
   if(!el) return;
-  // v1.14.0.98: HUD kaynak sayilari icin kisa format + tooltip (odun/metal/altin vs)
-  // Bu ID prefix'leri auto-switch: hud-w, hud-m, hud-g, hud-bu, hud-ba, hud-ke, hud-is,
-  //   hud-k, hud-im, hud-e, hud-pb, hud-ek, hud-ce, hud-pe, hud-mana-*
-  //   + rate'ler: hud-wg, hud-mg, hud-bug, hud-bag, hud-gg, hud-kg, hud-img, hud-eg, hud-pbg
+  // HUD kaynak sayilari icin format moduna gore davran
   if (/^hud-(w|m|g|bu|ba|ke|is|k|im|e|pb|ek|ce|pe|mana-)/.test(id) && typeof fmtK === 'function') {
     const num = Math.floor(Number(value) || 0);
-    // Rate ID'leri (-g, -wg, -gg gibi) icin 1 ondalik; kaynak icin 0 ondalik (15M)
     const isRate = /g$/.test(id);
-    el.innerText = fmtK(num, isRate ? 1 : 0);
+    const mode = getHudFormat();
+    let display;
+    if (mode === 'tam') {
+      display = num.toLocaleString('tr-TR');
+    } else if (mode === 'sayi-kisa') {
+      display = isRate ? fmtK(num, 1) : num.toLocaleString('tr-TR');
+    } else {
+      // 'kaynak-kisa' (DEFAULT) — kaynak kisa, rate tam sayi
+      display = isRate ? num.toLocaleString('tr-TR') : fmtK(num, 0);
+    }
+    el.innerText = display;
     el.title = num.toLocaleString('tr-TR') + (isRate ? ' / Palantis Günü' : '');
     return;
   }
   el.innerText = numFmt(value);
 }
+
+if (typeof window !== 'undefined') window.getHudFormat = getHudFormat;
 
 /* ═══════════════════════════════════════════════════════════
    v1.14.0.98 — HUD icin kisa sayi formati (K/M/B)

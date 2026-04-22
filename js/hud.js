@@ -5,18 +5,20 @@
 ===================================================== */
 
 /* Rate elementine deger + renk class'i ata
-   v1.14.0.98: fmtK ile kisa format ("+1,8K"), tam deger tooltip'e */
+   v1.14.0.99: HUD format moduna gore — 'tam' / 'sayi-kisa' (rate kisa) / 'kaynak-kisa' (rate tam) */
 function setRate(id, value) {
   const el = document.getElementById(id);
   if (!el) return;
   const v = Number(value) || 0;
   const sign = v >= 0 ? '+' : '';
-  if (typeof fmtK === 'function') {
+  const mode = (typeof getHudFormat === 'function') ? getHudFormat() : 'kaynak-kisa';
+  // sayi-kisa -> rate kisa ("+1,8K"); diger modlarda rate tam ("+1.840")
+  if (mode === 'sayi-kisa' && typeof fmtK === 'function') {
     el.textContent = sign + fmtK(v, 1);
-    el.title = sign + Math.floor(v).toLocaleString('tr-TR') + ' / Palantis Günü';
   } else {
     el.textContent = sign + numFmt(v);
   }
+  el.title = sign + Math.floor(v).toLocaleString('tr-TR') + ' / Palantis Günü';
   el.className = 'res-rate ' + (v > 0 ? 'pos' : v < 0 ? 'neg' : 'neu');
 }
 

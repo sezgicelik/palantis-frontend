@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noxara – HUD Format Örnekleri</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  body {
+    background: linear-gradient(145deg,#08080c 0%,#14100a 50%,#0a0a0f 100%);
+    color: #e8dcc8;
+    font-family: 'Crimson Pro', Georgia, serif;
+    margin: 0;
+    padding: 24px;
+    min-height: 100vh;
+  }
+  h1 {
+    color: #d4af37;
+    font-family: 'Cinzel', serif;
+    text-align: center;
+    margin: 0 0 8px;
+    font-size: 22px;
+    letter-spacing: 2px;
+  }
+  .intro {
+    text-align: center;
+    color: #999;
+    margin-bottom: 32px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .intro b { color: #d4af37; }
+
+  .kartlar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .kart {
+    background: rgba(18,18,28,0.9);
+    border: 1px solid rgba(212,175,55,0.25);
+    border-radius: 10px;
+    padding: 18px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(212,175,55,0.1);
+  }
+  .kart h2 {
+    color: #d4af37;
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    margin: 0 0 6px;
+    letter-spacing: 1px;
+  }
+  .kart .aciklama {
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 14px;
+    line-height: 1.5;
+    min-height: 32px;
+  }
+
+  /* Mini HUD bar taklidi */
+  .mini-hud {
+    background: rgba(4,4,8,0.96);
+    border: 1px solid rgba(212,175,55,0.2);
+    border-top: 2px solid #d4af37;
+    border-radius: 6px;
+    padding: 10px 12px;
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .res {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    background: rgba(212,175,55,0.04);
+    border-radius: 4px;
+    border: 1px solid rgba(212,175,55,0.1);
+    cursor: help;
+    transition: .2s;
+  }
+  .res:hover {
+    background: rgba(212,175,55,0.12);
+    border-color: rgba(212,175,55,0.4);
+  }
+  .res-icon { font-size: 18px; }
+  .res-num {
+    color: #d4af37;
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    font-weight: 700;
+    min-width: 0;
+  }
+  .res-rate {
+    color: #2ecc71;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 2px;
+  }
+
+  .secbtn {
+    display: block;
+    width: 100%;
+    margin-top: 14px;
+    padding: 10px;
+    background: linear-gradient(180deg,#9c7f5e,#7a5a38,#6c4824);
+    color: #fff8e0;
+    border: 1px solid #3a2410;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.4);
+    transition: .2s;
+  }
+  .secbtn:hover {
+    background: linear-gradient(180deg,#b08f6d,#8a6a44,#7a5630);
+    box-shadow: 0 0 12px rgba(212,175,55,0.4);
+  }
+  .secbtn.aktif {
+    background: linear-gradient(180deg,#d4af37,#b8952a,#8b6914);
+    color: #000;
+    text-shadow: none;
+  }
+  .secbtn.aktif::before { content: '✓ '; }
+
+  .alt-info {
+    text-align: center;
+    margin-top: 32px;
+    font-size: 12px;
+    color: #777;
+    line-height: 1.8;
+  }
+  .alt-info a { color: #d4af37; }
+
+  .toast-alan {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 999;
+  }
+  .toast {
+    background: #1a1a1a;
+    color: #d4af37;
+    padding: 10px 20px;
+    border: 1px solid #d4af37;
+    border-radius: 4px;
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    opacity: 0;
+    transition: opacity .3s;
+  }
+  .toast.goster { opacity: 1; }
+</style>
+</head>
+<body>
+
+<h1>🎨 HUD SAYI FORMAT ORNEKLERI</h1>
+<p class="intro">
+  Her karttaki <b>"Bu Secenegi Kullan"</b> butonuna tiklayinca tum Noxara sayfalarinda o format aktif olur.<br>
+  Imleci sayilarin uzerine getir — <b>hover tooltip'i</b> her secenekte tam degeri gosterir.
+</p>
+
+<div class="kartlar">
+
+  <!-- SECENEK 1 -->
+  <div class="kart">
+    <h2>1️⃣ TAM SAYI + HOVER</h2>
+    <div class="aciklama">
+      Hem kaynak hem uretim hizi <b>uzun tam sayi</b> gosterilir. Hover'da degismez (zaten tam).
+      <br><em>Klasik, en detayli — ama dar HUD'da tasabilir.</em>
+    </div>
+    <div class="mini-hud">
+      <div class="res" title="15.061.038 — tam deger">
+        <span class="res-icon">🌳</span>
+        <span class="res-num">15.061.038</span>
+        <span class="res-rate" title="+1.840 / Palantis Günü">+1.840</span>
+      </div>
+      <div class="res" title="661.205.847">
+        <span class="res-icon">💰</span>
+        <span class="res-num">661.205.847</span>
+        <span class="res-rate">+588</span>
+      </div>
+      <div class="res" title="138.544">
+        <span class="res-icon">🐟</span>
+        <span class="res-num">138.544</span>
+        <span class="res-rate">+126</span>
+      </div>
+    </div>
+    <button class="secbtn" data-mode="tam" onclick="secModu('tam')">Bu Secenegi Kullan</button>
+  </div>
+
+  <!-- SECENEK 2 -->
+  <div class="kart">
+    <h2>2️⃣ SAYI TAM + RATE KISA</h2>
+    <div class="aciklama">
+      Kaynak <b>tam sayi</b>, uretim hizi <b>K/M kisa</b>. Orta yolu — detay korunur, yer tasarrufu.
+      <br><em>Ayrinti isteyenler icin dengeli secim.</em>
+    </div>
+    <div class="mini-hud">
+      <div class="res" title="15.061.038 | +1.840 / Palantis Günü">
+        <span class="res-icon">🌳</span>
+        <span class="res-num">15.061.038</span>
+        <span class="res-rate">+1,8K</span>
+      </div>
+      <div class="res" title="661.205.847 | +588 / Palantis Günü">
+        <span class="res-icon">💰</span>
+        <span class="res-num">661.205.847</span>
+        <span class="res-rate">+588</span>
+      </div>
+      <div class="res" title="138.544 | +126 / Palantis Günü">
+        <span class="res-icon">🐟</span>
+        <span class="res-num">138.544</span>
+        <span class="res-rate">+126</span>
+      </div>
+    </div>
+    <button class="secbtn" data-mode="sayi-kisa" onclick="secModu('sayi-kisa')">Bu Secenegi Kullan</button>
+  </div>
+
+  <!-- SECENEK 3 -->
+  <div class="kart">
+    <h2>3️⃣ KAYNAK KISA + RATE TAM</h2>
+    <div class="aciklama">
+      Kaynak <b>K/M kisa</b> (15M), uretim hizi <b>tam sayi</b> (+1.840). Kompakt HUD ama rate net.
+      <br><em>Maksimum yer tasarrufu, rate tam detay.</em>
+    </div>
+    <div class="mini-hud">
+      <div class="res" title="15.061.038 | +1.840 / Palantis Günü">
+        <span class="res-icon">🌳</span>
+        <span class="res-num">15M</span>
+        <span class="res-rate">+1.840</span>
+      </div>
+      <div class="res" title="661.205.847 | +588 / Palantis Günü">
+        <span class="res-icon">💰</span>
+        <span class="res-num">661M</span>
+        <span class="res-rate">+588</span>
+      </div>
+      <div class="res" title="138.544 | +126 / Palantis Günü">
+        <span class="res-icon">🐟</span>
+        <span class="res-num">139K</span>
+        <span class="res-rate">+126</span>
+      </div>
+    </div>
+    <button class="secbtn" data-mode="kaynak-kisa" onclick="secModu('kaynak-kisa')">Bu Secenegi Kullan</button>
+  </div>
+
+</div>
+
+<p class="alt-info">
+  Secim her sayfada hemen aktif olur — localStorage'da kalir, her oturumda ayni gelir.<br>
+  <a href="ayarlar.html">← Ayarlara Dön</a>  ·  <a href="home.html">Ana Ekran →</a>
+</p>
+
+<div class="toast-alan"><div class="toast" id="toast"></div></div>
+
+<script>
+function secModu(mode) {
+  try {
+    localStorage.setItem('noxara_hud_format', mode);
+  } catch(e) {}
+  // Aktif buton gorsel guncelle
+  document.querySelectorAll('.secbtn').forEach(b => {
+    b.classList.toggle('aktif', b.dataset.mode === mode);
+  });
+  // Toast
+  const t = document.getElementById('toast');
+  const etkLabel = mode === 'tam' ? '1️⃣ Tam Sayi + Hover'
+                 : mode === 'sayi-kisa' ? '2️⃣ Sayi Tam + Rate Kisa'
+                 : '3️⃣ Kaynak Kisa + Rate Tam';
+  t.textContent = '✓ HUD formati secildi: ' + etkLabel;
+  t.classList.add('goster');
+  setTimeout(() => t.classList.remove('goster'), 2500);
+}
+
+// Sayfa acildiginda mevcut secimi gor
+(function(){
+  const mevcut = (function(){
+    try { return localStorage.getItem('noxara_hud_format') || 'kaynak-kisa'; }
+    catch(e) { return 'kaynak-kisa'; }
+  })();
+  document.querySelectorAll('.secbtn').forEach(b => {
+    b.classList.toggle('aktif', b.dataset.mode === mevcut);
+  });
+})();
+</script>
+</body>
+</html>
