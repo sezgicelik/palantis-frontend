@@ -37,7 +37,7 @@ function renderSidebar(){
   // Krallığım / Ordu & Savaş / Büyüler / Ticaret / Harita & Dünya / Sosyal & Eğlence
   // + Top-level: Guild, Raporlar (TEK link), Sıralamalar, Artifactlar, Görevler, Premium, Ayarlar
   const krallikPages = ['city.html','population.html','festival.html','land.html'];
-  const ordusavasPages = ['army.html','savas-baslat.html','mezarlik.html','casus.html','simulator.html'];
+  const ordusavasPages = ['army.html','mezarlik.html','casus.html','simulator.html'];
   const buyulerPages = ['magic.html','buyucu-kulesi.html'];
   const ticPages     = ['market.html','kervan.html','pazar.html','buyu-dukkani.html'];
   const dunyaPages   = ['map.html','cag.html'];
@@ -97,7 +97,6 @@ function renderSidebar(){
         <a href="army.html?tab=formation" class="menu-item sub-item" style="padding-left:38px;font-size:11px;color:#aaa">↳ ⚔️ Saf Dizilimi</a>
         <a href="army.html?tab=upgrades" class="menu-item sub-item" style="padding-left:38px;font-size:11px;color:#aaa">↳ 📈 Geliştirmeler</a>
         ` : ''}
-        <a href="savas-baslat.html" class="menu-item sub-item${isActive('savas-baslat.html')}">🏹 Savaş Başlat</a>
         <a href="casus.html" class="menu-item sub-item${isActive('casus.html')}">🕵️ Casuslar</a>
         <a href="mezarlik.html" class="menu-item sub-item${isActive('mezarlik.html')}">💀 Mezarlık</a>
         <a id="menu-simulator" href="simulator.html" class="menu-item sub-item${isActive('simulator.html')}" target="_blank" style="display:none">🧪 Simülatör <span style="color:#d4af37;font-size:11px;margin-left:4px">⚜</span></a>
@@ -620,7 +619,6 @@ const HIZLI_MENU_KATALOG = [
   { href: 'land.html',          label: 'Arazi',            icon: '🧭', grup: 'Krallığım' },
   { href: 'festival.html',      label: 'Festival',         icon: '🎉', grup: 'Krallığım' },
   { href: 'army.html',          label: 'Ordu',             icon: '🗡️', grup: 'Savaş' },
-  { href: 'savas-baslat.html',  label: 'Savaş Başlat',     icon: '🏹', grup: 'Savaş' },
   { href: 'mezarlik.html',      label: 'Mezarlık',         icon: '💀', grup: 'Savaş' },
   { href: 'casus.html',         label: 'Casuslar',         icon: '🕵️', grup: 'Savaş' },
   { href: 'magic.html',         label: 'Tapınak & Mana',   icon: '🕯️', grup: 'Savaş' },

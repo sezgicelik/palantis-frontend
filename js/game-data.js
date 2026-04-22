@@ -114,7 +114,8 @@ async function loadGameData() {
     };
 
     // 14 endpoint paralel (eskiden 10 + 3 sequential = 13)
-    const [
+    // v1.14.0.89: let (const degil) — stale fallback icin reassign edilebilir
+    let [
       pData, resRaw, prodRaw, workRaw, alanRaw, takvimRaw,
       armyRaw, kvRaw, tatilRaw, ateskesRaw, gorevRaw, gRaw, maliyetRaw, nufusRaw, gpsRaw
     ] = await Promise.all([
@@ -134,19 +135,59 @@ async function loadGameData() {
       fetchJson('/api/game/nufus'),
       fetchJson('/api/game/gps'),          // v1.13.70: GPS + bina bonus + mutluluk
     ]);
+
+    // v1.14.0.89: localStorage fallback — fetch fail olursa eski veriyi kullan
+    const _lsKey = (k) => '_hud_' + k;
+    const _saveLS = (key, data) => { try { if (data) localStorage.setItem(_lsKey(key), JSON.stringify(data)); } catch(e){} };
+    const _readLS = (key) => { try { const r = localStorage.getItem(_lsKey(key)); return r ? JSON.parse(r) : null; } catch(e){ return null; } };
+    const _withFallback = (key, data) => {
+      if (data !== null && data !== undefined) {
+        _saveLS(key, data);
+        return { data, stale: false };
+      }
+      const old = _readLS(key);
+      return { data: old, stale: !!old };
+    };
+
+    // Her fetch'i localStorage fallback ile sarmala
+    const _player   = _withFallback('player', pData);
+    const _resRaw   = _withFallback('resources', resRaw);
+    const _prodRaw  = _withFallback('production', prodRaw);
+    const _workRaw  = _withFallback('workers', workRaw);
+    const _alanRaw  = _withFallback('alan', alanRaw);
+    const _takvimRaw= _withFallback('takvim', takvimRaw);
+    const _armyRaw  = _withFallback('army', armyRaw);
+    const _kvRaw    = _withFallback('kervan', kvRaw);
+    const _nufusRaw = _withFallback('nufus', nufusRaw);
+    const _gpsRaw   = _withFallback('gps', gpsRaw);
+
+    // Herhangi biri stale ise bir kez uyari toast
+    const staleSayisi = [_player,_resRaw,_prodRaw,_workRaw,_alanRaw,_takvimRaw,_armyRaw,_nufusRaw,_gpsRaw].filter(x => x.stale).length;
+    if (staleSayisi >= 2 && typeof showToast === 'function' && !window._hudStaleNotified) {
+      showToast('⚠️ Bağlantı yavaş — bazı veriler önceki oturumdan. Birkaç saniye sonra güncellenecek.', 'warning');
+      window._hudStaleNotified = true;
+      setTimeout(() => { window._hudStaleNotified = false; }, 30000); // 30 sn boyunca spam etme
+    }
+
     // v1.13.70: GPS verisini globale koy (HUD + city page kullanir)
-    window._GPS_DATA = gpsRaw || null;
+    window._GPS_DATA = _gpsRaw.data || null;
+
+    // Override orijinal degiskenleri fallback'li olanlarla
+    pData = _player.data;
+    nufusRaw = _nufusRaw.data;
+    gpsRaw = _gpsRaw.data;
 
     // Null guard + downstream degiskenleri (eski isimlerle uyumluluk)
-    const res       = resRaw   || {};
-    const work      = workRaw  || {};
-    const alanData  = alanRaw  || {};
-    const takvimData= takvimRaw;
-    const prodData  = prodRaw  || {};
+    const res       = _resRaw.data   || {};
+    const work      = _workRaw.data  || {};
+    const alanData  = _alanRaw.data  || {};
+    const takvimData= _takvimRaw.data;
+    const prodData  = _prodRaw.data  || {};
     const prod      = prodData.toplam || prodData;
-    const kvData    = kvRaw;
+    const kvData    = _kvRaw.data;
     const tatilResp = { ok: !!tatilRaw,   data: tatilRaw };
     const ateskesResp = { ok: !!ateskesRaw, data: ateskesRaw };
+    armyRaw = _armyRaw.data;
 
     // Player verisi
     let playerGuildId = null;

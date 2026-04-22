@@ -2,114 +2,20 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Noxara – Savas Baslat</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+<meta http-equiv="refresh" content="0; url=army.html">
+<title>Noxara – Yönlendiriliyor...</title>
 <link rel="manifest" href="./manifest.json">
-<link rel="stylesheet" href="css/main.css?v=13422">
+<style>
+  body { background:#0a0604; color:#d4a257; font-family:'Cinzel',serif; text-align:center; padding:60px 20px }
+  a { color:#d4a257; text-decoration:underline }
+</style>
 </head>
 <body>
-<div id="hudbar-mount"></div>
-<div class="layout">
-  <div id="sidebar-mount"></div>
-  <div class="main-content">
-
-    <!-- Hedef Secimi -->
-    <div class="card" style="padding:18px;margin-bottom:14px">
-      <h2 style="margin:0 0 12px;font-family:'Cinzel',serif;color:var(--race-color,#c8a96e)">Savas Baslat</h2>
-      <p style="color:#888;font-size:13px;margin-bottom:16px">Ordunu bir hedefe gonder. Ordu hedefe ulasinca savas baslayacak.</p>
-
-      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:16px">
-        <div style="flex:1;min-width:200px">
-          <label style="color:#aaa;font-size:12px;display:block;margin-bottom:4px">Hedef Oyuncu Ara</label>
-          <input id="sb-hedef-ara" type="text" placeholder="Oyuncu adi veya koordinat..." maxlength="50"
-            style="width:100%;background:#1a1a1a;border:1px solid #444;color:#eee;padding:8px 12px;border-radius:6px;font-size:14px"
-            oninput="sbHedefAra()">
-        </div>
-        <button class="btn ghost" onclick="sbHedefTemizle()" style="padding:8px 16px">Temizle</button>
-      </div>
-
-      <!-- Arama Sonuclari -->
-      <div id="sb-arama-sonuc" style="display:none;margin-bottom:16px;max-height:200px;overflow-y:auto"></div>
-
-      <!-- Secili Hedef Bilgisi -->
-      <div id="sb-hedef-bilgi" class="savas-hedef-card" style="display:none">
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
-          <div>
-            <div style="color:#888;font-size:10px;letter-spacing:1px">HEDEF</div>
-            <div id="sb-hedef-isim" style="color:#f0e8d8;font-size:16px;font-family:'Cinzel',serif">—</div>
-          </div>
-          <div>
-            <div style="color:#888;font-size:10px;letter-spacing:1px">MESAFE</div>
-            <div id="sb-hedef-mesafe" style="color:#f0e8d8;font-size:16px">— birim</div>
-          </div>
-          <div>
-            <div style="color:#888;font-size:10px;letter-spacing:1px">KOORDINAT</div>
-            <div id="sb-hedef-koord" style="color:#f0e8d8;font-size:16px">—:—</div>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px">
-          <div>
-            <div style="color:#888;font-size:10px;letter-spacing:1px">HAM SURE</div>
-            <div id="sb-ham-sure" style="color:#e67e22;font-size:18px;font-weight:700">— PG</div>
-          </div>
-          <div>
-            <div style="color:#888;font-size:10px;letter-spacing:1px">HIZ BUYUSU</div>
-            <div id="sb-hiz-bonus" style="color:#27ae60;font-size:18px;font-weight:700">—</div>
-          </div>
-          <div>
-            <div style="color:#888;font-size:10px;letter-spacing:1px">EFEKTIF SURE</div>
-            <div id="sb-efektif-sure" style="color:#d4af37;font-size:18px;font-weight:700">— PG</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Ordu Secimi + Gonder -->
-    <div class="card" style="padding:18px;margin-bottom:14px" id="sb-ordu-panel">
-      <h3 style="margin:0 0 12px;color:var(--race-color,#c8a96e);font-family:'Cinzel',serif;font-size:14px">Ordu Sec</h3>
-      <select id="sb-ordu-select" onchange="sbOrduDegisti()"
-        style="width:100%;max-width:400px;background:#1a1a1a;border:1px solid #444;color:#eee;padding:8px 12px;border-radius:6px;font-size:14px;margin-bottom:12px">
-        <option value="">-- Ordu Sec --</option>
-      </select>
-      <div id="sb-ordu-detay" style="color:#888;font-size:13px;margin-bottom:14px"></div>
-      <button class="btn" id="sb-gonder-btn" onclick="sbOrduGonder()" disabled
-        style="font-size:15px;padding:12px 32px;min-width:200px">
-        Orduyu Gonder
-      </button>
-      <div id="sb-gonder-msg" style="color:#888;font-size:13px;margin-top:8px"></div>
-    </div>
-
-    <!-- Aktif Hareketler -->
-    <div class="card" style="padding:18px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <h3 style="margin:0;color:var(--race-color,#c8a96e);font-family:'Cinzel',serif;font-size:14px">Aktif Hareketler</h3>
-        <button class="btn ghost" onclick="sbHareketleriYukle()" style="font-size:11px;padding:4px 12px">Yenile</button>
-      </div>
-      <div id="sb-hareketler" style="font-size:13px;color:#555">
-        <span style="color:#2a1a08">Yukleniyor...</span>
-      </div>
-    </div>
-
-  </div>
-</div>
-<div id="toast"></div>
-<div id="building-modal-mount"></div>
-
-<script src="js/constants.js"></script>
-<script src="js/utils.js"></script>
-<script src="js/servers.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/toast.js"></script>
-<script src="js/theme.js"></script>
-<script src="js/cache-fetch.js"></script>
-<script src="js/game-data.js?v=13422"></script>
-<script src="js/hud.js"></script>
-<script src="js/nufus-render.js"></script>
-<script src="js/layout.js?v=13422"></script>
-<script src="js/page-savas-baslat.js"></script>
-<script src="js/sw-register.js?v=13467"></script>
+<h2>⚔️ Savaş Başlat → Ordu sayfasına taşındı</h2>
+<p>Otomatik yönlendiriliyorsunuz... Eğer yönlendirilmezseniz <a href="army.html">buraya tıklayın</a>.</p>
+<script>
+  // JS redirect (meta refresh yedek)
+  location.replace('army.html');
+</script>
 </body>
 </html>

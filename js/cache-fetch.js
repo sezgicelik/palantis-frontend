@@ -15,12 +15,15 @@
 (function() {
   const TTL_DEFAULT_MS = 15000;  // 15 saniye
   const TTL_OVERRIDE = {
-    '/api/takvim':                   60000,  // 1 dk
-    '/api/game/bina-maliyetler':     60000,  // 1 dk (config degismez)
+    '/api/takvim':                   120000, // v1.14.0.89: 2 dk (gunde 1 degisir)
+    '/api/game/bina-maliyetler':     300000, // 5 dk (config nadiren degisir)
     '/api/game/ateskes':             30000,  // 30 sn
     '/api/game/tatil':               30000,
     '/api/game/gelen-ordular':       5000,   // 5 sn (saldiri-duyarli)
     '/api/game/kuyruk-ozet':         10000,  // 10 sn (kuyruk ilerliyor)
+    '/api/game/nufus':               60000,  // v1.14.0.89: 60 sn (nufus yavas degisir)
+    '/api/game/gps':                 60000,  // v1.14.0.89: 60 sn
+    '/api/game/production':          30000,  // 30 sn
   };
 
   const cache = new Map();        // url -> {ts, data, etag}

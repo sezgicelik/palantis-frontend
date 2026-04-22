@@ -512,10 +512,16 @@ function renderOrduListe(){
         '<div style="font-size:10px;color:#888;margin-bottom:6px;font-weight:bold">Havuzdan Unite Ekle / Cikar</div>' +
         '<div style="display:flex;flex-wrap:wrap;gap:4px">' +
           allPool.map(function(u){
-            return '<div style="display:flex;align-items:center;gap:2px;background:#111;border:1px solid #333;border-radius:4px;padding:2px 6px">' +
-              '<span style="display:flex;align-items:center;gap:2px;font-size:10px;color:#ccc">' + unitIcon(u, 16) + ' ' + u.name + ' (' + u.count + ')</span>' +
-              '<button style="background:none;border:none;color:#2ecc71;cursor:pointer;font-size:14px;padding:0 2px" onclick="orduUniteEkle(' + o.id + ',\'' + u.id + '\',1)" title="1 ekle">+</button>' +
-              '<button style="background:none;border:none;color:#2ecc71;cursor:pointer;font-size:10px;padding:0 2px" onclick="orduUniteEkle(' + o.id + ',\'' + u.id + '\',' + u.count + ')" title="Tumunu ekle">++</button>' +
+            // v1.14.0.89: Input + preset butonlari (10, 100, 1K, MAX) + ✓ Ekle
+            var inpId = 'uekle-' + o.id + '-' + u.id;
+            return '<div style="display:flex;align-items:center;gap:3px;background:#111;border:1px solid #333;border-radius:4px;padding:4px 6px;flex-wrap:wrap">' +
+              '<span style="display:flex;align-items:center;gap:2px;font-size:10px;color:#ccc;min-width:100px">' + unitIcon(u, 16) + ' ' + u.name + ' <b style="color:#c8a96e">(' + u.count + ')</b></span>' +
+              '<input type="number" id="' + inpId + '" min="1" max="' + u.count + '" value="1" style="width:64px;padding:2px 4px;background:#0a0a0a;border:1px solid #2a2a2a;color:#fff;border-radius:3px;font-size:10px" />' +
+              '<button style="background:#1a1a1a;border:1px solid #333;color:#aaa;cursor:pointer;font-size:9px;padding:2px 5px;border-radius:3px" onclick="uksStepInp(\'' + inpId + '\',10,' + u.count + ')">+10</button>' +
+              '<button style="background:#1a1a1a;border:1px solid #333;color:#aaa;cursor:pointer;font-size:9px;padding:2px 5px;border-radius:3px" onclick="uksStepInp(\'' + inpId + '\',100,' + u.count + ')">+100</button>' +
+              '<button style="background:#1a1a1a;border:1px solid #333;color:#aaa;cursor:pointer;font-size:9px;padding:2px 5px;border-radius:3px" onclick="uksStepInp(\'' + inpId + '\',1000,' + u.count + ')">+1K</button>' +
+              '<button style="background:#1a1a1a;border:1px solid #555;color:#c8a96e;cursor:pointer;font-size:9px;padding:2px 5px;border-radius:3px;font-weight:bold" onclick="uksSetMax(\'' + inpId + '\',' + u.count + ')">MAX</button>' +
+              '<button style="background:#1a3a1a;border:1px solid #2ecc71;color:#2ecc71;cursor:pointer;font-size:10px;padding:3px 8px;border-radius:3px;font-weight:bold" onclick="uksEkleInp(' + o.id + ',\'' + u.id + '\',\'' + inpId + '\')" title="Girilen adeti orduya ekle">✓ Ekle</button>' +
             '</div>';
           }).join('') +
           (allPool.length === 0 ? '<span style="color:#555;font-size:10px">Havuzda unite yok</span>' : '') +
@@ -526,10 +532,16 @@ function renderOrduListe(){
           '<div style="display:flex;flex-wrap:wrap;gap:4px">' +
             (o.units||[]).filter(function(u){return u.adet>0;}).map(function(u){
               var def = UNITS[u.unite_id];
-              return '<div style="display:flex;align-items:center;gap:2px;background:#111;border:1px solid #333;border-radius:4px;padding:2px 6px">' +
-                '<span style="display:flex;align-items:center;gap:2px;font-size:10px;color:#ccc">' + unitIcon(def, 16) + ' ' + (def?.name||u.unite_id) + ' (' + u.adet + ')</span>' +
-                '<button style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:14px;padding:0 2px" onclick="orduUniteCircar(' + o.id + ',\'' + u.unite_id + '\',1)" title="1 cikar">-</button>' +
-                '<button style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:10px;padding:0 2px" onclick="orduUniteCircar(' + o.id + ',\'' + u.unite_id + '\',' + u.adet + ')" title="Tumunu cikar">--</button>' +
+              // v1.14.0.89: Input + preset + ✗ Cikar
+              var cinpId = 'ucik-' + o.id + '-' + u.unite_id;
+              return '<div style="display:flex;align-items:center;gap:3px;background:#111;border:1px solid #333;border-radius:4px;padding:4px 6px;flex-wrap:wrap">' +
+                '<span style="display:flex;align-items:center;gap:2px;font-size:10px;color:#ccc;min-width:100px">' + unitIcon(def, 16) + ' ' + (def?.name||u.unite_id) + ' <b style="color:#c8a96e">(' + u.adet + ')</b></span>' +
+                '<input type="number" id="' + cinpId + '" min="1" max="' + u.adet + '" value="1" style="width:64px;padding:2px 4px;background:#0a0a0a;border:1px solid #2a2a2a;color:#fff;border-radius:3px;font-size:10px" />' +
+                '<button style="background:#1a1a1a;border:1px solid #333;color:#aaa;cursor:pointer;font-size:9px;padding:2px 5px;border-radius:3px" onclick="uksStepInp(\'' + cinpId + '\',10,' + u.adet + ')">+10</button>' +
+                '<button style="background:#1a1a1a;border:1px solid #333;color:#aaa;cursor:pointer;font-size:9px;padding:2px 5px;border-radius:3px" onclick="uksStepInp(\'' + cinpId + '\',100,' + u.adet + ')">+100</button>' +
+                '<button style="background:#1a1a1a;border:1px solid #333;color:#aaa;cursor:pointer;font-size:9px;padding:2px 5px;border-radius:3px" onclick="uksStepInp(\'' + cinpId + '\',1000,' + u.adet + ')">+1K</button>' +
+                '<button style="background:#1a1a1a;border:1px solid #555;color:#c8a96e;cursor:pointer;font-size:9px;padding:2px 5px;border-radius:3px;font-weight:bold" onclick="uksSetMax(\'' + cinpId + '\',' + u.adet + ')">MAX</button>' +
+                '<button style="background:#3a1a1a;border:1px solid #c0392b;color:#e74c3c;cursor:pointer;font-size:10px;padding:3px 8px;border-radius:3px;font-weight:bold" onclick="uksCikarInp(' + o.id + ',\'' + u.unite_id + '\',\'' + cinpId + '\')" title="Girilen adeti havuza geri koy">✗ Çıkar</button>' +
               '</div>';
             }).join('') +
           '</div>' : '') +
@@ -588,6 +600,36 @@ function renderOrduListe(){
 function toggleUniteYonetimi(armyId) {
   var el = document.getElementById('unite-yon-' + armyId);
   if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+// v1.14.0.89: Unite ekle/cikar input helpers (preset +10/+100/+1K/MAX + input bazli)
+function uksStepInp(inputId, delta, max) {
+  var el = document.getElementById(inputId);
+  if (!el) return;
+  var cur = parseInt(el.value) || 0;
+  el.value = Math.min(max, Math.max(1, cur + delta));
+}
+function uksSetMax(inputId, max) {
+  var el = document.getElementById(inputId);
+  if (el) el.value = max;
+}
+function uksEkleInp(armyId, uniteId, inputId) {
+  var el = document.getElementById(inputId);
+  var adet = parseInt(el?.value) || 0;
+  if (adet <= 0) { if (typeof showToast === 'function') showToast('Gecerli miktar girin', 'error'); return; }
+  orduUniteEkle(armyId, uniteId, adet);
+}
+function uksCikarInp(armyId, uniteId, inputId) {
+  var el = document.getElementById(inputId);
+  var adet = parseInt(el?.value) || 0;
+  if (adet <= 0) { if (typeof showToast === 'function') showToast('Gecerli miktar girin', 'error'); return; }
+  orduUniteCircar(armyId, uniteId, adet);
+}
+if (typeof window !== 'undefined') {
+  window.uksStepInp = uksStepInp;
+  window.uksSetMax = uksSetMax;
+  window.uksEkleInp = uksEkleInp;
+  window.uksCikarInp = uksCikarInp;
 }
 
 async function orduUniteEkle(armyId, uniteId, adet){
