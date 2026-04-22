@@ -365,10 +365,12 @@ function GraphView({ cag, kesfedilen, onSec, filtreliNodes, seciliId }) {
     resize();
     window.addEventListener('resize', resize);
 
-    const REPEL = 4500;
-    const SPRING = 0.02;
-    const DAMP = 0.88;
-    const CENTER = 0.002;
+    // v1.14.0.81: Physics tuning — oncesinde REPEL 4500 + DAMP 0.88 + minD 30 => cilgin hareket
+    const REPEL = 2200;
+    const SPRING = 0.015;
+    const DAMP = 0.78; // v1.14.0.81: daha guclu sonum (0.88 → 0.78 — %22 kayip/frame, titresim durur)
+    const CENTER = 0.003;
+    const MAX_V = 6; // v1.14.0.81: velocity cap — ikonlar cilgin firlayamasin
 
     function tick() {
       const nodes = nodesRef.current;
@@ -376,14 +378,18 @@ function GraphView({ cag, kesfedilen, onSec, filtreliNodes, seciliId }) {
       const r = canvas.getBoundingClientRect();
       const cx = r.width / 2, cy = r.height / 2;
 
-      // repel pairs
+      // repel pairs — v1.14.0.81: min mesafe^2 400 (20px) + d=0 korumasi
       for (let i = 0; i < nodes.length; i++) {
         for (let j = i+1; j < nodes.length; j++) {
           const a = nodes[i], b = nodes[j];
-          const dx = b.x - a.x, dy = b.y - a.y;
-          const d2 = Math.max(30, dx*dx + dy*dy);
-          const f = REPEL / d2;
+          let dx = b.x - a.x, dy = b.y - a.y;
+          // Uzaksa atla (optimizasyon + uzaktan repel anlamsiz)
+          if (Math.abs(dx) > 400 || Math.abs(dy) > 400) continue;
+          // Tam ustuste olmayi engelle — minimum offset
+          if (dx === 0 && dy === 0) { dx = Math.random() - 0.5; dy = Math.random() - 0.5; }
+          const d2 = Math.max(400, dx*dx + dy*dy);
           const d = Math.sqrt(d2);
+          const f = REPEL / d2;
           const fx = (dx/d) * f, fy = (dy/d) * f;
           a.vx -= fx; a.vy -= fy;
           b.vx += fx; b.vy += fy;
@@ -398,11 +404,14 @@ function GraphView({ cag, kesfedilen, onSec, filtreliNodes, seciliId }) {
         a.vx += dx * SPRING; a.vy += dy * SPRING;
         b.vx -= dx * SPRING; b.vy -= dy * SPRING;
       }
-      // center pull
+      // center pull + velocity cap — v1.14.0.81
       for (const n of nodes) {
         n.vx += (cx - n.x) * CENTER;
         n.vy += (cy - n.y) * CENTER;
         n.vx *= DAMP; n.vy *= DAMP;
+        // Hiz cap — cilgin firlama engellensin
+        if (n.vx > MAX_V) n.vx = MAX_V; else if (n.vx < -MAX_V) n.vx = -MAX_V;
+        if (n.vy > MAX_V) n.vy = MAX_V; else if (n.vy < -MAX_V) n.vy = -MAX_V;
         n.x += n.vx; n.y += n.vy;
       }
 

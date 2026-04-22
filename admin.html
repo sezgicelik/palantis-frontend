@@ -724,6 +724,7 @@
       <div class="card" style="margin-bottom:10px;border-left:3px solid #e74c3c">
         <h4 style="margin:0 0 8px 0;color:#e74c3c">⚔️ Savas Saldiri</h4>
         <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <label><input type="checkbox" id="da-savas-disabled" style="margin-right:4px"/>Deger kontrolu devre disi (kisit yok)</label>
           <label>Alt %: <input type="number" id="da-savas-alt" min="0" value="30" style="width:80px" title="100+ = alt sinir yok (hedef ne kadar dusuk olursa olsun kabul)" /></label>
           <label>Ust %: <input type="number" id="da-savas-ust" min="0" value="43" style="width:80px" /></label>
           <span id="da-savas-ornek" style="color:#888;font-size:11px"></span>
@@ -736,6 +737,7 @@
       <div class="card" style="margin-bottom:10px;border-left:3px solid #9b59b6">
         <h4 style="margin:0 0 8px 0;color:#9b59b6">🕵️ Casus Operasyon</h4>
         <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <label><input type="checkbox" id="da-casus-disabled" style="margin-right:4px"/>Devre disi</label>
           <label>Alt %: <input type="number" id="da-casus-alt" min="0" value="30" style="width:80px" title="100+ = alt sinir yok" /></label>
           <label>Ust %: <input type="number" id="da-casus-ust" min="0" value="43" style="width:80px" /></label>
           <span id="da-casus-ornek" style="color:#888;font-size:11px"></span>
@@ -748,6 +750,7 @@
       <div class="card" style="margin-bottom:10px;border-left:3px solid #2980b9">
         <h4 style="margin:0 0 8px 0;color:#2980b9">✨ Ofansif Buyu</h4>
         <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <label><input type="checkbox" id="da-buyu-disabled" style="margin-right:4px"/>Devre disi</label>
           <label>Alt %: <input type="number" id="da-buyu-alt" min="0" value="30" style="width:80px" title="100+ = alt sinir yok" /></label>
           <label>Ust %: <input type="number" id="da-buyu-ust" min="0" value="43" style="width:80px" /></label>
           <span id="da-buyu-ornek" style="color:#888;font-size:11px"></span>
@@ -3307,11 +3310,13 @@ async function loadSavasDegerAraligi() {
     const d = await r.json();
     if (!d.ok) return;
     for (const tip of ['savas', 'casus', 'buyu']) {
-      const cfg = d[tip] || { alt_yuzde: 30, ust_yuzde: 43 };
+      const cfg = d[tip] || { alt_yuzde: 30, ust_yuzde: 43, disabled: false };
       const altEl = document.getElementById(`da-${tip}-alt`);
       const ustEl = document.getElementById(`da-${tip}-ust`);
+      const disEl = document.getElementById(`da-${tip}-disabled`);
       if (altEl) altEl.value = cfg.alt_yuzde;
       if (ustEl) ustEl.value = cfg.ust_yuzde;
+      if (disEl) disEl.checked = !!cfg.disabled;
       daOrnekGuncelle(tip);
     }
   } catch(e) { console.error('deger-araligi load', e); }
@@ -3330,13 +3335,14 @@ function daOrnekGuncelle(tip) {
 async function degerAraligiKaydet(tip) {
   const alt_yuzde = parseFloat(document.getElementById(`da-${tip}-alt`).value);
   const ust_yuzde = parseFloat(document.getElementById(`da-${tip}-ust`).value);
+  const disabled = document.getElementById(`da-${tip}-disabled`)?.checked || false;
   const msg = document.getElementById(`da-${tip}-msg`);
   msg.textContent = 'Kaydediliyor...';
   msg.style.color = '#888';
   try {
     const r = await fetch(API + '/api/admin/deger-araligi', {
       method: 'POST', headers: hdr(),
-      body: JSON.stringify({ tip, alt_yuzde, ust_yuzde })
+      body: JSON.stringify({ tip, alt_yuzde, ust_yuzde, disabled })
     });
     const d = await r.json();
     if (d.ok) {

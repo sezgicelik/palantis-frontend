@@ -225,12 +225,12 @@
 
       try {
         const r = await fetch(API_BASE + '/api/savas/gecmis', { headers:{ 'Authorization':'Bearer '+token } });
-        const rows = await r.json();
+        const resp = await r.json();
         loading.style.display = 'none';
-        if (!Array.isArray(rows) || !rows.length) { empty.style.display='block'; return; }
-        // Oyuncu id'yi bul (benim_taraf'i ayirt etmek icin)
-        let myId = null;
-        try { const meR = await fetch(API_BASE + '/api/player/profil', { headers:{ 'Authorization':'Bearer '+token } }); const me = await meR.json(); myId = me.player?.id || me.id || null; } catch{}
+        // v1.14.0.81: backend yeni formatta { ok, benim_id, savaslar } donuyor, eski array ile de uyumlu
+        const rows = Array.isArray(resp) ? resp : (resp.savaslar || []);
+        const myId = Array.isArray(resp) ? null : (resp.benim_id || null);
+        if (!rows.length) { empty.style.display='block'; return; }
         const fmt = (x) => x ? new Date(x).toLocaleString('tr-TR') : '-';
         const html = rows.map(s => {
           const benSaldiran = s.saldiran_id === myId;
