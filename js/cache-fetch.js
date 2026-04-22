@@ -72,7 +72,9 @@
 
     async function attempt(tryNo) {
       try {
-        const r = await fetch(key, fetchOpts);
+        // v1.14.0.85.4: Cache-bust query param — browser HTTP cache + ETag 304 sorununu atla
+        const busted = key.includes('?') ? key + '&_cb=' + Date.now() : key + '?_cb=' + Date.now();
+        const r = await fetch(busted, fetchOpts);
         if (!r.ok) {
           // 500/502/503/504 gecici hata -> retry. 401 auth -> donderik (retry yok)
           if ((r.status >= 500) && tryNo < 2) {
