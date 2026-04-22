@@ -1,0 +1,254 @@
+/* ═══════════════════════════════════════════════════════════
+   PARSOMEN TEMASI — Klanlar.org esinli, sicak medieval renk paleti
+   v1.14.0.96
+   Aktivasyon: body.tema-parsomen
+
+   Ana Paket:
+   - Body bg:      #d2c09e (parsomen)
+   - Panel acik:   #f2e4c1 (card ici)
+   - Panel orta:   #e9d0a9 (ara bolum)
+   - Table header: #c1a264 (altin-bej)
+   - Accent altin: #8b6914 (koyu altin)
+   - Accent kirmizi: #9d281c (alarm/savas)
+   - Wood gradient: #947a62 → #6c4824 (butonlar)
+   - Text:         #1a1208 (koyu kahve-siyah)
+   - Text dim:     rgba(26,18,8,0.55)
+   - Border:       rgba(108,72,36,0.3)
+═══════════════════════════════════════════════════════════ */
+
+body.tema-parsomen {
+  /* CSS variable override — main.css icindeki degerleri ezer */
+  --dark-bg: #d2c09e;
+  --card-bg: rgba(242,228,193,0.92);
+  --sidebar-bg: rgba(157,115,75,0.96);
+  --hud-bg: rgba(108,72,36,0.97);
+  --theme-glow: rgba(139,105,20,0.1);
+  --glass-tint: rgba(108,72,36,0.04);
+  --text: #1a1208;
+  --text-dim: rgba(26,18,8,0.55);
+  --border: rgba(108,72,36,0.28);
+  --gold: #8b6914;
+  --race-color: #8b6914;
+
+  /* Zemin — parsomen gradient */
+  background: linear-gradient(145deg, #c7b28c 0%, #d2c09e 40%, #e0ceab 100%) !important;
+  color: #1a1208 !important;
+  font-family: 'Crimson Pro', 'Georgia', serif !important;
+}
+
+/* Ana icerik zemini */
+body.tema-parsomen .main-content,
+body.tema-parsomen .layout,
+body.tema-parsomen #main,
+body.tema-parsomen main {
+  background: transparent !important;
+  color: #1a1208 !important;
+}
+
+/* Card / panel — acik parsomen, kahve border */
+body.tema-parsomen .card {
+  background: linear-gradient(180deg, #f4e7c7 0%, #ebdbb5 100%) !important;
+  border: 1px solid rgba(108,72,36,0.35) !important;
+  box-shadow: 0 1px 3px rgba(80,50,20,0.15), inset 0 1px 0 rgba(255,245,220,0.6) !important;
+  color: #1a1208 !important;
+}
+body.tema-parsomen .card:hover {
+  border-color: rgba(108,72,36,0.55) !important;
+  box-shadow: 0 2px 6px rgba(80,50,20,0.22), inset 0 1px 0 rgba(255,245,220,0.7) !important;
+}
+
+/* Cinzel basliklar — koyu altin + cok hafif text shadow */
+body.tema-parsomen h1,
+body.tema-parsomen h2,
+body.tema-parsomen h3,
+body.tema-parsomen h4,
+body.tema-parsomen [style*="Cinzel"],
+body.tema-parsomen [style*="cinzel"] {
+  color: #6c4824 !important;
+  text-shadow: 0 1px 0 rgba(255,245,220,0.5) !important;
+}
+
+/* Linkler — koyu altin */
+body.tema-parsomen a { color: #8b6914 !important; }
+body.tema-parsomen a:hover { color: #6c4824 !important; text-decoration: underline !important; }
+
+/* Genel butonlar — wood gradient */
+body.tema-parsomen button:not(.t9-btn):not([class*="nav"]):not([class*="tab"]),
+body.tema-parsomen input[type="submit"],
+body.tema-parsomen input[type="button"] {
+  background: linear-gradient(180deg, #9c7f5e 0%, #7a5a38 30%, #6c4824 100%) !important;
+  color: #fff8e0 !important;
+  border: 1px solid #3a2410 !important;
+  border-radius: 4px !important;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.4) !important;
+  font-family: 'Cinzel', serif !important;
+  letter-spacing: 0.3px !important;
+}
+body.tema-parsomen button:not(.t9-btn):not([class*="nav"]):not([class*="tab"]):hover,
+body.tema-parsomen input[type="submit"]:hover {
+  background: linear-gradient(180deg, #b08f6d 0%, #8a6a44 30%, #7a5630 100%) !important;
+  box-shadow: 0 0 8px rgba(139,105,20,0.35) !important;
+}
+body.tema-parsomen button:disabled,
+body.tema-parsomen input[type="submit"]:disabled {
+  background: #9a8566 !important;
+  opacity: 0.6 !important;
+}
+
+/* Input & textarea — parsomen ici */
+body.tema-parsomen input[type="text"],
+body.tema-parsomen input[type="number"],
+body.tema-parsomen input[type="email"],
+body.tema-parsomen input[type="password"],
+body.tema-parsomen textarea,
+body.tema-parsomen select {
+  background: #fff5d8 !important;
+  border: 1px solid #8b6914 !important;
+  color: #1a1208 !important;
+  border-radius: 3px !important;
+}
+body.tema-parsomen input:focus,
+body.tema-parsomen textarea:focus,
+body.tema-parsomen select:focus {
+  border-color: #6c4824 !important;
+  outline: 2px solid rgba(139,105,20,0.3) !important;
+}
+
+/* Sidebar — sicak koyu kahve (zit kontrast) */
+body.tema-parsomen #sidebar-mount,
+body.tema-parsomen .sidebar,
+body.tema-parsomen .sidebar-mount {
+  background: linear-gradient(180deg, #4a3220 0%, #3a2414 100%) !important;
+  border-right: 2px solid #8b6914 !important;
+}
+body.tema-parsomen .sidebar a,
+body.tema-parsomen .sidebar .menu-item,
+body.tema-parsomen #sidebar-mount a,
+body.tema-parsomen #sidebar-mount .menu-item {
+  color: #e8d29c !important;
+}
+body.tema-parsomen .sidebar a:hover,
+body.tema-parsomen .sidebar .menu-item:hover,
+body.tema-parsomen #sidebar-mount a:hover {
+  background: rgba(139,105,20,0.18) !important;
+  color: #fff5d8 !important;
+}
+
+/* HUD — kahve parsomen hybrid */
+body.tema-parsomen #hudbar-mount,
+body.tema-parsomen .hudbar {
+  background: linear-gradient(180deg, #3a2414 0%, #2e1d0e 100%) !important;
+  border-bottom: 2px solid #c1a264 !important;
+  color: #e8d29c !important;
+}
+body.tema-parsomen .hudbar * { color: #e8d29c !important; }
+body.tema-parsomen .hudbar b,
+body.tema-parsomen .hudbar strong { color: #f4d78a !important; }
+
+/* Tablo — parsomen stili */
+body.tema-parsomen table,
+body.tema-parsomen .vis {
+  background: rgba(242,228,193,0.6) !important;
+  border-collapse: collapse;
+}
+body.tema-parsomen th {
+  background: #c1a264 !important;
+  color: #1a1208 !important;
+  border-bottom: 2px solid #6c4824 !important;
+  padding: 6px 8px !important;
+  font-family: 'Cinzel', serif !important;
+}
+body.tema-parsomen td {
+  border-bottom: 1px solid rgba(108,72,36,0.18) !important;
+  padding: 5px 8px !important;
+}
+body.tema-parsomen tr:hover td { background: rgba(193,162,100,0.12) !important; }
+
+/* Accent badges (warning/error/success) */
+body.tema-parsomen [style*="e74c3c"],
+body.tema-parsomen .badge-error,
+body.tema-parsomen .savas,
+body.tema-parsomen .attack-badge {
+  color: #9d281c !important;
+}
+body.tema-parsomen [style*="2ecc71"],
+body.tema-parsomen .badge-success {
+  color: #3d7a22 !important;
+}
+
+/* Toast */
+body.tema-parsomen #toast {
+  background: linear-gradient(180deg, #f4e7c7 0%, #ebdbb5 100%) !important;
+  color: #1a1208 !important;
+  border: 1px solid #8b6914 !important;
+  box-shadow: 0 4px 12px rgba(80,50,20,0.35) !important;
+}
+
+/* Modal / overlay */
+body.tema-parsomen .modal,
+body.tema-parsomen [role="dialog"] {
+  background: linear-gradient(180deg, #f4e7c7 0%, #ebdbb5 100%) !important;
+  border: 2px solid #8b6914 !important;
+  color: #1a1208 !important;
+  box-shadow: 0 8px 32px rgba(40,20,5,0.55) !important;
+}
+
+/* Progress bar */
+body.tema-parsomen progress,
+body.tema-parsomen .progress-bar {
+  background: #c7b28c !important;
+  border: 1px solid #6c4824 !important;
+}
+body.tema-parsomen progress::-webkit-progress-value,
+body.tema-parsomen .progress-fill {
+  background: linear-gradient(90deg, #8b6914, #c1a264) !important;
+}
+
+/* Scrollbar — kahve tonu */
+body.tema-parsomen ::-webkit-scrollbar { width: 10px; height: 10px; }
+body.tema-parsomen ::-webkit-scrollbar-track { background: #c7b28c; }
+body.tema-parsomen ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #8b6914, #6c4824);
+  border-radius: 4px;
+  border: 1px solid #4a3220;
+}
+body.tema-parsomen ::-webkit-scrollbar-thumb:hover { background: #6c4824; }
+
+/* Accordion (T9 asker egitim) — parsomen varyant */
+body.tema-parsomen .ugrid-accordion {
+  background: radial-gradient(circle at top left, #f2e4c1 0%, #e9d0a9 100%) !important;
+  border: 1px solid #8b6914 !important;
+  box-shadow: inset 0 0 0 1px rgba(139,105,20,0.15), 0 0 20px rgba(139,105,20,0.08) !important;
+}
+body.tema-parsomen .ugrid-accordion .t9-cat,
+body.tema-parsomen .ugrid-accordion .t9-title { color: #6c4824 !important; text-shadow: 0 1px 0 rgba(255,245,220,0.5) !important; }
+body.tema-parsomen .ugrid-accordion .t9-row {
+  background: linear-gradient(135deg, #e9d0a9 0%, #dbbf8e 100%) !important;
+  border: 1px solid #8b6914 !important;
+}
+body.tema-parsomen .ugrid-accordion .t9-row.open {
+  border-color: #6c4824 !important;
+  box-shadow: 0 0 16px rgba(139,105,20,0.2), inset 0 0 0 1px rgba(139,105,20,0.15) !important;
+}
+body.tema-parsomen .ugrid-accordion .t9-name { color: #6c4824 !important; }
+body.tema-parsomen .ugrid-accordion .t9-meta { color: rgba(26,18,8,0.65) !important; }
+body.tema-parsomen .ugrid-accordion .t9-meta b { color: #8b6914 !important; }
+body.tema-parsomen .ugrid-accordion .t9-ico {
+  background: linear-gradient(135deg, #c1a264, #8b6914) !important;
+  border: 1px solid #6c4824 !important;
+}
+body.tema-parsomen .ugrid-accordion .t9-body {
+  background: rgba(255,245,220,0.55) !important;
+  border-top: 1px solid rgba(108,72,36,0.25) !important;
+}
+body.tema-parsomen .ugrid-accordion .t9-btn {
+  background: linear-gradient(180deg, #9c7f5e, #7a5a38, #6c4824) !important;
+  color: #fff8e0 !important;
+  border-color: #3a2410 !important;
+}
+body.tema-parsomen .ugrid-accordion .t9-btn:hover {
+  background: linear-gradient(180deg, #b08f6d, #8a6a44, #7a5630) !important;
+  box-shadow: 0 0 10px rgba(139,105,20,0.45) !important;
+}
+body.tema-parsomen .ugrid-accordion .cost-ok { color: #3d7a22 !important; }
+body.tema-parsomen .ugrid-accordion .cost-no { color: #9d281c !important; }

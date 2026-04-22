@@ -25,4 +25,38 @@ function applyTheme(irk) {
     var meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.content = r.accent;
   }
+  // v1.14.0.96: irk temasi uygulandiktan sonra parsomen override (parsomen aktifse)
+  if (typeof applyColorTheme === 'function') applyColorTheme();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   v1.14.0.96 — RENK TEMASI (karanlik / parsomen)
+   Ayarlar > sablon karti'nda secilen modu uygular.
+   Parsomen modu irk renklerinin uzerine gelir — body bg'yi override eder.
+═══════════════════════════════════════════════════════════ */
+function applyColorTheme(mode) {
+  try {
+    // Arg verilmediyse localStorage'dan oku
+    if (!mode) mode = localStorage.getItem('noxara_renk_temasi') || 'karanlik';
+  } catch(e) { mode = 'karanlik'; }
+
+  if (mode === 'parsomen') {
+    document.body.classList.add('tema-parsomen');
+    // Parsomen kendi zeminini --dark-bg'den alir; irk bg'sini sifirla
+    document.body.style.background = '';
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.content = '#d2c09e';
+  } else {
+    document.body.classList.remove('tema-parsomen');
+  }
+}
+
+// Auto-apply: her sayfa yuklendiginde localStorage'dan renk temasini uygula
+if (typeof window !== 'undefined') {
+  window.applyColorTheme = applyColorTheme;
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function(){ applyColorTheme(); });
+  } else {
+    applyColorTheme();
+  }
 }
