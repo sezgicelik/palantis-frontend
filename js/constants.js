@@ -197,6 +197,14 @@ const BLDGS = {
     fx:l=>[{t:'pos',s:`Casus +${l*10}%`},{t:'pos',s:`${l} casus slotu`}],
     cost:l=>({metal:300,altin:700}),time:l=>14400},
 
+  /* v1.14.0.82: Esir Kampi — savas sonu esir tutma (backend bina_config'te vardi, frontend BLDGS'e eklendi) */
+  esir_kampi:{id:'esir_kampi',cat:'askeri',icon:'⛓️',name:'Esir Kampı',bg:'#18081a',
+    desc:"Savaş sonu gelen esirleri tutar. Kapasite: seviye × 150 esir. Dolu ise yeni esirler kaçar.",
+    maxLv:10,lv:0,deger:50,
+    cagLimit:{1:0,2:10,3:10,4:10,5:10},
+    fx:l=>[{t:'pos',s:`${l*150} esir kapasitesi`}],
+    cost:l=>({odun:500,metal:300,altin:2000}),time:l=>10800},
+
   /* ═══ GELİŞİM ═══ */
   akademi:{id:'akademi',cat:'gelisim',icon:'📚',name:'Akademi',bg:'#0a0a18',
     desc:"Araştırma ve eğitim merkezi. Toplam max 1 adet.",
