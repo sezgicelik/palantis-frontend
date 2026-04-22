@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Noxara Icon Set — Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  body { background:#0a0604; color:#d4a257; font-family:'Cinzel',serif; padding:20px; }
+  h1 { color:#d4a257; }
+  h2 { color:#c8a96e; border-bottom:1px solid #3a2a15; padding-bottom:6px; margin-top:30px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:10px; }
+  .ikon {
+    background:linear-gradient(135deg,#1a0f08,#0a0604);
+    border:1px solid #3a2a15; border-radius:6px; padding:14px 8px;
+    text-align:center; transition:all 0.2s;
+    box-shadow:0 2px 6px rgba(0,0,0,0.6);
+  }
+  .ikon:hover {
+    border-color:#d4a257; transform:translateY(-2px);
+    box-shadow:0 4px 12px rgba(212,162,87,0.4);
+  }
+  .ikon img {
+    width:48px; height:48px;
+    filter: invert(78%) sepia(35%) saturate(330%) hue-rotate(5deg) drop-shadow(0 0 3px rgba(212,162,87,0.3));
+  }
+  .ikon-ad { font-size:10px; color:#888; margin-top:6px; font-family:monospace; }
+  .bg-dark { background:#05030a; padding:20px; border-radius:8px; margin:20px 0; }
+  .filter-info { font-size:12px; color:#888; }
+  code { background:#1a1510; padding:2px 6px; border-radius:3px; color:#d4a257; }
+</style>
+</head>
+<body>
+<h1>⚔️ Noxara Icon Set Preview</h1>
+<p class="filter-info">131 ikon · game-icons.net (CC BY 3.0) · Altın tint + drop-shadow uygulandı</p>
+
+<div class="bg-dark">
+  <p style="color:#aaa;font-size:13px">CSS tint uygulandı:</p>
+  <code>filter: invert(78%) sepia(35%) saturate(330%) hue-rotate(5deg) drop-shadow(...)</code>
+</div>
+
+<div id="grid" class="grid"></div>
+
+<script>
+const IKONLAR = "ahir akademi altin-borazan altin-ejderha altin-kumpas altin-sikke altin-torbasi arena asma-bahceler at ates-tozu ates ay-cigi balik balikci-binasi balikci-teknesi balista-kulesi baltaci baris bocek-yarisi bugday buyu-kulesi buyucu buyuk-kutuphane buyulu-maden buyulu-tarla buyulu-yumurta casus-evi casus celik-kalkan cennet-vadisi cesaret-puani chat ciftlik cig-et deli-balta demir-balta demir-saban diplomasi ejderha-gozyasi ekmek esaret-zinciri esir-kampi ev festival-art firin gizlilik gocmen-koylu golge-savascisi golgeler-otu gorunmez-kubbe goz guc-yuzugu guild harita hayvan-art hazine-sandigi hizli-kervan isin-savascisi isleme islenmis ittifak kale kalp kara-bayrak kara-elf kara-sovalye kasaba katedral kereste-atolyesi kereste kervan kilic kizgin-lav kizil-sise kolcu koliseum korona koruma-buyusu koy kurt kutuphane lonca madalya magara mana-beyaz mana-kirmizi mana-mavi mana-yesil mana mavi-balik mavi-ejderha metal mizrak-kulesi mizrakci muze noxara-hani ocak odun-art odun oduncu okcu-kulesi okcu okul opera-evi ordu paladin parsomen pazar perili-ev piyade sandik sari-basak savas-buyucusu savas savasci sehir-meydani sihirli-essek sihirli-malzeme simsek-migferi skull sovalye sur suvari tabiyet tapinak taverna tiktak-gelisim tiyatro universite zirhli-binek".split(' ').sort();
+const grid = document.getElementById('grid');
+grid.innerHTML = IKONLAR.map(i =>
+  '<div class="ikon"><img src="' + i + '.svg" alt="' + i + '" loading="lazy"><div class="ikon-ad">' + i + '</div></div>'
+).join('');
+</script>
+</body>
+</html>
