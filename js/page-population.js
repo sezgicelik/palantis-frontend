@@ -426,26 +426,101 @@ async function loadEsirler() {
         satir('Tuccar', e.tuccar, '💼') +
       '</div>';
 
-    if (izinli.length > 0 && (e.bos||0) > 0) {
-      const opts = izinli.map(u => '<option value="' + u + '">' + u + '</option>').join('');
+    if ((e.bos||0) > 0) {
+      // v1.14.0.82: Esir -> Isci cevirme formu
       html +=
-        '<div style="padding:10px;background:#0d0d0d;border:1px solid #2a2a2a;border-radius:6px">' +
-          '<div style="color:#c8a96e;font-weight:bold;margin-bottom:8px">⚔️ Esir\'den Unite Olustur</div>' +
-          '<div style="font-size:11px;color:#888;margin-bottom:8px">Maliyet: normal unite altin fiyatinin %50\'si. Aninda egitilir, havuza eklenir.</div>' +
+        '<div style="padding:10px;background:#0d0d0d;border:1px solid #2a2a2a;border-radius:6px;margin-bottom:10px">' +
+          '<div style="color:#c8a96e;font-weight:bold;margin-bottom:8px">⚒️ Esir\'i Isci Yap (ucretsiz)</div>' +
+          '<div style="font-size:11px;color:#888;margin-bottom:8px">Bos esiri isci olarak ata: oduncu/madenci/ciftci/balikci/tuccar. Maliyet yok.</div>' +
           '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
-            '<select id="esir-unite-sec" style="padding:6px;background:#1a1a1a;border:1px solid #333;color:#fff;border-radius:3px;font-size:12px">' + opts + '</select>' +
-            '<input id="esir-unite-adet" type="number" min="1" max="' + (e.bos||0) + '" value="1" style="width:80px;padding:6px;background:#1a1a1a;border:1px solid #333;color:#fff;border-radius:3px;font-size:12px">' +
-            '<button class="btn" onclick="esirUniteyeCevir()" style="padding:6px 14px;font-size:12px">✓ Cevir</button>' +
+            '<select id="esir-isci-tip" style="padding:6px;background:#1a1a1a;border:1px solid #333;color:#fff;border-radius:3px;font-size:12px">' +
+              '<option value="oduncu">🪓 Oduncu</option>' +
+              '<option value="madenci">⛏️ Madenci</option>' +
+              '<option value="ciftci">🌾 Ciftci (tarla gerekli)</option>' +
+              '<option value="balikci">🎣 Balikci</option>' +
+              '<option value="tuccar">💼 Tuccar</option>' +
+            '</select>' +
+            '<input id="esir-isci-adet" type="number" min="1" max="' + (e.bos||0) + '" value="1" style="width:80px;padding:6px;background:#1a1a1a;border:1px solid #333;color:#fff;border-radius:3px;font-size:12px">' +
+            '<button class="btn" onclick="esirIsciyeCevir()" style="padding:6px 14px;font-size:12px;background:#2ecc71;color:#000">✓ Atanacak</button>' +
           '</div>' +
-          '<div id="esir-sonuc" style="margin-top:6px;font-size:11px;color:#888"></div>' +
+          '<div id="esir-isci-sonuc" style="margin-top:6px;font-size:11px;color:#888"></div>' +
         '</div>';
-    } else if ((e.bos||0) === 0) {
-      html += '<div style="color:#666;font-size:11px;padding:8px;background:#1a1a1a;border-radius:4px">Bosta esir yok.</div>';
+
+      // Esir -> Unite cevirme formu (mevcut)
+      if (izinli.length > 0) {
+        const opts = izinli.map(u => '<option value="' + u + '">' + u + '</option>').join('');
+        html +=
+          '<div style="padding:10px;background:#0d0d0d;border:1px solid #2a2a2a;border-radius:6px">' +
+            '<div style="color:#c8a96e;font-weight:bold;margin-bottom:8px">⚔️ Esir\'den Unite Olustur (%50 altin)</div>' +
+            '<div style="font-size:11px;color:#888;margin-bottom:8px">Maliyet: normal unite altin fiyatinin %50\'si. Aninda egitilir, havuza eklenir.</div>' +
+            '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
+              '<select id="esir-unite-sec" style="padding:6px;background:#1a1a1a;border:1px solid #333;color:#fff;border-radius:3px;font-size:12px">' + opts + '</select>' +
+              '<input id="esir-unite-adet" type="number" min="1" max="' + (e.bos||0) + '" value="1" style="width:80px;padding:6px;background:#1a1a1a;border:1px solid #333;color:#fff;border-radius:3px;font-size:12px">' +
+              '<button class="btn" onclick="esirUniteyeCevir()" style="padding:6px 14px;font-size:12px">✓ Cevir</button>' +
+            '</div>' +
+            '<div id="esir-sonuc" style="margin-top:6px;font-size:11px;color:#888"></div>' +
+          '</div>';
+      }
+    } else {
+      html += '<div style="color:#666;font-size:11px;padding:8px;background:#1a1a1a;border-radius:4px">Bosta esir yok (tumu isci/unite atanmis).</div>';
     }
 
     wrap.innerHTML = html;
   } catch(err) {
     wrap.innerHTML = '<span style="color:#e74c3c">Sunucu hatasi: ' + err.message + '</span>';
+  }
+}
+
+// v1.14.0.82: Esir -> Isci cevirme (PUT /api/game/workers esir_X artir)
+async function esirIsciyeCevir() {
+  const tip = document.getElementById('esir-isci-tip').value;
+  const adet = parseInt(document.getElementById('esir-isci-adet').value) || 0;
+  const sonuc = document.getElementById('esir-isci-sonuc');
+  if (!tip || adet <= 0) { sonuc.textContent = 'Tip ve adet sec'; return; }
+  sonuc.textContent = 'Isleniyor...';
+  sonuc.style.color = '#888';
+  try {
+    const token = getToken();
+    // 1) Mevcut esir dagilimini al
+    const sR = await fetch(API_BASE + '/api/game/esirler', { headers: { Authorization: 'Bearer ' + token } });
+    const sd = await sR.json();
+    if (!sR.ok) { sonuc.textContent = '✗ Esir bilgisi alinamadi'; sonuc.style.color = '#e74c3c'; return; }
+    const e = sd.esir || {};
+    // 2) Mevcut normal isci dagilimini state'ten al
+    const state = (typeof STATE !== 'undefined' && STATE) ? STATE : (window.STATE || {});
+    const population = state.population || {};
+    const normalIsci = {
+      oduncu: population.wood || 0,
+      madenci: population.iron || 0,
+      ciftci: population.farm || 0,
+      balikci: population.fish || 0,
+      tuccar: population.merchant || 0
+    };
+    // 3) Yeni esir dagilimi — secilen tipi adet kadar artir
+    const yeniEsir = {
+      esir_oduncu: e.oduncu || 0,
+      esir_madenci: e.madenci || 0,
+      esir_ciftci: e.ciftci || 0,
+      esir_balikci: e.balikci || 0,
+      esir_tuccar: e.tuccar || 0
+    };
+    yeniEsir['esir_' + tip] += adet;
+    // 4) PUT /api/game/workers
+    const body = Object.assign({}, normalIsci, yeniEsir);
+    const r = await fetch(API_BASE + '/api/game/workers', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify(body)
+    });
+    const d = await r.json();
+    if (!r.ok) { sonuc.textContent = '✗ ' + (d.error || 'Hata'); sonuc.style.color = '#e74c3c'; return; }
+    sonuc.textContent = '✓ ' + adet + ' esir ' + tip + ' olarak atandi';
+    sonuc.style.color = '#2ecc71';
+    loadEsirler();
+    if (typeof loadGameData === 'function') loadGameData();
+  } catch(err) {
+    sonuc.textContent = '✗ Sunucu hatasi: ' + err.message;
+    sonuc.style.color = '#e74c3c';
   }
 }
 
