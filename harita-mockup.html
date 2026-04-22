@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noxara – Harita Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  body {
+    margin: 0;
+    padding: 16px;
+    background: #d2c09e;
+    font-family: 'Cinzel', serif;
+    min-height: 100vh;
+  }
+  h2 { color:#6c4824; font-size:16px; margin:0 0 4px; letter-spacing:1px }
+  .intro { font-size:12px; color:#6c4824; margin-bottom:14px }
+  .intro b { color:#3d2810 }
+
+  /* ═══ HARITA PANELI (Klanlar.org esinli) ═══ */
+  .harita-frame {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: #f4e7c7;
+    border: 3px solid #7d510f;
+    border-radius: 4px;
+    padding: 4px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    position: relative;
+  }
+
+  /* Kenarlarda koordinat sayilari (Klanlar gibi) */
+  .koord-y-sol, .koord-y-sag {
+    position: absolute;
+    top: 26px;
+    bottom: 26px;
+    width: 24px;
+    display: flex;
+    flex-direction: column;
+  }
+  .koord-y-sol { left: 4px }
+  .koord-y-sag { right: 4px }
+  .koord-y-sol .no, .koord-y-sag .no {
+    flex: 1;
+    font-size: 10px;
+    color: #fff;
+    font-family: Verdana, sans-serif;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    padding: 2px 4px;
+  }
+
+  .koord-x-ust, .koord-x-alt {
+    position: absolute;
+    left: 28px;
+    right: 28px;
+    height: 22px;
+    display: flex;
+  }
+  .koord-x-ust { top: 4px }
+  .koord-x-alt { bottom: 4px }
+  .koord-x-ust .no, .koord-x-alt .no {
+    flex: 1;
+    text-align: center;
+    font-size: 10px;
+    color: #fff;
+    font-family: Verdana, sans-serif;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    padding: 4px 0;
+  }
+
+  /* Harita grid icerik */
+  .harita {
+    margin: 22px 26px;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-auto-rows: 64px;
+    background: #5a8840;
+    border: 1px solid #3a5828;
+    position: relative;
+    /* CSS pattern ile cimenlik zemini (stabil, telif sorunsuz) */
+    background-image:
+      /* Hafif tepe shadow */
+      radial-gradient(ellipse at 15% 25%, rgba(0,0,0,0.08) 0%, transparent 35%),
+      radial-gradient(ellipse at 85% 75%, rgba(0,0,0,0.08) 0%, transparent 35%),
+      /* Kucuk cim noktalari (dokulu his) */
+      radial-gradient(circle 1px at 20% 20%, rgba(255,255,255,0.15), transparent),
+      radial-gradient(circle 1px at 70% 40%, rgba(255,255,255,0.1), transparent),
+      radial-gradient(circle 1px at 40% 70%, rgba(255,255,255,0.12), transparent),
+      radial-gradient(circle 1px at 80% 10%, rgba(0,0,0,0.15), transparent),
+      radial-gradient(circle 1px at 30% 90%, rgba(0,0,0,0.12), transparent),
+      /* Ana cimenlik gradient */
+      linear-gradient(135deg, #6a9a4f 0%, #5a8840 50%, #4e7835 100%);
+    background-size: 100% 100%, 100% 100%, 32px 32px, 40px 40px, 24px 24px, 48px 48px, 36px 36px, 100% 100%;
+  }
+
+  /* Her cell icin 5x5 sektor borderi (Klanlar'da koyu gri) */
+  .harita::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(40,60,28,0.5) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(40,60,28,0.5) 1px, transparent 1px);
+    background-size: calc(100%/12 * 5) 100%, 100% calc(100%/5 * 5);
+    pointer-events: none;
+  }
+
+  .cell {
+    position: relative;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: .15s;
+    border: 1px solid transparent;
+  }
+  .cell:hover {
+    background: rgba(212,175,55,0.18);
+    border-color: rgba(212,175,55,0.5);
+    z-index: 2;
+  }
+
+  /* Orman cell (agac kumesi) */
+  .orman {
+    color: #2a4a18;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.3), -1px 1px 1px rgba(0,0,0,0.3);
+    background-image: radial-gradient(circle, rgba(42,74,24,0.35) 0%, transparent 60%);
+  }
+
+  /* Gol cell */
+  .gol {
+    background:
+      radial-gradient(ellipse at center, #4a92c0 0%, #3a7298 60%, transparent 75%),
+      linear-gradient(135deg, #6a9a4f 0%, #5a8840 100%);
+  }
+  .gol::after {
+    content: '〰';
+    position: absolute;
+    color: #8db8d8;
+    font-size: 16px;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+  }
+
+  /* Kaya / dag */
+  .kaya {
+    color: #888;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.4);
+  }
+
+  /* Oyuncu sehri (kirmizi koy) */
+  .sehir-iyi, .sehir-kotu, .sehir-bos {
+    position: relative;
+  }
+  .sehir-iyi::after, .sehir-kotu::after, .sehir-bos::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 40px; height: 40px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: drop-shadow(1px 2px 2px rgba(0,0,0,0.5));
+  }
+  /* SVG sehir ikonu data-URI — kirmizi cati ev (iyi taraf) */
+  .sehir-iyi::after {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect x='8' y='18' width='24' height='18' fill='%238b6b3a' stroke='%233e2610' stroke-width='1.5'/><polygon points='6,18 20,6 34,18' fill='%23c0392b' stroke='%236a1b0e' stroke-width='1.5'/><rect x='17' y='26' width='6' height='10' fill='%233e2610'/></svg>");
+  }
+  /* Kotu taraf — siyah/mor */
+  .sehir-kotu::after {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect x='8' y='18' width='24' height='18' fill='%234a3a2a' stroke='%231a1008' stroke-width='1.5'/><polygon points='6,18 20,6 34,18' fill='%236a1b0e' stroke='%231a1008' stroke-width='1.5'/><rect x='17' y='26' width='6' height='10' fill='%231a1008'/></svg>");
+  }
+  /* Bos slot / barbar koy (gri) */
+  .sehir-bos::after {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect x='10' y='20' width='20' height='16' fill='%23666' stroke='%23333' stroke-width='1.5' opacity='0.8'/><polygon points='8,20 20,10 32,20' fill='%23444' stroke='%23222' stroke-width='1.5' opacity='0.8'/></svg>");
+  }
+
+  /* Benim sehrim — pulse efekt */
+  .ben {
+    position: relative;
+    z-index: 3;
+  }
+  .ben::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 50px; height: 50px;
+    transform: translate(-50%,-50%);
+    border: 3px solid #d4af37;
+    border-radius: 50%;
+    box-shadow: 0 0 14px rgba(212,175,55,0.7), inset 0 0 10px rgba(212,175,55,0.4);
+    animation: pulse 2s infinite;
+    z-index: 0;
+    pointer-events: none;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+    50%      { transform: translate(-50%,-50%) scale(1.15); opacity: 0.75; }
+  }
+
+  /* Koloni (kendimin) */
+  .koloni {
+    position: relative;
+  }
+  .koloni::before {
+    content: '⚜';
+    position: absolute;
+    top: 2px; right: 4px;
+    color: #d4af37;
+    font-size: 14px;
+    text-shadow: 0 0 4px rgba(0,0,0,0.7);
+    z-index: 2;
+  }
+
+  /* Tooltip (hover'da bilgi) */
+  .cell[data-info]:hover::after {
+    content: attr(data-info);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.9);
+    color: #f4e7c7;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    white-space: nowrap;
+    z-index: 20;
+    margin-bottom: 4px;
+    pointer-events: none;
+  }
+
+  /* Nav oklari */
+  .nav-ok {
+    position: absolute;
+    color: #fff;
+    font-size: 18px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    cursor: pointer;
+    z-index: 5;
+  }
+  .nav-ok:hover { color: #d4af37 }
+  .nav-ok.sol  { left: 6px; top: 50%; transform: translateY(-50%); }
+  .nav-ok.sag  { right: 6px; top: 50%; transform: translateY(-50%); }
+  .nav-ok.ust  { top: 6px; left: 50%; transform: translateX(-50%); }
+  .nav-ok.alt  { bottom: 6px; left: 50%; transform: translateX(-50%); }
+
+  /* Alt info paneli */
+  .alt-info {
+    max-width: 1000px;
+    margin: 14px auto 0;
+    background: #f4e7c7;
+    border: 1px solid #7d510f;
+    border-radius: 4px;
+    padding: 10px 14px;
+    font-size: 11px;
+    color: #1a1208;
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  .alt-info b { color: #6c4824; font-family: 'Cinzel', serif; letter-spacing: 0.5px; }
+  .lgd { display: flex; align-items: center; gap: 4px; font-size: 10px; }
+  .lgd .kucuk { width: 16px; height: 16px; display: inline-block; background-size: contain; background-repeat: no-repeat; }
+
+  .baglanti {
+    text-align: center; margin-top: 12px; font-size: 11px;
+  }
+  .baglanti a { color: #6c4824; margin: 0 8px; }
+</style>
+</head>
+<body>
+
+<h2>🗺️ NOXARA HARITA — Mockup</h2>
+<p class="intro">
+  Klanlar.org tarzı <b>koordinat grid</b> + cimenlik + orman + golsu araziler + sehirler.
+  Zemin tamamen <b>CSS ile uretilmis</b> — stabil, telif sorunsuz.
+  Hover: sehir bilgisi · Tikla: sehre git.
+</p>
+
+<div class="harita-frame">
+  <!-- Koordinat sayilari -->
+  <div class="koord-x-ust">
+    <span class="no">625</span><span class="no">626</span><span class="no">627</span><span class="no">628</span><span class="no">629</span><span class="no">630</span>
+    <span class="no">631</span><span class="no">632</span><span class="no">633</span><span class="no">634</span><span class="no">635</span><span class="no">636</span>
+  </div>
+  <div class="koord-y-sol">
+    <span class="no">540</span><span class="no">541</span><span class="no">542</span><span class="no">543</span><span class="no">544</span><span class="no">545</span>
+    <span class="no">546</span><span class="no">547</span>
+  </div>
+  <div class="koord-y-sag">
+    <span class="no">540</span><span class="no">541</span><span class="no">542</span><span class="no">543</span><span class="no">544</span><span class="no">545</span>
+    <span class="no">546</span><span class="no">547</span>
+  </div>
+  <div class="koord-x-alt">
+    <span class="no">625</span><span class="no">626</span><span class="no">627</span><span class="no">628</span><span class="no">629</span><span class="no">630</span>
+    <span class="no">631</span><span class="no">632</span><span class="no">633</span><span class="no">634</span><span class="no">635</span><span class="no">636</span>
+  </div>
+
+  <!-- Nav oklari -->
+  <span class="nav-ok sol"  onclick="alert('Sola kaydir')">◀</span>
+  <span class="nav-ok sag"  onclick="alert('Saga kaydir')">▶</span>
+  <span class="nav-ok ust"  onclick="alert('Yukari kaydir')">▲</span>
+  <span class="nav-ok alt"  onclick="alert('Asagi kaydir')">▼</span>
+
+  <!-- ═══ GRID — 12×8 cell ═══ -->
+  <div class="harita">
+    <!-- Satir 1 (y=540) -->
+    <div class="cell orman" data-info="625:540 · Orman">🌲</div>
+    <div class="cell" data-info="626:540 · Bos cim"></div>
+    <div class="cell orman" data-info="627:540 · Orman">🌳🌳</div>
+    <div class="cell" data-info="628:540 · Bos"></div>
+    <div class="cell gol" data-info="629:540 · Gol"></div>
+    <div class="cell sehir-kotu" data-info="630:540 · Morteus (Ork — 2.450 puan)"></div>
+    <div class="cell" data-info="631:540 · Bos"></div>
+    <div class="cell" data-info="632:540 · Bos"></div>
+    <div class="cell orman" data-info="633:540 · Orman">🌲🌳</div>
+    <div class="cell" data-info="634:540 · Bos"></div>
+    <div class="cell sehir-bos" data-info="635:540 · Barbar Koyu"></div>
+    <div class="cell orman" data-info="636:540 · Orman">🌳</div>
+
+    <!-- Satir 2 (y=541) -->
+    <div class="cell" data-info="625:541"></div>
+    <div class="cell orman" data-info="626:541">🌲</div>
+    <div class="cell" data-info="627:541"></div>
+    <div class="cell kaya" data-info="628:541 · Kaya">🪨</div>
+    <div class="cell" data-info="629:541"></div>
+    <div class="cell" data-info="630:541"></div>
+    <div class="cell" data-info="631:541"></div>
+    <div class="cell orman" data-info="632:541">🌳</div>
+    <div class="cell" data-info="633:541"></div>
+    <div class="cell gol" data-info="634:541 · Gol"></div>
+    <div class="cell" data-info="635:541"></div>
+    <div class="cell" data-info="636:541"></div>
+
+    <!-- Satir 3 (y=542) -->
+    <div class="cell orman" data-info="625:542">🌳🌲</div>
+    <div class="cell" data-info="626:542"></div>
+    <div class="cell" data-info="627:542"></div>
+    <div class="cell" data-info="628:542"></div>
+    <div class="cell sehir-iyi" data-info="628:542 · Lyra (Elf — 8.120 puan)"></div>
+    <div class="cell" data-info="629:542"></div>
+    <div class="cell orman" data-info="630:542">🌲🌲</div>
+    <div class="cell" data-info="631:542"></div>
+    <div class="cell" data-info="632:542"></div>
+    <div class="cell orman" data-info="633:542">🌳</div>
+    <div class="cell" data-info="634:542"></div>
+    <div class="cell kaya" data-info="635:542">🪨</div>
+
+    <!-- Satir 4 (y=543) — benim sehrim ortada -->
+    <div class="cell" data-info="625:543"></div>
+    <div class="cell" data-info="626:543"></div>
+    <div class="cell orman" data-info="627:543">🌲</div>
+    <div class="cell sehir-iyi" data-info="628:543 · Balbar (Bucukluk — 4.320 puan)"></div>
+    <div class="cell" data-info="629:543"></div>
+    <div class="cell ben sehir-iyi" data-info="630:543 · NORFALL (BENIM — Insan, 10.316 puan)" onclick="alert('Ana Ekran acilir')"></div>
+    <div class="cell" data-info="631:543"></div>
+    <div class="cell" data-info="632:543"></div>
+    <div class="cell gol" data-info="633:543 · Gol"></div>
+    <div class="cell" data-info="634:543"></div>
+    <div class="cell orman" data-info="635:543">🌳🌲</div>
+    <div class="cell" data-info="636:543"></div>
+
+    <!-- Satir 5 (y=544) -->
+    <div class="cell orman" data-info="625:544">🌲🌳</div>
+    <div class="cell" data-info="626:544"></div>
+    <div class="cell" data-info="627:544"></div>
+    <div class="cell" data-info="628:544"></div>
+    <div class="cell koloni sehir-iyi" data-info="629:544 · Kolonim (Norfall Asker Kampi)"></div>
+    <div class="cell" data-info="630:544"></div>
+    <div class="cell" data-info="631:544"></div>
+    <div class="cell orman" data-info="632:544">🌳</div>
+    <div class="cell" data-info="633:544"></div>
+    <div class="cell" data-info="634:544"></div>
+    <div class="cell sehir-bos" data-info="635:544 · Barbar"></div>
+    <div class="cell" data-info="636:544"></div>
+
+    <!-- Satir 6 (y=545) -->
+    <div class="cell" data-info="625:545"></div>
+    <div class="cell kaya" data-info="626:545">🪨</div>
+    <div class="cell orman" data-info="627:545">🌲</div>
+    <div class="cell" data-info="628:545"></div>
+    <div class="cell" data-info="629:545"></div>
+    <div class="cell" data-info="630:545"></div>
+    <div class="cell sehir-iyi" data-info="631:545 · Darion (Cuce — 5.040 puan)"></div>
+    <div class="cell" data-info="632:545"></div>
+    <div class="cell orman" data-info="633:545">🌳🌲</div>
+    <div class="cell" data-info="634:545"></div>
+    <div class="cell" data-info="635:545"></div>
+    <div class="cell orman" data-info="636:545">🌲</div>
+
+    <!-- Satir 7 (y=546) -->
+    <div class="cell orman" data-info="625:546">🌲</div>
+    <div class="cell" data-info="626:546"></div>
+    <div class="cell gol" data-info="627:546 · Gol"></div>
+    <div class="cell" data-info="628:546"></div>
+    <div class="cell sehir-kotu" data-info="629:546 · Zenik (Undead — 3.800 puan)"></div>
+    <div class="cell" data-info="630:546"></div>
+    <div class="cell" data-info="631:546"></div>
+    <div class="cell" data-info="632:546"></div>
+    <div class="cell" data-info="633:546"></div>
+    <div class="cell orman" data-info="634:546">🌳🌲</div>
+    <div class="cell kaya" data-info="635:546">🪨</div>
+    <div class="cell" data-info="636:546"></div>
+
+    <!-- Satir 8 (y=547) -->
+    <div class="cell" data-info="625:547"></div>
+    <div class="cell orman" data-info="626:547">🌳</div>
+    <div class="cell" data-info="627:547"></div>
+    <div class="cell orman" data-info="628:547">🌲🌳</div>
+    <div class="cell" data-info="629:547"></div>
+    <div class="cell sehir-bos" data-info="630:547 · Barbar"></div>
+    <div class="cell" data-info="631:547"></div>
+    <div class="cell orman" data-info="632:547">🌲</div>
+    <div class="cell" data-info="633:547"></div>
+    <div class="cell" data-info="634:547"></div>
+    <div class="cell" data-info="635:547"></div>
+    <div class="cell orman" data-info="636:547">🌳🌲</div>
+  </div>
+</div>
+
+<div class="alt-info">
+  <div>
+    <b>AKTIF SEKTOR:</b> 625-636 × 540-547 (12×8 = 96 koordinat)
+  </div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <span class="lgd"><span style="background:#c0392b;width:14px;height:14px;border-radius:2px;display:inline-block"></span> Iyi sehir</span>
+    <span class="lgd"><span style="background:#4a3a2a;width:14px;height:14px;border-radius:2px;display:inline-block"></span> Kotu sehir</span>
+    <span class="lgd"><span style="background:#666;width:14px;height:14px;border-radius:2px;display:inline-block"></span> Barbar</span>
+    <span class="lgd">⚜ Koloni</span>
+    <span class="lgd">🌲 Orman</span>
+    <span class="lgd">🪨 Kaya</span>
+  </div>
+</div>
+
+<div style="max-width:1000px;margin:12px auto 0;background:#fff5d8;border:1px solid #8b6914;border-radius:4px;padding:12px;font-size:11px;color:#3d2810">
+  <b style="color:#6c4824">📌 Zemin notu:</b> Bu mockup'ta cimenlik zemini tamamen <b>CSS gradient + noise pattern</b> ile uretilmis (stabil, telif sorunsuz).
+  Begendiysen <b>gercek isometric tile asset</b> icin 2 secenek:
+  <ul style="margin:6px 0 0 0;padding-left:20px">
+    <li><b>Kenney.nl</b> — ucretsiz CC0 medieval isometric tileset (grass, forest, mountain, river tile'lari)</li>
+    <li><b>OpenGameArt.org</b> — CC-BY/CC0 medieval map tiles pack'leri</li>
+  </ul>
+  Tile'lar indirilip <code>img/map/</code> icine koyulur, CSS <code>background-image</code> ile tileable olarak kullanilir.
+</div>
+
+<div class="baglanti">
+  <a href="sehir-ozet-mockup.html">Sehir Ozet Dashboard</a> ·
+  <a href="sehir-gorsel-mockup.html">Sehir Gorsel Mockup</a> ·
+  <a href="hud-ornek.html">HUD Format</a> ·
+  <a href="home.html">Ana Ekran</a>
+</div>
+
+</body>
+</html>
