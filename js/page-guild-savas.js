@@ -445,9 +445,13 @@ function savasOdasiAcEylemModal(hedefId, hedefKral, hx, hy) {
         '<div style="color:#E8A0A0;font-weight:bold">🎯 ' + escHtml(hedefKral) + '</div>' +
         '<div style="color:#888;font-size:11px;margin-top:4px">Koordinat: ' + hx + ':' + hy + '</div>' +
       '</div>' +
-      '<div style="display:grid;gap:8px;margin-bottom:14px">' +
-        '<a href="savas-baslat.html?hedef_id=' + hedefId + '&hedef_x=' + hx + '&hedef_y=' + hy + '&hedef_kral=' + encodeURIComponent(hedefKral) + '" style="padding:10px;background:#8B0000;color:#fff;text-align:center;border-radius:4px;text-decoration:none;font-weight:bold">⚔️ Ordu Gönder (savaş sayfası)</a>' +
-        '<a href="map.html?x=' + hx + '&y=' + hy + '" style="padding:8px;background:#1a4a1a;color:#fff;text-align:center;border-radius:4px;text-decoration:none;font-size:12px">📍 Haritada Göster</a>' +
+      // v1.14.0.85: Inline ordu gonder
+      '<div id="savas-ordu-panel" style="padding:12px;background:rgba(139,0,0,0.1);border:1px solid rgba(139,0,0,0.3);border-radius:6px;margin-bottom:14px">' +
+        '<div style="color:#c8a96e;font-family:Cinzel,serif;font-size:13px;margin-bottom:8px">⚔️ Ordu Gönder</div>' +
+        '<div id="savas-ordu-list" style="color:#888;font-size:11px;text-align:center;padding:12px">Ordular yükleniyor...</div>' +
+      '</div>' +
+      '<div style="margin-bottom:14px">' +
+        '<a href="map.html?x=' + hx + '&y=' + hy + '" style="padding:6px 14px;background:#1a4a1a;color:#fff;border-radius:4px;text-decoration:none;font-size:11px;display:inline-block">📍 Haritada Göster</a>' +
       '</div>' +
 
       // v1.14.0.72: Inline ofansif buyu listesi
@@ -470,6 +474,72 @@ function savasOdasiAcEylemModal(hedefId, hedefKral, hx, hy) {
   loadSavasOdasiBuyuler(hedefId, hedefKral);
   // Casuslari yukle
   loadSavasOdasiCasuslar(hedefId, hedefKral);
+  // v1.14.0.85: Ordulari yukle
+  loadSavasOdasiOrdular(hedefId, hedefKral, hx, hy);
+}
+
+/* ════════════════════════════════════════
+   v1.14.0.85: INLINE ORDU GONDER
+════════════════════════════════════════ */
+async function loadSavasOdasiOrdular(hedefId, hedefKral, hx, hy) {
+  const list = document.getElementById('savas-ordu-list');
+  if (!list) return;
+  try {
+    const token = getToken();
+    const r = await fetch(API_BASE + '/api/army/state', { headers: { Authorization: 'Bearer ' + token } });
+    if (!r.ok) { list.innerHTML = '<div style="color:#e74c3c">Ordu listesi alınamadı (HTTP ' + r.status + ')</div>'; return; }
+    const d = await r.json();
+    const tumOrdular = d.armies || [];
+    const ordular = tumOrdular.filter(a => !a.is_busy && (parseInt(a.toplam_unite) || 0) > 0);
+
+    if (!ordular.length) {
+      if (tumOrdular.length === 0) {
+        list.innerHTML = '<div style="color:#888;padding:8px">Hiç ordun yok! <a href="army.html" style="color:#c8a96e">Ordu sayfasından</a> oluştur.</div>';
+      } else {
+        list.innerHTML = '<div style="color:#888;padding:8px">Müsait (boş olmayan + meşgul değil) ordu yok. Toplam ' + tumOrdular.length + ' ordu var ama hepsi ya boş ya yolda.</div>';
+      }
+      return;
+    }
+
+    const opts = ordular.map(a =>
+      '<option value="' + a.id + '">' + escHtml(a.isim || 'Ordu #'+a.id) + ' — ' + (a.toplam_unite || 0) + ' ünite (ATK ' + Math.round(a.toplam_atk||0) + ' / DEF ' + Math.round(a.toplam_def||0) + ')</option>'
+    ).join('');
+
+    list.innerHTML =
+      '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
+        '<select id="savas-ordu-sec" style="padding:6px;background:#1a1a1a;border:1px solid #333;color:#fff;border-radius:3px;font-size:12px;flex:1;min-width:200px">' + opts + '</select>' +
+        '<button onclick="savasOdasiOrduGonder(' + hedefId + ',\'' + escAttr(hedefKral) + '\',' + hx + ',' + hy + ')" style="padding:6px 14px;background:#8B0000;color:#fff;border:none;border-radius:3px;font-size:11px;font-weight:bold;cursor:pointer">⚔️ SALDIR</button>' +
+      '</div>' +
+      '<div id="savas-ordu-sonuc" style="margin-top:6px;font-size:11px;color:#888;text-align:left"></div>';
+  } catch(e) {
+    list.innerHTML = '<div style="color:#e74c3c">Hata: ' + e.message + '</div>';
+  }
+}
+
+async function savasOdasiOrduGonder(hedefId, hedefKral, hx, hy) {
+  const orduId = parseInt(document.getElementById('savas-ordu-sec').value);
+  const sonuc = document.getElementById('savas-ordu-sonuc');
+  if (!orduId) { sonuc.textContent = 'Ordu seç'; return; }
+  if (!confirm('⚔️ ' + hedefKral + ' oyuncusuna saldırı başlat?\nOrdu: ' + orduId)) return;
+  sonuc.textContent = 'Yola çıkarılıyor...';
+  sonuc.style.color = '#888';
+  try {
+    const token = getToken();
+    const r = await fetch(API_BASE + '/api/savas/saldir', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ orduId: orduId, hedefPlayerId: hedefId })
+    });
+    const d = await r.json();
+    if (!r.ok) { sonuc.textContent = '✗ ' + (d.error || 'Hata'); sonuc.style.color = '#e74c3c'; return; }
+    sonuc.innerHTML = '✓ ' + (d.mesaj || 'Ordu yola çıktı') + (d.ham_sure ? ' · Varış: ' + d.ham_sure + ' PG' : '');
+    sonuc.style.color = '#2ecc71';
+    // Ordu listesini refresh et (orduID artik busy)
+    setTimeout(() => loadSavasOdasiOrdular(hedefId, hedefKral, hx, hy), 500);
+  } catch(e) {
+    sonuc.textContent = '✗ Sunucu hatası: ' + e.message;
+    sonuc.style.color = '#e74c3c';
+  }
 }
 
 // v1.14.0.72: Savas odasi modal'inda ofansif buyuleri inline goster + yap butonu
