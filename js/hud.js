@@ -4,12 +4,19 @@
    updateCityStats, updateBars, finishBuild
 ===================================================== */
 
-/* Rate elementine deger + renk class'i ata */
+/* Rate elementine deger + renk class'i ata
+   v1.14.0.98: fmtK ile kisa format ("+1,8K"), tam deger tooltip'e */
 function setRate(id, value) {
   const el = document.getElementById(id);
   if (!el) return;
   const v = Number(value) || 0;
-  el.textContent = (v >= 0 ? '+' : '') + numFmt(v);
+  const sign = v >= 0 ? '+' : '';
+  if (typeof fmtK === 'function') {
+    el.textContent = sign + fmtK(v, 1);
+    el.title = sign + Math.floor(v).toLocaleString('tr-TR') + ' / Palantis Günü';
+  } else {
+    el.textContent = sign + numFmt(v);
+  }
   el.className = 'res-rate ' + (v > 0 ? 'pos' : v < 0 ? 'neg' : 'neu');
 }
 

@@ -325,37 +325,32 @@ async function loadGameData() {
     EXTRA_RES.mana = parseFloat(res['mana_' + _renk]) || 0;
 
     // HUD Ham kaynaklar (miktar + rate)
-    setText('hud-w',   RES.odun);
-    if(typeof setRate==='function') setRate('hud-wg', prod.odun ?? 0); else setText('hud-wg', prod.odun ?? 0);
-    setText('hud-m',   RES.metal);
-    if(typeof setRate==='function') setRate('hud-mg', prod.metal ?? 0); else setText('hud-mg', prod.metal ?? 0);
-    setText('hud-bu',  RES.bugday);
-    if(typeof setRate==='function') setRate('hud-bug', prod.bugday ?? 0); else setText('hud-bug', prod.bugday ?? 0);
-    setText('hud-ba',  RES.balik);
-    if(typeof setRate==='function') setRate('hud-bag', prod.balik ?? 0); else setText('hud-bag', prod.balik ?? 0);
-    setText('hud-g',   RES.altin);
-    if(typeof setRate==='function') setRate('hud-gg', prod.altin ?? 0); else setText('hud-gg', prod.altin ?? 0);
+    // v1.14.0.98: setHudNum/setHudRate — kisa format (K/M/B) + tooltip'te tam deger
+    const _hudN = (typeof setHudNum === 'function') ? setHudNum : setText;
+    const _hudR = (typeof setHudRate === 'function') ? setHudRate : (id, v) => { if(typeof setRate==='function') setRate(id, v); else setText(id, v); };
+    _hudN('hud-w',   RES.odun);       _hudR('hud-wg',  prod.odun   ?? 0);
+    _hudN('hud-m',   RES.metal);      _hudR('hud-mg',  prod.metal  ?? 0);
+    _hudN('hud-bu',  RES.bugday);     _hudR('hud-bug', prod.bugday ?? 0);
+    _hudN('hud-ba',  RES.balik);      _hudR('hud-bag', prod.balik  ?? 0);
+    _hudN('hud-g',   RES.altin);      _hudR('hud-gg',  prod.altin  ?? 0);
 
-    // İşlenmiş kaynaklar HUD
-    setText('hud-ke',  RES.kereste);
-    setText('hud-is',  RES.islenmis);
-    setText('hud-ek',  RES.ekmek);
-    setText('hud-pb',  RES.pismis);
-    setText('hud-ce',  RES.cig_et);
-    setText('hud-pe',  RES.pismis_et);
+    // İşlenmiş kaynaklar HUD (rate yok — isleme cron ile)
+    _hudN('hud-ke',  RES.kereste);
+    _hudN('hud-is',  RES.islenmis);
+    _hudN('hud-ek',  RES.ekmek);
+    _hudN('hud-pb',  RES.pismis);
+    _hudN('hud-ce',  RES.cig_et);
+    _hudN('hud-pe',  RES.pismis_et);
 
     // Mana HUD + üretim rate
-    setText('hud-mana-beyaz',   Math.floor(RES.mana_beyaz || 0));
-    setText('hud-mana-kirmizi', Math.floor(RES.mana_kirmizi || 0));
-    setText('hud-mana-mavi',    Math.floor(RES.mana_mavi || 0));
-    setText('hud-mana-yesil',   Math.floor(RES.mana_yesil || 0));
-    // Mana rate: production API'den gelen toplam degeri kullan (buyu+irk+gel carpanlari dahil)
-    if(typeof setRate==='function') {
-      setRate('hud-mana-beyaz-g',   prod.mana_beyaz ?? (parseInt(work?.worshipper_beyaz)||0) * 0.1);
-      setRate('hud-mana-kirmizi-g', prod.mana_kirmizi ?? (parseInt(work?.worshipper_kirmizi)||0) * 0.1);
-      setRate('hud-mana-mavi-g',    prod.mana_mavi ?? (parseInt(work?.worshipper_mavi)||0) * 0.1);
-      setRate('hud-mana-yesil-g',   prod.mana_yesil ?? (parseInt(work?.worshipper_yesil)||0) * 0.1);
-    }
+    _hudN('hud-mana-beyaz',   Math.floor(RES.mana_beyaz   || 0));
+    _hudN('hud-mana-kirmizi', Math.floor(RES.mana_kirmizi || 0));
+    _hudN('hud-mana-mavi',    Math.floor(RES.mana_mavi    || 0));
+    _hudN('hud-mana-yesil',   Math.floor(RES.mana_yesil   || 0));
+    _hudR('hud-mana-beyaz-g',   prod.mana_beyaz   ?? (parseInt(work?.worshipper_beyaz)   || 0) * 0.1);
+    _hudR('hud-mana-kirmizi-g', prod.mana_kirmizi ?? (parseInt(work?.worshipper_kirmizi) || 0) * 0.1);
+    _hudR('hud-mana-mavi-g',    prod.mana_mavi    ?? (parseInt(work?.worshipper_mavi)    || 0) * 0.1);
+    _hudR('hud-mana-yesil-g',   prod.mana_yesil   ?? (parseInt(work?.worshipper_yesil)   || 0) * 0.1);
 
     // Nufus & İşçiler
     if (work) {

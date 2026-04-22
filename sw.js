@@ -1,6 +1,6 @@
 // v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
 // Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
-const CACHE_NAME = 'noxara-v97'; // v1.14.0.97 Mezarlik: Tumunu Dirilt + 4 PG egitim + ejderha yasak, Sidebar font buyutme
+const CACHE_NAME = 'noxara-v98'; // v1.14.0.98 HUD kisa sayi formati (15M, +1,8K) + tooltip tam deger
 
 // Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [

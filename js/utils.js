@@ -20,8 +20,67 @@ if (typeof window !== 'undefined') {
 function setText(id, value){
   const el = document.getElementById(id);
   if(!el) return;
+  // v1.14.0.98: HUD kaynak sayilari icin kisa format + tooltip (odun/metal/altin vs)
+  // Bu ID prefix'leri auto-switch: hud-w, hud-m, hud-g, hud-bu, hud-ba, hud-ke, hud-is,
+  //   hud-k, hud-im, hud-e, hud-pb, hud-ek, hud-ce, hud-pe, hud-mana-*
+  //   + rate'ler: hud-wg, hud-mg, hud-bug, hud-bag, hud-gg, hud-kg, hud-img, hud-eg, hud-pbg
+  if (/^hud-(w|m|g|bu|ba|ke|is|k|im|e|pb|ek|ce|pe|mana-)/.test(id) && typeof fmtK === 'function') {
+    const num = Math.floor(Number(value) || 0);
+    // Rate ID'leri (-g, -wg, -gg gibi) icin 1 ondalik; kaynak icin 0 ondalik (15M)
+    const isRate = /g$/.test(id);
+    el.innerText = fmtK(num, isRate ? 1 : 0);
+    el.title = num.toLocaleString('tr-TR') + (isRate ? ' / Palantis Günü' : '');
+    return;
+  }
   el.innerText = numFmt(value);
 }
+
+/* ═══════════════════════════════════════════════════════════
+   v1.14.0.98 — HUD icin kisa sayi formati (K/M/B)
+   Kullanim ornekleri:
+   - fmtK(9999)          = "9.999"     (10K alti tam sayi)
+   - fmtK(15061038)      = "15M"       (ondalıksız — kaynak sayilari)
+   - fmtK(1840, 1)       = "1,8K"      (rate icin 1 ondalik)
+   - fmtK(1234567890)    = "1B"        (milyar+)
+   HUD'da yer tasarrufu — tam deger tooltip'te (title attr)
+═══════════════════════════════════════════════════════════ */
+function fmtK(n, decimals = 0) {
+  const num = Number(n) || 0;
+  const abs = Math.abs(num);
+  if (abs < 1000) return Math.floor(num).toLocaleString('tr-TR');
+  if (abs < 10000 && decimals === 0) return Math.floor(num).toLocaleString('tr-TR');
+  if (abs < 1000000) return (num/1000).toFixed(decimals).replace('.', ',').replace(/,0$/, '') + 'K';
+  if (abs < 1000000000) return (num/1000000).toFixed(decimals).replace('.', ',').replace(/,0$/, '') + 'M';
+  return (num/1000000000).toFixed(decimals).replace('.', ',').replace(/,0$/, '') + 'B';
+}
+
+/* HUD sayi guncelle — kisa format + tam deger tooltip */
+function setHudNum(id, value) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const num = Math.floor(Number(value) || 0);
+  el.textContent = fmtK(num);
+  el.title = num.toLocaleString('tr-TR'); // Native browser tooltip
+}
+
+/* HUD rate guncelle — kisa format + renk + tam deger tooltip
+   HUD'da "+1,84K" gibi kisa; hover tooltip'te "+1.840 / Palantis Gunu" */
+function setHudRate(id, value) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const v = Number(value) || 0;
+  const sign = v >= 0 ? '+' : '';
+  el.textContent = sign + fmtK(v);
+  el.className = 'res-rate ' + (v > 0 ? 'pos' : v < 0 ? 'neg' : 'neu');
+  el.title = sign + Math.floor(v).toLocaleString('tr-TR') + ' / Palantis Günü';
+}
+
+if (typeof window !== 'undefined') {
+  window.fmtK = fmtK;
+  window.setHudNum = setHudNum;
+  window.setHudRate = setHudRate;
+}
+
 // Artik sekmeler yok — eski hudSetTab cagrilari icin no-op
 function hudSetTab(tab, btn){}
 
