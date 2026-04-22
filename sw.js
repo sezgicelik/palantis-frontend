@@ -1,6 +1,6 @@
 // v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
 // Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
-const CACHE_NAME = 'noxara-v81'; // v1.14.0.81 Savaslarim/Codex/Admin Deger bug fix cache bump
+const CACHE_NAME = 'noxara-v85'; // v1.14.0.85.1 armies total_units fix + SW cache bust
 
 // Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [
