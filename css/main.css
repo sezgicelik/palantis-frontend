@@ -221,10 +221,12 @@ body{
 }
 
 /* ===== İŞÇİ SATIRI ===== */
+/* v1.14.1.24: flex-wrap + overflow guard — tuccar satiri panel disina tasiyordu */
 .worker-row{
   display:flex;
   align-items:center;
   gap:6px;
+  flex-wrap:wrap;
   margin:3px 0;
   font-size:11px;
   padding:5px 8px;
@@ -232,7 +234,11 @@ body{
   border:1px solid #1e1e1e;
   border-radius:6px;
   transition:.2s;
+  min-width:0;
+  box-sizing:border-box;
+  max-width:100%;
 }
+.worker-row > *{ min-width:0; }
 .wr-lbl{
   min-width:90px;
   font-size:11px;
@@ -282,13 +288,22 @@ body{
 }
 .worker-row .info{
   color:#2ecc71;
-  font-size:12px;
+  font-size:11px;
   margin-left:auto;
   background:#0a1a0a;
   border:1px solid #1a3020;
   border-radius:5px;
   padding:3px 8px;
   font-family:'Cinzel',serif;
+  white-space:nowrap;
+  flex-shrink:0;
+}
+@media (max-width:600px){
+  .worker-row .info{
+    margin-left:0;
+    width:100%;
+    text-align:center;
+  }
 }
 
 /* ===== ARAZİ TEKLİFLERİ ===== */

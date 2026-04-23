@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
 <link rel="manifest" href="./manifest.json">
-<link rel="stylesheet" href="css/main.css?v=13496">
+<link rel="stylesheet" href="css/main.css?v=14124">
 <link rel="stylesheet" href="css/tema-parsomen.css?v=13496">
 <link rel="stylesheet" href="css/rehber.css">
 </head>
@@ -227,7 +227,8 @@
       </p>
       <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:12px">
         <label style="color:#aaa;font-size:14px">Vergi Oranı:</label>
-        <input type="range" id="vergi-slider" min="0" max="10" value="0" style="flex:1;min-width:150px;accent-color:#d4af37"
+        <!-- v1.14.1.24: Max 25 (premium paketler icin, backend destekliyor) -->
+        <input type="range" id="vergi-slider" min="0" max="25" value="0" style="flex:1;min-width:150px;accent-color:#d4af37"
           oninput="vergiSliderChange(this.value)">
         <span id="vergi-deger" style="font-size:18px;font-weight:bold;color:#d4af37;min-width:30px;text-align:center">0</span>
       </div>
@@ -241,23 +242,46 @@
           <div style="font-size:16px;font-weight:bold" id="vergi-moral-etki" style="color:#2ecc71">0</div>
         </div>
       </div>
-      <div style="background:#0d0d0d;padding:8px 12px;border-radius:6px;border:1px solid #1e1e1e;font-size:11px;color:#555;margin-bottom:12px">
-        <table style="width:100%;border-collapse:collapse">
-          <tr><th style="color:#888;text-align:left;padding:2px 6px">Oran</th>
-            <th style="color:#888;text-align:center;padding:2px 4px">0</th><th style="color:#888;text-align:center;padding:2px 4px">1</th>
-            <th style="color:#888;text-align:center;padding:2px 4px">2</th><th style="color:#888;text-align:center;padding:2px 4px">3</th>
-            <th style="color:#888;text-align:center;padding:2px 4px">4</th><th style="color:#888;text-align:center;padding:2px 4px">5</th>
-            <th style="color:#888;text-align:center;padding:2px 4px">6</th><th style="color:#888;text-align:center;padding:2px 4px">7</th>
-            <th style="color:#888;text-align:center;padding:2px 4px">8</th><th style="color:#888;text-align:center;padding:2px 4px">9</th>
-            <th style="color:#888;text-align:center;padding:2px 4px">10</th></tr>
-          <tr><th style="color:#888;text-align:left;padding:2px 6px">Moral</th>
-            <td style="color:#2ecc71;text-align:center">0</td><td style="color:#e67e22;text-align:center">-1</td>
-            <td style="color:#e67e22;text-align:center">-3</td><td style="color:#e67e22;text-align:center">-5</td>
-            <td style="color:#e74c3c;text-align:center">-10</td><td style="color:#e74c3c;text-align:center">-18</td>
-            <td style="color:#e74c3c;text-align:center">-28</td><td style="color:#c0392b;text-align:center">-40</td>
-            <td style="color:#c0392b;text-align:center">-55</td><td style="color:#c0392b;text-align:center">-72</td>
-            <td style="color:#c0392b;text-align:center">-90</td></tr>
-        </table>
+      <!-- v1.14.1.24: Full 0-25 vergi tablosu, 2 satira bolunmus, sig masinda responsive -->
+      <div style="background:#0d0d0d;padding:8px 10px;border-radius:6px;border:1px solid #1e1e1e;font-size:10px;margin-bottom:12px;overflow-x:auto">
+        <div style="display:grid;grid-template-columns:repeat(14,minmax(24px,1fr));gap:1px;min-width:380px">
+          <!-- Satir 1: 0-12 -->
+          <div style="color:#888;padding:2px;font-weight:bold">Oran</div>
+          <div style="color:#aaa;text-align:center">0</div><div style="color:#aaa;text-align:center">1</div>
+          <div style="color:#aaa;text-align:center">2</div><div style="color:#aaa;text-align:center">3</div>
+          <div style="color:#aaa;text-align:center">4</div><div style="color:#aaa;text-align:center">5</div>
+          <div style="color:#aaa;text-align:center">6</div><div style="color:#aaa;text-align:center">7</div>
+          <div style="color:#aaa;text-align:center">8</div><div style="color:#aaa;text-align:center">9</div>
+          <div style="color:#aaa;text-align:center">10</div><div style="color:#aaa;text-align:center">11</div>
+          <div style="color:#aaa;text-align:center">12</div>
+          <div style="color:#888;padding:2px;font-weight:bold">Moral</div>
+          <div style="color:#2ecc71;text-align:center">0</div><div style="color:#e67e22;text-align:center">-1</div>
+          <div style="color:#e67e22;text-align:center">-3</div><div style="color:#e67e22;text-align:center">-5</div>
+          <div style="color:#e74c3c;text-align:center">-10</div><div style="color:#e74c3c;text-align:center">-18</div>
+          <div style="color:#e74c3c;text-align:center">-28</div><div style="color:#c0392b;text-align:center">-40</div>
+          <div style="color:#c0392b;text-align:center">-55</div><div style="color:#c0392b;text-align:center">-72</div>
+          <div style="color:#c0392b;text-align:center">-90</div><div style="color:#c0392b;text-align:center">-110</div>
+          <div style="color:#c0392b;text-align:center">-132</div>
+        </div>
+        <!-- Satir 2: 13-25 -->
+        <div style="display:grid;grid-template-columns:repeat(14,minmax(24px,1fr));gap:1px;min-width:380px;margin-top:6px;border-top:1px dashed #222;padding-top:6px">
+          <div style="color:#888;padding:2px;font-weight:bold">Oran</div>
+          <div style="color:#aaa;text-align:center">13</div><div style="color:#aaa;text-align:center">14</div>
+          <div style="color:#aaa;text-align:center">15</div><div style="color:#aaa;text-align:center">16</div>
+          <div style="color:#aaa;text-align:center">17</div><div style="color:#aaa;text-align:center">18</div>
+          <div style="color:#aaa;text-align:center">19</div><div style="color:#aaa;text-align:center">20</div>
+          <div style="color:#aaa;text-align:center">21</div><div style="color:#aaa;text-align:center">22</div>
+          <div style="color:#aaa;text-align:center">23</div><div style="color:#aaa;text-align:center">24</div>
+          <div style="color:#aaa;text-align:center">25</div>
+          <div style="color:#888;padding:2px;font-weight:bold">Moral</div>
+          <div style="color:#c0392b;text-align:center">-156</div><div style="color:#c0392b;text-align:center">-182</div>
+          <div style="color:#c0392b;text-align:center">-210</div><div style="color:#c0392b;text-align:center">-240</div>
+          <div style="color:#c0392b;text-align:center">-272</div><div style="color:#c0392b;text-align:center">-306</div>
+          <div style="color:#c0392b;text-align:center">-342</div><div style="color:#c0392b;text-align:center">-380</div>
+          <div style="color:#c0392b;text-align:center">-420</div><div style="color:#c0392b;text-align:center">-462</div>
+          <div style="color:#c0392b;text-align:center">-506</div><div style="color:#c0392b;text-align:center">-552</div>
+          <div style="color:#c0392b;text-align:center">-600</div>
+        </div>
       </div>
       <button class="btn" onclick="vergiKaydet()" style="width:100%">💾 Vergi Oranını Kaydet</button>
       <div id="vergi-sonuc" style="margin-top:8px;font-size:13px;color:#888;min-height:20px"></div>
@@ -288,9 +312,9 @@
 <script src="js/game-data.js?v=14122"></script>
 <script src="js/hud.js?v=13500"></script>
 <script src="js/nufus-render.js"></script>
-<script src="js/layout.js?v=14123"></script>
+<script src="js/layout.js?v=14124"></script>
 <script src="js/rehber.js"></script>
-<script src="js/page-population.js?v=13502"></script>
+<script src="js/page-population.js?v=14124"></script>
 <script src="js/sw-register.js?v=13467"></script>
 </body>
 </html>
