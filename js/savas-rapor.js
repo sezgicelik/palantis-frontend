@@ -214,38 +214,48 @@ function showSavasRapor(sonuc, benimTaraf, opts) {
   function temizId(uid) { return (uid||'').replace(/__army_\d+$/, ''); }
 
   // ── GANIMET BLOCK ──
+  // v1.14.1.18: Ganimet attribution — kaybettigim savasta "Dusman Topladi" (kirmizi)
+  // gosterelim; kazandigimda "Topladim" (yesil). Rapor iki oyuncuda aynidir ama
+  // ganimet kazanana ait — etiket kullanicinin perspektifine gore yazilir.
   const g = sonuc.ganimet || {};
+  const signStr = kazandim ? '+' : '−';
+  const signColor = kazandim ? '#2ecc71' : '#e74c3c';
+  const ganimetBaslik = kazandim ? '💰 TOPLADIKLARIM'
+                       : berabere ? '💰 SAVAŞ GANİMETLERİ (beraberlik — dağılmadı)'
+                       : '⚠️ DÜŞMAN TOPLADI (senin kaybın)';
   let ganimetItemleri = [];
   if (g.savas_alani && Object.keys(g.savas_alani).length > 0) {
     const arr = [];
     for (const [k,v] of Object.entries(g.savas_alani)) {
-      if (v > 0) arr.push(`<div class="sr-gani-item"><span class="ico">${ikon(k)}</span><span class="val">+${fmt(v)}</span></div>`);
+      if (v > 0) arr.push(`<div class="sr-gani-item" style="color:${signColor}"><span class="ico">${ikon(k)}</span><span class="val">${signStr}${fmt(v)}</span></div>`);
     }
     if (arr.length > 0) ganimetItemleri.push({ cat: 'Savas Alanindan Toplananlar', items: arr });
   }
   if (g.sehir_yagmasi && Object.keys(g.sehir_yagmasi).length > 0) {
     const arr = [];
     for (const [k,v] of Object.entries(g.sehir_yagmasi)) {
-      if (v > 0) arr.push(`<div class="sr-gani-item"><span class="ico">🏴</span><span class="ico">${ikon(k)}</span><span class="val">+${fmt(v)}</span></div>`);
+      if (v > 0) arr.push(`<div class="sr-gani-item" style="color:${signColor}"><span class="ico">🏴</span><span class="ico">${ikon(k)}</span><span class="val">${signStr}${fmt(v)}</span></div>`);
     }
     if (arr.length > 0) ganimetItemleri.push({ cat: 'Sehir Yagmasi', items: arr });
   }
   const diger = [];
   if (g.alan_transferi && g.alan_transferi.miktar > 0) {
-    diger.push(`<div class="sr-gani-item"><span class="ico">📐</span>Alan <span class="val">+${fmt(g.alan_transferi.miktar)}</span></div>`);
+    diger.push(`<div class="sr-gani-item" style="color:${signColor}"><span class="ico">📐</span>Alan <span class="val">${signStr}${fmt(g.alan_transferi.miktar)}</span></div>`);
   }
   if (g.koylu_olum > 0) {
     diger.push(`<div class="sr-gani-item neg"><span class="ico">💀</span>Olen Köylü <span class="val">${fmt(g.koylu_olum)}</span></div>`);
   }
   if (g.esir_alinan > 0) {
-    diger.push(`<div class="sr-gani-item"><span class="ico">🔒</span>Esir Alindi <span class="val">+${fmt(g.esir_alinan)}</span></div>`);
+    diger.push(`<div class="sr-gani-item" style="color:${signColor}"><span class="ico">🔒</span>Esir Alindi <span class="val">${signStr}${fmt(g.esir_alinan)}</span></div>`);
   }
   if (diger.length > 0) ganimetItemleri.push({ cat: 'Diger Kazanimlar', items: diger });
 
   let ganimetHTML = '';
   if (ganimetItemleri.length > 0) {
-    ganimetHTML = '<div class="sr-ganimet-wrap">';
-    ganimetHTML += '<div class="sr-ganimet-title">💰 SAVAŞ GANİMETLERİ</div>';
+    const wrapBorder = kazandim ? 'rgba(46,204,113,0.3)' : 'rgba(231,76,60,0.35)';
+    const wrapBg = kazandim ? 'rgba(46,204,113,0.05)' : 'rgba(231,76,60,0.06)';
+    ganimetHTML = '<div class="sr-ganimet-wrap" style="border-color:' + wrapBorder + ';background:' + wrapBg + '">';
+    ganimetHTML += '<div class="sr-ganimet-title" style="color:' + signColor + '">' + ganimetBaslik + '</div>';
     for (const blok of ganimetItemleri) {
       ganimetHTML += `<div class="sr-gani-cat">${blok.cat}</div>`;
       ganimetHTML += `<div class="sr-ganimet-grid">${blok.items.join('')}</div>`;
@@ -276,8 +286,14 @@ function showSavasRapor(sonuc, benimTaraf, opts) {
     }
     if (!satirlar) satirlar = '<div style="color:#666;text-align:center;padding:8px;font-size:10px">Birim yok</div>';
 
+    // v1.14.1.18: Benim/Dusman rozeti — kara rahip gibi karsi taraf unitelerinin
+    // kimin ordusunda oldugunu aciklasin diye.
+    const benim = (isAtk && benimTaraf === 'saldiran') || (!isAtk && benimTaraf === 'savunan');
+    const rozet = benim
+      ? '<span style="background:#2ecc71;color:#000;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:bold;margin-left:6px">BENİM</span>'
+      : '<span style="background:#c0392b;color:#fff;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:bold;margin-left:6px">DÜŞMAN</span>';
     return `<div class="sr-army-card ${taraf}">
-      <div class="sr-army-title ${taraf}">${isAtk ? '⚔' : '🛡'} ${adi}</div>
+      <div class="sr-army-title ${taraf}">${isAtk ? '⚔' : '🛡'} ${adi}${rozet}</div>
       <div class="sr-army-sub">📍 ${koord || '—'} · 😊 Moral %${moral}</div>
       ${satirlar}
       <div class="sr-army-stat total"><span>Toplam Unite</span><span>${fmt(toplamAdet)}</span></div>
@@ -379,6 +395,8 @@ function showSavasRapor(sonuc, benimTaraf, opts) {
 
     ${ganimetHTML}
 
+    ${renderSafDizilim(sonuc, saldiranAdi, savunanAdi, benimTaraf)}
+
     <div class="sr-sec-title">⚔️ ORDULAR (Başlangıç Kompozisyonu)</div>
     <div class="sr-armies">
       ${saldiranCard}
@@ -430,4 +448,84 @@ function showSavasRapor(sonuc, benimTaraf, opts) {
   `;
 
   document.getElementById('savas-rapor-modal').classList.add('open');
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   v1.14.1.18 — SAF DIZILIMI TABLOSU
+   Kaynak: sonuc.ganimet._saflar_saldiran / _saflar_savunan
+           veya sonuc.saldiran_saflar / sonuc.savunan_saflar (fallback)
+   Format: her saf icin [{unite_id, baslangic, kalan, olen}]
+   Layout: user orneklemesi — her saf satiri merkezde slot kartlari halinde
+     Saf 1 (3 slot):       ■ ■ ■
+     Saf 2 (3 slot):       ■ ■ ■
+     Saf 3 (5 slot):     ■ ■ ■ ■ ■
+     Saf 4 (3 slot):       ■ ■ ■
+   Her slot: ikon + isim + adet (baslangic→kalan)
+═══════════════════════════════════════════════════════════════════ */
+function renderSafDizilim(sonuc, saldiranAdi, savunanAdi, benimTaraf) {
+  var g = sonuc.ganimet || {};
+  var sSaflar = g._saflar_saldiran || sonuc.saldiran_saflar || null;
+  var vSaflar = g._saflar_savunan  || sonuc.savunan_saflar  || null;
+  if (!sSaflar && !vSaflar) return ''; // eski rapor — saf bilgisi yok
+  var fmt = function(n){ return (n==null?'—':(+n).toLocaleString('tr-TR')); };
+  var SAF_LIMITS = [3, 3, 5, 3];
+
+  function birimInfoLocal(uid) {
+    var realId = (uid||'').replace(/^kule_/, '');
+    var u = (typeof UNITS !== 'undefined') ? UNITS[realId] : null;
+    return {
+      name: u ? (u.name || realId) : realId,
+      icon: u ? (u.icon || '⚔') : '⚔'
+    };
+  }
+
+  function renderOneOrdu(saflar, adi, taraf) {
+    if (!saflar || !Array.isArray(saflar)) {
+      return '<div style="color:#666;padding:10px">Saf bilgisi yok (eski rapor)</div>';
+    }
+    var benim = (taraf === 'atk' && benimTaraf === 'saldiran') || (taraf === 'def' && benimTaraf === 'savunan');
+    var rozet = benim
+      ? '<span style="background:#2ecc71;color:#000;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:bold;margin-left:6px">BENİM</span>'
+      : '<span style="background:#c0392b;color:#fff;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:bold;margin-left:6px">DÜŞMAN</span>';
+    var renk = taraf === 'atk' ? '#e74c3c' : '#3498db';
+
+    var satirlar = saflar.map(function(saf, i){
+      var slotCount = SAF_LIMITS[i] || saf.length || 1;
+      var slotsHTML = '';
+      for (var s = 0; s < slotCount; s++) {
+        var slot = saf[s];
+        if (!slot) {
+          slotsHTML += '<div style="width:96px;height:88px;border:1px dashed #2a2a2a;border-radius:6px;opacity:0.4"></div>';
+        } else {
+          var info = birimInfoLocal(slot.unite_id);
+          var olenRenk = slot.olen > 0 ? '#e67e22' : '#2ecc71';
+          var adetRow = slot.olen > 0
+            ? '<div style="font-size:10px;color:' + olenRenk + '">' + fmt(slot.baslangic) + '→' + fmt(slot.kalan) + '</div>'
+            : '<div style="font-size:10px;color:#2ecc71">' + fmt(slot.kalan) + '</div>';
+          slotsHTML += '<div style="width:96px;height:88px;border:2px solid ' + renk + '44;border-radius:6px;background:rgba(0,0,0,0.3);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px">' +
+            '<div style="font-size:22px;line-height:1">' + info.icon + '</div>' +
+            '<div style="font-size:10px;color:#d4af37;text-align:center;margin-top:2px;line-height:1.1">' + info.name + '</div>' +
+            adetRow +
+          '</div>';
+        }
+      }
+      return '<div style="display:flex;justify-content:center;gap:6px;margin-bottom:6px">' +
+        '<div style="min-width:54px;font-size:10px;color:#888;align-self:center;font-family:Cinzel,serif">' + (i+1) + '. SAF</div>' +
+        slotsHTML +
+      '</div>';
+    }).join('');
+
+    return '<div style="flex:1;min-width:300px;background:rgba(0,0,0,0.25);border:1px solid #333;border-radius:8px;padding:12px">' +
+      '<div style="text-align:center;margin-bottom:10px;font-family:Cinzel,serif;color:' + renk + ';font-size:13px">' +
+        (taraf==='atk'?'⚔':'🛡') + ' ' + adi + rozet +
+      '</div>' +
+      satirlar +
+    '</div>';
+  }
+
+  return '<div class="sr-sec-title">🪖 SAF DİZİLİMİ (Başlangıç → Kalan)</div>' +
+    '<div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:16px">' +
+      renderOneOrdu(sSaflar, saldiranAdi, 'atk') +
+      renderOneOrdu(vSaflar, savunanAdi,  'def') +
+    '</div>';
 }
