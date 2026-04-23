@@ -3,6 +3,8 @@
    v1.14.0.54 — 60+ node, 11 kategori
 ═══════════════════════════════════════════════════════ */
 window.CODEX_KATEGORILER = [
+  // v1.14.1.21 — REHBER kategorisi EN USTE (yeni oyuncu onceligi)
+  { id:'rehber', isim:'Rehber (Adım Adım)', ikon:'📘', renk:'#27ae60' },
   { id:'unite',  isim:'Üniteler',  ikon:'⚔️', renk:'#e74c3c' },
   { id:'bina',   isim:'Binalar',   ikon:'🏛️', renk:'#c9a84c' },
   { id:'kaynak', isim:'Kaynaklar', ikon:'💎', renk:'#3498db' },
@@ -19,11 +21,11 @@ window.CODEX_KATEGORILER = [
 window.CODEX_NODES = [
   // ═══ UNITELER (11) ═══
   { id:'piyade', baslik:'Piyade', kategori:'unite', tier:'T1', ikon:'🗡️',
-    ozet:'Hafif piyade. Her krallığın ilk savaş birimi.',
+    ozet:'İlk savunma hattını kurar. Ön safta hasar emer, arka saftaki kırılgan birimleri korur.',
     stats:{ ATK:2, DEF:10, Zirh:20, İska:10, Maaş:20, Tur:'4-6' },
     quote:'Sayılar bazen zırhdan daha keskindir.',
     aciklama:'Piyade, Noxara savaş alanının temel taşıdır. Köy oğullarından toplanır, küçük bir altın karşılığı hızla eğitilir ve öncü saflara dizilir.\n\nDüşük saldırı ve orta zırhla göz kamaştırmaz — ama ucuzluğu ve hızlı üretimi sayesinde her büyük ordunun omurgasıdır. Hiçbir kral sadece ejderhayla savaşmaz; piyade olmadan ordu düzeni kurulmaz.',
-    detay:'**Savaş Turu**: Tur 4-6\'da saldırır. İlk 3 tur yalnız zırhıyla darbe alır, sonra hasar vermeye başlar.\n\n**Saf Tercihi**: Saf 1 veya 2. Ön saf olunca okçu ve büyücü gibi arka saf birimleri korur. Arka safa konulursa düşman birliğe ulaşana kadar beklemede kalır.\n\n**Maliyet**: 1 asker + 20 altın + 20 altın maaş/saat. Tier farketmez — her asker 1 altın.\n\n**Zırh mekanizması (v1.14.0.45)**: Zirh 20 → gelen hasara `/ (1 + 20/50) = %29 azaltma` uygular. Paladinden daha az ama ucuzdur.',
+    detay:'## Ne işe yarar?\nİlk savunma hattını kurar. Ön safta hasar emer, arka saftaki kırılgan birimleri (Okçu, Büyücü) korur.\n\n## Nasıl üretilir?\n1. **Köylü** üret (Ev/Köy/Kasaba kapasitesi)\n2. Köylüyü **Askere** çevir (Ordu sayfası → Köylü ↔ Asker Dönüşümü)\n3. **Oduncu + Ocak + İşleme** zincirini kur (işlenmiş metal için)\n4. Ordu sayfasında Piyade eğitim kuyruğuna ekle\n\n## Bunun için ne gerekir?\n- **1 Asker** (ham)\n- **20 Altın**\n- **75 Odun**\n- **50 İşlenmiş Metal**\n- **20 Altın/saat** maaş\n\n## Nerede kullanılır?\n- **Saf Dizilimi** içinde Saf 1-2 (ön hat)\n- **Okçu** ile karma ordu (piyade ön, okçu arka)\n- İlk PvE/PvP savunmasında\n\n## Yeni oyuncu için kısa yol\nOduncu/Tarla/Ev kurduktan hemen sonra en az 50 Piyade eğit. 100 Piyade + 30 Okçu = ilk savaş galibi dizilim. Tek başına Piyade basmak YETERLI DEĞİL — mutlaka arkasına Okçu koy.\n\n## Savaş turu\nTur 4-6\'da saldırır. İlk 3 tur yalnız zırhıyla darbe alır.\n\n## Zırh mekanizması\nZirh 20 → gelen hasara `/ (1 + 20/50) = %29 azaltma`. Paladinden daha az ama ucuzdur.',
     strateji:[
       'Tek başına asla gönderme. 100 piyade = bir okçu ordusunun yemi.',
       'Okçuyla eş zamanlı kullan: piyade ön saf, okçu arka saf — en klasik açılış.',
@@ -246,8 +248,13 @@ window.CODEX_NODES = [
     ozet:'İşlenmiş odun. Yüksek seviye bina için.',
     baglantilar:[{id:'ev',tip:'ilgili'},{id:'kasaba',tip:'ilgili'},{id:'odun',tip:'gereklilik'}]},
   { id:'islenmis', baslik:'İşlenmiş Metal', kategori:'kaynak', ikon:'🔩',
-    ozet:'Yüksek seviye bina + birim maliyeti.',
-    baglantilar:[{id:'isin-savasci',tip:'ilgili'},{id:'isleme',tip:'gereklilik'},{id:'metal',tip:'gereklilik'},{id:'paladin',tip:'ilgili'}]},
+    ozet:'Piyade/Okçu/Paladin üretmek için zorunlu. Metal → İşleme Atölyesi → İşlenmiş.',
+    quote:'Ham demir kılıç olmaz — işlemek gerek.',
+    aciklama:'İşlenmiş Metal, erken ve orta oyundaki birçok askeri birim ve bazı gelişmiş bina/yükseltmeler için gereken temel işlenmiş kaynaktır. Ham Metal tek başına işe yaramaz — İşleme binasından geçmeli.',
+    detay:'## Ne işe yarar?\nErken ve orta oyundaki temel birim hammaddesi. Piyade, Okçu, Paladin, Kolcu, Işığın/Gölge Savaşçısı — hepsi İşlenmiş Metal ister.\n\n## Nasıl elde edilir?\n1. Önce **Metal** üret (Ocak binası + madenci işçisi)\n2. Sonra **İşleme Atölyesi** kur\n3. Metal\'i burada **İşlenmiş Metal**\'e çevir (saatlik cron dönüşüm)\n\n## Bunun için ne gerekir?\n- **Ocak** binası (metal madeni)\n- **İşleme** binası (dönüşüm)\n- Üretim için yeterli **madenci** işçi ve boş kaynak akışı\n\n## Nerede kullanılır?\n- **Piyade** (50/birim), **Okçu** (50/birim), **Savaşçı**, **Kolcu** (150), **Paladin** (150)\n- **Işığın Savaşçısı** (500), **Gölge Savaşçısı**\n- Birçok orta seviye bina ve gelişim\n\n## Yeni oyuncu için kısa yol\nİlk orduyu sadece köylü ve ham kaynakla kuramazsın. Piyade ve Okçu basmak istiyorsan erken oyunda **İşlenmiş Metal hattını mutlaka aç**: Ocak → İşleme → asker başla.',
+    ipucu:'Metal/İşlenmiş oranı yaklaşık 1:1. Üretilen her 100 metal → 100 işlenmiş (saatlik).',
+    dikkat:'İşleme binası yoksa Metal stokta birikir ama birim üretimi için KULLANILAMAZ. İlk önce İşleme kur!',
+    baglantilar:[{id:'isin-savasci',tip:'ilgili'},{id:'isleme',tip:'gereklilik'},{id:'metal',tip:'gereklilik'},{id:'paladin',tip:'ilgili'},{id:'piyade',tip:'saglar'},{id:'okcu',tip:'saglar'}]},
   { id:'at', baslik:'At', kategori:'kaynak', ikon:'🐎',
     ozet:'Süvari temel bileşeni. Ahır üretir. 1 at = 50 çiğ et (manuel kesim).',
     baglantilar:[{id:'ahir',tip:'gereklilik'},{id:'kadim',tip:'ilgili'},{id:'sovalye',tip:'ilgili'},{id:'suvari',tip:'ilgili'}]},
@@ -783,6 +790,93 @@ window.CODEX_NODES = [
     dikkat:'Guild içi ihanet: Üye kaynak çalıp çıkar. İzinler JSONB — liderin üyeye verdiği izin kontrolü kritik.',
     kilit:{aktif:true,sart:{tip:'cag',deger:3}},
     baglantilar:[{id:'guild',tip:'ilgili'},{id:'diplomasi',tip:'ilgili'},{id:'tech-tree',tip:'ilgili'},{id:'kusatma',tip:'ilgili'},{id:'kadim',tip:'ilgili'}]},
+
+  // ══════════════════════════════════════════════════════════════
+  // v1.14.1.21 — REHBER NODE'LARI (Noxara-codex-redesign-pack)
+  // Adım adım akışlar — yeni oyuncu için görev bazlı yol haritası
+  // ══════════════════════════════════════════════════════════════
+
+  { id:'rehber-ilk-ordu', baslik:'📘 İlk Ordu Nasıl Kurulur? (30 dk)', kategori:'rehber', ikon:'🗡️',
+    ozet:'Köylüden ilk savaşa kadar adım adım ilerle — yeni oyuncuya 30 dakikalık yol haritası.',
+    quote:'Her kral aynı yerde başlar: Ev, köylü, altın, kılıç.',
+    aciklama:'Oyuna yeni girdiysen bu sıralama ile ilerle. 30 dakikada ilk savunma ordu çekirdeğini kurarsın.',
+    detay:'## Adım 1: Köylü üret\nEv binası inşa et (10 köylü kapasitesi). Köylü otomatik doğar.\n\n## Adım 2: Asker havuzu oluştur\nOrdu sayfasında **Köylü ↔ Asker Dönüşümü** — boş köylüleri askere çevir. Hedef: 100+ asker.\n\n## Adım 3: Ekonomi zincirini kur\n- **Oduncu Kampı** (odun)\n- **Ocak** (metal)\n- **İşleme Atölyesi** (metal → işlenmiş)\n- **Tarla** (buğday) — açlık önler\n\n## Adım 4: Piyade eğit\nOrdu sayfası → Asker Eğitimi. **Piyade** seç, 50-100 adet kuyruğa ekle. Her piyade = 1 asker + 20 altın + 75 odun + 50 işlenmiş.\n\n## Adım 5: Okçu ekle\nPiyadeden sonra 20-30 Okçu. Bunlar arka safta dururken piyade önde korur.\n\n## Adım 6: Ordu kur + saf dizilimi\n- Ordu Yönetimi → Yeni Ordu Kur\n- Ordu kartında ⚔️ Saf Dizilimi butonuna tıkla\n- **Saf 1**: Piyade (ön hat)\n- **Saf 3**: Okçu (arka, 5 slot)\n\n## Kontrol Listesi\n☐ Ev ≥ 5 adet (50 köylü kapasite)\n☐ Oduncu + Ocak + İşleme + Tarla aktif\n☐ 100+ asker\n☐ 50+ piyade + 20+ okçu\n☐ Saf dizilimi yapıldı\n\n## Neden bu sıra?\nSadece Piyade basarsan düşman okçusu seni kolay biçer. Piyade + Okçu karması = ilk savaş galibi dizilimin. Tarla kurmadan büyük ordu basarsan açlık → moral çöker.',
+    strateji:[
+      'İlk 30 dakikada hedef: 100 Piyade + 30 Okçu karması',
+      'Tarla olmadan ordu büyütme — açlık = moral cezası',
+      'Saf dizilimi yapmazsan tüm birimler rastgele yerleşir, sonuç kaybedilir'
+    ],
+    ipucu:'Ordu kur butonunu kullanmadan önce en az 100 asker + işlenmiş metal stoku olduğundan emin ol.',
+    dikkat:'Piyadeler tek başına yetersiz — mutlaka Okçu ekle. 100 piyade < 80 piyade + 20 okçu.',
+    baglantilar:[{id:'koylu',tip:'gereklilik'},{id:'asker',tip:'gereklilik'},{id:'oduncu',tip:'gereklilik'},{id:'ocak',tip:'gereklilik'},{id:'isleme',tip:'gereklilik'},{id:'piyade',tip:'ornek'},{id:'okcu',tip:'ornek'},{id:'savas-saf',tip:'sonra'}]},
+
+  { id:'rehber-islenmis-metal', baslik:'📘 İşlenmiş Metal Nasıl Üretilir?', kategori:'rehber', ikon:'🔩',
+    ozet:'Ham kaynaktan işlenmiş askeri girdiye geçiş zinciri — 3 adım.',
+    quote:'Metal taştan çıkar, kılıç işleyişten.',
+    aciklama:'Piyade, Okçu, Paladin gibi askeri birimlerin hammaddesi. Ham Metal tek başına işe yaramaz.',
+    detay:'## Adım 1: Metal üret\n**Ocak** binası kur. Madenci işçi ata. Saatlik metal üretimi başlar.\n\n## Adım 2: İşleme Atölyesi kur\n**İşleme** binası inşa et. Odun/altın maliyeti var.\n\n## Adım 3: Dönüştür ve stokla\nSaatlik cron otomatik yapar: `Metal → İşlenmiş Metal` (yaklaşık 1:1 oranla). Ekstra ayar yok, madenci ve İşleme binası yeterli.\n\n## Kontrol Listesi\n☐ Ocak binası var\n☐ Madenci işçisi atanmış (boş köylüden dönüştürülmüş)\n☐ İşleme Atölyesi var\n☐ Metal stokta birikiyor (saatlik artıyor mu kontrol et)\n\n## Ne kadar gerekir?\n- 100 Piyade = 5.000 işlenmiş\n- 50 Paladin = 7.500 işlenmiş\n- 10 Işığın Savaşçısı = 5.000 işlenmiş\n\n## Yaygın hata\nOcak kurup İşleme kurmamak. Metal stokta birikir ama askeri birim üretimi için KULLANILAMAZ — işleme zorunlu aracı.',
+    strateji:[
+      'Ocak + İşleme zincirini daha Piyade üretmeden önce kur',
+      'Madenci sayısını tarlacı ile dengele — sadece metal dökme'
+    ],
+    ipucu:'Ocak seviyesi arttıkça metal üretim hızı artar. Erken yatırım değer.',
+    baglantilar:[{id:'metal',tip:'gereklilik'},{id:'isleme',tip:'gereklilik'},{id:'islenmis',tip:'saglar'},{id:'piyade',tip:'sonra'},{id:'okcu',tip:'sonra'}]},
+
+  { id:'rehber-yemek-zinciri', baslik:'📘 Ekmek & Yemek Zinciri', kategori:'rehber', ikon:'🍞',
+    ozet:'Açlık nasıl önlenir? Buğday + Balık → Fırın → Halkın mutluluğu.',
+    quote:'Aç halk asker vermez.',
+    aciklama:'Nüfus büyüdükçe yemek tüketimi artar. Doyma oranı %70 altına düşerse şehir morali düşer, köylü kaçar.',
+    detay:'## Adım 1: Buğday ekonomisi\n**Tarla** binası kur (her tarla = 50 çiftçi kapasite).\nÇiftçi işçi ata. Saatte her çiftçi 8 buğday üretir.\n\n## Adım 2: Balık takviye\n**Balıkçı** kur. Balıkçılar Palantis ayının **4-8-12-16-20-24. günlerinde** üretim yapar (aralıklı).\n\n## Adım 3: Fırın ile işle\n**Fırın** binası kur. Cron otomatik:\n- Buğday → Ekmek\n- Balık → Pişmiş Balık\n\n## Adım 4: Çeşitlilik bonusu\n3+ çeşit yemek (ekmek/pişmiş balık/pişmiş et) → **şehir moral +1-2/saat** pasif bonus.\n\n## Doyma oranı izle\nPopülasyon sayfası → Doyma %. Hedef: %100+. Altına düşerse:\n- <%70 → moral -1/saat\n- <%50 → moral -3/saat\n- Uzun süreli → köylü kaçışı\n\n## Kontrol Listesi\n☐ Tarla ≥ 3 (150 çiftçi kapasite)\n☐ Çiftçi atanmış\n☐ Fırın var (buğday yakar)\n☐ Balıkçı var (ikincil kaynak)\n☐ Doyma ≥ %100\n\n## Et ekonomisi (geç oyun)\nÇiftlik binası → besi hayvanı → otomatik kesim (24. Palantis gününde) → çiğ et → Fırın → pişmiş et. Çeşitlilik bonusu için üçüncü yemek tipi.',
+    strateji:[
+      'Ordu basmadan önce yemek zincirini kur — asker de yemek tüketir',
+      'Balıkçı 6 günde 1 üretir, tek başına yetmez — tarla ile destekle',
+      'Fırın kurmazsan ham buğday halkın karnını doyurmaz'
+    ],
+    ipucu:'Çeşitlilik bonusu (+1-2 moral/saat) uzun vadede festivalden daha etkili. 3. yemek tipini ihmal etme.',
+    dikkat:'Tarla yoksa çiftçi atanamaz — buğday üretimi 0 olur.',
+    baglantilar:[{id:'tarla',tip:'gereklilik'},{id:'balikci',tip:'gereklilik'},{id:'firin',tip:'gereklilik'},{id:'bugday',tip:'saglar'},{id:'balik',tip:'saglar'},{id:'sehir-moral',tip:'ilgili'}]},
+
+  { id:'rehber-cag-gecis', baslik:'📘 II. Çağa Geçiş Kontrol Listesi', kategori:'rehber', ikon:'⏳',
+    ozet:'Çağ atlamadan önce ne hazır olmalı? Yanlış zamanda atlayan ekonomi fakiri olur.',
+    quote:'Çağ hızlı değil doğru zamanda atlanır.',
+    aciklama:'Çağ atlama sonrası açılan yeni binalar + birimler, ama ekonomi yoksa avantaj oluşmaz.',
+    detay:'## I. Çağdan II. Çağa geçmeden ÖNCE hazırlanması gerekenler\n\n### Ekonomi\n☐ Oduncu + Ocak + İşleme aktif (saatlik üretim)\n☐ Tarla + Fırın aktif (doyma %100+)\n☐ Market + pazar tüccar ekonomisi başlamış\n☐ Altın stokta en az 50.000 (yeni bina yatırımı için)\n\n### Nüfus\n☐ En az 1.000 nüfus (Ev + Köy kombinasyonu)\n☐ 200+ asker hazır\n☐ Doyma %100, moral pozitif\n\n### Askeri\n☐ 100+ Piyade + 30+ Okçu temel ordu\n☐ Saf dizilimi yapılmış\n☐ Surlar var (kale bonusu savunma)\n\n### Bilgi\n- II. Çağ\'da açılan birimler: **Şövalye/Süvari** (at gerektirir), **Savaşçı**\n- II. Çağ\'da açılan binalar: **Ahır** (at/kurt üretir), **Lonca** (gizlilik), **Mağara** (nadir ejderha yumurtası), **4 Tapınak** (mana)\n- Daha fazla alan + daha yüksek nüfus limiti\n\n## II. Çağa atladıktan hemen sonra\n1. **Ahır** kur — at/kurt üretimi başlasın\n2. **Tapınak** yap (taraf bazlı: iyi için Rathe beyaz mana)\n3. Şövalye veya Süvari eğitimine geç\n\n## Yaygın hata: ERKEN ATLAMA\nEkonomi kurulmadan atlayan oyuncu II. Çağ\'da ahır + tapınak kuramaz — ekstra çağ avantajı yanar.',
+    strateji:[
+      'Çağ atlama tek tuşla olmaz — en az 500 Piyade + ekonomi 3 saat dinç çalışmış olmalı',
+      'Ahır planı: Çağ atladığın anda kurabileceğin altın/kaynak hazır dursun',
+      'Taraf bazlı tapınak seç: iyi→Rathe ilk, kötü→Fennin ilk'
+    ],
+    ipucu:'Çağ atlama sayfasında "atlama maliyeti" göster. Ödemeden önce 2 saat dayanacak altın stoku garantile.',
+    dikkat:'Çağ atlama geri alınamaz. Hazırlıksız atlayan rekabette geri kalır.',
+    baglantilar:[{id:'cag2',tip:'ilgili'},{id:'ahir',tip:'sonra'},{id:'tapinak-rathe',tip:'sonra'},{id:'sovalye',tip:'sonra'},{id:'suvari',tip:'sonra'}]},
+
+  { id:'rehber-ilk-savas', baslik:'📘 İlk Savaş Öncesi Saf Dizilimi', kategori:'rehber', ikon:'🪖',
+    ozet:'Savaşa gönderme önce yapman gerekenler — 5 dakikalık son kontrol.',
+    quote:'Hazırlıklı kral yenemez denir — yenilirse ekonomiyle kurtulur.',
+    aciklama:'İlk savaşına çıkmadan önce şu kontrol listesini geç. Yanlış dizilim = garantili kayıp.',
+    detay:'## Son 5 dakika kontrolü\n\n### Moral\n☐ Ordu morali %80+ (maaş ödendi mi?)\n☐ Şehir morali pozitif (halk kaçmıyor)\n\n### Dizilim\n☐ **Saf 1** (3 slot): Piyade/Şövalye/Paladin (tank ön cephe)\n☐ **Saf 2** (3 slot): Savaşçı/Kolcu/Troll (orta tank)\n☐ **Saf 3** (5 slot): Okçu/Büyücü/Kara Elf/Işığın Savaşçısı (ana hasar)\n☐ **Saf 4** (3 slot): Ejderha/Rahip (elit + dirilt)\n\n### Birim karması\n☐ Tek tip değil — en az 3-4 farklı birim\n☐ Okçu varsa Saf 3-4\'te (asla Saf 1\'de değil)\n☐ Ejderha varsa Saf 4\'te korumalı\n☐ Rahip (200+) varsa Saf 4\'te (dirilt bonus)\n\n### Altın & mana\n☐ 1 gün maaş stokta (ordu morali düşmez)\n☐ Savaş büyüsü seçildiyse mana yeterli\n\n### Hedef\n☐ Hedef oyuncu çağ ≥ 2 (1. çağ korumalı, saldırılamaz)\n☐ Hedef korumada değil (kadim/guild koruması kontrol)\n☐ Mesafe biliniyor (her 10 X = 1 PG yol süresi)\n\n## Simülatör (premium)\nSavaş öncesi Simülatör ile test yap. Aynı setup, deterministik sonuç.\n\n## Sık yapılan hatalar\n- Okçu Saf 1\'e — ölür\n- Tek tip 100 Piyade — saf 2-3-4 boş, %30 güç kullanıyorsun\n- Rahipsiz büyük ordu — kayıp telafi yok\n- Ejderha Saf 1\'de — nadir birim ön hatta yanar',
+    strateji:[
+      'Simülatörde 2-3 farklı dizilim test et, en iyisini seç',
+      'Battle Cry + Kutsal Kalkan büyü kombosu tur 1\'de ATK+%25 DEF+%30 (bedeli 110 mana)',
+      'Saldırıda dön yolculuğu 2x — 3 PG gidiş + 3 PG dönüş = ordu 6 saat mesgul'
+    ],
+    ipucu:'İlk savaşta konservatif ol — 1-2 saldırı kazan, güven ve kaynak oluştur. Büyük savaş 3. çağda.',
+    dikkat:'Savaş geri alınamaz. Gönder butonuna basmadan önce dizilim + moral + hedef üçünü kontrol et.',
+    baglantilar:[{id:'savas-saf',tip:'gereklilik'},{id:'ordu-moral',tip:'gereklilik'},{id:'savas-motor',tip:'ilgili'},{id:'buyu-kategori',tip:'ilgili'},{id:'piyade',tip:'ornek'},{id:'okcu',tip:'ornek'}]},
+
+  { id:'rehber-ekonomi-denge', baslik:'📘 Ekonomi Dengesi — İşçi Dağılımı', kategori:'rehber', ikon:'⛏️',
+    ozet:'5 işçi tipi arasında nasıl karar verilir? Çok ordu = açlık, çok tarla = zayıf ordu.',
+    quote:'İyi dengeli şehir, iyi dengeli ordu kurar.',
+    aciklama:'5 işçi tipi var: oduncu, madenci, çiftçi, balıkçı, tüccar. Bunların karışımı ekonomi kaderini belirler.',
+    detay:'## İşçi tipleri\n\n### 🌲 Oduncu (odun)\n- **Bina**: Oduncu Kampı\n- **Kapasite**: her kamp 40 oduncu\n- **Üretim**: 10 odun/saat/işçi\n- **Kullanım**: bina + birim maliyeti, kereste için\n\n### ⛏️ Madenci (metal)\n- **Bina**: Ocak\n- **Üretim**: seviye bazlı\n- **Kullanım**: birim (işlenmiş metal hammaddesi), bina\n\n### 🌾 Çiftçi (buğday)\n- **Bina**: Tarla (her tarla 50 çiftçi kapasite)\n- **Üretim**: 8 buğday/saat/çiftçi\n- **Kullanım**: ekmek, yemek, açlık önleme\n\n### 🎣 Balıkçı (balık)\n- **Bina**: Balıkçı\n- **Üretim**: 4-8-12-16-20-24. günlerde (aralıklı)\n- **Kullanım**: ikincil yemek kaynağı\n\n### 🏪 Tüccar (hammadde)\n- **Bina**: Market\n- **Üretim**: 300-500 toplam hammadde/saat (10 hammadde tipi rastgele)\n- **Kullanım**: Market\'te sat → altın\n\n## Tavsiye dağılım (erken oyun)\nToplam 100 işçi için:\n- **40 Oduncu** (odun + kereste zinciri)\n- **20 Madenci** (işlenmiş metal şart)\n- **25 Çiftçi** (yemek)\n- **10 Balıkçı** (çeşitlilik)\n- **5 Tüccar** (altın akışı)\n\n## Orta oyun (Çağ 3+)\n- **30 Oduncu**\n- **25 Madenci**\n- **20 Çiftçi**\n- **10 Balıkçı**\n- **15 Tüccar** (altın için market aktif)\n\n## Dengeyi bozarsa ne olur?\n- **Madenci az**: İşlenmiş metal bitti → birim üretilmez\n- **Çiftçi az**: Açlık → şehir morali düşer\n- **Tüccar yok**: Altın akışı yok → maaş ödenemez → ordu morali düşer\n- **Oduncu çok**: Odun birikti ama diğer kaynaklarda kıtlık\n\n## İşçi değiştirme\nPopülasyon sayfası → İşçi Yönetimi → `+/−` butonları. Anlık dönüştürme (köylü → işçi tipi).',
+    strateji:[
+      'Her saat başı üretim kontrol et — eksi giden kaynak varsa işçi yeniden dağıt',
+      'Tüccar sayısını artırmak yerine Market seviyesini yükselt (aynı etki, yer maliyeti az)',
+      'Çağ 3+\'tan sonra Mana ekonomisi için tapınak-worshipper dönüşümü başlat'
+    ],
+    ipucu:'Worshipper GERİ DÖNÜŞ yok — köylü → worshipper tek yön. Büyücü üretmediğinde worshipper yapma.',
+    dikkat:'Bina kapasitesi olmadan işçi atanamaz. Tarla 2 adet = 100 çiftçi MAX.',
+    baglantilar:[{id:'isci',tip:'ornek'},{id:'koylu',tip:'gereklilik'},{id:'oduncu',tip:'ilgili'},{id:'ocak',tip:'ilgili'},{id:'tarla',tip:'ilgili'},{id:'balikci',tip:'ilgili'},{id:'kaynak-yollari',tip:'ilgili'}]},
 
 ];
 
