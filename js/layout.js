@@ -1049,3 +1049,25 @@ function renderGelenOrdularPanel() {
 
 /* Sayfa yuklenince otomatik cagir */
 document.addEventListener('DOMContentLoaded', initLayout);
+
+/* v1.14.1.17 — Build stamp footer (hard refresh testi icin gorunur)
+   Sayfanin sag-alt kosesinde sabit bir rozet — tarayicidaki gercek surum
+   burada gorunur. Hard refresh sonrasi guncellenmediyse cache catili.
+*/
+(function buildStamp(){
+  const BUILD = 'v1.14.1.17';
+  const TS    = '2026-04-23 codex-rehber';
+  function mount(){
+    if (document.getElementById('build-stamp')) return;
+    const div = document.createElement('div');
+    div.id = 'build-stamp';
+    div.style.cssText = 'position:fixed;right:8px;bottom:6px;z-index:9000;font:10px/1.2 "Cinzel",serif;color:#c8a96e;background:rgba(20,18,14,0.85);border:1px solid #3a3020;border-radius:4px;padding:3px 8px;letter-spacing:.5px;pointer-events:none;opacity:0.75';
+    div.textContent = 'BUILD ' + BUILD + ' · ' + TS;
+    document.body.appendChild(div);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', mount);
+  } else {
+    mount();
+  }
+})();
