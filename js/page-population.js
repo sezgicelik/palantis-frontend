@@ -376,6 +376,80 @@ function bonusEtkileriGuncelle() {
     const CAG_ISCI_LIMIT = {1:1500, 2:2000, 3:2500, 4:3000, 5:3500};
     isciLimitEl.textContent = `${isci} / ${CAG_ISCI_LIMIT[cag]||200}`;
   }
+  // v1.14.1.28: Detayli uretim tablosunu doldur
+  doldurUretimDetayTablo();
+}
+
+async function doldurUretimDetayTablo() {
+  const tbody = document.getElementById('uretim-detay-tbody');
+  if (!tbody) return;
+  try {
+    const tok = getToken(); if (!tok) return;
+    const r = await fetch(API_BASE + '/api/game/production?_cb=' + Date.now(), {
+      headers: { Authorization: 'Bearer ' + tok }, cache: 'no-store'
+    });
+    if (!r.ok) { tbody.innerHTML = '<tr><td colspan="7" style="padding:10px;text-align:center;color:#e74c3c">API hata</td></tr>'; return; }
+    const d = await r.json();
+    const baz = d.baz || {};
+    const bolge = d.bolge_bonus || {};
+    const irk = d.irk_bonus || {};
+    const buyu = d.buyu_bonus || {}; // { hammadde, mana_carpan, yiyecek }
+    const toplam = d.toplam || {};
+    // Premium: baz × 10% (hammadde + yiyecek için)
+    // Detayli premium oran'ı kullaniciya gore farklı olabilir (paket); burada yaklasik
+    const pData = (() => { try { return JSON.parse(localStorage.getItem('palantis_player') || 'null'); } catch { return null; } })();
+    const premAktif = !!(pData?.premium?.aktif);
+    const premYuzde = premAktif ? 10 : 0; // yaklasik %10 (admin paneli farklıysa gerçek değer backend'den gelir)
+
+    const fmt = (n) => Math.floor(n || 0).toLocaleString('tr-TR');
+    const hammaddeKaynaklar = ['odun', 'metal', 'altin'];
+    const yiyecekKaynaklar = ['bugday', 'balik'];
+    const kaynakIkon = { odun:'🌳 Odun', metal:'⛓ Metal', altin:'💰 Altın', bugday:'🌾 Buğday', balik:'🐟 Balık' };
+
+    const satirlar = [];
+    for (const [kaynak, icon] of Object.entries(kaynakIkon)) {
+      const bazMiktar = parseFloat(baz[kaynak]) || 0;
+      const bolgeYuzde = parseFloat(bolge[kaynak]) || 0;
+      const irkYuzde = parseFloat(irk[kaynak]) || 0;
+      const buyuYuzde = hammaddeKaynaklar.includes(kaynak) ? (parseFloat(buyu.hammadde)||0)
+                    : yiyecekKaynaklar.includes(kaynak) ? (parseFloat(buyu.yiyecek)||0) : 0;
+      const bolgeEk = Math.floor(bazMiktar * bolgeYuzde / 100);
+      const irkEk = Math.floor(bazMiktar * irkYuzde / 100);
+      const premEk = Math.floor(bazMiktar * premYuzde / 100);
+      const buyuEk = Math.floor(bazMiktar * buyuYuzde / 100);
+      const hesaplanan = bazMiktar + bolgeEk + irkEk + premEk + buyuEk;
+      const toplamDeger = parseFloat(toplam[kaynak]) || hesaplanan;
+      satirlar.push(
+        '<tr style="border-bottom:1px solid #151515">' +
+        '<td style="padding:6px 10px;color:#ccc">' + icon + '</td>' +
+        '<td style="padding:6px;text-align:right;color:#aaa">' + fmt(bazMiktar) + '</td>' +
+        '<td style="padding:6px;text-align:right;color:#3498db">' + (bolgeEk > 0 ? '+' + fmt(bolgeEk) : '—') + '</td>' +
+        '<td style="padding:6px;text-align:right;color:#e67e22">' + (irkEk > 0 ? '+' + fmt(irkEk) : '—') + '</td>' +
+        '<td style="padding:6px;text-align:right;color:#f1c40f">' + (premEk > 0 ? '+' + fmt(premEk) : '—') + '</td>' +
+        '<td style="padding:6px;text-align:right;color:#9b59b6">' + (buyuEk > 0 ? '+' + fmt(buyuEk) : '—') + '</td>' +
+        '<td style="padding:6px 10px;text-align:right;color:#2ecc71;font-weight:bold">' + fmt(toplamDeger) + '/saat</td>' +
+        '</tr>'
+      );
+    }
+    // Mana satirlari
+    for (const renk of ['beyaz', 'kirmizi', 'mavi', 'yesil']) {
+      const key = 'mana_' + renk;
+      const manaVal = parseFloat(toplam[key]) || 0;
+      if (manaVal > 0) {
+        const manaRenk = { beyaz:'#f5f5f5', kirmizi:'#e74c3c', mavi:'#3498db', yesil:'#2ecc71' }[renk];
+        satirlar.push(
+          '<tr style="border-bottom:1px solid #151515">' +
+          '<td style="padding:6px 10px;color:' + manaRenk + '">🔮 Mana ' + renk.charAt(0).toUpperCase() + renk.slice(1) + '</td>' +
+          '<td colspan="5" style="padding:6px;text-align:right;color:#555;font-size:10px">(Bilge + yakariş dahil)</td>' +
+          '<td style="padding:6px 10px;text-align:right;color:' + manaRenk + ';font-weight:bold">' + fmt(manaVal) + '/saat</td>' +
+          '</tr>'
+        );
+      }
+    }
+    tbody.innerHTML = satirlar.join('') || '<tr><td colspan="7" style="padding:10px;text-align:center;color:#555">Üretim verisi yok</td></tr>';
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="7" style="padding:10px;text-align:center;color:#e74c3c">Hata: ' + e.message + '</td></tr>';
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {

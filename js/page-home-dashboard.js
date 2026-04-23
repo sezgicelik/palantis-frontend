@@ -216,14 +216,31 @@ async function hpLoadBirimler() {
         total[u.unite_id] = (total[u.unite_id] || 0) + (parseInt(u.adet) || 0);
       });
     });
-    const entries = Object.entries(total).filter(([k, v]) => v > 0).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    // v1.14.1.28: Tum birimler (havuz + ordular) — "V Daha fazla" ile expand
+    const entries = Object.entries(total).filter(([k, v]) => v > 0).sort((a, b) => b[1] - a[1]);
     if (!entries.length) { el.innerHTML = '<div style="color:#555;text-align:center">Ünite yok</div>'; return; }
-    el.innerHTML = entries.map(([id, adet]) => {
+
+    const renderSatir = ([id, adet]) => {
       const uDef = (typeof UNITS !== 'undefined') ? UNITS[id] : null;
       const ad = uDef?.name || id;
       const icon = uDef?.icon || '⚔';
       return '<div class="kv"><span class="lbl">' + icon + ' ' + ad + '</span><span class="val">' + _HP_FMT(adet) + '</span></div>';
-    }).join('');
+    };
+
+    const toplamBirim = entries.reduce((s, [_, v]) => s + v, 0);
+    const ilk5 = entries.slice(0, 5).map(renderSatir).join('');
+    const kalan = entries.slice(5);
+    const totalRow = '<div class="kv" style="border-top:1px solid #333;margin-top:6px;padding-top:6px;font-weight:bold">' +
+      '<span class="lbl" style="color:#d4af37">⚔️ TOPLAM</span>' +
+      '<span class="val" style="color:#2ecc71">' + _HP_FMT(toplamBirim) + '</span></div>';
+
+    let html = ilk5;
+    if (kalan.length) {
+      html += '<div id="hp-birim-kalan" style="display:none">' + kalan.map(renderSatir).join('') + '</div>';
+      html += '<div style="text-align:center;margin-top:4px"><a href="#" class="ilink" onclick="var e=document.getElementById(\'hp-birim-kalan\'),b=this;if(e){e.style.display=e.style.display===\'none\'?\'block\':\'none\';b.textContent=e.style.display===\'none\'?\'▼ ' + kalan.length + ' daha →\':\'▲ Gizle\';}event.preventDefault();return false;" style="font-size:10px">▼ ' + kalan.length + ' daha →</a></div>';
+    }
+    html += totalRow;
+    el.innerHTML = html;
   } catch(e) { el.innerHTML = '<span class="loading">API hata</span>'; }
 }
 

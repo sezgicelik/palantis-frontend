@@ -79,6 +79,28 @@
           <div style="font-size:10px;color:#888;margin-top:3px" id="bonus-artifact-detay">Aktif artifact yok</div>
         </div>
       </div>
+
+      <!-- v1.14.1.28 — Detayli saatlik uretim tablosu (user talebi) -->
+      <h3 style="margin:20px 0 10px;color:var(--race-color,#c8a96e);font-family:'Cinzel',serif;font-size:14px">📊 Saatlik Üretim Detayı</h3>
+      <div style="overflow-x:auto;background:#0a0a0a;border:1px solid #1e1e1e;border-radius:6px">
+        <table id="uretim-detay-tablo" style="width:100%;border-collapse:collapse;font-size:11px;min-width:520px">
+          <thead>
+            <tr style="background:rgba(212,175,55,0.08);border-bottom:1px solid #2a2010">
+              <th style="padding:8px 10px;text-align:left;color:#c8a96e;font-family:Cinzel,serif">Kaynak</th>
+              <th style="padding:8px 6px;text-align:right;color:#888">Baz</th>
+              <th style="padding:8px 6px;text-align:right;color:#3498db">Bölge</th>
+              <th style="padding:8px 6px;text-align:right;color:#e67e22">Irk</th>
+              <th style="padding:8px 6px;text-align:right;color:#f1c40f">Premium</th>
+              <th style="padding:8px 6px;text-align:right;color:#9b59b6">Büyü/Artifact</th>
+              <th style="padding:8px 10px;text-align:right;color:#2ecc71;font-weight:bold">TOPLAM</th>
+            </tr>
+          </thead>
+          <tbody id="uretim-detay-tbody">
+            <tr><td colspan="7" style="padding:12px;text-align:center;color:#555">Yükleniyor...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="font-size:10px;color:#555;margin-top:6px;font-style:italic">ℹ Değerler saatlik (1 Palantis günü). Yemek tüketimi ayrı hesaplanır.</div>
     </div>
 
     <!-- v1.14.1.26: Tek sutun — user talebi, parsomen temada yan yana sikisik goruk -->
@@ -313,9 +335,9 @@
 <script src="js/game-data.js?v=14127"></script>
 <script src="js/hud.js?v=13500"></script>
 <script src="js/nufus-render.js"></script>
-<script src="js/layout.js?v=14127"></script>
+<script src="js/layout.js?v=14128"></script>
 <script src="js/rehber.js"></script>
-<script src="js/page-population.js?v=14126"></script>
+<script src="js/page-population.js?v=14128"></script>
 <script src="js/sw-register.js?v=13467"></script>
 </body>
 </html>
