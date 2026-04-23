@@ -309,12 +309,20 @@ function showSavasRapor(sonuc, benimTaraf, opts) {
       </tr>`;
     }).join('');
 
-    // v1.14.0.9: Tur tur "Yapilan Buyuler" placeholder
+    // v1.14.1.14: Tur bazli savas buyuleri gosterim
     buyuBoluml = sonuc.tur_detay.map(function(t, i) {
-      const buyular = t.buyuler || [];
-      if (buyular.length === 0) return '';
-      const buyuSatir = buyular.map(b => `<div class="sr-buyu-sec">${i+1}. Tur — <b>${b.buyu||b.isim}</b>: ${b.etki||b.aciklama}</div>`).join('');
-      return buyuSatir;
+      const rows = [];
+      // Saldiran buyuleri
+      const sBuyu = t.saldiran_buyuler || [];
+      for (const b of sBuyu) {
+        rows.push(`<div class="sr-buyu-sec" style="color:#e74c3c">${i+1}. Tur · ⚔ SALDIRAN · ${b.ikon||'✨'} <b>${b.isim}</b>: ${b.aciklama}</div>`);
+      }
+      // Savunan buyuleri
+      const vBuyu = t.savunan_buyuler || [];
+      for (const b of vBuyu) {
+        rows.push(`<div class="sr-buyu-sec" style="color:#3498db">${i+1}. Tur · 🛡 SAVUNAN · ${b.ikon||'✨'} <b>${b.isim}</b>: ${b.aciklama}</div>`);
+      }
+      return rows.join('');
     }).join('');
 
     // v1.14.1.03: Rahip dirilis bolumu — her tur diriltilen birimler

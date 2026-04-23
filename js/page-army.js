@@ -632,9 +632,66 @@ function renderOrduListe(){
           '</div>' +
         '</div>' +
         '<div id="og-sonuc-' + o.id + '" style="font-size:11px;color:#888;min-height:20px;margin-top:8px"></div>' +
+        // v1.14.1.14 — SAVAS BUYULERI (opsiyonel)
+        renderOrduBuyuSecici(o.id) +
       '</div>' +
     '</div>';
   }).join('');
+}
+
+/* v1.14.1.14 — Savas buyuleri secici HTML (ordu gonder panelinde) */
+function renderOrduBuyuSecici(orduId) {
+  // SAVAS_BUYULERI lokal tanim (frontend constants'a eklenebilir)
+  const BUYULER = (typeof SAVAS_BUYULERI !== 'undefined') ? SAVAS_BUYULERI : {
+    battle_cry:   { isim:'Battle Cry',   ikon:'⚡', aciklama:'ATK +%25 / DEF -%15 (1 tur)',   cag_min:1, mana_baz:50, cd_pg:24, kategori:'destek' },
+    kutsal_kalkan:{ isim:'Kutsal Kalkan',ikon:'🛡️', aciklama:'DEF +%30 / ATK -%15 (1 tur)',  cag_min:2, mana_baz:60, cd_pg:24, kategori:'savunma' },
+    sis_perdesi:  { isim:'Sis Perdesi',  ikon:'🌀', aciklama:'Gelen hasar -%50 / ATK -%10',    cag_min:2, mana_baz:40, cd_pg:24, kategori:'savunma' },
+    ates_topu:    { isim:'Ates Topu',    ikon:'🔥', aciklama:'Dusmana +%50 hasar / kendi +%15', cag_min:3, mana_baz:80, cd_pg:48, kategori:'saldiri' },
+    uyku:         { isim:'Uyku',         ikon:'😴', aciklama:'Dusman 1 tur saldiramaz',        cag_min:3, mana_baz:100,cd_pg:72, kategori:'kontrol' },
+  };
+  const oyuncuCag = (typeof OYUNCU !== 'undefined' && OYUNCU) ? (OYUNCU.cag || 1) : 1;
+  var html = '<div style="margin-top:10px;border-top:1px solid rgba(212,175,55,0.2);padding-top:8px">' +
+    '<div style="font-size:11px;color:#d4af37;font-weight:bold;margin-bottom:6px;cursor:pointer" onclick="document.getElementById(\'og-buyuler-' + orduId + '\').style.display = document.getElementById(\'og-buyuler-' + orduId + '\').style.display===\'none\' ? \'block\' : \'none\'">✨ Savaş Büyüleri (max 3, opsiyonel) — tıkla aç ▼</div>' +
+    '<div id="og-buyuler-' + orduId + '" style="display:none">';
+  for (const [bid, b] of Object.entries(BUYULER)) {
+    const kullanılabilir = oyuncuCag >= b.cag_min;
+    const sb = kullanılabilir ? '#1a1a1a' : '#0a0a0a';
+    const renk = kullanılabilir ? '#ccc' : '#555';
+    html += '<label style="display:flex;align-items:center;gap:6px;padding:4px 8px;margin-bottom:3px;background:' + sb + ';border:1px solid #333;border-radius:3px;cursor:' + (kullanılabilir?'pointer':'not-allowed') + ';font-size:11px;color:' + renk + '">' +
+      '<input type="checkbox" ' + (kullanılabilir?'':'disabled') + ' data-buyu-id="' + bid + '" data-ordu-id="' + orduId + '" onchange="orduBuyuToggle(' + orduId + ')" style="margin:0">' +
+      '<span style="font-size:14px">' + b.ikon + '</span>' +
+      '<span style="flex:1">' +
+        '<b>' + b.isim + '</b> <span style="color:#888;font-size:10px">Çağ ' + b.cag_min + '</span>' +
+        '<div style="font-size:10px;color:#888">' + b.aciklama + '</div>' +
+      '</span>' +
+      '<div style="text-align:right;font-size:10px">' +
+        '<div style="color:#9b59b6">' + b.mana_baz + ' mana</div>' +
+        '<div style="color:#666">' + b.cd_pg + ' PG CD</div>' +
+      '</div>' +
+    '</label>';
+  }
+  html += '<div style="font-size:10px;color:#666;margin-top:6px">Büyüler saldırı sırasında 1. tur atılır. Mana ordu gönderildiğinde düşer.</div>';
+  html += '</div></div>';
+  return html;
+}
+
+function orduBuyuToggle(orduId) {
+  const panel = document.getElementById('og-buyuler-' + orduId);
+  if (!panel) return;
+  const seci = panel.querySelectorAll('input[type="checkbox"]:checked');
+  if (seci.length > 3) {
+    // Son tıklananı geri al
+    const tumu = Array.from(panel.querySelectorAll('input[type="checkbox"]'));
+    for (const c of tumu) { if (!c.checked) continue; /* skip */ }
+    // Basit: fazla seçileni uncheck et
+    seci[seci.length - 1].checked = false;
+    if (typeof showToast === 'function') showToast('Max 3 büyü seçebilirsin', 'error');
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.renderOrduBuyuSecici = renderOrduBuyuSecici;
+  window.orduBuyuToggle = orduBuyuToggle;
 }
 
 window._openUniteYon = window._openUniteYon || {};
@@ -1621,13 +1678,22 @@ async function orduGonderTakviye(armyId, hedefPlayerId) {
 
 // Saldırı gönder (şehirden)
 async function orduGonderSaldiri(armyId, hedefPlayerId) {
-  if (!confirm('Bu orduyu saldiriya gondermek istiyor musunuz?')) return;
+  // v1.14.1.14 — Secili buyuleri topla
+  var buyuler = [];
+  var panel = document.getElementById('og-buyuler-' + armyId);
+  if (panel) {
+    panel.querySelectorAll('input[type="checkbox"]:checked').forEach(function(cb){
+      buyuler.push({ id: cb.dataset.buyuId, tur: 1 }); // tur: varsayilan 1 (1. tur)
+    });
+  }
+  var buyuOzet = buyuler.length > 0 ? '\n\nBüyüler: ' + buyuler.map(b => b.id).join(', ') : '';
+  if (!confirm('Bu orduyu saldiriya gondermek istiyor musunuz?' + buyuOzet)) return;
   var token = getToken(); if (!token) return;
   try {
     var res = await fetch(API_BASE + '/api/savas/saldir', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ orduId: armyId, hedefPlayerId: hedefPlayerId })
+      body: JSON.stringify({ orduId: armyId, hedefPlayerId: hedefPlayerId, buyuler: buyuler })
     });
     var data = await res.json();
     if (!res.ok) {
