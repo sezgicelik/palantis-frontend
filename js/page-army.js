@@ -36,16 +36,7 @@ function armyTab(tab, el){
     renderUnitGrid(side, 'ugrid-player');
   }
   if(tab==='armies') renderOrduListe();
-  if(tab==='formation') {
-    renderFormationGrid();
-    const sel = document.getElementById('formation-army-select');
-    if(sel) {
-      sel.innerHTML = '<option value="">-- Ordu Sec --</option>';
-      ORDULAR.forEach(o => {
-        sel.innerHTML += '<option value="'+o.id+'">'+o.isim+'</option>';
-      });
-    }
-  }
+  // v1.14.0.90: 'formation' tab kaldirildi — saf dizilimi ordu karti icinde inline
   if(tab==='upgrades') renderUpgrades();
 }
 
@@ -1443,7 +1434,10 @@ function resetFormation() {
 
 document.addEventListener('DOMContentLoaded', () => {
   // loadGameData tamamlaninca ordu verisini yukle
-  function initArmy() {
+  async function initArmy() {
+    // v1.14.1.15 FIX: loadArmyPool() ilk yuklemede cagrilmiyordu — UNITS.count ve ORDULAR
+    // bos kaliyordu, HUD stats bar (ATK/DEF/units/maas) ve ekstra kaynaklar 0 gorunuyordu.
+    await loadArmyPool();
     const side = OYUNCU && OYUNCU.taraf === 'kotu' ? 'dark' : 'light';
     renderUnitGrid(side, 'ugrid-player');
     updateArmyStats();

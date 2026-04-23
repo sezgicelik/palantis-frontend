@@ -75,7 +75,6 @@
     <div class="army-tabs" id="army-tab-bar" style="margin-bottom:16px;display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid #222;padding-bottom:8px">
       <button class="atab on" data-atab="units" onclick="armyTabSwitch('units')">🗡️ Asker Eğitimi</button>
       <button class="atab" data-atab="armies" onclick="armyTabSwitch('armies')">🏕️ Ordu Yönetimi</button>
-      <button class="atab" data-atab="formation" onclick="armyTabSwitch('formation')">⚔️ Saf Dizilimi</button>
       <button class="atab" data-atab="upgrades" onclick="armyTabSwitch('upgrades')">📈 Geliştirmeler</button>
     </div>
     <style>
@@ -91,11 +90,12 @@
         if (typeof armyTab === 'function') armyTab(tab, document.querySelector('#army-tab-bar .atab[data-atab="' + tab + '"]'));
       }
       // v1.14.0.49: ?tab=X parametresi destegi (sidebar sub-menusunden link)
+      // v1.14.0.90: 'formation' tab'i kaldirildi — saf dizilimi artik ordu kartinda inline
       (function initTabFromUrl(){
         const params = new URLSearchParams(window.location.search);
-        const tab = params.get('tab');
-        if (tab && ['units','armies','formation','upgrades'].includes(tab)) {
-          // armyTab fonksiyonu page-army.js icinde, DOM'a yuklenmesini bekle
+        let tab = params.get('tab');
+        if (tab === 'formation') tab = 'armies'; // eski link geriye uyumlu
+        if (tab && ['units','armies','upgrades'].includes(tab)) {
           setTimeout(() => armyTabSwitch(tab), 200);
         }
       })();
@@ -175,49 +175,7 @@
       <div id="ordu-liste"></div>
     </div>
 
-    <div class="army-section" id="atab-formation" style="display:none">
-      <div class="card">
-        <h2>⚔️ Saf Dizilimi</h2>
-        <p style="color:#888;margin-bottom:16px">Birliklerini 4 safa yerleştir. Bir saf dolmadan sonraki safa geçilemez.</p>
-
-        <div id="formation-select" style="margin-bottom:16px">
-          <label style="color:#aaa">Ordu seç: </label>
-          <select id="formation-army-select" onchange="loadFormationForArmy()" style="background:#1a1a1a;color:#f5f0e8;border:1px solid #333;padding:6px 12px;border-radius:6px">
-            <option value="">-- Ordu Seç --</option>
-          </select>
-        </div>
-
-        <div id="formation-grid" style="display:flex;flex-direction:column;gap:12px">
-          <div class="saf-row" data-saf="1">
-            <div class="saf-label">1. SAF (3 birim)</div>
-            <div class="saf-slots" id="saf-1" style="display:flex;gap:8px"></div>
-          </div>
-          <div class="saf-row" data-saf="2">
-            <div class="saf-label">2. SAF (3 birim)</div>
-            <div class="saf-slots" id="saf-2" style="display:flex;gap:8px"></div>
-          </div>
-          <div class="saf-row" data-saf="3">
-            <div class="saf-label">3. SAF (5 birim)</div>
-            <div class="saf-slots" id="saf-3" style="display:flex;gap:8px"></div>
-          </div>
-          <div class="saf-row" data-saf="4">
-            <div class="saf-label">4. SAF (3 birim)</div>
-            <div class="saf-slots" id="saf-4" style="display:flex;gap:8px"></div>
-          </div>
-        </div>
-
-        <div id="formation-available" style="margin-top:20px">
-          <h3 style="color:var(--race-color)">Kullanılabilir Üniteler</h3>
-          <div id="formation-units-pool" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
-        </div>
-
-        <div style="margin-top:20px;display:flex;gap:12px">
-          <button class="btn" onclick="saveFormation()" style="flex:1">💾 Dizilimi Kaydet</button>
-          <button class="btn ghost" onclick="resetFormation()">🔄 Sıfırla</button>
-        </div>
-        <div id="formation-msg" style="margin-top:8px"></div>
-      </div>
-    </div>
+    <!-- v1.14.0.90: ⚔️ Saf Dizilimi tab'i kaldirildi — artik ordu karti icinde inline panel -->
 
     <!-- GELİŞTİRMELER PANELİ -->
     <div class="army-section" id="atab-upgrades" style="display:none">
@@ -241,9 +199,9 @@
 <script src="js/game-data.js?v=13499"></script>
 <script src="js/hud.js?v=13500"></script>
 <script src="js/nufus-render.js"></script>
-<script src="js/layout.js?v=13504"></script>
+<script src="js/layout.js?v=14115"></script>
 <script src="js/savas-rapor.js?v=13505"></script>
-<script src="js/page-army.js?v=13505"></script>
+<script src="js/page-army.js?v=14090"></script>
 <script src="js/bildirim-popup.js"></script>
 <script>
 // v1.13.41.1: EXTRA_RES game-data.js'den asenkron yuklenir, ilk render'da 0 gozukur

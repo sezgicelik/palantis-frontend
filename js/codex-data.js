@@ -305,9 +305,21 @@ window.CODEX_NODES = [
     dikkat:'Savaş geri alınamaz. İptal edince ordu döner ama kayıplar geri gelmez.',
     baglantilar:[{id:'savas-saf',tip:'ilgili'},{id:'zirh-iska',tip:'ilgili'},{id:'ordu-moral',tip:'ilgili'},{id:'kale-bonus',tip:'ilgili'}]},
   { id:'savas-saf', baslik:'Saf Dizilimi (4 saf)', kategori:'savas', ikon:'🪖',
-    ozet:'Hangi birim hangi safta? = strateji.',
-    aciklama:'Her tipten 1 birim 1 safa. Adet farketmez. Saf 1 ön hat, Saf 4 korumalı.',
-    baglantilar:[{id:'savas-motor',tip:'ilgili'},{id:'piyade',tip:'ornek'},{id:'okcu',tip:'ornek'}]},
+    ozet:'Her birim tipinden 1 adet bir safa. Dizilim = savaş kaderi.',
+    stats:{ Saf1:'3 birim', Saf2:'3 birim', Saf3:'5 birim', Saf4:'3 birim', ToplamMax:'14 farklı tip' },
+    quote:'Aynı askerler, farklı dizilim — kazanan ve ölü belirleyen budur.',
+    aciklama:'Saf dizilimi Noxara savaşının strateji katmanıdır. Aynı ordu farklı dizilimlerle tamamen farklı sonuçlar verebilir. Her birim TİPİNDEN (sayıdan değil!) 1 adet bir safa konulur; adet farketmez — 100 okçu veya 500 okçu aynı "1 okçu tipi" olarak sayılır saf slot açısından.\n\n**Kural 1**: Önceki saf dolmadan sonraki safa geçilemez.\n**Kural 2**: Saf sadece ordu "Şehirde" iken düzenlenebilir (yolda/korumada değişmez).\n**Kural 3**: Her ünite tipi sadece 1 safa konur — okçunu hem saf 1\'e hem saf 3\'e koyamazsın.',
+    detay:'━━━━━━━━━━━━━━━━━━━━━━━━\n**🎯 SAF - TUR EŞLEŞMESİ (en önemli tablo)**\n━━━━━━━━━━━━━━━━━━━━━━━━\nBazı birimler *sadece* belirli turlarda saldırır (menzilli vs yakın). Bunu safa karar verirken düşün.\n\n| Tur  | Aktif Saflar        | Saldıran Birimler |\n|------|---------------------|----------------|\n| 1-2  | Saf 1               | Menzilli (okçu, büyücü) |\n| 3    | Saf 1+2             | Menzilli + şövalye |\n| 4    | Saf 1+2+3           | + Piyade, Paladin |\n| 5    | Saf 1+2+3+4         | Hepsi (ejderha dahil) |\n| 6    | Hepsi (final tur)   | Son darbe |\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n**📍 SAF ROLLERİ**\n━━━━━━━━━━━━━━━━━━━━━━━━\n**Saf 1 (ÖN HAT, 3 slot)**\n- Düşman saldırısının ilk hedefi\n- Yüksek zırhlı tank koy (piyade, şövalye, paladin)\n- Okçu/büyücü ASLA koyma — zırh düşük, tur 1\'de biçilir\n\n**Saf 2 (Orta Ön, 3 slot)**\n- Tank backup + menzilli destek\n- Paladin, Troll, Golem ideal\n- Orta dayanıklılık + orta ATK\n\n**Saf 3 (Orta Arka, 5 slot — EN BÜYÜK)**\n- Ana saldırı gücü\n- Büyücü, Kara Elf, Kolcu, Işığın Savaşçısı — elit birim grubu\n- Menzilli + x2 çarpanlı birim karışımı\n\n**Saf 4 (EN ARKA, 3 slot)**\n- En değerli birimler (Ejderha!)\n- Düşman ancak ön saflar eridiğinde ulaşır\n- Koruma önceliği yüksek\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n**⚠️ YAYGIN DİZİLİM HATALARI**\n━━━━━━━━━━━━━━━━━━━━━━━━\n1. **Okçuyu Saf 1\'e koymak** — zırh 10-15, ilk turda erir. Saf 3-4 ideal.\n2. **Tek tip ordu** — 100 piyade saf 1 = saf 2-3-4 boş, sadece %30 güç kullanıyorsun.\n3. **Ejderhayı Saf 1\'e koymak** — nadir kaynak, ön hatta kaybolur. Saf 4\'te sakla.\n4. **Saf 3\'ü boş bırakmak** — 5 slot en büyük saf, elit birim koymazsan kapasite yanıyor.\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n**✅ ÖRNEK İDEAL DİZİLİM (Çağ 3, karma ordu)**\n━━━━━━━━━━━━━━━━━━━━━━━━\n- **Saf 1**: Piyade · Şövalye · Paladin (tank ön cephe)\n- **Saf 2**: Savaşçı · Kolcu · Troll (orta tank)\n- **Saf 3**: Okçu · Büyücü · Kara Elf · Işığın Savaşçısı · Kara Şövalye (ana hasar)\n- **Saf 4**: Ejderha · Balista · Magazin (elit koruma)\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n**🛡️ KALE BONUSU**\n━━━━━━━━━━━━━━━━━━━━━━━━\nSavunan oyuncunun surları varsa TÜM safların zırhı +%20. Okçu zırh 10 → 12 olur. Paladin 35 → 42.',
+    strateji:[
+      'Önce birim çeşitliliği kur (4-6 tip) — her saf dolsun. Saf boşluğu = güç israfı.',
+      'Menzilli (okçu/büyücü) Saf 3-4, yakın dövüş (piyade/paladin) Saf 1-2.',
+      'Ejderha sahip olursan otomatik Saf 4 — nadir birim koruma.',
+      'Saldırmadan önce simülatör çalıştır (premium) — aynı dizilim farklı sonuç verebilir.',
+      'Saldırgan dizilim Saf 3 ağırlıklı; savunmacı dizilim Saf 1 ağırlıklı.'
+    ],
+    ipucu:'Çağ 1-2 için yeterli: Saf 1 piyade + Saf 3 okçu. Bu bile 100 piyade tek dizilimi yener.',
+    dikkat:'Ordu şehirde değilken saf değişmez. Saldırıya göndermeden ÖNCE dizilimi kontrol et.',
+    baglantilar:[{id:'savas-motor',tip:'ilgili'},{id:'piyade',tip:'ornek'},{id:'okcu',tip:'ornek'},{id:'paladin',tip:'ornek'},{id:'buyucu',tip:'ornek'},{id:'ejderha',tip:'ornek'},{id:'zirh-iska',tip:'ilgili'},{id:'kale-bonus',tip:'ilgili'}]},
   { id:'zirh-iska', baslik:'Zırh & İska (v1.14.0.45)', kategori:'savas', ikon:'🛡️',
     ozet:'Birim bazlı — her ünite kendi zırhıyla hasar emer.',
     stats:{ Azaltma:'Zirh/50', İskaMod:'(1-iska/100)', Cap:'yok (asimptot)' },
@@ -669,6 +681,108 @@ window.CODEX_NODES = [
     detay:'**Kazanınca**: +2 cesaret\n**Kaybedince**: +1 (yine de bir miktar kazanırsın — savaşmaktan kaçınma)\n**Artifact "Cesaret Puanı" (Sonsuz)**: +2 cesaret (kullanım)',
     strateji:['Savaşmak = kazanç, kaçmak = stagnasyon','Küçük zaferler = büyük cesaret','Siralama sezonunda önem kazanir'],
     baglantilar:[{id:'savas-motor',tip:'ilgili'}]},
+
+  // ══════════════════════════════════════════════════════════════
+  // v1.14.1.15 — GENİŞ ANLATIM NODE'LARI (kullanıcı talebi)
+  // "Codex daha açıklayıcı olsun" — her önemli sistemin genel rehberi
+  // ══════════════════════════════════════════════════════════════
+
+  // ── 1) KAYNAKLAR nasıl toplanır? (Genel rehber) ──
+  { id:'kaynak-yollari', baslik:'Kaynak Nasıl Toplanır? (4 Yol)', kategori:'kaynak', ikon:'📥',
+    ozet:'Hammadde ve altın 4 temel yoldan toplanır — karışık strateji kuvvet yaratır.',
+    quote:'Altın vergiyle, odun işçiyle, ganimet kılıçla — kralın 3 eli olmalı.',
+    aciklama:'Noxara ekonomisi tek bir kaynak yoluyla yürümez. Altın ve hammaddeleri dört farklı kanaldan toplarsın; her kanal farklı risk-ödül sunar. Akıllı kral dengeyi kurar — vergiye güvenen kral halkı kaybeder, ganimete güvenen kral ordusu erir.',
+    detay:'**1️⃣ VERGİ (altın kanalı)**\n- Boş köylülerden saatlik altın — `vergi_orani × koylu_sayisi`\n- Oran 0-25 (premium paketler)\n- Yüksek vergi → şehir morali cezası (5→-18, 10→-90, 25→-600/saat)\n- Admin sistemi seçer: Klasik / GPS Kilitli / Progressive / Dinamik / Premium\n- Pasif gelir ama moral çöker → 3-5 arası güvenli\n\n**2️⃣ TÜCCAR MARKETİ (hammadde → altın)**\n- Tüccar işçisi saatte 300-500 hammadde üretir (10 hammadde tipi: gümüş/mitril/bakır/obsidiyen/ejderha taşı/kalay/kehribar/yakut/zümrüt/elmas)\n- Market binasında sat → altın (kur %70-130 dalgalanır, saatlik)\n- Yüksek kurda sat, düşükte bekle\n- Baz fiyat: gümüş 3, elmas 50\n\n**3️⃣ PVP PAZARI (oyuncular arası)**\n- Oyuncu pazarında kaynak ilanı ver/al\n- Piyasa değeri %50-200 sınırı (aşırı fiyat yasak)\n- Kervan ile taşınır (1 esek = 5000 birim)\n- Dinamik fiyat: baz × arz/talep × carpan (saatlik yeniden hesap)\n\n**4️⃣ SAVAŞ & YAĞMA (ganimet)**\n- Galip geldiğin savaştan ganimet: unite maliyeti × kayıp\n- Şehir yağması: hedef krallığın hammadde stokundan yüzde\n- Alan transferi (kale düşürüldüyse)\n- En kazançlı ama en riskli yol\n\n**5️⃣ (EK) KADIM TİCARET** — 240 PG sonra saldırıya neden olur, ucuz ama pahalıya mal olabilir.\n\n**6️⃣ (EK) ARTIFACT/SANDIK** — Kader sandıkları + artifactlardan tek seferlik kaynak.',
+    strateji:[
+      'Vergi + tüccar = pasif taban. Ordu üretmeden önce bunları kur.',
+      'PvP pazar = gelişmiş oyuncu. Arbitraj fırsatı ama dikkat (dolandırıcılık markup değil, kur takibi).',
+      'Savaş ganimeti = büyük ödül, ordu morali maliyeti. 3-4 savaş sonra maaş biriktir.',
+      'Kadim ticaret 240 PG geri sayımı başlatır — ilk ticareti 3. Çağdan önce yapma.'
+    ],
+    ipucu:'Yeni oyuncuda 70% vergi-tüccar, 20% savaş, 10% pazar. 3. çağdan sonra savaş oranını %40\'a çıkar.',
+    dikkat:'Tek kaynak yoluna bağımlı olma. Vergi + düşük moral = köylü kaçışı = her şey çöker.',
+    baglantilar:[{id:'altin',tip:'saglar'},{id:'vergi',tip:'ornek'},{id:'isci',tip:'ornek'},{id:'savas-motor',tip:'ilgili'},{id:'kadim',tip:'ilgili'}]},
+
+  // ── 2) ÜNİTE MALİYETLERİ (her tier hangi hammadde?) ──
+  { id:'unite-maliyet', baslik:'Ünite Üretimi: Hangi Hammadde?', kategori:'unite', ikon:'🔨',
+    ozet:'Her ünitenin özel hammaddesi var. Paladin işlenmiş metal ister, ejderha büyülü yumurta.',
+    quote:'Ordu kağıt üstünde değil, demir-ekmek-mana stokunda kurulur.',
+    aciklama:'Noxara\'da ünite eğitmek = asker (ham) + altın + hammadde + opsiyonel özel kaynak. Her tier kendi hammadde zincirine bağlıdır — üst tier üniteyi üretmek için alt seviye ekonomiyi zaten kurmuş olman gerekir.',
+    detay:'**TIER 1 — Temel İşçiler (ucuz, hızlı)**\n- 🗡️ Piyade: 1 asker + 20 altın + 75 odun + 50 işlenmiş\n- 🏹 Okçu: 1 asker + 28 altın + 150 odun + 50 işlenmiş\n- 🪓 Baltacı: 1 asker + 15 altın + 75 odun + 50 metal\n- 💀 İskelet (karanlık): 1 asker + 15 altın + 75 odun + 50 işlenmiş\n- 👺 Goblin (karanlık): 1 asker + 20 altın + 75 odun + 50 işlenmiş\n\n**TIER 2 — Süvariler + Savaşçılar** (Çağ 2, ahır gerekir)\n- 🐴 Şövalye: 1 asker + 40 altın + işl.metal + 1 AT (Ahır)\n- 🏇 Süvari: 1 asker + 40 altın + 1 AT\n- ⚔️ Savaşçı: 1 asker + 32 altın + 150 odun + 50 metal\n- 🧌 Troll (karanlık): 1 asker + 35 altın + 120 metal + 80 işlenmiş (at GEREKMEZ!)\n- 💪 Ork (karanlık): 1 asker + 40 altın + 1 KURT (Ahır)\n\n**TIER 3 — Elit + Büyücüler** (Çağ 3)\n- ⚜️ Paladin: 1 asker + 52 altın + 250 odun + 150 işlenmiş + MANA BEYAZ (Tapınak)\n- 🗡️ Kolcu: 1 asker + 76 altın + 150 metal + 150 işlenmiş\n- 🧙 Büyücü: 1 asker + 120 altın + 5 MANA BEYAZ (Rathe Tapınağı)\n- ⚔️ Kara Şövalye: 1 asker + 48 altın + 1 GİZLİLİK (Lonca)\n- 🏴 Kara Elf: 1 asker + 120 altın + 5 MANA KIRMIZI (Fennin Tapınağı)\n- 🗿 Golem: 1 asker + 80 altın + 1 KURT\n\n**TIER 4 — Ejderhalar + Elit** (Çağ 4)\n- ✨ Işığın Savaşçısı: 1 asker + çok altın + çok işlenmiş + MANA BEYAZ\n- 🌑 Gölge Savaşçısı: karanlık versiyonu, mana kırmızı\n- 🐉 Ejderha (4 tip): BÜYÜLÜ YUMURTA + mağara/büyülü tarla + uzun süre\n\n**ÖZEL KAYNAK TABLOSU (bina bağları)**:\n- AT/KURT → Ahır (Çağ 2)\n- MANA BEYAZ → Rathe Tapınağı + worshipper\n- MANA KIRMIZI → Fennin Tapınağı\n- MANA MAVİ → Xegony Tapınağı\n- MANA YEŞİL → Tunare Tapınağı\n- GİZLİLİK → Lonca (Çağ 2)\n- BÜYÜLÜ YUMURTA → Büyülü Tarla (Çağ 3) / Mağara nadir\n- İŞLENMİŞ → İşleme binası (metal + işçi)\n- KERESTE → Kereste Atölyesi (odun)',
+    strateji:[
+      'Önce ekonomi, sonra ordu. Ahır + Tapınak + Lonca + Büyülü Tarla = üst tier her şeyin kapısı.',
+      'Aydınlık taraf: Büyücü + Paladin kombi = beyaz mana ağır. Rathe Tapınağı ilk yap.',
+      'Karanlık taraf: Kara Elf + Kara Şövalye = kırmızı mana + gizlilik. Fennin + Lonca.',
+      'Ejderha üretimi 20+ PG alır, özel kaynak biriktir. Büyülü Tarla kurduktan 3-5 PG sonra ejderha al.'
+    ],
+    ipucu:'Ordu kurmadan önce 3-5 PG ekonomi kontrolü yap: Her saat çıkan mana/at/gizlilik vs harcanan. Dengesiz ekonomi ile ordu büyümez.',
+    dikkat:'Premium ünite (büyücü, kara elf) mana tükettiği için tapınak + worshipper ekonomisi şart. Worshipper bir daha köylüye dönmez!',
+    baglantilar:[{id:'asker',tip:'gereklilik'},{id:'altin',tip:'gereklilik'},{id:'at',tip:'ornek'},{id:'mana-beyaz',tip:'ornek'},{id:'gizlilik',tip:'ornek'},{id:'buyulu-yumurta',tip:'ornek'},{id:'kaynak-yollari',tip:'ilgili'}]},
+
+  // ── 3) MORAL SİSTEMİ (iki moral tek anlatım) ──
+  { id:'moral-sistem', baslik:'Moral Sistemi — İki Ayrı Moral!', kategori:'moral', ikon:'⚖️',
+    ozet:'Noxara\'da İKİ farklı moral var: Şehir Morali (halk) ≠ Ordu Morali (asker). Asla karıştırma.',
+    quote:'Köylünün kalbi vergiyle, askerin kalbi maaşla — ikisinin de özlemi ayrıdır.',
+    aciklama:'Bu iki sistem *tamamen* ayrıdır. Aynı DB kolonu değil, aynı formül değil, aynı kaynak değil. Biri düşse diğeri etkilenmez.\n\n**Yaygın hata**: "Moralim düştü" derken hangisi belli değil — kararlar yanlış çıkar.',
+    detay:'━━━━━━━━━━━━━━━━━━━━━━━━\n**🏛️ ŞEHİR MORALİ (Mutluluk)**\n━━━━━━━━━━━━━━━━━━━━━━━━\n- **Nedir**: Halkın sana olan memnuniyeti\n- **Skala**: Çağ bazlı (Çağ1:1500 → Çağ5:5000, min -1500)\n- **Artıran**: Festival, Ejderha Sevinci büyüsü, 5 ilgi alanı (GPS), pasif bina bonusları (Lonca +50, Tapınak +25/adet, Meydan +30, Taverna +40, Han +50, Müze +80, Asma Bahçeler +100)\n- **Düşüren**: Vergi (5→-18, 25→-600/saat), açlık, savaş kaybı (-15)\n- **Sonucu**: İşçi üretim çarpanı, köylü doğum/kaçış, ekonomik istikrar\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n**⚔️ ORDU MORALİ**\n━━━━━━━━━━━━━━━━━━━━━━━━\n- **Nedir**: Askerin savaş gücü çarpanı\n- **Skala**: 0-100 (çağ farketmez)\n- **Artıran**: Maaş ödemesi +5/saat, Sadakat büyüsü\n- **Düşüren**: Maaş ödenmemesi -10/saat, Hipnoz büyüsü\n- **Formül**: ATK/DEF carpan = max(0.2, moral/100) — moral 0 bile orduyu %20 güçte tutar\n- **Sonucu**: Savaştaki gerçek ATK ve DEF\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n**🚨 KARIŞTIRMAYIN!**\n━━━━━━━━━━━━━━━━━━━━━━━━\n- Ejderha Sevinci → ŞEHİR morali (ordu DEĞİL)\n- Hipnoz → ORDU morali (şehir DEĞİL)\n- Vergi cezası → ŞEHİR morali\n- Maaş ödenmedi → ORDU morali\n- Festival → ŞEHİR morali\n- Savaş kaybı → ŞEHİR morali -15 (ordu morali: savaş sonucu birim ölümü, moral değişmez)',
+    strateji:[
+      'Her saat GPS %90+ korumaya çalış → şehir morali pasif +4-6 otomatik artar.',
+      'Askeri maaş için 24 saat altın garantile. -10/saat birikirse geri dönüşü aylar sürer.',
+      'Yüksek vergi geçici hızlandırıcı — 1-2 gün 10 veriyle acil ordu kur, sonra 3\'e düşür.',
+      'Ejderha Sevinci 6h cooldown — festival öncesi/savaş öncesi şehir moralini boost et.'
+    ],
+    ipucu:'Şehir morali düşüyor: vergi, açlık, GPS. Ordu morali düşüyor: maaş, hipnoz. Teşhis yanlışsa çözüm yanlış.',
+    dikkat:'Bazı oyuncular "moralim düştü, askerler zayıf" der — ama şehir morali düştüyse asker etkilenmez. Gerçek ordu morali ayrı.',
+    baglantilar:[{id:'sehir-moral',tip:'ornek'},{id:'ordu-moral',tip:'ornek'},{id:'gps',tip:'ilgili'},{id:'vergi',tip:'ilgili'},{id:'ordu-maas',tip:'ilgili'},{id:'festival',tip:'ilgili'}]},
+
+  // ── 4) BÜYÜLER: Defansif / Ofansif / Destek ──
+  { id:'buyu-kategori', baslik:'Büyüler: Ofansif / Defansif / Destek', kategori:'buyu', ikon:'🎴',
+    ozet:'28 büyü 3 rolde: Düşmana zarar (ofansif), kendini koru (defansif), buff/debuff (destek). Her büyü belirli bir mana rengi ister.',
+    quote:'Kırmızı yakar, mavi dondurur, yeşil besler, beyaz şifa verir.',
+    aciklama:'Büyü sistemi 4 mana renginde 28 büyü sunar. Her büyü belirli bir rengin manasını tüketir ve farklı bir role hizmet eder. Rengi anlamadan rastgele büyü atmak mana israfı demek.',
+    detay:'━━━━━━━━━━━━━━━━━━━━━━━━\n**🔴 OFANSİF (Düşmana Zarar Ver)**\n━━━━━━━━━━━━━━━━━━━━━━━━\n- **Mistik Atak** (🔴 kırmızı) — Savaşta düşman ATK -3 DEF -6 (her kademe)\n- **Ateş Topu** (🔴 kırmızı — Savaş Büyüsü) — Düşman hasar +%50 (tur 1), kendi +%15 hasar alır\n- **Hipnoz** (🔴 kırmızı) — Düşman ordu morali düşer (strateji darbesi)\n- **Uyku** (🔵 mavi — Savaş Büyüsü) — Düşman 1 tur saldıramaz, sonra 2 tur +%10 ATK (geri tepme)\n- **Lanet** (🔴 kırmızı) — Düşman üretim -X/saat (X kademe)\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n**🔵 DEFANSİF (Kendini Koru)**\n━━━━━━━━━━━━━━━━━━━━━━━━\n- **Kutsal Kalkan** (⚪ beyaz — Savaş Büyüsü) — DEF +%30, ATK -%15 (tur 1)\n- **Sis Perdesi** (🔵 mavi — Savaş Büyüsü) — Gelen hasar -%50, kendi ATK -%10\n- **Görünmez Kubbe** (⚪ beyaz) — Şehir artifact saldırısından korur\n- **Serap** (🔵 mavi) — %3 × kademe alan koruma (10 kademe = %30)\n- **Yakarış** (⚪ beyaz) — Savunma sırasında kutsal bonus\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n**🟢 DESTEK / BUFF (Kendini/Müttefiki Güçlendir)**\n━━━━━━━━━━━━━━━━━━━━━━━━\n- **Motivasyon** (⚪ beyaz) — Kendi ordu morali +X (maaş hatasını onarır)\n- **Sadakat** (⚪ beyaz) — Ordu morali boost (hipnoza karşı)\n- **Battle Cry** (⚪ beyaz — Savaş Büyüsü) — ATK +%25, DEF -%15 (tur 1, saldırı ağırlıklı)\n- **Ejderha Sevinci** (⚪ beyaz) — KENDİ ŞEHİR moralin +X (ordu DEĞİL)\n- **Bereket** (🟢 yeşil) — Kendi üretim +%X (tarla, oduncu vs.)\n- **Dogum** (🟢 yeşil — Çağ 1) — Çağ 1 bedava büyü, nüfus +1 saatlik\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n**⚗️ MANA RENK - TAPINAK EŞLEŞMESİ**\n━━━━━━━━━━━━━━━━━━━━━━━━\n- ⚪ Beyaz Mana ← Rathe Tapınağı (şifa/buff/iyi)\n- 🔴 Kırmızı Mana ← Fennin Tapınağı (ateş/saldırı)\n- 🔵 Mavi Mana ← Xegony Tapınağı (buz/kontrol)\n- 🟢 Yeşil Mana ← Tunare Tapınağı (doğa/üretim)\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n**📜 BÜYÜ NASIL ÖĞRENİLİR?**\n━━━━━━━━━━━━━━━━━━━━━━━━\n1. Büyücü Kulesi yap (max 5 adet, her adet = 1 çağ büyüsü açar)\n2. Parşömen al (buyu dukkanı veya araştırma)\n3. Büyüyü 10 kademeye yükselt (kademe × mana + altın)\n4. Büyüyü hazırla (mana harcanır)\n5. Aktif et (süreli ya da tek seferlik etki)\n\n**Savaş büyüleri özeldir** (v1.14.1.14): Ordu göndermede 3 büyü seçilir, turlarda etki eder.',
+    strateji:[
+      'İlk Rathe Tapınağı aç — beyaz mana en versatile (şifa + buff + motivasyon).',
+      'Savaş öncesi Battle Cry + Kutsal Kalkan = saldırı-savunma hibridi.',
+      'Hipnoz + Ateş Topu kombo = düşman morali düşer, hasar alır.',
+      'Bilge seç (4 bilge) — mana üretimi 2x olur, maliyet düşer. 168 PG cooldown.'
+    ],
+    ipucu:'Savaş büyülerinde çapraz sinerji var: Battle Cry (Atk+) + Sis Perdesi (gelen-) kombo savunma + tur1 saldırı.',
+    dikkat:'Büyü mana maliyeti v1.13.70.2\'de ×10 yapıldı. Uzun birikim gerekir. Bilgesiz üst kademe büyü atma — harcama katlanıyor.',
+    baglantilar:[{id:'buyu-sistem',tip:'ilgili'},{id:'buyucu-kulesi',tip:'gereklilik'},{id:'mana-beyaz',tip:'ilgili'},{id:'mana-kirmizi',tip:'ilgili'},{id:'mana-mavi',tip:'ilgili'},{id:'mana-yesil',tip:'ilgili'},{id:'bilge',tip:'ilgili'},{id:'parsomen',tip:'ilgili'}]},
+
+  // ── 5) BİNALAR — 4 Kategori Rehberi ──
+  { id:'bina-kategori', baslik:'Binalar: 4 Kategoride Anlam', kategori:'bina', ikon:'🏗️',
+    ozet:'Her bina bir amaca hizmet eder. Gelişim / Askeri / Moral & GPS / Mana & Özel — dört kategori.',
+    quote:'Şehir taştan değil amaçtan kurulur — hangi binayı niçin yaptığını bilmelisin.',
+    aciklama:'Noxara\'da 30+ bina var ama hepsi farklı rol oynar. Oyuncuların çoğu "bütün binaları yapayım" der ve kaynak saçar. Doğru yol: kategoriyi anla, önceliklendir.',
+    detay:'━━━━━━━━━━━━━━━━━━━━━━━━\n**🌾 1. GELİŞİM & EKONOMİ (temel kaynak)**\n━━━━━━━━━━━━━━━━━━━━━━━━\n- 🏠 **Ev** (10 nüfus) / 🏘️ **Köy** (100) / 🏯 **Kasaba** (2000) — konut\n- 🌲 **Oduncu Kampı** — odun + işçi kapasitesi (40 oduncu/bina)\n- 🌾 **Tarla** — buğday + çiftçi kapasitesi (50 çiftçi/tarla)\n- 🎣 **Balıkçı** — balık (4-8-12-16-20-24. günler üretir)\n- ⛰️ **Ocak** — metal madeni\n- 🔨 **İşleme** — metal → işlenmiş (unite hammaddesi)\n- 🥖 **Fırın** — buğday → ekmek, balık → pişmiş (halk yemeği)\n- 🌳 **Kereste Atölyesi** — odun → kereste (yüksek bina)\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n**💰 2. VERGİ & PAZAR (altın ekonomi)**\n━━━━━━━━━━━━━━━━━━━━━━━━\n- 🏪 **Market** — tüccar işçisi hammaddeleri burda satar (10 hammadde)\n- 🏛️ **Şehir Meydanı** — vergi toplama + moral bonusu (+30 şehir morali)\n- 💰 **Pazar binası** — kervan üssü (kervan sayısı × adet)\n- 🍺 **Taverna** — moral +40 + festival ön hazırlık\n- 🏰 **Noxara Hanı** — moral +50 (Çağ 3+)\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n**⚔️ 3. ASKERİ & SAVUNMA**\n━━━━━━━━━━━━━━━━━━━━━━━━\n- 🏰 **Surlar** — kale bonusu +%20 zırh (savunma şart)\n- 🗼 **Okçu Kulesi** — savunmada sanal okçu (ATK 50/kule)\n- 🏹 **Mızrak Kulesi** — savunmada sanal mızrak\n- 💥 **Balista Kulesi** — savunmada sanal balista (geç çağ)\n- 🐎 **Ahır** — at/kurt üretir (Süvari/Ork için)\n- 🎭 **Lonca** — gizlilik üretir (Kara Şövalye/casus için)\n- 🏛️ **İstihbarat** — casus üretim merkezi\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n**🔮 4. MANA & ÖZEL (büyü + elit birim)**\n━━━━━━━━━━━━━━━━━━━━━━━━\n- ⛪ **Rathe Tapınağı** (Beyaz) — worshipper → beyaz mana\n- 💠 **Xegony Tapınağı** (Mavi) — mavi mana\n- 🔥 **Fennin Tapınağı** (Kırmızı) — kırmızı mana\n- 🌿 **Tunare Tapınağı** (Yeşil) — yeşil mana\n- 🗼 **Büyücü Kulesi** — büyü öğrenme (5 adet = 5 çağ)\n- 🌱 **Büyülü Tarla** — büyülü yumurta (ejderha için, Çağ 3)\n- 🕳️ **Mağara** — nadir yumurta (Çağ 2)\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n**📊 5. ŞEHİR & GPS (populasyon moral)**\n━━━━━━━━━━━━━━━━━━━━━━━━\nBu binalar "5 İlgi Alanı" GPS\'i doldurur, yüksek GPS = pasif moral +4-6/saat:\n- Eğitim: 🏫 Okul / 🎓 Üniversite / 📚 Akademi\n- Bilgi: 📖 Kütüphane / 📕 Büyük Kütüphane\n- Kültür: 🎭 Tiyatro / 🎼 Opera Evi\n- Eğlence: ⚔️ Arena / 🏛️ Koliseum / 🍺 Taverna\n- Şehir: 🌿 Asma Bahçeler / 🏛️ Müze / 🏰 Noxara Hanı / ⛪ Katedral',
+    strateji:[
+      'Sıralama: 1) Gelişim (temel) 2) Askeri (surlar + kuleler) 3) Mana (tapınak) 4) GPS/moral (geç oyun).',
+      'Paladin kurmak için: Rathe Tapınağı + worshipper + işlenmiş metal + asker → 5 bina zinciri.',
+      'Tank stratejisi: Surlar + 3 kule + Ordu dizilimi = saldırı gelmez, güçlü savunma.',
+      '3. Çağ itibariyle GPS\'i %90+ koru — saatlik pasif +6 moral büyük fark.'
+    ],
+    ipucu:'Alan sınırı var — her binanın yer maliyeti değişik (kasaba=25 alan, köy=5, ev=1). Alan az ise kasabayı erteleyip ev/köy kur.',
+    dikkat:'Bina yıpranır (%0.5/4 PG)! Dayanıklılık %20 altında yıkılma riski. Tamir unutma.',
+    baglantilar:[{id:'ev',tip:'ornek'},{id:'surlar',tip:'ornek'},{id:'tapinak-rathe',tip:'ornek'},{id:'buyucu-kulesi',tip:'ornek'},{id:'meydan',tip:'ornek'},{id:'gps',tip:'ilgili'}]},
+
+  // ── 6) GUILD — Kapsamlı Rehber ──
+  { id:'guild-rehber', baslik:'Guild Rehberi — Ne, Niçin, Nasıl?', kategori:'guild', ikon:'🏰',
+    ozet:'Guild = ortak şehir + ordu + ambar. 10-50 oyuncuyla kurulur, taraf kilidi vardır.',
+    quote:'Tek başına kral olursun, guild\'le imparator.',
+    aciklama:'Guild, birkaç oyuncunun birleşip tek bir *ortak krallık* kurduğu yapıdır. Üyelerin kendi şehirleri devam eder, ama guild\'in de kendi şehri, kendi ordusu, kendi ekonomisi vardır. Guild güçlüyken üyeler koruma görür; guild zayıfsa herkes savunmasızdır.\n\n**Taraf kilidi (v1.14.0.44)**: Guild ya tamamen iyi ya tamamen kötü tarafta. Karma yok.\n**Çağ kilidi**: Guild\'e katılım Çağ 3\'ten sonra.',
+    detay:'━━━━━━━━━━━━━━━━━━━━━━━━\n**👥 ÜYELİK & ROLLER**\n━━━━━━━━━━━━━━━━━━━━━━━━\n- **Lider**: Tüm yetki — üye at, bina yap, ordu kur\n- **Yardımcı**: 16 izin JSONB ile kontrol edilir (bağış, bina, ordu, diplomasi vs.)\n- **Üye**: Bağış yapar, üretime katkı verir, koruma alır\n- **Max üye**: Guild seviyesine göre (normalde 20-50)\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n**🏗️ GUILD BİNALARI (18 bina, ADET bazli)**\n━━━━━━━━━━━━━━━━━━━━━━━━\nOyuncu binalarının guild versiyonları — aynı mekanik, guild kasasına üretir:\n- **Şehir**: oduncu, kereste atölyesi, tarla, balıkçı, işleme, ocak, fırın, ev, köy, kasaba, çiftlik\n- **Askeri**: surlar, ahır, lonca, büyülü tarla, 4 tapınak (Rathe/Xegony/Fennin/Tunare)\n\nMaliyet: oyuncu_maliyeti × guild_bina_carpan (2.0x), Süre: × 2.0 PG, Max kuyruk: 5 bina.\n\n**Alan kontrolü**: koy=5, kasaba=25, fırın=5, diğer=1 (guild_sehir.alan)\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n**⚔️ GUILD ORDUSU**\n━━━━━━━━━━━━━━━━━━━━━━━━\n- Max 3 guild ordusu\n- Lider tarafı üniteleri (iyi/kötü)\n- Havuzdan ordulara atama\n- Ordular guild_army_units tablosunda\n- **Maaş**: Guild kasası öder — ödenmezse guild_ordu_morali -10\n- Kuşatma saldırısı için kullanılır\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n**💰 EKONOMİ**\n━━━━━━━━━━━━━━━━━━━━━━━━\n- **Guild Kasası**: 6 temel kaynak + altın + işleme ürünleri + mana (4 renk)\n- **Market Stok**: 10 hammadde (tüccar işçisi üretir, guild market ile sat)\n- **Bağış**: Üyeler kendi kaynaklarından guild kasasına verir (cooldown var)\n- **Dağıtım**: Lider saatlik yüzde ayarlar — kasadan üyelere otomatik verilir\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n**🤝 DİPLOMASİ (v1.14.0.30)**\n━━━━━━━━━━━━━━━━━━━━━━━━\nGuild\'ler arası 4 durum:\n- **BARIŞ**: Varsayılan\n- **ANTLAŞMA**: Ortak koruma, saldırı yasak\n- **SAVAŞ**: Aktif düşmanlık, üyeler birbirine saldırabilir\n- **TABİYET**: Küçük guild, büyük guild\'e bağlı. %30 üretim → Hakim\'e.\n- **İhanet**: Antlaşma bozulursa -%6 ATK/DEF debuff\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n**🔬 TECH TREE (Guild Araştırma)**\n━━━━━━━━━━━━━━━━━━━━━━━━\n5 teknoloji — üretim, savunma, atak, inşaat, ekonomi. Üyelere pasif bonus.\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n**⚔️ KADIM KUŞATMA** (Faz 3b)\n━━━━━━━━━━━━━━━━━━━━━━━━\nGuild ordusu bir Kadim şehre (Aurium/Gorathul) saldırır. Hibrit fetih: kale düşürülene kadar hasar meter. Başarılı → 168 PG holding + sezon ödül. Çağ 4+ gerekir.\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n**📋 GUILD MENÜLERİ (guild.html)**\n━━━━━━━━━━━━━━━━━━━━━━━━\n1. **Genel** — üye listesi, özet, davetler\n2. **Şehir & Binalar** — guild binaları, inşaat kuyruğu\n3. **Ordu** — guild orduları, havuz, unite ekle/çıkar\n4. **Market** — guild_kasa kaynakları ↔ altın\n5. **Ambar İstekleri** — üyelerin kaynak talepleri\n6. **Diplomasi** — diğer guildlerle ilişki\n7. **Tech Tree** — araştırma dalı\n8. **Raporlar** — aktivite logu (5 kategori: üretim/askeri/bina/ticaret/üye)\n9. **Kadim Kuşatma** — (Çağ 4+)\n10. **Dağıtım** — lider yüzde ayarı',
+    strateji:[
+      'Küçük guild + tabiyet = büyüklerin korumasında güvenle büyü.',
+      'Tech tree erken yatırım — uzun vadeli pasif bonuslar.',
+      'Guild kasa ≠ üye cüzdanı. Bağış optional, ama kazan-kazan yüzde payı daha adil.',
+      'Kuşatmayı Çağ 4+\'da dene, önce guild ordusunu 500+ elit birime çıkar.'
+    ],
+    ipucu:'Yeni oyuncu olarak: Küçük aktif guild > büyük ölü guild. Liderin ne sıklıkla online olduğuna bak.',
+    dikkat:'Guild içi ihanet: Üye kaynak çalıp çıkar. İzinler JSONB — liderin üyeye verdiği izin kontrolü kritik.',
+    kilit:{aktif:true,sart:{tip:'cag',deger:3}},
+    baglantilar:[{id:'guild',tip:'ilgili'},{id:'diplomasi',tip:'ilgili'},{id:'tech-tree',tip:'ilgili'},{id:'kusatma',tip:'ilgili'},{id:'kadim',tip:'ilgili'}]},
 
 ];
 
