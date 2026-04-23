@@ -344,6 +344,8 @@ function renderKusatmaIcerik(el, data) {
             (orduOpsiyonlar || '<option disabled>' + minOrdu + '+ unite ordu yok</option>') +
           '</select>' +
           '<button class="btn-action" onclick="kusatmaGonder(' + data.guild.id + ')" style="padding:4px 12px;font-size:11px;width:auto">Gonder</button>' +
+          // v1.14.1.08: Test savasi — DB'ye yazmaz, rapor doner
+          '<button onclick="kusatmaSimule(' + data.guild.id + ')" style="padding:4px 12px;font-size:11px;background:#2980b9;color:#fff;border:1px solid #1a5682;border-radius:3px;cursor:pointer" title="Savas simulasyonu — DB etkilenmez, rapor onizleme">🎯 Test Savasi</button>' +
         '</div>' +
         '<div style="font-size:10px;color:#666;margin-top:4px">Min ' + minOrdu + ' unite | Grace ' + (r.config.grace_periyot_pg) + ' PG | Holding ' + (r.config.holding_sure_pg) + ' PG</div>' +
       '</div>';
@@ -489,6 +491,38 @@ async function kusatmaRaporDetayli(guildId, logId) {
   }
 }
 if (typeof window !== 'undefined') window.kusatmaRaporDetayli = kusatmaRaporDetayli;
+
+/* v1.14.1.08 — Test Savas Simulasyonu (DB'ye yazmaz) */
+async function kusatmaSimule(guildId) {
+  var token = getToken(); if (!token) return;
+  var sehirSel = document.getElementById('kus-sehir');
+  if (!sehirSel || !sehirSel.value) { alert('Once bir kadim sehir sec'); return; }
+  var sehirId = parseInt(sehirSel.value);
+  var orduSel = document.getElementById('kus-ordu');
+  var orduIdRaw = orduSel && orduSel.value && !orduSel.selectedOptions[0]?.disabled ? parseInt(orduSel.value) : null;
+
+  try {
+    var body = orduIdRaw ? JSON.stringify({ army_id: orduIdRaw }) : '{}';
+    var r = await fetch(API_BASE + '/api/guild/' + guildId + '/kusatma-simule/' + sehirId, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: body,
+    });
+    var d = await r.json();
+    if (!r.ok || !d.ok) {
+      alert('Simulasyon hata: ' + (d.error || 'Bilinmeyen'));
+      return;
+    }
+    if (typeof showSavasRapor === 'function') {
+      showSavasRapor(d.sonuc, d.benimTaraf || 'saldiran', d.opts || {});
+    } else {
+      alert('Rapor modali yuklenemedi');
+    }
+  } catch(e) {
+    alert('Baglanti hatasi: ' + e.message);
+  }
+}
+if (typeof window !== 'undefined') window.kusatmaSimule = kusatmaSimule;
 
 // ═══════════════════════════════════
 //   TAB: GENEL
