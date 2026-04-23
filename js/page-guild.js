@@ -388,13 +388,15 @@ function renderKusatmaIcerik(el, data) {
       '<h4 style="margin:0 0 6px;font-size:12px;color:#888">📜 Son Olaylar</h4>' +
       r.son_loglar.map(function(l, idx) {
         var t = new Date(l.created_at).toLocaleString('tr-TR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
-        // v1.14.1.06: savas_turu detaylı expand — tiklanabilir
+        // v1.14.1.07: savas_turu → Detayli Rapor butonu (oyuncu rapor modali)
         var expandId = 'kus-log-' + idx;
         var hasDetail = l.olay === 'savas_turu' && l.detay;
         var baslik = '<span style="color:#666">' + t + '</span> | <b>' + l.olay + '</b> ' + (l.sehir_isim||'');
         if (!hasDetail) {
           return '<div style="font-size:10px;color:#aaa;padding:2px 0;border-top:1px solid #222">' + baslik + '</div>';
         }
+        // v1.14.1.07: DETAYLI RAPOR butonu (log.id ile)
+        var detayliBtn = l.id ? '<button onclick="kusatmaRaporDetayli(' + data.guild.id + ',' + l.id + ')" style="font-size:10px;padding:3px 10px;background:#c0392b;color:#fff;border:1px solid #8b1a1a;border-radius:3px;cursor:pointer;margin-left:8px">📜 Detaylı Rapor</button>' : '';
         var d = (typeof l.detay === 'string') ? (function(){ try{return JSON.parse(l.detay)}catch(e){return {}} })() : l.detay;
         var turler = d.turler || [];
         var guildDmg = d.guild_damage || {};
@@ -410,8 +412,11 @@ function renderKusatmaIcerik(el, data) {
           return '<span style="background:rgba(212,175,55,0.1);padding:1px 6px;border-radius:3px;margin:2px">Guild ' + e[0] + ': <b>' + parseInt(e[1]).toLocaleString("tr-TR") + '</b> hasar</span>';
         }).join(' ');
         return '<div style="font-size:10px;color:#aaa;padding:4px 0;border-top:1px solid #222">' +
-          '<div style="cursor:pointer" onclick="document.getElementById(\'' + expandId + '\').style.display = document.getElementById(\'' + expandId + '\').style.display===\'none\' ? \'block\' : \'none\'">' +
-            baslik + ' <span style="color:#c8a96e;font-size:9px">(tıkla → detay ▼)</span>' +
+          '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">' +
+            '<span style="cursor:pointer" onclick="document.getElementById(\'' + expandId + '\').style.display = document.getElementById(\'' + expandId + '\').style.display===\'none\' ? \'block\' : \'none\'">' +
+              baslik + ' <span style="color:#c8a96e;font-size:9px">(tıkla → ozet ▼)</span>' +
+            '</span>' +
+            detayliBtn +
           '</div>' +
           '<div id="' + expandId + '" style="display:none;margin-top:6px;padding:8px;background:rgba(0,0,0,0.3);border:1px solid #2a2a2a;border-radius:4px">' +
             '<div style="color:#c8a96e;font-weight:bold;margin-bottom:4px;font-size:11px">⚔️ Savaş Detayı — ' + turler.length + ' tur</div>' +
@@ -459,6 +464,31 @@ async function kusatmaGeriCagir(guildId, armyId) {
     else toast(r.error || 'Hata');
   } catch(e) { toast('Sunucu hatasi'); }
 }
+
+/* v1.14.1.07 — Kusatma savas_turu detayli rapor (oyuncu rapor modalı) */
+async function kusatmaRaporDetayli(guildId, logId) {
+  var token = getToken();
+  if (!token) return;
+  try {
+    var r = await fetch(API_BASE + '/api/guild/' + guildId + '/kusatma-rapor/' + logId, {
+      headers: { Authorization: 'Bearer ' + token }
+    });
+    var d = await r.json();
+    if (!r.ok || !d.ok) {
+      if (typeof toast === 'function') toast(d.error || 'Rapor yuklenemedi');
+      else alert(d.error || 'Rapor yuklenemedi');
+      return;
+    }
+    if (typeof showSavasRapor === 'function') {
+      showSavasRapor(d.sonuc, d.benimTaraf || 'saldiran', d.opts || {});
+    } else {
+      alert('Rapor modalı yuklenemedi — sayfayi yenile');
+    }
+  } catch(e) {
+    alert('Baglanti hatasi: ' + e.message);
+  }
+}
+if (typeof window !== 'undefined') window.kusatmaRaporDetayli = kusatmaRaporDetayli;
 
 // ═══════════════════════════════════
 //   TAB: GENEL
