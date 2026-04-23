@@ -150,17 +150,37 @@
       fennin_tapinagi:'Fennin Tapınağı', tunare_tapinagi:'Tunare Tapınağı'
     };
 
+    // v1.14.1.30: Preload cache — tab'a tiklandiginda anlik render
+    let __mutlulukCache = null;
     async function loadMutluluk() {
       const token = getToken();
       if (!token) return;
       const loading = document.getElementById('mutluluk-loading');
       const container = document.getElementById('mutluluk-container');
-      loading.style.display = 'block';
-      container.style.display = 'none';
+      // Cache varsa hemen render et + arka planda yenile
+      if (__mutlulukCache) {
+        renderMutlulukData(__mutlulukCache);
+      } else {
+        loading.style.display = 'block';
+        container.style.display = 'none';
+      }
       try {
-        const resp = await fetch(API_BASE + '/api/game/gps', { headers: { 'Authorization': 'Bearer ' + token } });
+        const resp = await fetch(API_BASE + '/api/game/gps?_cb=' + Date.now(), {
+          headers: { 'Authorization': 'Bearer ' + token }, cache: 'no-store'
+        });
         if (!resp.ok) throw new Error('GPS verisi alinamadi');
         const d = await resp.json();
+        __mutlulukCache = d;
+        renderMutlulukData(d);
+        return;
+      } catch(e) {
+        if (!__mutlulukCache) loading.innerHTML = '<span style="color:#e74c3c">Hata: ' + e.message + '</span>';
+      }
+    }
+    function renderMutlulukData(d) {
+      const loading = document.getElementById('mutluluk-loading');
+      const container = document.getElementById('mutluluk-container');
+      try {
         // Ozet
         const fmt = n => (n || 0).toLocaleString('tr-TR');
         document.getElementById('mt-toplam').textContent = `${fmt(d.mutluluk_toplam)} / ${fmt(d.moral_max)}`;
@@ -237,6 +257,14 @@
       if (tab === 'gelistirmeler') loadSehirGel();
       if (tab === 'mutluluk') loadMutluluk();
     }
+    // v1.14.1.30: Mutluluk verisini sayfa acilir acilmaz PRELOAD et —
+    // tab'a tiklandiginda data zaten hazir, anlik gorunsun.
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        // Sadece veriyi cek (display = none kalir ama tab acilinca anlik render)
+        if (typeof loadMutluluk === 'function') loadMutluluk();
+      }, 1500);
+    });
     // v1.14.0.49: ?tab=X parametresi destegi (sidebar sub-menusunden link)
     (function initTabFromUrl(){
       const params = new URLSearchParams(window.location.search);
@@ -360,7 +388,7 @@
 <script src="js/game-data.js?v=14127"></script>
 <script src="js/hud.js?v=13500"></script>
 <script src="js/nufus-render.js"></script>
-<script src="js/layout.js?v=14129"></script>
+<script src="js/layout.js?v=14130"></script>
 <script src="js/rehber.js"></script>
 <script src="js/page-city.js?v=13422"></script>
 <script src="js/bildirim-popup.js"></script>

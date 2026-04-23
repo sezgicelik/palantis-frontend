@@ -133,12 +133,94 @@ async function hpLoadOrdularim() {
   } catch(e) { el.innerHTML = '<span class="loading">API hata</span>'; }
 }
 
-/* ── 4) Üretim ── */
-// v1.14.1.22: prod global scope'a game-data.js'te `window.prod` olarak expose edildi.
-// Eski kod: typeof prod !== 'undefined' — module/strict scope'ta window.prod'i
-// yakalamiyordu, panel hep `—` kaliyordu. Simdi direkt window.prod okuyoruz +
-// fallback olarak /api/game/uretim endpoint'ine ham fetch.
+/* ── 4) Üretim (v1.14.1.30 — detay tablosu dashboard'a tasindi) ── */
 async function hpLoadUretim() {
+  // Detay tablosu (yeni)
+  hpUretimDetayTablo();
+  // Eski ozet tutucu (geriye uyumluluk — gizli elementler)
+  return hpLoadUretimOzet();
+}
+
+async function hpUretimDetayTablo() {
+  const host = document.getElementById('hp-uretim-detay');
+  if (!host) return;
+  try {
+    const tok = getToken(); if (!tok) return;
+    const r = await fetch(API_BASE + '/api/game/production?_cb=' + Date.now(), {
+      headers: { Authorization: 'Bearer ' + tok }, cache: 'no-store'
+    });
+    if (!r.ok) { host.innerHTML = '<span class="loading">API hata</span>'; return; }
+    const d = await r.json();
+    const baz = d.baz || {};
+    const bolge = d.bolge_bonus || {};
+    const irk = d.irk_bonus || {};
+    const buyu = d.buyu_bonus || {};
+    const toplam = d.toplam || {};
+
+    const pData = (() => { try { return JSON.parse(localStorage.getItem('palantis_player') || 'null'); } catch { return null; } })();
+    const premAktif = !!(pData?.premium?.aktif);
+    const premYuzde = premAktif ? 10 : 0;
+
+    const fmt = (n) => Math.floor(n || 0).toLocaleString('tr-TR');
+    const hammadde = ['odun', 'metal', 'altin'];
+    const yiyecek = ['bugday', 'balik'];
+    const kaynakIkon = { odun:'🌳 Odun', metal:'⛓ Metal', altin:'💰 Altın', bugday:'🌾 Buğday', balik:'🐟 Balık' };
+
+    let rows = '';
+    for (const [kaynak, label] of Object.entries(kaynakIkon)) {
+      const bazMiktar = parseFloat(baz[kaynak]) || 0;
+      const bolgeYuzde = parseFloat(bolge[kaynak]) || 0;
+      const irkYuzde = parseFloat(irk[kaynak]) || 0;
+      const buyuYuzde = hammadde.includes(kaynak) ? (parseFloat(buyu.hammadde)||0)
+                     : yiyecek.includes(kaynak) ? (parseFloat(buyu.yiyecek)||0) : 0;
+      const bolgeEk = Math.floor(bazMiktar * bolgeYuzde / 100);
+      const irkEk = Math.floor(bazMiktar * irkYuzde / 100);
+      const premEk = Math.floor(bazMiktar * premYuzde / 100);
+      const buyuEk = Math.floor(bazMiktar * buyuYuzde / 100);
+      const toplamDeger = parseFloat(toplam[kaynak]) || (bazMiktar + bolgeEk + irkEk + premEk + buyuEk);
+      rows += '<tr style="border-bottom:1px solid #151515">' +
+        '<td style="padding:4px 6px;color:#ccc">' + label + '</td>' +
+        '<td style="padding:4px 4px;text-align:right;color:#aaa">' + fmt(bazMiktar) + '</td>' +
+        '<td style="padding:4px 4px;text-align:right;color:#3498db">' + (bolgeEk > 0 ? '+' + fmt(bolgeEk) : '—') + '</td>' +
+        '<td style="padding:4px 4px;text-align:right;color:#e67e22">' + (irkEk > 0 ? '+' + fmt(irkEk) : '—') + '</td>' +
+        '<td style="padding:4px 4px;text-align:right;color:#f1c40f">' + (premEk > 0 ? '+' + fmt(premEk) : '—') + '</td>' +
+        '<td style="padding:4px 4px;text-align:right;color:#9b59b6">' + (buyuEk > 0 ? '+' + fmt(buyuEk) : '—') + '</td>' +
+        '<td style="padding:4px 6px;text-align:right;color:#2ecc71;font-weight:bold">' + fmt(toplamDeger) + '</td>' +
+      '</tr>';
+    }
+    // Mana
+    for (const renk of ['beyaz', 'kirmizi', 'mavi', 'yesil']) {
+      const key = 'mana_' + renk;
+      const val = parseFloat(toplam[key]) || 0;
+      if (val > 0) {
+        const rCol = { beyaz:'#f5f5f5', kirmizi:'#e74c3c', mavi:'#3498db', yesil:'#2ecc71' }[renk];
+        rows += '<tr style="border-bottom:1px solid #151515">' +
+          '<td style="padding:4px 6px;color:' + rCol + '">🔮 Mana ' + renk.charAt(0).toUpperCase()+renk.slice(1) + '</td>' +
+          '<td colspan="5" style="padding:4px;text-align:right;color:#555;font-size:10px;font-style:italic">(bilge + yakariş dahil)</td>' +
+          '<td style="padding:4px 6px;text-align:right;color:' + rCol + ';font-weight:bold">' + fmt(val) + '</td>' +
+        '</tr>';
+      }
+    }
+
+    host.innerHTML =
+      '<div style="overflow-x:auto">' +
+      '<table style="width:100%;border-collapse:collapse;font-size:10.5px;min-width:480px">' +
+        '<thead><tr style="background:rgba(212,175,55,0.06);border-bottom:1px solid #2a2010">' +
+          '<th style="padding:5px 6px;text-align:left;color:#c8a96e;font-family:Cinzel,serif">Kaynak</th>' +
+          '<th style="padding:5px 4px;text-align:right;color:#888">Baz</th>' +
+          '<th style="padding:5px 4px;text-align:right;color:#3498db">Bölge</th>' +
+          '<th style="padding:5px 4px;text-align:right;color:#e67e22">Irk</th>' +
+          '<th style="padding:5px 4px;text-align:right;color:#f1c40f">Prem</th>' +
+          '<th style="padding:5px 4px;text-align:right;color:#9b59b6">Büyü/Art.</th>' +
+          '<th style="padding:5px 6px;text-align:right;color:#2ecc71">TOPLAM/sa</th>' +
+        '</tr></thead><tbody>' + rows + '</tbody></table></div>';
+  } catch(e) {
+    host.innerHTML = '<span class="loading">Hata: ' + e.message + '</span>';
+  }
+}
+
+// v1.14.1.30: Eski ozet fonksiyonu — geriye uyumluluk (gizli element guncelleme)
+async function hpLoadUretimOzet() {
   try {
     let prod = (typeof window !== 'undefined' && window.prod) ? window.prod : null;
     // Fallback: game-data henuz yuklenmediyse direkt endpoint

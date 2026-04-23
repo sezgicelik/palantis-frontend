@@ -160,18 +160,20 @@
         </div>
       </div>
 
-      <!-- 4. Üretim -->
-      <div class="panel">
+      <!-- 4. Üretim (v1.14.1.30 — detay tablosu dahil) -->
+      <div class="panel wide2">
         <div class="panel-head" onclick="hpToggle(this)">
-          <h4>📈 Üretim</h4>
+          <h4>📈 Üretim (Saatlik Detay)</h4>
           <span class="panel-toggle">▼</span>
         </div>
         <div class="panel-body">
-          <div class="kv"><span class="lbl">🌳 Odun</span> <span class="val" id="hp-prod-odun">—</span></div>
-          <div class="kv"><span class="lbl">⛓️ Metal</span> <span class="val" id="hp-prod-metal">—</span></div>
-          <div class="kv"><span class="lbl">🌾 Buğday</span> <span class="val" id="hp-prod-bugday">—</span></div>
-          <div class="kv"><span class="lbl">🐟 Balık</span> <span class="val" id="hp-prod-balik">—</span></div>
-          <div class="kv"><span class="lbl">💰 Altın</span> <span class="val" id="hp-prod-altin">—</span></div>
+          <!-- Gizli ozet (eski hpLoadUretim uyumluluk + kuyruk fallback) -->
+          <div style="display:none">
+            <span id="hp-prod-odun">—</span><span id="hp-prod-metal">—</span>
+            <span id="hp-prod-bugday">—</span><span id="hp-prod-balik">—</span>
+            <span id="hp-prod-altin">—</span>
+          </div>
+          <div id="hp-uretim-detay" class="loading">Yükleniyor…</div>
         </div>
       </div>
 
@@ -330,7 +332,7 @@
 <script src="js/layout.js?v=13500"></script>
 <script src="js/rehber.js"></script>
 <script src="js/page-home.js?v=13500"></script>
-<script src="js/page-home-dashboard.js?v=14129"></script>
+<script src="js/page-home-dashboard.js?v=14130"></script>
 <script src="js/bildirim-popup.js"></script>
 <script>
 // Panel toggle

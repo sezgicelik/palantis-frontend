@@ -51,40 +51,80 @@ async function loadMezarlik() {
       '<button onclick="diriltTumu()" style="padding:10px 22px;background:linear-gradient(180deg,#9c7f5e,#7a5a38,#6c4824);color:#fff8e0;border:1px solid #3a2410;border-radius:4px;cursor:pointer;font-family:\'Cinzel\',serif;font-size:12px;font-weight:bold;letter-spacing:1px;text-shadow:0 1px 1px rgba(0,0,0,.4)">⚰️ TÜMÜNÜ DİRİLT</button>' +
     '</div>';
 
-    const kartlar = data.map(function(m) {
-      var kalanSure = m.kalan_sure_ms;
-      var saatKalan = Math.max(0, Math.floor(kalanSure / 3600000));
-      var dakikaKalan = Math.max(0, Math.floor((kalanSure % 3600000) / 60000));
-      var uniteDef = (typeof UNITS !== 'undefined') ? UNITS[m.unite_id] : null;
-      var icon = uniteDef ? uniteDef.icon : '';
-      var name = uniteDef ? uniteDef.name : m.unite_id;
-      var kalanHak = m.dirilt_max - m.diriltilen;
-      var tarafLabel = m.taraf === 'saldiran' ? '⚔ Saldıran' : '🛡 Savunan';
-      var tarafColor = m.taraf === 'saldiran' ? '#E8A0A0' : '#A0C8F0';
-      var maliyetStr = m.maliyet_altin > 0 ? (m.maliyet_altin + ' altın/birim') : 'Ücretsiz';
+    // v1.14.1.30 — SECENEK B: Ayri kayit + gruplu UI
+    // Ayni unite_id'nin farkli savaslarindan kayitlari tek grup altinda gosterir.
+    // Her grubun kendi FIFO dirilt butonu (sureye göre dolmak üzere olandan başlar).
+    const gruplar = {};
+    data.forEach(m => {
+      if (!gruplar[m.unite_id]) gruplar[m.unite_id] = [];
+      gruplar[m.unite_id].push(m);
+    });
+    // Her grupta eskiden yeniye (en once dolmak uzere olan ustte)
+    Object.values(gruplar).forEach(arr => arr.sort((a,b) => new Date(a.son_tarih) - new Date(b.son_tarih)));
 
-      return '<div style="background:rgba(255,255,255,.03);border:1px solid var(--border,#333);border-radius:8px;padding:12px">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
-          '<div style="display:flex;align-items:center;gap:8px">' +
-            '<span style="font-size:1.4rem">' + icon + '</span>' +
+    const kartlar = Object.entries(gruplar).map(([uniteId, kayitlar]) => {
+      const uniteDef = (typeof UNITS !== 'undefined') ? UNITS[uniteId] : null;
+      const icon = uniteDef ? uniteDef.icon : '⚔';
+      const name = uniteDef ? uniteDef.name : uniteId;
+      let grupToplamHak = 0, grupToplamOlen = 0, grupToplamMaliyet = 0;
+      kayitlar.forEach(m => {
+        const kalanHak = m.dirilt_max - m.diriltilen;
+        grupToplamHak += kalanHak;
+        grupToplamOlen += m.adet;
+        if (m.taraf === 'saldiran') grupToplamMaliyet += kalanHak * m.maliyet_altin;
+      });
+      const ilkId = kayitlar[0].id; // FIFO icin en eski (en yakin dolmaya)
+
+      // Alt satirlar (her savas kaydi)
+      const altSatirlar = kayitlar.map(m => {
+        const kalanSure = m.kalan_sure_ms;
+        const saatKalan = Math.max(0, Math.floor(kalanSure / 3600000));
+        const dakKalan = Math.max(0, Math.floor((kalanSure % 3600000) / 60000));
+        const kalanHak = m.dirilt_max - m.diriltilen;
+        const tarafLabel = m.taraf === 'saldiran' ? '⚔' : '🛡';
+        const tarafColor = m.taraf === 'saldiran' ? '#e67e22' : '#3498db';
+        const aciliyetRenk = saatKalan < 2 ? '#e74c3c' : (saatKalan < 8 ? '#e67e22' : '#888');
+        const maliyetStr = m.maliyet_altin > 0 ? (m.maliyet_altin.toLocaleString('tr-TR') + ' altın/br') : 'Ücretsiz';
+        return '<div style="background:#0a0a0a;border:1px solid #1e1e1e;border-radius:5px;padding:8px 10px;margin-top:6px">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;flex-wrap:wrap;gap:6px">' +
             '<div>' +
-              '<div style="font-weight:600;font-size:13px">' + name + '</div>' +
-              '<div style="font-size:11px;color:var(--text-dim)">Ölen: ' + m.adet + ' · Diriltme hakkı: ' + kalanHak + ' / ' + m.dirilt_max + '</div>' +
+              '<span style="color:' + tarafColor + ';font-size:10px">' + tarafLabel + '</span> ' +
+              '<span style="color:#aaa">Savaş #' + m.savas_id + '</span> · ' +
+              '<span style="color:#ccc">' + m.adet.toLocaleString('tr-TR') + ' ölü</span> · ' +
+              '<span style="color:#d4af37">' + kalanHak.toLocaleString('tr-TR') + ' hak</span>' +
+            '</div>' +
+            '<div style="color:' + aciliyetRenk + ';font-size:10px;font-weight:bold">⏱ ' + saatKalan + 's ' + dakKalan + 'dk kaldı</div>' +
+          '</div>' +
+          '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px">' +
+            '<span style="font-size:10px;color:#666">' + maliyetStr + '</span>' +
+            '<input type="number" id="dirilt-adet-' + m.id + '" min="1" max="' + kalanHak + '" value="' + kalanHak + '" style="width:70px;padding:3px 6px;background:#111;border:1px solid #2a2a2a;color:#ddd;border-radius:3px;font-size:11px">' +
+            '<button onclick="diriltUnite(' + m.id + ')" style="padding:4px 10px;background:rgba(40,167,69,.15);border:1px solid rgba(40,167,69,.3);color:#5cb85c;border-radius:3px;cursor:pointer;font-size:10px">💀 Dirilt</button>' +
+            (m.maliyet_altin > 0 ? '<span id="dirilt-toplam-' + m.id + '" style="font-size:10px;color:var(--gold)">Top: ' + (m.maliyet_altin * kalanHak).toLocaleString('tr-TR') + '</span>' : '') +
+          '</div>' +
+          '<div id="dirilt-msg-' + m.id + '" style="font-size:11px;min-height:14px;margin-top:2px"></div>' +
+        '</div>';
+      }).join('');
+
+      // Grup basligi
+      return '<div style="background:rgba(255,255,255,.03);border:1px solid var(--border,#333);border-radius:8px;padding:12px;margin-bottom:10px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">' +
+          '<div style="display:flex;align-items:center;gap:10px">' +
+            '<span style="font-size:1.8rem">' + icon + '</span>' +
+            '<div>' +
+              '<div style="font-weight:700;font-size:14px;color:var(--gold)">' + name + '</div>' +
+              '<div style="font-size:11px;color:#888">' +
+                grupToplamOlen.toLocaleString('tr-TR') + ' ölü · ' +
+                '<b style="color:#2ecc71">' + grupToplamHak.toLocaleString('tr-TR') + ' hak</b>' +
+                ' · ' + kayitlar.length + ' kayıt' +
+              '</div>' +
             '</div>' +
           '</div>' +
-          '<div style="text-align:right">' +
-            '<div style="font-size:11px;color:' + tarafColor + '">' + tarafLabel + '</div>' +
-            '<div style="font-size:10px;color:var(--text-dim)">⏱ ' + saatKalan + 's ' + dakikaKalan + 'dk kaldı</div>' +
+          '<div style="display:flex;gap:6px;align-items:center">' +
+            (grupToplamMaliyet > 0 ? '<span style="font-size:10px;color:#888">Tümü: ' + grupToplamMaliyet.toLocaleString('tr-TR') + ' altın</span>' : '') +
+            '<button onclick="grupFifoDirilt(\'' + uniteId + '\')" title="FIFO: Süresi dolmak üzere olandan başla" style="padding:5px 12px;background:linear-gradient(180deg,#9c7f5e,#7a5a38);color:#fff8e0;border:1px solid #3a2410;border-radius:3px;cursor:pointer;font-size:10px;font-weight:bold;letter-spacing:0.5px">⚡ FIFO Dirilt</button>' +
           '</div>' +
         '</div>' +
-        '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
-          '<span style="font-size:11px;color:var(--text-dim)">Maliyet: <span style="color:' + (m.maliyet_altin > 0 ? 'var(--gold,#ffd700)' : '#5cb85c') + '">' + maliyetStr + '</span></span>' +
-          '<input type="number" id="dirilt-adet-' + m.id + '" min="1" max="' + kalanHak + '" value="' + kalanHak + '" style="width:70px;padding:4px 6px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
-          '<button onclick="diriltUnite(' + m.id + ')" style="padding:5px 14px;background:rgba(40,167,69,.15);border:1px solid rgba(40,167,69,.3);color:#5cb85c;border-radius:4px;cursor:pointer;font-size:11px">💀 Dirilt</button>' +
-          (m.maliyet_altin > 0 ? '<span id="dirilt-toplam-' + m.id + '" style="font-size:11px;color:var(--gold)">Toplam: ' + (m.maliyet_altin * kalanHak).toLocaleString('tr-TR') + ' altın</span>' : '') +
-          '<span style="font-size:10px;color:#f39c12;margin-left:auto">⏱ 4 PG eğitim</span>' +
-        '</div>' +
-        '<div id="dirilt-msg-' + m.id + '" style="font-size:11px;min-height:14px;margin-top:4px"></div>' +
+        altSatirlar +
       '</div>';
     }).join('');
 
@@ -168,6 +208,50 @@ async function diriltTumu() {
   }
 }
 
+/* v1.14.1.30: Grup bazli FIFO Dirilt — ayni unite_id'nin tum kayitlari,
+   sureSi dolmak uzere olandan baslayarak sirayla dirilir. */
+async function grupFifoDirilt(uniteId) {
+  const gruptakiler = _MEZ_LISTE.filter(m => m.unite_id === uniteId);
+  if (!gruptakiler.length) return;
+  const toplamHak = gruptakiler.reduce((s, m) => s + (m.dirilt_max - m.diriltilen), 0);
+  const toplamMaliyet = gruptakiler.reduce((s, m) => s + (m.taraf === 'saldiran' ? (m.dirilt_max - m.diriltilen) * m.maliyet_altin : 0), 0);
+  const ad = (typeof UNITS !== 'undefined' && UNITS[uniteId]) ? UNITS[uniteId].name : uniteId;
+  if (!confirm('⚡ FIFO Dirilt — ' + ad + '\n\n' +
+    '• Toplam: ' + toplamHak.toLocaleString('tr-TR') + ' birim\n' +
+    '• Maliyet: ' + toplamMaliyet.toLocaleString('tr-TR') + ' altın\n' +
+    '• Sıra: süresi dolmak üzere olan kayıtlardan başlar\n\n' +
+    'Devam edilsin mi?')) return;
+  const token = getToken(); if (!token) return;
+  // Eskiden yeniye sırala (FIFO) — ilk kayit en yakin dolmaya
+  const sirali = gruptakiler.slice().sort((a,b) => new Date(a.son_tarih) - new Date(b.son_tarih));
+  let dirilenToplam = 0, harcanan = 0, hata = null;
+  for (const m of sirali) {
+    const kalanHak = m.dirilt_max - m.diriltilen;
+    if (kalanHak <= 0) continue;
+    try {
+      const r = await fetch(API_BASE + '/api/mezarlik/' + m.id + '/dirilt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ adet: kalanHak })
+      });
+      const d = await r.json();
+      if (r.ok && d.basarili) {
+        dirilenToplam += d.diriltilen || 0;
+        harcanan += d.maliyet || 0;
+      } else {
+        hata = d.error || 'Hata';
+        break; // Altin bitebilir, devam etme
+      }
+    } catch(e) { hata = e.message; break; }
+  }
+  const mesaj = '⚡ FIFO sonucu: ' + dirilenToplam.toLocaleString('tr-TR') + ' ' + ad +
+    (harcanan > 0 ? ' (−' + harcanan.toLocaleString('tr-TR') + ' altın)' : '') +
+    (hata ? ' · ⚠ ' + hata : '');
+  if (typeof showToast === 'function') showToast(mesaj, hata ? 'error' : 'success');
+  else alert(mesaj);
+  setTimeout(loadMezarlik, 1200);
+}
+
 // Sayfa yuklendiginde
 document.addEventListener('DOMContentLoaded', function() {
   var attempts = 0;
@@ -182,6 +266,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 if (typeof window !== 'undefined') {
   window.diriltUnite = diriltUnite;
+  window.grupFifoDirilt = grupFifoDirilt;
   window.diriltTumu = diriltTumu;
   window.loadMezarlik = loadMezarlik;
 }
