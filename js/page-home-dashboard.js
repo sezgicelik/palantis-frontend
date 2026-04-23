@@ -10,8 +10,10 @@ const _HP_FMTK = (typeof fmtK === 'function') ? (n) => fmtK(n, 0) : _HP_FMT;
 function _hpSet(id, html) { const el = document.getElementById(id); if (el) el.innerHTML = html; }
 function _hpText(id, text) { const el = document.getElementById(id); if (el) el.textContent = text; }
 
-/* ── 1) Sehir Basligi — OYUNCU global + HUD deger elementlerinden ── */
-function hpLoadBaslik() {
+/* ── 1) Sehir Basligi — OYUNCU + DOGRUDAN API (HUD gecikirse bekleme yok) ── */
+// v1.14.1.29: Sehir deger, mutluluk, ordu morali direkt endpoint'lerden okuyalim
+// (eski: HUD elementlerinden; HUD gec dolunca "—" veya 0 kaliyordu).
+async function hpLoadBaslik() {
   try {
     const p = (typeof OYUNCU !== 'undefined' && OYUNCU) ? OYUNCU : {};
     const cagRoman = ['','I','II','III','IV','V'][p.cag || 1] || p.cag;
@@ -20,15 +22,44 @@ function hpLoadBaslik() {
     _hpText('hp-irk', (p.irk_ad || p.irk || '—'));
     _hpText('hp-cag', cagRoman + '. Çağ');
     _hpText('hp-koord', (p.koord_x || '?') + ':' + (p.koord_y || '?'));
-    // Sehir degeri — HUD'daki hud-sehir-deger'den
-    const sdEl = document.getElementById('hud-sehir-deger');
-    if (sdEl && sdEl.textContent && sdEl.textContent !== '0') _hpText('hp-sehir-deger', sdEl.textContent);
-    // Mutluluk — HUD'daki hud-sehir-moral'den
-    const smEl = document.getElementById('hud-sehir-moral');
-    if (smEl && smEl.textContent) _hpText('hp-mutluluk', smEl.textContent);
-    // Ordu morali — HUD'daki hud-moral'den
-    const omEl = document.getElementById('hud-moral');
-    if (omEl && omEl.textContent) _hpText('hp-ordu-moral', '%' + omEl.textContent);
+
+    const token = getToken(); if (!token) return;
+    // Paralel fetch: player/me, gps, army-state
+    const [meR, gpsR, armyR] = await Promise.all([
+      fetch(API_BASE + '/api/player/me?_cb=' + Date.now(), { headers: { Authorization: 'Bearer ' + token }, cache: 'no-store' }).catch(()=>null),
+      fetch(API_BASE + '/api/game/gps?_cb=' + Date.now(), { headers: { Authorization: 'Bearer ' + token }, cache: 'no-store' }).catch(()=>null),
+      fetch(API_BASE + '/api/army/state?_cb=' + Date.now(), { headers: { Authorization: 'Bearer ' + token }, cache: 'no-store' }).catch(()=>null),
+    ]);
+    if (meR?.ok) {
+      const me = await meR.json();
+      if (me.toplam_alan) _hpText('hp-sehir-deger', _HP_FMT(me.toplam_alan));
+    }
+    if (gpsR?.ok) {
+      const gps = await gpsR.json();
+      // Sehir deger yoksa GPS.toplam_deger'den
+      const sdEl = document.getElementById('hp-sehir-deger');
+      if (sdEl && (!sdEl.textContent || sdEl.textContent === '—') && gps.sehir_deger) {
+        _hpText('hp-sehir-deger', _HP_FMT(gps.sehir_deger));
+      }
+      // Mutluluk
+      const ham = parseInt(gps.sehir_morali_ham ?? gps.ham_sehir_moral ?? 0) || 0;
+      const bonus = parseInt(gps.bina_moral_bonus ?? 0) || 0;
+      const max = parseInt(gps.moral_max ?? 5000) || 5000;
+      if (ham || bonus) _hpText('hp-mutluluk', ham + ' / ' + max + (bonus ? ' +' + bonus : ''));
+    }
+    if (armyR?.ok) {
+      const army = await armyR.json();
+      if (army.ordu_morali !== undefined) _hpText('hp-ordu-moral', '%' + army.ordu_morali);
+    }
+    // Fallback: HUD elementleri daha guncel olabilir — uzerine yaz
+    setTimeout(() => {
+      const sdEl = document.getElementById('hud-sehir-deger');
+      if (sdEl?.textContent && sdEl.textContent !== '0' && sdEl.textContent !== '—') _hpText('hp-sehir-deger', sdEl.textContent);
+      const smEl = document.getElementById('hud-sehir-moral');
+      if (smEl?.textContent && smEl.textContent !== '0') _hpText('hp-mutluluk', smEl.textContent);
+      const omEl = document.getElementById('hud-moral');
+      if (omEl?.textContent && omEl.textContent !== '0') _hpText('hp-ordu-moral', '%' + omEl.textContent);
+    }, 2500);
   } catch(e) { console.warn('[hpBaslik]', e.message); }
 }
 // Eski ismi korurmek icin
@@ -335,6 +366,63 @@ function hpLoadAll() {
   hpLoadEtkiler();
   hpLoadRaporlar();
   hpLoadGuild();
+  hpLoadIsciTablo(); // v1.14.1.29
+}
+
+// v1.14.1.29 — İşçi + Esir + Toplam tablosu
+async function hpLoadIsciTablo() {
+  const el = document.getElementById('hp-isci-tablo');
+  if (!el) return;
+  try {
+    const tok = getToken(); if (!tok) return;
+    const r = await fetch(API_BASE + '/api/game/workers?_cb=' + Date.now(), {
+      headers: { Authorization: 'Bearer ' + tok }, cache: 'no-store'
+    });
+    if (!r.ok) { el.innerHTML = '<span class="loading">API hata</span>'; return; }
+    const w = await r.json();
+    const tipler = [
+      { key: 'oduncu',  ad: '🌳 Oduncu' },
+      { key: 'madenci', ad: '⛓ Madenci' },
+      { key: 'ciftci',  ad: '🌾 Çiftçi' },
+      { key: 'balikci', ad: '🎣 Balıkçı' },
+      { key: 'tuccar',  ad: '💰 Tüccar' }
+    ];
+    let toplam_isci = 0, toplam_esir = 0;
+    let rows = '';
+    for (const t of tipler) {
+      const isci = parseInt(w[t.key]) || 0;
+      const esir = parseInt(w['esir_' + t.key]) || 0;
+      const top = isci + esir;
+      if (top === 0) continue;
+      toplam_isci += isci;
+      toplam_esir += esir;
+      rows += '<tr style="border-bottom:1px solid #151515">' +
+        '<td style="padding:3px 6px;color:#ccc">' + t.ad + '</td>' +
+        '<td style="padding:3px 6px;text-align:right;color:#d4af37">' + isci.toLocaleString('tr-TR') + '</td>' +
+        '<td style="padding:3px 6px;text-align:right;color:#9b59b6">' + (esir ? esir.toLocaleString('tr-TR') : '—') + '</td>' +
+        '<td style="padding:3px 6px;text-align:right;color:#2ecc71;font-weight:bold">' + top.toLocaleString('tr-TR') + '</td>' +
+      '</tr>';
+    }
+    if (!rows) {
+      el.innerHTML = '<div style="color:#e74c3c;font-size:11px;text-align:center;padding:8px">⚠️ Hiç işçi yok — <a href="population.html" class="ilink">populasyon sayfasında dağıt</a></div>';
+      return;
+    }
+    const toplamGenel = toplam_isci + toplam_esir;
+    el.innerHTML =
+      '<table style="width:100%;border-collapse:collapse;font-size:11px">' +
+        '<thead><tr style="border-bottom:1px solid #2a2010">' +
+          '<th style="text-align:left;padding:4px 6px;color:#c8a96e;font-family:Cinzel,serif">Tip</th>' +
+          '<th style="text-align:right;padding:4px 6px;color:#d4af37">İşçi</th>' +
+          '<th style="text-align:right;padding:4px 6px;color:#9b59b6">Esir</th>' +
+          '<th style="text-align:right;padding:4px 6px;color:#2ecc71">Toplam</th>' +
+        '</tr></thead><tbody>' + rows +
+        '<tr style="border-top:2px solid #333;background:rgba(212,175,55,0.06)">' +
+          '<td style="padding:4px 6px;font-weight:bold;color:#d4af37">TOPLAM</td>' +
+          '<td style="text-align:right;padding:4px 6px;color:#d4af37;font-weight:bold">' + toplam_isci.toLocaleString('tr-TR') + '</td>' +
+          '<td style="text-align:right;padding:4px 6px;color:#9b59b6;font-weight:bold">' + (toplam_esir ? toplam_esir.toLocaleString('tr-TR') : '—') + '</td>' +
+          '<td style="text-align:right;padding:4px 6px;color:#2ecc71;font-weight:bold">' + toplamGenel.toLocaleString('tr-TR') + '</td>' +
+        '</tr></tbody></table>';
+  } catch(e) { el.innerHTML = '<span class="loading">API hata</span>'; }
 }
 
 // Sayfa yuklendiginde + 30 sn'de bir refresh

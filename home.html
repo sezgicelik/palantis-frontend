@@ -210,6 +210,38 @@
         </div>
       </div>
 
+      <!-- v1.14.1.29: İşçi Dağılım Tablosu (user talebi) -->
+      <div class="panel wide2">
+        <div class="panel-head" onclick="hpToggle(this)">
+          <h4>⚒️ İşçi Dağılımı</h4>
+          <span class="panel-toggle">▼</span>
+        </div>
+        <div class="panel-body">
+          <div id="hp-isci-tablo" class="loading">Yükleniyor…</div>
+          <div style="margin-top:4px;text-align:right"><a href="population.html" class="ilink">Düzenle →</a></div>
+        </div>
+      </div>
+
+      <!-- v1.14.1.29: Anlık İşlemler (kuyruk DIŞI — işçi basma, esir çevirme, vb.) -->
+      <div class="panel wide2">
+        <div class="panel-head" onclick="hpToggle(this)">
+          <h4>⚡ Anlık İşlemler</h4>
+          <span class="panel-toggle">▼</span>
+        </div>
+        <div class="panel-body" style="font-size:11px;color:#888">
+          <div style="padding:4px 0">• <b style="color:#2ecc71">Köylü ↔ Asker</b> dönüşümü (anlık)</div>
+          <div style="padding:4px 0">• <b style="color:#2ecc71">Esir → İşçi</b> atama (anlık)</div>
+          <div style="padding:4px 0">• <b style="color:#2ecc71">Esir → Ünite</b> (%50 maliyet, anlık havuza)</div>
+          <div style="padding:4px 0">• <b style="color:#f1c40f">Worshipper</b> dönüşümü (köylü → worshipper, geri dönüşsüz)</div>
+          <div style="padding:4px 0">• <b style="color:#f1c40f">Vergi oranı</b> değişikliği (anlık etkili)</div>
+          <div style="padding:4px 0">• <b style="color:#f1c40f">Pişirme oranı</b> değişikliği (anlık)</div>
+          <div style="padding:4px 0">• <b style="color:#9b59b6">Festival</b> (anlık moral bonus)</div>
+          <div style="padding:4px 0">• <b style="color:#9b59b6">Büyü hazırlama</b> (mana düşer, anlık aktif)</div>
+          <div style="padding:4px 0">• <b style="color:#e67e22">Hayvan kesimi</b> (besi → çiğ et, anlık)</div>
+          <div style="color:#555;font-size:10px;margin-top:6px;border-top:1px dashed #222;padding-top:6px;font-style:italic">Kuyruk dışı — anında uygulanır, PG beklemez.</div>
+        </div>
+      </div>
+
       <!-- 8. Aktif Büyüler -->
       <div class="panel">
         <div class="panel-head" onclick="hpToggle(this)">
@@ -298,7 +330,7 @@
 <script src="js/layout.js?v=13500"></script>
 <script src="js/rehber.js"></script>
 <script src="js/page-home.js?v=13500"></script>
-<script src="js/page-home-dashboard.js?v=14128"></script>
+<script src="js/page-home-dashboard.js?v=14129"></script>
 <script src="js/bildirim-popup.js"></script>
 <script>
 // Panel toggle
