@@ -707,19 +707,23 @@ async function loadKuyrukOzet() {
 function renderKuyrukWidget() {
   if (!KUYRUK_CACHE) return;
   const d = KUYRUK_CACHE;
-  const toplam = d.toplam || 0;
+  // v1.14.1.13: Kisisel toplam — guild kategorileri cikarildi
+  const kisiselCats = ['bina','tamir','unite','kervan','ordu','casus','buyu','ws'];
+  let toplam = 0;
+  for (const k of kisiselCats) toplam += ((d.kategoriler||{})[k]||[]).length;
   const toplamEl = document.getElementById('kuyruk-toplam');
   const aciciSayi = document.getElementById('kuyruk-acici-sayi');
   if (toplamEl) toplamEl.textContent = toplam;
   if (aciciSayi) aciciSayi.textContent = toplam;
 
-  // Kategori sırası + icon
+  // v1.14.1.13: Guild kuyruklari 'Kuyrugum' widget'inden ayrildi.
+  //   Guild bina/unite sadece guild.html'de gorunur — 'Kuyrugum' sadece kisisel.
+  //   Sebep: Guild uyeleri birbirinin ordu basma sirasini gormuyordu ama widget'te
+  //   goruyordu (izleniyor hissi). Ayri mantikli.
   const cats = [
     { key:'bina',        label:'🏗️ Binalar',       link:'city.html' },
     { key:'tamir',       label:'🔧 Tamir',          link:'city.html' },
     { key:'unite',       label:'⚔️ Üniteler',       link:'army.html' },
-    { key:'guild_bina',  label:'🏰 Guild Bina',     link:'guild.html' },
-    { key:'guild_unite', label:'🛡️ Guild Ordu',    link:'guild.html' },
     { key:'kervan',      label:'🐪 Kervan',         link:'kervan.html' },
     { key:'ordu',        label:'⚔️ Ordu Görevi',   link:'army.html' },
     { key:'casus',       label:'🕵️ Casus',         link:'casus.html' },
