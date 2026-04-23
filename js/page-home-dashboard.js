@@ -103,16 +103,28 @@ async function hpLoadOrdularim() {
 }
 
 /* ── 4) Üretim ── */
-function hpLoadUretim() {
+// v1.14.1.22: prod global scope'a game-data.js'te `window.prod` olarak expose edildi.
+// Eski kod: typeof prod !== 'undefined' — module/strict scope'ta window.prod'i
+// yakalamiyordu, panel hep `—` kaliyordu. Simdi direkt window.prod okuyoruz +
+// fallback olarak /api/game/uretim endpoint'ine ham fetch.
+async function hpLoadUretim() {
   try {
-    // game-data.js'ten gelen prod objesi ya da RES/uretim degerlerinden
-    if (typeof prod !== 'undefined' && prod) {
-      _hpText('hp-prod-odun',   '+' + _HP_FMT(prod.odun   || 0));
-      _hpText('hp-prod-metal',  '+' + _HP_FMT(prod.metal  || 0));
-      _hpText('hp-prod-bugday', '+' + _HP_FMT(prod.bugday || 0));
-      _hpText('hp-prod-balik',  '+' + _HP_FMT(prod.balik  || 0));
-      _hpText('hp-prod-altin',  '+' + _HP_FMT(prod.altin  || 0));
+    let prod = (typeof window !== 'undefined' && window.prod) ? window.prod : null;
+    // Fallback: game-data henuz yuklenmediyse direkt endpoint
+    if (!prod || Object.keys(prod).length === 0) {
+      const token = getToken(); if (!token) return;
+      const r = await fetch(API_BASE + '/api/game/uretim?_cb=' + Date.now(), {
+        headers: { Authorization: 'Bearer ' + token }, cache: 'no-store'
+      });
+      if (!r.ok) return;
+      const d = await r.json();
+      prod = d.toplam || d || {};
     }
+    _hpText('hp-prod-odun',   '+' + _HP_FMT(prod.odun   || 0));
+    _hpText('hp-prod-metal',  '+' + _HP_FMT(prod.metal  || 0));
+    _hpText('hp-prod-bugday', '+' + _HP_FMT(prod.bugday || 0));
+    _hpText('hp-prod-balik',  '+' + _HP_FMT(prod.balik  || 0));
+    _hpText('hp-prod-altin',  '+' + _HP_FMT(prod.altin  || 0));
   } catch(e) {}
 }
 

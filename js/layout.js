@@ -1055,8 +1055,8 @@ document.addEventListener('DOMContentLoaded', initLayout);
    burada gorunur. Hard refresh sonrasi guncellenmediyse cache catili.
 */
 (function buildStamp(){
-  const BUILD = 'v1.14.1.21';
-  const TS    = '2026-04-23 codex-rehber-paketi';
+  const BUILD = 'v1.14.1.22';
+  const TS    = '2026-04-23 home-uretim-fix';
   function mount(){
     if (document.getElementById('build-stamp')) return;
     const div = document.createElement('div');

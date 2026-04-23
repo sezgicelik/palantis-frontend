@@ -184,6 +184,8 @@ async function loadGameData() {
     const takvimData= _takvimRaw.data;
     const prodData  = _prodRaw.data  || {};
     const prod      = prodData.toplam || prodData;
+    // v1.14.1.22: home-dashboard icin prod global expose — Uretim paneli (`—` bug fix)
+    try { window.prod = prod; } catch(_){ }
     const kvData    = _kvRaw.data;
     const tatilResp = { ok: !!tatilRaw,   data: tatilRaw };
     const ateskesResp = { ok: !!ateskesRaw, data: ateskesRaw };
