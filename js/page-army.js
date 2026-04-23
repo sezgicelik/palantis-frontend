@@ -1166,11 +1166,32 @@ function renderTrainingQueue(queue){
 }
 
 function updateArmyStats(){
+  // v1.14.1.16 FIX: Istatistikler HAVUZ + ORDULAR toplamini gostersin (sadece havuz degil).
+  // Eski kod: UNITS.count (havuz) uzerinden hesapliyordu — tum birimler orduya atanmissa 0 cikiyordu.
+  // Yeni: Havuz (UNITS.count) + her ordu (ORDULAR[i].units[*].adet) toplam.
   const all = Object.values(UNITS);
-  const totalAtk = all.reduce((s,u)=>s+realAtk(u.id)*u.count*u.saldiriCarpan,0);
-  const totalDef = all.reduce((s,u)=>s+realDef(u.id)*u.count,0);
-  const totalUnits = all.reduce((s,u)=>s+u.count,0);
-  const totalMaas = all.reduce((s,u)=>s+realMaas(u.maas)*u.count,0);
+  let poolAtk = 0, poolDef = 0, poolUnits = 0, poolMaas = 0;
+  for (const u of all) {
+    poolAtk   += realAtk(u.id) * u.count * u.saldiriCarpan;
+    poolDef   += realDef(u.id) * u.count;
+    poolUnits += u.count;
+    poolMaas  += realMaas(u.maas) * u.count;
+  }
+  let armyAtk = 0, armyDef = 0, armyUnits = 0, armyMaas = 0;
+  for (const ordu of (window.ORDULAR || [])) {
+    // Backend zaten ATK/DEF'i hesaplamis (moral + gelistirme + saldiri carpan dahil) — direkt kullan
+    armyAtk   += ordu.atk || 0;
+    armyDef   += ordu.def || 0;
+    armyUnits += ordu.total_units || 0;
+    for (const u of (ordu.units || [])) {
+      const def = UNITS[u.unite_id];
+      if (def) armyMaas += realMaas(def.maas) * (u.adet || 0);
+    }
+  }
+  const totalAtk = poolAtk + armyAtk;
+  const totalDef = poolDef + armyDef;
+  const totalUnits = poolUnits + armyUnits;
+  const totalMaas = poolMaas + armyMaas;
   setText('as-atk', Math.round(totalAtk).toLocaleString());
   setText('as-def', Math.round(totalDef).toLocaleString());
   setText('as-units', totalUnits.toLocaleString());
