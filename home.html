@@ -83,6 +83,89 @@
     .ovr-grid { grid-template-columns: 1fr 1fr; }
     .ovr-grid .panel.full, .ovr-grid .panel.wide2, .ovr-grid .panel.wide3 { grid-column: span 2; }
   }
+
+  /* v1.14.1.31 — Ozellestirme modu (drag/resize/hide) */
+  body.hp-edit .panel {
+    outline: 2px dashed rgba(212,175,55,0.5);
+    outline-offset: -4px;
+    cursor: move;
+    position: relative;
+  }
+  body.hp-edit .panel.dragging { opacity: 0.4; }
+  body.hp-edit .panel.drop-target { outline-color: #2ecc71; outline-style: solid; }
+  .hp-panel-ctrl {
+    display: none;
+    position: absolute;
+    top: 4px;
+    right: 34px;
+    gap: 3px;
+    z-index: 10;
+  }
+  body.hp-edit .hp-panel-ctrl { display: inline-flex; }
+  .hp-panel-ctrl button {
+    width: 22px; height: 22px;
+    padding: 0;
+    background: rgba(10,10,10,0.85);
+    color: #d4af37;
+    border: 1px solid #3a2e1a;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 10px;
+    font-family: 'Cinzel', serif;
+    font-weight: bold;
+    transition: all 0.15s;
+  }
+  .hp-panel-ctrl button:hover {
+    background: #d4af37;
+    color: #000;
+  }
+  .hp-panel-ctrl button.active {
+    background: #d4af37;
+    color: #000;
+  }
+  #hp-edit-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: linear-gradient(180deg,rgba(20,18,14,0.95),rgba(20,18,14,0.85));
+    border: 1px solid #d4af37;
+    border-radius: 6px;
+    padding: 8px 14px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  #hp-edit-bar .edit-btn {
+    background: transparent;
+    color: #d4af37;
+    border: 1px solid #d4af37;
+    padding: 4px 12px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+  }
+  #hp-edit-bar .edit-btn.primary {
+    background: #d4af37;
+    color: #000;
+  }
+  #hp-edit-bar .edit-btn:hover {
+    background: rgba(212,175,55,0.2);
+  }
+  #hp-edit-bar .edit-btn.primary:hover {
+    background: #e6b168;
+  }
+  .panel.hp-hidden { display: none !important; }
+  body.hp-edit .panel.hp-hidden {
+    display: block !important;
+    opacity: 0.35;
+    filter: grayscale(1);
+  }
 </style>
 </head>
 <body>
@@ -116,8 +199,20 @@
       <p style="font-size:13px;color:#888;line-height:1.7">Diğer oyuncularla savaşamazsın · Guild'lere katılamazsın · II. Çağa geçince tüm özellikler açılır</p>
     </div>
 
+    <!-- v1.14.1.31 — Özelleştirme Bar -->
+    <div id="hp-edit-bar">
+      <div style="font-family:'Cinzel',serif;font-size:13px;color:#d4af37">
+        <span id="hp-edit-icon">🎨</span> <span id="hp-edit-title">Dashboard</span>
+        <span id="hp-edit-hint" style="color:#888;font-size:10px;margin-left:10px;display:none">Sürükle-bırak sıralama · W1/W2/W3/Full boyut · 👁 gizle</span>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="edit-btn" id="hp-edit-toggle" onclick="hpEditToggle()">⚙ Özelleştir</button>
+        <button class="edit-btn" id="hp-edit-reset" onclick="hpEditReset()" style="display:none">🔄 Sıfırla</button>
+      </div>
+    </div>
+
     <!-- ═══════════ DASHBOARD GRID ═══════════ -->
-    <div class="ovr-grid" style="margin-top:4px">
+    <div class="ovr-grid" id="hp-grid" style="margin-top:4px">
 
       <!-- 1. Şehir Başlığı (full) -->
       <div class="panel full">
@@ -360,5 +455,215 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 <script src="js/sw-register.js?v=13467"></script>
+<script>
+/* ══════════════════════════════════════════════════════════════
+   v1.14.1.31 — DASHBOARD OZELLESTIRME
+   - Drag & drop ile siralama
+   - Her panel: W1 / W2 / W3 / F boyut + 👁 gizle
+   - localStorage'da persist (noxara_hp_config)
+   - Sifirla tusu varsayilana döner
+════════════════════════════════════════════════════════════════ */
+(function hpCustomInit(){
+  const STORE_KEY = 'noxara_hp_config_v1';
+  const SIZE_CLASS = { w1: '', w2: 'wide2', w3: 'wide3', full: 'full' };
+
+  function loadCfg() {
+    try { return JSON.parse(localStorage.getItem(STORE_KEY) || '{}') || {}; } catch { return {}; }
+  }
+  function saveCfg(cfg) {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(cfg)); } catch {}
+  }
+  function currentSize(panel) {
+    if (panel.classList.contains('full')) return 'full';
+    if (panel.classList.contains('wide3')) return 'w3';
+    if (panel.classList.contains('wide2')) return 'w2';
+    return 'w1';
+  }
+  function applySize(panel, size) {
+    panel.classList.remove('full', 'wide2', 'wide3');
+    if (size === 'full') panel.classList.add('full');
+    else if (size === 'w3') panel.classList.add('wide3');
+    else if (size === 'w2') panel.classList.add('wide2');
+  }
+
+  function assignIds() {
+    const grid = document.getElementById('hp-grid');
+    if (!grid) return [];
+    const panels = [...grid.querySelectorAll(':scope > .panel')];
+    panels.forEach((p, i) => {
+      if (!p.dataset.panelId) p.dataset.panelId = 'p' + i;
+    });
+    return panels;
+  }
+
+  function injectControls() {
+    const panels = assignIds();
+    panels.forEach(p => {
+      if (p.querySelector(':scope > .hp-panel-ctrl')) return;
+      const ctrl = document.createElement('div');
+      ctrl.className = 'hp-panel-ctrl';
+      const id = p.dataset.panelId;
+      ctrl.innerHTML =
+        '<button data-size="w1"  title="Dar (1 sütun)">W1</button>' +
+        '<button data-size="w2"  title="Orta (2 sütun)">W2</button>' +
+        '<button data-size="w3"  title="Geniş (3 sütun)">W3</button>' +
+        '<button data-size="full" title="Tam genişlik">F</button>' +
+        '<button data-hide="1"   title="Gizle/Göster">👁</button>';
+      ctrl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const b = e.target.closest('button'); if (!b) return;
+        const cfg = loadCfg();
+        cfg[id] = cfg[id] || {};
+        if (b.dataset.size) {
+          applySize(p, b.dataset.size);
+          cfg[id].size = b.dataset.size;
+        } else if (b.dataset.hide) {
+          p.classList.toggle('hp-hidden');
+          cfg[id].hidden = p.classList.contains('hp-hidden');
+        }
+        saveCfg(cfg);
+        updateActiveButtons(p);
+      });
+      p.appendChild(ctrl);
+    });
+  }
+
+  function updateActiveButtons(panel) {
+    const ctrl = panel.querySelector(':scope > .hp-panel-ctrl');
+    if (!ctrl) return;
+    const size = currentSize(panel);
+    ctrl.querySelectorAll('button[data-size]').forEach(b => {
+      b.classList.toggle('active', b.dataset.size === size);
+    });
+  }
+
+  // Drag & drop
+  let dragSrc = null;
+  function enableDrag() {
+    const panels = assignIds();
+    panels.forEach(p => {
+      p.setAttribute('draggable', 'true');
+      p.addEventListener('dragstart', onDragStart);
+      p.addEventListener('dragend', onDragEnd);
+      p.addEventListener('dragover', onDragOver);
+      p.addEventListener('dragleave', onDragLeave);
+      p.addEventListener('drop', onDrop);
+    });
+  }
+  function disableDrag() {
+    const grid = document.getElementById('hp-grid');
+    if (!grid) return;
+    [...grid.querySelectorAll(':scope > .panel')].forEach(p => {
+      p.setAttribute('draggable', 'false');
+      p.removeEventListener('dragstart', onDragStart);
+      p.removeEventListener('dragend', onDragEnd);
+      p.removeEventListener('dragover', onDragOver);
+      p.removeEventListener('dragleave', onDragLeave);
+      p.removeEventListener('drop', onDrop);
+    });
+  }
+  function onDragStart(e) {
+    dragSrc = this;
+    this.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    try { e.dataTransfer.setData('text/plain', this.dataset.panelId); } catch {}
+  }
+  function onDragEnd() {
+    this.classList.remove('dragging');
+    document.querySelectorAll('.panel.drop-target').forEach(p => p.classList.remove('drop-target'));
+  }
+  function onDragOver(e) {
+    if (dragSrc && dragSrc !== this) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      this.classList.add('drop-target');
+    }
+  }
+  function onDragLeave() { this.classList.remove('drop-target'); }
+  function onDrop(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!dragSrc || dragSrc === this) return;
+    const grid = document.getElementById('hp-grid');
+    // Drop zone'un soluna ekle
+    grid.insertBefore(dragSrc, this);
+    saveOrder();
+    this.classList.remove('drop-target');
+  }
+
+  function saveOrder() {
+    const cfg = loadCfg();
+    cfg._order = [...document.querySelectorAll('#hp-grid > .panel')].map(p => p.dataset.panelId);
+    saveCfg(cfg);
+  }
+
+  function applyConfig() {
+    const cfg = loadCfg();
+    const grid = document.getElementById('hp-grid');
+    if (!grid) return;
+    const panels = assignIds();
+    // Per-panel size + hidden
+    panels.forEach(p => {
+      const id = p.dataset.panelId;
+      const c = cfg[id];
+      if (c) {
+        if (c.size) applySize(p, c.size);
+        if (c.hidden) p.classList.add('hp-hidden');
+      }
+      updateActiveButtons(p);
+    });
+    // Order
+    if (Array.isArray(cfg._order)) {
+      const idToPanel = Object.fromEntries(panels.map(p => [p.dataset.panelId, p]));
+      cfg._order.forEach(id => {
+        if (idToPanel[id]) grid.appendChild(idToPanel[id]);
+      });
+      // Kalan (yeni eklenen) paneller en sona
+      panels.forEach(p => {
+        if (!cfg._order.includes(p.dataset.panelId)) grid.appendChild(p);
+      });
+    }
+  }
+
+  // Edit mode toggle
+  let editOn = false;
+  window.hpEditToggle = function() {
+    editOn = !editOn;
+    document.body.classList.toggle('hp-edit', editOn);
+    const btn = document.getElementById('hp-edit-toggle');
+    const reset = document.getElementById('hp-edit-reset');
+    const hint = document.getElementById('hp-edit-hint');
+    if (editOn) {
+      btn.textContent = '✓ Bitir';
+      btn.classList.add('primary');
+      if (reset) reset.style.display = 'inline-block';
+      if (hint) hint.style.display = 'inline';
+      enableDrag();
+    } else {
+      btn.textContent = '⚙ Özelleştir';
+      btn.classList.remove('primary');
+      if (reset) reset.style.display = 'none';
+      if (hint) hint.style.display = 'none';
+      disableDrag();
+    }
+  };
+  window.hpEditReset = function() {
+    if (!confirm('Dashboard düzenini varsayılana sıfırla?')) return;
+    try { localStorage.removeItem(STORE_KEY); } catch {}
+    location.reload();
+  };
+
+  // Init: panellere kontrol ekle + config uygula
+  function init() {
+    injectControls();
+    applyConfig();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
 </body>
 </html>
