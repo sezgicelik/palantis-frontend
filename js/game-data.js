@@ -180,6 +180,8 @@ async function loadGameData() {
     // Null guard + downstream degiskenleri (eski isimlerle uyumluluk)
     const res       = _resRaw.data   || {};
     const work      = _workRaw.data  || {};
+    // v1.14.1.33: workers global expose — market.html esir_tuccar icin gerekli
+    try { window.workersRaw = work; } catch(_){ }
     const alanData  = _alanRaw.data  || {};
     const takvimData= _takvimRaw.data;
     const prodData  = _prodRaw.data  || {};

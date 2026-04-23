@@ -24,13 +24,21 @@
       Kurlar her saat değişir (%70-%130 arası).
     </p>
 
-    <!-- Tüccar Bilgisi -->
+    <!-- Tüccar Bilgisi (v1.14.1.33: esir tuccar dahil) -->
     <div class="card" style="padding:16px;margin-bottom:16px">
       <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
         <span style="font-size:24px">🧑‍💼</span>
-        <div>
-          <div style="color:#d4af37;font-weight:bold;font-size:16px">Tüccar Sayısı: <span id="mk-tuccar">0</span></div>
-          <div style="color:#666;font-size:12px">Her tüccar günde 300-500 arası market hammaddesi toplar</div>
+        <div style="flex:1;min-width:250px">
+          <div style="color:#d4af37;font-weight:bold;font-size:16px">
+            Normal Tüccar: <span id="mk-tuccar">0</span>
+            <span style="color:#9b59b6;margin-left:14px">🔒 Esir Tüccar: <span id="mk-esir-tuccar">0</span></span>
+          </div>
+          <div style="color:#666;font-size:12px">
+            Her normal tüccar günde <b>300-500</b> hammadde toplar · Esir tüccarlar <b style="color:#9b59b6">%50 verim</b> ile çalışır
+          </div>
+          <div style="color:#2ecc71;font-size:12px;margin-top:3px">
+            Efektif Tüccar: <span id="mk-efektif-tuccar" style="font-weight:bold">0</span> · Saatlik tahmin: <span id="mk-saatlik" style="font-weight:bold">~0</span>
+          </div>
         </div>
         <div style="margin-left:auto;color:#555;font-size:11px">
           Kur güncelleme: <span id="mk-kur-zaman">—</span>
@@ -61,10 +69,10 @@
 <script src="js/toast.js"></script>
 <script src="js/theme.js"></script>
 <script src="js/cache-fetch.js"></script>
-<script src="js/game-data.js?v=14127"></script>
+<script src="js/game-data.js?v=14133"></script>
 <script src="js/hud.js?v=13500"></script>
 <script src="js/nufus-render.js"></script>
-<script src="js/layout.js?v=14132"></script>
+<script src="js/layout.js?v=14133"></script>
 <script src="js/rehber.js"></script>
 <script>
 const MK_IKONLAR = {
@@ -153,9 +161,20 @@ function renderMarket() {
   const liste = document.getElementById('mk-liste');
   if (!liste || !MK_DATA.fiyatlar) return;
 
-  // Tüccar sayisi
-  const tuccarEl = document.getElementById('mk-tuccar');
-  if (tuccarEl) tuccarEl.textContent = population.merchant || 0;
+  // Tüccar sayisi + esir (v1.14.1.33: esir tuccar da goster)
+  const normalTuccar = population.merchant || 0;
+  const esirTuccar = (window.workersRaw && window.workersRaw.esir_tuccar) || 0;
+  const efektif = normalTuccar + esirTuccar * 0.5;
+  const saatlikTahmin = Math.round(efektif * 400); // 300-500 orta
+  const fmt = n => (+n || 0).toLocaleString('tr-TR');
+  const setT = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+  setT('mk-tuccar', fmt(normalTuccar));
+  setT('mk-esir-tuccar', fmt(esirTuccar));
+  setT('mk-efektif-tuccar', fmt(Math.floor(efektif)));
+  setT('mk-saatlik', '~' + fmt(saatlikTahmin));
+  // Esir tuccar 0 ise blog'u gizle
+  const esirSpan = document.getElementById('mk-esir-tuccar')?.parentElement;
+  if (esirSpan && esirTuccar === 0) esirSpan.style.display = 'none';
 
   // Kur zamani
   const zamanEl = document.getElementById('mk-kur-zaman');
