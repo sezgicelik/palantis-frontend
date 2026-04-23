@@ -48,7 +48,8 @@
       <p style="font-size:13px;color:#555;line-height:1.9;margin-bottom:12px">
         Hammadde üretimine etki eden faktörler:
       </p>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px" id="bonus-etki-grid">
+      <!-- v1.14.1.26: Tek sutun — user talebi. Geniş ekranda 2 kolon fallback -->
+      <div style="display:grid;grid-template-columns:1fr;gap:8px" id="bonus-etki-grid">
         <div style="padding:10px;background:#0d0d0d;border-radius:6px;border-left:2px solid var(--race-color,#c8a96e)">
           <div style="font-size:11px;color:var(--race-color,#c8a96e);font-weight:bold">🏹 Irk Etkisi</div>
           <div style="font-size:10px;color:#888;margin-top:3px" id="bonus-irk-detay">Yükleniyor...</div>
@@ -80,8 +81,8 @@
       </div>
     </div>
 
-    <!-- 2. SIRADA: Pişirme + Kesim yan yana -->
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-bottom:16px">
+    <!-- v1.14.1.26: Tek sutun — user talebi, parsomen temada yan yana sikisik goruk -->
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px">
     <div class="card" style="padding:16px">
       <h2>🔥 Ocak / Fırın Pişirme Oranı</h2>
       <p style="color:#555;font-size:12px;margin-bottom:14px">
@@ -312,9 +313,9 @@
 <script src="js/game-data.js?v=14122"></script>
 <script src="js/hud.js?v=13500"></script>
 <script src="js/nufus-render.js"></script>
-<script src="js/layout.js?v=14124"></script>
+<script src="js/layout.js?v=14126"></script>
 <script src="js/rehber.js"></script>
-<script src="js/page-population.js?v=14124"></script>
+<script src="js/page-population.js?v=14126"></script>
 <script src="js/sw-register.js?v=13467"></script>
 </body>
 </html>

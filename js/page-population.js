@@ -488,31 +488,32 @@ async function esirIsciyeCevir() {
   sonuc.style.color = '#888';
   try {
     const token = getToken();
-    // 1) Mevcut esir dagilimini al
-    const sR = await fetch(API_BASE + '/api/game/esirler', { headers: { Authorization: 'Bearer ' + token } });
-    const sd = await sR.json();
-    if (!sR.ok) { sonuc.textContent = '✗ Esir bilgisi alinamadi'; sonuc.style.color = '#e74c3c'; return; }
-    const e = sd.esir || {};
-    // 2) Mevcut normal isci dagilimini state'ten al
-    const state = (typeof STATE !== 'undefined' && STATE) ? STATE : (window.STATE || {});
-    const population = state.population || {};
+    // v1.14.1.26 FIX: Normal iscileri BACKEND'TEN direkt oku (STATE.population
+    // undefined olabiliyordu → tum iscileri 0 yapiyordu, BUYUK VERI KAYBI bug'i).
+    // Artik /api/game/workers'tan mevcut degerleri al, sadece esir alanini guncelle.
+    const wR = await fetch(API_BASE + '/api/game/workers?_cb=' + Date.now(), {
+      headers: { Authorization: 'Bearer ' + token }, cache: 'no-store'
+    });
+    if (!wR.ok) { sonuc.textContent = '✗ Isci verisi alinamadi'; sonuc.style.color = '#e74c3c'; return; }
+    const w = await wR.json();
+    // Normal isci'ler — mevcut degerleri koru
     const normalIsci = {
-      oduncu: population.wood || 0,
-      madenci: population.iron || 0,
-      ciftci: population.farm || 0,
-      balikci: population.fish || 0,
-      tuccar: population.merchant || 0
+      oduncu:  parseInt(w.oduncu)  || 0,
+      madenci: parseInt(w.madenci) || 0,
+      ciftci:  parseInt(w.ciftci)  || 0,
+      balikci: parseInt(w.balikci) || 0,
+      tuccar:  parseInt(w.tuccar)  || 0
     };
-    // 3) Yeni esir dagilimi — secilen tipi adet kadar artir
+    // Mevcut esir dagilimi — mevcut degerler + seciilene adet ekle
     const yeniEsir = {
-      esir_oduncu: e.oduncu || 0,
-      esir_madenci: e.madenci || 0,
-      esir_ciftci: e.ciftci || 0,
-      esir_balikci: e.balikci || 0,
-      esir_tuccar: e.tuccar || 0
+      esir_oduncu:  parseInt(w.esir_oduncu)  || 0,
+      esir_madenci: parseInt(w.esir_madenci) || 0,
+      esir_ciftci:  parseInt(w.esir_ciftci)  || 0,
+      esir_balikci: parseInt(w.esir_balikci) || 0,
+      esir_tuccar:  parseInt(w.esir_tuccar)  || 0
     };
     yeniEsir['esir_' + tip] += adet;
-    // 4) PUT /api/game/workers
+    // PUT /api/game/workers
     const body = Object.assign({}, normalIsci, yeniEsir);
     const r = await fetch(API_BASE + '/api/game/workers', {
       method: 'PUT',
