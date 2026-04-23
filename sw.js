@@ -1,6 +1,6 @@
 // v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
 // Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
-const CACHE_NAME = 'noxara-v122'; // v1.14.1.22 home dashboard Uretim paneli `—` bug fix (window.prod expose)
+const CACHE_NAME = 'noxara-v123'; // v1.14.1.23 Uretim 0 ise kirmizi uyari + isci dagit linki
 
 // Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [

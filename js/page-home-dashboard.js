@@ -111,20 +111,42 @@ async function hpLoadUretim() {
   try {
     let prod = (typeof window !== 'undefined' && window.prod) ? window.prod : null;
     // Fallback: game-data henuz yuklenmediyse direkt endpoint
+    // v1.14.1.23 FIX: endpoint /api/game/production (uretim DEGIL)
     if (!prod || Object.keys(prod).length === 0) {
       const token = getToken(); if (!token) return;
-      const r = await fetch(API_BASE + '/api/game/uretim?_cb=' + Date.now(), {
+      const r = await fetch(API_BASE + '/api/game/production?_cb=' + Date.now(), {
         headers: { Authorization: 'Bearer ' + token }, cache: 'no-store'
       });
       if (!r.ok) return;
       const d = await r.json();
       prod = d.toplam || d || {};
     }
-    _hpText('hp-prod-odun',   '+' + _HP_FMT(prod.odun   || 0));
-    _hpText('hp-prod-metal',  '+' + _HP_FMT(prod.metal  || 0));
-    _hpText('hp-prod-bugday', '+' + _HP_FMT(prod.bugday || 0));
-    _hpText('hp-prod-balik',  '+' + _HP_FMT(prod.balik  || 0));
-    _hpText('hp-prod-altin',  '+' + _HP_FMT(prod.altin  || 0));
+    const stil0 = 'color:#e74c3c;font-weight:bold';
+    function _hpProd(id, v) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (!v || v <= 0) {
+        el.innerHTML = '<span style="' + stil0 + '">+0</span>';
+      } else {
+        el.textContent = '+' + _HP_FMT(v);
+      }
+    }
+    _hpProd('hp-prod-odun',   prod.odun);
+    _hpProd('hp-prod-metal',  prod.metal);
+    _hpProd('hp-prod-bugday', prod.bugday);
+    _hpProd('hp-prod-balik',  prod.balik);
+    _hpProd('hp-prod-altin',  prod.altin);
+
+    // v1.14.1.23: Butun ana kaynak uretimi 0 ise uyari banner ekle
+    const toplamProd = (prod.odun||0) + (prod.metal||0) + (prod.bugday||0) + (prod.balik||0) + (prod.altin||0);
+    const panel = document.querySelector('#hp-prod-odun')?.closest('.panel-body');
+    if (panel && toplamProd === 0 && !panel.querySelector('.hp-uretim-uyari')) {
+      const uyari = document.createElement('div');
+      uyari.className = 'hp-uretim-uyari';
+      uyari.style.cssText = 'margin-top:10px;padding:8px 10px;background:rgba(231,76,60,0.12);border:1px solid rgba(231,76,60,0.4);border-radius:5px;color:#e74c3c;font-size:11px;text-align:center';
+      uyari.innerHTML = '⚠️ <b>Üretim durmuş!</b> İşçi atanmamış olabilir. <a href="population.html" style="color:#e74c3c;text-decoration:underline">Populasyon sayfasından işçi dağıt →</a>';
+      panel.appendChild(uyari);
+    }
   } catch(e) {}
 }
 
