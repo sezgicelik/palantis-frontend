@@ -59,13 +59,8 @@ function renderSidebar(){
 
   mount.innerHTML = `
     <div class="sidebar" id="sidebar">
-      <div class="sidebar-header">NOXARA</div>
-      <div style="padding:10px 14px;border-bottom:1px solid #1a1a1a;line-height:1.8">
-        <div id="sidebar-kral" style="color:#ccc;font-family:'Cinzel',serif;font-size:12px">— Kral —</div>
-        <div id="sidebar-irk" style="font-size:10px;color:#444">Irk seçilmedi</div>
-        <div id="sidebar-cag" style="font-size:10px;color:#444">I. Çağ</div>
-        <div id="sidebar-koord" style="font-size:10px;color:#555">📍 —</div>
-      </div>
+      <!-- v1.14.1.27: Sidebar uzerindeki NOXARA + Kral/Irk/Cag/Koord bloğu kaldirildi.
+           Ayni bilgi home.html dashboard'unda gorunuyor (user talebi, duplikasyon). -->
 
       <a href="home.html" class="menu-item${isActive('home.html')}">🏠 Ana Ekran</a>
 
@@ -1055,8 +1050,8 @@ document.addEventListener('DOMContentLoaded', initLayout);
    burada gorunur. Hard refresh sonrasi guncellenmediyse cache catili.
 */
 (function buildStamp(){
-  const BUILD = 'v1.14.1.26';
-  const TS    = '2026-04-23 isci-veri-kaybi-fix';
+  const BUILD = 'v1.14.1.27';
+  const TS    = '2026-04-23 sidebar-sade-koord-fix';
   function mount(){
     if (document.getElementById('build-stamp')) return;
     const div = document.createElement('div');

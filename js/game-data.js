@@ -568,7 +568,10 @@ async function mergeBina(target) {
 
 /* -- Oyuncu verilerini uygula -- */
 function obApplyPlayer(p) {
-  OYUNCU = { kral: p.kral, sehir: p.sehir, irk: p.irk, taraf: p.taraf, cag: p.cag || 1 };
+  // v1.14.1.27: koord_x/y de dahil — home-dashboard hpLoadBaslik OYUNCU.koord_x okuyor
+  OYUNCU = { kral: p.kral, sehir: p.sehir, irk: p.irk, taraf: p.taraf, cag: p.cag || 1,
+             koord_x: p.koord_x, koord_y: p.koord_y, id: p.id, premium: p.premium };
+  try { window.OYUNCU = OYUNCU; } catch(_){ }
   const irkData = findIrk(p.irk);
   OYUNCU.irkData = irkData;
 
@@ -686,7 +689,9 @@ function nextCag() {
   document.getElementById('home-cag').textContent = roman[OYUNCU.cag] + '. Cag';
   const hcl = document.getElementById('home-cag-lbl');
   if (hcl) hcl.textContent = roman[OYUNCU.cag] + '. Cag';
-  document.getElementById('sidebar-cag').textContent = roman[OYUNCU.cag] + '. Cag';
+  // v1.14.1.27: sidebar-cag element kaldirildi — guard ekle
+  const sbc = document.getElementById('sidebar-cag');
+  if (sbc) sbc.textContent = roman[OYUNCU.cag] + '. Cag';
   if (OYUNCU.cag > 1) {
     const uyari = document.getElementById('cag1-uyari');
     if (uyari) uyari.style.display = 'none';

@@ -1,6 +1,6 @@
 // v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
 // Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
-const CACHE_NAME = 'noxara-v126'; // v1.14.1.26 Esir-isci donusurken normal iscileri silme fix + populasyon tek sutun
+const CACHE_NAME = 'noxara-v127'; // v1.14.1.27 Sidebar NOXARA/Kral/Irk/Cag/Koord bloğu kaldirildi + Koord ?:? fix
 
 // Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [
