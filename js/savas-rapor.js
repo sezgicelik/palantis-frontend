@@ -466,9 +466,59 @@ function renderSafDizilim(sonuc, saldiranAdi, savunanAdi, benimTaraf) {
   var g = sonuc.ganimet || {};
   var sSaflar = g._saflar_saldiran || sonuc.saldiran_saflar || null;
   var vSaflar = g._saflar_savunan  || sonuc.savunan_saflar  || null;
-  if (!sSaflar && !vSaflar) return ''; // eski rapor — saf bilgisi yok
   var fmt = function(n){ return (n==null?'—':(+n).toLocaleString('tr-TR')); };
   var SAF_LIMITS = [3, 3, 5, 3];
+
+  // v1.14.1.19: ESKI RAPORLAR ICIN TAHMINI SAF
+  // Saf bilgisi DB'de yoksa (eski savaslar), birim tipi + tier + savas_turlarina
+  // bakarak mantikli bir dizilim **tahmin et**. Kullanici "savaştayken gerçekte
+  // hangi dizilim vardı" bilgisine ulasamaz — ama tip bazli yaklasik goruntu sunar.
+  var tahminMi = false;
+  function safTahmin(baslangic, kayip) {
+    if (!baslangic || Object.keys(baslangic).length === 0) return null;
+    var saflar = [[], [], [], []];
+    for (var uid in baslangic) {
+      var adet = parseInt(baslangic[uid]) || 0;
+      if (adet <= 0) continue;
+      var realId = uid.replace(/__army_\d+$/, '').replace(/^kule_/, '');
+      var u = (typeof UNITS !== 'undefined') ? UNITS[realId] : null;
+      var olen = parseInt((kayip||{})[uid] ?? (kayip||{})[realId] ?? 0) || 0;
+      var slot = { unite_id: realId, baslangic: adet, kalan: Math.max(0, adet - olen), olen: olen };
+      // Tier + isim heuristic
+      // Saf 4 (arka elit): Ejderha (tier 4), Rahip, Kara Rahip
+      // Saf 3 (menzilli + elit): Okçu, Büyücü, Kara Elf, Kolcu, Paladin, Işığın/Gölge Savaşçısı
+      // Saf 2 (orta tank): Şövalye, Süvari, Troll, Ork, Golem, Kara Şövalye
+      // Saf 1 (ön hat): Piyade, Baltacı, İskelet, Goblin, Savaşçı, İskelet Okçu, Ogre Savaşçı
+      var arkaBirim = ['rahip','kara_rahip'].includes(realId) || (u && u.tier === 4);
+      var menzilli = ['okcu','buyucu','kara_elf','iskelet_okcu','kolcu','paladin','isin_savasci','golge_savasci'].includes(realId);
+      var ortaTank = ['sovalye','suvari','troll','ork','golem','kara_sovalye'].includes(realId);
+      var hedefSaf = arkaBirim ? 3 : (menzilli ? 2 : (ortaTank ? 1 : 0));
+      saflar[hedefSaf].push(slot);
+    }
+    // Her safi limit'e sigdir — taşanlar bir sonraki saf'a
+    var out = [[], [], [], []];
+    for (var i = 0; i < 4; i++) {
+      for (var j = 0; j < saflar[i].length; j++) {
+        var placed = false;
+        for (var k = i; k < 4 && !placed; k++) {
+          if (out[k].length < SAF_LIMITS[k]) {
+            out[k].push(saflar[i][j]);
+            placed = true;
+          }
+        }
+      }
+    }
+    return out;
+  }
+  if (!sSaflar && sonuc.saldiran_baslangic) {
+    sSaflar = safTahmin(sonuc.saldiran_baslangic, sonuc.saldiran_kayip);
+    if (sSaflar) tahminMi = true;
+  }
+  if (!vSaflar && sonuc.savunan_baslangic) {
+    vSaflar = safTahmin(sonuc.savunan_baslangic, sonuc.savunan_kayip);
+    if (vSaflar) tahminMi = true;
+  }
+  if (!sSaflar && !vSaflar) return ''; // hic baslangic verisi de yok
 
   function birimInfoLocal(uid) {
     var realId = (uid||'').replace(/^kule_/, '');
@@ -523,7 +573,12 @@ function renderSafDizilim(sonuc, saldiranAdi, savunanAdi, benimTaraf) {
     '</div>';
   }
 
-  return '<div class="sr-sec-title">🪖 SAF DİZİLİMİ (Başlangıç → Kalan)</div>' +
+  var baslikEk = tahminMi ? ' <span style="color:#f39c12;font-size:11px;font-weight:normal">(Tahmini — eski rapor, gerçek dizilim saklanmadı)</span>' : '';
+  var tahminUyari = tahminMi
+    ? '<div style="margin:0 auto 12px;max-width:800px;padding:8px 14px;background:rgba(243,156,18,0.08);border:1px solid rgba(243,156,18,0.3);border-radius:6px;font-size:11px;color:#f39c12;text-align:center">⚠️ Bu eski bir rapor — saf dizilimi kaydedilmedi. Gösterilen dizilim tier/tip bazında <b>tahminidir</b>. 2026-04-23 sonrası savaşlarda gerçek dizilim görünür.</div>'
+    : '';
+  return '<div class="sr-sec-title">🪖 SAF DİZİLİMİ (Başlangıç → Kalan)' + baslikEk + '</div>' +
+    tahminUyari +
     '<div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:16px">' +
       renderOneOrdu(sSaflar, saldiranAdi, 'atk') +
       renderOneOrdu(vSaflar, savunanAdi,  'def') +
