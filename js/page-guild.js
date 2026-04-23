@@ -386,10 +386,41 @@ function renderKusatmaIcerik(el, data) {
   if (r.son_loglar && r.son_loglar.length > 0) {
     logHtml = '<div class="card" style="padding:10px">' +
       '<h4 style="margin:0 0 6px;font-size:12px;color:#888">📜 Son Olaylar</h4>' +
-      r.son_loglar.map(function(l) {
+      r.son_loglar.map(function(l, idx) {
         var t = new Date(l.created_at).toLocaleString('tr-TR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
-        return '<div style="font-size:10px;color:#aaa;padding:2px 0;border-top:1px solid #222">' +
-          '<span style="color:#666">' + t + '</span> | <b>' + l.olay + '</b> ' + (l.sehir_isim||'') + '</div>';
+        // v1.14.1.06: savas_turu detaylı expand — tiklanabilir
+        var expandId = 'kus-log-' + idx;
+        var hasDetail = l.olay === 'savas_turu' && l.detay;
+        var baslik = '<span style="color:#666">' + t + '</span> | <b>' + l.olay + '</b> ' + (l.sehir_isim||'');
+        if (!hasDetail) {
+          return '<div style="font-size:10px;color:#aaa;padding:2px 0;border-top:1px solid #222">' + baslik + '</div>';
+        }
+        var d = (typeof l.detay === 'string') ? (function(){ try{return JSON.parse(l.detay)}catch(e){return {}} })() : l.detay;
+        var turler = d.turler || [];
+        var guildDmg = d.guild_damage || {};
+        var ordular = d.ordular || [];
+        var turTable = turler.map(function(t){
+          return '<tr><td>Tur ' + t.tur + '</td><td style="color:#9b59b6">NPC Guc: <b>' + (t.npc_guc||0).toLocaleString('tr-TR') + '</b></td><td style="color:#e74c3c">NPC Kayip: <b>' + (t.npc_kayip||0).toLocaleString('tr-TR') + '</b></td><td style="color:#f39c12">Guild ATK: <b>' + (t.guild_atk||0).toLocaleString('tr-TR') + '</b></td><td>' + (t.ordu_sayisi||0) + ' ordu</td></tr>';
+        }).join('');
+        var orduList = ordular.map(function(o){
+          var sonuc = o.unite > 0 ? ('kalan <b style="color:#2ecc71">' + o.unite + '</b>') : '<b style="color:#e74c3c">YOK EDILDI</b>';
+          return '<div style="padding:2px 0;font-size:10px">⚔️ <b>' + o.isim + '</b> (guild ' + o.guild_id + ') — ' + sonuc + '</div>';
+        }).join('');
+        var dmgList = Object.entries(guildDmg).map(function(e){
+          return '<span style="background:rgba(212,175,55,0.1);padding:1px 6px;border-radius:3px;margin:2px">Guild ' + e[0] + ': <b>' + parseInt(e[1]).toLocaleString("tr-TR") + '</b> hasar</span>';
+        }).join(' ');
+        return '<div style="font-size:10px;color:#aaa;padding:4px 0;border-top:1px solid #222">' +
+          '<div style="cursor:pointer" onclick="document.getElementById(\'' + expandId + '\').style.display = document.getElementById(\'' + expandId + '\').style.display===\'none\' ? \'block\' : \'none\'">' +
+            baslik + ' <span style="color:#c8a96e;font-size:9px">(tıkla → detay ▼)</span>' +
+          '</div>' +
+          '<div id="' + expandId + '" style="display:none;margin-top:6px;padding:8px;background:rgba(0,0,0,0.3);border:1px solid #2a2a2a;border-radius:4px">' +
+            '<div style="color:#c8a96e;font-weight:bold;margin-bottom:4px;font-size:11px">⚔️ Savaş Detayı — ' + turler.length + ' tur</div>' +
+            (turTable ? '<table style="width:100%;font-size:10px;color:#ccc;border-collapse:collapse"><thead><tr style="color:#888"><th style="text-align:left;padding:3px">#</th><th style="text-align:left;padding:3px">NPC Güç</th><th style="text-align:left;padding:3px">NPC Kayıp</th><th style="text-align:left;padding:3px">Guild ATK</th><th style="text-align:left;padding:3px">Aktif</th></tr></thead><tbody>' + turTable + '</tbody></table>' : '') +
+            '<div style="margin-top:8px;color:#888;font-size:10px">NPC Son Güç: <b style="color:#9b59b6">' + (d.npc_guc_kalan||0).toLocaleString('tr-TR') + '</b></div>' +
+            (orduList ? '<div style="margin-top:6px">' + orduList + '</div>' : '') +
+            (dmgList ? '<div style="margin-top:6px;font-size:10px;color:#888">🏆 Hasar Sıralaması: ' + dmgList + '</div>' : '') +
+          '</div>' +
+        '</div>';
       }).join('') +
     '</div>';
   }
