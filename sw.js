@@ -1,6 +1,6 @@
 // v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
 // Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
-const CACHE_NAME = 'noxara-v107'; // v1.14.1.07 Guild Kusatma — oyuncu-kalite detayli savas raporu
+const CACHE_NAME = 'noxara-v109'; // v1.14.1.09 Kadim Sehir Ekonomisi 5 Faz + pazar indirim badge
 
 // Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [
