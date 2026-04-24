@@ -208,6 +208,19 @@ function renderGuildPageHUD(data) {
   const alanYuzde = alanT > 0 ? Math.round(alanK / alanT * 100) : 0;
   const alanRenk = alanYuzde >= 90 ? '#e74c3c' : (alanYuzde >= 75 ? '#f39c12' : '#d4af37');
 
+  // v1.14.1.38 — Aclik oranı (yemek_yenen/ihtiyac formulu backend cron ile senkron)
+  const bugdayStok = parseInt(kasa.bugday) || 0;
+  const balikStok = parseInt(kasa.balik) || 0;
+  const yemekIhtiyac = mevcut; // toplam nufus × 1 bugday/PG
+  const yenen = Math.min(yemekIhtiyac, bugdayStok + balikStok);
+  const doymaYuzde = yemekIhtiyac > 0 ? Math.round((yenen / yemekIhtiyac) * 100) : 100;
+  const aclikYuzde = 100 - doymaYuzde;
+  const aclikRenk = aclikYuzde >= 50 ? '#e74c3c' : (aclikYuzde >= 20 ? '#f39c12' : '#2ecc71');
+  const aclikIkon = aclikYuzde >= 50 ? '⚠️' : (aclikYuzde >= 20 ? '🍴' : '🍞');
+  const aclikTooltip = aclikYuzde >= 50
+    ? 'KRİTİK! Köylüler kaçıyor (yemek kıtlığı). Tarla + Fırın ekle, balıkçı işçi ata.'
+    : (aclikYuzde >= 20 ? 'Orta açlık — moral düşmeye başlayabilir' : 'Halk tok');
+
   hudEl.innerHTML = `
     <div class="card" style="padding:8px 12px;margin-bottom:12px;background:linear-gradient(90deg,rgba(212,175,55,0.05),transparent);border-left:3px solid var(--race-color);display:flex;flex-wrap:wrap;align-items:center;gap:16px;font-size:11px">
       <span style="font-family:Cinzel,serif;color:var(--race-color);font-weight:bold;font-size:13px">🏰 [${g.tag}] ${g.isim}</span>
@@ -215,6 +228,8 @@ function renderGuildPageHUD(data) {
       <span>👥 Nüfus: <b style="color:${nufusRenk}">${mevcut}/${siniri}</b> <span style="color:#666">(%${nufusYuzde})</span></span>
       <span style="color:#888">|</span>
       <span>🎖 Moral: <b style="color:${moralRenk}">${moral}/100</b></span>
+      <span style="color:#888">|</span>
+      <span title="${aclikTooltip}" style="cursor:help">${aclikIkon} Açlık: <b style="color:${aclikRenk}">%${aclikYuzde}</b> <span style="color:#666">(doyma %${doymaYuzde})</span></span>
       <span style="color:#888">|</span>
       <span>📐 Alan: <b style="color:${alanRenk}">${alanK}/${alanT}</b> <span style="color:#666">(%${alanYuzde})</span></span>
       <span style="color:#888">|</span>
