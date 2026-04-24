@@ -1899,6 +1899,15 @@ async function renderTabOrdu(el, data) {
           'ℹ ' + dInfo.aciklama + (ordu.hedef_kadim_sehir_id ? ' (hedef: Kadim #' + ordu.hedef_kadim_sehir_id + ')' : '') +
         '</div>';
       }
+      // v1.14.1.35 — Saf Dizilimi butonu + inline panel
+      if (yetkiler.guild_ordusu_kur && !isKusatma && ordu.uniteler && ordu.uniteler.length > 0) {
+        html += '<div style="margin-top:6px">' +
+          '<button onclick="guildSafToggle(' + ordu.id + ')" style="padding:4px 10px;background:transparent;border:1px solid #c8a96e;color:#c8a96e;cursor:pointer;font-size:10px;border-radius:3px;font-family:Cinzel,serif;letter-spacing:0.5px">⚔️ Saf Dizilimi</button>' +
+        '</div>' +
+        '<div id="guild-saf-panel-' + ordu.id + '" style="display:none;margin-top:8px;padding:10px;background:rgba(0,0,0,0.25);border-top:1px solid #333;border-radius:0 0 4px 4px" data-saf-1=\'' + JSON.stringify(ordu.saf_1 || []) + '\' data-saf-2=\'' + JSON.stringify(ordu.saf_2 || []) + '\' data-saf-3=\'' + JSON.stringify(ordu.saf_3 || []) + '\' data-saf-4=\'' + JSON.stringify(ordu.saf_4 || []) + '\' data-units=\'' + JSON.stringify(ordu.uniteler) + '\'>' +
+          '<div style="color:#888;font-size:11px;padding:10px">Yükleniyor...</div>' +
+        '</div>';
+      }
       if (yetkiler.guild_ordusu_kur) {
         html += '<div style="margin-top:6px;display:flex;gap:4px">' +
           '<button class="btn-action" style="width:auto;padding:3px 10px;font-size:11px;background:#333" onclick="guildOrduSil(' + ordu.id + ')">🗑️ Sil</button>' +
@@ -1915,23 +1924,57 @@ async function renderTabOrdu(el, data) {
       '</div>';
     }
 
-    // Egitim formu (dropdown ile lider tarafi uniteleri)
-    if (yetkiler.guild_unite_uret && d.nufus.asker > 0) {
-      var uniteOpts = '';
-      if (d.taraf_uniteleri && d.taraf_uniteleri.length > 0) {
-        d.taraf_uniteleri.forEach(function(u) {
-          uniteOpts += '<option value="' + u.id + '">' + u.id + ' (T' + u.tier + ' | ATK:' + u.baseAtk + ' DEF:' + u.baseDef + ' | ' + u.trainDays + 'PG)</option>';
+    // v1.14.1.35 — Egitim KART GRID (dropdown yerine, oyuncu army.html ile tutarli)
+    if (yetkiler.guild_unite_uret && d.taraf_uniteleri && d.taraf_uniteleri.length > 0) {
+      // Ikon sozlugu (UNITS frontend'de tam yoksa fallback)
+      const UNITS_LOCAL = (typeof UNITS !== 'undefined') ? UNITS : {};
+      const icinForUnite = (id) => {
+        const u = UNITS_LOCAL[id];
+        return u && u.icon ? u.icon : '⚔';
+      };
+      const adForUnite = (id) => {
+        const u = UNITS_LOCAL[id];
+        return u && u.name ? u.name : id;
+      };
+      html += '<div class="card" style="padding:12px;margin-top:10px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px">' +
+          '<div style="font-size:12px;color:var(--race-color);font-weight:bold">⚔️ Ünite Eğit <span style="color:#888;font-size:10px;font-weight:normal">(' + d.lider_taraf + ' tarafı)</span></div>' +
+          '<div style="font-size:10px;color:#888">Mevcut asker: <b style="color:' + (d.nufus.asker > 0 ? '#2ecc71' : '#e74c3c') + '">' + fmt(d.nufus.asker) + '</b></div>' +
+        '</div>';
+
+      if (d.nufus.asker <= 0) {
+        html += '<div style="padding:10px;background:rgba(231,76,60,0.08);border:1px solid rgba(231,76,60,0.3);border-radius:4px;color:#e74c3c;font-size:11px;text-align:center">' +
+          '⚠ Guild şehrinde asker yok. Önce köylü → asker dönüşümü yapın.' +
+        '</div>';
+      } else {
+        // Tier'e gore sirala
+        const tierSirali = d.taraf_uniteleri.slice().sort((a, b) => a.tier - b.tier);
+        html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px">';
+        tierSirali.forEach(function(u) {
+          const costStr = [];
+          if (u.cost?.altin) costStr.push(fmt(u.cost.altin) + ' altın');
+          if (u.cost?.odun) costStr.push(fmt(u.cost.odun) + ' odun');
+          if (u.cost?.metal) costStr.push(fmt(u.cost.metal) + ' metal');
+          if (u.cost?.islenmis) costStr.push(fmt(u.cost.islenmis) + ' işl.');
+          const tierColor = u.tier === 1 ? '#888' : u.tier === 2 ? '#3498db' : u.tier === 3 ? '#9b59b6' : '#e67e22';
+          html += '<div style="background:#0d0d0d;border:1px solid #222;border-radius:6px;padding:8px 10px;transition:.2s" onmouseover="this.style.borderColor=\'#c8a96e\'" onmouseout="this.style.borderColor=\'#222\'">' +
+            '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">' +
+              '<span style="font-size:20px">' + icinForUnite(u.id) + '</span>' +
+              '<div style="flex:1;min-width:0">' +
+                '<div style="font-weight:bold;color:#d4af37;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + adForUnite(u.id) + '</div>' +
+                '<div style="font-size:9px;color:' + tierColor + '">T' + u.tier + ' · ATK:' + u.baseAtk + ' DEF:' + u.baseDef + ' · ' + u.trainDays + ' PG</div>' +
+              '</div>' +
+            '</div>' +
+            '<div style="font-size:9px;color:#666;margin-bottom:6px;min-height:14px">' + (costStr.join(' · ') || 'Maliyet bilgisi yok') + '</div>' +
+            '<div style="display:flex;gap:4px;align-items:center">' +
+              '<input type="number" id="ge-adet-' + u.id + '" min="1" value="10" style="width:60px;padding:3px 5px;border:1px solid #333;background:#111;color:#ccc;border-radius:3px;font-size:11px">' +
+              '<button onclick="guildOrduEgitV2(\'' + u.id + '\')" style="flex:1;padding:4px 8px;background:linear-gradient(180deg,#c8a96e,#8b6914);color:#000;border:none;border-radius:3px;cursor:pointer;font-size:10px;font-weight:bold;font-family:Cinzel,serif;letter-spacing:0.5px">⚔ EĞİT</button>' +
+            '</div>' +
+          '</div>';
         });
+        html += '</div>';
       }
-      html += '<div class="card" style="padding:10px;margin-top:10px">' +
-        '<div style="font-size:11px;color:var(--race-color);margin-bottom:6px">⚔️ Unite Egit (' + d.lider_taraf + ' tarafi)</div>' +
-        '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
-          '<select id="guild-egit-unite" style="padding:4px 8px;border:1px solid #333;background:#111;color:#ccc;border-radius:4px;font-size:11px;width:260px">' + uniteOpts + '</select>' +
-          '<input id="guild-egit-adet" type="number" min="1" value="10" style="padding:4px 8px;border:1px solid #333;background:#111;color:#ccc;border-radius:4px;font-size:11px;width:60px">' +
-          '<button class="btn-action" style="width:auto;padding:4px 14px;font-size:10px" onclick="guildOrduEgit()">EGIT</button>' +
-        '</div>' +
-        '<div style="font-size:11px;color:#555;margin-top:4px">Mevcut asker: ' + fmt(d.nufus.asker) + ' (her unite 1 asker harcar)</div>' +
-      '</div>';
+      html += '</div>';
     }
 
     el.innerHTML = html;
@@ -1979,6 +2022,177 @@ async function guildOrduEgit() {
     if (resp.ok) { toast(d.mesaj || 'Egitim baslatildi'); loadGuild(); }
     else toast(d.error || 'Hata', 'error');
   } catch(e) { toast('Baglanti hatasi', 'error'); }
+}
+
+// v1.14.1.35 — Kart grid'den çağırılır (per-unite adet input)
+async function guildOrduEgitV2(uniteId) {
+  if (!GUILD_DATA) return;
+  const adetEl = document.getElementById('ge-adet-' + uniteId);
+  const adet = parseInt(adetEl?.value) || 0;
+  if (adet < 1) { toast('Geçerli adet girin', 'error'); return; }
+  try {
+    const resp = await fetch(API_BASE + '/api/guild/' + GUILD_DATA.guild.id + '/ordu/egit', {
+      method: 'POST', headers: guildHdr(),
+      body: JSON.stringify({ unite_id: uniteId, adet: adet })
+    });
+    const d = await resp.json();
+    if (resp.ok) { toast(d.mesaj || adet + 'x ' + uniteId + ' eğitim başlatıldı'); loadGuild(); }
+    else toast(d.error || 'Hata', 'error');
+  } catch(e) { toast('Bağlantı hatası', 'error'); }
+}
+if (typeof window !== 'undefined') window.guildOrduEgitV2 = guildOrduEgitV2;
+
+/* v1.14.1.35 — Guild ordu inline saf dizilimi (oyuncu mantigi ile tutarli) */
+const GU_SAF_LIMITS = [3, 3, 5, 3];
+window._GU_SAF_STATE = {}; // armyId -> [[],[],[],[]]
+
+function guildSafToggle(armyId) {
+  const panel = document.getElementById('guild-saf-panel-' + armyId);
+  if (!panel) return;
+  const isOpen = panel.style.display === 'block';
+  // Diğer panelleri kapat
+  document.querySelectorAll('[id^="guild-saf-panel-"]').forEach(p => p.style.display = 'none');
+  if (isOpen) return;
+  panel.style.display = 'block';
+  // State yükle (panel data'dan)
+  const s1 = JSON.parse(panel.dataset.saf1 || '[]');
+  const s2 = JSON.parse(panel.dataset.saf2 || '[]');
+  const s3 = JSON.parse(panel.dataset.saf3 || '[]');
+  const s4 = JSON.parse(panel.dataset.saf4 || '[]');
+  window._GU_SAF_STATE[armyId] = [s1, s2, s3, s4];
+  guildSafRender(armyId);
+}
+
+function guildSafRender(armyId) {
+  const panel = document.getElementById('guild-saf-panel-' + armyId);
+  if (!panel) return;
+  const state = window._GU_SAF_STATE[armyId] || [[],[],[],[]];
+  const uniteler = JSON.parse(panel.dataset.units || '[]');
+  const UNITS_L = (typeof UNITS !== 'undefined') ? UNITS : {};
+  const fmt = n => (+n || 0).toLocaleString('tr-TR');
+  const adetMap = {};
+  uniteler.forEach(u => { adetMap[u.unite_id] = u.adet; });
+
+  let html = '<div style="display:flex;flex-direction:column;gap:8px">';
+  for (let i = 0; i < 4; i++) {
+    const prevFull = i === 0 || state[i-1].length >= GU_SAF_LIMITS[i-1];
+    html += '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">' +
+      '<div style="min-width:54px;font-size:10px;color:' + (prevFull?'#d4af37':'#555') + ';font-family:Cinzel,serif">' + (i+1) + '. SAF</div>';
+    for (let j = 0; j < GU_SAF_LIMITS[i]; j++) {
+      const uid = state[i][j];
+      if (uid) {
+        const u = UNITS_L[uid];
+        const adet = adetMap[uid] || 0;
+        html += '<div onclick="guildSafRemove(' + armyId + ',' + i + ',' + j + ')" style="width:80px;height:72px;border:2px solid #c8a96e;border-radius:4px;background:#1a1510;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:4px" title="Kaldir">' +
+          '<div style="font-size:18px">' + (u?.icon || '⚔') + '</div>' +
+          '<div style="font-size:10px;color:#d4af37;font-weight:bold">' + fmt(adet) + '</div>' +
+          '<div style="font-size:9px;color:#aaa">' + (u?.name || uid) + '</div>' +
+        '</div>';
+      } else {
+        const clickable = prevFull;
+        html += '<div' + (clickable ? ' onclick="guildSafPick(' + armyId + ',' + i + ',' + j + ')"' : '') + ' style="width:80px;height:72px;border:2px dashed ' + (clickable?'#555':'#2a2a2a') + ';border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:20px;color:' + (clickable?'#888':'#333') + ';' + (clickable?'cursor:pointer':'') + '">+</div>';
+      }
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+
+  // Kullanılabilir üniteler
+  const placed = {};
+  state.forEach(r => r.forEach(u => { placed[u] = true; }));
+  const musait = uniteler.filter(u => u.adet > 0 && !placed[u.unite_id]);
+  if (musait.length) {
+    html += '<div style="margin-top:10px"><div style="font-size:10px;color:#c8a96e;margin-bottom:4px">Kullanılabilir Üniteler:</div><div style="display:flex;gap:4px;flex-wrap:wrap">';
+    musait.forEach(u => {
+      const uDef = UNITS_L[u.unite_id];
+      html += '<div onclick="guildSafAddAuto(' + armyId + ',\'' + u.unite_id + '\')" style="padding:4px 8px;background:#1a1a1a;border:1px solid #333;border-radius:3px;cursor:pointer;font-size:10px;color:#ccc">' +
+        (uDef?.icon || '⚔') + ' ' + (uDef?.name || u.unite_id) + ' <b style="color:#d4af37">(' + fmt(u.adet) + ')</b>' +
+      '</div>';
+    });
+    html += '</div></div>';
+  }
+
+  html += '<div style="margin-top:10px;display:flex;gap:6px">' +
+    '<button onclick="guildSafSave(' + armyId + ')" style="flex:1;padding:6px;background:linear-gradient(180deg,#c8a96e,#8b6914);color:#000;border:none;border-radius:3px;cursor:pointer;font-family:Cinzel,serif;font-size:11px;font-weight:bold">💾 Kaydet</button>' +
+    '<button onclick="guildSafReset(' + armyId + ')" style="padding:6px 12px;background:transparent;border:1px solid #555;color:#888;border-radius:3px;cursor:pointer;font-size:10px">🔄 Sıfırla</button>' +
+  '</div>';
+  html += '<div id="guild-saf-msg-' + armyId + '" style="font-size:10px;color:#888;margin-top:4px;min-height:14px"></div>';
+
+  panel.innerHTML = html;
+}
+
+function guildSafAddAuto(armyId, uniteId) {
+  const state = window._GU_SAF_STATE[armyId];
+  if (!state) return;
+  let zaten = false;
+  state.forEach(r => { if (r.indexOf(uniteId) !== -1) zaten = true; });
+  if (zaten) { toast('Bu birim zaten saflarda', 'warn'); return; }
+  for (let i = 0; i < 4; i++) {
+    if (i > 0 && state[i-1].length < GU_SAF_LIMITS[i-1]) break;
+    if (state[i].length < GU_SAF_LIMITS[i]) {
+      state[i].push(uniteId);
+      guildSafRender(armyId);
+      return;
+    }
+  }
+  toast('Saflar dolu', 'warn');
+}
+
+function guildSafRemove(armyId, saf, slot) {
+  const state = window._GU_SAF_STATE[armyId];
+  if (!state) return;
+  state[saf].splice(slot, 1);
+  guildSafRender(armyId);
+}
+
+function guildSafPick(armyId, saf, slot) {
+  const state = window._GU_SAF_STATE[armyId];
+  if (!state) return;
+  const panel = document.getElementById('guild-saf-panel-' + armyId);
+  const uniteler = JSON.parse(panel.dataset.units || '[]');
+  const placed = {};
+  state.forEach(r => r.forEach(u => { placed[u] = true; }));
+  const ilk = uniteler.find(u => u.adet > 0 && !placed[u.unite_id]);
+  if (!ilk) { toast('Müsait birim yok', 'warn'); return; }
+  state[saf].splice(slot, 0, ilk.unite_id);
+  if (state[saf].length > GU_SAF_LIMITS[saf]) state[saf].pop();
+  guildSafRender(armyId);
+}
+
+async function guildSafSave(armyId) {
+  const state = window._GU_SAF_STATE[armyId];
+  if (!state || !GUILD_DATA) return;
+  const msgEl = document.getElementById('guild-saf-msg-' + armyId);
+  if (msgEl) msgEl.textContent = 'Kaydediliyor...';
+  try {
+    const r = await fetch(API_BASE + '/api/guild/' + GUILD_DATA.guild.id + '/ordu/' + armyId + '/formation', {
+      method: 'PUT', headers: guildHdr(),
+      body: JSON.stringify({ saf_1: state[0], saf_2: state[1], saf_3: state[2], saf_4: state[3] })
+    });
+    const d = await r.json();
+    if (r.ok) {
+      if (msgEl) { msgEl.textContent = '✓ Dizilim kaydedildi'; msgEl.style.color = '#2ecc71'; }
+      toast('✓ Saf dizilimi kaydedildi', 'success');
+    } else {
+      if (msgEl) { msgEl.textContent = '✗ ' + (d.error || 'Hata'); msgEl.style.color = '#e74c3c'; }
+    }
+  } catch(e) {
+    if (msgEl) msgEl.textContent = '✗ Bağlantı hatası';
+  }
+}
+
+function guildSafReset(armyId) {
+  window._GU_SAF_STATE[armyId] = [[], [], [], []];
+  guildSafRender(armyId);
+}
+
+if (typeof window !== 'undefined') {
+  window.guildSafToggle = guildSafToggle;
+  window.guildSafAddAuto = guildSafAddAuto;
+  window.guildSafRemove = guildSafRemove;
+  window.guildSafPick = guildSafPick;
+  window.guildSafSave = guildSafSave;
+  window.guildSafReset = guildSafReset;
 }
 
 async function guildOrduAta(uniteId) {
