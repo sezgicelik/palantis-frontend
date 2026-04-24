@@ -704,13 +704,14 @@ function renderTabGenel(el, data) {
 // ═══════════════════════════════════
 //   TAB: UYELER
 // ═══════════════════════════════════
+// v1.14.1.34 — Excel-tarzı tablo
 function renderTabUyeler(el, data) {
   var g = data.guild;
   var uyeler = data.uyeler || [];
   var isLider = data.benim_rutbem === 'lider';
   var myYetkiler = data.benim_yetkilerim || {};
 
-  // v1.14.0.39: Gelen uyelik istekleri paneli (oyuncu_kabul yetkisi)
+  // Gelen uyelik istekleri (oyuncu_kabul yetkisi)
   var istekHTML = '';
   if (myYetkiler.oyuncu_kabul) {
     istekHTML = '<div class="card" style="margin-bottom:10px;padding:10px;border-left:3px solid #f39c12">' +
@@ -720,57 +721,241 @@ function renderTabUyeler(el, data) {
     setTimeout(function(){ _loadGelenIstekler(g.id); }, 100);
   }
 
-  var uyeHTML = uyeler.map(function(u) {
-    var rutbeIcon = u.rutbe === 'lider' ? '👑' : u.rutbe === 'yardimci' ? '⭐' : '🏅';
-    var aksiyonlar = '';
-
-    // Takviye
-    if (u.player_id !== data.benim_player_id) {
-      aksiyonlar += '<button style="background:none;border:1px solid #9b59b6;color:#9b59b6;cursor:pointer;font-size:11px;border-radius:3px;padding:1px 6px" onclick="guildTakviyeGonder(' + u.player_id + ',\'' + (u.kullanici_adi||'').replace(/'/g,'') + '\')">🛡️</button>';
-    }
-
-    // Lider islemleri
-    if (isLider && u.player_id !== g.lider_id) {
-      // v1.14.0.44: Taraf kisiti kaldirildi — guildler.taraf kuruluste sabit, lider degisse bile uretim ayni
-      aksiyonlar += '<button style="background:none;border:1px solid #f1c40f;color:#f1c40f;cursor:pointer;font-size:11px;border-radius:3px;padding:1px 6px" onclick="guildLiderlikDevret(' + g.id + ',' + u.player_id + ',\'' + (u.kullanici_adi||'').replace(/\'/g,'') + '\')">👑 Lider Yap</button>' +
-        '<button style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:11px" onclick="guildAt(' + g.id + ',' + u.player_id + ')">At</button>' +
-        '<select style="background:#111;border:1px solid #333;color:#ddd;font-size:11px;border-radius:3px;padding:1px" onchange="guildRutbe(' + g.id + ',' + u.player_id + ',this.value)">' +
-          '<option value="uye"' + (u.rutbe==='uye'?' selected':'') + '>Uye</option>' +
-          '<option value="yardimci"' + (u.rutbe==='yardimci'?' selected':'') + '>Yardimci</option>' +
-        '</select>';
-    }
-
-    // Sehir degeri / ATK-DEF goster (yetki varsa)
-    var extraInfo = '';
-    if (myYetkiler.sehir_degeri_gor && u.sehir_degeri !== undefined) {
-      extraInfo += ' SD:' + fmt(u.sehir_degeri);
-    }
-
-    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid #1a1a1a;font-size:11px">' +
-      '<span>' + rutbeIcon + ' ' + u.kullanici_adi + ' <span style="color:#555;font-size:11px">Cag ' + (u.cag||1) + extraInfo + '</span></span>' +
-      '<div style="display:flex;gap:4px;align-items:center">' + aksiyonlar + '</div>' +
-    '</div>';
-  }).join('');
+  // v1.14.1.34 — Excel tablo
+  var tabloHTML = '<div class="card">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px">' +
+      '<div style="font-size:13px;color:var(--race-color);font-weight:bold">👥 Üye Katkı Tablosu (' + uyeler.length + ')</div>' +
+      '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
+        '<label style="font-size:10px;color:#888">Periyot:</label>' +
+        '<select id="gu-periyot" onchange="guildUyeOzetYukle(' + g.id + ')" style="background:#111;border:1px solid #333;color:#ddd;font-size:11px;border-radius:3px;padding:2px 6px">' +
+          '<option value="24">Son 24 PG</option>' +
+          '<option value="168" selected>Son 7 Gün</option>' +
+          '<option value="720">Son 30 Gün</option>' +
+          '<option value="all">Tüm Zaman</option>' +
+        '</select>' +
+        '<label style="font-size:10px;color:#888;margin-left:8px">Görünüm:</label>' +
+        '<select id="gu-mod" onchange="guildUyeOzetRender()" style="background:#111;border:1px solid #333;color:#ddd;font-size:11px;border-radius:3px;padding:2px 6px">' +
+          '<option value="kompakt" selected>Kompakt (Net)</option>' +
+          '<option value="detayli">Detaylı (V/A/N)</option>' +
+        '</select>' +
+        '<button onclick="guildUyeOzetCsv()" style="background:transparent;border:1px solid #2ecc71;color:#2ecc71;cursor:pointer;font-size:11px;border-radius:3px;padding:2px 8px" title="CSV indir">📥 CSV</button>' +
+      '</div>' +
+    '</div>' +
+    '<div id="gu-ozet-wrap" style="overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid #1e1e1e;border-radius:4px;background:#080808">' +
+      '<div style="padding:20px;text-align:center;color:#888">Yükleniyor...</div>' +
+    '</div>' +
+    '<div style="margin-top:6px;font-size:10px;color:#555;font-style:italic">ℹ Kaynak bağış/dağıtım verileri · Pozitif Net = guild\'e net katkı (verdi > aldı)</div>' +
+  '</div>';
 
   // Yetki yonetimi (sadece lider veya yetki_duzenle yetkisi)
   var yetkiHTML = '';
   if (myYetkiler.yetki_duzenle) {
-    yetkiHTML = '<div class="card">' +
-      '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">🔑 Yetki Yonetimi</div>' +
-      '<p style="font-size:11px;color:#555;margin-bottom:8px">Uye ismine tiklayarak yetkilerini duzenleyebilirsiniz</p>' +
-      '<div id="guild-yetki-panel">Yukleniyor...</div>' +
+    yetkiHTML = '<div class="card" style="margin-top:10px">' +
+      '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">🔑 Yetki Yönetimi</div>' +
+      '<p style="font-size:11px;color:#555;margin-bottom:8px">Üye ismine tıklayarak yetkilerini düzenleyebilirsiniz</p>' +
+      '<div id="guild-yetki-panel">Yükleniyor...</div>' +
     '</div>';
   }
 
-  el.innerHTML =
-    istekHTML +
-    '<div class="card">' +
-      '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">👥 Uyeler (' + uyeler.length + ')</div>' +
-      uyeHTML +
-    '</div>' +
-    yetkiHTML;
+  el.innerHTML = istekHTML + tabloHTML + yetkiHTML;
+
+  // State'i kaydet
+  window._GU_STATE = { guild_id: g.id, uyeler_detay: uyeler, ozet: null, isLider: isLider, yetkiler: myYetkiler, liderId: g.lider_id };
+
+  // İlk yükleme (7 gün default)
+  guildUyeOzetYukle(g.id);
 
   if (myYetkiler.yetki_duzenle) guildYetkilerYukle(g.id);
+}
+
+// v1.14.1.34 — Üye katkı özeti fetch + render
+async function guildUyeOzetYukle(guildId) {
+  const wrap = document.getElementById('gu-ozet-wrap');
+  if (!wrap) return;
+  wrap.innerHTML = '<div style="padding:20px;text-align:center;color:#888">Yükleniyor...</div>';
+  const periyot = document.getElementById('gu-periyot')?.value || '168';
+  try {
+    const r = await fetch(API_BASE + '/api/guild/' + guildId + '/uye-ozet?saat=' + periyot + '&_cb=' + Date.now(), {
+      headers: guildHdr()
+    });
+    const d = await r.json();
+    if (!r.ok) { wrap.innerHTML = '<div style="padding:20px;text-align:center;color:#e74c3c">' + (d.error || 'Hata') + '</div>'; return; }
+    window._GU_STATE.ozet = d.uyeler || [];
+    guildUyeOzetRender();
+  } catch(e) {
+    wrap.innerHTML = '<div style="padding:20px;text-align:center;color:#e74c3c">Bağlantı hatası</div>';
+  }
+}
+
+function guildUyeOzetRender() {
+  const wrap = document.getElementById('gu-ozet-wrap');
+  if (!wrap || !window._GU_STATE) return;
+  const S = window._GU_STATE;
+  const mod = document.getElementById('gu-mod')?.value || 'kompakt';
+  const ozet = S.ozet || [];
+  const uyelerDetay = S.uyeler_detay || [];
+
+  // Uye detayları (rutbe + cag + kullanici_adi) ile birleştir
+  const detayMap = {};
+  uyelerDetay.forEach(u => { detayMap[u.player_id] = u; });
+
+  if (!ozet.length) {
+    wrap.innerHTML = '<div style="padding:20px;text-align:center;color:#666">Üye yok</div>';
+    return;
+  }
+
+  // Kolon tanımları — 10 ana kaynak (tablo yer tutar)
+  const KAYNAKLAR = [
+    { k: 'altin',      ad: '💰 Altın' },
+    { k: 'odun',       ad: '🌳 Odun' },
+    { k: 'kereste',    ad: '🪵 Kereste' },
+    { k: 'metal',      ad: '⛓ Metal' },
+    { k: 'islenmis',   ad: '🔩 İşl.Mtl' },
+    { k: 'bugday',     ad: '🌾 Buğday' },
+    { k: 'balik',      ad: '🐟 Balık' },
+    { k: 'cig_et',     ad: '🥩 Çiğ Et' },
+    { k: 'koylu',      ad: '🏘️ Köylü' },
+    { k: 'gizlilik',   ad: '🎭 Gizl.' }
+  ];
+
+  // Top 3 katkıcı (net toplam bazında)
+  const netToplamOf = (u) => {
+    let t = 0;
+    KAYNAKLAR.forEach(c => {
+      t += ((u.verdi?.[c.k] || 0) - (u.aldi?.[c.k] || 0));
+    });
+    return t;
+  };
+  const sirali = ozet.slice().sort((a, b) => netToplamOf(b) - netToplamOf(a));
+  const top3 = {};
+  sirali.slice(0, 3).forEach((u, i) => { top3[u.player_id] = ['🥇','🥈','🥉'][i]; });
+
+  // Fmt helper
+  const fmt = (n) => {
+    if (!n) return '—';
+    if (Math.abs(n) >= 1e6) return (n/1e6).toFixed(1).replace(/\.0$/,'') + 'M';
+    if (Math.abs(n) >= 1e3) return (n/1e3).toFixed(1).replace(/\.0$/,'') + 'K';
+    return String(n);
+  };
+
+  // Header
+  let html = '<table style="width:100%;border-collapse:collapse;font-size:10px;min-width:' + (200 + KAYNAKLAR.length * 65) + 'px">';
+  html += '<thead><tr style="background:rgba(212,175,55,0.08);border-bottom:1px solid #2a2010">';
+  html += '<th style="padding:6px 8px;text-align:left;color:#c8a96e;font-family:Cinzel,serif;min-width:140px;position:sticky;left:0;background:#0a0a0a;z-index:1">Üye</th>';
+  KAYNAKLAR.forEach(c => {
+    html += '<th style="padding:6px 4px;text-align:right;color:#aaa;font-size:10px;min-width:55px">' + c.ad + '</th>';
+  });
+  html += '<th style="padding:6px 8px;text-align:right;color:#2ecc71;font-size:10px">AKSIYON</th>';
+  html += '</tr></thead><tbody>';
+
+  // Her üye satırı
+  for (const u of ozet) {
+    const detay = detayMap[u.player_id] || {};
+    const rutbeIcon = (detay.rutbe || u.rutbe) === 'lider' ? '👑' : (detay.rutbe || u.rutbe) === 'yardimci' ? '⭐' : '🏅';
+    const isim = u.kral || detay.kullanici_adi || 'İsimsiz';
+    const cag = detay.cag || '—';
+    const kronRozet = top3[u.player_id] || '';
+    const nett = netToplamOf(u);
+    const satirOpak = (nett === 0 && !detay) ? '0.5' : '1';
+
+    // Aksiyon butonları
+    let aksiyon = '';
+    const benimId = S.guild_id /* mevcut player id farklı */;
+    if (u.player_id !== S.benim_player_id) {
+      aksiyon += '<button title="Takviye gönder" style="background:none;border:1px solid #9b59b6;color:#9b59b6;cursor:pointer;font-size:10px;border-radius:3px;padding:1px 6px" onclick="guildTakviyeGonder(' + u.player_id + ',\'' + isim.replace(/'/g,'') + '\')">🛡️</button>';
+    }
+    if (S.isLider && u.player_id !== S.liderId) {
+      aksiyon += ' <select style="background:#111;border:1px solid #333;color:#ddd;font-size:10px;border-radius:3px;padding:1px" onchange="guildRutbe(' + S.guild_id + ',' + u.player_id + ',this.value)">' +
+        '<option value="">-</option>' +
+        '<option value="uye"' + ((detay.rutbe||u.rutbe)==='uye'?' selected':'') + '>Üye</option>' +
+        '<option value="yardimci"' + ((detay.rutbe||u.rutbe)==='yardimci'?' selected':'') + '>Yardımcı</option>' +
+      '</select>';
+      aksiyon += ' <button title="Lider yap" style="background:none;border:1px solid #f1c40f;color:#f1c40f;cursor:pointer;font-size:10px;border-radius:3px;padding:1px 4px" onclick="guildLiderlikDevret(' + S.guild_id + ',' + u.player_id + ',\'' + isim.replace(/'/g,'') + '\')">👑</button>';
+      aksiyon += ' <button title="At" style="background:none;border:1px solid #e74c3c;color:#e74c3c;cursor:pointer;font-size:10px;border-radius:3px;padding:1px 4px" onclick="guildAt(' + S.guild_id + ',' + u.player_id + ')">✕</button>';
+    }
+
+    if (mod === 'detayli') {
+      // 3 satır: Verdi / Aldı / Net
+      const rowBase = '<tr style="border-bottom:1px solid #1a1a1a;opacity:' + satirOpak + '">';
+      // Verdi
+      html += rowBase;
+      html += '<td rowspan="3" style="padding:6px 8px;color:#ddd;font-weight:500;border-right:1px solid #2a2a2a;position:sticky;left:0;background:#0a0a0a;z-index:1">' +
+        rutbeIcon + ' ' + kronRozet + ' <b>' + isim + '</b> <span style="color:#666;font-size:9px">C' + cag + '</span></td>';
+      KAYNAKLAR.forEach(c => {
+        const v = u.verdi?.[c.k] || 0;
+        html += '<td style="padding:3px 4px;text-align:right;color:' + (v>0?'#2ecc71':'#333') + ';font-size:10px">' + (v>0?'+'+fmt(v):'—') + '</td>';
+      });
+      html += '<td rowspan="3" style="padding:6px 8px;text-align:right;border-left:1px solid #2a2a2a;vertical-align:middle">' + aksiyon + '</td>';
+      html += '</tr>';
+      // Aldı
+      html += '<tr style="border-bottom:1px solid #1a1a1a;opacity:' + satirOpak + ';background:rgba(255,255,255,0.01)">';
+      KAYNAKLAR.forEach(c => {
+        const v = u.aldi?.[c.k] || 0;
+        html += '<td style="padding:3px 4px;text-align:right;color:' + (v>0?'#e67e22':'#333') + ';font-size:10px">' + (v>0?'-'+fmt(v):'—') + '</td>';
+      });
+      html += '</tr>';
+      // Net
+      html += '<tr style="border-bottom:2px solid #333;opacity:' + satirOpak + ';background:rgba(212,175,55,0.04)">';
+      KAYNAKLAR.forEach(c => {
+        const v = (u.verdi?.[c.k] || 0) - (u.aldi?.[c.k] || 0);
+        const col = v > 0 ? '#2ecc71' : (v < 0 ? '#e74c3c' : '#555');
+        html += '<td style="padding:3px 4px;text-align:right;color:' + col + ';font-size:10px;font-weight:bold">' + (v!==0 ? (v>0?'+':'') + fmt(v) : '—') + '</td>';
+      });
+      html += '</tr>';
+    } else {
+      // Kompakt: tek satır sadece Net
+      html += '<tr style="border-bottom:1px solid #1a1a1a;opacity:' + satirOpak + '">';
+      html += '<td style="padding:5px 8px;color:#ddd;font-weight:500;position:sticky;left:0;background:#0a0a0a;z-index:1">' +
+        rutbeIcon + ' ' + kronRozet + ' <b>' + isim + '</b> <span style="color:#666;font-size:9px">C' + cag + '</span></td>';
+      KAYNAKLAR.forEach(c => {
+        const v = (u.verdi?.[c.k] || 0) - (u.aldi?.[c.k] || 0);
+        const col = v > 0 ? '#2ecc71' : (v < 0 ? '#e74c3c' : '#333');
+        html += '<td style="padding:5px 4px;text-align:right;color:' + col + ';font-size:10px;font-weight:' + (Math.abs(v)>=1000?'bold':'normal') + '">' + (v!==0 ? (v>0?'+':'') + fmt(v) : '—') + '</td>';
+      });
+      html += '<td style="padding:5px 8px;text-align:right">' + aksiyon + '</td>';
+      html += '</tr>';
+    }
+  }
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+}
+
+// v1.14.1.34 — CSV export
+function guildUyeOzetCsv() {
+  if (!window._GU_STATE?.ozet) return;
+  const S = window._GU_STATE;
+  const detayMap = {};
+  (S.uyeler_detay || []).forEach(u => { detayMap[u.player_id] = u; });
+  const KAYNAKLAR = ['altin','odun','kereste','metal','islenmis','bugday','balik','cig_et','koylu','gizlilik'];
+  // Header
+  const rows = [];
+  const hdr = ['Uye', 'Rutbe', 'Cag', 'Durum'];
+  KAYNAKLAR.forEach(k => { hdr.push(k + '_verdi'); hdr.push(k + '_aldi'); hdr.push(k + '_net'); });
+  rows.push(hdr.join(','));
+  for (const u of S.ozet) {
+    const d = detayMap[u.player_id] || {};
+    const row = [u.kral || d.kullanici_adi, d.rutbe || u.rutbe || 'uye', d.cag || '', 'Verdi/Aldi/Net'];
+    KAYNAKLAR.forEach(k => {
+      const v = u.verdi?.[k] || 0;
+      const a = u.aldi?.[k] || 0;
+      row.push(v, a, v - a);
+    });
+    rows.push(row.join(','));
+  }
+  const csv = rows.join('\n');
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' }); // BOM (Excel TR)
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'guild-uye-ozet-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 100);
+}
+
+if (typeof window !== 'undefined') {
+  window.guildUyeOzetYukle = guildUyeOzetYukle;
+  window.guildUyeOzetRender = guildUyeOzetRender;
+  window.guildUyeOzetCsv = guildUyeOzetCsv;
 }
 
 // v1.14.0.39: Gelen uyelik istekleri
@@ -1640,7 +1825,9 @@ async function renderTabOrdu(el, data) {
       html += '</div>';
     }
 
-    // Havuz + ata butonlari
+    // Havuz + ata butonlari (v1.14.1.34: sadece sehirdeki ordulara ata)
+    const IZINLI_DURUMLAR = ['havuzda', 'sehirde', 'bekleme', 'hazir'];
+    const musaitOrdular = d.ordular.filter(o => !o.durum || IZINLI_DURUMLAR.includes(o.durum));
     if (d.havuz.length > 0) {
       html += '<div class="card" style="padding:10px;margin-bottom:10px">' +
         '<div style="font-size:11px;color:var(--race-color);margin-bottom:4px">📦 Unite Havuzu</div>' +
@@ -1648,12 +1835,14 @@ async function renderTabOrdu(el, data) {
       d.havuz.forEach(function(u) {
         html += '<div style="font-size:11px;background:#1a1a1a;padding:4px 8px;border-radius:4px;display:flex;align-items:center;gap:4px">' +
           '<span>' + u.unite_id + ': <b>' + fmt(u.adet) + '</b></span>';
-        if (yetkiler.guild_ordusu_kur && d.ordular.length > 0) {
+        if (yetkiler.guild_ordusu_kur && musaitOrdular.length > 0) {
           html += '<select id="havuz-hedef-' + u.unite_id + '" style="font-size:11px;background:#222;color:#ccc;border:1px solid #444;border-radius:3px;padding:1px">';
-          d.ordular.forEach(function(o) { html += '<option value="' + o.id + '">' + o.isim + '</option>'; });
+          musaitOrdular.forEach(function(o) { html += '<option value="' + o.id + '">' + o.isim + '</option>'; });
           html += '</select>' +
             '<input id="havuz-adet-' + u.unite_id + '" type="number" min="1" max="' + u.adet + '" value="' + Math.min(u.adet, 10) + '" style="width:40px;font-size:11px;background:#222;color:#ccc;border:1px solid #444;border-radius:3px;padding:1px">' +
             '<button style="font-size:11px;padding:2px 6px;background:#2a5a2a;color:#ccc;border:none;border-radius:3px;cursor:pointer" onclick="guildOrduAta(\'' + u.unite_id + '\')">Ata</button>';
+        } else if (yetkiler.guild_ordusu_kur && d.ordular.length > musaitOrdular.length) {
+          html += '<span style="color:#888;font-size:10px;font-style:italic">tüm ordular yolda/kuşatmada</span>';
         }
         html += '</div>';
       });
@@ -1665,10 +1854,28 @@ async function renderTabOrdu(el, data) {
     if (d.ordular.length === 0) {
       html += '<div class="card" style="padding:15px;text-align:center;color:#555;font-size:11px">Henuz guild ordusu kurulmamis</div>';
     }
+    // v1.14.1.34: Durum etiketleri + aciklamalari
+    const DURUM_LABELS = {
+      'havuzda':      { ad: '🏠 Havuzda',     renk: '#2ecc71', aciklama: 'Ordu guild sehrinde, hazir durumda' },
+      'sehirde':      { ad: '🏰 Şehirde',     renk: '#2ecc71', aciklama: 'Ordu guild sehrinde, hazir durumda' },
+      'bekleme':      { ad: '⏳ Bekleme',     renk: '#f1c40f', aciklama: 'Ordu bir sonraki eyleme hazırlanıyor' },
+      'hazir':        { ad: '✅ Hazır',       renk: '#2ecc71', aciklama: 'Ordu göreve hazır' },
+      'yolda':        { ad: '🚶 Yolda',       renk: '#e67e22', aciklama: 'Ordu hedefe gidiyor — varış bekleniyor' },
+      'kusatmada':    { ad: '⚔️ Kuşatmada',   renk: '#e74c3c', aciklama: 'Ordu kadim şehirde savaşıyor — her saat bir tur hesaplanır' },
+      'konuslanmis':  { ad: '🏛️ Konuşlanmış', renk: '#9b59b6', aciklama: 'Kadim şehir ele geçirildi — 168 PG holding' },
+      'yolda_donus':  { ad: '🏠 Dönüyor',     renk: '#3498db', aciklama: 'Ordu geri dönüyor — varış yakında' }
+    };
     d.ordular.forEach(function(ordu) {
-      html += '<div class="card" style="padding:10px;margin-bottom:8px">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
-          '<span style="font-family:Cinzel,serif;font-size:12px;color:var(--race-color)">' + ordu.isim + '</span>' +
+      const durum = ordu.durum || 'havuzda';
+      const dInfo = DURUM_LABELS[durum] || { ad: durum, renk: '#888', aciklama: durum };
+      const isKusatma = ['yolda','kusatmada','konuslanmis','yolda_donus'].includes(durum);
+
+      html += '<div class="card" style="padding:10px;margin-bottom:8px' + (isKusatma ? ';border-left:3px solid ' + dInfo.renk : '') + '">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:6px">' +
+          '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+            '<span style="font-family:Cinzel,serif;font-size:12px;color:var(--race-color)">' + ordu.isim + '</span>' +
+            '<span title="' + dInfo.aciklama + '" style="background:' + dInfo.renk + '22;color:' + dInfo.renk + ';border:1px solid ' + dInfo.renk + '55;padding:1px 6px;border-radius:3px;font-size:10px;cursor:help">' + dInfo.ad + '</span>' +
+          '</div>' +
           '<span style="font-size:10px;color:#888">' + fmt(ordu.toplam_unite) + ' unite';
       if (d.atk_def_gorunur) {
         html += ' | ATK:' + Number(ordu.toplam_atk).toFixed(0) + ' DEF:' + Number(ordu.toplam_def).toFixed(0);
@@ -1679,13 +1886,18 @@ async function renderTabOrdu(el, data) {
         ordu.uniteler.forEach(function(u) {
           html += '<div style="font-size:10px;background:#111;padding:2px 6px;border-radius:3px;display:inline-flex;align-items:center;gap:3px">' +
             '<span>' + u.unite_id + ':' + fmt(u.adet) + '</span>';
-          if (yetkiler.guild_ordusu_kur) {
+          if (yetkiler.guild_ordusu_kur && !isKusatma) {
             html += '<input id="cikar-adet-' + ordu.id + '-' + u.unite_id + '" type="number" min="1" max="' + u.adet + '" value="' + Math.min(u.adet, 10) + '" style="width:35px;font-size:11px;background:#222;color:#ccc;border:1px solid #444;border-radius:2px;padding:0 2px">' +
               '<button style="font-size:11px;padding:1px 4px;background:#5a2a2a;color:#ccc;border:none;border-radius:2px;cursor:pointer" onclick="guildOrduCikar(' + ordu.id + ',\'' + u.unite_id + '\')">Cikar</button>';
           }
           html += '</div>';
         });
         html += '</div>';
+      }
+      if (isKusatma) {
+        html += '<div style="margin-top:6px;font-size:10px;color:' + dInfo.renk + ';background:' + dInfo.renk + '0a;padding:4px 8px;border-radius:3px">' +
+          'ℹ ' + dInfo.aciklama + (ordu.hedef_kadim_sehir_id ? ' (hedef: Kadim #' + ordu.hedef_kadim_sehir_id + ')' : '') +
+        '</div>';
       }
       if (yetkiler.guild_ordusu_kur) {
         html += '<div style="margin-top:6px;display:flex;gap:4px">' +
