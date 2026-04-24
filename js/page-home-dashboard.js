@@ -162,9 +162,13 @@ async function hpUretimDetayTablo() {
     const premYuzde = premAktif ? 10 : 0;
 
     const fmt = (n) => Math.floor(n || 0).toLocaleString('tr-TR');
-    const hammadde = ['odun', 'metal', 'altin'];
+    const hammadde = ['odun', 'metal', 'altin', 'kereste', 'islenmis'];
     const yiyecek = ['bugday', 'balik'];
-    const kaynakIkon = { odun:'🌳 Odun', metal:'⛓ Metal', altin:'💰 Altın', bugday:'🌾 Buğday', balik:'🐟 Balık' };
+    const kaynakIkon = {
+      odun:'🌳 Odun', metal:'⛓ Metal', altin:'💰 Altın',
+      bugday:'🌾 Buğday', balik:'🐟 Balık',
+      kereste:'🪵 Kereste', islenmis:'🔩 İşlenmiş'
+    };
 
     let rows = '';
     for (const [kaynak, label] of Object.entries(kaynakIkon)) {

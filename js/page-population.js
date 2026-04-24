@@ -402,9 +402,13 @@ async function doldurUretimDetayTablo() {
     const premYuzde = premAktif ? 10 : 0; // yaklasik %10 (admin paneli farklıysa gerçek değer backend'den gelir)
 
     const fmt = (n) => Math.floor(n || 0).toLocaleString('tr-TR');
-    const hammaddeKaynaklar = ['odun', 'metal', 'altin'];
+    const hammaddeKaynaklar = ['odun', 'metal', 'altin', 'kereste', 'islenmis'];
     const yiyecekKaynaklar = ['bugday', 'balik'];
-    const kaynakIkon = { odun:'🌳 Odun', metal:'⛓ Metal', altin:'💰 Altın', bugday:'🌾 Buğday', balik:'🐟 Balık' };
+    const kaynakIkon = {
+      odun:'🌳 Odun', metal:'⛓ Metal', altin:'💰 Altın',
+      bugday:'🌾 Buğday', balik:'🐟 Balık',
+      kereste:'🪵 Kereste', islenmis:'🔩 İşlenmiş'
+    };
 
     const satirlar = [];
     for (const [kaynak, icon] of Object.entries(kaynakIkon)) {
