@@ -704,7 +704,7 @@ function renderTabGenel(el, data) {
 // ═══════════════════════════════════
 //   TAB: UYELER
 // ═══════════════════════════════════
-// v1.14.1.34 — Excel-tarzı tablo
+// Üyeler sekmesi — basit liste (Excel tablo artik Uye Ozeti tabinda)
 function renderTabUyeler(el, data) {
   var g = data.guild;
   var uyeler = data.uyeler || [];
@@ -721,49 +721,47 @@ function renderTabUyeler(el, data) {
     setTimeout(function(){ _loadGelenIstekler(g.id); }, 100);
   }
 
-  // v1.14.1.34 — Excel tablo
-  var tabloHTML = '<div class="card">' +
-    '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px">' +
-      '<div style="font-size:13px;color:var(--race-color);font-weight:bold">👥 Üye Katkı Tablosu (' + uyeler.length + ')</div>' +
-      '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
-        '<label style="font-size:10px;color:#888">Periyot:</label>' +
-        '<select id="gu-periyot" onchange="guildUyeOzetYukle(' + g.id + ')" style="background:#111;border:1px solid #333;color:#ddd;font-size:11px;border-radius:3px;padding:2px 6px">' +
-          '<option value="24">Son 24 PG</option>' +
-          '<option value="168" selected>Son 7 Gün</option>' +
-          '<option value="720">Son 30 Gün</option>' +
-          '<option value="all">Tüm Zaman</option>' +
-        '</select>' +
-        '<label style="font-size:10px;color:#888;margin-left:8px">Görünüm:</label>' +
-        '<select id="gu-mod" onchange="guildUyeOzetRender()" style="background:#111;border:1px solid #333;color:#ddd;font-size:11px;border-radius:3px;padding:2px 6px">' +
-          '<option value="kompakt" selected>Kompakt (Net)</option>' +
-          '<option value="detayli">Detaylı (V/A/N)</option>' +
-        '</select>' +
-        '<button onclick="guildUyeOzetCsv()" style="background:transparent;border:1px solid #2ecc71;color:#2ecc71;cursor:pointer;font-size:11px;border-radius:3px;padding:2px 8px" title="CSV indir">📥 CSV</button>' +
-      '</div>' +
-    '</div>' +
-    '<div id="gu-ozet-wrap" style="overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid #1e1e1e;border-radius:4px;background:#080808">' +
-      '<div style="padding:20px;text-align:center;color:#888">Yükleniyor...</div>' +
-    '</div>' +
-    '<div style="margin-top:6px;font-size:10px;color:#555;font-style:italic">ℹ Kaynak bağış/dağıtım verileri · Pozitif Net = guild\'e net katkı (verdi > aldı)</div>' +
-  '</div>';
+  var uyeHTML = uyeler.map(function(u) {
+    var rutbeIcon = u.rutbe === 'lider' ? '👑' : u.rutbe === 'yardimci' ? '⭐' : '🏅';
+    var aksiyonlar = '';
+    if (u.player_id !== data.benim_player_id) {
+      aksiyonlar += '<button style="background:none;border:1px solid #9b59b6;color:#9b59b6;cursor:pointer;font-size:11px;border-radius:3px;padding:1px 6px" onclick="guildTakviyeGonder(' + u.player_id + ',\'' + (u.kullanici_adi||'').replace(/\'/g,'') + '\')">🛡️</button>';
+    }
+    if (isLider && u.player_id !== g.lider_id) {
+      aksiyonlar += '<button style="background:none;border:1px solid #f1c40f;color:#f1c40f;cursor:pointer;font-size:11px;border-radius:3px;padding:1px 6px" onclick="guildLiderlikDevret(' + g.id + ',' + u.player_id + ',\'' + (u.kullanici_adi||'').replace(/\'/g,'') + '\')">👑 Lider Yap</button>' +
+        '<button style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:11px" onclick="guildAt(' + g.id + ',' + u.player_id + ')">At</button>' +
+        '<select style="background:#111;border:1px solid #333;color:#ddd;font-size:11px;border-radius:3px;padding:1px" onchange="guildRutbe(' + g.id + ',' + u.player_id + ',this.value)">' +
+          '<option value="uye"' + (u.rutbe==='uye'?' selected':'') + '>Uye</option>' +
+          '<option value="yardimci"' + (u.rutbe==='yardimci'?' selected':'') + '>Yardimci</option>' +
+        '</select>';
+    }
+    var extraInfo = '';
+    if (myYetkiler.sehir_degeri_gor && u.sehir_degeri !== undefined) {
+      extraInfo += ' SD:' + fmt(u.sehir_degeri);
+    }
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid #1a1a1a;font-size:11px">' +
+      '<span>' + rutbeIcon + ' ' + u.kullanici_adi + ' <span style="color:#555;font-size:11px">Cag ' + (u.cag||1) + extraInfo + '</span></span>' +
+      '<div style="display:flex;gap:4px;align-items:center">' + aksiyonlar + '</div>' +
+    '</div>';
+  }).join('');
 
-  // Yetki yonetimi (sadece lider veya yetki_duzenle yetkisi)
   var yetkiHTML = '';
   if (myYetkiler.yetki_duzenle) {
-    yetkiHTML = '<div class="card" style="margin-top:10px">' +
+    yetkiHTML = '<div class="card">' +
       '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">🔑 Yetki Yönetimi</div>' +
       '<p style="font-size:11px;color:#555;margin-bottom:8px">Üye ismine tıklayarak yetkilerini düzenleyebilirsiniz</p>' +
       '<div id="guild-yetki-panel">Yükleniyor...</div>' +
     '</div>';
   }
 
-  el.innerHTML = istekHTML + tabloHTML + yetkiHTML;
-
-  // State'i kaydet
-  window._GU_STATE = { guild_id: g.id, uyeler_detay: uyeler, ozet: null, isLider: isLider, yetkiler: myYetkiler, liderId: g.lider_id };
-
-  // İlk yükleme (7 gün default)
-  guildUyeOzetYukle(g.id);
+  el.innerHTML =
+    istekHTML +
+    '<div class="card">' +
+      '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">👥 Üyeler (' + uyeler.length + ')</div>' +
+      uyeHTML +
+      '<div style="margin-top:10px;padding:8px;background:rgba(212,175,55,0.08);border-radius:4px;font-size:10px;color:#888">ℹ Üye katkı tablosu için "📊 Üye Özeti" sekmesine geç.</div>' +
+    '</div>' +
+    yetkiHTML;
 
   if (myYetkiler.yetki_duzenle) guildYetkilerYukle(g.id);
 }
@@ -804,7 +802,7 @@ function guildUyeOzetRender() {
     return;
   }
 
-  // Kolon tanımları — 10 ana kaynak (tablo yer tutar)
+  // v1.14.1.37: Gizlilik kolonu kaldırıldı (bağışlanmıyor) — 9 kaynak
   const KAYNAKLAR = [
     { k: 'altin',      ad: '💰 Altın' },
     { k: 'odun',       ad: '🌳 Odun' },
@@ -814,8 +812,7 @@ function guildUyeOzetRender() {
     { k: 'bugday',     ad: '🌾 Buğday' },
     { k: 'balik',      ad: '🐟 Balık' },
     { k: 'cig_et',     ad: '🥩 Çiğ Et' },
-    { k: 'koylu',      ad: '🏘️ Köylü' },
-    { k: 'gizlilik',   ad: '🎭 Gizl.' }
+    { k: 'koylu',      ad: '🏘️ Köylü' }
   ];
 
   // Top 3 katkıcı (net toplam bazında)
@@ -926,7 +923,7 @@ function guildUyeOzetCsv() {
   const S = window._GU_STATE;
   const detayMap = {};
   (S.uyeler_detay || []).forEach(u => { detayMap[u.player_id] = u; });
-  const KAYNAKLAR = ['altin','odun','kereste','metal','islenmis','bugday','balik','cig_et','koylu','gizlilik'];
+  const KAYNAKLAR = ['altin','odun','kereste','metal','islenmis','bugday','balik','cig_et','koylu'];
   // Header
   const rows = [];
   const hdr = ['Uye', 'Rutbe', 'Cag', 'Durum'];
@@ -1431,10 +1428,11 @@ function renderTabIsciler(el, data) {
   var toplam_isci = (isciler.oduncu||0) + (isciler.madenci||0) + (isciler.ciftci||0) + (isciler.balikci||0) + (isciler.tuccar||0);
 
   // v1.13: Bina kapasite hesabi (oyuncu ile ayni)
+  // v1.14.1.37: oduncu artik sinirsiz (oyuncu ile ayni — backend'te de limit yok)
   var binaAdet = {};
   (data.guild_binalar_ozet || []).forEach(function(b){ binaAdet[b.bina_id] = b.adet != null ? b.adet : b.seviye; });
   var kapasite = {
-    oduncu:  (binaAdet.oduncu||0) * 40,
+    oduncu:  999999,
     ciftci:  (binaAdet.tarla||0) * 50,
     balikci: (binaAdet.balikci||0) * 20,
     madenci: 999999,
@@ -1467,7 +1465,7 @@ function renderTabIsciler(el, data) {
         '</div>';
       }).join('') +
     '</div>' +
-    '<div style="font-size:11px;color:#555;margin-top:6px">Kapasite: tarla×50 ciftci, balikci×20, oduncu×40</div>' +
+    '<div style="font-size:11px;color:#555;margin-top:6px">Kapasite: tarla×50 ciftci, balikci×20 (oduncu/madenci/tuccar sinirsiz)</div>' +
   '</div>';
 
   // Asker yap butonu
@@ -2894,9 +2892,53 @@ async function dipSonlandirTabiyet(rakip) {
 // ═══════════════════════════════════
 var UYE_OZET_SAAT = 24; // default pencere
 
+// v1.14.1.37 — Uye Ozeti: Excel-tarzı tablo
 async function renderTabUyeOzet(el, data) {
-  var gId = data.guild.id;
-  el.innerHTML = '<div style="text-align:center;padding:20px;color:#888">Yukleniyor...</div>';
+  var g = data.guild;
+  var gId = g.id;
+  var uyelerDetay = data.uyeler || [];
+  var isLider = data.benim_rutbem === 'lider';
+  var myYetkiler = data.benim_yetkilerim || {};
+
+  el.innerHTML =
+    '<div class="card">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px">' +
+        '<div style="font-size:13px;color:var(--race-color);font-weight:bold">📊 Üye Katkı Tablosu (' + uyelerDetay.length + ')</div>' +
+        '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
+          '<label style="font-size:10px;color:#888">Periyot:</label>' +
+          '<select id="gu-periyot" onchange="guildUyeOzetYukle(' + gId + ')" style="background:#111;border:1px solid #333;color:#ddd;font-size:11px;border-radius:3px;padding:2px 6px">' +
+            '<option value="24">Son 24 PG</option>' +
+            '<option value="168" selected>Son 7 Gün</option>' +
+            '<option value="720">Son 30 Gün</option>' +
+            '<option value="all">Tüm Zaman</option>' +
+          '</select>' +
+          '<label style="font-size:10px;color:#888;margin-left:8px">Görünüm:</label>' +
+          '<select id="gu-mod" onchange="guildUyeOzetRender()" style="background:#111;border:1px solid #333;color:#ddd;font-size:11px;border-radius:3px;padding:2px 6px">' +
+            '<option value="kompakt" selected>Kompakt (Net)</option>' +
+            '<option value="detayli">Detaylı (V/A/N)</option>' +
+          '</select>' +
+          '<button onclick="guildUyeOzetCsv()" style="background:transparent;border:1px solid #2ecc71;color:#2ecc71;cursor:pointer;font-size:11px;border-radius:3px;padding:2px 8px" title="CSV indir">📥 CSV</button>' +
+        '</div>' +
+      '</div>' +
+      '<div id="gu-ozet-wrap" style="overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid #1e1e1e;border-radius:4px;background:#080808">' +
+        '<div style="padding:20px;text-align:center;color:#888">Yükleniyor...</div>' +
+      '</div>' +
+      '<div style="margin-top:6px;font-size:10px;color:#555;font-style:italic">ℹ Kaynak bağış/dağıtım · Pozitif Net = guild\'e net katkı (verdi > aldı)</div>' +
+    '</div>';
+
+  window._GU_STATE = {
+    guild_id: gId,
+    uyeler_detay: uyelerDetay,
+    ozet: null,
+    isLider: isLider,
+    yetkiler: myYetkiler,
+    liderId: g.lider_id,
+    benim_player_id: data.benim_player_id
+  };
+  guildUyeOzetYukle(gId);
+  return;
+
+  // v1.14.1.37: eski kart-tabanli kod kaldirildi (Excel tablo guildUyeOzetRender'da)
   try {
     var resp = await fetch(API_BASE + '/api/guild/' + gId + '/uye-ozet?saat=' + UYE_OZET_SAAT, { headers: guildHdr() });
     var d = await resp.json();
