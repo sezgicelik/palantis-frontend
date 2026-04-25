@@ -154,17 +154,44 @@ function renderTurKomposizyonlari(turDetay, saldiranAdi, savunanAdi) {
     </div>`;
   }
 
+  // v1.14.1.46: Eski Palantis formatinda rahip dirilis satiri (her tur sonunda)
+  //   "OBAAAAAA : Ordumuzda bulunan 469 rahip; Bu tur sonunda 2986 Paladin, ..., canlandirdilar"
+  function dirilisSatiri(adi, dirilis, isKaranlik) {
+    if (!dirilis || !dirilis.toplamDirilen || dirilis.toplamDirilen <= 0) return '';
+    var rahipKelime = isKaranlik ? 'kara rahip' : 'rahip';
+    var renk = isKaranlik ? '#9b59b6' : '#f1c40f';
+    var dets = Object.entries(dirilis.dirilen || {}).map(function(e){
+      var info = birimIsim(e[0]);
+      return fmt(e[1]) + ' ' + info.name;
+    }).join(', ');
+    return '<div style="margin:6px 0 0;padding:6px 10px;background:rgba(241,196,15,0.06);border-left:3px solid ' + renk + ';border-radius:3px;font-size:11px;color:#e8dcc4;font-style:italic">' +
+      '<b style="color:' + renk + '">' + adi + '</b> : Ordumuzda bulunan <b>' + fmt(dirilis.rahipSayi) + '</b> ' + rahipKelime + '; Bu tur sonunda <b>' + dets + '</b>, canlandırdılar' +
+    '</div>';
+  }
+
   let html = '';
   if (turDetay.some(t => t.saldiran_komp || t.savunan_komp)) {
     html = '<div class="sr-sec-title">🔍 HER TUR BİRİM DETAYI</div>';
     turDetay.forEach((t, i) => {
       if (!t.saldiran_komp && !t.savunan_komp) return;
+      // Saldiran ve savunan icin rahip taraf bilgisi: dirilen birim adlarindan tahmin
+      // Iyi taraf: rahip; Kotu taraf: kara_rahip. Saldiran/savunan unit_id'lerinden anlayabilir.
+      var sIsKaranlik = false, vIsKaranlik = false;
+      try {
+        var sBaslangicIds = Object.keys((t.saldiran_komp||{}));
+        var vBaslangicIds = Object.keys((t.savunan_komp||{}));
+        var KARANLIK = ['iskelet','goblin','ogre','troll','ork','kara_sovalye','kara_elf','golem','golge_savasci','kara_rahip','kirmizi_ejderha','siyah_ejderha'];
+        sIsKaranlik = sBaslangicIds.some(function(u){ return KARANLIK.indexOf(u.replace(/__army_\d+$/,'')) >= 0; });
+        vIsKaranlik = vBaslangicIds.some(function(u){ return KARANLIK.indexOf(u.replace(/__army_\d+$/,'')) >= 0; });
+      } catch(e) {}
       html += `<div class="sr-turn-detail">
         <div class="turn-hdr">${i+1}. TUR — Ordu Durumu</div>
         <div class="sr-turn-grid">
           ${tablo(t.saldiran_komp, saldiranAdi, '#E8A0A0')}
           ${tablo(t.savunan_komp, savunanAdi, '#A0C8F0')}
         </div>
+        ${dirilisSatiri(saldiranAdi, t.saldiran_dirilis, sIsKaranlik)}
+        ${dirilisSatiri(savunanAdi,  t.savunan_dirilis, vIsKaranlik)}
       </div>`;
     });
   } else {
