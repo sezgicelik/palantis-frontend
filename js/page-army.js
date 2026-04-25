@@ -503,10 +503,22 @@ function renderOrduListe(){
         '<div style="padding:10px 12px;border-right:1px solid #222;min-width:130px">' +
           '<div style="font-size:10px;color:#888;margin-bottom:6px;font-weight:bold">Islemler</div>' +
           '<div style="display:flex;flex-direction:column;gap:6px">' +
-            '<button class="btn ghost" style="font-size:10px;padding:5px 8px" onclick="toggleFormationPanel(' + o.id + ')">⚔️ Saf Dizilimi</button>' +
-            '<button class="btn ghost" style="font-size:10px;padding:5px 8px" onclick="toggleUniteYonetimi(' + o.id + ')">🗡️ Unite Yonetimi</button>' +
+            (function(){
+              var fOpen = !!(window._openFormation && window._openFormation[o.id]);
+              var fStyle = fOpen ? 'background:#2ecc7122;border-color:#2ecc71;color:#2ecc71' : '';
+              return '<button class="btn ghost" style="font-size:10px;padding:5px 8px;' + fStyle + '" onclick="toggleFormationPanel(' + o.id + ')">⚔️ Saf Dizilimi ' + (fOpen ? '▲' : '▼') + '</button>';
+            })() +
+            (function(){
+              var uOpen = !!(window._openUniteYon && window._openUniteYon[o.id]);
+              var uStyle = uOpen ? 'background:#2ecc7122;border-color:#2ecc71;color:#2ecc71' : '';
+              return '<button class="btn ghost" style="font-size:10px;padding:5px 8px;' + uStyle + '" onclick="toggleUniteYonetimi(' + o.id + ')">🗡️ Unite Yonetimi ' + (uOpen ? '▲' : '▼') + '</button>';
+            })() +
             (!o.is_busy && o.total_units >= 100 ?
-              '<button class="btn ghost" style="font-size:10px;padding:5px 8px;color:#d4af37;border-color:#d4af3744" onclick="toggleOrduGonderPanel(' + o.id + ',\'' + (korumada ? 'korumada' : 'sehir') + '\')">📤 Ordu Gonder</button>'
+              (function(){
+                var gOpen = !!(window._openOrduGonder && window._openOrduGonder[o.id]);
+                var gStyle = gOpen ? 'background:#d4af3722;border-color:#d4af37;color:#d4af37' : 'color:#d4af37;border-color:#d4af3744';
+                return '<button class="btn ghost" style="font-size:10px;padding:5px 8px;' + gStyle + '" onclick="toggleOrduGonderPanel(' + o.id + ',\'' + (korumada ? 'korumada' : 'sehir') + '\')">📤 Ordu Gonder ' + (gOpen ? '▲' : '▼') + '</button>';
+              })()
             : '') +
             (korumada && !o.is_busy ?
               '<button class="btn ghost" style="font-size:10px;padding:5px 8px;color:#e74c3c;border-color:#e74c3c44" onclick="orduGeriCagir(' + o.id + ')">🏠 Geri Cagir</button>'
@@ -520,47 +532,54 @@ function renderOrduListe(){
           uniteListeHTML +
         '</div>' +
       '</div>' +
-      // Alt: Unite yonetimi (gizli, toggle ile acilir)
+      // Alt: Unite yonetimi (gizli, toggle ile acilir) — v1.14.1.43 tek satir uygula UX
       '<div id="unite-yon-' + o.id + '" style="display:' + ((window._openUniteYon && window._openUniteYon[o.id]) ? 'block' : 'none') + ';padding:10px 12px;border-top:1px solid #333;background:rgba(0,0,0,.2)">' +
-        '<div style="font-size:10px;color:#888;margin-bottom:6px;font-weight:bold">Havuzdan Unite Ekle / Cikar</div>' +
-        '<div style="display:flex;flex-wrap:wrap;gap:4px">' +
-          allPool.map(function(u){
-            // v1.14.0.89: Input + preset butonlari (10, 100, 1K, MAX) + ✓ Ekle
-            var inpId = 'uekle-' + o.id + '-' + u.id;
-            return '<div style="display:flex;align-items:center;gap:3px;background:#111;border:1px solid #333;border-radius:4px;padding:4px 6px;flex-wrap:wrap">' +
-              '<span style="display:flex;align-items:center;gap:2px;font-size:10px;color:#ccc;min-width:100px">' + unitIcon(u, 16) + ' ' + u.name + ' <b style="color:#c8a96e">(' + u.count + ')</b></span>' +
-              '<input type="number" id="' + inpId + '" min="1" max="' + u.count + '" value="1" style="width:64px;padding:2px 4px;background:#0a0a0a;border:1px solid #2a2a2a;color:#fff;border-radius:3px;font-size:10px" />' +
-              '<button style="background:#1a1a1a;border:1px solid #333;color:#aaa;cursor:pointer;font-size:9px;padding:2px 5px;border-radius:3px" onclick="uksStepInp(\'' + inpId + '\',10,' + u.count + ')">+10</button>' +
-              '<button style="background:#1a1a1a;border:1px solid #333;color:#aaa;cursor:pointer;font-size:9px;padding:2px 5px;border-radius:3px" onclick="uksStepInp(\'' + inpId + '\',100,' + u.count + ')">+100</button>' +
-              '<button style="background:#1a1a1a;border:1px solid #333;color:#aaa;cursor:pointer;font-size:9px;padding:2px 5px;border-radius:3px" onclick="uksStepInp(\'' + inpId + '\',1000,' + u.count + ')">+1K</button>' +
-              '<button style="background:#1a1a1a;border:1px solid #555;color:#c8a96e;cursor:pointer;font-size:9px;padding:2px 5px;border-radius:3px;font-weight:bold" onclick="uksSetMax(\'' + inpId + '\',' + u.count + ')">MAX</button>' +
-              '<button style="background:#1a3a1a;border:1px solid #2ecc71;color:#2ecc71;cursor:pointer;font-size:10px;padding:3px 8px;border-radius:3px;font-weight:bold" onclick="uksEkleInp(' + o.id + ',\'' + u.id + '\',\'' + inpId + '\')" title="Girilen adeti orduya ekle">✓ Ekle</button>' +
-            '</div>';
-          }).join('') +
-          (allPool.length === 0 ? '<span style="color:#555;font-size:10px">Havuzda unite yok</span>' : '') +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
+          '<div style="font-size:10px;color:#888;font-weight:bold">Unite Yonetimi (yeni adet gir, Uygula)</div>' +
+          '<button class="btn ghost" style="font-size:11px;padding:2px 8px;color:#e74c3c;border-color:#e74c3c44" onclick="toggleUniteYonetimi(' + o.id + ')" title="Paneli kapat">✕ Kapat</button>' +
         '</div>' +
-        // Ordudaki uniteleri cikarma
-        ((o.units||[]).filter(function(u){return u.adet>0;}).length > 0 ?
-          '<div style="margin-top:8px;font-size:10px;color:#888;margin-bottom:4px">Ordudan Cikar:</div>' +
-          '<div style="display:flex;flex-wrap:wrap;gap:4px">' +
-            (o.units||[]).filter(function(u){return u.adet>0;}).map(function(u){
-              var def = UNITS[u.unite_id];
-              // v1.14.0.89: Input + preset + ✗ Cikar
-              var cinpId = 'ucik-' + o.id + '-' + u.unite_id;
-              return '<div style="display:flex;align-items:center;gap:3px;background:#111;border:1px solid #333;border-radius:4px;padding:4px 6px;flex-wrap:wrap">' +
-                '<span style="display:flex;align-items:center;gap:2px;font-size:10px;color:#ccc;min-width:100px">' + unitIcon(def, 16) + ' ' + (def?.name||u.unite_id) + ' <b style="color:#c8a96e">(' + u.adet + ')</b></span>' +
-                '<input type="number" id="' + cinpId + '" min="1" max="' + u.adet + '" value="1" style="width:64px;padding:2px 4px;background:#0a0a0a;border:1px solid #2a2a2a;color:#fff;border-radius:3px;font-size:10px" />' +
-                '<button style="background:#1a1a1a;border:1px solid #333;color:#aaa;cursor:pointer;font-size:9px;padding:2px 5px;border-radius:3px" onclick="uksStepInp(\'' + cinpId + '\',10,' + u.adet + ')">+10</button>' +
-                '<button style="background:#1a1a1a;border:1px solid #333;color:#aaa;cursor:pointer;font-size:9px;padding:2px 5px;border-radius:3px" onclick="uksStepInp(\'' + cinpId + '\',100,' + u.adet + ')">+100</button>' +
-                '<button style="background:#1a1a1a;border:1px solid #333;color:#aaa;cursor:pointer;font-size:9px;padding:2px 5px;border-radius:3px" onclick="uksStepInp(\'' + cinpId + '\',1000,' + u.adet + ')">+1K</button>' +
-                '<button style="background:#1a1a1a;border:1px solid #555;color:#c8a96e;cursor:pointer;font-size:9px;padding:2px 5px;border-radius:3px;font-weight:bold" onclick="uksSetMax(\'' + cinpId + '\',' + u.adet + ')">MAX</button>' +
-                '<button style="background:#3a1a1a;border:1px solid #c0392b;color:#e74c3c;cursor:pointer;font-size:10px;padding:3px 8px;border-radius:3px;font-weight:bold" onclick="uksCikarInp(' + o.id + ',\'' + u.unite_id + '\',\'' + cinpId + '\')" title="Girilen adeti havuza geri koy">✗ Çıkar</button>' +
+        // v1.14.1.43: Ordu yolda/koloninde iken duzenleme YASAK — formation paneliyle ayni kural
+        ((o.is_busy || (o.konum_tipi && o.konum_tipi !== 'sehir'))
+          ? '<div style="padding:12px;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);border-radius:6px;color:#e74c3c;font-size:12px">🔒 Unite ekleme/cikarma sadece ordu <b>Sehirde</b> iken yapilabilir. Bu ordu su an yolda/konuslanmis.</div>'
+          : (function(){
+              // ARMY+POOL birlestirilmis liste: ordudaki uniteler + havuzdaki uretilebilir uniteler
+              var orduMap = {};
+              (o.units||[]).forEach(function(u){ orduMap[u.unite_id] = u.adet || 0; });
+              var poolMap = {};
+              allPool.forEach(function(p){ poolMap[p.id] = p.count || 0; });
+              // Tum unite tipleri (orduda var olanlar + havuzda var olanlar)
+              var tumIds = {};
+              Object.keys(orduMap).forEach(function(k){ if (orduMap[k] > 0) tumIds[k] = true; });
+              Object.keys(poolMap).forEach(function(k){ if (poolMap[k] > 0) tumIds[k] = true; });
+              var ids = Object.keys(tumIds);
+              if (ids.length === 0) {
+                return '<div style="color:#555;font-size:11px;padding:6px">Orduda veya havuzda unite yok.</div>';
+              }
+              return '<div style="display:flex;flex-direction:column;gap:4px">' +
+                ids.map(function(uid){
+                  var def = UNITS[uid] || { name: uid, icon: '⚔' };
+                  var orduda = orduMap[uid] || 0;
+                  var havuzda = poolMap[uid] || 0;
+                  var maxHedef = orduda + havuzda;
+                  var inpId = 'uhedef-' + o.id + '-' + uid;
+                  return '<div style="display:flex;align-items:center;gap:6px;background:#111;border:1px solid #333;border-radius:4px;padding:5px 8px">' +
+                    '<span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#ccc;min-width:160px">' + unitIcon(def, 16) + ' ' + def.name + '</span>' +
+                    '<span style="font-size:10px;color:#888;min-width:130px">Orduda: <b style="color:#c8a96e">' + orduda + '</b> · Havuzda: <b style="color:#888">' + havuzda + '</b></span>' +
+                    '<input type="number" id="' + inpId + '" min="0" max="' + maxHedef + '" value="' + orduda + '" style="width:80px;padding:3px 5px;background:#0a0a0a;border:1px solid #2a2a2a;color:#fff;border-radius:3px;font-size:11px" />' +
+                    '<button style="background:#1a1a1a;border:1px solid #555;color:#c8a96e;cursor:pointer;font-size:10px;padding:3px 8px;border-radius:3px" onclick="uksSetMax(\'' + inpId + '\',' + maxHedef + ')" title="Tum havuz + orduda olanlar">MAX</button>' +
+                    '<button style="background:#1a3a1a;border:1px solid #2ecc71;color:#2ecc71;cursor:pointer;font-size:11px;padding:4px 12px;border-radius:3px;font-weight:bold" onclick="uksUygulaHedef(' + o.id + ',\'' + uid + '\',\'' + inpId + '\',' + orduda + ')" title="Yeni adete getir (artikta ekle, eksilirse cikar)">✓ Uygula</button>' +
+                  '</div>';
+                }).join('') +
               '</div>';
-            }).join('') +
-          '</div>' : '') +
+            })()
+        ) +
       '</div>' +
       // v1.14.0.90: Inline saf dizilimi paneli (gizli, toggle ile acilir)
       '<div id="formation-panel-' + o.id + '" style="display:' + ((window._openFormation && window._openFormation[o.id]) ? 'block' : 'none') + ';padding:12px;border-top:1px solid #333;background:rgba(0,0,0,.25)">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+          '<div style="font-size:11px;color:#d4af37;font-weight:bold">⚔️ Saf Dizilimi — ' + o.isim + '</div>' +
+          '<button class="btn ghost" style="font-size:11px;padding:2px 8px;color:#e74c3c;border-color:#e74c3c44" onclick="toggleFormationPanel(' + o.id + ')" title="Paneli kapat">✕ Kapat</button>' +
+        '</div>' +
         (o.is_busy || (o.konum_tipi && o.konum_tipi !== 'sehir')
           ? '<div style="padding:12px;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);border-radius:6px;color:#e74c3c;font-size:12px">🔒 Saf dizilimi sadece ordu <b>Sehirde</b> iken duzenlenebilir. Bu ordu su an yolda/konuslanmis.</div>'
           : '<div id="formation-body-' + o.id + '"><div style="color:#888;font-size:11px;padding:10px">Yukleniyor...</div></div>'
@@ -596,7 +615,10 @@ function renderOrduListe(){
       })() : '') +
       // v1.9.3: Ordu Gonder paneli — koordinat + v1.14.0.92 oyuncu ara
       '<div id="ordu-gonder-panel-' + o.id + '" style="display:' + ((window._openOrduGonder && window._openOrduGonder[o.id]) ? 'block' : 'none') + ';padding:12px;border-top:1px solid #d4af3744;background:rgba(212,175,55,.04)">' +
-        '<div style="font-size:11px;color:#d4af37;font-weight:bold;margin-bottom:8px">📤 Ordu Gonder — ' + o.isim + '</div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+          '<div style="font-size:11px;color:#d4af37;font-weight:bold">📤 Ordu Gonder — ' + o.isim + '</div>' +
+          '<button class="btn ghost" style="font-size:11px;padding:2px 8px;color:#e74c3c;border-color:#e74c3c44" onclick="toggleOrduGonderPanel(' + o.id + ',\'' + (korumada ? 'korumada' : 'sehir') + '\')" title="Paneli kapat">✕ Kapat</button>' +
+        '</div>' +
         // Sekme: Oyuncu Ara / Koordinat
         '<div style="display:flex;gap:4px;margin-bottom:10px">' +
           '<button class="btn ghost" id="og-tab-oyuncu-' + o.id + '" onclick="orduGonderTab(' + o.id + ',\'oyuncu\')" style="font-size:10px;padding:4px 10px;background:#d4af3722">🔍 Oyuncu Ara</button>' +
@@ -687,11 +709,9 @@ if (typeof window !== 'undefined') {
 
 window._openUniteYon = window._openUniteYon || {};
 function toggleUniteYonetimi(armyId) {
-  var el = document.getElementById('unite-yon-' + armyId);
-  if (!el) return;
-  var nowOpen = el.style.display === 'none';
-  el.style.display = nowOpen ? 'block' : 'none';
-  window._openUniteYon[armyId] = nowOpen;
+  window._openUniteYon = window._openUniteYon || {};
+  window._openUniteYon[armyId] = !window._openUniteYon[armyId];
+  if (typeof renderOrduListe === 'function') renderOrduListe();
 }
 
 // v1.14.0.92/93: Ordu kartini genislet/daralt (true=acik, false/undefined=kapali)
@@ -760,6 +780,27 @@ if (typeof window !== 'undefined') {
   window.uksEkleInp = uksEkleInp;
   window.uksCikarInp = uksCikarInp;
 }
+
+// v1.14.1.43: Tek satir hedef adete getir — fark kadar ekle veya cikar
+function uksUygulaHedef(armyId, uniteId, inputId, mevcutOrdu) {
+  var el = document.getElementById(inputId);
+  var hedef = parseInt(el?.value);
+  if (isNaN(hedef) || hedef < 0) {
+    if (typeof showToast === 'function') showToast('Gecerli adet gir', 'error');
+    return;
+  }
+  var fark = hedef - mevcutOrdu;
+  if (fark === 0) {
+    if (typeof showToast === 'function') showToast('Adet ayni — degisiklik yok', 'info');
+    return;
+  }
+  if (fark > 0) {
+    orduUniteEkle(armyId, uniteId, fark);
+  } else {
+    orduUniteCircar(armyId, uniteId, -fark);
+  }
+}
+if (typeof window !== 'undefined') window.uksUygulaHedef = uksUygulaHedef;
 
 async function orduUniteEkle(armyId, uniteId, adet){
   const token = getToken(); if(!token) return;
@@ -1551,26 +1592,18 @@ if (typeof window !== 'undefined') {
 
 window._openOrduGonder = window._openOrduGonder || {};
 function toggleOrduGonderPanel(armyId, konumTipi) {
-  // Tüm diğer panelleri kapat + state temizle
-  document.querySelectorAll('[id^="ordu-gonder-panel-"]').forEach(function(el) {
-    if (el.id !== 'ordu-gonder-panel-' + armyId) {
-      el.style.display = 'none';
-      var aid = parseInt(el.id.replace('ordu-gonder-panel-','')) || null;
-      if (aid) window._openOrduGonder[aid] = false;
-    }
-  });
-  var el = document.getElementById('ordu-gonder-panel-' + armyId);
-  if (!el) return;
-  var visible = el.style.display !== 'none';
-  el.style.display = visible ? 'none' : 'block';
-  window._openOrduGonder[armyId] = !visible;
-  if (!visible) {
-    _ogAramaSonuc[armyId] = null;
-    var sonucEl = document.getElementById('og-sonuc-' + armyId);
-    if (sonucEl) sonucEl.innerHTML = '<span style="color:#555">Koordinat girip "Ara" ya basin</span>';
-    // Store konum tipi for later use
-    el.dataset.konumTipi = konumTipi || 'sehir';
+  // Diger ordu gonder panelleri kapat (state)
+  for (var k in window._openOrduGonder) {
+    if (parseInt(k) !== armyId) window._openOrduGonder[k] = false;
   }
+  var nowOpen = !window._openOrduGonder[armyId];
+  window._openOrduGonder[armyId] = nowOpen;
+  if (nowOpen) {
+    _ogAramaSonuc[armyId] = null;
+    window._ogKonumTipi = window._ogKonumTipi || {};
+    window._ogKonumTipi[armyId] = konumTipi || 'sehir';
+  }
+  if (typeof renderOrduListe === 'function') renderOrduListe();
 }
 
 async function orduGonderAra(armyId) {
@@ -1785,27 +1818,24 @@ async function orduGeriCagir(armyId) {
 
 window._openFormation = window._openFormation || {};
 function toggleFormationPanel(armyId) {
-  var panel = document.getElementById('formation-panel-' + armyId);
-  if (!panel) return;
-  var isOpen = panel.style.display === 'block';
-  // Diger formation panellerini kapat + state temizle
-  document.querySelectorAll('[id^="formation-panel-"]').forEach(function(el){
-    el.style.display = 'none';
-    var aid = parseInt(el.id.replace('formation-panel-','')) || null;
-    if (aid) window._openFormation[aid] = false;
-  });
-  if (isOpen) return;
-  panel.style.display = 'block';
-  window._openFormation[armyId] = true;
-
-  FORMATION_ARMY_ID = armyId;
-  FORMATION_STATE = [[], [], [], []];
-  var army = ORDULAR.find(function(o){ return o.id === armyId; });
-  if (army && army.dizilim && army.dizilim.saflar) {
-    for (var i = 0; i < 4; i++) FORMATION_STATE[i] = (army.dizilim.saflar[i] || []).slice();
+  var wasOpen = !!window._openFormation[armyId];
+  // Tum formation panellerini kapali isaretle (sadece bir tane acik olsun)
+  for (var k in window._openFormation) window._openFormation[k] = false;
+  if (!wasOpen) {
+    window._openFormation[armyId] = true;
+    FORMATION_ARMY_ID = armyId;
+    FORMATION_STATE = [[], [], [], []];
+    var army = ORDULAR.find(function(o){ return o.id === armyId; });
+    if (army && army.dizilim && army.dizilim.saflar) {
+      for (var i = 0; i < 4; i++) FORMATION_STATE[i] = (army.dizilim.saflar[i] || []).slice();
+    }
   }
-  if (army && !army.is_busy && (!army.konum_tipi || army.konum_tipi === 'sehir')) {
-    renderInlineFormation(armyId);
+  if (typeof renderOrduListe === 'function') renderOrduListe();
+  if (window._openFormation[armyId]) {
+    var army2 = ORDULAR.find(function(o){ return o.id === armyId; });
+    if (army2 && !army2.is_busy && (!army2.konum_tipi || army2.konum_tipi === 'sehir')) {
+      renderInlineFormation(armyId);
+    }
   }
 }
 
