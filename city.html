@@ -266,13 +266,14 @@
       }, 1500);
     });
     // v1.14.0.49: ?tab=X parametresi destegi (sidebar sub-menusunden link)
-    (function initTabFromUrl(){
+    // v1.14.2.2 FIX: getToken auth.js'te tanimli — DOMContentLoaded sonra cagir.
+    window.addEventListener('DOMContentLoaded', function initTabFromUrl(){
       const params = new URLSearchParams(window.location.search);
       const tab = params.get('tab');
       if (tab && ['binalar','gelistirmeler','mutluluk'].includes(tab)) {
         cityTab(tab);
       }
-    })();
+    });
 
     const GEL_KAT_ISIM = { kaynak:'⛏️ Kaynak Üretimi', isleme:'🔥 İşleme', ekonomi:'🏛️ Ekonomi', askeri:'⚔️ Askeri Destek', mana:'✨ Mana' };
     const GEL_KAT_SIRA = ['kaynak','isleme','ekonomi','askeri','mana'];
