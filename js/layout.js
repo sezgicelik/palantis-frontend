@@ -268,6 +268,14 @@ function renderHUD(){
           ${sb('SAAT','⏰','Saat','c-now',null)}
         </div>
       </div>
+      <!-- v1.14.2.0 (FAZ X.4): KP/GP — Gelisim kaynaklari -->
+      <div class="hud-row-wrap">
+        <div class="hud-row-lbl">GELİŞİM</div>
+        <div class="hud-res-row">
+          <div class="stat-box" data-tip="GELISIM PUANI (Katiplerden uretir)" style="border-left:2px solid #3498db"><span class="res-icon">📚</span><div class="res-details"><span class="res-label" style="color:#3498db">G.Puani</span><span class="res-amount" id="hud-gp">0</span></div></div>
+          <div class="stat-box" data-tip="KULTUR PUANI (GPS %80+ x 2 PG / Buyu / Casus / Artifact)" style="border-left:2px solid #f1c40f"><span class="res-icon">📜</span><div class="res-details"><span class="res-label" style="color:#f1c40f">K.Puani</span><span class="res-amount" id="hud-kp">0</span></div></div>
+        </div>
+      </div>
       <!-- ORDU — Ordularim + tehdit/destek rozetleri + rehber -->
       <div class="hud-row-wrap">
         <div class="hud-row-lbl">ORDU</div>

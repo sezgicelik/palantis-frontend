@@ -74,6 +74,7 @@ function renderNufus(d) {
   set('w-farm',  d.isci.ciftci);
   set('w-fish',  d.isci.balikci);
   set('w-merch', d.isci.tuccar);
+  set('w-katip', d.isci.katip || 0);  // v1.14.2.0 (FAZ X.4): Katip yeni isci tipi
 
   // ── Asker sayfasi (army.html) — ham asker ve bos koylu ──
   set('sm-asker', d.asker.ham);

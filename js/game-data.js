@@ -346,6 +346,10 @@ async function loadGameData() {
     _hudN('hud-ce',  RES.cig_et);
     _hudN('hud-pe',  RES.pismis_et);
 
+    // v1.14.2.0 (FAZ X.4): KP/GP HUD gostergesi
+    _hudN('hud-gp',  RES.gelisim_puani || 0);
+    _hudN('hud-kp',  RES.kultur_puani  || 0);
+
     // Mana HUD + üretim rate
     _hudN('hud-mana-beyaz',   Math.floor(RES.mana_beyaz   || 0));
     _hudN('hud-mana-kirmizi', Math.floor(RES.mana_kirmizi || 0));
