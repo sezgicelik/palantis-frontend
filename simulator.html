@@ -343,6 +343,7 @@ const UNITS = {
     {id:'isin_savasci',name:'Işığın Savaşçısı',atk:40,def:100,zirh:40,iska:10,tier:'elite',side:'iyi'},
     {id:'mavi_ejderha',name:'Mavi Ejderha',atk:7500,def:2500,zirh:70,iska:10,tier:'dragon',side:'iyi'},
     {id:'altin_ejderha',name:'Altın Ejderha',atk:10000,def:5000,zirh:75,iska:10,tier:'dragon',side:'iyi'},
+    {id:'rahip',name:'Rahip',atk:0,def:2,zirh:15,iska:0,tier:'support',side:'iyi'},
   ],
   kotu: [
     {id:'iskelet',name:'İskelet',atk:1,def:8,zirh:10,iska:10,tier:'light',side:'kotu'},
@@ -357,13 +358,14 @@ const UNITS = {
     {id:'golge_savasci',name:'Gölge Savaşçısı',atk:40,def:100,zirh:40,iska:10,tier:'elite',side:'kotu'},
     {id:'kirmizi_ejderha',name:'Kırmızı Ejderha',atk:7500,def:2500,zirh:70,iska:10,tier:'dragon',side:'kotu'},
     {id:'siyah_ejderha',name:'Siyah Ejderha',atk:10000,def:5000,zirh:75,iska:10,tier:'dragon',side:'kotu'},
+    {id:'kara_rahip',name:'Kara Rahip',atk:0,def:2,zirh:15,iska:0,tier:'support',side:'kotu'},
   ]
 };
 const ALL_UNITS = [...UNITS.iyi, ...UNITS.kotu];
 const SAF = [3, 3, 4, 3];
 const SLOTS = SAF.reduce((a,b) => a+b, 0);
-const TABS = {'Ejderha':['dragon'],'Elite':['elite'],'Ağır':['heavy'],'Orta':['mid'],'Hafif':['light']};
-const TCOL = {dragon:'#C9A84C',elite:'#8B1A9A',heavy:'#C45A2A',mid:'#3A7EC4',light:'#4A6848'};
+const TABS = {'Ejderha':['dragon'],'Elite':['elite'],'Ağır':['heavy'],'Orta':['mid'],'Hafif':['light'],'Destek':['support']};
+const TCOL = {dragon:'#C9A84C',elite:'#8B1A9A',heavy:'#C45A2A',mid:'#3A7EC4',light:'#4A6848',support:'#F1C40F'};
 
 const ST = {
   atk: { sl: Array(SLOTS).fill(null), sel: null, su: null, tab: 'Ağır' },

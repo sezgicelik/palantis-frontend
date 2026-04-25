@@ -592,11 +592,36 @@ function renderSafDizilim(sonuc, saldiranAdi, savunanAdi, benimTaraf) {
       '</div>';
     }).join('');
 
+    // v1.14.1.47 (FAZ 1.1): Kule snapshot ayri bolum (sehir savunmasi)
+    var kuleler = (taraf === 'atk')
+      ? (sonuc.ganimet?._kuleler_saldiran || sonuc.saldiran_kuleler || [])
+      : (sonuc.ganimet?._kuleler_savunan  || sonuc.savunan_kuleler  || []);
+    var kuleHTML = '';
+    if (Array.isArray(kuleler) && kuleler.length > 0) {
+      var kuleSlotsHTML = kuleler.map(function(k){
+        var info = birimInfoLocal(k.unite_id);
+        var olenRenk = k.olen > 0 ? '#e67e22' : '#9b59b6';
+        var adetRow = k.olen > 0
+          ? '<div style="font-size:10px;color:' + olenRenk + '">' + fmt(k.baslangic) + '→' + fmt(k.kalan) + '</div>'
+          : '<div style="font-size:10px;color:#9b59b6">' + fmt(k.kalan) + '</div>';
+        return '<div style="width:96px;height:88px;border:2px solid #9b59b644;border-radius:6px;background:rgba(155,89,182,0.08);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px">' +
+          '<div style="font-size:22px;line-height:1">' + info.icon + '</div>' +
+          '<div style="font-size:10px;color:#9b59b6;text-align:center;margin-top:2px;line-height:1.1">' + info.name + '</div>' +
+          adetRow +
+        '</div>';
+      }).join('');
+      kuleHTML = '<div style="display:flex;justify-content:center;gap:6px;margin-top:8px;padding-top:8px;border-top:1px dashed #9b59b633">' +
+        '<div style="min-width:54px;font-size:10px;color:#9b59b6;align-self:center;font-family:Cinzel,serif">🏰 KULE</div>' +
+        kuleSlotsHTML +
+      '</div>';
+    }
+
     return '<div style="flex:1;min-width:300px;background:rgba(0,0,0,0.25);border:1px solid #333;border-radius:8px;padding:12px">' +
       '<div style="text-align:center;margin-bottom:10px;font-family:Cinzel,serif;color:' + renk + ';font-size:13px">' +
         (taraf==='atk'?'⚔':'🛡') + ' ' + adi + rozet +
       '</div>' +
       satirlar +
+      kuleHTML +
     '</div>';
   }
 
