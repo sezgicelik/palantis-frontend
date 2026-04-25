@@ -362,7 +362,7 @@ const UNITS = {
   ]
 };
 const ALL_UNITS = [...UNITS.iyi, ...UNITS.kotu];
-const SAF = [3, 3, 4, 3];
+const SAF = [3, 3, 5, 3];  // v1.14.2.3: backend SAF_LIMITS ile birebir paritet (saf 3 = 5 slot)
 const SLOTS = SAF.reduce((a,b) => a+b, 0);
 const TABS = {'Ejderha':['dragon'],'Elite':['elite'],'Ağır':['heavy'],'Orta':['mid'],'Hafif':['light'],'Destek':['support']};
 const TCOL = {dragon:'#C9A84C',elite:'#8B1A9A',heavy:'#C45A2A',mid:'#3A7EC4',light:'#4A6848',support:'#F1C40F'};
@@ -680,6 +680,12 @@ async function simulate() {
   const defUnits = ST.def.sl.filter(Boolean);
   if (!atkUnits.length || !defUnits.length) { alert('Her iki tarafta da en az 1 birim olmalı!'); return; }
 
+  // v1.14.2.3: Saf 1 bos kontrolu (backend fillFromBackIfEmpty otomatik dolduruyor — bilgi amacli)
+  const saf1Atk = ST.atk.sl.slice(0,3).filter(Boolean).length;
+  const saf1Def = ST.def.sl.slice(0,3).filter(Boolean).length;
+  if (saf1Atk === 0) { if (!confirm('⚠️ Saldıran saf 1 boş — backend otomatik arka saftan birim çekecek. Devam?')) return; }
+  if (saf1Def === 0) { if (!confirm('⚠️ Savunan saf 1 boş — backend otomatik arka saftan birim çekecek. Devam?')) return; }
+
   const btn = document.getElementById('btnBattle');
   btn.disabled = true; btn.textContent = '⏳ SİMÜLASYON ÇALIŞIYOR...';
   document.getElementById('errMsg').textContent = '';
@@ -868,8 +874,43 @@ function openRapor() {
         </tbody>
       </table>
     </div>
+    ${(() => {
+      // v1.14.2.3: Tur bazli kompozisyon + dirilis (oyundaki rapora paritet)
+      const fmtAdet = n => (n||0).toLocaleString('tr-TR');
+      const findUnit = uid => ALL_UNITS.find(x => x.id === (uid||'').replace(/__army_\d+$/, '')) || { name: uid };
+      const kompTablo = (komp, adi) => {
+        if (!komp || !Object.keys(komp).length) return `<div style="text-align:center;color:#c0392b;padding:8px;font-size:.5rem">💀 ${adi} ordu yok</div>`;
+        const sat = Object.entries(komp).map(([uid,info]) => {
+          const u = findUnit(uid);
+          return `<tr><td style="padding:2px 6px">${u.name||uid}</td><td style="text-align:right;color:#c8a96e">${fmtAdet(info.adet||0)}</td><td style="text-align:right;color:#e74c3c">${(info.atk||0).toFixed(0)}</td><td style="text-align:right;color:#3498db">${(info.def||0).toFixed(0)}</td></tr>`;
+        }).join('');
+        return `<table style="width:100%;font-size:.5rem;border-collapse:collapse"><thead><tr style="border-bottom:1px solid #333;color:#888"><th style="text-align:left;padding:2px 6px">Ünite</th><th style="text-align:right">Sayı</th><th style="text-align:right">ATK</th><th style="text-align:right">DEF</th></tr></thead><tbody>${sat}</tbody></table>`;
+      };
+      const dirilisSat = (dirilis, adi, isKaranlik) => {
+        if (!dirilis || !dirilis.toplamDirilen) return '';
+        const kelime = isKaranlik ? 'kara rahip' : 'rahip';
+        const renk = isKaranlik ? '#9b59b6' : '#f1c40f';
+        const dets = Object.entries(dirilis.dirilen||{}).map(([uid,adet]) => `${fmtAdet(adet)} ${findUnit(uid).name||uid}`).join(', ');
+        return `<div style="margin:6px 0;padding:6px 10px;background:rgba(241,196,15,0.06);border-left:3px solid ${renk};border-radius:3px;font-size:.5rem;color:#e8dcc4;font-style:italic"><b style="color:${renk}">${adi}</b>: <b>${fmtAdet(dirilis.rahipSayi)}</b> ${kelime} → <b>${fmtAdet(dirilis.toplamDirilen)} birim</b> canlandırdı (${dets})</div>`;
+      };
+      const KARANLIK = ['iskelet','goblin','iskelet_okcu','ogre','troll','ork','kara_sovalye','kara_elf','golem','golge_savasci','kara_rahip','kirmizi_ejderha','siyah_ejderha'];
+      const sIsKa = Object.keys(turlar[0]?.saldiran_komp||{}).some(u => KARANLIK.includes((u||'').replace(/__army_\d+$/, '')));
+      const vIsKa = Object.keys(turlar[0]?.savunan_komp||{}).some(u => KARANLIK.includes((u||'').replace(/__army_\d+$/, '')));
+      return `<div class="rp-div"></div><div class="rp-sec">🔍 HER TUR BİRİM DETAYI</div>` + turlar.map((t,i) => `
+        <div style="border:1px solid #333;border-radius:5px;padding:8px;margin-bottom:8px;background:rgba(0,0,0,0.25)">
+          <div style="font-weight:bold;color:#d4af37;font-size:.55rem;margin-bottom:4px">${i+1}. TUR — Ordu Durumu</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div><div style="color:#E8A0A0;font-size:.5rem;margin-bottom:2px">⚔ SALDIRAN</div>${kompTablo(t.saldiran_komp, 'Saldıran')}</div>
+            <div><div style="color:#A0C8F0;font-size:.5rem;margin-bottom:2px">🛡 SAVUNAN</div>${kompTablo(t.savunan_komp, 'Savunan')}</div>
+          </div>
+          ${dirilisSat(t.saldiran_dirilis, 'SALDIRAN', sIsKa)}
+          ${dirilisSat(t.savunan_dirilis, 'SAVUNAN', vIsKa)}
+        </div>
+      `).join('');
+    })()}
+
     <div class="rp-div"></div>
-    <div style="text-align:center;font-size:.5rem;color:var(--text-dim);font-style:italic">Noxara Savaş Simülatörü v1.7.3 — Backend Motor</div>
+    <div style="text-align:center;font-size:.5rem;color:var(--text-dim);font-style:italic">Noxara Savaş Simülatörü v1.14.2.3 — Backend Motor</div>
   `;
   document.getElementById('raporModal').classList.add('open');
 }
