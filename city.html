@@ -315,7 +315,10 @@
             const pct = g.max_ulasildi ? 100 : Math.round(g.seviye / 10 * 100);
             const barColor = g.max_ulasildi ? 'var(--race-color,#c8a96e)' : '#2ecc71';
             const canUpgrade = !g.max_ulasildi && g.cag_yeterli;
-            const maliyetStr = g.maliyet ? `${g.maliyet.altin.toLocaleString()} altın + ${g.maliyet.islenmis.toLocaleString()} işlenmiş` : '';
+            // v1.14.2.0 (FAZ X.4): Maliyet GP+KP+islenmis (altin yok)
+            const maliyetStr = g.maliyet
+              ? `<span style="color:#3498db">${(g.maliyet.gelisim_puani||0).toLocaleString()} GP</span> + <span style="color:#f1c40f">${(g.maliyet.kultur_puani||0).toLocaleString()} KP</span> + ${(g.maliyet.islenmis||0).toLocaleString()} işlenmiş`
+              : '';
             const cagStr = !g.max_ulasildi && !g.cag_yeterli ? `<span style="color:#e74c3c;font-size:10px">Çağ ${g.gereken_cag} gerekli</span>` : '';
 
             html += `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #1a1a1a;flex-wrap:wrap">

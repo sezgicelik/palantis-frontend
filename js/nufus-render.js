@@ -89,6 +89,7 @@ function renderNufus(d) {
     population.farm          = d.isci.ciftci;
     population.fish          = d.isci.balikci;
     population.merchant      = d.isci.tuccar;
+    population.katip         = d.isci.katip || 0;  // v1.14.2.0 (FAZ X.4)
     population.asker         = d.asker.ham;
     population.worshipper_beyaz   = d.worshipper.beyaz;
     population.worshipper_kirmizi = d.worshipper.kirmizi;

@@ -13,6 +13,8 @@ const ISCI_BINA_MAP = {
   farm:     { binaId: 'tarla',        kapasite: 50, ad: 'Tarla' },
   // fish: backend'de enforce edilmiyor — serbest ata (HUD'de bilgi gosterilmeye devam edilir)
   // merchant: Pazar binasi eklenince baglanacak — simdilik serbest
+  // v1.14.2.0 (FAZ X.4): Katip — Akademi seviye x 50 kapasitesi
+  katip:    { binaId: 'akademi',      kapasite: 50, ad: 'Akademi' },
 };
 
 function getWorkerCapacity(type) {
@@ -130,7 +132,8 @@ async function saveWorkers(){
         madenci: population.iron || 0,
         ciftci: population.farm || 0,
         balikci: population.fish || 0,
-        tuccar: population.merchant || 0
+        tuccar: population.merchant || 0,
+        katip:  population.katip || 0  // v1.14.2.0 (FAZ X.4)
       })
     });
     if (resp.ok) {

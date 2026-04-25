@@ -154,8 +154,16 @@ async function upgradeUnit(unitId, stat){
   const curSev = stat === 'atk' ? gel.atk : gel.def;
   const maxSev = stat === 'atk' ? u.atkGelMax : u.defGelMax;
   if(curSev >= maxSev){ toast(`Max ${stat.toUpperCase()} seviye!`); return; }
-  const maliyet = GEL_MALIYET * (curSev + 1);
-  if((RES.altin||0) < maliyet){ toast(`Yetersiz altın! (${maliyet} gerekli)`); return; }
+  // v1.14.2.0 (FAZ X.4): Maliyet GP+KP+islenmis (altin yok)
+  const sonraki = curSev + 1;
+  const gpGerek = 10 * sonraki, kpGerek = 5 * sonraki, isGerek = 100 * sonraki;
+  const gpVar = parseInt(RES.gelisim_puani || 0);
+  const kpVar = parseInt(RES.kultur_puani || 0);
+  const isVar = parseInt(RES.islenmis || 0);
+  if(gpVar < gpGerek || kpVar < kpGerek || isVar < isGerek){
+    toast(`Yetersiz: ${gpGerek} GP + ${kpGerek} KP + ${isGerek} işlenmiş gerekli`);
+    return;
+  }
 
   const token = getToken(); if(!token) return;
   try {
