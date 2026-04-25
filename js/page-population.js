@@ -15,11 +15,15 @@ const ISCI_BINA_MAP = {
   // merchant: Pazar binasi eklenince baglanacak — simdilik serbest
   // v1.14.2.0 (FAZ X.4): Katip — Akademi seviye x 50 kapasitesi
   katip:    { binaId: 'akademi',      kapasite: 50, ad: 'Akademi' },
+  // v1.14.2.1: Izci — Bina-bagli degil, max 50 (sabit)
+  izci:     { binaId: null,           kapasite: 50, ad: 'Izci', sabitKapasite: true },
 };
 
 function getWorkerCapacity(type) {
   const map = ISCI_BINA_MAP[type];
   if (!map) return Infinity; // Tüccar vb. serbest
+  // v1.14.2.1: Sabit kapasiteli isci (izci max 50)
+  if (map.sabitKapasite) return map.kapasite;
   const binaAdet = BLDGS[map.binaId]?.lv || 0;
   return binaAdet * map.kapasite;
 }
@@ -133,7 +137,8 @@ async function saveWorkers(){
         ciftci: population.farm || 0,
         balikci: population.fish || 0,
         tuccar: population.merchant || 0,
-        katip:  population.katip || 0  // v1.14.2.0 (FAZ X.4)
+        katip:  population.katip || 0, // v1.14.2.0 (FAZ X.4)
+        izci:   population.izci  || 0  // v1.14.2.1
       })
     });
     if (resp.ok) {

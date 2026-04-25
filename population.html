@@ -207,6 +207,16 @@
           <button type="button" onclick="assignWorker('katip',10)">+10</button>
           <span class="info" style="font-size:11px;color:#3498db">(0.05 GP/sa, 1000 altın maaş)</span>
         </div>
+        <!-- v1.14.2.1: Izci — Alan kesfi, max 50, Cag 2+, bina-bagli degil -->
+        <div class="worker-row">
+          <span class="wr-lbl">🏞 İzci</span>
+          <button type="button" onclick="assignWorker('izci',-10)">−10</button>
+          <button type="button" onclick="assignWorker('izci',-1)">−</button>
+          <b id="w-izci">0</b>
+          <button type="button" onclick="assignWorker('izci',1)">+</button>
+          <button type="button" onclick="assignWorker('izci',10)">+10</button>
+          <span class="info" style="font-size:11px;color:#2ecc71">(0.05 alan/sa, 500 altın maaş, max 50, Çağ 2+)</span>
+        </div>
       </div>
 
       <button class="btn" type="button" onclick="saveWorkers()" style="margin-top:14px;width:100%">💾 Dağılımı Kaydet</button>

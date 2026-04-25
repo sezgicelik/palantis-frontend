@@ -230,6 +230,7 @@ function updatePopulationUI(skipBackendFetch){
   set('w-fish', population.fish||0);
   set('w-merchant', population.merchant||0);
   set('w-katip', population.katip||0);  // v1.14.2.0 (FAZ X.4)
+  set('w-izci',  population.izci ||0);  // v1.14.2.1
 
   // Saatlik üretim
   set('p-wood',     population.wood * 40);

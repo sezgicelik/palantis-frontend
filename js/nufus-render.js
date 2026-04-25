@@ -75,6 +75,7 @@ function renderNufus(d) {
   set('w-fish',  d.isci.balikci);
   set('w-merch', d.isci.tuccar);
   set('w-katip', d.isci.katip || 0);  // v1.14.2.0 (FAZ X.4): Katip yeni isci tipi
+  set('w-izci',  d.isci.izci  || 0);  // v1.14.2.1: Izci alan kesfi
 
   // ── Asker sayfasi (army.html) — ham asker ve bos koylu ──
   set('sm-asker', d.asker.ham);
@@ -90,6 +91,7 @@ function renderNufus(d) {
     population.fish          = d.isci.balikci;
     population.merchant      = d.isci.tuccar;
     population.katip         = d.isci.katip || 0;  // v1.14.2.0 (FAZ X.4)
+    population.izci          = d.isci.izci  || 0;  // v1.14.2.1
     population.asker         = d.asker.ham;
     population.worshipper_beyaz   = d.worshipper.beyaz;
     population.worshipper_kirmizi = d.worshipper.kirmizi;
