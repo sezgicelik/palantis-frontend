@@ -62,6 +62,16 @@
         <button class="city-filt"       data-filter="sehir"   onclick="setFilterBtn('sehir',this)">🏙️ Şehir</button>
         <button class="city-filt"       data-filter="ozel"    onclick="setFilterBtn('ozel',this)">✨ Özel</button>
       </div>
+
+      <!-- v1.14.1.41: Gelisim alt sekmeleri (5 GPS alani) -->
+      <div class="city-subfilter-bar" id="city-subfilter-bar" style="display:none;gap:4px;flex-wrap:wrap;margin-bottom:14px;padding:6px 8px;background:rgba(155,89,182,0.06);border-left:3px solid #9b59b6;border-radius:3px">
+        <button class="city-subfilt on" data-subfilter="all"      onclick="setSubFilterBtn('all',this)">📋 Tümü</button>
+        <button class="city-subfilt"    data-subfilter="egitim"   onclick="setSubFilterBtn('egitim',this)">🎓 Eğitim</button>
+        <button class="city-subfilt"    data-subfilter="bilgi"    onclick="setSubFilterBtn('bilgi',this)">📖 Bilgi</button>
+        <button class="city-subfilt"    data-subfilter="kultur"   onclick="setSubFilterBtn('kultur',this)">🎭 Kültür</button>
+        <button class="city-subfilt"    data-subfilter="eglence"  onclick="setSubFilterBtn('eglence',this)">🎪 Eğlence</button>
+        <button class="city-subfilt"    data-subfilter="sehir"    onclick="setSubFilterBtn('sehir',this)">🌆 Şehir</button>
+      </div>
       <style>
         .city-filter-bar .city-filt {
           padding:6px 14px; border:none; border-radius:4px; cursor:pointer;
@@ -69,11 +79,30 @@
         }
         .city-filter-bar .city-filt.on { background:#c8a96e; color:#000; }
         .city-filter-bar .city-filt:hover:not(.on) { background:#2a2a2a; color:#c8a96e; }
+        .city-subfilter-bar .city-subfilt {
+          padding:5px 12px; border:none; border-radius:3px; cursor:pointer;
+          font-size:10px; font-weight:bold; background:#0f0f0f; color:#888;
+        }
+        .city-subfilter-bar .city-subfilt.on { background:#9b59b6; color:#fff; }
+        .city-subfilter-bar .city-subfilt:hover:not(.on) { background:#1a1a1a; color:#9b59b6; }
       </style>
       <script>
         function setFilterBtn(cat, el) {
           document.querySelectorAll('.city-filter-bar .city-filt').forEach(b => b.classList.toggle('on', b.dataset.filter === cat));
+          // Gelisim alt sekme barini goster/gizle
+          const subBar = document.getElementById('city-subfilter-bar');
+          if (subBar) subBar.style.display = (cat === 'gelisim') ? 'flex' : 'none';
+          if (cat !== 'gelisim') {
+            // Alt filtreyi sifirla
+            document.querySelectorAll('.city-subfilter-bar .city-subfilt').forEach(b => b.classList.toggle('on', b.dataset.subfilter === 'all'));
+            if (typeof window !== 'undefined') window.activeGpsAlan = 'all';
+          }
           if (typeof setFilter === 'function') setFilter(cat, el);
+        }
+        function setSubFilterBtn(sub, el) {
+          document.querySelectorAll('.city-subfilter-bar .city-subfilt').forEach(b => b.classList.toggle('on', b.dataset.subfilter === sub));
+          window.activeGpsAlan = sub;
+          if (typeof renderGrid === 'function') renderGrid();
         }
       </script>
 

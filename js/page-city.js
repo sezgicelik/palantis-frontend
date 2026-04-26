@@ -42,7 +42,13 @@ function renderGrid(){
   if(!grid)return;
   renderInsaatBanner();
   const inQ=new Set(QUEUE.map(q=>q.id));
-  const list=Object.values(BLDGS).filter(b=>activeCat==='all'||b.cat===activeCat);
+  // v1.14.1.41: Gelisim alt sekmesi (gpsAlan) destegi
+  const _gpsSub = (typeof window !== 'undefined' && window.activeGpsAlan) || 'all';
+  const list=Object.values(BLDGS).filter(b => {
+    if (activeCat !== 'all' && b.cat !== activeCat) return false;
+    if (activeCat === 'gelisim' && _gpsSub !== 'all' && b.gpsAlan !== _gpsSub) return false;
+    return true;
+  });
   grid.innerHTML='';
   const oyuncuCag = OYUNCU?.cag || 1;
 
