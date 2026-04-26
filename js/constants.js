@@ -461,12 +461,12 @@ const UNITS = {
   isin_savasci:{id:'isin_savasci',side:'light',icon:'⚡',img:'img/units/isin_savasci.png',name:'Işığın Savaşçısı',role:'Efsanevi',tier:3,trainDays:15,
     baseAtk:40,baseDef:100,zirh:40,iska:10,maas:250,
     atkGelArtis:2,defGelArtis:2,atkGelMax:10,defGelMax:10,
-    saldiriCarpan:3, savasTurlari:[1,2,3,4,5],
+    saldiriCarpan:3, savasTurlari:[1,2,3,4,5,6],
     cost:{altin:50000,odun:1000,metal:300,islenmis:500},
     extraCost:{buyulu_yumurta:1},
     traits:['x3 saldırı çarpanı','Büyülü Yumurta gerekli','Efsanevi'],
     trainTime:1200,maxCount:99999,count:0,
-    desc:"Aydınlığın en güçlüsü. x3 çarpan. 1 Büyülü Yumurta gerekli. 1-2-3-4-5. turlarda."},
+    desc:"Aydınlığın en güçlüsü. x3 çarpan. 1 Büyülü Yumurta gerekli. Tüm turlarda savaşır."},
 
   /* ─── RAHIP (v1.14.1.04 Faz 1 revize: ÜRETİLEMEZ — tapınaktan spawn) ─── */
   rahip:{id:'rahip',side:'light',icon:'✨',img:'img/units/rahip.png',name:'Rahip',role:'Diriltici',tier:3,trainDays:0,
@@ -504,7 +504,7 @@ const UNITS = {
     baseAtk:1,baseDef:8,zirh:10,iska:10,maas:15,
     atkGelArtis:0.5,defGelArtis:0.5,atkGelMax:10,defGelMax:10,
     saldiriCarpan:1, savasTurlari:[4,5,6],
-    cost:{altin:3000,odun:75,islenmis:50},
+    cost:{altin:2700,odun:75,islenmis:50},
     extraCost:{},
     traits:['Ölümsüz','Ucuz birim'],
     trainTime:60,maxCount:99999,count:0,
@@ -593,12 +593,12 @@ const UNITS = {
   golge_savasci:{id:'golge_savasci',side:'dark',icon:'🌑',img:'img/units/golge_savasci.png',name:'Gölge Savaşçı',role:'Efsanevi',tier:3,trainDays:15,
     baseAtk:40,baseDef:100,zirh:40,iska:10,maas:250,
     atkGelArtis:2,defGelArtis:2,atkGelMax:10,defGelMax:10,
-    saldiriCarpan:3, savasTurlari:[1,2,3,4,5],
+    saldiriCarpan:3, savasTurlari:[1,2,3,4,5,6],
     cost:{altin:50000,odun:1000,metal:300,islenmis:500},
     extraCost:{buyulu_yumurta:1},
     traits:['x3 saldırı çarpanı','Büyülü Yumurta gerekli','Efsanevi'],
     trainTime:1500,maxCount:99999,count:0,
-    desc:"Karanlığın en güçlüsü. x3 çarpan. 1 Büyülü Yumurta gerekli. 1-2-3-4-5. turlarda."},
+    desc:"Karanlığın en güçlüsü. x3 çarpan. 1 Büyülü Yumurta gerekli. Tüm turlarda savaşır."},
 
   /* ─── KARA RAHIP (v1.14.1.04 Faz 1 revize: ÜRETİLEMEZ — tapınaktan spawn) ─── */
   kara_rahip:{id:'kara_rahip',side:'dark',icon:'🕯️',img:'img/units/kara_rahip.png',name:'Kara Rahip',role:'Diriltici',tier:3,trainDays:0,
