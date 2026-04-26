@@ -305,6 +305,9 @@ async function loadGameData() {
     if (res.pismis !== undefined) RES.pismis = parseInt(res.pismis) || 0;
     if (res.cig_et !== undefined) RES.cig_et = parseInt(res.cig_et) || 0;
     if (res.pismis_et !== undefined) RES.pismis_et = parseInt(res.pismis_et) || 0;
+    // v1.14.2.0: GP/KP backend'ten oku
+    if (res.gelisim_puani !== undefined) RES.gelisim_puani = parseInt(res.gelisim_puani) || 0;
+    if (res.kultur_puani  !== undefined) RES.kultur_puani  = parseInt(res.kultur_puani)  || 0;
     // Mana degerlerini yukle
     if (res.mana_beyaz !== undefined) RES.mana_beyaz = parseFloat(res.mana_beyaz) || 0;
     if (res.mana_kirmizi !== undefined) RES.mana_kirmizi = parseFloat(res.mana_kirmizi) || 0;
