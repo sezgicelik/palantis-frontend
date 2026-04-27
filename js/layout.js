@@ -61,7 +61,10 @@ function renderSidebar(){
   const buyulerPages = ['magic.html','buyucu-kulesi.html'];
   const ticPages     = ['market.html','kervan.html','pazar.html','buyu-dukkani.html'];
   const dunyaPages   = ['map.html','cag.html'];
-  const sosyalPages  = ['meydan.html','bocek-yarisi.html','sandik.html'];
+  // v1.14.1.54: Sidebar reorg — Sıralamalar -> Sosyal, Artifact -> Premium, IconMockup -> Ayarlar
+  const sosyalPages  = ['meydan.html','bocek-yarisi.html','sandik.html','siralama.html'];
+  const premiumPages = ['premium.html','artifact.html'];
+  const ayarlarPages = ['ayarlar.html','icon-mockup.html'];
 
   const isKrallik  = krallikPages.includes(page);
   const isOrduSavas= ordusavasPages.includes(page);
@@ -69,6 +72,8 @@ function renderSidebar(){
   const isTic      = ticPages.includes(page);
   const isDunya    = dunyaPages.includes(page);
   const isSosyal   = sosyalPages.includes(page);
+  const isPremium  = premiumPages.includes(page);
+  const isAyarlar  = ayarlarPages.includes(page);
 
   // Hizli Erisim pinli menuler (localStorage, max 5)
   let hizliMenuler = [];
@@ -147,23 +152,33 @@ function renderSidebar(){
       <a id="menu-guild" href="guild.html" class="menu-item${isActive('guild.html')}" style="display:none">🏰 Guild</a>
       <!-- v1.14.1.15: Savaslarim ayri link kaldirildi — reports.html icinde zaten tab olarak var -->
       <a href="reports.html" class="menu-item${isActive('reports.html')}">📊 Raporlar <span style="color:#888;font-size:10px">(Şehir · Savaş · Casus · Guild)</span></a>
-      <a href="siralama.html" class="menu-item${isActive('siralama.html')}">🏆 Sıralamalar</a>
-      <a href="artifact.html" class="menu-item${isActive('artifact.html')}">🧰 Artifactlar</a>
       <a href="gorev.html" class="menu-item${isActive('gorev.html')}">📜 Görevler <span id="gorev-badge" style="display:none;background:#e74c3c;color:#fff;font-size:11px;padding:1px 5px;border-radius:8px;margin-left:4px"></span></a>
 
       <a href="meydan.html" class="menu-item${isSosyal?' on':''}">🎭 Sosyal & Eğlence</a>
       <div class="submenu" style="display:${isSosyal?'block':'none'}">
         <a href="meydan.html" class="menu-item sub-item${isActive('meydan.html')}">💬 Şehir Meydanı</a>
         <a href="meydan.html?tab=ozel" class="menu-item sub-item">✉️ Özel Mesajlar <span id="ozel-mesaj-badge" style="display:none;background:#e74c3c;color:#fff;font-size:11px;padding:1px 5px;border-radius:8px;margin-left:4px"></span></a>
+        <a href="siralama.html" class="menu-item sub-item${isActive('siralama.html')}">🏆 Sıralamalar</a>
         <a href="bocek-yarisi.html" class="menu-item sub-item${isActive('bocek-yarisi.html')}">🪲 Böcek Yarışı</a>
         <a href="sandik.html" class="menu-item sub-item${isActive('sandik.html')}">📦 Kader Sandıkları</a>
       </div>
 
-      <a href="premium.html" class="menu-item${isActive('premium.html')}" style="color:#d4af37">⚜ Premium</a>
+      <!-- v1.14.1.54: Premium altinda Artifactlar -->
+      <a href="premium.html" class="menu-item${isPremium?' on':''}" style="color:#d4af37">⚜ Premium</a>
+      <div class="submenu" style="display:${isPremium?'block':'none'}">
+        <a href="premium.html" class="menu-item sub-item${isActive('premium.html')}">⚜ Premium Paketler</a>
+        <a href="artifact.html" class="menu-item sub-item${isActive('artifact.html')}">🧰 Artifactlar</a>
+      </div>
+
       <a href="bug-bildir.html" class="menu-item${isActive('bug-bildir.html')}" style="color:#e74c3c">🐛 Bug Bildir</a>
       <a href="codex.html" class="menu-item${isActive('codex.html')}" style="color:#d4a257">📖 Codex</a>
-      <a href="icon-mockup.html" class="menu-item${isActive('icon-mockup.html')}" style="color:#9b59b6">🎨 İkon Mockup</a>
-      <a href="ayarlar.html" class="menu-item${isActive('ayarlar.html')}">⚙️ Ayarlar</a>
+
+      <!-- v1.14.1.54: Ayarlar altinda Icon Mockup -->
+      <a href="ayarlar.html" class="menu-item${isAyarlar?' on':''}">⚙️ Ayarlar</a>
+      <div class="submenu" style="display:${isAyarlar?'block':'none'}">
+        <a href="ayarlar.html" class="menu-item sub-item${isActive('ayarlar.html')}">⚙️ Hesap Ayarları</a>
+        <a href="icon-mockup.html" class="menu-item sub-item${isActive('icon-mockup.html')}" style="color:#9b59b6">🎨 İkon Mockup</a>
+      </div>
 
       <!-- Logout — sticky bottom -->
       <div style="position:sticky;bottom:0;padding:10px;border-top:1px solid #1a1a1a;background:inherit;z-index:10">
