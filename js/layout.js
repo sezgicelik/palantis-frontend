@@ -190,27 +190,46 @@ function renderSidebar(){
     </div>
 
     <!-- v1.14.1.55: Mobile Bottom Nav — sadece <=768px goster -->
+    <!-- v1.14.1.56 polish: same-page click → scroll top + badge (Sosyal/Ordu) -->
     <nav class="bottom-nav-mobile">
-      <a href="home.html" class="bn-item${isActive('home.html')}">
+      <a href="home.html" class="bn-item${isActive('home.html')}" data-bn="home" onclick="return bnClick(event,'home.html')">
         <span class="bn-icon">🏠</span><span>Ana</span>
       </a>
-      <a href="city.html" class="bn-item${isKrallik?' on':''}">
+      <a href="city.html" class="bn-item${isKrallik?' on':''}" data-bn="city" onclick="return bnClick(event,'city.html')">
         <span class="bn-icon">🏰</span><span>Şehir</span>
       </a>
-      <a href="army.html" class="bn-item${isOrduSavas?' on':''}">
+      <a href="army.html" class="bn-item${isOrduSavas?' on':''}" data-bn="army" onclick="return bnClick(event,'army.html')">
         <span class="bn-icon">⚔️</span><span>Ordu</span>
+        <span id="bn-army-badge" class="bn-badge" style="display:none">0</span>
       </a>
-      <a href="map.html" class="bn-item${isDunya?' on':''}">
+      <a href="map.html" class="bn-item${isDunya?' on':''}" data-bn="map" onclick="return bnClick(event,'map.html')">
         <span class="bn-icon">🗺️</span><span>Harita</span>
       </a>
-      <a href="meydan.html" class="bn-item${isSosyal?' on':''}">
+      <a href="meydan.html" class="bn-item${isSosyal?' on':''}" data-bn="sosyal" onclick="return bnClick(event,'meydan.html')">
         <span class="bn-icon">🎭</span><span>Sosyal</span>
+        <span id="bn-sosyal-badge" class="bn-badge" style="display:none">0</span>
       </a>
     </nav>
   `;
   // Mobile bottom nav var — body'ye class ekle (CSS padding-bottom)
   document.body.classList.add('has-bottom-nav');
 }
+
+// v1.14.1.56: Bottom nav click handler — ayni sayfadayken scroll top, farkli ise normal git
+function bnClick(ev, hedefSayfa) {
+  const path = window.location.pathname;
+  const page = path.split('/').pop() || 'home.html';
+  if (page === hedefSayfa) {
+    // Ayni sayfada — scroll top + opsiyonel haptic
+    ev.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Haptic feedback (destekleyen telefonlar)
+    if (navigator.vibrate) try { navigator.vibrate(20); } catch {}
+    return false;
+  }
+  return true; // farkli sayfa — normal navigation
+}
+window.bnClick = bnClick;
 
 // v1.14.0.54: Codex palette + tooltip global yukleme
 (function loadCodexGlobal() {

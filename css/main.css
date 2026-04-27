@@ -1751,9 +1751,36 @@ body.has-bottom-nav main, body.has-bottom-nav .panel {
   flex-direction: column;
   align-items: center;
   gap: 2px;
+  position: relative;  /* badge konumu icin */
+  -webkit-tap-highlight-color: rgba(212,175,55,0.2);
+  transition: color .15s, transform .1s;
 }
+.bottom-nav-mobile .bn-item:active { transform: scale(0.92); }
 .bottom-nav-mobile .bn-item.on { color: #d4af37; }
 .bottom-nav-mobile .bn-item .bn-icon { font-size: 18px; }
+/* v1.14.1.56: Bottom nav badge (kirmizi sayi) */
+.bottom-nav-mobile .bn-badge {
+  position: absolute;
+  top: 4px;
+  right: 50%;
+  margin-right: -22px;
+  background: #e74c3c;
+  color: #fff;
+  font-size: 9px;
+  font-weight: bold;
+  padding: 1px 5px;
+  border-radius: 8px;
+  min-width: 16px;
+  text-align: center;
+  border: 1.5px solid #050505;
+  line-height: 1.2;
+  box-shadow: 0 0 0 0 rgba(231,76,60,0.7);
+  animation: bn-badge-pulse 2s infinite;
+}
+@keyframes bn-badge-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(231,76,60,0.7); }
+  50% { box-shadow: 0 0 0 6px rgba(231,76,60,0); }
+}
 @media (max-width: 768px) {
   .bottom-nav-mobile { display: flex; }
 }

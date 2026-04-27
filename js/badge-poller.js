@@ -44,19 +44,34 @@
   async function poll() {
     if (!tokenAl()) return;
     if (typeof API_BASE === 'undefined') return;
+    var token = tokenAl();
+    var hdr = { 'Authorization': 'Bearer ' + token };
+
+    // 1. Ozel mesaj sayisi
     try {
-      var r = await fetch(API_BASE + '/api/meydan/ozel', {
-        headers: { 'Authorization': 'Bearer ' + tokenAl() }
-      });
+      var r = await fetch(API_BASE + '/api/meydan/ozel', { headers: hdr });
       if (r.ok) {
         var d = await r.json();
         var unread = d.okunmamis || 0;
-        setBadge('ozel-mesaj-badge', unread);
-        // Yeni mesaj geldi mi?
+        setBadge('ozel-mesaj-badge', unread);   // sidebar
+        setBadge('bn-sosyal-badge', unread);    // v1.14.1.56: bottom nav
         if (unread > lastOzelCount && lastOzelCount > 0) {
           inAppToast('✉️ ' + (unread - lastOzelCount) + ' yeni özel mesaj!');
         }
         lastOzelCount = unread;
+      }
+    } catch(e) { /* sessiz */ }
+
+    // 2. v1.14.1.56: Gelen ordular (saldiri/takviye) — bottom nav Ordu badge'i
+    try {
+      var r2 = await fetch(API_BASE + '/api/game/gelen-ordular', { headers: hdr });
+      if (r2.ok) {
+        var d2 = await r2.json();
+        if (d2.ok) {
+          // Sadece gelen saldiri (takviye degil — takviye iyi haber)
+          var gelenSaldiri = (d2.saldiri_sayisi || 0) + (d2.kadim_saldiri_sayisi || 0);
+          setBadge('bn-army-badge', gelenSaldiri);
+        }
       }
     } catch(e) { /* sessiz */ }
   }
