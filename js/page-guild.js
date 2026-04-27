@@ -6,8 +6,24 @@ var GUILD_DATA = null;
 var GUILD_CONFIG = null;
 var GUILD_AKTIF_TAB = 'genel';
 
-var KAYNAK_IKON = {altin:'💰',odun:'🌳',metal:'⛏️',bugday:'🌾',balik:'🐟',kereste:'🪵',islenmis:'🔩'};
+var KAYNAK_IKON = {altin:'💰',odun:'🌳',metal:'⛏️',bugday:'🌾',balik:'🐟',kereste:'🪵',islenmis:'🔩',
+  cig_et:'🥩',pismis_et:'🍖',pismis:'🍳',ekmek:'🍞',koylu:'👨‍🌾',
+  mana_beyaz:'⚪',mana_kirmizi:'🔴',mana_mavi:'🔵',mana_yesil:'🟢',
+  at:'🐴',kurt:'🐺',gizlilik:'🎯',buyulu_yumurta:'🥚'};
+// v1.14.1.53: Tek dogruluk kaynak — oyun ici Türkçe isimler (büyük harf düzgün)
+var KAYNAK_ISIM = {altin:'Altın',odun:'Odun',metal:'Metal',bugday:'Buğday',balik:'Balık',
+  kereste:'Kereste',islenmis:'İşlenmiş Metal',cig_et:'Çiğ Et',pismis_et:'Pişmiş Et',
+  pismis:'Pişmiş Balık',ekmek:'Ekmek',koylu:'Köylü',
+  mana_beyaz:'Beyaz Mana',mana_kirmizi:'Kırmızı Mana',mana_mavi:'Mavi Mana',mana_yesil:'Yeşil Mana',
+  at:'At',kurt:'Kurt',gizlilik:'Gizlilik',buyulu_yumurta:'Büyülü Yumurta'};
 var ISCI_IKON = {oduncu:'🪓',madenci:'⛏️',ciftci:'🌾',balikci:'🐟',tuccar:'💼'};
+var ISCI_ISIM = {oduncu:'Oduncu',madenci:'Madenci',ciftci:'Çiftçi',balikci:'Balıkçı',tuccar:'Tüccar'};
+var BINA_ISIM_GUILD = {oduncu:'Oduncu Kampı',kereste_atolyesi:'Kereste Atölyesi',tarla:'Tarla',
+  balikci:'Balıkçı Limanı',isleme:'İşleme Atölyesi',ocak:'Ocak',firin:'Fırın',
+  surlar:'Surlar',ev:'Ev',koy:'Köy',kasaba:'Kasaba',ciftlik:'Çiftlik',ahir:'Ahır',
+  lonca:'Lonca',buyulu_tarla:'Büyülü Tarla',
+  rathe_tapinagi:'Rathe Tapınağı',xegony_tapinagi:'Xegony Tapınağı',
+  fennin_tapinagi:'Fennin Tapınağı',tunare_tapinagi:'Tunare Tapınağı'};
 
 function guildHdr() {
   return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() };
@@ -608,13 +624,14 @@ function renderTabGenel(el, data) {
       var kasa = data.kasa || {};
       var mb = parseFloat(kasa.mana_beyaz)||0, mk = parseFloat(kasa.mana_kirmizi)||0, mm = parseFloat(kasa.mana_mavi)||0, my = parseFloat(kasa.mana_yesil)||0;
       if (mb + mk + mm + my <= 0) return '';
+      // v1.14.1.53: integer + TR locale (12.345 yerine 12345.6)
       return '<div class="card">' +
         '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">🔮 Mana</div>' +
         '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;font-size:10px">' +
-          '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center"><div style="color:#888;font-size:11px">Beyaz</div><div style="color:#ecf0f1;font-weight:bold">' + mb.toFixed(1) + '</div></div>' +
-          '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center"><div style="color:#888;font-size:11px">Kirmizi</div><div style="color:#e74c3c;font-weight:bold">' + mk.toFixed(1) + '</div></div>' +
-          '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center"><div style="color:#888;font-size:11px">Mavi</div><div style="color:#3498db;font-weight:bold">' + mm.toFixed(1) + '</div></div>' +
-          '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center"><div style="color:#888;font-size:11px">Yesil</div><div style="color:#2ecc71;font-weight:bold">' + my.toFixed(1) + '</div></div>' +
+          '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center"><div style="color:#888;font-size:11px">⚪ Beyaz</div><div style="color:#ecf0f1;font-weight:bold">' + fmt(Math.floor(mb)) + '</div></div>' +
+          '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center"><div style="color:#888;font-size:11px">🔴 Kırmızı</div><div style="color:#e74c3c;font-weight:bold">' + fmt(Math.floor(mk)) + '</div></div>' +
+          '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center"><div style="color:#888;font-size:11px">🔵 Mavi</div><div style="color:#3498db;font-weight:bold">' + fmt(Math.floor(mm)) + '</div></div>' +
+          '<div style="background:#0a0a0a;padding:4px 8px;border-radius:4px;text-align:center"><div style="color:#888;font-size:11px">🟢 Yeşil</div><div style="color:#2ecc71;font-weight:bold">' + fmt(Math.floor(my)) + '</div></div>' +
         '</div>' +
       '</div>';
     })() +
@@ -686,7 +703,9 @@ function renderTabGenel(el, data) {
         '<div style="display:flex;flex-wrap:wrap;gap:4px">' +
         binalar.map(function(b) {
           var adet = b.adet != null ? b.adet : b.seviye;
-          return '<span style="font-size:10px;background:#0a0a0a;padding:3px 8px;border-radius:4px">' + (BINA_IKON[b.bina_id]||'🏗️') + ' ' + b.bina_id + ' <span style="color:#d4af37">×' + adet + '</span></span>';
+          // v1.14.1.53: oyun ici Türkçe isim (raw 'oduncu' yerine 'Oduncu Kampı')
+          var binaIsim = BINA_ISIM_GUILD[b.bina_id] || b.bina_id;
+          return '<span style="font-size:10px;background:#0a0a0a;padding:3px 8px;border-radius:4px">' + (BINA_IKON[b.bina_id]||'🏗️') + ' ' + binaIsim + ' <span style="color:#d4af37">×' + adet + '</span></span>';
         }).join('') +
         '</div></div>';
     })() +
@@ -1125,7 +1144,8 @@ async function renderTabArastirma(el, data) {
       // Maliyet K{hedef}
       var baz = cfg.baz_maliyet || { odun:50000, metal:50000, altin:10000, islenmis:5000 };
       var carpan = Math.pow(2, hedef - 1);
-      var maliyetStr = Object.entries(baz).map(function(kv){ return '<span style="color:#d4af37">' + (kv[1] * carpan).toLocaleString('tr-TR') + ' ' + kv[0] + '</span>'; }).join(' · ');
+      // v1.14.1.53: kaynak ismi Türkçe (raw 'altin/odun' yerine 'Altın/Odun')
+      var maliyetStr = Object.entries(baz).map(function(kv){ return '<span style="color:#d4af37">' + (kv[1] * carpan).toLocaleString('tr-TR') + ' ' + (KAYNAK_ISIM[kv[0]]||kv[0]) + '</span>'; }).join(' · ');
 
       html += '<div style="padding:10px;background:#111;border-left:3px solid ' + (mev >= maxSev ? '#2ecc71' : '#9b59b6') + ';border-radius:4px">' +
         '<div style="font-size:13px;color:#9b59b6;font-weight:bold">' + (tek.isim || key) + '</div>' +
@@ -1275,16 +1295,16 @@ function renderTabKasa(el, data) {
   // v1.13.47: bagis loglari fetch
   _loadGuildBagislar(g.id);
 
-  // Kasa kaynaklari
+  // v1.14.1.53: Kasa kaynaklari — oyun ici Turkce isim (Altın/Odun/Metal...) raw lowercase yerine
   var kasaHTML = ['altin','odun','metal','bugday','balik','kereste','islenmis'].map(function(k) {
-    return '<div style="display:flex;align-items:center;gap:4px;font-size:10px"><span>' + (KAYNAK_IKON[k]||'') + '</span><span style="color:#d4af37;font-weight:bold">' + fmt(kasa[k]) + '</span><span style="color:#666">' + k + '</span></div>';
+    return '<div style="display:flex;align-items:center;gap:4px;font-size:10px"><span>' + (KAYNAK_IKON[k]||'') + '</span><span style="color:#d4af37;font-weight:bold">' + fmt(kasa[k]) + '</span><span style="color:#999">' + (KAYNAK_ISIM[k]||k) + '</span></div>';
   }).join('');
 
   // Bagis butonlari (config'e gore dinamik)
   var izinliKaynaklar = (GUILD_CONFIG && GUILD_CONFIG.izinli_kaynaklar) || ['altin','odun','metal'];
   var bagisHTML = '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px">' +
     izinliKaynaklar.map(function(k) {
-      return '<button class="btn-action" style="width:auto;padding:4px 10px;font-size:11px" onclick="guildBagis(' + g.id + ',\'' + k + '\')">' + (KAYNAK_IKON[k]||'📦') + ' ' + k + '</button>';
+      return '<button class="btn-action" style="width:auto;padding:4px 10px;font-size:11px" onclick="guildBagis(' + g.id + ',\'' + k + '\')">' + (KAYNAK_IKON[k]||'📦') + ' ' + (KAYNAK_ISIM[k]||k) + '</button>';
     }).join('') +
   '</div>';
   // v1.13.67: Bagis cooldown bilgisi — backend'den gelir
@@ -1332,7 +1352,7 @@ function renderTabKasa(el, data) {
       '<div style="display:flex;gap:4px;align-items:center;margin-bottom:8px">' +
         '<select id="ambar-istek-kaynak" style="padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:10px">' +
           ['altin','odun','metal','bugday','balik','kereste','islenmis'].map(function(k) {
-            return '<option value="' + k + '">' + (KAYNAK_IKON[k]||'') + ' ' + k + '</option>';
+            return '<option value="' + k + '">' + (KAYNAK_IKON[k]||'') + ' ' + (KAYNAK_ISIM[k]||k) + '</option>';
           }).join('') +
         '</select>' +
         '<input id="ambar-istek-miktar" type="number" min="1" placeholder="Miktar" style="width:80px;padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +

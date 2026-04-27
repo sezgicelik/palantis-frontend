@@ -171,6 +171,35 @@
       <tbody id="aktif-oturum-list"></tbody></table>
     </div>
 
+    <!-- v1.14.1.53: BAN SISTEMI -->
+    <div class="card" style="border-left:3px solid #c0392b">
+      <h3>🔨 Ban Yönetimi</h3>
+      <p style="font-size:11px;color:var(--muted);margin-bottom:10px">
+        Ban tipleri: <b>multi_account</b> 666 saat (oyun) · <b>ticaret</b> 10 saat (oyun) · <b>kufur</b> 133 saat (sadece meydan/chat)
+      </p>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+        <input id="ban-username" placeholder="Kullanıcı adı (örn: Selara)" style="padding:6px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;width:160px;font-size:11px">
+        <select id="ban-tip" onchange="banTipDegisti()" style="padding:6px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:11px">
+          <option value="multi_account">Multi Hesap (666h, oyun)</option>
+          <option value="ticaret">Ticaret İhlali (10h, oyun)</option>
+          <option value="kufur">Küfür (133h, sadece meydan)</option>
+          <option value="manuel">Manuel</option>
+        </select>
+        <input id="ban-saat" type="number" placeholder="Saat" style="padding:6px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;width:80px;font-size:11px">
+        <select id="ban-scope" style="padding:6px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:11px">
+          <option value="oyun">oyun (her yer)</option>
+          <option value="meydan">meydan (sadece chat)</option>
+        </select>
+        <input id="ban-sebep" placeholder="Sebep (opsiyonel)" style="padding:6px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;width:180px;font-size:11px">
+        <button class="btn btn-danger" onclick="banUygula()" style="padding:6px 14px;font-size:11px">🔨 BANLA</button>
+      </div>
+      <div id="ban-msg" style="font-size:11px;min-height:14px;margin-bottom:8px"></div>
+      <h4 style="font-size:12px;color:var(--muted);margin-top:14px">Aktif Banlar</h4>
+      <button class="btn" onclick="banlariYukle()" style="padding:4px 10px;font-size:10px;margin-bottom:6px">🔄 Yenile</button>
+      <table style="font-size:10px"><thead><tr><th>Kullanıcı</th><th>Tip</th><th>Scope</th><th>Sebep</th><th>Başlangıç</th><th>Bitiş</th><th>Kalan</th><th>Aksiyon</th></tr></thead>
+      <tbody id="ban-list"></tbody></table>
+    </div>
+
     <!-- v1.14.1.47: Anomali Tespiti -->
     <div class="card" style="border-left:3px solid #e74c3c">
       <h3>⚠️ Anomali Tespiti (Bot / Multi-Account)</h3>
@@ -2009,6 +2038,8 @@ async function loadLogins() {
 
   // v1.14.1.47: Aktif oyuncular + anomali otomatik yukle
   loadAktifOyuncular();
+  // v1.14.1.53: Banlar
+  banlariYukle();
 }
 
 // v1.14.1.47: Aktif oturum yonetimi
@@ -2075,6 +2106,90 @@ async function oturumRevoke(userId) {
   }).then(r=>r.json());
   alert(r.mesaj || JSON.stringify(r));
   loadAktifOyuncular();
+}
+
+// v1.14.1.53: BAN SISTEMI
+const BAN_DEFAULT_SAAT = { multi_account: 666, ticaret: 10, kufur: 133, manuel: 24 };
+const BAN_DEFAULT_SCOPE = { multi_account: 'oyun', ticaret: 'oyun', kufur: 'meydan', manuel: 'oyun' };
+
+function banTipDegisti() {
+  const tip = document.getElementById('ban-tip').value;
+  document.getElementById('ban-saat').value = BAN_DEFAULT_SAAT[tip] || 24;
+  document.getElementById('ban-scope').value = BAN_DEFAULT_SCOPE[tip] || 'oyun';
+}
+
+async function banUygula() {
+  const username = document.getElementById('ban-username').value.trim();
+  if (!username) { alert('Kullanıcı adı zorunlu'); return; }
+  const tip = document.getElementById('ban-tip').value;
+  const saat = parseInt(document.getElementById('ban-saat').value) || BAN_DEFAULT_SAAT[tip];
+  const scope = document.getElementById('ban-scope').value;
+  const sebep = document.getElementById('ban-sebep').value.trim();
+
+  if (!confirm(`${username} kullanıcısı banlanacak:\nTip: ${tip}\nSüre: ${saat} saat\nScope: ${scope}\nSebep: ${sebep || '(yok)'}\n\nDevam?`)) return;
+
+  try {
+    const r = await fetch(API + '/api/admin/ban', {
+      method: 'POST',
+      headers: { ...hdr(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, tip, saat, scope, sebep })
+    }).then(r => r.json());
+
+    const msg = document.getElementById('ban-msg');
+    if (r.ok) {
+      msg.style.color = '#2ecc71';
+      msg.innerHTML = `✅ ${r.mesaj} — ${fmtDate(r.bitis_at)}`;
+      document.getElementById('ban-username').value = '';
+      document.getElementById('ban-sebep').value = '';
+      banlariYukle();
+    } else {
+      msg.style.color = '#e74c3c';
+      msg.textContent = '❌ ' + (r.error || 'Hata');
+    }
+  } catch (e) {
+    document.getElementById('ban-msg').textContent = '❌ ' + e.message;
+  }
+}
+
+async function banKaldir(banId, kullanici) {
+  if (!confirm(`${kullanici} kullanıcısının banı kaldırılacak. Onayla?`)) return;
+  try {
+    const r = await fetch(API + '/api/admin/ban-kaldir', {
+      method: 'POST',
+      headers: { ...hdr(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ban_id: banId })
+    }).then(r => r.json());
+    alert(r.ok ? '✅ Ban kaldırıldı' : ('❌ ' + r.error));
+    banlariYukle();
+  } catch (e) { alert('❌ ' + e.message); }
+}
+
+async function banlariYukle() {
+  try {
+    const d = await fetch(API + '/api/admin/banlar?aktif=true', { headers: hdr() }).then(r => r.json());
+    if (!d.ok) {
+      document.getElementById('ban-list').innerHTML = '<tr><td colspan="8" style="color:#e74c3c">Hata</td></tr>';
+      return;
+    }
+    if (d.banlar.length === 0) {
+      document.getElementById('ban-list').innerHTML = '<tr><td colspan="8" style="color:var(--muted)">Aktif ban yok ✓</td></tr>';
+      return;
+    }
+    document.getElementById('ban-list').innerHTML = d.banlar.map(b => `
+      <tr>
+        <td><b>${b.kullanici}</b></td>
+        <td><span style="color:#e67e22">${b.tip}</span></td>
+        <td>${b.scope}</td>
+        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis">${b.sebep || '-'}</td>
+        <td>${fmtDate(b.baslangic)}</td>
+        <td>${fmtDate(b.bitis)}</td>
+        <td style="color:${b.kalan_saat < 24 ? '#f39c12' : '#888'}">${b.kalan_saat}h</td>
+        <td><button class="btn" onclick="banKaldir(${b.id},'${b.kullanici}')" style="padding:2px 8px;font-size:9px;background:#27ae60;color:#fff">↺ Kaldır</button></td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    document.getElementById('ban-list').innerHTML = '<tr><td colspan="8" style="color:#e74c3c">' + e.message + '</td></tr>';
+  }
 }
 
 async function loadAnomaliler() {

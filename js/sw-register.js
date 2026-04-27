@@ -38,4 +38,10 @@
   installScript.src = './js/install-prompt.js?v=14151';
   installScript.async = true;
   document.head.appendChild(installScript);
+
+  // v1.14.1.53: Badge poller (ozel mesaj okunmamis sayisi)
+  const badgeScript = document.createElement('script');
+  badgeScript.src = './js/badge-poller.js?v=14153';
+  badgeScript.async = true;
+  document.head.appendChild(badgeScript);
 })();

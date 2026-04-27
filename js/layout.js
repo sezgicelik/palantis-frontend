@@ -154,6 +154,7 @@ function renderSidebar(){
       <a href="meydan.html" class="menu-item${isSosyal?' on':''}">🎭 Sosyal & Eğlence</a>
       <div class="submenu" style="display:${isSosyal?'block':'none'}">
         <a href="meydan.html" class="menu-item sub-item${isActive('meydan.html')}">💬 Şehir Meydanı</a>
+        <a href="meydan.html?tab=ozel" class="menu-item sub-item">✉️ Özel Mesajlar <span id="ozel-mesaj-badge" style="display:none;background:#e74c3c;color:#fff;font-size:11px;padding:1px 5px;border-radius:8px;margin-left:4px"></span></a>
         <a href="bocek-yarisi.html" class="menu-item sub-item${isActive('bocek-yarisi.html')}">🪲 Böcek Yarışı</a>
         <a href="sandik.html" class="menu-item sub-item${isActive('sandik.html')}">📦 Kader Sandıkları</a>
       </div>
