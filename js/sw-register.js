@@ -32,4 +32,10 @@
   pushScript.src = './js/push-notif.js?v=14150';
   pushScript.async = true;
   document.head.appendChild(pushScript);
+
+  // v1.14.1.51: Install Prompt UI dinamik yukle
+  const installScript = document.createElement('script');
+  installScript.src = './js/install-prompt.js?v=14151';
+  installScript.async = true;
+  document.head.appendChild(installScript);
 })();

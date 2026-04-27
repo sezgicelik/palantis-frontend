@@ -3,6 +3,26 @@
    Her sayfada initLayout() ile cagirilir
 ===================================================== */
 
+// v1.14.1.51 (PWA): iOS Safari + Apple PWA meta taglari dinamik enjekte
+//   Tum HTML sayfalarinda bu script yukleniyor — meta'lar bir kez eklenir.
+(function _injectPwaMeta(){
+  if (typeof document === 'undefined') return;
+  if (document.querySelector('meta[name="apple-mobile-web-app-capable"]')) return; // zaten var
+  const metas = [
+    '<meta name="apple-mobile-web-app-capable" content="yes">',
+    '<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">',
+    '<meta name="apple-mobile-web-app-title" content="Noxara">',
+    '<meta name="mobile-web-app-capable" content="yes">',
+    '<meta name="theme-color" content="#c8960c">',
+    '<meta name="application-name" content="Noxara">',
+    '<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">',
+    '<link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32x32.png">',
+    '<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">',
+    '<link rel="manifest" href="./manifest.json">',
+  ];
+  document.head.insertAdjacentHTML('beforeend', metas.join('\n'));
+})();
+
 function renderSidebar(){
   const mount = document.getElementById('sidebar-mount');
   if(!mount) return;

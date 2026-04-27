@@ -1,28 +1,61 @@
 {
   "name": "Noxara — Karanlik Caglarin Strateji Dunyasi",
   "short_name": "Noxara",
-  "description": "Ortacag fantazi tarayici tabanli MMO strateji oyunu",
+  "description": "Ortacag fantazi tarayici tabanli MMO strateji oyunu. Sehrini kur, ordunu egit, krallikla mucadele et.",
   "start_url": "./home.html",
   "scope": "./",
+  "id": "/palantis-frontend/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "orientation": "portrait-primary",
   "background_color": "#0a0a0a",
-  "theme_color": "#0a0a0a",
+  "theme_color": "#c8960c",
   "lang": "tr",
+  "dir": "ltr",
+  "categories": ["games", "entertainment", "strategy"],
   "icons": [
+    { "src": "icons/icon-16.png",       "sizes": "16x16",   "type": "image/png" },
+    { "src": "icons/icon-32.png",       "sizes": "32x32",   "type": "image/png" },
+    { "src": "icons/icon-48.png",       "sizes": "48x48",   "type": "image/png" },
+    { "src": "icons/icon-96.png",       "sizes": "96x96",   "type": "image/png" },
+    { "src": "icons/icon-144.png",      "sizes": "144x144", "type": "image/png" },
+    { "src": "icons/icon-192.png",      "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-192-maskable.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon-256.png",      "sizes": "256x256", "type": "image/png" },
+    { "src": "icons/icon-384.png",      "sizes": "384x384", "type": "image/png" },
+    { "src": "icons/icon-512.png",      "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
     {
-      "src": "icons/icon-192.svg",
-      "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "name": "Sehir",
+      "short_name": "Sehir",
+      "description": "Sehrini yonet",
+      "url": "./city.html",
+      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
     },
     {
-      "src": "icons/icon-512.svg",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "name": "Ordu",
+      "short_name": "Ordu",
+      "description": "Ordularini yonet",
+      "url": "./army.html",
+      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Harita",
+      "short_name": "Harita",
+      "description": "Dunya haritasini gor",
+      "url": "./map.html",
+      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Pazar",
+      "short_name": "Pazar",
+      "description": "Ticaret yap",
+      "url": "./pazar.html",
+      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
     }
   ],
-  "categories": ["games", "entertainment"],
-  "screenshots": []
+  "screenshots": [],
+  "prefer_related_applications": false
 }
