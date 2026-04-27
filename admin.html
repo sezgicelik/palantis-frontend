@@ -147,6 +147,37 @@
       <table><thead><tr><th>Kullanici</th><th>Tarih</th><th>IP</th><th>Ulke</th><th>Sehir</th><th>Cihaz</th><th>Model</th><th>OS</th><th>Tarayici</th><th>Ekran</th><th>Durum</th></tr></thead>
       <tbody id="login-list"></tbody></table>
     </div>
+
+    <!-- v1.14.1.47: Aktif Oyuncular Paneli -->
+    <div class="card" style="border-left:3px solid #2ecc71">
+      <h3>🟢 Aktif Oyuncular (session_activity)</h3>
+      <p style="font-size:11px;color:var(--muted);margin-bottom:10px">Login_logs sadece "login eylemini" tutar. Bu panel her API çağrısında güncellenen aktif oturumları gösterir — gerçek aktif kullanıcı sayısı + bot/multi-account tespiti.</p>
+      <div id="aktif-oyuncu-stats" class="stat-grid" style="margin-bottom:14px"></div>
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px">
+        <label style="font-size:11px;color:var(--muted)">Pencere:</label>
+        <select id="aktif-window" onchange="loadAktifOyuncular()" style="padding:4px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:11px">
+          <option value="5m">Son 5 dakika</option>
+          <option value="1h">Son 1 saat</option>
+          <option value="24h" selected>Son 24 saat</option>
+          <option value="7d">Son 7 gün</option>
+        </select>
+        <button class="btn" onclick="loadAktifOyuncular()" style="padding:4px 10px;font-size:11px">🔄 Yenile</button>
+      </div>
+      <h4 style="margin-top:14px;font-size:12px;color:var(--muted)">Kullanıcı Bazlı (oturum sayısı + son aktivite)</h4>
+      <table style="font-size:10px"><thead><tr><th>Kullanıcı</th><th>Oturum</th><th>Son Aktivite</th><th>Toplam İstek</th><th>IP Çeşit.</th><th>Cihazlar</th><th>Flag</th><th>Aksiyon</th></tr></thead>
+      <tbody id="aktif-kullanici-list"></tbody></table>
+      <h4 style="margin-top:14px;font-size:12px;color:var(--muted)">Aktif Oturumlar (her token ayrı satır)</h4>
+      <table style="font-size:10px"><thead><tr><th>Kullanıcı</th><th>JTI</th><th>IP</th><th>Cihaz</th><th>Model</th><th>OS</th><th>Tarayıcı</th><th>Ülke/Şehir</th><th>İlk Görülme</th><th>Son Aktif</th><th>İstek</th><th>Flag</th></tr></thead>
+      <tbody id="aktif-oturum-list"></tbody></table>
+    </div>
+
+    <!-- v1.14.1.47: Anomali Tespiti -->
+    <div class="card" style="border-left:3px solid #e74c3c">
+      <h3>⚠️ Anomali Tespiti (Bot / Multi-Account)</h3>
+      <p style="font-size:11px;color:var(--muted);margin-bottom:10px">Saatlik cron taraması — yüksek istek, çoklu hesap, headless suspicion.</p>
+      <button class="btn" onclick="loadAnomaliler()" style="padding:4px 10px;font-size:11px;margin-bottom:10px">🔍 Anomali Tara</button>
+      <div id="anomali-sonuc"></div>
+    </div>
   </div>
 
   <!-- ACTIONS TAB -->
@@ -1975,6 +2006,107 @@ async function loadLogins() {
     <td>${l.cihaz}</td><td>${l.model||'-'}</td><td>${l.os}</td><td>${l.tarayici}</td><td>${l.ekran}</td>
     <td class="${l.basarili?'ok':'fail'}">${l.basarili?'OK':'FAIL'}</td></tr>
   `).join('');
+
+  // v1.14.1.47: Aktif oyuncular + anomali otomatik yukle
+  loadAktifOyuncular();
+}
+
+// v1.14.1.47: Aktif oturum yonetimi
+async function loadAktifOyuncular() {
+  const window = document.getElementById('aktif-window')?.value || '24h';
+  try {
+    const d = await fetch(API + '/api/admin/aktif-oyuncular?window=' + window + '&limit=200', { headers:hdr() }).then(r=>r.json());
+    if (!d.ok) {
+      document.getElementById('aktif-oyuncu-stats').innerHTML = '<div style="color:#e74c3c">Veri yuklenemedi: ' + (d.error || '?') + '</div>';
+      return;
+    }
+    const o = d.ozet;
+    document.getElementById('aktif-oyuncu-stats').innerHTML = `
+      <div class="stat" style="border-left:3px solid #2ecc71"><div class="val ok">${o.aktif_5dk||0}</div><div class="lbl">🟢 5 DAKİKA</div></div>
+      <div class="stat" style="border-left:3px solid #f39c12"><div class="val">${o.aktif_1saat||0}</div><div class="lbl">🟡 1 SAAT</div></div>
+      <div class="stat" style="border-left:3px solid #3498db"><div class="val">${o.aktif_24saat||0}</div><div class="lbl">🟠 24 SAAT</div></div>
+      <div class="stat"><div class="val">${o.aktif_7gun||0}</div><div class="lbl">🔴 7 GÜN</div></div>
+      <div class="stat"><div class="val">${o.benzersiz_24saat||0}</div><div class="lbl">Benzersiz/24h</div></div>
+      <div class="stat" style="border-left:3px solid #e74c3c"><div class="val fail">${o.flagged_oturum||0}</div><div class="lbl">⚠️ Flagged</div></div>
+      <div class="stat"><div class="val">${(o.toplam_istek_1saat||0).toLocaleString('tr-TR')}</div><div class="lbl">İstek/saat</div></div>
+    `;
+
+    // Kullanici bazli
+    document.getElementById('aktif-kullanici-list').innerHTML = (d.kullanici_bazli||[]).map(u => `
+      <tr ${u.flagged > 0 ? 'style="background:rgba(231,76,60,0.1)"' : ''}>
+        <td><b>${u.username || ('user_'+u.user_id)}</b></td>
+        <td>${u.oturum_sayisi}</td>
+        <td>${fmtDate(u.son_aktivite)}</td>
+        <td>${(u.toplam_istek||0).toLocaleString('tr-TR')}</td>
+        <td>${u.ip_cesitliligi}</td>
+        <td>${(u.cihaz_tipleri||[]).join(', ')}</td>
+        <td class="${u.flagged > 0 ? 'fail':'ok'}">${u.flagged}</td>
+        <td><button class="btn btn-danger" style="padding:2px 8px;font-size:9px" onclick="oturumRevoke(${u.user_id})">Logout All</button></td>
+      </tr>
+    `).join('');
+
+    // Aktif oturum listesi
+    document.getElementById('aktif-oturum-list').innerHTML = (d.oturumlar||[]).map(s => `
+      <tr ${s.flagged ? 'style="background:rgba(231,76,60,0.1)"' : ''}>
+        <td>${s.kullanici}</td>
+        <td><code style="font-size:9px">${s.token_jti}</code></td>
+        <td>${s.ip}</td>
+        <td>${s.cihaz}</td>
+        <td>${s.model}</td>
+        <td>${s.os}</td>
+        <td>${s.tarayici}</td>
+        <td>${s.ulke}/${s.sehir}</td>
+        <td>${fmtDate(s.ilk_giris)}</td>
+        <td>${s.dakika_oncesi < 60 ? s.dakika_oncesi + ' dk' : Math.floor(s.dakika_oncesi/60) + ' saat'} önce</td>
+        <td>${(s.istek_sayisi||0).toLocaleString('tr-TR')}</td>
+        <td class="${s.flagged ? 'fail':''}" title="${s.flag_sebep||''}">${s.flagged ? '⚠️' : ''}</td>
+      </tr>
+    `).join('');
+  } catch(e) {
+    document.getElementById('aktif-oyuncu-stats').innerHTML = '<div style="color:#e74c3c">Hata: ' + e.message + '</div>';
+  }
+}
+
+async function oturumRevoke(userId) {
+  if (!confirm('Bu kullanıcının TÜM oturumlarını sil? (JWT 7 gün geçerli kalır ama session_activity temizlenir)')) return;
+  const r = await fetch(API + '/api/admin/oturum-revoke', {
+    method:'POST', headers:{...hdr(), 'Content-Type':'application/json'},
+    body: JSON.stringify({ user_id: userId })
+  }).then(r=>r.json());
+  alert(r.mesaj || JSON.stringify(r));
+  loadAktifOyuncular();
+}
+
+async function loadAnomaliler() {
+  const sonucEl = document.getElementById('anomali-sonuc');
+  sonucEl.innerHTML = '<i style="color:var(--muted)">Taraniyor...</i>';
+  try {
+    const d = await fetch(API + '/api/admin/anomali-tespit', { headers:hdr() }).then(r=>r.json());
+    if (!d.ok) { sonucEl.innerHTML = '<div style="color:#e74c3c">Hata: ' + (d.error||'?') + '</div>'; return; }
+    let html = '';
+
+    // 1. Yuksek istek
+    html += `<h4 style="font-size:12px;color:#e74c3c;margin-top:10px">🤖 BOT ŞÜPHESİ — Yüksek İstek (>500 istek/oturum)</h4>`;
+    if ((d.yuksek_istek||[]).length === 0) html += '<div style="color:var(--muted);font-size:11px">Şüpheli durum yok ✓</div>';
+    else html += `<table style="font-size:10px"><thead><tr><th>Kullanıcı</th><th>JTI</th><th>IP</th><th>İstek</th><th>Saat Aktif</th><th>İstek/Saat</th></tr></thead><tbody>` +
+      d.yuksek_istek.map(r => `<tr><td>${r.username || r.user_id}</td><td><code>${(r.token_jti||'').substring(0,8)}...</code></td><td>${r.ip_address}</td><td><b style="color:#e74c3c">${r.request_count}</b></td><td>${(r.saat_aktif||0).toFixed(1)}h</td><td>${Math.floor(r.request_count / Math.max(0.1, r.saat_aktif||1))}/h</td></tr>`).join('') + '</tbody></table>';
+
+    // 2. Multi-account
+    html += `<h4 style="font-size:12px;color:#e67e22;margin-top:14px">🔁 MULTI-ACCOUNT — Aynı IP'den 3+ Hesap</h4>`;
+    if ((d.multi_account||[]).length === 0) html += '<div style="color:var(--muted);font-size:11px">Şüpheli durum yok ✓</div>';
+    else html += `<table style="font-size:10px"><thead><tr><th>IP</th><th>Hesap Sayısı</th><th>User ID'ler</th><th>Son Aktivite</th></tr></thead><tbody>` +
+      d.multi_account.map(r => `<tr><td>${r.ip_address}</td><td><b style="color:#e67e22">${r.user_sayisi}</b></td><td>${(r.user_idler||[]).join(', ')}</td><td>${fmtDate(r.son_aktivite)}</td></tr>`).join('') + '</tbody></table>';
+
+    // 3. Headless
+    html += `<h4 style="font-size:12px;color:#9b59b6;margin-top:14px">👻 HEADLESS ŞÜPHESİ — Mobile + boş device_model + 200+ istek</h4>`;
+    if ((d.headless_sansi||[]).length === 0) html += '<div style="color:var(--muted);font-size:11px">Şüpheli durum yok ✓</div>';
+    else html += `<table style="font-size:10px"><thead><tr><th>Kullanıcı</th><th>IP</th><th>Cihaz</th><th>Model</th><th>OS</th><th>Tarayıcı</th><th>İstek</th></tr></thead><tbody>` +
+      d.headless_sansi.map(r => `<tr><td>${r.username || r.user_id}</td><td>${r.ip_address}</td><td>${r.device_type}</td><td>${r.device_model||'-'}</td><td>${r.os}</td><td>${r.browser}</td><td>${r.request_count}</td></tr>`).join('') + '</tbody></table>';
+
+    sonucEl.innerHTML = html;
+  } catch(e) {
+    sonucEl.innerHTML = '<div style="color:#e74c3c">Hata: ' + e.message + '</div>';
+  }
 }
 
 function confirmAction(msg, fn) {
