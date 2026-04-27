@@ -102,14 +102,19 @@ function renderUpgrades(){
   html += `</div>
 
     <h3 style="color:#f5f0e8;margin:20px 0 15px">Extra Kaynaklar</h3>
+    ${(()=>{
+      // v1.14.1.52: TR locale format helper (3.187 yerine 3187.0 cirkin idi)
+      const _f = (typeof fmt==='function') ? fmt : (n => Math.floor(Number(n)||0).toLocaleString('tr-TR'));
+      return `
     <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">At/Kurt: <b style="color:#f1c40f">${EXTRA_RES.at||EXTRA_RES.kurt||0}</b></div>
-      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">Mana: <b style="color:#9b59b6">${EXTRA_RES.mana||0}</b></div>
-      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">Gizlilik: <b style="color:#2ecc71">${(EXTRA_RES.gizlilik||0).toFixed(1)}</b></div>
-      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">B.Yumurta: <b style="color:#e67e22">${(EXTRA_RES.buyulu_yumurta||0).toFixed(1)}</b></div>
-      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">Çiğ Et: <b style="color:#c0392b">${RES.cig_et||0}</b></div>
-      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">Pişmiş Et: <b style="color:#e67e22">${RES.pismis_et||0}</b></div>
-    </div>
+      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">At/Kurt: <b style="color:#f1c40f">${_f(EXTRA_RES.at||EXTRA_RES.kurt||0)}</b></div>
+      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">Mana: <b style="color:#9b59b6">${_f(Math.floor(EXTRA_RES.mana||0))}</b></div>
+      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">Gizlilik: <b style="color:#2ecc71">${_f(Math.floor(EXTRA_RES.gizlilik||0))}</b></div>
+      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">B.Yumurta: <b style="color:#e67e22">${_f(Math.floor(EXTRA_RES.buyulu_yumurta||0))}</b></div>
+      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">Çiğ Et: <b style="color:#c0392b">${_f(RES.cig_et||0)}</b></div>
+      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">Pişmiş Et: <b style="color:#e67e22">${_f(RES.pismis_et||0)}</b></div>
+    </div>`;
+    })()}
   </div>`;
 
   panel.innerHTML = html;
