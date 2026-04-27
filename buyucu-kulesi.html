@@ -291,14 +291,16 @@ async function bkCheckKervan() {
 function bkUpdateKaynaklar() {
   if (!bkData?.kaynaklar) return;
   const k = bkData.kaynaklar;
-  document.getElementById('bk-mana-beyaz').textContent = Math.floor(k.mana_beyaz || 0);
-  document.getElementById('bk-mana-kirmizi').textContent = Math.floor(k.mana_kirmizi || 0);
-  document.getElementById('bk-mana-mavi').textContent = Math.floor(k.mana_mavi || 0);
-  document.getElementById('bk-mana-yesil').textContent = Math.floor(k.mana_yesil || 0);
-  document.getElementById('bk-ates').textContent = k.ates_tozu || 0;
-  document.getElementById('bk-ay').textContent = k.ay_cigi || 0;
-  document.getElementById('bk-golge').textContent = k.golgeler_otu || 0;
-  document.getElementById('bk-ejderha').textContent = k.ejderha_goz_damla || 0;
+  // v1.14.1.52: TR locale format (1.234.567 — fmt global helper veya fallback)
+  const _f = (typeof fmt === 'function') ? fmt : (n => Math.floor(Number(n)||0).toLocaleString('tr-TR'));
+  document.getElementById('bk-mana-beyaz').textContent   = _f(Math.floor(k.mana_beyaz   || 0));
+  document.getElementById('bk-mana-kirmizi').textContent = _f(Math.floor(k.mana_kirmizi || 0));
+  document.getElementById('bk-mana-mavi').textContent    = _f(Math.floor(k.mana_mavi    || 0));
+  document.getElementById('bk-mana-yesil').textContent   = _f(Math.floor(k.mana_yesil   || 0));
+  document.getElementById('bk-ates').textContent    = _f(k.ates_tozu         || 0);
+  document.getElementById('bk-ay').textContent      = _f(k.ay_cigi           || 0);
+  document.getElementById('bk-golge').textContent   = _f(k.golgeler_otu      || 0);
+  document.getElementById('bk-ejderha').textContent = _f(k.ejderha_goz_damla || 0);
 }
 
 function bkSwitchTab(tab) {

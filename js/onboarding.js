@@ -147,8 +147,9 @@ function loadSideStats() {
       if (!data) return;
       const iEl = document.getElementById('stat-iyi');
       const kEl = document.getElementById('stat-kotu');
-      if (iEl) iEl.textContent = data.iyi || 0;
-      if (kEl) kEl.textContent = data.kotu || 0;
+      const _f = (typeof fmt === 'function') ? fmt : (n => Number(n||0).toLocaleString('tr-TR'));
+      if (iEl) iEl.textContent = _f(data.iyi || 0);
+      if (kEl) kEl.textContent = _f(data.kotu || 0);
     })
     .catch(() => {
       const iEl = document.getElementById('stat-iyi');
