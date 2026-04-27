@@ -26,4 +26,10 @@
   };
   if (document.readyState === 'complete') reg();
   else window.addEventListener('load', reg);
+
+  // v1.14.1.50: Push Notifications scriptini de dinamik yukle (SW register edilince)
+  const pushScript = document.createElement('script');
+  pushScript.src = './js/push-notif.js?v=14150';
+  pushScript.async = true;
+  document.head.appendChild(pushScript);
 })();

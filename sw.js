@@ -1,6 +1,6 @@
 // v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
 // Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
-const CACHE_NAME = 'noxara-v141'; // v1.14.1.41 Tuccar direkt altin uretimi kaldirildi (vergi + market satis olmali)
+const CACHE_NAME = 'noxara-v14150'; // v1.14.1.50 Web Push Notifications eklendi
 
 // Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [
@@ -143,3 +143,57 @@ async function staleWhileRevalidate(req) {
   // Cached varsa onu dön, yoksa network'ü bekle
   return cached || fetchPromise || new Response('Offline', { status: 503 });
 }
+
+// ═══════════════════════════════════════════════════════════════
+// v1.14.1.50 (PWA) — WEB PUSH NOTIFICATIONS
+// ═══════════════════════════════════════════════════════════════
+
+// Push event — backend'den notification gelince tetiklenir
+self.addEventListener('push', event => {
+  let data = { title: 'Noxara', body: 'Yeni bildirim' };
+  try {
+    if (event.data) data = event.data.json();
+  } catch (e) {
+    if (event.data) data.body = event.data.text();
+  }
+
+  const options = {
+    body: data.body || '',
+    icon: data.icon || '/palantis-frontend/icons/icon-192.svg',
+    badge: data.badge || '/palantis-frontend/icons/icon-192.svg',
+    tag: data.tag || 'noxara-default',
+    data: { url: data.url || '/home.html', ...data.data },
+    requireInteraction: false,
+    silent: false,
+    vibrate: [200, 100, 200], // mobile titreşim
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(data.title || 'Noxara', options)
+  );
+});
+
+// Notification tıklanınca — ilgili sayfaya git
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const url = event.notification.data?.url || '/home.html';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
+      // Aynı domain açıksa onu öne getir
+      for (const client of clientList) {
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          client.navigate(url);
+          return client.focus();
+        }
+      }
+      // Yoksa yeni pencere
+      if (clients.openWindow) return clients.openWindow(url);
+    })
+  );
+});
+
+// Notification kapatıldığında (kullanıcı reddetti) — opsiyonel telemetri
+self.addEventListener('notificationclose', event => {
+  // Telemetri eklenebilir
+});
