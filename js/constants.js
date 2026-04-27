@@ -134,45 +134,48 @@ const BLDGS = {
     fx:l=>[{t:'pos',s:`${l} Büyücü/tur`},{t:'pos',s:`Büyü ATK +${l*120}`}],
     cost:l=>({odun:400,metal:300,altin:900}),time:l=>5400},
 
+  // v1.14.1.45: 4 tapınak maliyeti SABITLENDI — hepsi 600 odun + 400 metal + 800 altın (eskiden asimetrik)
   rathe_tapinagi:{id:'rathe_tapinagi',cat:'askeri',icon:'⚪',name:'Rathe Tapınağı',bg:'#181818',
     desc:"Bilgelik tanrıçası. 200 Beyaz WS kapasitesi/bina. Beyaz mana üretir.",
     maxLv:100,lv:0,deger:270,kapasite:{tip:'ws_beyaz',miktar:200},
     cagLimit:{1:10,2:20,3:40,4:80,5:100},
     fx:l=>[{t:'pos',s:`${l*200} Beyaz WS kap.`},{t:'pos',s:`Beyaz mana üretir`}],
-    cost:l=>({odun:500,metal:400,altin:600}),time:l=>7200},
+    cost:l=>({odun:600,metal:400,altin:800}),time:l=>7200},
 
   xegony_tapinagi:{id:'xegony_tapinagi',cat:'askeri',icon:'💫',name:'Xegony Tapınağı',bg:'#000018',
     desc:"Büyü tanrısı. 200 Mavi WS kapasitesi/bina. Mavi mana üretir.",
-    maxLv:100,lv:0,deger:300,kapasite:{tip:'ws_mavi',miktar:200},
+    maxLv:100,lv:0,deger:270,kapasite:{tip:'ws_mavi',miktar:200},
     cagLimit:{1:10,2:20,3:40,4:80,5:100},
     fx:l=>[{t:'pos',s:`${l*200} Mavi WS kap.`},{t:'pos',s:`Mavi mana üretir`}],
-    cost:l=>({metal:300,altin:800}),time:l=>7200},
+    cost:l=>({odun:600,metal:400,altin:800}),time:l=>7200},
 
   fennin_tapinagi:{id:'fennin_tapinagi',cat:'askeri',icon:'🔥',name:'Fennin Ro Tapınağı',bg:'#180000',
     desc:"Ateş/Savaş tanrısı. 200 Kırmızı WS kapasitesi/bina. Kırmızı mana üretir.",
-    maxLv:100,lv:0,deger:290,kapasite:{tip:'ws_kirmizi',miktar:200},
+    maxLv:100,lv:0,deger:270,kapasite:{tip:'ws_kirmizi',miktar:200},
     cagLimit:{1:10,2:20,3:40,4:80,5:100},
     fx:l=>[{t:'pos',s:`${l*200} Kırm.WS kap.`},{t:'pos',s:`Kırmızı mana üretir`}],
-    cost:l=>({metal:400,altin:700}),time:l=>7200},
+    cost:l=>({odun:600,metal:400,altin:800}),time:l=>7200},
 
   tunare_tapinagi:{id:'tunare_tapinagi',cat:'askeri',icon:'🌿',name:'Tunare Tapınağı',bg:'#001800',
     desc:"Doğa tanrıçası. 200 Yeşil WS kapasitesi/bina. Yeşil mana üretir.",
-    maxLv:100,lv:0,deger:210,kapasite:{tip:'ws_yesil',miktar:200},
+    maxLv:100,lv:0,deger:270,kapasite:{tip:'ws_yesil',miktar:200},
     cagLimit:{1:10,2:20,3:40,4:80,5:100},
     fx:l=>[{t:'pos',s:`${l*200} Yeşil WS kap.`},{t:'pos',s:`Yeşil mana üretir`}],
-    cost:l=>({odun:600,altin:500}),time:l=>7200},
+    cost:l=>({odun:600,metal:400,altin:800}),time:l=>7200},
 
+  // v1.14.1.45: maxLv 4→10 (mağara) — şans %0.04→%0.10/saat = ~42 günde 1 ejderha
   magara:{id:'magara',cat:'askeri',icon:'🐲',name:'Mağara',bg:'#1a0000',
-    desc:"Ejderha çıkma şansı verir. %0.01/bina/saat.",
-    maxLv:4,lv:0,deger:410,
-    cagLimit:{1:0,2:0,3:3,4:3,5:4},
+    desc:"Ejderha çıkma şansı verir. %0.01/bina/saat. Max 10.",
+    maxLv:10,lv:0,deger:410,
+    cagLimit:{1:0,2:0,3:5,4:8,5:10},
     fx:l=>[{t:'pos',s:`Ejderha şansı %${(l*0.01).toFixed(2)}`}],
     cost:l=>({metal:300,altin:1000}),time:l=>36000},
 
+  // v1.14.1.45: maxLv 30→50 (büyülü tarla) — şans %0.05/saat = ~83 günde 1 yumurta
   buyulu_tarla:{id:'buyulu_tarla',cat:'askeri',icon:'🥚',name:'Büyülü Tarla',bg:'#140014',
-    desc:"Büyülü Yumurta üretir. %0.001 şans/bina/saat.",
-    maxLv:30,lv:0,deger:100,
-    cagLimit:{1:10,2:15,3:20,4:25,5:30},
+    desc:"Büyülü Yumurta üretir. %0.001 şans/bina/saat. Max 50.",
+    maxLv:50,lv:0,deger:100,
+    cagLimit:{1:10,2:20,3:30,4:40,5:50},
     fx:l=>[{t:'pos',s:`B.Yumurta %${(l*0.001).toFixed(3)}/saat`}],
     cost:l=>({odun:100,altin:300}),time:l=>14400},
 
@@ -266,7 +269,7 @@ const BLDGS = {
 
   kasaba:{id:'kasaba',cat:'sehir',icon:'🏙️',name:'Kasaba',bg:'#1a1600',
     desc:"10 köy birleştirince oluşur. 25 alan kaplar. +250 nüfus.",
-    maxLv:999,lv:0,deger:0,mergeOnly:true,
+    maxLv:999,lv:0,deger:800,mergeOnly:true,
     cagLimit:{1:0,2:0,3:0,4:0,5:-1},
     fx:l=>[{t:'pos',s:`+${l*250} Nüfus sınırı`}],
     cost:l=>({}),time:l=>21600},
@@ -292,41 +295,45 @@ const BLDGS = {
     fx:l=>[{t:'pos',s:`Kültür +${l*10}%`},{t:'pos',s:`Prestij +${l*20}`}],
     cost:l=>({odun:400,altin:500}),time:l=>43200},
 
+  // v1.14.1.45: Egitim tier 2 Cag 4'te (tier 1 Okul Cag 2)
   universite:{id:'universite',cat:'gelisim',gpsAlan:'egitim',icon:'🎓',name:'Üniversite',bg:'#100a18',
-    desc:"İleri araştırma ve teknoloji hızlanması.",
+    desc:"İleri araştırma ve teknoloji hızlanması. Egitim tier 2.",
     maxLv:999,lv:0,deger:260,
-    cagLimit:{1:0,2:0,3:-1,4:-1,5:-1},
+    cagLimit:{1:0,2:0,3:0,4:-1,5:-1},
     fx:l=>[{t:'pos',s:`Araştırma +${l*15}%`},{t:'pos',s:`Bilim +${l*10}`}],
     cost:l=>({odun:500,altin:600}),time:l=>43200},
 
+  // v1.14.1.45: Kultur tier 1 Cag 2'de, tier 2 Cag 4'te
   tiyatro:{id:'tiyatro',cat:'gelisim',gpsAlan:'kultur',icon:'🎭',name:'Tiyatro',bg:'#14000e',
-    desc:"Eğlence ve mutluluk merkezi.",
+    desc:"Eğlence ve mutluluk merkezi. Kultur tier 1.",
     maxLv:999,lv:0,deger:125,
-    cagLimit:{1:0,2:0,3:0,4:-1,5:-1},
+    cagLimit:{1:0,2:-1,3:-1,4:-1,5:-1},
     fx:l=>[{t:'pos',s:`Mutluluk +${l*6}`},{t:'pos',s:`Eğlence +${l*10}%`}],
-    cost:l=>({odun:350,altin:300}),time:l=>57600},
+    cost:l=>({odun:350,altin:300}),time:l=>14400},
 
+  // v1.14.1.45: Eglence tier 1 Cag 3'te, tier 2 Cag 5'te (Koliseum)
   arena:{id:'arena',cat:'gelisim',gpsAlan:'eglence',icon:'⚔️',name:'Arena',bg:'#180a0a',
-    desc:"Savaş eğitimi ve gladyatör dövüşleri.",
+    desc:"Savaş eğitimi ve gladyatör dövüşleri. Eglence tier 1.",
     maxLv:999,lv:0,deger:220,
-    cagLimit:{1:0,2:0,3:0,4:-1,5:-1},
+    cagLimit:{1:0,2:0,3:-1,4:-1,5:-1},
     fx:l=>[{t:'pos',s:`ATK eğitim +${l*5}%`},{t:'pos',s:`Moral +${l*5}`}],
-    cost:l=>({odun:400,metal:200,altin:400}),time:l=>57600},
+    cost:l=>({odun:400,metal:200,altin:400}),time:l=>21600},
 
   kutuphane:{id:'kutuphane',cat:'gelisim',gpsAlan:'bilgi',icon:'📖',name:'Kütüphane',bg:'#0a1200',
-    desc:"Üretim verimliliği ve araştırma hızlanması.",
+    desc:"Üretim verimliliği ve araştırma hızlanması. Bilgi tier 1.",
     maxLv:999,lv:0,deger:160,
-    cagLimit:{1:0,2:0,3:0,4:0,5:-1},
+    cagLimit:{1:0,2:0,3:-1,4:-1,5:-1},
     fx:l=>[{t:'pos',s:`Verimlilik +${l*3}%`},{t:'pos',s:`Araştırma -%${l*5}%`}],
-    cost:l=>({odun:400,altin:400}),time:l=>72000},
+    cost:l=>({odun:400,altin:400}),time:l=>14400},
 
   // v1.13.70: 4 YENI SEHIR BINASI — GPS sistemini zenginlestirir
+  // v1.14.1.45: Tier 2 binalar Cag 4'te acilsin (tier 1 once)
   buyuk_kutuphane:{id:'buyuk_kutuphane',cat:'gelisim',gpsAlan:'bilgi',icon:'📚',name:'Büyük Kütüphane',bg:'#0a1400',
-    desc:"Kütüphane tier 2. Bilgi alani kapsamasi 2500 kisi. Cag 3+.",
+    desc:"Kütüphane tier 2. Bilgi alani kapsamasi 2500 kisi. Cag 4+.",
     maxLv:999,lv:0,deger:120,
-    cagLimit:{1:0,2:0,3:-1,4:-1,5:-1},
+    cagLimit:{1:0,2:0,3:0,4:-1,5:-1},
     fx:l=>[{t:'pos',s:`Bilgi +${l*2500} kapsama`},{t:'pos',s:`GPS bonus`}],
-    cost:l=>({odun:800,altin:1200}),time:l=>10800},
+    cost:l=>({odun:800,altin:1200}),time:l=>43200},
 
   opera_evi:{id:'opera_evi',cat:'gelisim',gpsAlan:'kultur',icon:'🎼',name:'Opera Evi',bg:'#140010',
     desc:"Tiyatro tier 2. Kultur alani kapsamasi 8000 kisi. Cag 4+.",
@@ -350,8 +357,19 @@ const BLDGS = {
     cost:l=>({odun:700,metal:400,altin:1200}),time:l=>14400},
 };
 
-// Bina alan maliyetleri (frontend mirror of BINA_ALAN backend)
-const BINA_ALAN_FE = { koy: 5, kasaba: 25, firin: 5 };
+// v1.14.1.45: Bina alan tier sistemi — backend BINA_ALAN ile birebir mirror
+// v1.14.1.45: kasaba 25→50 (birlestirme dengesi)
+const BINA_ALAN_FE = {
+  ev:1, koy:5, kasaba:50,
+  oduncu:1, kereste_atolyesi:1, tarla:1, ciftlik:1, balikci:1, isleme:1, ocak:1, firin:5,
+  surlar:5, okcu_kulesi:1, mizrak_kulesi:1, balista_kulesi:1, buyu_kulesi:2,
+  rathe_tapinagi:3, xegony_tapinagi:3, fennin_tapinagi:3, tunare_tapinagi:3,
+  magara:3, buyulu_tarla:2, ahir:1, lonca:2, istihbarat:2, esir_kampi:2,
+  akademi:5, okul:2, asma_bahceler:3, noxara_hani:1, taverna:1,
+  tiyatro:3, kutuphane:3, arena:3, muze:3, katedral:5,
+  universite:4, buyuk_kutuphane:4, opera_evi:4, koliseum:8,
+  sehir_meydani:2, pazar:1, guild_binasi:3,
+};
 function binaAlanFE(id) { return BINA_ALAN_FE[id] || 1; }
 
 // Bina birleştirme kuralları (frontend mirror of BINA_BIRLESTIRME backend)
