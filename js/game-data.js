@@ -341,9 +341,10 @@ async function loadGameData() {
     _hudN('hud-ba',  RES.balik);      _hudR('hud-bag', prod.balik  ?? 0);
     _hudN('hud-g',   RES.altin);      _hudR('hud-gg',  prod.altin  ?? 0);
 
-    // İşlenmiş kaynaklar HUD (rate yok — isleme cron ile)
-    _hudN('hud-ke',  RES.kereste);
-    _hudN('hud-is',  RES.islenmis);
+    // v1.14.1.46: İşlenmiş kaynaklar HUD — rate eklendi (kereste atolyesi × 20, isleme × 10/saat)
+    //   Eski: rate gosterilmiyor cunku "isleme cron ile" denmis. Aslinda backend prod.kereste/islenmis dondurur.
+    _hudN('hud-ke',  RES.kereste);    _hudR('hud-keg', prod.kereste  ?? 0);
+    _hudN('hud-is',  RES.islenmis);   _hudR('hud-isg', prod.islenmis ?? 0);
     _hudN('hud-ek',  RES.ekmek);
     _hudN('hud-pb',  RES.pismis);
     _hudN('hud-ce',  RES.cig_et);

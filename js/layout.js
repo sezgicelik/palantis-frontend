@@ -206,9 +206,9 @@ function renderHUD(){
       <div class="hud-row-lbl">HAM</div>
       <div class="hud-res-row hud-aligned">
         ${sb('ODUN','🌳','Odun','hud-w','hud-wg')}
-        ${sb('KERESTE','🪵','Kereste','hud-ke',null)}
+        ${sb('KERESTE','🪵','Kereste','hud-ke','hud-keg')}
         <div class="stat-box" data-tip="METAL"><span class="res-icon">${metalSvg}</span><div class="res-details"><span class="res-label">Metal</span><span class="res-amount" id="hud-m">0</span><span class="res-rate pos" id="hud-mg">+0</span></div></div>
-        <div class="stat-box" data-tip="İŞL.METAL"><span class="res-icon">${islSvg}</span><div class="res-details"><span class="res-label">İşl.Metal</span><span class="res-amount" id="hud-is">0</span></div></div>
+        <div class="stat-box" data-tip="İŞL.METAL"><span class="res-icon">${islSvg}</span><div class="res-details"><span class="res-label">İşl.Metal</span><span class="res-amount" id="hud-is">0</span><span class="res-rate pos" id="hud-isg">+0</span></div></div>
         ${sb('ALTIN','💰','Altın','hud-g','hud-gg')}
         <!-- v1.14.0.80: K.SALDIRI kutu (kadim sehir geri sayim) — banner yerine compact HUD -->
         <div id="hud-ksaldiri-box" class="stat-box" data-tip="KADİM SALDIRI — tıkla → pazar.html" style="display:none;cursor:pointer;border-left:2px solid #9b59b6" onclick="window.location.href='pazar.html?tab=kadim'">
