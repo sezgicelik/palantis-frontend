@@ -188,7 +188,28 @@ function renderSidebar(){
         </button>
       </div>
     </div>
+
+    <!-- v1.14.1.55: Mobile Bottom Nav — sadece <=768px goster -->
+    <nav class="bottom-nav-mobile">
+      <a href="home.html" class="bn-item${isActive('home.html')}">
+        <span class="bn-icon">🏠</span><span>Ana</span>
+      </a>
+      <a href="city.html" class="bn-item${isKrallik?' on':''}">
+        <span class="bn-icon">🏰</span><span>Şehir</span>
+      </a>
+      <a href="army.html" class="bn-item${isOrduSavas?' on':''}">
+        <span class="bn-icon">⚔️</span><span>Ordu</span>
+      </a>
+      <a href="map.html" class="bn-item${isDunya?' on':''}">
+        <span class="bn-icon">🗺️</span><span>Harita</span>
+      </a>
+      <a href="meydan.html" class="bn-item${isSosyal?' on':''}">
+        <span class="bn-icon">🎭</span><span>Sosyal</span>
+      </a>
+    </nav>
   `;
+  // Mobile bottom nav var — body'ye class ekle (CSS padding-bottom)
+  document.body.classList.add('has-bottom-nav');
 }
 
 // v1.14.0.54: Codex palette + tooltip global yukleme

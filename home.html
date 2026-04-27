@@ -83,6 +83,13 @@
     .ovr-grid { grid-template-columns: 1fr 1fr; }
     .ovr-grid .panel.full, .ovr-grid .panel.wide2, .ovr-grid .panel.wide3 { grid-column: span 2; }
   }
+  /* v1.14.1.55: Mobile (480px ve alt) — tek kolona dus */
+  @media (max-width: 600px) {
+    .ovr-grid { grid-template-columns: 1fr !important; gap: 8px; }
+    .ovr-grid .panel.full, .ovr-grid .panel.wide2, .ovr-grid .panel.wide3 { grid-column: span 1 !important; }
+    .panel { padding: 10px !important; font-size: 12px; }
+    .panel h2, .panel h3 { font-size: 13px !important; }
+  }
 
   /* v1.14.1.31 — Ozellestirme modu (drag/resize/hide) */
   body.hp-edit .panel {

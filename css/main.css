@@ -1586,3 +1586,174 @@ body{padding-top:38px;}
   font-weight:600;
 }
 
+/* ═══════════════════════════════════════════════════════
+   v1.14.1.55 — MOBILE UX AUDIT (Aşama 1: Foundation Fixes)
+   ═══════════════════════════════════════════════════════
+   - Touch target min 44x44px (Apple/Google guideline)
+   - Form input font 16px (iOS auto-zoom prevention)
+   - Tablolari mobile'da yatay scroll smooth + minimum genislik
+   - Modal'lar mobile'da full-screen
+   - Buton padding artirildi
+   - Card padding mobile'da azaltildi (alan tasarrufu)
+   - Sidebar mobile'da daha akilli toggle
+   - HUD overlay mobile'da kompakt
+═══════════════════════════════════════════════════════ */
+
+/* Tablet ve telefon (768px ve alt) */
+@media (max-width: 768px) {
+  /* Body — overflow hide gerek, scroll body'de olsun */
+  body {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* === FORM INPUTS === iOS auto-zoom engellemek icin font 16px+ */
+  input[type="text"], input[type="number"], input[type="email"],
+  input[type="password"], input[type="search"], input[type="tel"],
+  input[type="url"], textarea, select {
+    font-size: 16px !important;  /* iOS Safari zoom kapsamak icin minimum 16px */
+    min-height: 40px;
+  }
+
+  /* === BUTONLAR === touch target 44x44 minimum */
+  button, .btn, .btn-action, [role="button"], a.btn, a.menu-item {
+    min-height: 40px;
+    padding: 10px 14px;
+  }
+  /* Stat box'lar icindeki kucuk butonlar — istisna */
+  .stat-box button, .res-rate, button.tiny {
+    min-height: auto;
+    padding: 4px 8px;
+  }
+
+  /* === TABLOLAR === yatay scroll smooth + min width */
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+  table thead, table tbody, table tr {
+    display: table;
+    width: 100%;
+    table-layout: auto;
+  }
+  /* Tablo aliyor gostergesi */
+  table::-webkit-scrollbar { height: 4px; }
+  table::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 2px; }
+
+  /* === KARTLAR === padding azalt, full-width */
+  .card {
+    padding: 10px !important;
+    margin-bottom: 8px;
+  }
+  .card h3 { font-size: 14px !important; }
+
+  /* === HUD === overlay kompakt */
+  .hud-row-wrap {
+    flex-wrap: wrap;
+  }
+  .hud-res-row {
+    gap: 4px !important;
+    font-size: 10px !important;
+  }
+  .stat-box {
+    padding: 4px 8px !important;
+    font-size: 10px;
+  }
+
+  /* === MODAL === full-screen mobile */
+  .modal, .popup, .dialog,
+  [class*="modal"], [class*="overlay"] {
+    /* Modal'larin full-width olmasi icin */
+  }
+  .modal-content, .popup-content, .dialog-content {
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+    width: 100% !important;
+    border-radius: 0 !important;
+  }
+}
+
+/* Telefon (480px ve alt) */
+@media (max-width: 480px) {
+  /* Padding'i daha da azalt */
+  .panel { padding: 10px !important; }
+
+  /* Sidebar — overlay tarzi (mevcut hamburger calisiyor) */
+  .sidebar { width: 280px; }
+
+  /* Buton metni kucult — telefonda yer az */
+  .btn { font-size: 12px; padding: 8px 12px; }
+
+  /* HUD detay overlay — full ekran */
+  #hud-detay-overlay {
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  /* Stat grid — 2 sutun */
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+  }
+  .stat .val { font-size: 16px !important; }
+  .stat .lbl { font-size: 9px !important; }
+}
+
+/* Tiny — 360px ve alt */
+@media (max-width: 360px) {
+  .card { padding: 8px !important; }
+  .panel { padding: 8px !important; }
+  body { font-size: 13px; }
+  /* Header icon emoji kucult */
+  .menu-item { font-size: 13px; }
+}
+
+/* Landscape mobile — yataygelince scroll engelle */
+@media (max-height: 480px) and (orientation: landscape) {
+  .sidebar { font-size: 12px; }
+  .menu-item { padding: 6px 14px; }
+}
+
+/* === SCROLL BEHAVIOUR === */
+html {
+  scroll-behavior: smooth;
+  /* iOS Safari notch alanini destekle */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* === KALICI BOTTOM NAV (mobile only — opsiyonel, default kapali) ===
+   .has-bottom-nav class'i body'ye eklendiginde aktif olur */
+body.has-bottom-nav main, body.has-bottom-nav .panel {
+  padding-bottom: 70px;
+}
+.bottom-nav-mobile {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(180deg, #0f0f0f, #050505);
+  border-top: 1px solid #d4af37;
+  z-index: 998;
+  padding: 4px;
+  padding-bottom: calc(4px + env(safe-area-inset-bottom));
+}
+.bottom-nav-mobile .bn-item {
+  flex: 1;
+  text-align: center;
+  padding: 8px 4px;
+  color: #888;
+  text-decoration: none;
+  font-size: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.bottom-nav-mobile .bn-item.on { color: #d4af37; }
+.bottom-nav-mobile .bn-item .bn-icon { font-size: 18px; }
+@media (max-width: 768px) {
+  .bottom-nav-mobile { display: flex; }
+}
