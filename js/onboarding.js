@@ -216,10 +216,12 @@ function obLogin() {
           client_hints = { model: h.model||null, platform: h.platform||null, platformVersion: h.platformVersion||null };
         }
       } catch(e) {}
+      // v1.14.1.58: Cloudflare Turnstile token (varsa)
+      const cf_token = (typeof getCfToken === 'function') ? await getCfToken() : null;
       fetch(API_BASE + '/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password, email, davet_kodu, screen_width: screen.width, screen_height: screen.height, client_hints })
+        body: JSON.stringify({ username, password, email, davet_kodu, screen_width: screen.width, screen_height: screen.height, client_hints, cf_token })
       })
       .then(r => r.json())
       .then(data => {
@@ -240,10 +242,12 @@ function obLogin() {
           client_hints = { model: h.model||null, platform: h.platform||null, platformVersion: h.platformVersion||null };
         }
       } catch(e) {}
+      // v1.14.1.58: Cloudflare Turnstile token (varsa)
+      const cf_token = (typeof getCfToken === 'function') ? await getCfToken() : null;
       fetch(API_BASE + '/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password, screen_width: screen.width, screen_height: screen.height, client_hints })
+        body: JSON.stringify({ username, password, screen_width: screen.width, screen_height: screen.height, client_hints, cf_token })
       })
       .then(r => r.json())
       .then(data => {

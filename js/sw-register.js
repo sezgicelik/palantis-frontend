@@ -50,4 +50,16 @@
   bkScript.src = './js/bilgelik.js?v=14157';
   bkScript.async = true;
   document.head.appendChild(bkScript);
+
+  // v1.14.1.58: Ban handler (403 yakalama UI)
+  const banScript = document.createElement('script');
+  banScript.src = './js/ban-handler.js?v=14158';
+  banScript.async = true;
+  document.head.appendChild(banScript);
+
+  // v1.14.1.58: Turnstile (Cloudflare bot koruması) — login/register form için
+  const tsScript = document.createElement('script');
+  tsScript.src = './js/turnstile-init.js?v=14158';
+  tsScript.async = true;
+  document.head.appendChild(tsScript);
 })();
