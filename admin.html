@@ -175,9 +175,10 @@
     <div class="card" style="border-left:3px solid #f39c12">
       <h3>🔍 Bina Debug (insaat tamamlandi mi, dayaniklilik vs)</h3>
       <p style="font-size:11px;color:var(--muted);margin-bottom:10px">Bir oyuncunun TÜM binalarını ham haliyle gör — kuyrukta kalan, dayanıklılık kritik vs.</p>
-      <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px">
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
         <input id="bdb-username" placeholder="Kullanıcı adı (örn: Sezgi)" style="padding:6px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;width:160px;font-size:11px">
         <button class="btn" onclick="binaDebug()" style="padding:6px 14px;font-size:11px">🔍 Tara</button>
+        <button class="btn btn-danger" onclick="oluBinaTemizle()" style="padding:6px 14px;font-size:11px">🧹 Ölü Kayıt Temizle (tas_ocagi vs)</button>
       </div>
       <div id="bdb-sonuc" style="font-size:10px"></div>
     </div>
@@ -2119,7 +2120,31 @@ async function oturumRevoke(userId) {
   loadAktifOyuncular();
 }
 
-// v1.14.1.59: BINA DEBUG
+// v1.14.1.59: BINA DEBUG + Olu Kayit Temizle
+async function oluBinaTemizle() {
+  if (!confirm('TÜM oyuncularda kodu silinmis bina kayitlarini sil (tas_ocagi vs). Geri alinamaz. Devam?')) return;
+  try {
+    const r = await fetch(API + '/api/admin/olu-bina-temizle', {
+      method: 'POST', headers: hdr()
+    }).then(r => r.json());
+    if (r.ok) {
+      let html = '<div style="color:#2ecc71">✅ ' + r.mesaj + '</div>';
+      if (r.silinen_tipler && r.silinen_tipler.length) {
+        html += '<table style="font-size:10px;margin-top:8px"><thead><tr><th>Bina ID</th><th>Sayi</th><th>Toplam Seviye</th></tr></thead><tbody>';
+        r.silinen_tipler.forEach(t => {
+          html += `<tr><td><b>${t.bina_id}</b></td><td>${t.sayi}</td><td>${t.toplam_seviye}</td></tr>`;
+        });
+        html += '</tbody></table>';
+      }
+      document.getElementById('bdb-sonuc').innerHTML = html;
+    } else {
+      document.getElementById('bdb-sonuc').innerHTML = '<div style="color:#e74c3c">' + (r.error||'?') + '</div>';
+    }
+  } catch (e) {
+    document.getElementById('bdb-sonuc').innerHTML = '<div style="color:#e74c3c">' + e.message + '</div>';
+  }
+}
+
 async function binaDebug() {
   const u = document.getElementById('bdb-username').value.trim();
   if (!u) { alert('Kullanici adi gir'); return; }

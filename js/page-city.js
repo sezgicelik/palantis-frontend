@@ -179,7 +179,14 @@ function renderQueue(){
     const el=Date.now()-q.start;
     const pct=Math.min(100,el/q.dur*100);
     const rem=Math.max(0,Math.ceil((q.dur-el)/1000));
-    const kalanLabel=(q.kalanInsa&&q.kalanInsa>0)?`<span style="color:#c8a96e;font-size:10px"> +${q.kalanInsa} daha bekliyor</span>`:'';
+    // v1.14.1.59: Kuyruk bilgisi daha net — "+20 daha · ~20 saat sonra biter"
+    let kalanLabel = '';
+    if (q.kalanInsa && q.kalanInsa > 0) {
+      // Tahmini bitiş süresi: kalan × bina insa süresi (saat)
+      const sureSaat = Math.ceil((q.dur / 1000 / 3600) * q.kalanInsa);
+      const tahminEt = sureSaat < 24 ? `~${sureSaat}h` : `~${Math.ceil(sureSaat/24)}g`;
+      kalanLabel = `<span style="color:#c8a96e;font-size:10px" title="Toplu inşa: saatte 1 yeni başlıyor"> +${q.kalanInsa} kuyrukta · <b style="color:#f39c12">${tahminEt}</b> sonra biter</span>`;
+    }
     const d=document.createElement('div');d.className='q-item';
     d.innerHTML=`<div class="q-icon">${b.icon}</div><div class="q-info"><div class="q-name">${b.name} insa ediliyor${kalanLabel}</div><div class="q-bar"><div class="q-fill" id="qf-${b.id}" style="width:${pct}%"></div></div></div><div class="q-time" id="qt-${b.id}">${fmtT(rem)}</div>`;
     list.appendChild(d);
