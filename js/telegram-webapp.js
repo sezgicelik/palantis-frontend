@@ -107,24 +107,36 @@
         'setupDone=' + d.setupDone + ', kral=' + (d.player?.kral || '-') +
         ', taraf=' + (d.player?.taraf || '-'));
 
-      // Setup tamamlanmadiysa onboarding'e yonlendir
+      // v1.14.1.66: Yonlendirme akisi netlendi
+      try { tg.HapticFeedback.notificationOccurred('success'); } catch {}
+      const yolu = window.location.pathname;
+      const isIndexPage = yolu === '/' || yolu.endsWith('index.html') || yolu.endsWith('/palantis-frontend/');
+      const isHomePage  = yolu.endsWith('home.html');
+
       if (!d.setupDone) {
-        try { tg.HapticFeedback.notificationOccurred('success'); } catch {}
-        if (window.location.pathname.indexOf('index.html') === -1) {
-          _debugOverlay('→ Onboarding\'e yonlendiriliyor (setup yok)');
-          setTimeout(() => { window.location.href = './index.html?tg=1'; }, 2000);
+        // Setup tamam degil — onboarding gerekli
+        _debugOverlay('→ Onboarding (setup yok)', 'Taraf+irk+kral adi sec');
+        if (!isIndexPage) {
+          setTimeout(() => { window.location.href = './index.html?tg=1'; }, 1500);
         }
+        // Index'teyse zaten orada kalsin, onboarding orada handle eder
       } else {
-        try { tg.HapticFeedback.notificationOccurred('success'); } catch {}
-        _debugOverlay('✓ Setup tamam — home\'a yukleniyor', 'Yenile/loadGameData calisacak');
-        // Mevcut user — sayfayi yenile ki loadGameData token ile cagirsin
-        setTimeout(() => {
-          if (typeof loadGameData === 'function') {
-            loadGameData();
-          } else {
-            window.location.reload();
-          }
-        }, 1500);
+        // Setup tamam — home'a git
+        _debugOverlay('✓ Hesap bulundu: ' + (d.player?.kral || d.user.username),
+                      'Home sayfasina yonlendiriliyor');
+        if (isHomePage) {
+          // Zaten home.html — loadGameData calistir
+          setTimeout(() => {
+            if (typeof loadGameData === 'function') {
+              loadGameData();
+            } else {
+              window.location.reload();
+            }
+          }, 1500);
+        } else {
+          // Index veya baska sayfa → home.html'e zorla
+          setTimeout(() => { window.location.href = './home.html'; }, 1500);
+        }
       }
       return true;
     } catch (e) {
