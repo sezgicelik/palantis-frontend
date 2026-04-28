@@ -52,17 +52,36 @@
     }
   } catch {}
 
+  // v1.14.1.65: Debug overlay — Telegram'dan acildiginda durumu goster
+  function _debugOverlay(durum, detay) {
+    let el = document.getElementById('tg-debug-overlay');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'tg-debug-overlay';
+      el.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#0a0a0a;color:#d4af37;padding:8px 12px;font-family:monospace;font-size:11px;z-index:99999;border-bottom:1px solid #d4af37;max-height:40vh;overflow-y:auto;line-height:1.4';
+      document.body.appendChild(el);
+    }
+    el.innerHTML = '<b>[Telegram Debug]</b> ' + durum + '<br>' + (detay ? `<span style="color:#888">${detay}</span>` : '');
+    setTimeout(() => { try { el.remove(); } catch {} }, 8000); // 8 sn sonra kaldir
+  }
+
   // 4) Auto-login — eğer henuz token yoksa
   async function telegramAutoLogin() {
     if (!tg.initData) {
       console.warn('[telegram-webapp] initData yok — auto-login atlandi');
+      _debugOverlay('❌ initData YOK — Telegram WebApp degil mi?');
       return false;
     }
+    _debugOverlay('🔄 Auto-login basliyor...', 'initData uzunlugu: ' + tg.initData.length);
+
     if (typeof getToken === 'function' && getToken()) {
-      // Zaten girisli
+      _debugOverlay('✓ Zaten giris yapilmis', 'Token var');
       return true;
     }
-    if (typeof API_BASE === 'undefined') return false;
+    if (typeof API_BASE === 'undefined') {
+      _debugOverlay('❌ API_BASE tanimli degil');
+      return false;
+    }
 
     try {
       const r = await fetch(API_BASE + '/api/auth/telegram', {
@@ -72,7 +91,9 @@
       });
       const d = await r.json();
       if (!r.ok || !d.ok) {
-        console.warn('[telegram-auto-login] Hata:', d.error || r.status);
+        const msg = d.error || ('HTTP ' + r.status);
+        console.warn('[telegram-auto-login] Hata:', msg);
+        _debugOverlay('❌ Auth fail: ' + msg, JSON.stringify(d));
         return false;
       }
       // Token kaydet
@@ -82,22 +103,33 @@
         try { localStorage.setItem('palantis_token', d.token); } catch {}
       }
       console.log('[telegram-auto-login] ✓ Giris basarili —', d.user.username);
+      _debugOverlay('✓ Giris OK: ' + d.user.username,
+        'setupDone=' + d.setupDone + ', kral=' + (d.player?.kral || '-') +
+        ', taraf=' + (d.player?.taraf || '-'));
 
       // Setup tamamlanmadiysa onboarding'e yonlendir
       if (!d.setupDone) {
         try { tg.HapticFeedback.notificationOccurred('success'); } catch {}
-        // Yeni kullanici — setup
         if (window.location.pathname.indexOf('index.html') === -1) {
-          // Index'e (onboarding) yonlendir, kullanici taraf+irk secsin
-          window.location.href = './index.html?tg=1';
+          _debugOverlay('→ Onboarding\'e yonlendiriliyor (setup yok)');
+          setTimeout(() => { window.location.href = './index.html?tg=1'; }, 2000);
         }
       } else {
-        // Mevcut user — home'a (zaten oradayiz muhtemelen)
         try { tg.HapticFeedback.notificationOccurred('success'); } catch {}
+        _debugOverlay('✓ Setup tamam — home\'a yukleniyor', 'Yenile/loadGameData calisacak');
+        // Mevcut user — sayfayi yenile ki loadGameData token ile cagirsin
+        setTimeout(() => {
+          if (typeof loadGameData === 'function') {
+            loadGameData();
+          } else {
+            window.location.reload();
+          }
+        }, 1500);
       }
       return true;
     } catch (e) {
       console.warn('[telegram-auto-login]', e.message);
+      _debugOverlay('❌ Network/parse hata: ' + e.message);
       return false;
     }
   }
