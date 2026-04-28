@@ -52,17 +52,9 @@
     }
   } catch {}
 
-  // v1.14.1.65: Debug overlay — Telegram'dan acildiginda durumu goster
+  // v1.14.1.66: Debug overlay sessizlestiildi — sadece console.log
   function _debugOverlay(durum, detay) {
-    let el = document.getElementById('tg-debug-overlay');
-    if (!el) {
-      el = document.createElement('div');
-      el.id = 'tg-debug-overlay';
-      el.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#0a0a0a;color:#d4af37;padding:8px 12px;font-family:monospace;font-size:11px;z-index:99999;border-bottom:1px solid #d4af37;max-height:40vh;overflow-y:auto;line-height:1.4';
-      document.body.appendChild(el);
-    }
-    el.innerHTML = '<b>[Telegram Debug]</b> ' + durum + '<br>' + (detay ? `<span style="color:#888">${detay}</span>` : '');
-    setTimeout(() => { try { el.remove(); } catch {} }, 8000); // 8 sn sonra kaldir
+    console.log('[telegram-webapp]', durum, detay || '');
   }
 
   // 4) Auto-login — eğer henuz token yoksa
