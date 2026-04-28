@@ -171,6 +171,17 @@
       <tbody id="aktif-oturum-list"></tbody></table>
     </div>
 
+    <!-- v1.14.1.59: BINA DEBUG -->
+    <div class="card" style="border-left:3px solid #f39c12">
+      <h3>🔍 Bina Debug (insaat tamamlandi mi, dayaniklilik vs)</h3>
+      <p style="font-size:11px;color:var(--muted);margin-bottom:10px">Bir oyuncunun TÜM binalarını ham haliyle gör — kuyrukta kalan, dayanıklılık kritik vs.</p>
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px">
+        <input id="bdb-username" placeholder="Kullanıcı adı (örn: Sezgi)" style="padding:6px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;width:160px;font-size:11px">
+        <button class="btn" onclick="binaDebug()" style="padding:6px 14px;font-size:11px">🔍 Tara</button>
+      </div>
+      <div id="bdb-sonuc" style="font-size:10px"></div>
+    </div>
+
     <!-- v1.14.1.53: BAN SISTEMI -->
     <div class="card" style="border-left:3px solid #c0392b">
       <h3>🔨 Ban Yönetimi</h3>
@@ -2106,6 +2117,60 @@ async function oturumRevoke(userId) {
   }).then(r=>r.json());
   alert(r.mesaj || JSON.stringify(r));
   loadAktifOyuncular();
+}
+
+// v1.14.1.59: BINA DEBUG
+async function binaDebug() {
+  const u = document.getElementById('bdb-username').value.trim();
+  if (!u) { alert('Kullanici adi gir'); return; }
+  const sonucEl = document.getElementById('bdb-sonuc');
+  sonucEl.innerHTML = '<i style="color:var(--muted)">Yukleniyor...</i>';
+  try {
+    const d = await fetch(API + '/api/admin/oyuncu-bina-debug?username=' + encodeURIComponent(u), { headers: hdr() }).then(r=>r.json());
+    if (!d.ok) { sonucEl.innerHTML = '<div style="color:#e74c3c">' + (d.error||'?') + '</div>'; return; }
+
+    const o = d.oyuncu;
+    let html = '<div style="margin-bottom:10px;padding:8px;background:#0a0a0a;border-radius:4px">'
+      + '<b>' + o.kral + '</b> · Çağ ' + o.cag + ' · Alan: <b style="color:#d4af37">' + o.kullanilan_alan + '/' + o.toplam_alan + '</b> · ' + d.bina_sayisi + ' kayıt';
+    html += '</div>';
+
+    // Kategorize
+    const kuyruktaki = d.binalar.filter(b => b.in_queue);
+    const tamamlanan = d.binalar.filter(b => !b.in_queue && b.seviye > 0);
+    const kritik = d.binalar.filter(b => b.dayaniklilik > 0 && b.dayaniklilik < 20 && b.seviye > 0);
+    const gecikmis = d.binalar.filter(b => b.kuyruk_durumu && b.kuyruk_durumu.includes('TAMAMLANMASI'));
+
+    if (gecikmis.length > 0) {
+      html += '<div style="background:rgba(231,76,60,0.1);border-left:3px solid #e74c3c;padding:8px;margin-bottom:10px;border-radius:4px;color:#fca5a5">'
+        + '⚠️ <b>' + gecikmis.length + ' bina cron tamamlamasi gecikmis!</b> Cron sorunu olabilir. Manuel cron tetikle.'
+      + '</div>';
+    }
+
+    if (kritik.length > 0) {
+      html += '<div style="background:rgba(243,156,18,0.1);border-left:3px solid #f39c12;padding:8px;margin-bottom:10px;border-radius:4px;color:#fcd34d">'
+        + '🔧 ' + kritik.length + ' bina kritik dayaniklilik (yikim sansi var) — onarim gerekiyor'
+      + '</div>';
+    }
+
+    html += '<table style="font-size:10px"><thead><tr><th>Bina</th><th>Sv</th><th>Kuyruk</th><th>Dayaniklilik</th><th>Kalan İnşa</th><th>Yaş (saat)</th><th>Durum</th></tr></thead><tbody>';
+    d.binalar.forEach(b => {
+      const renk = b.in_queue ? '#f39c12' : (b.dayaniklilik < 20 ? '#e74c3c' : (b.seviye === 0 ? '#888' : '#2ecc71'));
+      html += '<tr>'
+        + '<td><b>' + b.bina_id + '</b></td>'
+        + '<td>' + b.seviye + '</td>'
+        + '<td style="color:' + renk + '">' + (b.in_queue ? '⏳ ' + (b.kuyruk_dk_kalan!=null ? b.kuyruk_dk_kalan + ' dk' : 'NULL') : '✓') + '</td>'
+        + '<td style="color:' + (b.dayaniklilik < 20 ? '#e74c3c' : '#888') + '">%' + b.dayaniklilik + '</td>'
+        + '<td>' + (b.kalan_insa > 0 ? b.kalan_insa + ' bekliyor' : '-') + '</td>'
+        + '<td>' + b.saat_yasinda + 'h</td>'
+        + '<td style="font-size:9px;color:' + renk + '">' + b.kuyruk_durumu + ' · ' + b.dayaniklilik_durum + '</td>'
+      + '</tr>';
+    });
+    html += '</tbody></table>';
+
+    sonucEl.innerHTML = html;
+  } catch (e) {
+    sonucEl.innerHTML = '<div style="color:#e74c3c">' + e.message + '</div>';
+  }
 }
 
 // v1.14.1.53: BAN SISTEMI
