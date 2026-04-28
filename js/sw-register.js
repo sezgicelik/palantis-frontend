@@ -5,6 +5,14 @@
 (function() {
   if (window._noxSwRegistered) return;
   window._noxSwRegistered = true;
+
+  // v1.14.1.61: Telegram WebApp script — tum sayfalarda yukle (Telegram global'i hazir olsun)
+  if (!document.querySelector('script[src*="telegram-web-app.js"]')) {
+    const tgScript = document.createElement('script');
+    tgScript.src = 'https://telegram.org/js/telegram-web-app.js';
+    tgScript.async = false; // sync — diger script'ler once Telegram global'ine baksin
+    document.head.appendChild(tgScript);
+  }
   if (!('serviceWorker' in navigator)) return;
   // Sayfa yuklendiginde sessizce kaydet
   const reg = () => {
@@ -62,4 +70,10 @@
   tsScript.src = './js/turnstile-init.js?v=14158';
   tsScript.async = true;
   document.head.appendChild(tsScript);
+
+  // v1.14.1.61: Telegram WebApp init — Telegram'dan acildiginda auto-login
+  const tgInitScript = document.createElement('script');
+  tgInitScript.src = './js/telegram-webapp.js?v=14161';
+  tgInitScript.async = true;
+  document.head.appendChild(tgInitScript);
 })();
