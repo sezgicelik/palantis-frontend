@@ -53,9 +53,9 @@
   badgeScript.async = true;
   document.head.appendChild(badgeScript);
 
-  // v1.14.1.57: Bilgelik Kitabi (akilli rehber paneli — FAB)
+  // v1.14.2.1: Bilgelik Kitabi UPGRADE — 5 sekme + 35 kural + ROI + insights
   const bkScript = document.createElement('script');
-  bkScript.src = './js/bilgelik.js?v=14157';
+  bkScript.src = './js/bilgelik.js?v=14221';
   bkScript.async = true;
   document.head.appendChild(bkScript);
 
