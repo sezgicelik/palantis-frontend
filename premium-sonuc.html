@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Noxara — Ödeme Sonucu</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <style>
+    body { background: #0a0a0a; color: #f9fafb; font-family: system-ui, -apple-system, sans-serif; min-height: 100vh; margin: 0; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .ps-card { max-width: 520px; width: 100%; background: linear-gradient(135deg, #1a1a1a, #0f0f0f); border: 1px solid rgba(212,175,55,0.3); border-radius: 14px; padding: 32px; text-align: center; box-shadow: 0 16px 50px rgba(0,0,0,0.6); }
+    .ps-icon { font-size: 64px; margin-bottom: 16px; line-height: 1; }
+    .ps-title { color: #d4af37; font-family: 'Cinzel', serif; font-size: 22px; margin: 0 0 8px; }
+    .ps-msg { color: #cbd5e1; font-size: 14px; line-height: 1.6; margin: 8px 0 24px; }
+    .ps-detay { background: rgba(255,255,255,0.04); border: 1px solid rgba(148,163,184,0.18); border-radius: 8px; padding: 12px; margin: 16px 0; font-size: 13px; text-align: left; }
+    .ps-detay .row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(148,163,184,0.1); }
+    .ps-detay .row:last-child { border-bottom: none; }
+    .ps-detay span:first-child { color: #94a3b8; }
+    .ps-detay span:last-child { color: #f9fafb; font-weight: 600; }
+    .ps-btn { display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #d4af37, #b08f4d); color: #111; text-decoration: none; border-radius: 8px; font-weight: 700; margin: 6px; cursor: pointer; border: none; font-size: 14px; }
+    .ps-btn.secondary { background: transparent; border: 1px solid rgba(212,175,55,0.5); color: #d4af37; }
+    .ps-spinner { width: 32px; height: 32px; border: 3px solid rgba(212,175,55,0.2); border-top-color: #d4af37; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .ps-success { color: #86efac; }
+    .ps-pending { color: #fbbf24; }
+    .ps-error { color: #fca5a5; }
+  </style>
+</head>
+<body>
+  <div class="ps-card" id="ps-content">
+    <div class="ps-spinner"></div>
+    <h1 class="ps-title">Ödeme sonucu kontrol ediliyor...</h1>
+    <p class="ps-msg">Lütfen bekleyin, siparişin durumunu sorguluyoruz.</p>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script>
+  (async function() {
+    const PAKET_ISIM = { bronz: 'Bronz', gumus: 'Gümüş', altin_paket: 'Altın' };
+    function fmt(n) { return Number(n||0).toLocaleString('tr-TR'); }
+
+    function getQueryParam(name) {
+      const params = new URLSearchParams(location.search);
+      return params.get(name);
+    }
+
+    const siparisId = parseInt(getQueryParam('siparis'));
+    if (!siparisId) {
+      document.getElementById('ps-content').innerHTML = `
+        <div class="ps-icon ps-error">⚠️</div>
+        <h1 class="ps-title">Eksik Sipariş Bilgisi</h1>
+        <p class="ps-msg">Bu sayfaya geçerli bir sipariş ID'si ile gelmediniz.</p>
+        <a class="ps-btn" href="premium.html">Premium Sayfasına Dön</a>
+      `;
+      return;
+    }
+
+    const token = (typeof getToken === 'function') ? getToken() : localStorage.getItem('palantis_token');
+    if (!token) {
+      document.getElementById('ps-content').innerHTML = `
+        <div class="ps-icon ps-error">🔒</div>
+        <h1 class="ps-title">Giriş Yapmanız Gerekiyor</h1>
+        <p class="ps-msg">Sipariş bilgilerini görmek için giriş yapın.</p>
+        <a class="ps-btn" href="index.html">Giriş Yap</a>
+      `;
+      return;
+    }
+
+    async function fetchSiparis() {
+      const r = await fetch(API_BASE + '/api/premium/siparis/' + siparisId, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return (await r.json()).siparis;
+    }
+
+    function render(siparis) {
+      const c = document.getElementById('ps-content');
+      const status = siparis.status;
+      const paketAdi = PAKET_ISIM[siparis.paket] || siparis.paket;
+      const detay = `
+        <div class="ps-detay">
+          <div class="row"><span>Sipariş #</span><span>${siparis.id}</span></div>
+          <div class="row"><span>Paket</span><span>${paketAdi}</span></div>
+          <div class="row"><span>Tutar</span><span>${fmt(siparis.fiyat_try)} ₺</span></div>
+          <div class="row"><span>Süre</span><span>${siparis.sure_gun} gün</span></div>
+          <div class="row"><span>Provider</span><span>${siparis.provider}</span></div>
+        </div>
+      `;
+
+      if (status === 'completed') {
+        c.innerHTML = `
+          <div class="ps-icon ps-success">✅</div>
+          <h1 class="ps-title">Ödemen Başarılı!</h1>
+          <p class="ps-msg">Premium <b>${paketAdi}</b> paketin <b>${siparis.sure_gun} gün</b> aktif edildi.</p>
+          ${detay}
+          <a class="ps-btn" href="home.html">🏰 Krallığına Dön</a>
+          <a class="ps-btn secondary" href="premium.html">Siparişlerim</a>
+        `;
+      } else if (status === 'pending') {
+        c.innerHTML = `
+          <div class="ps-icon ps-pending">⏳</div>
+          <h1 class="ps-title">Ödeme Bekleniyor</h1>
+          <p class="ps-msg">Ödemen henüz tamamlanmadı. Bankadan onay bekleniyor — birkaç saniye içinde güncellenecek.</p>
+          ${detay}
+          <button class="ps-btn" onclick="location.reload()">🔄 Yenile</button>
+          <a class="ps-btn secondary" href="premium.html">Premium Sayfası</a>
+        `;
+        // Otomatik 5 saniyede bir yenile (max 6 deneme = 30 sn)
+        if (window._psYenileSayac === undefined) window._psYenileSayac = 0;
+        if (window._psYenileSayac < 6) {
+          window._psYenileSayac++;
+          setTimeout(() => location.reload(), 5000);
+        }
+      } else if (status === 'failed') {
+        c.innerHTML = `
+          <div class="ps-icon ps-error">❌</div>
+          <h1 class="ps-title">Ödeme Başarısız</h1>
+          <p class="ps-msg">Ödeme tamamlanamadı. ${siparis.notlar ? '<br><small style="color:#94a3b8">' + siparis.notlar + '</small>' : ''}</p>
+          ${detay}
+          <a class="ps-btn" href="premium.html">Tekrar Dene</a>
+          <a class="ps-btn secondary" href="home.html">Ana Sayfa</a>
+        `;
+      } else if (status === 'cancelled') {
+        c.innerHTML = `
+          <div class="ps-icon">🚫</div>
+          <h1 class="ps-title">İptal Edildi</h1>
+          <p class="ps-msg">Bu sipariş iptal edildi.</p>
+          ${detay}
+          <a class="ps-btn" href="premium.html">Yeni Sipariş</a>
+        `;
+      } else {
+        c.innerHTML = `
+          <div class="ps-icon">📋</div>
+          <h1 class="ps-title">Sipariş Durumu: ${status}</h1>
+          ${detay}
+          <a class="ps-btn" href="premium.html">Premium</a>
+        `;
+      }
+    }
+
+    try {
+      const siparis = await fetchSiparis();
+      render(siparis);
+    } catch (e) {
+      document.getElementById('ps-content').innerHTML = `
+        <div class="ps-icon ps-error">⚠️</div>
+        <h1 class="ps-title">Sipariş Sorgulanamadı</h1>
+        <p class="ps-msg">${e.message}<br>Sipariş #${siparisId}</p>
+        <a class="ps-btn" href="premium.html">Premium Sayfası</a>
+      `;
+    }
+  })();
+  </script>
+</body>
+</html>
