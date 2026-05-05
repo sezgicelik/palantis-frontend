@@ -1201,8 +1201,8 @@ document.addEventListener('DOMContentLoaded', initLayout);
 */
 // v1.14.3.9: Build stamp — tiklanabilir, cache temizleyip yenileme yapar
 (function buildStamp(){
-  const BUILD = 'v1.14.3.9';
-  const TS    = '2026-05-06 ana-kuyruk-listesinde-iptal-X';
+  const BUILD = 'v1.14.3.11';
+  const TS    = '2026-05-06 turnstile-aktif (CAPTCHA bot korumasi)';
   function mount(){
     if (document.getElementById('build-stamp')) return;
     const div = document.createElement('div');
