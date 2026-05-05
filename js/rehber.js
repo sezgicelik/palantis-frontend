@@ -383,10 +383,11 @@ function rehberIleri() {
   }
 }
 
-function rehberAtla() {
-  if (confirm('Rehberi atlamak istediginize emin misiniz? Ayarlar sayfasindan tekrar baslatabilirsiniz.')) {
-    rehberTamamla();
-  }
+async function rehberAtla() {
+  // v1.14.3.12: Tarayici confirm yerine site-ici nox-modal (Sezgi: chrome popup'u istemiyor)
+  const C = window.noxConfirm || ((m) => Promise.resolve(confirm(m)));
+  const ok = await C('🧭 Rehberi atlamak istediğinize emin misiniz?\n\nAyarlar sayfasından istediğin zaman tekrar başlatabilirsin.');
+  if (ok) rehberTamamla();
 }
 
 function rehberTamamla() {
