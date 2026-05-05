@@ -471,10 +471,91 @@ function showSavasRapor(sonuc, benimTaraf, opts) {
 
     <div class="sr-btn-row">
       <button class="sr-btn" onclick="closeSavasRapor()">Kapat</button>
+      <button class="sr-btn" onclick="savasRaporIndirPdf(${data.id})" style="background:rgba(46,204,113,.1);color:#2ecc71;border-color:rgba(46,204,113,.4)">📄 PDF İndir</button>
+      <button class="sr-btn" onclick="savasRaporTelegramPdf(${data.id})" style="background:rgba(52,152,219,.1);color:#3498db;border-color:rgba(52,152,219,.4)">📨 Telegram'a Gönder</button>
     </div>
   `;
 
   document.getElementById('savas-rapor-modal').classList.add('open');
+}
+
+/* ════════════════════════════════════════════════════════
+   PDF üret (html2pdf.js CDN — lazy load)
+   v1.14.2.5
+═══════════════════════════════════════════════════════ */
+async function _ensureHtml2Pdf() {
+  if (window.html2pdf) return window.html2pdf;
+  await new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('html2pdf.js yuklenemedi'));
+    document.head.appendChild(s);
+  });
+  return window.html2pdf;
+}
+
+async function _savasRaporPdfBlob(savasId) {
+  const box = document.getElementById('savas-rapor-box');
+  if (!box) throw new Error('Rapor modal acik degil');
+  // Telegram/PDF butonlarını gizle (PDF içinde görünmesin)
+  const btnRow = box.querySelector('.sr-btn-row');
+  const oldDisplay = btnRow ? btnRow.style.display : null;
+  if (btnRow) btnRow.style.display = 'none';
+  try {
+    const html2pdf = await _ensureHtml2Pdf();
+    const opt = {
+      margin: 8,
+      filename: `savas-rapor-${savasId}.pdf`,
+      image: { type: 'jpeg', quality: 0.92 },
+      html2canvas: { scale: 2, backgroundColor: '#0a0604', useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    return await html2pdf().set(opt).from(box).output('blob');
+  } finally {
+    if (btnRow) btnRow.style.display = oldDisplay || '';
+  }
+}
+
+async function savasRaporIndirPdf(savasId) {
+  try {
+    const blob = await _savasRaporPdfBlob(savasId);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `savas-rapor-${savasId}.pdf`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    if (typeof toast === 'function') toast('PDF üretilemedi: ' + e.message);
+    else alert('PDF üretilemedi: ' + e.message);
+  }
+}
+
+async function savasRaporTelegramPdf(savasId) {
+  try {
+    const token = (typeof getToken === 'function') ? getToken() : localStorage.getItem('palantis_token');
+    if (!token) { alert('Giriş yap'); return; }
+    if (typeof toast === 'function') toast('PDF üretiliyor...');
+    const blob = await _savasRaporPdfBlob(savasId);
+    if (typeof toast === 'function') toast('Telegram\'a yükleniyor...');
+    const r = await fetch(API_BASE + '/api/savas/' + savasId + '/pdf-telegram', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/pdf', 'Authorization': 'Bearer ' + token },
+      body: blob,
+    });
+    const d = await r.json();
+    if (!r.ok) {
+      const msg = d?.error || ('HTTP ' + r.status);
+      if (typeof toast === 'function') toast('Hata: ' + msg);
+      else alert('Hata: ' + msg);
+      return;
+    }
+    if (typeof toast === 'function') toast('✅ Telegram\'a gönderildi!');
+    else alert('✅ Telegram\'a gönderildi!');
+  } catch (e) {
+    if (typeof toast === 'function') toast('PDF gönderilemedi: ' + e.message);
+    else alert('PDF gönderilemedi: ' + e.message);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
