@@ -1199,15 +1199,36 @@ document.addEventListener('DOMContentLoaded', initLayout);
    Sayfanin sag-alt kosesinde sabit bir rozet — tarayicidaki gercek surum
    burada gorunur. Hard refresh sonrasi guncellenmediyse cache catili.
 */
+// v1.14.3.9: Build stamp — tiklanabilir, cache temizleyip yenileme yapar
 (function buildStamp(){
-  const BUILD = 'v1.14.1.41';
-  const TS    = '2026-04-24 tuccar-altin-uretimi-kaldirildi';
+  const BUILD = 'v1.14.3.8b';
+  const TS    = '2026-05-06 toast-v2 + iptal-%80 + maas-ozeti + kuyruk-X';
   function mount(){
     if (document.getElementById('build-stamp')) return;
     const div = document.createElement('div');
     div.id = 'build-stamp';
-    div.style.cssText = 'position:fixed;left:8px;bottom:6px;z-index:9000;font:10px/1.2 "Cinzel",serif;color:#c8a96e;background:rgba(20,18,14,0.85);border:1px solid #3a3020;border-radius:4px;padding:3px 8px;letter-spacing:.5px;pointer-events:none;opacity:0.75';
-    div.textContent = 'BUILD ' + BUILD + ' · ' + TS;
+    div.style.cssText = 'position:fixed;left:8px;bottom:6px;z-index:9000;font:10px/1.2 "Cinzel",serif;color:#c8a96e;background:rgba(20,18,14,0.85);border:1px solid #3a3020;border-radius:4px;padding:3px 8px;letter-spacing:.5px;cursor:pointer;opacity:0.75;user-select:none;transition:all .15s';
+    div.title = 'Tıkla: cache temizle + hard refresh (yeni deploy geldiyse görmek için)';
+    div.innerHTML = '🔄 ' + BUILD + ' · ' + TS;
+    div.addEventListener('mouseenter', () => { div.style.opacity = '1'; div.style.borderColor = '#d4af37'; });
+    div.addEventListener('mouseleave', () => { div.style.opacity = '0.75'; div.style.borderColor = '#3a3020'; });
+    div.addEventListener('click', async () => {
+      div.innerHTML = '⏳ Cache temizleniyor...';
+      try {
+        // Service Worker unregister
+        if ('serviceWorker' in navigator) {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          for (const r of regs) await r.unregister();
+        }
+        // Cache Storage temizle
+        if ('caches' in window) {
+          const keys = await caches.keys();
+          await Promise.all(keys.map(k => caches.delete(k)));
+        }
+      } catch(e) {}
+      // Hard reload (cache yoksay)
+      location.reload(true);
+    });
     document.body.appendChild(div);
   }
   if (document.readyState === 'loading') {
