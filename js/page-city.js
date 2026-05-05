@@ -149,7 +149,7 @@ function renderBinaRow(grid, b, inQ, oyuncuCag) {
     d.innerHTML=`
       <div class="br-ico" style="background:${b.bg}" data-codex-id="${b.id}">${b.icon}</div>
       <div class="br-main">
-        <div class="br-name" data-codex-id="${b.id}">${b.name} ${b.lv>0?`<span style="color:#2ecc71;font-size:10px">${b.lv} adet</span>`:''}${limitLabel}${(b._kalanInsa || 0) > 0 ? ` <span style="font-size:11px;padding:1px 7px;background:rgba(243,156,18,0.18);color:#f39c12;border:1px solid rgba(243,156,18,0.4);border-radius:10px;font-weight:600;margin-left:4px" title="Toplu inşa kuyruğu — saatte 1 yapılıyor">🏗️ +${b._kalanInsa} kuyrukta</span>` : ''}</div>
+        <div class="br-name" data-codex-id="${b.id}">${b.name} ${b.lv>0?`<span style="color:#2ecc71;font-size:10px">${b.lv} adet</span>`:''}${limitLabel}${(b._kalanInsa || 0) > 0 ? ` <span style="font-size:11px;padding:1px 7px;background:rgba(243,156,18,0.18);color:#f39c12;border:1px solid rgba(243,156,18,0.4);border-radius:10px;font-weight:600;margin-left:4px;white-space:nowrap;display:inline-block" title="Bu bina için sıralanmış ekstra emir sayısı — saatte 1 başlar">🏗️ +${b._kalanInsa} sırada</span>` : ''}</div>
         <div class="br-desc">${b.desc}</div>
       </div>
       <div class="br-lv">${b.lv} adet</div>
@@ -199,7 +199,7 @@ function renderQueue(){
       // Tahmini bitiş süresi: kalan × bina insa süresi (saat)
       const sureSaat = Math.ceil((q.dur / 1000 / 3600) * q.kalanInsa);
       const tahminEt = sureSaat < 24 ? `~${sureSaat}h` : `~${Math.ceil(sureSaat/24)}g`;
-      kalanLabel = `<span style="color:#c8a96e;font-size:10px" title="Toplu inşa: saatte 1 yeni başlıyor"> +${q.kalanInsa} kuyrukta · <b style="color:#f39c12">${tahminEt}</b> sonra biter</span>`;
+      kalanLabel = `<span style="color:#c8a96e;font-size:10px;white-space:nowrap" title="Toplu inşa: saatte 1 yeni başlıyor"> +${q.kalanInsa} sırada · <b style="color:#f39c12">${tahminEt}</b> sonra biter</span>`;
     }
     const d=document.createElement('div');d.className='q-item';
     d.innerHTML=`<div class="q-icon">${b.icon}</div><div class="q-info"><div class="q-name">${b.name} insa ediliyor${kalanLabel}</div><div class="q-bar"><div class="q-fill" id="qf-${b.id}" style="width:${pct}%"></div></div></div><div class="q-time" id="qt-${b.id}">${fmtT(rem)}</div>`;
