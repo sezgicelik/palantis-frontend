@@ -55,6 +55,48 @@ function assignWorker(type, delta){
   updatePopulationUI(true);
 }
 
+// v1.14.2.4: Manuel veri girisi — input box "X" yazinca direkt o kadar yap
+function assignWorkerSet(type, val) {
+  const yeni = Math.max(0, parseInt(val) || 0);
+  const mevcut = population[type] || 0;
+  const delta = yeni - mevcut;
+  if (delta === 0) return;
+
+  // Maks kontrol: artırma tarafında bos koylu + kapasite
+  if (delta > 0) {
+    if (population.free < delta) {
+      toast(`⚠️ Sadece ${population.free} boş köylü var, ${delta} atayamazsın`);
+      // input'u eski degere geri al
+      const el = document.getElementById('w-' + type);
+      if (el) el.value = mevcut;
+      return;
+    }
+    const kapasite = getWorkerCapacity(type);
+    if (yeni > kapasite) {
+      toast(`⚠️ Kapasite max ${kapasite}`);
+      const el = document.getElementById('w-' + type);
+      if (el) el.value = mevcut;
+      return;
+    }
+  }
+
+  population[type] = yeni;
+  population.free -= delta;
+  updatePopulationUI(true);
+}
+
+// v1.14.2.4: Tüm boş köylüleri bu işe ata (kapasiteye kadar)
+function assignWorkerMax(type) {
+  const kapasite = getWorkerCapacity(type);
+  const mevcut = population[type] || 0;
+  const max = Math.min(mevcut + population.free, kapasite);
+  if (max <= mevcut) {
+    toast('Atayacak köylü yok veya kapasite dolu');
+    return;
+  }
+  assignWorkerSet(type, max);
+}
+
 /* -- Pisirme Orani -- */
 let PISIRME = { bugday: 34, balik: 33, et: 33 };
 
@@ -192,20 +234,43 @@ function kesimInit() {
   setText('kesim-et-preview', 0);
 }
 
-function kesimAdjust(delta) {
+function _kesimMaxAdet() {
   const taraf = OYUNCU?.taraf || 'iyi';
   const isLight = taraf === 'iyi';
-  let max;
-  if (KESIM_TIP === 'besi') {
-    max = EXTRA_RES.besi_hayvani || 0;
-  } else {
-    max = isLight ? (EXTRA_RES.at || 0) : (EXTRA_RES.kurt || 0);
-  }
+  if (KESIM_TIP === 'besi') return EXTRA_RES.besi_hayvani || 0;
+  return isLight ? (EXTRA_RES.at || 0) : (EXTRA_RES.kurt || 0);
+}
+
+function _kesimRender() {
+  const max = _kesimMaxAdet();
   const etCarpan = KESIM_TIP === 'besi' ? 20 : 50;
-  KESIM_MIKTAR = Math.max(0, Math.min(KESIM_MIKTAR + delta, max));
-  setText('kesim-miktar', KESIM_MIKTAR);
+  KESIM_MIKTAR = Math.max(0, Math.min(KESIM_MIKTAR, max));
+  // input value sync (manuel input)
+  const el = document.getElementById('kesim-miktar');
+  if (el) el.value = KESIM_MIKTAR;
   setText('kesim-miktar-preview', KESIM_MIKTAR);
   setText('kesim-et-preview', KESIM_MIKTAR * etCarpan);
+}
+
+function kesimAdjust(delta) {
+  KESIM_MIKTAR = (parseInt(KESIM_MIKTAR) || 0) + delta;
+  _kesimRender();
+}
+
+// v1.14.2.4: Manuel input (sayı kutusu)
+function kesimManuelInput(val) {
+  const n = parseInt(val) || 0;
+  KESIM_MIKTAR = Math.max(0, Math.min(n, _kesimMaxAdet()));
+  // setText KESINLIKLE input.value yazmaz, sadece text content yazar
+  setText('kesim-miktar-preview', KESIM_MIKTAR);
+  const etCarpan = KESIM_TIP === 'besi' ? 20 : 50;
+  setText('kesim-et-preview', KESIM_MIKTAR * etCarpan);
+}
+
+// v1.14.2.4: Tüm hayvanları kes
+function kesimTumu() {
+  KESIM_MIKTAR = _kesimMaxAdet();
+  _kesimRender();
 }
 
 async function kesimYap() {

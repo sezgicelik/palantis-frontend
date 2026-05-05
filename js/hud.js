@@ -167,7 +167,16 @@ function setGuildHUD(g){
    Aksi durumda eski (yerel hesap) fallback calissin.
 ===================================================== */
 function updatePopulationUI(skipBackendFetch){
-  const set = (id, v) => { const e=document.getElementById(id); if(e) e.innerText=v; };
+  // v1.14.2.4: input/select için value, diğerleri için innerText
+  const set = (id, v) => {
+    const e = document.getElementById(id);
+    if (!e) return;
+    if (e.tagName === 'INPUT' || e.tagName === 'SELECT' || e.tagName === 'TEXTAREA') {
+      e.value = v;
+    } else {
+      e.innerText = v;
+    }
+  };
 
   // v1.13.35: Tek dogruluk kaynagi — nufus-render.js
   // v1.13.68.7: assignWorker sonrasinda skipBackendFetch=true ile cagrilir (local state'i overwrite etmesin diye).

@@ -151,50 +151,56 @@
       <h2>👥 İşçi Dağılımı</h2>
       <p style="color:#555;font-size:13px;margin-bottom:18px">İşçi dağılımı bulunduğu çağdaki limite göre değişir.</p>
 
+      <!-- v1.14.2.4: <b> -> <input> ve "Hepsi" butonu (manuel veri girisi) -->
       <div style="display:grid;grid-template-columns:1fr;gap:6px">
         <div class="worker-row">
           <span class="wr-lbl">🌳 Oduncu</span>
           <button type="button" onclick="assignWorker('wood',-10)">−10</button>
           <button type="button" onclick="assignWorker('wood',-1)">−</button>
-          <b id="w-wood">0</b>
+          <input type="number" min="0" id="w-wood" value="0" oninput="assignWorkerSet('wood',this.value)" class="w-num" />
           <button type="button" onclick="assignWorker('wood',1)">+</button>
           <button type="button" onclick="assignWorker('wood',10)">+10</button>
+          <button type="button" onclick="assignWorkerMax('wood')" title="Boş köylülerin tamamını ata">MAX</button>
           <span class="info">(+<span id="p-wood">0</span>/gün)</span>
         </div>
         <div class="worker-row">
           <span class="wr-lbl">⛏ Madenci</span>
           <button type="button" onclick="assignWorker('iron',-10)">−10</button>
           <button type="button" onclick="assignWorker('iron',-1)">−</button>
-          <b id="w-iron">0</b>
+          <input type="number" min="0" id="w-iron" value="0" oninput="assignWorkerSet('iron',this.value)" class="w-num" />
           <button type="button" onclick="assignWorker('iron',1)">+</button>
           <button type="button" onclick="assignWorker('iron',10)">+10</button>
+          <button type="button" onclick="assignWorkerMax('iron')" title="Boş köylülerin tamamını ata">MAX</button>
           <span class="info">(+<span id="p-iron">0</span>/gün)</span>
         </div>
         <div class="worker-row">
           <span class="wr-lbl">🌾 Çiftçi</span>
           <button type="button" onclick="assignWorker('farm',-10)">−10</button>
           <button type="button" onclick="assignWorker('farm',-1)">−</button>
-          <b id="w-farm">0</b>
+          <input type="number" min="0" id="w-farm" value="0" oninput="assignWorkerSet('farm',this.value)" class="w-num" />
           <button type="button" onclick="assignWorker('farm',1)">+</button>
           <button type="button" onclick="assignWorker('farm',10)">+10</button>
+          <button type="button" onclick="assignWorkerMax('farm')" title="Boş köylülerin tamamını ata">MAX</button>
           <span class="info">(+<span id="p-farm">0</span>/gün)</span>
         </div>
         <div class="worker-row">
           <span class="wr-lbl">🎣 Balıkçı</span>
           <button type="button" onclick="assignWorker('fish',-10)">−10</button>
           <button type="button" onclick="assignWorker('fish',-1)">−</button>
-          <b id="w-fish">0</b>
+          <input type="number" min="0" id="w-fish" value="0" oninput="assignWorkerSet('fish',this.value)" class="w-num" />
           <button type="button" onclick="assignWorker('fish',1)">+</button>
           <button type="button" onclick="assignWorker('fish',10)">+10</button>
+          <button type="button" onclick="assignWorkerMax('fish')" title="Boş köylülerin tamamını ata">MAX</button>
           <span class="info">(+<span id="p-fish">0</span>/gün)</span>
         </div>
         <div class="worker-row">
           <span class="wr-lbl">💰 Tüccar</span>
           <button type="button" onclick="assignWorker('merchant',-10)">−10</button>
           <button type="button" onclick="assignWorker('merchant',-1)">−</button>
-          <b id="w-merchant">0</b>
+          <input type="number" min="0" id="w-merchant" value="0" oninput="assignWorkerSet('merchant',this.value)" class="w-num" />
           <button type="button" onclick="assignWorker('merchant',1)">+</button>
           <button type="button" onclick="assignWorker('merchant',10)">+10</button>
+          <button type="button" onclick="assignWorkerMax('merchant')" title="Boş köylülerin tamamını ata">MAX</button>
           <span class="info" style="font-size:11px">(hammadde)</span>
         </div>
         <!-- v1.14.2.0 (FAZ X.4): Katip — Akademide calisir, GP uretir -->
@@ -202,9 +208,10 @@
           <span class="wr-lbl">📚 Katip</span>
           <button type="button" onclick="assignWorker('katip',-10)">−10</button>
           <button type="button" onclick="assignWorker('katip',-1)">−</button>
-          <b id="w-katip">0</b>
+          <input type="number" min="0" id="w-katip" value="0" oninput="assignWorkerSet('katip',this.value)" class="w-num" />
           <button type="button" onclick="assignWorker('katip',1)">+</button>
           <button type="button" onclick="assignWorker('katip',10)">+10</button>
+          <button type="button" onclick="assignWorkerMax('katip')" title="Boş köylülerin tamamını ata">MAX</button>
           <span class="info" style="font-size:11px;color:#3498db">(0.05 GP/sa, 1000 altın maaş)</span>
         </div>
         <!-- v1.14.2.1: Izci — Alan kesfi, max 50, Cag 2+, bina-bagli degil -->
@@ -212,12 +219,18 @@
           <span class="wr-lbl">🏞 İzci</span>
           <button type="button" onclick="assignWorker('izci',-10)">−10</button>
           <button type="button" onclick="assignWorker('izci',-1)">−</button>
-          <b id="w-izci">0</b>
+          <input type="number" min="0" id="w-izci" value="0" oninput="assignWorkerSet('izci',this.value)" class="w-num" />
           <button type="button" onclick="assignWorker('izci',1)">+</button>
           <button type="button" onclick="assignWorker('izci',10)">+10</button>
+          <button type="button" onclick="assignWorkerMax('izci')" title="Boş köylülerin tamamını ata (max 50)">MAX</button>
           <span class="info" style="font-size:11px;color:#2ecc71">(0.05 alan/sa, 500 altın maaş, max 50, Çağ 2+)</span>
         </div>
       </div>
+      <style>
+        .w-num { width:80px; text-align:center; font-weight:bold; color:#d4af37;
+                 background:#1a1a1a; border:1px solid #333; border-radius:4px; padding:3px 6px; font-size:14px; }
+        .w-num::-webkit-outer-spin-button, .w-num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+      </style>
 
       <button class="btn" type="button" onclick="saveWorkers()" style="margin-top:14px;width:100%">💾 Dağılımı Kaydet</button>
     </div>
@@ -247,9 +260,13 @@
         <div style="display:flex;align-items:center;gap:6px">
           <button class="btn ghost" style="padding:4px 10px;font-size:16px" onclick="kesimAdjust(-10)">−10</button>
           <button class="btn ghost" style="padding:4px 8px;font-size:16px" onclick="kesimAdjust(-1)">−</button>
-          <span id="kesim-miktar" style="min-width:48px;text-align:center;font-size:18px;font-weight:bold;color:#d4af37">0</span>
+          <!-- v1.14.2.4: span -> input (manuel veri girisi) -->
+          <input type="number" id="kesim-miktar" min="0" value="0"
+                 style="min-width:80px;width:80px;text-align:center;font-size:18px;font-weight:bold;color:#d4af37;background:#1a1a1a;border:1px solid #333;border-radius:4px;padding:4px"
+                 oninput="kesimManuelInput(this.value)">
           <button class="btn ghost" style="padding:4px 8px;font-size:16px" onclick="kesimAdjust(1)">+</button>
           <button class="btn ghost" style="padding:4px 10px;font-size:16px" onclick="kesimAdjust(10)">+10</button>
+          <button class="btn ghost" style="padding:4px 10px;font-size:13px;color:#e74c3c" onclick="kesimTumu()" title="Tüm hayvanları kes">TÜMÜ</button>
         </div>
         <button class="btn" onclick="kesimYap()" style="min-width:140px">🔪 Kes</button>
       </div>

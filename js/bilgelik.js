@@ -553,9 +553,14 @@
     if (!questCache) {
       return subTabs + '<div class="bk-loading">Resmi görevler yükleniyor…</div>';
     }
-    var quests = (questCache.gorevler || []).filter(q => !q.kilitli);
+    // v1.14.2.4: Tamamlanip odul alinanlari default gizle (Sezgi: "yapilan gorevler gitmiyor")
+    var quests = (questCache.gorevler || []).filter(q => !q.kilitli && q.durum !== 'odul_alindi');
     if (quests.length === 0) {
-      return subTabs + '<div class="bk-success-box">Aktif görevin yok. Çağ atladıkça yeni görevler açılır.</div>';
+      var toplamBitmis = (questCache.gorevler || []).filter(q => q.durum === 'odul_alindi').length;
+      var msg = toplamBitmis > 0
+        ? `🎉 ${toplamBitmis} görev tamamlandı, ödülleri alındı! Yeni görev için çağ atla.`
+        : 'Aktif görevin yok. Çağ atladıkça yeni görevler açılır.';
+      return subTabs + '<div class="bk-success-box">' + msg + '</div>';
     }
     return subTabs + quests.map(function(q) {
       var pct = q.hedef ? Math.round((q.ilerleme / q.hedef) * 100) : 0;
@@ -834,9 +839,12 @@
       var fab = document.getElementById('bk-fab');
       if (fab) fab.style.display = 'none';
 
-      // İlk açılışta backend verisi getir
-      if (!insightsCache) fetchInsights().then(d => { insightsCache = d || { ok:false, error:'fetch fail' }; rerender(); });
-      if (!questCache) fetchQuests().then(d => { questCache = d || { gorevler: [] }; rerender(); });
+      // v1.14.2.4: Her açılışta cache sıfırla (Sezgi: "yapilan gorevler gitmiyor" — eski cache vardi)
+      // Cache 5dk geçerliydi, panel kapatıp açtığında eski liste gösteriliyordu.
+      insightsCache = null;
+      questCache = null;
+      fetchInsights().then(d => { insightsCache = d || { ok:false, error:'fetch fail' }; rerender(); });
+      fetchQuests().then(d => { questCache = d || { gorevler: [] }; rerender(); });
     }
   }
   function panelKapat() {
