@@ -647,6 +647,9 @@
     { baslik:'Bina Dayanıklılık', icerik:'%0-100, doğal yıpranma 4 P.G./%0.5. %20 altı yıkım şansı. Hızlı tamir = altın x2 (anında).' },
     { baslik:'Tarla & Çiftçi', icerik:'1 tarla = 50 çiftçi kapasitesi. Tarla yoksa çiftçi atanamaz, buğday üretimi 0.' },
     { baslik:'Köprü/Yol', icerik:'Harita 200x50 grid, 9 bölge. Her bölgenin farklı kaynak bonusu.' },
+    { baslik:'İşçi Maaşları', icerik:'Saatlik (XX:00 cron): Tüccar 300 · Oduncu/Madenci 5 · Çiftçi/Balıkçı 3 · Esir 0. Hipnoz İŞÇİLERİ ETKİLEMEZ (sadece asker maaşı muaf). Ödenemezse altın 0\'a clamp, moral etkisi yok.' },
+    { baslik:'Asker Maaşı vs İşçi Maaşı', icerik:'Asker maaşı ordu_morali etkiler (+5 ödenir, -10 ödenemez). İşçi maaşı sadece altın gideri — moral değişmez. Hipnoz yalnız ASKER maaşını muaf eder.' },
+    { baslik:'İnşaat İptali', icerik:'Toplu inşa kuyruğu iptal edilirse %80 iade + %20 vazgeçme cezası. Mevcut in_queue inşaat devam eder. Bina kart ve kuyruk widget\'ında ✕ butonu ile.' },
   ];
 
   // ──────────────────────────────────────────────

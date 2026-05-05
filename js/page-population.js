@@ -3,6 +3,49 @@
    Extracted from index.html
 ══════════════════════════════════ */
 
+// v1.14.3.8: Saatlik isci maas ozeti karti
+// Backend /api/player/teshis -> isci_maas blogundan oku, kart doldur
+async function loadIsciMaasOzet() {
+  const tk = (window.getToken || (() => ''))();
+  if (!tk) return;
+  try {
+    const r = await fetch(API_BASE + '/api/player/teshis', {
+      headers: { Authorization: 'Bearer ' + tk }
+    });
+    if (!r.ok) return;
+    const d = await r.json();
+    const m = d.isci_maas;
+    if (!m) return;
+    const kart = document.getElementById('isci-maas-kart');
+    if (!kart) return;
+    kart.style.display = 'block';
+    document.getElementById('isci-maas-toplam').textContent = m.saatlik_toplam.toLocaleString('tr-TR') + ' altın';
+    document.getElementById('isci-maas-gunluk').textContent = m.gunluk_toplam.toLocaleString('tr-TR') + ' altın';
+
+    const detayEl = document.getElementById('isci-maas-detay');
+    const ICONS = { tuccar:'🛒', oduncu:'🪓', madenci:'⛏', ciftci:'🌾', balikci:'🎣' };
+    const ADLAR = { tuccar:'Tüccar', oduncu:'Oduncu', madenci:'Madenci', ciftci:'Çiftçi', balikci:'Balıkçı' };
+    detayEl.innerHTML = Object.entries(m.detay || {}).map(([tip, x]) =>
+      `<span style="background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.3);padding:3px 8px;border-radius:12px;color:#c8a96e">${ICONS[tip]||''} ${ADLAR[tip]||tip}: ${x.adet} × ${x.birim} = <b style="color:#d4af37">${x.toplam.toLocaleString('tr-TR')}</b></span>`
+    ).join('');
+
+    const uyariEl = document.getElementById('isci-maas-uyari');
+    if (m.uyari) {
+      uyariEl.style.display = 'block';
+      uyariEl.textContent = '⚠️ ' + m.uyari;
+    } else {
+      uyariEl.style.display = 'none';
+    }
+  } catch(e) {}
+}
+// Sayfa acildiginda + her isci atamasinda yenile
+if (typeof window !== 'undefined') {
+  window.loadIsciMaasOzet = loadIsciMaasOzet;
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(loadIsciMaasOzet, 800);  // teshis biraz agir, gec yukle
+  });
+}
+
 // İşçi tipi -> bina eslesmesi
 // v1.13.15: demir_madeni kaldirildi, madenci serbest
 // v1.13.67: wood (oduncu) kapasite kontrolu kaldirildi — backend'de de yok (oduncu serbest ata)

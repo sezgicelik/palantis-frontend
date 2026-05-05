@@ -146,6 +146,30 @@
       <span id="pisirme-msg" style="font-size:11px;color:#444;margin-left:10px"></span>
     </div>
 
+    <!-- v1.14.3.8: Saatlik İşçi Maaş Özeti -->
+    <div class="card" id="isci-maas-kart" style="padding:14px 18px;margin-bottom:14px;border-left:3px solid #d4af37;display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+        <div>
+          <h3 style="margin:0;color:#d4af37;font-size:15px">💰 Saatlik İşçi Maaş Gideri</h3>
+          <div style="font-size:11px;color:#888;margin-top:3px">Cron her saat başı (XX:00) altın kasandan keser. Hipnoz işçileri etkilemez.</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:22px;font-weight:bold;color:#d4af37" id="isci-maas-toplam">— altın</div>
+          <div style="font-size:11px;color:#666">Günlük: <span id="isci-maas-gunluk">—</span></div>
+        </div>
+      </div>
+      <div id="isci-maas-detay" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;font-size:11px"></div>
+      <div id="isci-maas-uyari" style="margin-top:8px;padding:6px 10px;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);border-radius:4px;color:#e74c3c;font-size:11px;display:none"></div>
+      <details style="margin-top:8px">
+        <summary style="font-size:11px;color:#888;cursor:pointer">📋 Maaş tarifesi (saatlik / işçi)</summary>
+        <div style="font-size:11px;margin-top:6px;color:#aaa;line-height:1.6">
+          🛒 Tüccar: <b style="color:#d4af37">300</b> · 🪓 Oduncu: <b style="color:#d4af37">5</b> ·
+          ⛏ Madenci: <b style="color:#d4af37">5</b> · 🌾 Çiftçi: <b style="color:#d4af37">3</b> ·
+          🎣 Balıkçı: <b style="color:#d4af37">3</b> · ⛓ Esir: <b style="color:#888">0</b>
+        </div>
+      </details>
+    </div>
+
     <!-- İşçi dağılımı -->
     <div class="card" style="padding:20px;margin-bottom:16px">
       <h2>👥 İşçi Dağılımı</h2>

@@ -400,13 +400,18 @@ async function tamirBina(binaId) {
   } catch(e) { await A('Sunucu hatası: ' + e.message); }
 }
 
-// v1.14.3.7: Toplu insa kuyrugunu iptal et + KAYNAK IADESI
-// Sezgi: "iptal edilenler ne olacak" — backend kuyruga atarken tum
-//        adedin kaynagini sifirinda dusurur, iptalde GERI verilmeli.
+// v1.14.3.8: Toplu insa kuyrugunu iptal et + %80 IADE + uyari
+// Sezgi: "inşaat iptal edilince 80% i verelim ve uyarı gösterelim"
 async function iptalKuyruk(binaId, binaIsim, kalan) {
   const A = window.noxAlert || ((m) => alert(m));
   const C = window.noxConfirm || ((m) => Promise.resolve(confirm(m)));
-  const ok = await C(`${binaIsim} için sırada bekleyen ${kalan} emir iptal edilecek.\n\n• Mevcut inşaat (varsa) devam eder.\n• Sıradaki ${kalan} emrin TÜM kaynağı GERİ verilir.\n\nİptal et?`);
+  const ok = await C(
+    `⚠️ ${binaIsim} — ${kalan} sıradaki emir iptal\n\n` +
+    `• Mevcut inşaat (varsa) devam eder.\n` +
+    `• Kaynaklar %80 oranında iade edilir.\n` +
+    `• %20 vazgeçme cezası kesilir.\n\n` +
+    `İptal et?`
+  );
   if (!ok) return;
   try {
     const r = await fetch(API_BASE + '/api/game/buildings/iptal-kuyruk', {
@@ -419,7 +424,10 @@ async function iptalKuyruk(binaId, binaIsim, kalan) {
       const iadeStr = d.iade && Object.keys(d.iade).length > 0
         ? ' İade: ' + Object.entries(d.iade).map(([k,v]) => `${v.toLocaleString()} ${k}`).join(', ')
         : '';
-      const msg = `✓ ${d.iptal} emir iptal edildi.${iadeStr}`;
+      const cezaStr = d.ceza && Object.keys(d.ceza).length > 0
+        ? ' (Ceza: ' + Object.entries(d.ceza).map(([k,v]) => `${v.toLocaleString()} ${k}`).join(', ') + ')'
+        : '';
+      const msg = `✓ ${d.iptal} emir iptal — %${Math.round((d.iade_orani||0.8)*100)} iade.${iadeStr}${cezaStr}`;
       if (window.NoxToast) NoxToast.coin(msg);
       else if (window.showToast) showToast(msg, 'success');
       await loadGameData();

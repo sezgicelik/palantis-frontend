@@ -850,15 +850,49 @@ function renderKuyrukWidget() {
       '<div style="color:#c8a96e;font-size:11px;font-weight:bold;margin-bottom:4px">' + c.label + ' (' + liste.length + ')</div>';
     for (const it of liste.slice(0, 3)) {
       const kalanFmt = (typeof fmtKalanSure === 'function') ? fmtKalanSure(it.kalan_sn) : (it.kalan_sn + ' sn');
-      html += '<div style="font-size:10px;color:#999;padding:2px 0;display:flex;justify-content:space-between;gap:8px">' +
-        '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + it.ad + '</span>' +
-        '<span style="color:#d4af37;flex-shrink:0">' + kalanFmt + '</span>' +
+      // v1.14.3.8: Bina kategorisinde kalan_insa>0 ise X iptal butonu
+      const iptalBtn = (c.key === 'bina' && it.kalan_insa > 0)
+        ? `<button onclick="event.preventDefault();event.stopPropagation();kuyrukIptalQuick('${it.bina_id}','${(it.bina_ad||'').replace(/'/g,'')}',${it.kalan_insa})" style="background:rgba(231,76,60,0.2);border:1px solid rgba(231,76,60,0.5);color:#e74c3c;border-radius:50%;width:16px;height:16px;font-size:9px;cursor:pointer;padding:0;line-height:1;margin-left:4px;flex-shrink:0" title="Sırayı iptal et (+${it.kalan_insa} emir)">✕</button>`
+        : '';
+      html += '<div style="font-size:10px;color:#999;padding:2px 0;display:flex;justify-content:space-between;align-items:center;gap:8px">' +
+        '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">' + it.ad + '</span>' +
+        '<span style="color:#d4af37;flex-shrink:0;display:flex;align-items:center">' + kalanFmt + iptalBtn + '</span>' +
       '</div>';
     }
     if (liste.length > 3) {
       html += '<div style="font-size:11px;color:#555;text-align:right">+' + (liste.length - 3) + ' daha…</div>';
     }
     html += '</a>';
+  }
+
+  // v1.14.3.8: Quick iptal — widget'ten cagrilir, page-city'de degilsin yine calisir
+  if (!window.kuyrukIptalQuick) {
+    window.kuyrukIptalQuick = async function(binaId, binaAd, kalan) {
+      const C = window.noxConfirm || ((m) => Promise.resolve(confirm(m)));
+      const ok = await C(`⚠️ ${binaAd} — ${kalan} sıradaki emir iptal\n\n• Mevcut inşaat devam eder.\n• %80 iade · %20 vazgeçme cezası.\n\nİptal et?`);
+      if (!ok) return;
+      try {
+        const tk = (window.getToken || (()=>'') )();
+        const r = await fetch(API_BASE + '/api/game/buildings/iptal-kuyruk', {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json', 'Authorization':'Bearer ' + tk },
+          body: JSON.stringify({ bina_id: binaId })
+        });
+        const d = await r.json();
+        if (r.ok && d.success) {
+          const iadeStr = d.iade && Object.keys(d.iade).length > 0
+            ? ' İade: ' + Object.entries(d.iade).map(([k,v]) => v.toLocaleString()+' '+k).join(', ')
+            : '';
+          const msg = `✓ ${d.iptal} emir iptal — %${Math.round((d.iade_orani||0.8)*100)} iade.${iadeStr}`;
+          if (window.NoxToast) NoxToast.coin(msg);
+          else if (window.showToast) showToast(msg, 'success');
+          if (window.refreshKuyruk) window.refreshKuyruk();
+          if (window.loadGameData) window.loadGameData();
+        } else {
+          (window.noxAlert || alert)(d.error || 'Iptal basarisiz');
+        }
+      } catch(e) { (window.noxAlert || alert)('Sunucu hatasi: ' + e.message); }
+    };
   }
   if (!html) html = '<div style="color:#555;font-size:11px;text-align:center;padding:20px">Bekleyen iş yok.</div>';
   icerik.innerHTML = html;
