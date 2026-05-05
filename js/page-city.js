@@ -149,7 +149,7 @@ function renderBinaRow(grid, b, inQ, oyuncuCag) {
     d.innerHTML=`
       <div class="br-ico" style="background:${b.bg}" data-codex-id="${b.id}">${b.icon}</div>
       <div class="br-main">
-        <div class="br-name" data-codex-id="${b.id}">${b.name} ${b.lv>0?`<span style="color:#2ecc71;font-size:10px">${b.lv} adet</span>`:''}${limitLabel}${(b._kalanInsa || 0) > 0 ? ` <span style="font-size:11px;padding:1px 7px;background:rgba(243,156,18,0.18);color:#f39c12;border:1px solid rgba(243,156,18,0.4);border-radius:10px;font-weight:600;margin-left:4px;white-space:nowrap;display:inline-block" title="Bu bina için sıralanmış ekstra emir sayısı — saatte 1 başlar">🏗️ +${b._kalanInsa} sırada</span>` : ''}</div>
+        <div class="br-name" data-codex-id="${b.id}">${b.name} ${b.lv>0?`<span style="color:#2ecc71;font-size:10px">${b.lv} adet</span>`:''}${limitLabel}${(b._kalanInsa || 0) > 0 ? ` <span style="font-size:11px;padding:1px 7px;background:rgba(243,156,18,0.18);color:#f39c12;border:1px solid rgba(243,156,18,0.4);border-radius:10px;font-weight:600;margin-left:4px;white-space:nowrap;display:inline-flex;align-items:center;gap:4px" title="Bu bina için sıralanmış ekstra emir sayısı — saatte 1 başlar">🏗️ +${b._kalanInsa} sırada<button onclick="iptalKuyruk('${b.id}','${b.name.replace(/'/g,"\\'")}',${b._kalanInsa});event.stopPropagation()" style="background:rgba(231,76,60,0.2);border:1px solid rgba(231,76,60,0.5);color:#e74c3c;border-radius:50%;width:16px;height:16px;font-size:10px;cursor:pointer;padding:0;line-height:1;display:flex;align-items:center;justify-content:center" title="Kuyruğu iptal et (mevcut inşaat devam eder)">✕</button></span>` : ''}</div>
         <div class="br-desc">${b.desc}</div>
       </div>
       <div class="br-lv">${b.lv} adet</div>
@@ -398,6 +398,33 @@ async function tamirBina(binaId) {
       await A(data.error || 'Tamir hatası');
     }
   } catch(e) { await A('Sunucu hatası: ' + e.message); }
+}
+
+// v1.14.3.6: Toplu insa kuyrugunu iptal et (mevcut insaat devam eder)
+// Sezgi: "kuyrugu gormeden fazla bastiklarimiz ne olacak"
+async function iptalKuyruk(binaId, binaIsim, kalan) {
+  const A = window.noxAlert || ((m) => alert(m));
+  const C = window.noxConfirm || ((m) => Promise.resolve(confirm(m)));
+  const ok = await C(`${binaIsim} için sırada bekleyen ${kalan} emir iptal edilecek.\n\nMevcut inşaat (varsa) devam eder.\nKaynaklar geri alınmaz.\n\nİptal et?`);
+  if (!ok) return;
+  try {
+    const r = await fetch(API_BASE + '/api/game/buildings/iptal-kuyruk', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'Authorization':'Bearer ' + getToken() },
+      body: JSON.stringify({ bina_id: binaId })
+    });
+    const d = await r.json();
+    if (r.ok && d.success) {
+      if (window.NoxToast) NoxToast.success(`${d.iptal} emir iptal edildi. ${d.mesaj || ''}`);
+      else if (window.showToast) showToast(`${d.iptal} emir iptal edildi.`, 'success');
+      await loadGameData();
+      if (window.refreshKuyruk) window.refreshKuyruk();
+    } else {
+      await A(d.error || 'İptal başarısız');
+    }
+  } catch(e) {
+    await A('Sunucu hatası: ' + e.message);
+  }
 }
 
 // v1.14.3.0: Yıkma — site-içi modal (tarayıcı popup yerine)
