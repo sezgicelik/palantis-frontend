@@ -255,6 +255,68 @@
       },
       cozum:['Sehir → Binalar → Firin (200 kap) veya Ocak (100 kap)','Pisirme orani: population.html → Ocak/Firin Pisirme Orani','Pismis 2x etkili: 100 ekmek = 200 kişi doyurur'] },
 
+    // v1.14.2.9: GPS / Gelişim binalari kapsama (5 alan: egitim/bilgi/kultur/eglence/sehir)
+    // Sezgi'nin yemek kapsama paterni — gelisim icin de aynisi
+    { id:'gps_alan_yetersiz', tier:'orta', tip:'warning',
+      kosul: s => {
+        if (!teshisCache || !teshisCache.gps || !teshisCache.gps.alan_kapsama) return false;
+        var alanlar = teshisCache.gps.alan_kapsama;
+        for (var alan in alanlar) {
+          if (alanlar[alan] < 95) return true;
+        }
+        return false;
+      },
+      mesaj: () => {
+        if (!teshisCache || !teshisCache.gps) return '';
+        var alanlar = teshisCache.gps.alan_kapsama || {};
+        var toplam = (teshisCache.isciler && teshisCache.isciler.toplam) || 1;
+        // Her alanda en yuksek kapasiteli binadan kac eksik
+        var BINA_BIG = {
+          egitim:  { id:'akademi',        isim:'Akademi',        kap:5000 },
+          bilgi:   { id:'buyuk_kutuphane',isim:'Büyük Kütüphane',kap:2500 },
+          kultur:  { id:'opera_evi',      isim:'Opera Evi',      kap:8000 },
+          eglence: { id:'koliseum',       isim:'Koliseum',       kap:20000 },
+          sehir:   { id:'asma_bahceler',  isim:'Asma Bahçeler',  kap:10000 },
+        };
+        var eksikler = [];
+        for (var alan in alanlar) {
+          var pct = alanlar[alan];
+          if (pct >= 95) continue;
+          var eksikKap = Math.ceil(toplam * (100 - pct) / 100);
+          var b = BINA_BIG[alan];
+          if (!b) continue;
+          var eksikAdet = Math.ceil(eksikKap / b.kap);
+          eksikler.push(alan + ' %' + pct + ' → +' + eksikAdet + ' ' + b.isim);
+        }
+        return '🏛️ GPS yetersiz alanlar (KP/GP icin gerekli): ' + eksikler.join(' · ');
+      },
+      cozum: () => {
+        if (!teshisCache || !teshisCache.gps) return ['Sehir → Binalar → GPS bina yap'];
+        var alanlar = teshisCache.gps.alan_kapsama || {};
+        var toplam = (teshisCache.isciler && teshisCache.isciler.toplam) || 1;
+        var BINALAR = {
+          egitim:  [{ isim:'Okul', kap:800 }, { isim:'Üniversite', kap:2000 }, { isim:'Akademi', kap:5000 }],
+          bilgi:   [{ isim:'Kütüphane', kap:400 }, { isim:'Büyük Kütüphane', kap:2500 }],
+          kultur:  [{ isim:'Tiyatro', kap:3000 }, { isim:'Opera Evi', kap:8000 }],
+          eglence: [{ isim:'Arena', kap:4000 }, { isim:'Koliseum', kap:20000 }, { isim:'Taverna', kap:2000 }],
+          sehir:   [{ isim:'Müze', kap:6000 }, { isim:'Noxara Hanı', kap:5000 }, { isim:'Katedral', kap:5000 }, { isim:'Asma Bahçeler', kap:10000 }],
+        };
+        var detaylar = [];
+        for (var alan in alanlar) {
+          var pct = alanlar[alan];
+          if (pct >= 95) continue;
+          var eksikKap = Math.ceil(toplam * (100 - pct) / 100);
+          var binaList = BINALAR[alan] || [];
+          var secenekler = binaList.map(function(b) {
+            return Math.ceil(eksikKap / b.kap) + 'x ' + b.isim + ' (' + b.kap + ' kap)';
+          }).join(' veya ');
+          detaylar.push(alan.toUpperCase() + ': ' + secenekler);
+        }
+        if (detaylar.length === 0) detaylar.push('Tüm alanlar yeterli');
+        detaylar.push('GPS %100 → +6 sehir morali/saat + KP üretimi');
+        return detaylar;
+      } },
+
     // v1.14.2.8: Yemek üretimi kapsama (cıftlik vs nufus)
     { id:'ciftlik_kapsama_yetersiz', tier:'orta', tip:'warning',
       kosul: s => {
@@ -763,7 +825,9 @@
 
     var rulesHtml = rules.map(function(r) {
       var msg = (typeof r.mesaj === 'function') ? r.mesaj(s) : r.mesaj;
-      var coz = (r.cozum || []).map(c => '<li>' + safeText(c) + '</li>').join('');
+      // v1.14.2.9: cozum fonksiyon ya da array olabilir (dinamik mesaj icin)
+      var cozList = (typeof r.cozum === 'function') ? r.cozum(s) : (r.cozum || []);
+      var coz = (cozList || []).map(c => '<li>' + safeText(c) + '</li>').join('');
       var tierClass = r.tier === 'acil' ? 'warning' : (r.tier === 'orta' ? 'mid' : 'success');
       return '<div class="bk-' + tierClass + '-box rule">'
         + '<button class="bk-dismiss" onclick="bilgelik.dismiss(\'' + r.id + '\')" title="Bu kurali gizle">✕</button>'
