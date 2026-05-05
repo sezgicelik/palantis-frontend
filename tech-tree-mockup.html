@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Noxara — Tech Tree Mockup</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #0a0604; color: #e8dcc4;
+    font-family: 'Crimson Pro', 'Segoe UI', serif;
+    min-height: 100vh; padding: 16px;
+  }
+  h1 {
+    font-family: 'Cinzel', serif; color: #d4af37;
+    text-align: center; margin: 0 0 12px;
+    letter-spacing: 4px; font-size: 22px;
+  }
+  .subtitle { text-align: center; color: #888; font-size: 12px; margin-bottom: 20px; }
+
+  /* Filter bar */
+  .filters {
+    display: flex; gap: 8px; justify-content: center;
+    margin-bottom: 20px; flex-wrap: wrap;
+  }
+  .fbtn {
+    padding: 6px 14px; border-radius: 5px;
+    background: #1a1410; border: 1px solid #3a3020;
+    color: #c8a96e; cursor: pointer;
+    font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 1px;
+  }
+  .fbtn.active { background: #d4af37; color: #0a0604; }
+  .fbtn:hover:not(.active) { border-color: #d4af37; color: #d4af37; }
+
+  /* Tech tree container */
+  .tree-wrap {
+    position: relative;
+    max-width: 1400px;
+    margin: 0 auto;
+    background: linear-gradient(180deg, #0f0a06 0%, #0a0604 100%);
+    border: 1px solid #2a2018;
+    border-radius: 12px;
+    padding: 30px 20px;
+    overflow: visible;
+  }
+
+  /* SVG layer for connections */
+  .conn-svg {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* 3 ana sütun: Çağ | Şehir | Askeri */
+  .columns {
+    display: grid;
+    grid-template-columns: 200px 1fr 240px;
+    gap: 30px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Çağ kolonu — sol */
+  .cag-col {
+    display: flex; flex-direction: column;
+    gap: 12px; align-items: center;
+  }
+  .cag-node {
+    width: 160px; padding: 16px 12px;
+    border-radius: 8px;
+    background: linear-gradient(180deg, #1a1410, #0f0a06);
+    border: 2px solid;
+    text-align: center;
+    transition: transform .15s;
+  }
+  .cag-node:hover { transform: scale(1.02); }
+  .cag-node .num {
+    font-family: 'Cinzel Decorative', 'Cinzel', serif;
+    font-size: 26px; font-weight: 900;
+  }
+  .cag-node .label {
+    font-family: 'Cinzel', serif;
+    font-size: 11px; letter-spacing: 2px; margin-top: 4px;
+  }
+  .cag-node.active { border-color: #d4af37; box-shadow: 0 0 18px rgba(212,175,55,.35); }
+  .cag-node.active .num { color: #d4af37; }
+  .cag-node.completed { border-color: #2ecc71; }
+  .cag-node.completed .num { color: #2ecc71; }
+  .cag-node.locked { border-color: #3a3020; opacity: .45; }
+  .cag-node.locked .num { color: #555; }
+
+  /* Şehir geliştirmeleri grid — orta */
+  .sehir-col h3 {
+    font-family: 'Cinzel', serif; color: #c8a96e;
+    margin: 0 0 10px; font-size: 13px; letter-spacing: 2px;
+    border-bottom: 1px solid #3a3020; padding-bottom: 6px;
+  }
+  .sehir-section {
+    margin-bottom: 18px;
+    padding: 12px;
+    background: rgba(255,255,255,.02);
+    border: 1px solid #2a2018;
+    border-radius: 8px;
+  }
+  .gel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 8px;
+  }
+  .gel-node {
+    position: relative;
+    padding: 10px 10px 8px;
+    background: linear-gradient(180deg, #1a1410, #0f0a06);
+    border: 2px solid #3a3020;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all .12s;
+  }
+  .gel-node:hover { transform: translateY(-2px); border-color: #c8a96e; }
+  .gel-node .icon {
+    font-size: 22px;
+    display: block; margin-bottom: 4px;
+  }
+  .gel-node .name {
+    font-size: 11px; font-weight: 600;
+    color: #e8dcc4;
+    line-height: 1.2;
+  }
+  .gel-node .lvl {
+    position: absolute; top: 4px; right: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 10px; font-weight: 700;
+    padding: 1px 6px;
+    background: #0a0604;
+    border: 1px solid #3a3020;
+    border-radius: 10px;
+  }
+  .gel-node .progress {
+    height: 3px; background: #1a1410;
+    border-radius: 2px; margin-top: 4px;
+    overflow: hidden;
+  }
+  .gel-node .progress > div {
+    height: 100%; transition: width .3s;
+  }
+  .gel-node.max {
+    border-color: #2ecc71;
+    background: linear-gradient(180deg, rgba(46,204,113,.12), #0f0a06);
+  }
+  .gel-node.max .lvl { border-color: #2ecc71; color: #2ecc71; }
+  .gel-node.max .progress > div { background: #2ecc71; }
+  .gel-node.partial {
+    border-color: #d4af37;
+    background: linear-gradient(180deg, rgba(212,175,55,.08), #0f0a06);
+  }
+  .gel-node.partial .lvl { border-color: #d4af37; color: #d4af37; }
+  .gel-node.partial .progress > div { background: linear-gradient(90deg, #d4af37, #f1c40f); }
+  .gel-node.locked {
+    opacity: .4;
+    border-color: #3a3020;
+  }
+  .gel-node.locked::after {
+    content: '🔒';
+    position: absolute; top: 6px; left: 6px;
+    font-size: 11px;
+  }
+  .gel-node.next {
+    border-color: #3498db;
+    box-shadow: 0 0 10px rgba(52,152,219,.3);
+  }
+  .gel-node.next .lvl { border-color: #3498db; color: #3498db; }
+
+  /* Askeri kolon — sağ */
+  .askeri-col h3 {
+    font-family: 'Cinzel', serif; color: #c8a96e;
+    margin: 0 0 10px; font-size: 13px; letter-spacing: 2px;
+    border-bottom: 1px solid #3a3020; padding-bottom: 6px;
+  }
+  .unit-row {
+    display: grid;
+    grid-template-columns: 28px 1fr auto auto;
+    gap: 6px; align-items: center;
+    padding: 6px 8px;
+    background: rgba(255,255,255,.02);
+    border-radius: 4px;
+    margin-bottom: 4px;
+    font-size: 11px;
+  }
+  .unit-row .uicon { font-size: 16px; }
+  .unit-row .uname { color: #e8dcc4; font-weight: 600; }
+  .unit-row .ust { font-family: 'Courier New', monospace; }
+  .unit-row .ust.atk { color: #e74c3c; }
+  .unit-row .ust.def { color: #3498db; }
+
+  /* Tooltip detay */
+  .gel-node:hover .tooltip {
+    opacity: 1; pointer-events: auto;
+  }
+  .tooltip {
+    position: absolute;
+    bottom: 100%; left: 50%; transform: translateX(-50%);
+    margin-bottom: 8px;
+    background: #0a0604; border: 1px solid #c8a96e;
+    border-radius: 6px;
+    padding: 10px 12px;
+    width: 220px;
+    z-index: 100;
+    opacity: 0; pointer-events: none;
+    transition: opacity .15s;
+    font-size: 11px; line-height: 1.5;
+  }
+  .tooltip-title { color: #d4af37; font-family: 'Cinzel', serif; font-weight: 700; margin-bottom: 4px; }
+  .tooltip-etki { color: #c8a96e; margin-bottom: 6px; }
+  .tooltip-cost { color: #95a5a6; font-family: 'Courier New', monospace; font-size: 10px; }
+  .tooltip-cag { color: #e74c3c; font-size: 10px; margin-top: 4px; }
+
+  /* Legend */
+  .legend {
+    display: flex; gap: 18px; justify-content: center;
+    margin-top: 20px; padding: 10px;
+    background: rgba(255,255,255,.02); border-radius: 8px;
+    font-size: 11px; flex-wrap: wrap;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-box { width: 14px; height: 14px; border-radius: 3px; border: 2px solid; }
+  .legend-box.max { background: rgba(46,204,113,.2); border-color: #2ecc71; }
+  .legend-box.partial { background: rgba(212,175,55,.15); border-color: #d4af37; }
+  .legend-box.next { background: rgba(52,152,219,.15); border-color: #3498db; }
+  .legend-box.locked { background: #1a1410; border-color: #3a3020; opacity: .5; }
+
+  @media (max-width: 900px) {
+    .columns { grid-template-columns: 1fr; }
+    .cag-col { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+    .cag-node { width: 90px; padding: 8px; }
+    .cag-node .num { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>📜 NOXARA — Tech Tree</h1>
+<div class="subtitle">Çağ ilerlemesi + Şehir geliştirmeleri + Birim üst yükseltmeleri — tek panelde bağlantılı görünüm</div>
+
+<div class="filters">
+  <button class="fbtn active" data-cat="all">Tümü</button>
+  <button class="fbtn" data-cat="kaynak">Kaynak Üretim</button>
+  <button class="fbtn" data-cat="isleme">İşleme</button>
+  <button class="fbtn" data-cat="ekonomi">Ekonomi</button>
+  <button class="fbtn" data-cat="askeri">Askeri</button>
+  <button class="fbtn" data-cat="mana">Mana</button>
+</div>
+
+<div class="tree-wrap" id="tree">
+  <svg class="conn-svg" id="svg" preserveAspectRatio="none"></svg>
+
+  <div class="columns">
+    <!-- ÇAĞ KOLONU -->
+    <div class="cag-col">
+      <h3 style="color:#c8a96e;font-family:Cinzel,serif;letter-spacing:3px;font-size:13px;margin:0 0 8px">📜 ÇAĞLAR</h3>
+      <div class="cag-node completed"><div class="num">I</div><div class="label">İLKEL</div></div>
+      <div class="cag-node completed"><div class="num">II</div><div class="label">YÜKSELIŞ</div></div>
+      <div class="cag-node completed"><div class="num">III</div><div class="label">FETIH</div></div>
+      <div class="cag-node completed"><div class="num">IV</div><div class="label">ALTIN</div></div>
+      <div class="cag-node active"><div class="num">V</div><div class="label">EFSANE</div></div>
+    </div>
+
+    <!-- ŞEHİR GELİŞİMLERİ -->
+    <div class="sehir-col">
+      <!-- KAYNAK -->
+      <div class="sehir-section" data-cat="kaynak">
+        <h3>🌾 Kaynak Üretimi</h3>
+        <div class="gel-grid" id="grid-kaynak">
+          <!-- generated -->
+        </div>
+      </div>
+
+      <!-- İŞLEME -->
+      <div class="sehir-section" data-cat="isleme">
+        <h3>🔥 İşleme</h3>
+        <div class="gel-grid" id="grid-isleme"></div>
+      </div>
+
+      <!-- EKONOMİ -->
+      <div class="sehir-section" data-cat="ekonomi">
+        <h3>💰 Ekonomi</h3>
+        <div class="gel-grid" id="grid-ekonomi"></div>
+      </div>
+
+      <!-- ASKERİ ŞEHIR -->
+      <div class="sehir-section" data-cat="askeri">
+        <h3>⚔️ Askeri (Şehir)</h3>
+        <div class="gel-grid" id="grid-askeri-sehir"></div>
+      </div>
+
+      <!-- MANA -->
+      <div class="sehir-section" data-cat="mana">
+        <h3>🪄 Mana</h3>
+        <div class="gel-grid" id="grid-mana"></div>
+      </div>
+    </div>
+
+    <!-- BİRİM ASKERİ KOLONU -->
+    <div class="askeri-col">
+      <h3 style="margin-top:0">🛡️ Birim Yükseltmeleri</h3>
+      <p style="font-size:10px;color:#888;margin:0 0 8px;font-style:italic">Her birim için ATK ve DEF (max 10/sv)</p>
+      <div id="askeri-list"></div>
+    </div>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-box max"></div>Tam (10/10)</div>
+  <div class="legend-item"><div class="legend-box partial"></div>Geliştiriliyor</div>
+  <div class="legend-item"><div class="legend-box next"></div>Sıradaki (alabilir)</div>
+  <div class="legend-item"><div class="legend-box locked"></div>Çağ kilitli</div>
+</div>
+
+<script>
+// MOCK DATA — gerçek backend'den gelecek
+const SEHIR_GEL = {
+  kaynak: [
+    { id:'oduncu_gel',  isim:'Oduncu',     icon:'🌳', etki:'+%1 odun/sv', sev:7,  max:10, gerCag:4 },
+    { id:'madenci_gel', isim:'Madenci',    icon:'⛏️', etki:'+%1 metal/sv', sev:6, max:10, gerCag:3 },
+    { id:'ciftci_gel',  isim:'Çiftçi',     icon:'🌾', etki:'+%1 buğday/sv', sev:8, max:10, gerCag:4 },
+    { id:'balikci_gel', isim:'Balıkçı',    icon:'🎣', etki:'+%1 balık/sv', sev:5, max:10, gerCag:3 },
+    { id:'ticaret_gel', isim:'Ticaret',    icon:'💼', etki:'+%1 hammadde şansı', sev:3, max:10, gerCag:2 },
+  ],
+  isleme: [
+    { id:'kereste_gel', isim:'Kereste',    icon:'🪵', etki:'+%1 dönüşüm verimi', sev:10, max:10, gerCag:5 },
+    { id:'metal_gel',   isim:'Metal',      icon:'⚙️', etki:'+%1 işlenmiş verimi', sev:9, max:10, gerCag:5 },
+    { id:'firin_gel',   isim:'Fırın',      icon:'🍞', etki:'+%1 ekmek/pişmiş', sev:4, max:10, gerCag:2 },
+    { id:'et_gel',      isim:'Et İşleme',  icon:'🥩', etki:'+%1 pişmiş et', sev:2, max:10, gerCag:1 },
+  ],
+  ekonomi: [
+    { id:'vergi_gel',   isim:'Vergi Toleransı', icon:'💎', etki:'-%1 moral cezası', sev:6, max:10, gerCag:3 },
+    { id:'insaat_gel',  isim:'İnşaat Maliyeti', icon:'🏗️', etki:'-%1 bina maliyeti', sev:8, max:10, gerCag:4 },
+    { id:'essek_gel',   isim:'Eşşek Şansı',     icon:'🐴', etki:'+%0.1 spawn şansı', sev:1, max:10, gerCag:1 },
+  ],
+  askeri: [
+    { id:'ahir_gel',    isim:'Ahır',       icon:'🐎', etki:'+%1 at/kurt üretimi', sev:5, max:10, gerCag:3 },
+    { id:'lonca_gel',   isim:'Lonca',      icon:'🎯', etki:'+%1 gizlilik üretimi', sev:7, max:10, gerCag:4 },
+    { id:'buyulu_gel',  isim:'Büyülü Tarla', icon:'🥚', etki:'+%1 yumurta', sev:0, max:10, gerCag:1 },
+  ],
+  mana: [
+    { id:'mana_gel',    isim:'Mana Verimi', icon:'🔮', etki:'+%1 worshipper mana', sev:6, max:10, gerCag:3 },
+  ]
+};
+
+const BIRIM_ASKERI = [
+  { id:'piyade',      isim:'Piyade',      icon:'🛡️', atkSv:10, defSv:10 },
+  { id:'baltaci',     isim:'Baltacı',     icon:'🪓', atkSv:8,  defSv:9 },
+  { id:'okcu',        isim:'Okçu',        icon:'🏹', atkSv:9,  defSv:6 },
+  { id:'savasci',     isim:'Savaşçı',     icon:'⚔️', atkSv:7,  defSv:7 },
+  { id:'sovalye',     isim:'Şövalye',     icon:'🐎', atkSv:5,  defSv:6 },
+  { id:'suvari',      isim:'Süvari',      icon:'🏇', atkSv:4,  defSv:3 },
+  { id:'paladin',     isim:'Paladin',     icon:'✨', atkSv:3,  defSv:5 },
+  { id:'kolcu',       isim:'Kolcu',       icon:'🗡️', atkSv:2,  defSv:1 },
+  { id:'buyucu',      isim:'Büyücü',      icon:'🪄', atkSv:6,  defSv:2 },
+  { id:'isin_savasci',isim:'Işın S.',     icon:'🌟', atkSv:0,  defSv:0 },
+];
+
+const PLAYER_CAG = 5;
+
+function gerekenCag(sev) { return Math.ceil(sev / 2); }
+
+function renderGel(gel) {
+  const oran = gel.sev / gel.max;
+  let cls = '';
+  if (gel.sev >= gel.max) cls = 'max';
+  else if (gel.sev > 0) cls = 'partial';
+  else cls = 'next';
+  // Sonraki kademe için çağ yeterli mi?
+  const sonrakiSv = gel.sev + 1;
+  const gerCag = gerekenCag(sonrakiSv);
+  if (gerCag > PLAYER_CAG && gel.sev < gel.max) cls = 'locked';
+
+  const cost = `${5*sonrakiSv} GP · ${2*sonrakiSv} KP · ${100*sonrakiSv} işl.`;
+  return `
+    <div class="gel-node ${cls}" data-cat="${gel.id.includes('_gel') ? '' : ''}">
+      <span class="lvl">${gel.sev}/${gel.max}</span>
+      <span class="icon">${gel.icon}</span>
+      <div class="name">${gel.isim}</div>
+      <div class="progress"><div style="width:${oran*100}%"></div></div>
+      <div class="tooltip">
+        <div class="tooltip-title">${gel.icon} ${gel.isim}</div>
+        <div class="tooltip-etki">${gel.etki}</div>
+        ${gel.sev < gel.max ? `<div class="tooltip-cost">Sonraki (sv ${sonrakiSv}): ${cost}</div>` : ''}
+        ${gerCag > PLAYER_CAG ? `<div class="tooltip-cag">🔒 ${gerCag}. çağ gerekli</div>` : ''}
+        ${gel.sev >= gel.max ? `<div style="color:#2ecc71;margin-top:4px">✓ Tamamlandı</div>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+// Render
+for (const [kat, lst] of Object.entries(SEHIR_GEL)) {
+  const grid = document.getElementById('grid-' + (kat === 'askeri' ? 'askeri-sehir' : kat));
+  if (grid) grid.innerHTML = lst.map(renderGel).join('');
+}
+
+// Birim askeri
+const askeriHtml = BIRIM_ASKERI.map(u => `
+  <div class="unit-row">
+    <span class="uicon">${u.icon}</span>
+    <span class="uname">${u.isim}</span>
+    <span class="ust atk">⚔️ ${u.atkSv}/10</span>
+    <span class="ust def">🛡️ ${u.defSv}/10</span>
+  </div>
+`).join('');
+document.getElementById('askeri-list').innerHTML = askeriHtml;
+
+// Filter
+document.querySelectorAll('.fbtn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const kat = btn.dataset.cat;
+    document.querySelectorAll('.sehir-section').forEach(sec => {
+      sec.style.display = (kat === 'all' || sec.dataset.cat === kat) ? '' : 'none';
+    });
+  };
+});
+
+// SVG bağlantı çizgileri (Çağ → Şehir gel) — basit ok
+function drawConnections() {
+  const svg = document.getElementById('svg');
+  const treeWrap = document.getElementById('tree');
+  const treeRect = treeWrap.getBoundingClientRect();
+  svg.setAttribute('viewBox', `0 0 ${treeRect.width} ${treeRect.height}`);
+  svg.innerHTML = '';
+
+  // Aktif çağ → her sehir-section başlığına ok
+  const aktifCag = document.querySelector('.cag-node.active');
+  if (!aktifCag) return;
+  const cagR = aktifCag.getBoundingClientRect();
+  const startX = cagR.right - treeRect.left;
+  const startY = cagR.top + cagR.height/2 - treeRect.top;
+
+  document.querySelectorAll('.sehir-section h3').forEach(h => {
+    const r = h.getBoundingClientRect();
+    const endX = r.left - treeRect.left;
+    const endY = r.top + r.height/2 - treeRect.top;
+    const midX = (startX + endX) / 2;
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', `M ${startX} ${startY} C ${midX} ${startY}, ${midX} ${endY}, ${endX} ${endY}`);
+    path.setAttribute('stroke', 'rgba(212,175,55,.25)');
+    path.setAttribute('stroke-width', '1.5');
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke-dasharray', '4 4');
+    svg.appendChild(path);
+  });
+}
+window.addEventListener('load', drawConnections);
+window.addEventListener('resize', drawConnections);
+</script>
+
+</body>
+</html>
