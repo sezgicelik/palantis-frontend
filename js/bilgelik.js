@@ -255,6 +255,35 @@
       },
       cozum:['Sehir → Binalar → Firin (200 kap) veya Ocak (100 kap)','Pisirme orani: population.html → Ocak/Firin Pisirme Orani','Pismis 2x etkili: 100 ekmek = 200 kişi doyurur'] },
 
+    // v1.14.3.0: Hasarlı bina uyarısı (Sezgi: dayaniklilik takip)
+    { id:'hasarli_binalar', tier:'orta', tip:'warning',
+      kosul: s => {
+        try {
+          if (typeof BLDGS === 'undefined') return false;
+          var hasarli = 0;
+          for (var id in BLDGS) {
+            var b = BLDGS[id];
+            if (b && b.lv > 0 && typeof b._dayaniklilik === 'number' && b._dayaniklilik < 70) {
+              hasarli++;
+            }
+          }
+          return hasarli > 0;
+        } catch(e) { return false; }
+      },
+      mesaj: () => {
+        try {
+          var hasarli = [];
+          for (var id in BLDGS) {
+            var b = BLDGS[id];
+            if (b && b.lv > 0 && typeof b._dayaniklilik === 'number' && b._dayaniklilik < 70) {
+              hasarli.push((b.name || id) + ' (%' + b._dayaniklilik + ')');
+            }
+          }
+          return '🛡️ Hasarlı bina: ' + hasarli.slice(0, 5).join(', ') + (hasarli.length > 5 ? ` +${hasarli.length-5}` : '');
+        } catch(e) { return '🛡️ Bazı binaların dayanıklılığı düşük'; }
+      },
+      cozum: ['Sehir → Binalar → Tamir butonu (yeşil 🔧)','Toplu tamir: tamir-toplu admin endpoint','Dayanıklılık <%20 olunca yıkım şansı','Yeni inşa = ortalamayı yukarı çeker (saldırı sonrası bunu kullan)'] },
+
     // v1.14.2.9: GPS / Gelişim binalari kapsama (5 alan: egitim/bilgi/kultur/eglence/sehir)
     // Sezgi'nin yemek kapsama paterni — gelisim icin de aynisi
     { id:'gps_alan_yetersiz', tier:'orta', tip:'warning',

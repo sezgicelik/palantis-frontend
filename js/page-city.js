@@ -148,20 +148,29 @@ function renderBinaRow(grid, b, inQ, oyuncuCag) {
         <div class="br-desc">${b.desc}</div>
       </div>
       <div class="br-lv">${b.lv} adet</div>
-      ${b.lv > 0 && b._dayaniklilik !== undefined && b._dayaniklilik < 100 ?
-        `<div style="display:flex;align-items:center;gap:4px;margin:2px 0">
+      ${b.lv > 0 && b._dayaniklilik !== undefined ? (() => {
+        var d = b._dayaniklilik;
+        var renk = d > 60 ? '#2ecc71' : d > 30 ? '#f39c12' : '#e74c3c';
+        var lbl = d >= 100 ? '✓ Sağlam' : (d >= 60 ? 'İyi' : d >= 30 ? 'Hasarlı' : 'Kritik');
+        var tamirHtml = '';
+        if (d < 100) {
+          tamirHtml = b._repairQueue
+            ? `<span style="font-size:11px;padding:1px 6px;color:#f39c12;border:1px solid rgba(243,156,18,0.3);border-radius:3px;white-space:nowrap">🔧 Tamirde${b._repairGunKalan > 0 ? ' (' + fmtKalanSure(b._repairGunKalan * 3600) + ')' : ''}</span>`
+            : `<button style="font-size:11px;padding:1px 6px;background:rgba(46,204,113,0.15);border:1px solid rgba(46,204,113,0.3);color:#2ecc71;border-radius:3px;cursor:pointer;white-space:nowrap" onclick="tamirBina('${b.id}')">🔧 Tamir</button>`;
+        }
+        return `<div style="display:flex;align-items:center;gap:6px;margin:3px 0;font-size:11px">
+          <span style="color:#888;font-size:10px;min-width:64px">🛡️ Dayanıklılık</span>
           <div style="flex:1;height:6px;background:#1a1a1a;border-radius:3px;overflow:hidden">
-            <div style="width:${b._dayaniklilik}%;height:100%;background:${b._dayaniklilik > 60 ? '#2ecc71' : b._dayaniklilik > 30 ? '#f39c12' : '#e74c3c'};border-radius:3px"></div>
+            <div style="width:${d}%;height:100%;background:${renk};border-radius:3px"></div>
           </div>
-          <span style="font-size:11px;color:${b._dayaniklilik > 60 ? '#2ecc71' : b._dayaniklilik > 30 ? '#f39c12' : '#e74c3c'}">${b._dayaniklilik}%</span>
-          ${b._repairQueue
-            ? `<span style="font-size:11px;padding:1px 6px;color:#f39c12;border:1px solid rgba(243,156,18,0.3);border-radius:3px">🔧 Tamirde${b._repairGunKalan > 0 ? ' (' + fmtKalanSure(b._repairGunKalan * 3600) + ')' : ''}</span>`
-            : `<button style="font-size:11px;padding:1px 6px;background:rgba(46,204,113,0.15);border:1px solid rgba(46,204,113,0.3);color:#2ecc71;border-radius:3px;cursor:pointer" onclick="tamirBina('${b.id}')">🔧 Tamir</button>`}
-        </div>` : ''}
+          <span style="color:${renk};min-width:74px;text-align:right;font-weight:600">${d}% ${lbl}</span>
+          ${tamirHtml}
+        </div>`;
+      })() : ''}
       <div class="br-fx">${fx}</div>
       ${!isMergeOnly&&!inC?`<div class="br-cost">${costH}</div>`:'<div class="br-cost"></div>'}
       ${!isMergeOnly&&!inC?`<div class="br-time">\u23f1 ${fmtKalanSure(surePG * 3600)}</div>`:'<div class="br-time"></div>'}
-      <div class="br-act">${action}${mergeBtn}${b.lv>0 && !isMergeOnly ? `<button class="btn-sm" style="margin-top:4px;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.4);color:#e74c3c;font-size:10px" onclick="yikBina('${b.id}')" title="Bu binadan yık (alan geri döner, kaynak iadesi YOK)">\ud83d\udd28 YIK</button>` : ''}</div>
+      <div class="br-act" style="display:flex;flex-direction:column;gap:4px;align-items:stretch;min-width:120px">${action}${mergeBtn}${b.lv>0 && !isMergeOnly ? `<button class="btn-sm" style="background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.4);color:#e74c3c" onclick="yikBina('${b.id}')" title="Bu binadan yık (alan geri döner, kaynak iadesi YOK)">\ud83d\udd28 YIK</button>` : ''}</div>
       ${inC?`<div class="br-building-lbl">\ud83d\udd28 Insa ediliyor... <span id="bpct-${b.id}">\u2014</span></div><div class="br-prog"><div class="br-prog-fill" id="bfill-${b.id}" style="width:0%"></div></div>`:''}
     `;
     grid.appendChild(d);
