@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Kuyruk Widget Test — Anomaly Detection</title>
+<style>
+  body {
+    margin: 0; padding: 32px;
+    background: linear-gradient(180deg, #0a0604 0%, #1a140e 100%);
+    color: #f0e8d8;
+    font-family: 'Cinzel', 'Segoe UI', sans-serif;
+    min-height: 100vh;
+  }
+  h1 { color: #d4af37; }
+  button {
+    padding: 12px 18px;
+    background: #1a1410; border: 1px solid #c8a96e;
+    color: #c8a96e; border-radius: 6px; cursor: pointer;
+    font-family: inherit; margin: 6px;
+  }
+  button:hover { background: #c8a96e; color: #0a0604; }
+  .info { background: #1a1410; border: 1px solid #3a3020; padding: 14px; border-radius: 8px; margin-bottom: 20px; }
+  pre { background: #050402; padding: 12px; border-radius: 6px; font-size: 11px; }
+</style>
+</head>
+<body>
+
+<h1>⏳ Kuyruk Widget Anomaly Test (Self-Contained)</h1>
+
+<div class="info">
+  <p>Widget'ın yeni özellikleri:</p>
+  <ul>
+    <li>Header altında <b>kategori breakdown</b> gösterimi (🏗️ 5 · ⚔️ 12 · ✨ 612 ⚠)</li>
+    <li>Bir kategori &gt; 50 ise <b>kırmızı + ⚠</b> ile anomali işaretlemesi</li>
+    <li>Toplam &gt; 100 ise <b>console.warn</b> ile detaylı log</li>
+  </ul>
+</div>
+
+<button onclick="testNormal()">📋 Normal (toplam ~15)</button>
+<button onclick="testAnomalyBuyu()">⚠ Anomali: Büyü 612</button>
+<button onclick="testAnomalyTraining()">⚠ İki Anomali</button>
+<button onclick="testEmpty()">🌀 Boş kuyruk</button>
+
+<h3>Test Mesajı:</h3>
+<pre id="status">Bir butona bas.</pre>
+
+<h3>Console Çıktısı:</h3>
+<pre id="console-out" style="min-height:60px"></pre>
+
+<!-- Widget HTML -->
+<div id="kuyruk-widget" style="position:fixed;bottom:10px;right:10px;width:300px;background:linear-gradient(180deg,#1a140a,#120c06);border:1px solid #c8a96e;border-radius:8px;box-shadow:0 6px 25px rgba(0,0,0,0.75);z-index:9998;font-family:Cinzel,serif;color:#f0e8d8;flex-direction:column;display:flex">
+  <div style="padding:8px 12px;border-bottom:1px solid #3a3020;background:#0f0a06;border-radius:8px 8px 0 0">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="color:#c8a96e;font-size:12px;font-weight:bold">⏳ Kuyruğum <span id="kuyruk-toplam" style="color:#d4af37">0</span></span>
+      <div style="display:flex;gap:2px">
+        <button style="background:none;border:1px solid #3a3020;color:#888;font-size:14px;cursor:pointer;width:24px;height:22px;border-radius:3px">−</button>
+        <button style="background:none;border:1px solid #3a3020;color:#888;font-size:14px;cursor:pointer;width:24px;height:22px;border-radius:3px">✕</button>
+      </div>
+    </div>
+    <div id="kuyruk-breakdown" style="font-size:10px;color:#888;margin-top:4px;letter-spacing:0.5px;display:flex;flex-wrap:wrap;gap:4px"></div>
+  </div>
+  <div id="kuyruk-icerik" style="max-height:55vh;overflow-y:auto;padding:4px 12px;font-size:11px"></div>
+</div>
+
+<script>
+// Override console.warn to display in pre
+const origWarn = console.warn;
+console.warn = function(){
+  const args = Array.from(arguments).map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
+  document.getElementById('console-out').textContent += args + '\n';
+  origWarn.apply(console, arguments);
+};
+
+// Inline render — same logic as layout.js renderKuyrukWidget
+function renderKuyrukWidget(d) {
+  const kisiselCats = ['bina','tamir','unite','kervan','ordu','casus','buyu','ws'];
+  const KAT_ICON = { bina:'🏗️', tamir:'🔧', unite:'⚔️', kervan:'🐪', ordu:'🛡️', casus:'🕵️', buyu:'✨', ws:'🙏' };
+  let toplam = 0;
+  const breakdown = [];
+  for (const k of kisiselCats) {
+    const len = ((d.kategoriler||{})[k]||[]).length;
+    toplam += len;
+    if (len > 0) breakdown.push({ k, len });
+  }
+
+  if (toplam > 100) {
+    console.warn('[KUYRUK ANOMALI] Toplam:', toplam, '— Kategori dagilimi:',
+      breakdown.map(b => b.k + '=' + b.len).join(', '));
+  }
+
+  document.getElementById('kuyruk-toplam').textContent = toplam;
+
+  const breakdownEl = document.getElementById('kuyruk-breakdown');
+  if (breakdown.length === 0) {
+    breakdownEl.innerHTML = '';
+  } else {
+    breakdownEl.innerHTML = breakdown.map(b => {
+      const isAnomaly = b.len > 50;
+      const color = isAnomaly ? '#e74c3c' : '#888';
+      const warn = isAnomaly ? ' ⚠' : '';
+      return '<span style="color:' + color + '" title="' + b.k + ': ' + b.len + ' satir">' + (KAT_ICON[b.k]||'') + b.len + warn + '</span>';
+    }).join(' · ');
+  }
+
+  // Item list
+  const cats = [
+    { key:'bina',   label:'🏗️ Binalar' },
+    { key:'tamir',  label:'🔧 Tamir' },
+    { key:'unite',  label:'⚔️ Üniteler' },
+    { key:'kervan', label:'🐪 Kervan' },
+    { key:'ordu',   label:'🛡️ Ordu' },
+    { key:'casus',  label:'🕵️ Casus' },
+    { key:'buyu',   label:'✨ Büyü' },
+    { key:'ws',     label:'🙏 WS' }
+  ];
+  let html = '';
+  for (const c of cats) {
+    const liste = (d.kategoriler || {})[c.key] || [];
+    if (liste.length === 0) continue;
+    html += '<div style="padding:6px 0;border-bottom:1px solid rgba(200,169,110,0.1)">';
+    html += '<div style="color:#c8a96e;font-size:11px;font-weight:bold">' + c.label + ' (' + liste.length + ')</div>';
+    html += '</div>';
+  }
+  if (!html) html = '<div style="color:#555;text-align:center;padding:20px">Bekleyen iş yok.</div>';
+  document.getElementById('kuyruk-icerik').innerHTML = html;
+}
+
+function makeRows(n) {
+  const a = []; for (let i = 1; i <= n; i++) a.push({ ad: 'Item' + i });
+  return a;
+}
+
+function testNormal() {
+  document.getElementById('console-out').textContent = '';
+  renderKuyrukWidget({ kategoriler: {
+    bina: makeRows(5), tamir: makeRows(2), unite: makeRows(3),
+    kervan: makeRows(2), ordu: makeRows(1), casus: [], buyu: makeRows(2), ws: []
+  }});
+  document.getElementById('status').innerText = 'Toplam ~15 — anomali yok, breakdown gri.';
+}
+
+function testAnomalyBuyu() {
+  document.getElementById('console-out').textContent = '';
+  renderKuyrukWidget({ kategoriler: {
+    bina: makeRows(5), tamir: [], unite: makeRows(8),
+    kervan: makeRows(2), ordu: makeRows(1), casus: [], buyu: makeRows(612), ws: []
+  }});
+  document.getElementById('status').innerText = 'Toplam 628. Büyü 612 — kırmızı ⚠ olmalı.';
+}
+
+function testAnomalyTraining() {
+  document.getElementById('console-out').textContent = '';
+  renderKuyrukWidget({ kategoriler: {
+    bina: makeRows(2), tamir: [], unite: makeRows(80),
+    kervan: [], ordu: [], casus: [], buyu: makeRows(200), ws: []
+  }});
+  document.getElementById('status').innerText = 'İki anomali — Üniteler 80 + Büyü 200.';
+}
+
+function testEmpty() {
+  document.getElementById('console-out').textContent = '';
+  renderKuyrukWidget({ kategoriler: {} });
+  document.getElementById('status').innerText = 'Boş kuyruk — breakdown gizli.';
+}
+
+testNormal();
+</script>
+
+</body>
+</html>

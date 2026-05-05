@@ -1132,8 +1132,11 @@
 
     var style = document.createElement('style');
     style.textContent = `
+      /* Bilgelik FAB — kuyruk widget'in UZERINE konumlanmis (cakismayi onlemek icin)
+         Mobile: bottom navigation (~64px) + kuyruk acici (~46px) + bosluk = ~140px
+         Desktop: kuyruk acici (~46px) + bosluk = ~70px */
       #bk-fab {
-        position: fixed; right: 16px; bottom: 80px; z-index: 9997;
+        position: fixed; right: 16px; bottom: 140px; z-index: 9997;
         width: 52px; height: 52px; border-radius: 50%;
         background: linear-gradient(135deg, #d4af37, #b08f4d);
         border: 2px solid #5a4a2a; cursor: pointer;
@@ -1149,7 +1152,7 @@
         padding: 2px 6px; border-radius: 10px; min-width: 18px;
         text-align: center; border: 2px solid #050505;
       }
-      @media (min-width: 769px) { #bk-fab { bottom: 16px; } }
+      @media (min-width: 769px) { #bk-fab { bottom: 70px; } }
 
       #bk-panel {
         position: fixed; right: 0; top: 0; bottom: 0;

@@ -316,35 +316,38 @@
 </div>
 
 <script>
-// MOCK DATA — gerçek backend'den gelecek
+// MOCK DATA — gerçek backend'den gelecek (prereq ile)
 const SEHIR_GEL = {
   kaynak: [
-    { id:'oduncu_gel',  isim:'Oduncu',     icon:'🌳', etki:'+%1 odun/sv', sev:7,  max:10, gerCag:4 },
-    { id:'madenci_gel', isim:'Madenci',    icon:'⛏️', etki:'+%1 metal/sv', sev:6, max:10, gerCag:3 },
-    { id:'ciftci_gel',  isim:'Çiftçi',     icon:'🌾', etki:'+%1 buğday/sv', sev:8, max:10, gerCag:4 },
-    { id:'balikci_gel', isim:'Balıkçı',    icon:'🎣', etki:'+%1 balık/sv', sev:5, max:10, gerCag:3 },
-    { id:'ticaret_gel', isim:'Ticaret',    icon:'💼', etki:'+%1 hammadde şansı', sev:3, max:10, gerCag:2 },
+    { id:'oduncu_gel',  isim:'Oduncu',     icon:'🌳', etki:'+%1 odun/sv', sev:7,  max:10, gerCag:4, prereq:[] },
+    { id:'madenci_gel', isim:'Madenci',    icon:'⛏️', etki:'+%1 metal/sv', sev:6, max:10, gerCag:3, prereq:[] },
+    { id:'ciftci_gel',  isim:'Çiftçi',     icon:'🌾', etki:'+%1 buğday/sv', sev:8, max:10, gerCag:4, prereq:[] },
+    { id:'balikci_gel', isim:'Balıkçı',    icon:'🎣', etki:'+%1 balık/sv', sev:5, max:10, gerCag:3, prereq:[] },
+    { id:'ticaret_gel', isim:'Ticaret',    icon:'💼', etki:'+%1 hammadde şansı', sev:3, max:10, gerCag:2, prereq:[] },
   ],
   isleme: [
-    { id:'kereste_gel', isim:'Kereste',    icon:'🪵', etki:'+%1 dönüşüm verimi', sev:10, max:10, gerCag:5 },
-    { id:'metal_gel',   isim:'Metal',      icon:'⚙️', etki:'+%1 işlenmiş verimi', sev:9, max:10, gerCag:5 },
-    { id:'firin_gel',   isim:'Fırın',      icon:'🍞', etki:'+%1 ekmek/pişmiş', sev:4, max:10, gerCag:2 },
-    { id:'et_gel',      isim:'Et İşleme',  icon:'🥩', etki:'+%1 pişmiş et', sev:2, max:10, gerCag:1 },
+    { id:'kereste_gel', isim:'Kereste',    icon:'🪵', etki:'+%1 dönüşüm verimi', sev:10, max:10, gerCag:5, prereq:['oduncu_gel'] },
+    { id:'metal_gel',   isim:'Metal',      icon:'⚙️', etki:'+%1 işlenmiş verimi', sev:9, max:10, gerCag:5, prereq:['madenci_gel'] },
+    { id:'firin_gel',   isim:'Fırın',      icon:'🍞', etki:'+%1 ekmek/pişmiş', sev:4, max:10, gerCag:2, prereq:['ciftci_gel'] },
+    { id:'et_gel',      isim:'Et İşleme',  icon:'🥩', etki:'+%1 pişmiş et', sev:2, max:10, gerCag:1, prereq:['ciftci_gel'] },
   ],
   ekonomi: [
-    { id:'vergi_gel',   isim:'Vergi Toleransı', icon:'💎', etki:'-%1 moral cezası', sev:6, max:10, gerCag:3 },
-    { id:'insaat_gel',  isim:'İnşaat Maliyeti', icon:'🏗️', etki:'-%1 bina maliyeti', sev:8, max:10, gerCag:4 },
-    { id:'essek_gel',   isim:'Eşşek Şansı',     icon:'🐴', etki:'+%0.1 spawn şansı', sev:1, max:10, gerCag:1 },
+    { id:'vergi_gel',   isim:'Vergi Toleransı', icon:'💎', etki:'-%1 moral cezası', sev:6, max:10, gerCag:3, prereq:[] },
+    { id:'insaat_gel',  isim:'İnşaat Maliyeti', icon:'🏗️', etki:'-%1 bina maliyeti', sev:8, max:10, gerCag:4, prereq:[] },
+    { id:'essek_gel',   isim:'Eşek Üretimi',     icon:'🐴', etki:'+%1 eşek üretim hızı', sev:1, max:10, gerCag:1, prereq:[] },
   ],
   askeri: [
-    { id:'ahir_gel',    isim:'Ahır',       icon:'🐎', etki:'+%1 at/kurt üretimi', sev:5, max:10, gerCag:3 },
-    { id:'lonca_gel',   isim:'Lonca',      icon:'🎯', etki:'+%1 gizlilik üretimi', sev:7, max:10, gerCag:4 },
-    { id:'buyulu_gel',  isim:'Büyülü Tarla', icon:'🥚', etki:'+%1 yumurta', sev:0, max:10, gerCag:1 },
+    { id:'ahir_gel',    isim:'Ahır',       icon:'🐎', etki:'+%1 at/kurt üretimi', sev:5, max:10, gerCag:3, prereq:[] },
+    { id:'lonca_gel',   isim:'Lonca',      icon:'🎯', etki:'+%1 gizlilik üretimi', sev:7, max:10, gerCag:4, prereq:[] },
+    { id:'buyulu_gel',  isim:'Büyülü Tarla', icon:'🥚', etki:'+%1 yumurta', sev:0, max:10, gerCag:1, prereq:['lonca_gel'] },
   ],
   mana: [
-    { id:'mana_gel',    isim:'Mana Verimi', icon:'🔮', etki:'+%1 worshipper mana', sev:6, max:10, gerCag:3 },
+    { id:'mana_gel',    isim:'Mana Verimi', icon:'🔮', etki:'+%1 worshipper mana', sev:6, max:10, gerCag:3, prereq:['ahir_gel'] },
   ]
 };
+
+// Tüm SEHIR_GEL'i flat listeye çevir (prereq lookup için)
+const ALL_GEL = Object.values(SEHIR_GEL).flat();
 
 const BIRIM_ASKERI = [
   { id:'piyade',      isim:'Piyade',      icon:'🛡️', atkSv:10, defSv:10 },
@@ -363,20 +366,34 @@ const PLAYER_CAG = 5;
 
 function gerekenCag(sev) { return Math.ceil(sev / 2); }
 
+function prereqEksik(gel) {
+  if (!gel.prereq || !gel.prereq.length) return [];
+  return gel.prereq.filter(pid => {
+    const p = ALL_GEL.find(x => x.id === pid);
+    return !p || p.sev < 1;
+  });
+}
+
 function renderGel(gel) {
   const oran = gel.sev / gel.max;
+  const eksik = prereqEksik(gel);
   let cls = '';
   if (gel.sev >= gel.max) cls = 'max';
   else if (gel.sev > 0) cls = 'partial';
   else cls = 'next';
-  // Sonraki kademe için çağ yeterli mi?
   const sonrakiSv = gel.sev + 1;
   const gerCag = gerekenCag(sonrakiSv);
   if (gerCag > PLAYER_CAG && gel.sev < gel.max) cls = 'locked';
+  if (eksik.length && gel.sev < 1) cls = 'locked';
 
   const cost = `${5*sonrakiSv} GP · ${2*sonrakiSv} KP · ${100*sonrakiSv} işl.`;
+  const prereqIsimler = (gel.prereq || []).map(pid => {
+    const p = ALL_GEL.find(x => x.id === pid);
+    return p ? p.isim : pid;
+  }).join(', ');
+
   return `
-    <div class="gel-node ${cls}" data-cat="${gel.id.includes('_gel') ? '' : ''}">
+    <div class="gel-node ${cls}" data-id="${gel.id}">
       <span class="lvl">${gel.sev}/${gel.max}</span>
       <span class="icon">${gel.icon}</span>
       <div class="name">${gel.isim}</div>
@@ -386,6 +403,7 @@ function renderGel(gel) {
         <div class="tooltip-etki">${gel.etki}</div>
         ${gel.sev < gel.max ? `<div class="tooltip-cost">Sonraki (sv ${sonrakiSv}): ${cost}</div>` : ''}
         ${gerCag > PLAYER_CAG ? `<div class="tooltip-cag">🔒 ${gerCag}. çağ gerekli</div>` : ''}
+        ${prereqIsimler ? `<div style="color:${eksik.length?'#e74c3c':'#7fbf3f'};margin-top:4px;font-size:10px">⚙ Önkoşul: ${prereqIsimler}${eksik.length?' (eksik)':' ✓'}</div>` : ''}
         ${gel.sev >= gel.max ? `<div style="color:#2ecc71;margin-top:4px">✓ Tamamlandı</div>` : ''}
       </div>
     </div>
@@ -421,7 +439,7 @@ document.querySelectorAll('.fbtn').forEach(btn => {
   };
 });
 
-// SVG bağlantı çizgileri (Çağ → Şehir gel) — basit ok
+// SVG bağlantı çizgileri — Çağ→Section + Prereq→Node
 function drawConnections() {
   const svg = document.getElementById('svg');
   const treeWrap = document.getElementById('tree');
@@ -429,26 +447,80 @@ function drawConnections() {
   svg.setAttribute('viewBox', `0 0 ${treeRect.width} ${treeRect.height}`);
   svg.innerHTML = '';
 
-  // Aktif çağ → her sehir-section başlığına ok
-  const aktifCag = document.querySelector('.cag-node.active');
-  if (!aktifCag) return;
-  const cagR = aktifCag.getBoundingClientRect();
-  const startX = cagR.right - treeRect.left;
-  const startY = cagR.top + cagR.height/2 - treeRect.top;
+  // Defs (gradient + glow)
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  defs.innerHTML = `
+    <linearGradient id="prereqActive" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#d4af37" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#2ecc71" stop-opacity="0.85"/>
+    </linearGradient>
+    <filter id="glow1"><feGaussianBlur stdDeviation="1.5"/></filter>
+  `;
+  svg.appendChild(defs);
 
-  document.querySelectorAll('.sehir-section h3').forEach(h => {
-    const r = h.getBoundingClientRect();
-    const endX = r.left - treeRect.left;
-    const endY = r.top + r.height/2 - treeRect.top;
-    const midX = (startX + endX) / 2;
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('d', `M ${startX} ${startY} C ${midX} ${startY}, ${midX} ${endY}, ${endX} ${endY}`);
-    path.setAttribute('stroke', 'rgba(212,175,55,.25)');
-    path.setAttribute('stroke-width', '1.5');
-    path.setAttribute('fill', 'none');
-    path.setAttribute('stroke-dasharray', '4 4');
-    svg.appendChild(path);
-  });
+  // 1) Aktif çağ → her sehir-section başlığına ok
+  const aktifCag = document.querySelector('.cag-node.active');
+  if (aktifCag) {
+    const cagR = aktifCag.getBoundingClientRect();
+    const startX = cagR.right - treeRect.left;
+    const startY = cagR.top + cagR.height/2 - treeRect.top;
+
+    document.querySelectorAll('.sehir-section h3').forEach(h => {
+      const r = h.getBoundingClientRect();
+      const endX = r.left - treeRect.left;
+      const endY = r.top + r.height/2 - treeRect.top;
+      const midX = (startX + endX) / 2;
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', `M ${startX} ${startY} C ${midX} ${startY}, ${midX} ${endY}, ${endX} ${endY}`);
+      path.setAttribute('stroke', 'rgba(212,175,55,.25)');
+      path.setAttribute('stroke-width', '1.5');
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke-dasharray', '4 4');
+      svg.appendChild(path);
+    });
+  }
+
+  // 2) Prereq oklari (parent gel → child gel)
+  for (const gel of ALL_GEL) {
+    if (!gel.prereq || !gel.prereq.length) continue;
+    const childEl = document.querySelector(`.gel-node[data-id="${gel.id}"]`);
+    if (!childEl) continue;
+    const cR = childEl.getBoundingClientRect();
+    const cx = cR.left + cR.width/2 - treeRect.left;
+    const cy = cR.top - treeRect.top;
+
+    for (const pid of gel.prereq) {
+      const parentEl = document.querySelector(`.gel-node[data-id="${pid}"]`);
+      if (!parentEl) continue;
+      const pR = parentEl.getBoundingClientRect();
+      const px = pR.left + pR.width/2 - treeRect.left;
+      const py = pR.bottom - treeRect.top;
+
+      const parent = ALL_GEL.find(x => x.id === pid);
+      const active = parent && parent.sev >= 1;
+
+      // Bezier curve
+      const dy = cy - py;
+      const c1x = px, c1y = py + dy * 0.5;
+      const c2x = cx, c2y = py + dy * 0.5;
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', `M ${px} ${py} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${cx} ${cy}`);
+      path.setAttribute('stroke', active ? 'url(#prereqActive)' : 'rgba(120,80,40,0.4)');
+      path.setAttribute('stroke-width', active ? '2' : '1');
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke-dasharray', active ? '0' : '3 5');
+      if (active) path.setAttribute('filter', 'url(#glow1)');
+      svg.appendChild(path);
+
+      // Arrow head at child
+      const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      arrow.setAttribute('cx', cx);
+      arrow.setAttribute('cy', cy);
+      arrow.setAttribute('r', 3);
+      arrow.setAttribute('fill', active ? '#2ecc71' : '#5a4a30');
+      svg.appendChild(arrow);
+    }
+  }
 }
 window.addEventListener('load', drawConnections);
 window.addEventListener('resize', drawConnections);

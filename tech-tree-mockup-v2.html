@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Noxara — Tech Tree v2 (Cyberpunk)</title>
+<style>
+  /* ============ CYBERPUNK PALETTE ============ */
+  :root {
+    --bg-0: #05060d;
+    --bg-1: #0a0e1a;
+    --bg-2: #111729;
+    --grid: rgba(0, 200, 255, 0.04);
+    --neon-cyan: #00e5ff;
+    --neon-pink: #ff2bc6;
+    --neon-amber: #ffb000;
+    --neon-lime: #aaff00;
+    --neon-violet: #b545ff;
+    --neon-red: #ff3355;
+    --txt: #d8e6ff;
+    --dim: #6a7a99;
+    --line-dim: rgba(120,150,200,0.18);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(0,229,255,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 90%, rgba(255,43,198,0.05) 0%, transparent 50%),
+      var(--bg-0);
+    color: var(--txt);
+    font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    padding: 14px;
+    background-attachment: fixed;
+  }
+  /* Faint grid overlay */
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  h1 {
+    font-family: 'Orbitron', 'Cinzel', sans-serif;
+    color: var(--neon-cyan);
+    text-align: center;
+    margin: 4px 0 6px;
+    letter-spacing: 6px;
+    font-size: 22px;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px rgba(0,229,255,0.6), 0 0 22px rgba(0,229,255,0.25);
+    position: relative; z-index: 1;
+  }
+  .subtitle {
+    text-align: center; color: var(--dim);
+    font-size: 11px; letter-spacing: 3px;
+    margin-bottom: 16px; text-transform: uppercase;
+    position: relative; z-index: 1;
+  }
+
+  /* ============ TOP BAR / FILTERS ============ */
+  .topbar {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    justify-content: center; align-items: center;
+    margin-bottom: 14px; position: relative; z-index: 1;
+  }
+  .cag-pill {
+    padding: 7px 16px;
+    background: rgba(10,14,26,0.85);
+    border: 1px solid var(--neon-cyan);
+    color: var(--neon-cyan);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px; letter-spacing: 2px;
+    text-transform: uppercase; cursor: pointer;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    transition: all .15s;
+  }
+  .cag-pill.active {
+    background: var(--neon-cyan); color: var(--bg-0);
+    box-shadow: 0 0 16px rgba(0,229,255,0.5);
+  }
+  .cag-pill:hover:not(.active) {
+    background: rgba(0,229,255,0.1);
+    box-shadow: 0 0 12px rgba(0,229,255,0.3);
+  }
+
+  .branch-legend {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    justify-content: center; margin-bottom: 10px;
+    font-size: 10px; letter-spacing: 1px;
+    position: relative; z-index: 1;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 5px;
+    padding: 3px 8px;
+    background: rgba(15,20,35,0.6); border-radius: 3px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 0 6px currentColor; }
+
+  /* ============ TREE CANVAS ============ */
+  .tree-canvas {
+    position: relative;
+    max-width: 1600px;
+    margin: 0 auto;
+    background:
+      linear-gradient(180deg, rgba(10,14,26,0.6) 0%, rgba(5,6,13,0.9) 100%);
+    border: 1px solid rgba(0,229,255,0.2);
+    border-radius: 4px;
+    padding: 28px 24px;
+    overflow: visible;
+    box-shadow:
+      0 0 40px rgba(0,229,255,0.08),
+      inset 0 0 80px rgba(0,0,0,0.5);
+    z-index: 1;
+  }
+  /* Corner brackets */
+  .tree-canvas::before, .tree-canvas::after {
+    content: ''; position: absolute;
+    width: 24px; height: 24px;
+    border: 2px solid var(--neon-cyan);
+    pointer-events: none;
+  }
+  .tree-canvas::before { top: -2px; left: -2px; border-right: none; border-bottom: none; }
+  .tree-canvas::after  { bottom: -2px; right: -2px; border-left: none; border-top: none; }
+
+  .conn-svg {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none; z-index: 1;
+  }
+
+  /* ============ TIER ROWS ============ */
+  .tier-row {
+    position: relative; z-index: 2;
+    display: grid; grid-template-columns: 110px 1fr;
+    gap: 14px; align-items: start;
+    margin-bottom: 22px; min-height: 90px;
+  }
+  .tier-label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px; letter-spacing: 2px;
+    color: var(--neon-amber);
+    text-align: right; padding-top: 28px; padding-right: 8px;
+    border-right: 1px solid rgba(255,176,0,0.25);
+    text-transform: uppercase;
+    position: sticky; top: 0;
+  }
+  .tier-label small {
+    display: block; font-size: 9px;
+    color: var(--dim); letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  .tier-nodes {
+    display: flex; flex-wrap: wrap; gap: 14px;
+    align-items: flex-start;
+  }
+
+  /* ============ HEX NODE ============ */
+  .node {
+    position: relative;
+    width: 92px; min-height: 100px;
+    cursor: pointer;
+    transition: transform .15s;
+  }
+  .node:hover { transform: translateY(-2px); }
+
+  .hex {
+    position: relative;
+    width: 84px; height: 96px;
+    margin: 0 auto;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    background: var(--bg-2);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: all .2s;
+  }
+  .hex-inner {
+    width: 78px; height: 90px;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    background: linear-gradient(160deg, var(--bg-1) 0%, #060912 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 3px;
+  }
+  .hex-icon { font-size: 24px; line-height: 1; filter: drop-shadow(0 0 6px currentColor); }
+  .hex-lv {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--txt);
+  }
+  .hex-lv .max { color: var(--neon-lime); }
+  .hex-lv .lock { color: var(--dim); }
+
+  .node-name {
+    text-align: center;
+    font-size: 10px; letter-spacing: 0.5px;
+    color: var(--txt); margin-top: 5px;
+    line-height: 1.15;
+    height: 24px;
+    overflow: hidden;
+  }
+
+  /* States */
+  .node.state-locked .hex { background: rgba(40,50,70,0.4); }
+  .node.state-locked .hex-inner { background: linear-gradient(160deg, #0d1220 0%, #060810 100%); opacity: 0.55; }
+  .node.state-locked .hex-icon { filter: grayscale(1); opacity: 0.5; }
+  .node.state-locked .node-name { color: var(--dim); }
+
+  .node.state-available .hex { background: var(--neon-cyan); box-shadow: 0 0 14px rgba(0,229,255,0.6); }
+  .node.state-available .hex-icon { color: var(--neon-cyan); }
+
+  .node.state-progress .hex { background: var(--neon-amber); box-shadow: 0 0 14px rgba(255,176,0,0.55); }
+  .node.state-progress .hex-icon { color: var(--neon-amber); }
+
+  .node.state-max .hex { background: var(--neon-lime); box-shadow: 0 0 18px rgba(170,255,0,0.6); }
+  .node.state-max .hex-icon { color: var(--neon-lime); }
+  .node.state-max .hex-inner::after {
+    content: '✓'; position: absolute; top: 4px; right: 8px;
+    font-size: 10px; color: var(--neon-lime);
+  }
+
+  /* Branch tint ring (outermost hex tint by branch color) */
+  .node[data-branch="kaynak"] .hex      { background: var(--neon-cyan); }
+  .node[data-branch="isleme"] .hex      { background: var(--neon-amber); }
+  .node[data-branch="nufus"] .hex       { background: var(--neon-lime); }
+  .node[data-branch="askeri"] .hex      { background: var(--neon-red); }
+  .node[data-branch="ekonomi"] .hex     { background: var(--neon-violet); }
+  .node[data-branch="kultur"] .hex      { background: var(--neon-pink); }
+  .node[data-branch="sehir"] .hex       { background: #ff8c00; }
+  .node[data-branch="lojistik"] .hex    { background: #00ffaa; }
+  .node[data-branch="askeri-unit"] .hex { background: #ff5577; }
+
+  .node.state-locked[data-branch] .hex {
+    background: rgba(40,50,70,0.4) !important;
+    box-shadow: none !important;
+  }
+
+  /* Tier number badge top-left of hex */
+  .tier-badge {
+    position: absolute; top: 0; left: 4px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 9px; color: var(--neon-cyan);
+    background: var(--bg-0);
+    padding: 1px 5px;
+    border: 1px solid var(--neon-cyan);
+    border-radius: 2px;
+    z-index: 4;
+  }
+  .node.state-locked .tier-badge { color: var(--dim); border-color: var(--dim); }
+
+  /* ============ TOOLTIP ============ */
+  .tooltip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%; transform: translateX(-50%);
+    width: 240px;
+    background: rgba(5,8,15,0.97);
+    border: 1px solid var(--neon-cyan);
+    border-radius: 3px;
+    padding: 10px 12px;
+    font-size: 11px; line-height: 1.45;
+    pointer-events: none;
+    opacity: 0; visibility: hidden;
+    transition: opacity .15s;
+    z-index: 100;
+    box-shadow: 0 0 20px rgba(0,229,255,0.3), 0 6px 18px rgba(0,0,0,0.6);
+  }
+  .tooltip::before {
+    content: ''; position: absolute; top: 100%; left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--neon-cyan);
+  }
+  .node:hover .tooltip { opacity: 1; visibility: visible; }
+
+  .tt-title {
+    font-family: 'Orbitron', sans-serif;
+    color: var(--neon-cyan);
+    font-size: 12px; letter-spacing: 1px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .tt-effect { color: var(--txt); margin-bottom: 6px; }
+  .tt-row { display: flex; justify-content: space-between; padding: 2px 0; }
+  .tt-label { color: var(--dim); }
+  .tt-val { color: var(--neon-amber); font-family: 'Orbitron', sans-serif; }
+  .tt-prereq {
+    margin-top: 6px; padding-top: 6px;
+    border-top: 1px solid rgba(0,229,255,0.2);
+    font-size: 10px; color: var(--neon-pink);
+  }
+  .tt-cost {
+    margin-top: 6px; padding-top: 6px;
+    border-top: 1px solid rgba(0,229,255,0.2);
+    color: var(--dim); font-size: 10px;
+  }
+
+  /* ============ SECTION DIVIDERS ============ */
+  .section-header {
+    grid-column: 1 / -1;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px; letter-spacing: 4px;
+    color: var(--neon-pink);
+    text-transform: uppercase;
+    text-align: left;
+    padding: 14px 0 8px 14px;
+    border-bottom: 1px dashed rgba(255,43,198,0.3);
+    margin-bottom: 14px;
+    text-shadow: 0 0 8px rgba(255,43,198,0.4);
+  }
+  .section-header span { color: var(--dim); font-size: 10px; margin-left: 12px; letter-spacing: 1px; }
+
+  /* Mobile */
+  @media (max-width: 760px) {
+    .tier-row { grid-template-columns: 60px 1fr; gap: 6px; }
+    .tier-label { font-size: 9px; padding-top: 18px; }
+    .node { width: 70px; min-height: 86px; }
+    .hex { width: 64px; height: 74px; }
+    .hex-inner { width: 60px; height: 70px; }
+    .hex-icon { font-size: 18px; }
+    .hex-lv { font-size: 10px; }
+    .node-name { font-size: 9px; height: 22px; }
+    .tooltip { width: 200px; }
+  }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<h1>NOXARA // TECH TREE</h1>
+<div class="subtitle">Aydınlatma Matrisi v2.0 — Bilgelik Devresi</div>
+
+<div class="topbar">
+  <button class="cag-pill" data-cag="1">Çağ 1</button>
+  <button class="cag-pill active" data-cag="2">Çağ 2</button>
+  <button class="cag-pill" data-cag="3">Çağ 3</button>
+  <button class="cag-pill" data-cag="4">Çağ 4</button>
+  <button class="cag-pill" data-cag="5">Çağ 5</button>
+</div>
+
+<div class="branch-legend">
+  <div class="legend-item"><span class="legend-dot" style="background:var(--neon-cyan); color:var(--neon-cyan)"></span>Kaynak</div>
+  <div class="legend-item"><span class="legend-dot" style="background:var(--neon-amber); color:var(--neon-amber)"></span>İşleme</div>
+  <div class="legend-item"><span class="legend-dot" style="background:var(--neon-lime); color:var(--neon-lime)"></span>Nüfus</div>
+  <div class="legend-item"><span class="legend-dot" style="background:var(--neon-red); color:var(--neon-red)"></span>Askeri Yapı</div>
+  <div class="legend-item"><span class="legend-dot" style="background:var(--neon-violet); color:var(--neon-violet)"></span>Ekonomi</div>
+  <div class="legend-item"><span class="legend-dot" style="background:var(--neon-pink); color:var(--neon-pink)"></span>Kültür/GPS</div>
+  <div class="legend-item"><span class="legend-dot" style="background:#ff8c00; color:#ff8c00"></span>Şehir</div>
+  <div class="legend-item"><span class="legend-dot" style="background:#00ffaa; color:#00ffaa"></span>Lojistik</div>
+  <div class="legend-item"><span class="legend-dot" style="background:#ff5577; color:#ff5577"></span>Birim</div>
+</div>
+
+<div class="tree-canvas" id="canvas">
+  <svg class="conn-svg" id="connSvg"></svg>
+  <div id="tree"></div>
+</div>
+
+<script>
+/* ===========================================================
+   DATA — All 45 SEHIR_GEL + Unit ATK/DEF + Prerequisites
+   =========================================================== */
+const NODES = [
+  // ==== KAYNAK BRANCH (cyan) ====
+  { id:'oduncu_gel',   isim:'Oduncu',          icon:'🪓', branch:'kaynak',  tier:1, lv:3, max:10, etki:'Oduncu başına odun +%1/kademe', prereq:[] },
+  { id:'madenci_gel',  isim:'Madenci',         icon:'⛏️', branch:'kaynak',  tier:1, lv:0, max:10, etki:'Madenci başına metal +%1/kademe', prereq:[] },
+  { id:'ciftci_gel',   isim:'Çiftçi',          icon:'🌾', branch:'kaynak',  tier:1, lv:5, max:10, etki:'Çiftçi başına buğday +%1/kademe', prereq:[] },
+  { id:'balikci_gel',  isim:'Balıkçı',         icon:'🎣', branch:'kaynak',  tier:1, lv:0, max:10, etki:'Balıkçı başına balık +%1/kademe', prereq:[] },
+  { id:'ticaret_gel',  isim:'Ticaret',         icon:'⚖️', branch:'kaynak',  tier:1, lv:0, max:10, etki:'Markette nadir hammadde +%1', prereq:[] },
+
+  // ==== ISLEME BRANCH (amber) — depends on kaynak ====
+  { id:'kereste_gel',  isim:'Kereste',         icon:'🪵', branch:'isleme',  tier:2, lv:1, max:10, etki:'Kereste atölyesi verimi +%2/kademe', prereq:['oduncu_gel'] },
+  { id:'metal_gel',    isim:'Metal İşleme',    icon:'⚒️', branch:'isleme',  tier:2, lv:0, max:10, etki:'İşlenmiş metal verimi +%2/kademe', prereq:['madenci_gel'] },
+  { id:'firin_gel',    isim:'Fırın',           icon:'🔥', branch:'isleme',  tier:2, lv:0, max:10, etki:'Fırın pişirme hızı +%2/kademe', prereq:['ciftci_gel'] },
+  { id:'et_gel',       isim:'Et İşleme',       icon:'🥩', branch:'isleme',  tier:2, lv:0, max:10, etki:'Et veriminin +%2/kademe', prereq:['ciftci_gel'] },
+
+  // ==== NUFUS BRANCH (lime) ====
+  { id:'dogum_gel',    isim:'Doğum Oranı',     icon:'👶', branch:'nufus',   tier:1, lv:0, max:10, etki:'Saatlik doğum +%1/kademe', prereq:[] },
+  { id:'doyma_gel',    isim:'Doyma',           icon:'🍞', branch:'nufus',   tier:1, lv:0, max:10, etki:'Yemek tüketimi -%1/kademe', prereq:[] },
+  { id:'koylu_gel',    isim:'Köylü Verimi',    icon:'🧑‍🌾', branch:'nufus', tier:2, lv:0, max:10, etki:'Köylü vergi geliri +%1/kademe', prereq:['dogum_gel'] },
+
+  // ==== EKONOMI BRANCH (violet) ====
+  { id:'vergi_gel',    isim:'Vergi',           icon:'💰', branch:'ekonomi', tier:1, lv:0, max:10, etki:'Vergi cezası -%2/kademe', prereq:[] },
+  { id:'pazar_gel',    isim:'Pazar',           icon:'🏪', branch:'ekonomi', tier:2, lv:0, max:10, etki:'P2P komisyon -%1/kademe', prereq:['ticaret_gel'] },
+  { id:'kervan_gel',   isim:'Kervan',          icon:'🐪', branch:'ekonomi', tier:2, lv:0, max:10, etki:'Kervan kapasitesi +%5/kademe', prereq:['ticaret_gel'] },
+
+  // ==== LOJISTIK (mint) ====
+  { id:'essek_gel',    isim:'Eşek',            icon:'🐴', branch:'lojistik',tier:1, lv:0, max:10, etki:'Eşek üretim hızı +%1/kademe', prereq:[] },
+  { id:'insaat_gel',   isim:'İnşaat',          icon:'🏗️', branch:'lojistik',tier:1, lv:0, max:10, etki:'Bina inşa süresi -%1/kademe', prereq:[] },
+  { id:'tamir_gel',    isim:'Tamir',           icon:'🔧', branch:'lojistik',tier:2, lv:0, max:10, etki:'Tamir maliyeti -%2/kademe', prereq:['insaat_gel'] },
+
+  // ==== ASKERI YAPI (red) ====
+  { id:'ahir_gel',     isim:'Ahır',            icon:'🐎', branch:'askeri',  tier:2, lv:0, max:10, etki:'Ahır at/kurt verimi +%2/kademe', prereq:[] },
+  { id:'lonca_gel',    isim:'Lonca',           icon:'🥷', branch:'askeri',  tier:2, lv:0, max:10, etki:'Lonca gizlilik üretimi +%2/kademe', prereq:[] },
+  { id:'buyulu_gel',   isim:'Büyülü Tarla',    icon:'🥚', branch:'askeri',  tier:3, lv:0, max:10, etki:'Büyülü yumurta üretimi +%2/kademe', prereq:['lonca_gel'] },
+  { id:'mana_gel',     isim:'Mana',            icon:'✨', branch:'askeri',  tier:3, lv:0, max:10, etki:'Tapınak mana üretimi +%2/kademe', prereq:['ahir_gel'] },
+  { id:'surlar_gel',   isim:'Surlar',          icon:'🛡️', branch:'askeri',  tier:2, lv:0, max:10, etki:'Sur DEF +%2/kademe', prereq:[] },
+  { id:'kule_gel',     isim:'Kule',            icon:'🏯', branch:'askeri',  tier:3, lv:0, max:10, etki:'Kule menzili +%1/kademe', prereq:['surlar_gel'] },
+  { id:'casus_gel',    isim:'Casus',           icon:'🕵️', branch:'askeri',  tier:3, lv:0, max:10, etki:'Casus başarı +%1/kademe', prereq:['lonca_gel'] },
+
+  // ==== KULTUR/GPS BRANCH (pink) — 11 separate per user ====
+  { id:'okul_gel',         isim:'Okul',           icon:'📚', branch:'kultur', tier:2, lv:0, max:10, etki:'Okul GPS kapsamı +%2/kademe', prereq:[] },
+  { id:'universite_gel',   isim:'Üniversite',     icon:'🎓', branch:'kultur', tier:3, lv:0, max:10, etki:'Üniv. GPS +%2/kademe', prereq:['okul_gel'] },
+  { id:'akademi_gel',      isim:'Akademi',        icon:'🏛️', branch:'kultur', tier:4, lv:0, max:10, etki:'Akademi GPS +%2/kademe', prereq:['universite_gel'] },
+  { id:'kutuphane_gel',    isim:'Kütüphane',      icon:'📖', branch:'kultur', tier:2, lv:0, max:10, etki:'Kütüphane GPS +%2/kademe', prereq:[] },
+  { id:'b_kutuphane_gel',  isim:'Büyük Ktp',      icon:'📚', branch:'kultur', tier:3, lv:0, max:10, etki:'Büyük Ktp. GPS +%2/kademe', prereq:['kutuphane_gel'] },
+  { id:'tiyatro_gel',      isim:'Tiyatro',        icon:'🎭', branch:'kultur', tier:3, lv:0, max:10, etki:'Tiyatro GPS +%2/kademe', prereq:[] },
+  { id:'opera_gel',        isim:'Opera',          icon:'🎼', branch:'kultur', tier:4, lv:0, max:10, etki:'Opera GPS +%2/kademe', prereq:['tiyatro_gel'] },
+  { id:'arena_gel',        isim:'Arena',          icon:'🏟️', branch:'kultur', tier:3, lv:0, max:10, etki:'Arena GPS +%2/kademe', prereq:[] },
+  { id:'koliseum_gel',     isim:'Koliseum',       icon:'🏛️', branch:'kultur', tier:5, lv:0, max:10, etki:'Koliseum GPS +%2/kademe', prereq:['arena_gel'] },
+  { id:'taverna_gel',      isim:'Taverna',        icon:'🍺', branch:'kultur', tier:2, lv:0, max:10, etki:'Taverna GPS +%2/kademe', prereq:[] },
+  { id:'asma_bahce_gel',   isim:'Asma Bahçeler',  icon:'🌿', branch:'kultur', tier:5, lv:0, max:10, etki:'Asma Bahçe GPS +%2/kademe', prereq:[] },
+
+  // ==== SEHIR BUILDINGS (orange) ====
+  { id:'muze_gel',         isim:'Müze',           icon:'🗿', branch:'sehir',  tier:4, lv:0, max:10, etki:'Müze GPS +%2/kademe', prereq:[] },
+  { id:'noxara_hani_gel',  isim:'Noxara Hanı',    icon:'🏨', branch:'sehir',  tier:3, lv:0, max:10, etki:'Han GPS +%2/kademe', prereq:[] },
+  { id:'katedral_gel',     isim:'Katedral',       icon:'⛪', branch:'sehir',  tier:3, lv:0, max:10, etki:'Katedral GPS +%2/kademe', prereq:[] },
+  { id:'meydan_gel',       isim:'Meydan',         icon:'🏛️', branch:'sehir',  tier:2, lv:0, max:10, etki:'Şehir Meydanı moral +%1/kademe', prereq:[] },
+
+  // ==== UNIT ASKERI ATK/DEF (red-pink) — sample 12 ====
+  { id:'piyade_atk',       isim:'Piyade ATK',     icon:'⚔️', branch:'askeri-unit', tier:1, lv:2, max:10, etki:'Piyade ATK +%5/kademe', prereq:[] },
+  { id:'piyade_def',       isim:'Piyade DEF',     icon:'🛡️', branch:'askeri-unit', tier:1, lv:1, max:10, etki:'Piyade DEF +%5/kademe', prereq:[] },
+  { id:'okcu_atk',         isim:'Okçu ATK',       icon:'🏹', branch:'askeri-unit', tier:2, lv:0, max:10, etki:'Okçu ATK +%5/kademe', prereq:['piyade_atk'] },
+  { id:'okcu_def',         isim:'Okçu DEF',       icon:'🛡️', branch:'askeri-unit', tier:2, lv:0, max:10, etki:'Okçu DEF +%5/kademe', prereq:['piyade_def'] },
+  { id:'mizrak_atk',       isim:'Mızrak ATK',     icon:'🔱', branch:'askeri-unit', tier:2, lv:0, max:10, etki:'Mızrakçı ATK +%5/kademe', prereq:['piyade_atk'] },
+  { id:'sovalye_atk',      isim:'Şövalye ATK',    icon:'🐎', branch:'askeri-unit', tier:3, lv:0, max:10, etki:'Şövalye ATK +%5/kademe', prereq:['mizrak_atk'] },
+  { id:'sovalye_def',      isim:'Şövalye DEF',    icon:'🛡️', branch:'askeri-unit', tier:3, lv:0, max:10, etki:'Şövalye DEF +%5/kademe', prereq:['okcu_def'] },
+  { id:'paladin_atk',      isim:'Paladin ATK',    icon:'⚜️', branch:'askeri-unit', tier:4, lv:0, max:10, etki:'Paladin ATK +%5/kademe', prereq:['sovalye_atk'] },
+  { id:'buyucu_atk',       isim:'Büyücü ATK',     icon:'🧙', branch:'askeri-unit', tier:4, lv:0, max:10, etki:'Büyücü ATK +%5/kademe', prereq:['mana_gel'] },
+  { id:'kara_elf_atk',     isim:'Kara Elf ATK',   icon:'🧝', branch:'askeri-unit', tier:4, lv:0, max:10, etki:'Kara Elf ATK +%5/kademe', prereq:['mana_gel'] },
+  { id:'isin_atk',         isim:'Işın Sav. ATK',  icon:'⚡', branch:'askeri-unit', tier:5, lv:0, max:10, etki:'Işın Savaşçı ATK +%5/kademe', prereq:['paladin_atk'] },
+  { id:'ejderha_atk',      isim:'Ejderha ATK',    icon:'🐉', branch:'askeri-unit', tier:5, lv:0, max:10, etki:'Ejderha ATK +%5/kademe', prereq:['buyucu_atk'] },
+];
+
+const TIERS = [
+  { n:1, name:'TEMEL',     subtitle:'Çağ 1' },
+  { n:2, name:'GELİŞMİŞ',  subtitle:'Çağ 1-2' },
+  { n:3, name:'İLERİ',     subtitle:'Çağ 2-3' },
+  { n:4, name:'EFSANE',    subtitle:'Çağ 3-4' },
+  { n:5, name:'KADİM',     subtitle:'Çağ 4-5' },
+];
+
+const SECTIONS = [
+  { tier:1, label:'Temel Devre', sub:'Açılış araştırmaları' },
+  { tier:2, label:'Gelişmiş Devre', sub:'İlk işleme zinciri' },
+  { tier:3, label:'İleri Devre', sub:'Üretim ve askeri optimizasyon' },
+  { tier:4, label:'Efsane Devre', sub:'Yüksek seviye birimler' },
+  { tier:5, label:'Kadim Devre', sub:'Endgame araştırmaları' },
+];
+
+let activeCag = 2;
+
+/* ===========================================================
+   STATE — derive node state
+   =========================================================== */
+function nodeState(n) {
+  if (n.lv >= n.max) return 'max';
+  const reqCag = Math.ceil((n.lv + 1) / 2);
+  if (reqCag > activeCag) return 'locked';
+  // check prereqs (need at least lv 1)
+  for (const p of n.prereq) {
+    const pn = NODES.find(x => x.id === p);
+    if (!pn || pn.lv < 1) return 'locked';
+  }
+  if (n.lv > 0) return 'progress';
+  return 'available';
+}
+
+/* ===========================================================
+   RENDER
+   =========================================================== */
+function render() {
+  const tree = document.getElementById('tree');
+  tree.innerHTML = '';
+
+  for (const tier of TIERS) {
+    const sect = SECTIONS.find(s => s.tier === tier.n);
+
+    // Section header
+    const hdr = document.createElement('div');
+    hdr.className = 'section-header';
+    hdr.innerHTML = `T${tier.n} ${sect.label} <span>${sect.sub}</span>`;
+    tree.appendChild(hdr);
+
+    // Tier row
+    const row = document.createElement('div');
+    row.className = 'tier-row';
+    row.dataset.tier = tier.n;
+    row.innerHTML = `
+      <div class="tier-label">${tier.name}<small>${tier.subtitle}</small></div>
+      <div class="tier-nodes" data-tier="${tier.n}"></div>
+    `;
+    tree.appendChild(row);
+  }
+
+  // Place nodes
+  for (const n of NODES) {
+    const cell = tree.querySelector(`.tier-nodes[data-tier="${n.tier}"]`);
+    if (!cell) continue;
+
+    const state = nodeState(n);
+    const el = document.createElement('div');
+    el.className = `node state-${state}`;
+    el.id = `node-${n.id}`;
+    el.dataset.branch = n.branch;
+    el.dataset.id = n.id;
+
+    const lvLabel = state === 'locked' ? `<span class="lock">⛔</span>`
+                  : state === 'max'    ? `<span class="max">MAX</span>`
+                  : `${n.lv}/${n.max}`;
+
+    const reqCag = Math.ceil((n.lv + 1) / 2);
+    const cost = `${5*(n.lv+1)} GP / ${2*(n.lv+1)} KP / ${100*(n.lv+1)} İşl.`;
+
+    const prereqHtml = n.prereq.length
+      ? `<div class="tt-prereq">⚙ Önkoşul: ${n.prereq.map(p => {
+          const pn = NODES.find(x => x.id === p);
+          return pn ? pn.isim : p;
+        }).join(', ')}</div>`
+      : '';
+
+    el.innerHTML = `
+      <div class="tier-badge">T${n.tier}</div>
+      <div class="hex">
+        <div class="hex-inner">
+          <div class="hex-icon">${n.icon}</div>
+          <div class="hex-lv">${lvLabel}</div>
+        </div>
+      </div>
+      <div class="node-name">${n.isim}</div>
+      <div class="tooltip">
+        <div class="tt-title">${n.isim}</div>
+        <div class="tt-effect">${n.etki}</div>
+        <div class="tt-row"><span class="tt-label">Kademe:</span><span class="tt-val">${n.lv} / ${n.max}</span></div>
+        <div class="tt-row"><span class="tt-label">Sonraki Çağ:</span><span class="tt-val">${reqCag}</span></div>
+        <div class="tt-row"><span class="tt-label">Durum:</span><span class="tt-val">${
+          state === 'max' ? 'Tamamlandı' :
+          state === 'locked' ? 'Kilitli' :
+          state === 'progress' ? 'Aktif' : 'Hazır'
+        }</span></div>
+        ${prereqHtml}
+        <div class="tt-cost">💎 ${cost}</div>
+      </div>
+    `;
+    cell.appendChild(el);
+  }
+
+  drawConnections();
+}
+
+/* ===========================================================
+   SVG CONNECTIONS
+   =========================================================== */
+function drawConnections() {
+  const svg = document.getElementById('connSvg');
+  const canvas = document.getElementById('canvas');
+  svg.innerHTML = '';
+
+  const cR = canvas.getBoundingClientRect();
+  svg.setAttribute('viewBox', `0 0 ${cR.width} ${cR.height}`);
+  svg.setAttribute('width', cR.width);
+  svg.setAttribute('height', cR.height);
+
+  // gradient defs
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  defs.innerHTML = `
+    <linearGradient id="gradActive" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00e5ff" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#ff2bc6" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="gradDim" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3a4a6a" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#3a4a6a" stop-opacity="0.4"/>
+    </linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  `;
+  svg.appendChild(defs);
+
+  for (const n of NODES) {
+    if (!n.prereq.length) continue;
+    const childEl = document.getElementById(`node-${n.id}`);
+    if (!childEl) continue;
+    const cR2 = childEl.getBoundingClientRect();
+    const cx2 = cR2.left + cR2.width/2 - cR.left;
+    const cy2 = cR2.top - cR.top + 8; // top of child
+
+    for (const p of n.prereq) {
+      const parentEl = document.getElementById(`node-${p}`);
+      if (!parentEl) continue;
+      const pR = parentEl.getBoundingClientRect();
+      const px = pR.left + pR.width/2 - cR.left;
+      const py = pR.bottom - cR.top - 26;
+
+      // Curved path (S-shape for vertical branching)
+      const dx = cx2 - px;
+      const dy = cy2 - py;
+      const c1x = px;
+      const c1y = py + dy * 0.55;
+      const c2x = cx2;
+      const c2y = py + dy * 0.45;
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', `M ${px} ${py} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${cx2} ${cy2}`);
+
+      const parent = NODES.find(x => x.id === p);
+      const active = parent && parent.lv >= 1;
+      path.setAttribute('stroke', active ? 'url(#gradActive)' : 'url(#gradDim)');
+      path.setAttribute('stroke-width', active ? '2' : '1');
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke-dasharray', active ? '0' : '4 4');
+      if (active) path.setAttribute('filter', 'url(#glow)');
+      svg.appendChild(path);
+    }
+  }
+}
+
+/* ===========================================================
+   EVENTS
+   =========================================================== */
+document.querySelectorAll('.cag-pill').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.cag-pill').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    activeCag = parseInt(b.dataset.cag);
+    render();
+  });
+});
+
+window.addEventListener('resize', () => drawConnections());
+
+render();
+</script>
+
+</body>
+</html>

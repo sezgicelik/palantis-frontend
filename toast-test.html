@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Toast Test — Nox v2</title>
+<style>
+  body {
+    margin: 0; padding: 32px;
+    background: linear-gradient(180deg, #0a0604 0%, #1a140e 100%);
+    color: #f0e8d8;
+    font-family: 'Cinzel', 'Segoe UI', sans-serif;
+    min-height: 100vh;
+  }
+  h1 { color: #d4af37; }
+  .info { background: #1a1410; border: 1px solid #3a3020; padding: 14px; border-radius: 8px; margin-bottom: 20px; }
+  .btn-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 20px; }
+  button {
+    padding: 12px;
+    background: #1a1410;
+    border: 1px solid #c8a96e;
+    color: #c8a96e;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Cinzel', sans-serif;
+    font-size: 13px;
+    letter-spacing: 1px;
+    transition: .15s;
+  }
+  button:hover { background: #c8a96e; color: #0a0604; }
+  button.success { border-color: #27ae60; color: #27ae60; }
+  button.success:hover { background: #27ae60; color: #fff; }
+  button.error { border-color: #c0392b; color: #c0392b; }
+  button.error:hover { background: #c0392b; color: #fff; }
+  button.warning { border-color: #e67e22; color: #e67e22; }
+  button.warning:hover { background: #e67e22; color: #fff; }
+  button.info { border-color: #2980b9; color: #5dade2; }
+  button.info:hover { background: #2980b9; color: #fff; }
+  button.coin { border-color: #d4af37; color: #d4af37; }
+  button.war { border-color: #ff6b6b; color: #ff6b6b; }
+  pre { background: #050402; padding: 12px; border-radius: 6px; font-size: 12px; overflow-x: auto; }
+  .test-section { background: rgba(255,255,255,0.02); padding: 18px; border-radius: 8px; margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<h1>🍞 Noxara Toast v2 Test</h1>
+
+<div class="info">
+  <strong>Yeni özellikler:</strong>
+  <ul>
+    <li>✓ Stack — birden fazla toast alt alta dizilir</li>
+    <li>✓ Tip-bazlı ikon ve renk (success/error/warning/info/coin/war)</li>
+    <li>✓ X butonu ile manuel kapatma</li>
+    <li>✓ Hover'da progress bar pause</li>
+    <li>✓ Mobilde alt-orta full-width + swipe ile kapatma</li>
+    <li>✓ Tip-bazlı süre (success 3sn, error 5sn vs.)</li>
+    <li>✓ Max 5 görünür — yenisi gelince eski silinir</li>
+  </ul>
+</div>
+
+<h2>Tek Tek Test</h2>
+<div class="btn-grid">
+  <button class="success" onclick="NoxToast.success('100 odun başarıyla satıldı!')">✓ Success</button>
+  <button class="error" onclick="NoxToast.error('Yetersiz altın!')">✕ Error</button>
+  <button class="warning" onclick="NoxToast.warning('Bina dayanıklılığı %20 altında')">⚠ Warning</button>
+  <button class="info" onclick="NoxToast.info('Yeni mesaj geldi')">ℹ Info</button>
+  <button class="coin" onclick="NoxToast.coin('Pazardan 50 metal alındı (+1500 altın)')">🪙 Coin</button>
+  <button class="war" onclick="NoxToast.war('Saldırı geldi! 1 PG sonra varış')">⚔ War</button>
+</div>
+
+<h2>Çoklu Stack Testi</h2>
+<div class="btn-grid">
+  <button onclick="testStack()">3 mesaj art arda</button>
+  <button onclick="testFlood()">10 mesaj (max 5 görünür)</button>
+  <button onclick="testLong()">Uzun mesaj testi</button>
+  <button onclick="NoxToast.clear()">🗑️ Hepsini Temizle</button>
+</div>
+
+<h2>Eski API Geriye Uyumluluk</h2>
+<div class="btn-grid">
+  <button onclick="toast('Eski toast() — info varsayılan')">toast('msg')</button>
+  <button onclick="showToast('showToast() — success', 'success')">showToast(s, 'success')</button>
+  <button onclick="showToast('showToast() — error', 'error')">showToast(s, 'error')</button>
+</div>
+
+<div class="test-section">
+  <h3>Senaryolar</h3>
+  <button onclick="senaryoPazar()">📦 Pazar — Çoklu Satın Alma</button>
+  <button onclick="senaryoSavas()">⚔️ Savaş — Saldırı/Sonuç</button>
+  <button onclick="senaryoBina()">🏗️ Bina — İnşaat Akışı</button>
+</div>
+
+<script src="js/toast.js"></script>
+<script>
+function testStack() {
+  NoxToast.success('İlk mesaj');
+  setTimeout(() => NoxToast.warning('İkinci mesaj — daha uzun'), 300);
+  setTimeout(() => NoxToast.info('Üçüncü mesaj — alt alta dizilmeli'), 600);
+}
+
+function testFlood() {
+  for (let i = 1; i <= 10; i++) {
+    setTimeout(() => {
+      const types = ['success','error','warning','info','coin'];
+      NoxToast.show('Toast #' + i, types[i % types.length]);
+    }, i * 150);
+  }
+}
+
+function testLong() {
+  NoxToast.warning('Bu çok uzun bir mesaj örneği. Birkaç satıra inebilir, kelimeler kesilmez, mobilde de düzgün gözükmesi lazım. Pazardan 25 birim ejderha taşı satın alındı.');
+}
+
+function senaryoPazar() {
+  NoxToast.coin('🪙 50 odun → 1500 altın');
+  setTimeout(() => NoxToast.coin('🪙 30 metal → 900 altın'), 400);
+  setTimeout(() => NoxToast.success('İlan başarıyla yayınlandı'), 800);
+}
+
+function senaryoSavas() {
+  NoxToast.war('⚔️ Saldırı geliyor! 2 PG sonra varış');
+  setTimeout(() => NoxToast.warning('Düşman ordusu görüldü — savunmayı hazırla'), 1200);
+  setTimeout(() => NoxToast.success('Savaş kazanıldı! +500 altın ganimet'), 2400);
+}
+
+function senaryoBina() {
+  NoxToast.success('🏗️ Oduncu inşaatı başladı');
+  setTimeout(() => NoxToast.warning('İşçi yetersiz: 5 köylüden 3 tanesi atandı'), 1000);
+  setTimeout(() => NoxToast.error('İşlenmiş yetersiz — inşaat duraklatıldı'), 2000);
+}
+</script>
+
+</body>
+</html>

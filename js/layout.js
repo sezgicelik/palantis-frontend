@@ -788,12 +788,41 @@ function renderKuyrukWidget() {
   const d = KUYRUK_CACHE;
   // v1.14.1.13: Kisisel toplam — guild kategorileri cikarildi
   const kisiselCats = ['bina','tamir','unite','kervan','ordu','casus','buyu','ws'];
+  const KAT_ICON = { bina:'🏗️', tamir:'🔧', unite:'⚔️', kervan:'🐪', ordu:'🛡️', casus:'🕵️', buyu:'✨', ws:'🙏' };
   let toplam = 0;
-  for (const k of kisiselCats) toplam += ((d.kategoriler||{})[k]||[]).length;
+  const breakdown = [];
+  for (const k of kisiselCats) {
+    const len = ((d.kategoriler||{})[k]||[]).length;
+    toplam += len;
+    if (len > 0) breakdown.push({ k, len });
+  }
+
+  // v2.0: Anomali tespiti — bir kategori > 50 ise console'a uyari
+  // (Kullanici "kuyrugum 600+" derse bu log'da hangi kategori sismis gorunur)
+  if (toplam > 100) {
+    console.warn('[KUYRUK ANOMALI] Toplam:', toplam, '— Kategori dagilimi:',
+      breakdown.map(b => `${b.k}=${b.len}`).join(', '));
+  }
+
   const toplamEl = document.getElementById('kuyruk-toplam');
   const aciciSayi = document.getElementById('kuyruk-acici-sayi');
   if (toplamEl) toplamEl.textContent = toplam;
   if (aciciSayi) aciciSayi.textContent = toplam;
+
+  // v2.0: Header altinda kategori breakdown (anomali varsa kirmizi)
+  const breakdownEl = document.getElementById('kuyruk-breakdown');
+  if (breakdownEl) {
+    if (breakdown.length === 0) {
+      breakdownEl.innerHTML = '';
+    } else {
+      breakdownEl.innerHTML = breakdown.map(b => {
+        const isAnomaly = b.len > 50;
+        const color = isAnomaly ? '#e74c3c' : '#888';
+        const warn = isAnomaly ? ' ⚠' : '';
+        return `<span style="color:${color}" title="${b.k}: ${b.len} satir">${KAT_ICON[b.k]||''}${b.len}${warn}</span>`;
+      }).join(' · ');
+    }
+  }
 
   // v1.14.1.13: Guild kuyruklari 'Kuyrugum' widget'inden ayrildi.
   //   Guild bina/unite sadece guild.html'de gorunur — 'Kuyrugum' sadece kisisel.
@@ -862,12 +891,15 @@ function renderKuyrukMount() {
   const wrap = document.createElement('div');
   wrap.innerHTML =
     '<div id="kuyruk-widget" style="position:fixed;bottom:10px;right:10px;width:300px;max-width:calc(100vw - 20px);max-height:65vh;background:linear-gradient(180deg,#1a140a,#120c06);border:1px solid #c8a96e;border-radius:8px;box-shadow:0 6px 25px rgba(0,0,0,0.75);z-index:9998;font-family:Cinzel,serif;color:#f0e8d8;flex-direction:column;display:none">' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid #3a3020;background:#0f0a06;border-radius:8px 8px 0 0">' +
-        '<span style="color:#c8a96e;font-size:12px;font-weight:bold">⏳ Kuyruğum <span id="kuyruk-toplam" style="color:#d4af37">0</span></span>' +
-        '<div style="display:flex;gap:2px">' +
-          '<button onclick="kuyrukWidgetToggle()" style="background:none;border:1px solid #3a3020;color:#888;font-size:14px;cursor:pointer;width:24px;height:22px;border-radius:3px" title="Sımarla/Aç">−</button>' +
-          '<button onclick="kuyrukWidgetKapat()" style="background:none;border:1px solid #3a3020;color:#888;font-size:14px;cursor:pointer;width:24px;height:22px;border-radius:3px" title="Kapat">✕</button>' +
+      '<div style="padding:8px 12px;border-bottom:1px solid #3a3020;background:#0f0a06;border-radius:8px 8px 0 0">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center">' +
+          '<span style="color:#c8a96e;font-size:12px;font-weight:bold">⏳ Kuyruğum <span id="kuyruk-toplam" style="color:#d4af37">0</span></span>' +
+          '<div style="display:flex;gap:2px">' +
+            '<button onclick="kuyrukWidgetToggle()" style="background:none;border:1px solid #3a3020;color:#888;font-size:14px;cursor:pointer;width:24px;height:22px;border-radius:3px" title="Sımarla/Aç">−</button>' +
+            '<button onclick="kuyrukWidgetKapat()" style="background:none;border:1px solid #3a3020;color:#888;font-size:14px;cursor:pointer;width:24px;height:22px;border-radius:3px" title="Kapat">✕</button>' +
+          '</div>' +
         '</div>' +
+        '<div id="kuyruk-breakdown" style="font-size:10px;color:#888;margin-top:4px;letter-spacing:0.5px;display:flex;flex-wrap:wrap;gap:4px"></div>' +
       '</div>' +
       '<div id="kuyruk-icerik" style="max-height:55vh;overflow-y:auto;padding:4px 12px"></div>' +
     '</div>' +
@@ -1140,7 +1172,7 @@ document.addEventListener('DOMContentLoaded', initLayout);
     if (document.getElementById('build-stamp')) return;
     const div = document.createElement('div');
     div.id = 'build-stamp';
-    div.style.cssText = 'position:fixed;right:8px;bottom:6px;z-index:9000;font:10px/1.2 "Cinzel",serif;color:#c8a96e;background:rgba(20,18,14,0.85);border:1px solid #3a3020;border-radius:4px;padding:3px 8px;letter-spacing:.5px;pointer-events:none;opacity:0.75';
+    div.style.cssText = 'position:fixed;left:8px;bottom:6px;z-index:9000;font:10px/1.2 "Cinzel",serif;color:#c8a96e;background:rgba(20,18,14,0.85);border:1px solid #3a3020;border-radius:4px;padding:3px 8px;letter-spacing:.5px;pointer-events:none;opacity:0.75';
     div.textContent = 'BUILD ' + BUILD + ' · ' + TS;
     document.body.appendChild(div);
   }
