@@ -195,14 +195,17 @@ function renderQueue(){
     const rem=Math.max(0,Math.ceil((q.dur-el)/1000));
     // v1.14.1.59: Kuyruk bilgisi daha net — "+20 daha · ~20 saat sonra biter"
     let kalanLabel = '';
+    let iptalBtn = '';
     if (q.kalanInsa && q.kalanInsa > 0) {
       // Tahmini bitiş süresi: kalan × bina insa süresi (saat)
       const sureSaat = Math.ceil((q.dur / 1000 / 3600) * q.kalanInsa);
       const tahminEt = sureSaat < 24 ? `~${sureSaat}h` : `~${Math.ceil(sureSaat/24)}g`;
       kalanLabel = `<span style="color:#c8a96e;font-size:10px;white-space:nowrap" title="Toplu inşa: saatte 1 yeni başlıyor"> +${q.kalanInsa} sırada · <b style="color:#f39c12">${tahminEt}</b> sonra biter</span>`;
+      // v1.14.3.9: Ana kuyruk listesinde de X iptal butonu (Sezgi: "iptal gelmedi")
+      iptalBtn = `<button onclick="iptalKuyruk('${b.id}','${b.name.replace(/'/g,"\\'")}',${q.kalanInsa});event.stopPropagation()" style="background:rgba(231,76,60,0.2);border:1px solid rgba(231,76,60,0.5);color:#e74c3c;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer;padding:0;line-height:1;margin-left:8px;flex-shrink:0;font-weight:700" title="Sırayı iptal et — %80 iade · %20 ceza">✕</button>`;
     }
     const d=document.createElement('div');d.className='q-item';
-    d.innerHTML=`<div class="q-icon">${b.icon}</div><div class="q-info"><div class="q-name">${b.name} insa ediliyor${kalanLabel}</div><div class="q-bar"><div class="q-fill" id="qf-${b.id}" style="width:${pct}%"></div></div></div><div class="q-time" id="qt-${b.id}">${fmtT(rem)}</div>`;
+    d.innerHTML=`<div class="q-icon">${b.icon}</div><div class="q-info"><div class="q-name" style="display:flex;align-items:center;flex-wrap:wrap">${b.name} insa ediliyor${kalanLabel}${iptalBtn}</div><div class="q-bar"><div class="q-fill" id="qf-${b.id}" style="width:${pct}%"></div></div></div><div class="q-time" id="qt-${b.id}">${fmtT(rem)}</div>`;
     list.appendChild(d);
   });
 }
