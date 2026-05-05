@@ -139,12 +139,17 @@ function renderBinaRow(grid, b, inQ, oyuncuCag) {
     }
 
     const d=document.createElement('div');
-    d.className=`brow${inC?' building':''}${b.lv===0&&!inC?' locked':''}`;
+    // v1.14.3.1: Flu (locked) mantigi tersine cevrildi (Sezgi):
+    //   ESKI: lv===0 olan tum binalar flu (yeni baslayanlar tum binalari donuk goruyor)
+    //   YENI: sadece cag-kilitli VEYA limit-dolu olan binalar flu.
+    //         Yapilabilir ama henuz yapilmamis bina parlak gozukur (insa edebilirsin).
+    const isFlu = cagKilitli || limitDoldu;
+    d.className=`brow${inC?' building':''}${isFlu?' locked':''}`;
     // v1.14.0.54: data-codex-id — hover'da Codex tooltip
     d.innerHTML=`
       <div class="br-ico" style="background:${b.bg}" data-codex-id="${b.id}">${b.icon}</div>
       <div class="br-main">
-        <div class="br-name" data-codex-id="${b.id}">${b.name} ${b.lv>0?`<span style="color:#2ecc71;font-size:10px">${b.lv} adet</span>`:''}${limitLabel}</div>
+        <div class="br-name" data-codex-id="${b.id}">${b.name} ${b.lv>0?`<span style="color:#2ecc71;font-size:10px">${b.lv} adet</span>`:''}${limitLabel}${(b._kalanInsa || 0) > 0 ? ` <span style="font-size:11px;padding:1px 7px;background:rgba(243,156,18,0.18);color:#f39c12;border:1px solid rgba(243,156,18,0.4);border-radius:10px;font-weight:600;margin-left:4px" title="Toplu inşa kuyruğu — saatte 1 yapılıyor">🏗️ +${b._kalanInsa} kuyrukta</span>` : ''}</div>
         <div class="br-desc">${b.desc}</div>
       </div>
       <div class="br-lv">${b.lv} adet</div>

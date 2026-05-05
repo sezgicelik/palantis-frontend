@@ -508,6 +508,8 @@ async function loadBuildingsFromBackend() {
         BLDGS[binaId]._dayaniklilik = data.dayaniklilik ?? 100;
         BLDGS[binaId]._repairQueue = data.repairQueue || false;
         BLDGS[binaId]._repairGunKalan = data.repairGunKalan || 0;
+        // v1.14.3.1: Toplu inşa kuyruğu sayısı (Sezgi: lonca 18+7 ama görünmüyordu)
+        BLDGS[binaId]._kalanInsa = data.kalanInsa || 0;
         usedArea += BLDGS[binaId].lv * binaAlanFE(binaId);
       }
     }
