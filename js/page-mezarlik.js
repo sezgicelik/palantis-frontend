@@ -181,7 +181,7 @@ async function diriltTumu() {
   var token = getToken();
   if (!token) return;
 
-  if (!confirm('Tum mezarlik kayitlarin diriltilecek (ejderhalar haric). Yetecek altin varsa tumu, yoksa kismi dirilir. Birimler 4 PG sonra orduna katilacak. Onayliyor musun?')) return;
+  if (!await noxConfirm('Tum mezarlik kayitlarin diriltilecek (ejderhalar haric). Yetecek altin varsa tumu, yoksa kismi dirilir. Birimler 4 PG sonra orduna katilacak. Onayliyor musun?')) return;
 
   try {
     var resp = await fetch(API_BASE + '/api/mezarlik/tumu/dirilt', {
@@ -195,16 +195,16 @@ async function diriltTumu() {
         (data.toplam_maliyet > 0 ? ' (-' + data.toplam_maliyet.toLocaleString('tr-TR') + ' altın)' : '') +
         ' — 4 PG sonra orduna katılır';
       if (typeof showToast === 'function') showToast(msg, 'success');
-      else alert(msg);
+      else noxAlert(msg);
       setTimeout(loadMezarlik, 1200);
     } else {
       var err = data.error || 'Hata';
       if (typeof showToast === 'function') showToast('❌ ' + err, 'error');
-      else alert(err);
+      else noxAlert(err);
     }
   } catch(e) {
     if (typeof showToast === 'function') showToast('❌ Bağlantı hatası', 'error');
-    else alert('Baglanti hatasi');
+    else noxAlert('Baglanti hatasi');
   }
 }
 
@@ -216,7 +216,7 @@ async function grupFifoDirilt(uniteId) {
   const toplamHak = gruptakiler.reduce((s, m) => s + (m.dirilt_max - m.diriltilen), 0);
   const toplamMaliyet = gruptakiler.reduce((s, m) => s + (m.taraf === 'saldiran' ? (m.dirilt_max - m.diriltilen) * m.maliyet_altin : 0), 0);
   const ad = (typeof UNITS !== 'undefined' && UNITS[uniteId]) ? UNITS[uniteId].name : uniteId;
-  if (!confirm('⚡ FIFO Dirilt — ' + ad + '\n\n' +
+  if (!await noxConfirm('⚡ FIFO Dirilt — ' + ad + '\n\n' +
     '• Toplam: ' + toplamHak.toLocaleString('tr-TR') + ' birim\n' +
     '• Maliyet: ' + toplamMaliyet.toLocaleString('tr-TR') + ' altın\n' +
     '• Sıra: süresi dolmak üzere olan kayıtlardan başlar\n\n' +
@@ -248,7 +248,7 @@ async function grupFifoDirilt(uniteId) {
     (harcanan > 0 ? ' (−' + harcanan.toLocaleString('tr-TR') + ' altın)' : '') +
     (hata ? ' · ⚠ ' + hata : '');
   if (typeof showToast === 'function') showToast(mesaj, hata ? 'error' : 'success');
-  else alert(mesaj);
+  else noxAlert(mesaj);
   setTimeout(loadMezarlik, 1200);
 }
 

@@ -369,7 +369,7 @@ async function orduKur(){
 async function orduSil(id){
   const ordu = ORDULAR.find(o=>o.id===id);
   if(!ordu) return;
-  if(!confirm(`"${ordu.isim}" ordusunu dağıtmak istediğine emin misin?`)) return;
+  if (!await noxConfirm(`"${ordu.isim}" ordusunu dağıtmak istediğine emin misin?`)) return;
   const token = getToken(); if(!token) return;
   try {
     const resp = await fetch(API_BASE + '/api/army/armies/' + id, {
@@ -739,7 +739,7 @@ if (typeof window !== 'undefined') window.orduCardToggle = orduCardToggle;
 /* v1.14.1.00: Ordu geri cagir — POST /api/savas/iptal */
 async function orduGeriCagir(gorevId, orduIsim) {
   if (!gorevId) return;
-  if (!confirm('🔙 "' + orduIsim + '" ordusunu geri cagirmak istiyor musun?\n\nOrdu simdiye kadar gittigi mesafe kadar donus yolunda olacak. Donus yolundayken iptal edilemez.')) return;
+  if (!await noxConfirm('🔙 "' + orduIsim + '" ordusunu geri cagirmak istiyor musun?\n\nOrdu simdiye kadar gittigi mesafe kadar donus yolunda olacak. Donus yolundayken iptal edilemez.')) return;
   const token = getToken();
   if (!token) return;
   try {
@@ -751,15 +751,15 @@ async function orduGeriCagir(gorevId, orduIsim) {
     const d = await r.json();
     if (r.ok && d.basarili) {
       if (typeof showToast === 'function') showToast('🔙 Ordu geri cagrildi — ' + (d.efektif_sure||'?') + ' PG sonra evde', 'success');
-      else alert('Ordu geri cagrildi!');
+      else noxAlert('Ordu geri cagrildi!');
       await loadArmyPool();
       if (typeof renderOrduListe === 'function') renderOrduListe();
       if (typeof refreshOrdularim === 'function') refreshOrdularim();
     } else {
-      alert('Hata: ' + (d.error || 'Bilinmeyen'));
+      noxAlert('Hata: ' + (d.error || 'Bilinmeyen'));
     }
   } catch(e) {
-    alert('Baglanti hatasi: ' + e.message);
+    noxAlert('Baglanti hatasi: ' + e.message);
   }
 }
 if (typeof window !== 'undefined') window.orduGeriCagir = orduGeriCagir;
@@ -1721,7 +1721,7 @@ async function orduGonderAra(armyId) {
 
 // Takviye gönder (guild üyesine)
 async function orduGonderTakviye(armyId, hedefPlayerId) {
-  if (!confirm('Bu orduyu guild uyenize takviye olarak gondermek istiyor musunuz?')) return;
+  if (!await noxConfirm('Bu orduyu guild uyenize takviye olarak gondermek istiyor musunuz?')) return;
   var token = getToken(); if (!token) return;
   try {
     var res = await fetch(API_BASE + '/api/takviye/gonder', {
@@ -1748,7 +1748,7 @@ async function orduGonderSaldiri(armyId, hedefPlayerId) {
     });
   }
   var buyuOzet = buyuler.length > 0 ? '\n\nBüyüler: ' + buyuler.map(b => b.id).join(', ') : '';
-  if (!confirm('Bu orduyu saldiriya gondermek istiyor musunuz?' + buyuOzet)) return;
+  if (!await noxConfirm('Bu orduyu saldiriya gondermek istiyor musunuz?' + buyuOzet)) return;
   var token = getToken(); if (!token) return;
   try {
     var res = await fetch(API_BASE + '/api/savas/saldir', {
@@ -1773,7 +1773,7 @@ async function orduGonderSaldiri(armyId, hedefPlayerId) {
 
 // Relay saldırı (korumadaki ordu ile)
 async function orduGonderRelaySaldiri(armyId, hedefPlayerId) {
-  if (!confirm('Bu orduyu konuslandigi yerden saldiriya gondermek istiyor musunuz?')) return;
+  if (!await noxConfirm('Bu orduyu konuslandigi yerden saldiriya gondermek istiyor musunuz?')) return;
   var token = getToken(); if (!token) return;
   try {
     var res = await fetch(API_BASE + '/api/takviye/rolu-saldir', {
@@ -1791,7 +1791,7 @@ async function orduGonderRelaySaldiri(armyId, hedefPlayerId) {
 
 // Koloni üs kur
 async function orduGonderKoloni(armyId, koloniId) {
-  if (!confirm('Bu orduyu koloni ussune gondermek istiyor musunuz?')) return;
+  if (!await noxConfirm('Bu orduyu koloni ussune gondermek istiyor musunuz?')) return;
   var token = getToken(); if (!token) return;
   try {
     var res = await fetch(API_BASE + '/api/takviye/koloni', {
@@ -1809,7 +1809,7 @@ async function orduGonderKoloni(armyId, koloniId) {
 
 // Geri çağır (korumadaki ordu)
 async function orduGeriCagir(armyId) {
-  if (!confirm('Bu orduyu geri cagirmak istediginize emin misiniz? Ordu sehrinize donecektir.')) return;
+  if (!await noxConfirm('Bu orduyu geri cagirmak istediginize emin misiniz? Ordu sehrinize donecektir.')) return;
   var token = getToken(); if (!token) return;
   try {
     var res = await fetch(API_BASE + '/api/takviye/geri-cagir', {

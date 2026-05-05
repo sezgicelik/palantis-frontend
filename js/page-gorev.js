@@ -95,8 +95,8 @@ async function gorevOdulAl(gorevId) {
       toast(data.mesaj);
       loadGorevler();
       if (typeof loadGameData === 'function') loadGameData();
-    } else alert(data.error);
-  } catch(e) { alert('Hata'); }
+    } else noxAlert(data.error);
+  } catch(e) { noxAlert('Hata'); }
 }
 
 document.addEventListener('DOMContentLoaded', function() {

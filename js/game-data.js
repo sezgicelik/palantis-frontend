@@ -668,8 +668,8 @@ function obApplyPlayer(p) {
 }
 
 /* -- Logout -- */
-function logoutGame() {
-  if (!confirm('Oyundan cikmak istedigine emin misin?')) return;
+async function logoutGame() {
+  if (!await noxConfirm('Oyundan cikmak istedigine emin misin?')) return;
   clearToken();
   OYUNCU = { kral: null, sehir: null, irk: null, taraf: null, cag: 1 };
   QUEUE.length = 0;

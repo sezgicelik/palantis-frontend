@@ -129,7 +129,7 @@ function renderFestival(data) {
 }
 
 async function festivalBaslat(tip, isim) {
-  if (!confirm(`${isim} düzenlemek istediğinize emin misiniz?`)) return;
+  if (!await noxConfirm(`${isim} düzenlemek istediğinize emin misiniz?`)) return;
   const token = getToken();
   if (!token) return;
   try {

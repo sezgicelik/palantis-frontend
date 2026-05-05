@@ -142,7 +142,7 @@ async function guildListele() {
 
 async function guildIstekGonder(guildId, guildIsim) {
   var token = getToken(); if (!token) return;
-  var mesaj = prompt(guildIsim + ' guildine mesajınız (opsiyonel, guild yetkilileri görür):', '');
+  var mesaj = await noxPrompt(guildIsim + ' guildine mesajınız (opsiyonel, guild yetkilileri görür):', '');
   if (mesaj === null) return; // cancel
   try {
     var resp = await fetch(API_BASE + '/api/guild/' + guildId + '/katil', {
@@ -153,14 +153,14 @@ async function guildIstekGonder(guildId, guildIsim) {
     var data = await resp.json();
     if (resp.ok) {
       if (typeof toast === 'function') toast(data.mesaj);
-      else alert(data.mesaj);
+      else noxAlert(data.mesaj);
       loadGuild();
-    } else alert(data.error || 'Hata');
-  } catch(e) { alert('Baglanti hatasi'); }
+    } else noxAlert(data.error || 'Hata');
+  } catch(e) { noxAlert('Baglanti hatasi'); }
 }
 
 async function guildIstegiIptal(guildId) {
-  if (!confirm('Bekleyen üyelik isteğini iptal etmek istediğine emin misin?')) return;
+  if (!await noxConfirm('Bekleyen üyelik isteğini iptal etmek istediğine emin misin?')) return;
   var token = getToken(); if (!token) return;
   try {
     var resp = await fetch(API_BASE + '/api/guild/' + guildId + '/istegim-iptal', {
@@ -168,8 +168,8 @@ async function guildIstegiIptal(guildId) {
     });
     var data = await resp.json();
     if (resp.ok) { if (typeof toast === 'function') toast('İstek iptal edildi'); loadGuild(); }
-    else alert(data.error || 'Hata');
-  } catch(e) { alert('Baglanti hatasi'); }
+    else noxAlert(data.error || 'Hata');
+  } catch(e) { noxAlert('Baglanti hatasi'); }
 }
 
 // Geri uyumluluk: eski guildKatil cagrilari
@@ -483,7 +483,7 @@ async function kusatmaGonder(guildId) {
 }
 
 async function kusatmaGeriCagir(guildId, armyId) {
-  if (!confirm('Ordu geri cagirilacak. Emin misiniz?')) return;
+  if (!await noxConfirm('Ordu geri cagirilacak. Emin misiniz?')) return;
   var token = getToken();
   try {
     var r = await fetch(API_BASE + '/api/guild/' + guildId + '/ordu/' + armyId + '/kusatma-geri-cagir', {
@@ -505,16 +505,16 @@ async function kusatmaRaporDetayli(guildId, logId) {
     var d = await r.json();
     if (!r.ok || !d.ok) {
       if (typeof toast === 'function') toast(d.error || 'Rapor yuklenemedi');
-      else alert(d.error || 'Rapor yuklenemedi');
+      else noxAlert(d.error || 'Rapor yuklenemedi');
       return;
     }
     if (typeof showSavasRapor === 'function') {
       showSavasRapor(d.sonuc, d.benimTaraf || 'saldiran', d.opts || {});
     } else {
-      alert('Rapor modalı yuklenemedi — sayfayi yenile');
+      noxAlert('Rapor modalı yuklenemedi — sayfayi yenile');
     }
   } catch(e) {
-    alert('Baglanti hatasi: ' + e.message);
+    noxAlert('Baglanti hatasi: ' + e.message);
   }
 }
 if (typeof window !== 'undefined') window.kusatmaRaporDetayli = kusatmaRaporDetayli;
@@ -523,7 +523,7 @@ if (typeof window !== 'undefined') window.kusatmaRaporDetayli = kusatmaRaporDeta
 async function kusatmaSimule(guildId) {
   var token = getToken(); if (!token) return;
   var sehirSel = document.getElementById('kus-sehir');
-  if (!sehirSel || !sehirSel.value) { alert('Once bir kadim sehir sec'); return; }
+  if (!sehirSel || !sehirSel.value) { noxAlert('Once bir kadim sehir sec'); return; }
   var sehirId = parseInt(sehirSel.value);
   var orduSel = document.getElementById('kus-ordu');
   var orduIdRaw = orduSel && orduSel.value && !orduSel.selectedOptions[0]?.disabled ? parseInt(orduSel.value) : null;
@@ -537,16 +537,16 @@ async function kusatmaSimule(guildId) {
     });
     var d = await r.json();
     if (!r.ok || !d.ok) {
-      alert('Simulasyon hata: ' + (d.error || 'Bilinmeyen'));
+      noxAlert('Simulasyon hata: ' + (d.error || 'Bilinmeyen'));
       return;
     }
     if (typeof showSavasRapor === 'function') {
       showSavasRapor(d.sonuc, d.benimTaraf || 'saldiran', d.opts || {});
     } else {
-      alert('Rapor modali yuklenemedi');
+      noxAlert('Rapor modali yuklenemedi');
     }
   } catch(e) {
-    alert('Baglanti hatasi: ' + e.message);
+    noxAlert('Baglanti hatasi: ' + e.message);
   }
 }
 if (typeof window !== 'undefined') window.kusatmaSimule = kusatmaSimule;
@@ -1021,31 +1021,31 @@ async function istekKabul(guildId, playerId) {
     var r = await fetch(API_BASE + '/api/guild/' + guildId + '/uyelik-istek/' + playerId + '/kabul', { method:'POST', headers: guildHdr() });
     var d = await r.json();
     if (r.ok) { if (typeof toast === 'function') toast(d.mesaj); loadGuild(); }
-    else alert(d.error || 'Hata');
-  } catch(e) { alert(e.message); }
+    else noxAlert(d.error || 'Hata');
+  } catch(e) { noxAlert(e.message); }
 }
 
 async function istekRed(guildId, playerId) {
-  if (!confirm('Bu isteği reddetmek istediğine emin misin?')) return;
+  if (!await noxConfirm('Bu isteği reddetmek istediğine emin misin?')) return;
   try {
     var r = await fetch(API_BASE + '/api/guild/' + guildId + '/uyelik-istek/' + playerId + '/red', { method:'POST', headers: guildHdr() });
     var d = await r.json();
     if (r.ok) { _loadGelenIstekler(guildId); }
-    else alert(d.error || 'Hata');
-  } catch(e) { alert(e.message); }
+    else noxAlert(d.error || 'Hata');
+  } catch(e) { noxAlert(e.message); }
 }
 
 // v1.14.0.42 B1: Liderlik devret
 async function guildLiderlikDevret(guildId, playerId, isim) {
-  if (!confirm('⚠️ LİDERLİK DEVRİ!\n\n' + isim + ' oyuncusuna liderliği devretmek istediğine EMİN MİSİN?\n\nSen "yardımcı" rütbesine düşeceksin. Geri alınamaz (yeni lider tekrar sana devretmedikçe).')) return;
+  if (!await noxConfirm('⚠️ LİDERLİK DEVRİ!\n\n' + isim + ' oyuncusuna liderliği devretmek istediğine EMİN MİSİN?\n\nSen "yardımcı" rütbesine düşeceksin. Geri alınamaz (yeni lider tekrar sana devretmedikçe).')) return;
   try {
     var r = await fetch(API_BASE + '/api/guild/' + guildId + '/liderlik-devret', {
       method:'POST', headers: guildHdr(), body: JSON.stringify({ yeni_lider_id: playerId })
     });
     var d = await r.json();
-    if (r.ok) { alert('👑 ' + (d.mesaj || 'Devredildi')); loadGuild(); }
-    else alert(d.error || 'Hata');
-  } catch(e) { alert(e.message); }
+    if (r.ok) { noxAlert('👑 ' + (d.mesaj || 'Devredildi')); loadGuild(); }
+    else noxAlert(d.error || 'Hata');
+  } catch(e) { noxAlert(e.message); }
 }
 
 // v1.14.0.42 A2: Guild Sohbet
@@ -1101,16 +1101,16 @@ async function sohbetGonder(gId) {
     });
     var d = await r.json();
     if (r.ok) { inp.value = ''; _loadSohbet(gId, GUILD_DATA.benim_player_id, GUILD_DATA.benim_rutbem); }
-    else alert(d.error || 'Hata');
-  } catch(e) { alert(e.message); }
+    else noxAlert(d.error || 'Hata');
+  } catch(e) { noxAlert(e.message); }
 }
 async function sohbetSil(gId, mid) {
-  if (!confirm('Mesajı sil?')) return;
+  if (!await noxConfirm('Mesajı sil?')) return;
   try {
     var r = await fetch(API_BASE + '/api/guild/' + gId + '/chat/' + mid, { method:'DELETE', headers: guildHdr() });
     if (r.ok) _loadSohbet(gId, GUILD_DATA.benim_player_id, GUILD_DATA.benim_rutbem);
-    else { var d = await r.json(); alert(d.error || 'Hata'); }
-  } catch(e) { alert(e.message); }
+    else { var d = await r.json(); noxAlert(d.error || 'Hata'); }
+  } catch(e) { noxAlert(e.message); }
 }
 
 // v1.14.0.42 D: Arastirma / Tech Tree
@@ -1178,15 +1178,15 @@ async function renderTabArastirma(el, data) {
 }
 
 async function arastirmaBaslat(gId, teknoloji) {
-  if (!confirm('Bu teknolojiyi araştırmaya başlatmak istiyor musun? Guild kasasından maliyet düşülecek.')) return;
+  if (!await noxConfirm('Bu teknolojiyi araştırmaya başlatmak istiyor musun? Guild kasasından maliyet düşülecek.')) return;
   try {
     var r = await fetch(API_BASE + '/api/guild/' + gId + '/arastirma/yukselt', {
       method:'POST', headers: guildHdr(), body: JSON.stringify({ teknoloji: teknoloji })
     });
     var d = await r.json();
-    if (r.ok) { alert('🔬 ' + (d.mesaj || 'Başlatıldı')); renderTabArastirma(document.getElementById('guild-tab-content'), GUILD_DATA); }
-    else alert(d.error || 'Hata');
-  } catch(e) { alert(e.message); }
+    if (r.ok) { noxAlert('🔬 ' + (d.mesaj || 'Başlatıldı')); renderTabArastirma(document.getElementById('guild-tab-content'), GUILD_DATA); }
+    else noxAlert(d.error || 'Hata');
+  } catch(e) { noxAlert(e.message); }
 }
 
 async function guildYetkilerYukle(guildId) {
@@ -1268,7 +1268,7 @@ async function guildYetkiDegistir(guildId, playerId, yetki, deger) {
       method: 'POST', headers: guildHdr(), body: JSON.stringify({ yetkiler: yetkiler })
     });
     toast('Yetki guncellendi');
-  } catch(e) { alert('Hata'); }
+  } catch(e) { noxAlert('Hata'); }
 }
 
 // v1.14.0.37: Toggle switch — anlik UI update + backend kaydet
@@ -1519,23 +1519,23 @@ function renderTabIsciler(el, data) {
 //   API FONKSIYONLARI
 // ═══════════════════════════════════
 async function guildAyril(guildId) {
-  if (!confirm('Guildden ayrilmak istediginize emin misiniz?\nBagisladiginiz koyluleri geri ALAMAZSINIZ!')) return;
+  if (!await noxConfirm('Guildden ayrilmak istediginize emin misiniz?\nBagisladiginiz koyluleri geri ALAMAZSINIZ!')) return;
   try {
     var resp = await fetch(API_BASE + '/api/guild/' + guildId + '/ayril', { method: 'POST', headers: { 'Authorization': 'Bearer ' + getToken() } });
     var data = await resp.json();
-    if (resp.ok) { toast(data.mesaj); loadGuild(); } else alert(data.error);
-  } catch(e) { alert('Hata'); }
+    if (resp.ok) { toast(data.mesaj); loadGuild(); } else noxAlert(data.error);
+  } catch(e) { noxAlert('Hata'); }
 }
 
 async function guildAt(guildId, playerId) {
-  if (!confirm('Bu uyeyi atmak istediginize emin misiniz?')) return;
+  if (!await noxConfirm('Bu uyeyi atmak istediginize emin misiniz?')) return;
   try {
     var resp = await fetch(API_BASE + '/api/guild/' + guildId + '/at', {
       method: 'POST', headers: guildHdr(), body: JSON.stringify({ playerId: playerId })
     });
     var data = await resp.json();
-    if (resp.ok) { toast('Uye atildi'); loadGuild(); } else alert(data.error);
-  } catch(e) { alert('Hata'); }
+    if (resp.ok) { toast('Uye atildi'); loadGuild(); } else noxAlert(data.error);
+  } catch(e) { noxAlert('Hata'); }
 }
 
 async function guildRutbe(guildId, playerId, rutbe) {
@@ -1562,7 +1562,7 @@ async function guildSehirTasi(guildId) {
   var y = parseInt(document.getElementById('guild-tasi-y')?.value);
   var msg = document.getElementById('guild-tasi-msg');
   if (!x || !y) { if(msg) msg.innerHTML = '<span style="color:#e74c3c">X ve Y gerekli</span>'; return; }
-  if (!confirm('Guild sehrini ' + x + ':' + y + ' konumuna tasimak istediginize emin misiniz?')) return;
+  if (!await noxConfirm('Guild sehrini ' + x + ':' + y + ' konumuna tasimak istediginize emin misiniz?')) return;
   try {
     var resp = await fetch(API_BASE + '/api/guild/' + guildId + '/sehir-tasi', {
       method: 'POST', headers: guildHdr(), body: JSON.stringify({ x: x, y: y })
@@ -1574,24 +1574,24 @@ async function guildSehirTasi(guildId) {
 }
 
 async function guildBagis(guildId, kaynak) {
-  var miktar = prompt(kaynak + ' ne kadar bagislamak istiyorsunuz?');
+  var miktar = await noxPrompt(kaynak + ' ne kadar bagislamak istiyorsunuz?');
   if (!miktar || isNaN(miktar) || parseInt(miktar) <= 0) return;
   try {
     var resp = await fetch(API_BASE + '/api/guild/' + guildId + '/bagis', {
       method: 'POST', headers: guildHdr(), body: JSON.stringify({ kaynak: kaynak, miktar: parseInt(miktar) })
     });
     var data = await resp.json();
-    if (resp.ok) { toast(data.mesaj); loadGuild(); } else alert(data.error);
-  } catch(e) { alert('Hata'); }
+    if (resp.ok) { toast(data.mesaj); loadGuild(); } else noxAlert(data.error);
+  } catch(e) { noxAlert('Hata'); }
 }
 
 async function guildKoyluBagis(guildId, maxLimit) {
   var adet = parseInt(document.getElementById('koylu-bagis-adet')?.value);
-  if (!adet || adet <= 0) { alert('Gecerli bir adet girin'); return; }
+  if (!adet || adet <= 0) { noxAlert('Gecerli bir adet girin'); return; }
   // v1.14.0.41: max limit frontend clamp (kullanici 6000 yazsa da 1000'e cekilir)
   var max = parseInt(maxLimit) || (GUILD_CONFIG && GUILD_CONFIG.koylu_bagis_limit) || 1000;
   if (adet > max) {
-    if (!confirm('⚠ Girdiğin ' + adet + ' adet, izin verilen MAX ' + max + '\'in üzerinde. ' + max + ' adet olarak gönderilsin mi?')) return;
+    if (!await noxConfirm('⚠ Girdiğin ' + adet + ' adet, izin verilen MAX ' + max + '\'in üzerinde. ' + max + ' adet olarak gönderilsin mi?')) return;
     adet = max;
     var inp = document.getElementById('koylu-bagis-adet');
     if (inp) inp.value = max;
@@ -1601,7 +1601,7 @@ async function guildKoyluBagis(guildId, maxLimit) {
   var cdMsg = '';
   if (cdK) {
     if (cdK.dolu) {
-      alert('24 PG icinde max ' + cdK.max + ' koylu bagisi yapabilirsiniz. Dolu! Kalan: ' + Math.ceil(cdK.kalan_saat) + ' PG sonra reset.');
+      noxAlert('24 PG icinde max ' + cdK.max + ' koylu bagisi yapabilirsiniz. Dolu! Kalan: ' + Math.ceil(cdK.kalan_saat) + ' PG sonra reset.');
       return;
     }
     cdMsg = '\n\nHak: ' + cdK.kalan_bagis + '/' + cdK.max + ' (24 PG icinde)';
@@ -1609,63 +1609,63 @@ async function guildKoyluBagis(guildId, maxLimit) {
       cdMsg += '\nReset: ' + Math.ceil(cdK.kalan_saat) + ' PG sonra';
     }
   }
-  if (!confirm(adet + ' koylu guilde gonderilecek. Geri ALINAMAZ! Emin misiniz?' + cdMsg)) return;
+  if (!await noxConfirm(adet + ' koylu guilde gonderilecek. Geri ALINAMAZ! Emin misiniz?' + cdMsg)) return;
   try {
     var resp = await fetch(API_BASE + '/api/guild/' + guildId + '/koylu-bagis', {
       method: 'POST', headers: guildHdr(), body: JSON.stringify({ adet: adet })
     });
     var data = await resp.json();
-    if (resp.ok) { toast(data.mesaj); loadGuild(); } else alert(data.error);
-  } catch(e) { alert('Hata'); }
+    if (resp.ok) { toast(data.mesaj); loadGuild(); } else noxAlert(data.error);
+  } catch(e) { noxAlert('Hata'); }
 }
 
 async function guildIsciAta(guildId, tip) {
-  var adet = prompt(tip + ' icin kac koylu atamak istiyorsunuz?');
+  var adet = await noxPrompt(tip + ' icin kac koylu atamak istiyorsunuz?');
   if (!adet || isNaN(adet) || parseInt(adet) <= 0) return;
   try {
     var resp = await fetch(API_BASE + '/api/guild/' + guildId + '/isci-ata', {
       method: 'POST', headers: guildHdr(), body: JSON.stringify({ tip: tip, adet: parseInt(adet) })
     });
     var data = await resp.json();
-    if (resp.ok) { toast(data.mesaj); loadGuild(); } else alert(data.error);
-  } catch(e) { alert('Hata'); }
+    if (resp.ok) { toast(data.mesaj); loadGuild(); } else noxAlert(data.error);
+  } catch(e) { noxAlert('Hata'); }
 }
 
 async function guildIsciCikar(guildId, tip) {
-  var adet = prompt(tip + ' kac isciyi koyluye donusturmek istiyorsunuz?');
+  var adet = await noxPrompt(tip + ' kac isciyi koyluye donusturmek istiyorsunuz?');
   if (!adet || isNaN(adet) || parseInt(adet) <= 0) return;
   try {
     var resp = await fetch(API_BASE + '/api/guild/' + guildId + '/isci-cikar', {
       method: 'POST', headers: guildHdr(), body: JSON.stringify({ tip: tip, adet: parseInt(adet) })
     });
     var data = await resp.json();
-    if (resp.ok) { toast(data.mesaj); loadGuild(); } else alert(data.error);
-  } catch(e) { alert('Hata'); }
+    if (resp.ok) { toast(data.mesaj); loadGuild(); } else noxAlert(data.error);
+  } catch(e) { noxAlert('Hata'); }
 }
 
 async function guildAskerYap(guildId) {
   var adet = parseInt(document.getElementById('guild-asker-adet')?.value);
-  if (!adet || adet <= 0) { alert('Gecerli bir adet girin'); return; }
+  if (!adet || adet <= 0) { noxAlert('Gecerli bir adet girin'); return; }
   try {
     var resp = await fetch(API_BASE + '/api/guild/' + guildId + '/asker-yap', {
       method: 'POST', headers: guildHdr(), body: JSON.stringify({ adet: adet })
     });
     var data = await resp.json();
-    if (resp.ok) { toast(data.mesaj); loadGuild(); } else alert(data.error);
-  } catch(e) { alert('Hata'); }
+    if (resp.ok) { toast(data.mesaj); loadGuild(); } else noxAlert(data.error);
+  } catch(e) { noxAlert('Hata'); }
 }
 
 async function guildAmbarIstek(guildId) {
   var kaynak = document.getElementById('ambar-istek-kaynak')?.value;
   var miktar = parseInt(document.getElementById('ambar-istek-miktar')?.value);
-  if (!kaynak || !miktar || miktar <= 0) { alert('Kaynak ve miktar girin'); return; }
+  if (!kaynak || !miktar || miktar <= 0) { noxAlert('Kaynak ve miktar girin'); return; }
   try {
     var resp = await fetch(API_BASE + '/api/guild/' + guildId + '/ambar-istek', {
       method: 'POST', headers: guildHdr(), body: JSON.stringify({ kaynak: kaynak, miktar: miktar })
     });
     var data = await resp.json();
-    if (resp.ok) { toast(data.mesaj); guildAmbarIsteklerYukle(guildId); } else alert(data.error);
-  } catch(e) { alert('Hata'); }
+    if (resp.ok) { toast(data.mesaj); guildAmbarIsteklerYukle(guildId); } else noxAlert(data.error);
+  } catch(e) { noxAlert('Hata'); }
 }
 
 async function guildAmbarIstekOnayla(guildId, istekId, karar) {
@@ -1674,8 +1674,8 @@ async function guildAmbarIstekOnayla(guildId, istekId, karar) {
       method: 'POST', headers: guildHdr(), body: JSON.stringify({ karar: karar })
     });
     var data = await resp.json();
-    if (resp.ok) { toast(data.mesaj); guildAmbarIsteklerYukle(guildId); } else alert(data.error);
-  } catch(e) { alert('Hata'); }
+    if (resp.ok) { toast(data.mesaj); guildAmbarIsteklerYukle(guildId); } else noxAlert(data.error);
+  } catch(e) { noxAlert('Hata'); }
 }
 
 // ═══════════════════════════════════
@@ -1686,25 +1686,25 @@ async function guildTakviyeGonder(hedefPlayerId, hedefIsim) {
   try {
     var resp = await fetch(API_BASE + '/api/army/state', { headers: { 'Authorization': 'Bearer ' + token } });
     var data = await resp.json();
-    if (!resp.ok) { alert('Ordular yuklenemedi'); return; }
+    if (!resp.ok) { noxAlert('Ordular yuklenemedi'); return; }
     var armies = (data.armies || []).filter(function(a) { return !a.is_busy && a.konum_tipi === 'sehir' && a.total_units >= 100; });
-    if (armies.length === 0) { alert('Gonderilecek uygun ordu yok (min 100 unite, mesgul olmayan, evdeki)'); return; }
+    if (armies.length === 0) { noxAlert('Gonderilecek uygun ordu yok (min 100 unite, mesgul olmayan, evdeki)'); return; }
 
-    var secim = prompt('Takviye olarak gondermek icin ordu secin:\n' + armies.map(function(a, i) { return (i+1) + '. ' + a.isim + ' (' + a.total_units + ' unite)'; }).join('\n') + '\n\nNumara girin:', '1');
+    var secim = await noxPrompt('Takviye olarak gondermek icin ordu secin:\n' + armies.map(function(a, i) { return (i+1) + '. ' + a.isim + ' (' + a.total_units + ' unite)'; }).join('\n') + '\n\nNumara girin:', '1');
     if (!secim) return;
     var idx = parseInt(secim) - 1;
-    if (idx < 0 || idx >= armies.length) { alert('Gecersiz secim'); return; }
+    if (idx < 0 || idx >= armies.length) { noxAlert('Gecersiz secim'); return; }
     var ordu = armies[idx];
 
-    if (!confirm(ordu.isim + ' ordusunu ' + hedefIsim + ' oyuncusuna takviye olarak gondermek istiyor musunuz?')) return;
+    if (!await noxConfirm(ordu.isim + ' ordusunu ' + hedefIsim + ' oyuncusuna takviye olarak gondermek istiyor musunuz?')) return;
 
     var res = await fetch(API_BASE + '/api/takviye/gonder', {
       method: 'POST', headers: guildHdr(), body: JSON.stringify({ orduId: ordu.id, hedefPlayerId: hedefPlayerId })
     });
     var result = await res.json();
     if (res.ok) { toast(result.mesaj || 'Takviye yola cikti!'); guildTakviyeDurumYukle(); }
-    else { alert(result.error || 'Hata'); }
-  } catch(e) { alert('Baglanti hatasi'); }
+    else { noxAlert(result.error || 'Hata'); }
+  } catch(e) { noxAlert('Baglanti hatasi'); }
 }
 
 async function guildTakviyeDurumYukle() {
@@ -2027,7 +2027,8 @@ async function guildOrduKur() {
 }
 
 async function guildOrduSil(armyId) {
-  if (!GUILD_DATA || !confirm('Bu orduyu silmek istediginize emin misiniz? Uniteler havuza aktarilir.')) return;
+  if (!GUILD_DATA) return;
+  if (!await noxConfirm('Bu orduyu silmek istediginize emin misiniz? Üniteler havuza aktarılır.')) return;
   try {
     var resp = await fetch(API_BASE + '/api/guild/' + GUILD_DATA.guild.id + '/ordu/sil', {
       method: 'POST', headers: guildHdr(), body: JSON.stringify({ army_id: armyId })
@@ -2836,18 +2837,18 @@ async function renderTabDiplomasi(el, data) {
 async function dipTeklif(tip) {
   var sel = document.getElementById('dip-rakip');
   var rakip = parseInt(sel ? sel.value : 0);
-  if (!rakip) { alert('Rakip guild seç'); return; }
+  if (!rakip) { noxAlert('Rakip guild seç'); return; }
   var endpoint = tip === 'antlasma' ? 'teklif-antlasma' : tip === 'savas' ? 'teklif-savas' : 'teklif-tabiyet';
   var onayMsj = tip === 'antlasma' ? 'Antlaşma teklif edilecek. Onayla?'
               : tip === 'savas' ? '⚔️ SAVAŞ teklif edilecek. Karşı taraf 5 PG içinde kabul/red etmezse savaş otomatik başlar ve reddedene -6% debuff gelir. Onayla?'
               : 'TABIYET teklif edilecek (siz HAKIM olacaksınız). Onayla?';
-  if (!confirm(onayMsj)) return;
+  if (!await noxConfirm(onayMsj)) return;
   try {
     var r = await fetch(API_BASE + '/api/guild-iliski/' + endpoint, { method:'POST', headers:guildHdr(), body:JSON.stringify({rakip_gid:rakip}) });
     var d = await r.json();
-    if (d.ok) { alert('✅ ' + (d.mesaj||'Tamam')); renderTabDiplomasi(document.getElementById('guild-tab-content'), GUILD_DATA); }
-    else alert('Hata: ' + (d.error||''));
-  } catch(e) { alert('Hata: ' + e.message); }
+    if (d.ok) { noxAlert('✅ ' + (d.mesaj||'Tamam')); renderTabDiplomasi(document.getElementById('guild-tab-content'), GUILD_DATA); }
+    else noxAlert('Hata: ' + (d.error||''));
+  } catch(e) { noxAlert('Hata: ' + e.message); }
 }
 async function dipKabul(tip, rakip) {
   var endpoint = tip === 'ANTLASMA' ? 'kabul-antlasma'
@@ -2857,20 +2858,20 @@ async function dipKabul(tip, rakip) {
   try {
     var r = await fetch(API_BASE + '/api/guild-iliski/' + endpoint, { method:'POST', headers:guildHdr(), body:JSON.stringify({rakip_gid:rakip}) });
     var d = await r.json();
-    if (d.ok) { alert('✅ ' + (d.mesaj||'Tamam')); renderTabDiplomasi(document.getElementById('guild-tab-content'), GUILD_DATA); }
-    else alert('Hata: ' + (d.error||''));
-  } catch(e) { alert('Hata: ' + e.message); }
+    if (d.ok) { noxAlert('✅ ' + (d.mesaj||'Tamam')); renderTabDiplomasi(document.getElementById('guild-tab-content'), GUILD_DATA); }
+    else noxAlert('Hata: ' + (d.error||''));
+  } catch(e) { noxAlert('Hata: ' + e.message); }
 }
 async function dipRed(tip, rakip) {
   // SAVAS teklifi reddi -> ozel endpoint + debuff uyarisi
   if (tip === 'SAVAS') {
-    if (!confirm('⚠️ Savaş teklifini reddetsen de SAVAŞ otomatik başlar ve sen -6% ATK/DEF debuff alırsın. Kabul etmek daha avantajlı olabilir. Yine de reddet?')) return;
+    if (!await noxConfirm('⚠️ Savaş teklifini reddetsen de SAVAŞ otomatik başlar ve sen -6% ATK/DEF debuff alırsın. Kabul etmek daha avantajlı olabilir. Yine de reddet?')) return;
     try {
       var r = await fetch(API_BASE + '/api/guild-iliski/red-savas', { method:'POST', headers:guildHdr(), body:JSON.stringify({rakip_gid:rakip}) });
       var d = await r.json();
-      if (d.ok) { alert('⚔️ ' + (d.mesaj||'')); renderTabDiplomasi(document.getElementById('guild-tab-content'), GUILD_DATA); }
-      else alert('Hata: ' + (d.error||''));
-    } catch(e) { alert('Hata: ' + e.message); }
+      if (d.ok) { noxAlert('⚔️ ' + (d.mesaj||'')); renderTabDiplomasi(document.getElementById('guild-tab-content'), GUILD_DATA); }
+      else noxAlert('Hata: ' + (d.error||''));
+    } catch(e) { noxAlert('Hata: ' + e.message); }
     return;
   }
   // ANTLASMA/TABIYET/BARIS teklifi reddi -> genel red-teklif
@@ -2878,43 +2879,43 @@ async function dipRed(tip, rakip) {
     var r = await fetch(API_BASE + '/api/guild-iliski/red-teklif', { method:'POST', headers:guildHdr(), body:JSON.stringify({rakip_gid:rakip}) });
     var d = await r.json();
     if (d.ok) renderTabDiplomasi(document.getElementById('guild-tab-content'), GUILD_DATA);
-    else alert('Hata: ' + (d.error||''));
-  } catch(e) { alert('Hata: ' + e.message); }
+    else noxAlert('Hata: ' + (d.error||''));
+  } catch(e) { noxAlert('Hata: ' + e.message); }
 }
 async function dipTeklifTabiyet(rakip) {
-  if (!confirm('TABIYET teklif edeceksin (siz HAKIM olacaksınız). Karşı kabul ederse 336 PG boyunca üretimin %30\'u kasanıza akar. Onayla?')) return;
+  if (!await noxConfirm('TABIYET teklif edeceksin (siz HAKIM olacaksınız). Karşı kabul ederse 336 PG boyunca üretimin %30\'u kasanıza akar. Onayla?')) return;
   try {
     var r = await fetch(API_BASE + '/api/guild-iliski/teklif-tabiyet', { method:'POST', headers:guildHdr(), body:JSON.stringify({rakip_gid:rakip}) });
     var d = await r.json();
-    if (d.ok) { alert('👑 ' + (d.mesaj||'Tamam')); renderTabDiplomasi(document.getElementById('guild-tab-content'), GUILD_DATA); }
-    else alert('Hata: ' + (d.error||''));
-  } catch(e) { alert('Hata: ' + e.message); }
+    if (d.ok) { noxAlert('👑 ' + (d.mesaj||'Tamam')); renderTabDiplomasi(document.getElementById('guild-tab-content'), GUILD_DATA); }
+    else noxAlert('Hata: ' + (d.error||''));
+  } catch(e) { noxAlert('Hata: ' + e.message); }
 }
 async function dipIptalAntlasma(rakip) {
-  if (!confirm('⚠️ Antlaşmayı iptal edeceksin — SİZ İHANET EDEN olarak kayıt edileceksin. Savaşta -6% ATK/DEF debuff alacaksın. 48+24=72 PG sonra SAVAŞ. Onayla?')) return;
+  if (!await noxConfirm('⚠️ Antlaşmayı iptal edeceksin — SİZ İHANET EDEN olarak kayıt edileceksin. Savaşta -6% ATK/DEF debuff alacaksın. 48+24=72 PG sonra SAVAŞ. Onayla?')) return;
   try {
     var r = await fetch(API_BASE + '/api/guild-iliski/iptal-antlasma', { method:'POST', headers:guildHdr(), body:JSON.stringify({rakip_gid:rakip}) });
     var d = await r.json();
-    if (d.ok) { alert('⚠️ ' + (d.mesaj||'')); renderTabDiplomasi(document.getElementById('guild-tab-content'), GUILD_DATA); }
-    else alert('Hata: ' + (d.error||''));
-  } catch(e) { alert('Hata: ' + e.message); }
+    if (d.ok) { noxAlert('⚠️ ' + (d.mesaj||'')); renderTabDiplomasi(document.getElementById('guild-tab-content'), GUILD_DATA); }
+    else noxAlert('Hata: ' + (d.error||''));
+  } catch(e) { noxAlert('Hata: ' + e.message); }
 }
 async function dipTeklifBaris(rakip) {
   try {
     var r = await fetch(API_BASE + '/api/guild-iliski/teklif-baris', { method:'POST', headers:guildHdr(), body:JSON.stringify({rakip_gid:rakip}) });
     var d = await r.json();
-    if (d.ok) { alert('🕊️ ' + (d.mesaj||'')); renderTabDiplomasi(document.getElementById('guild-tab-content'), GUILD_DATA); }
-    else alert('Hata: ' + (d.error||''));
-  } catch(e) { alert('Hata: ' + e.message); }
+    if (d.ok) { noxAlert('🕊️ ' + (d.mesaj||'')); renderTabDiplomasi(document.getElementById('guild-tab-content'), GUILD_DATA); }
+    else noxAlert('Hata: ' + (d.error||''));
+  } catch(e) { noxAlert('Hata: ' + e.message); }
 }
 async function dipSonlandirTabiyet(rakip) {
-  if (!confirm('TABİYETİ erken sonlandıracaksın. Tazminat akışı kesilir. Onayla?')) return;
+  if (!await noxConfirm('TABİYETİ erken sonlandıracaksın. Tazminat akışı kesilir. Onayla?')) return;
   try {
     var r = await fetch(API_BASE + '/api/guild-iliski/sonlandir-tabiyet', { method:'POST', headers:guildHdr(), body:JSON.stringify({rakip_gid:rakip}) });
     var d = await r.json();
-    if (d.ok) { alert('🔓 ' + (d.mesaj||'')); renderTabDiplomasi(document.getElementById('guild-tab-content'), GUILD_DATA); }
-    else alert('Hata: ' + (d.error||''));
-  } catch(e) { alert('Hata: ' + e.message); }
+    if (d.ok) { noxAlert('🔓 ' + (d.mesaj||'')); renderTabDiplomasi(document.getElementById('guild-tab-content'), GUILD_DATA); }
+    else noxAlert('Hata: ' + (d.error||''));
+  } catch(e) { noxAlert('Hata: ' + e.message); }
 }
 
 // ═══════════════════════════════════
@@ -3134,7 +3135,7 @@ async function guildMezarlikDirilt(guildId, mezId) {
   var adetEl = document.getElementById('mez-adet-' + mezId);
   var adet = parseInt(adetEl?.value);
   if (!adet || adet <= 0) { toast('Gecerli adet girin', 'error'); return; }
-  if (!confirm(adet + ' unite diriltilecek. Altın kasadan kesilecek. Emin misiniz?')) return;
+  if (!await noxConfirm(adet + ' unite diriltilecek. Altın kasadan kesilecek. Emin misiniz?')) return;
   try {
     var resp = await fetch(API_BASE + '/api/guild/' + guildId + '/mezarlik/' + mezId + '/dirilt', {
       method: 'POST', headers: guildHdr(), body: JSON.stringify({ adet })

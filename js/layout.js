@@ -783,7 +783,7 @@ async function loadKuyrukOzet() {
   } catch(e) {}
 }
 
-function renderKuyrukWidget() {
+async function renderKuyrukWidget() {
   if (!KUYRUK_CACHE) return;
   const d = KUYRUK_CACHE;
   // v1.14.1.13: Kisisel toplam — guild kategorileri cikarildi
@@ -1201,8 +1201,8 @@ document.addEventListener('DOMContentLoaded', initLayout);
 */
 // v1.14.3.9: Build stamp — tiklanabilir, cache temizleyip yenileme yapar
 (function buildStamp(){
-  const BUILD = 'v1.14.3.12';
-  const TS    = '2026-05-06 nox-modal AKTIF (chrome popup yerine)';
+  const BUILD = 'v1.14.3.13';
+  const TS    = '2026-05-06 200+ chrome popup -> nox-modal (22 dosya temizlendi)';
   function mount(){
     if (document.getElementById('build-stamp')) return;
     const div = document.createElement('div');

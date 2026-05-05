@@ -53,7 +53,7 @@
   /* ── Public: Install promp'u tetikle ── */
   async function iste() {
     if (_isStandalone()) {
-      alert('Uygulama zaten kurulu!');
+      noxAlert('Uygulama zaten kurulu!');
       return false;
     }
     if (_isIOS()) {
@@ -62,11 +62,11 @@
     }
     if (!_deferredPrompt) {
       // Chrome banner henuz hazir degil veya zaten dismiss edilmis
-      alert('Tarayicinizdan menuden "Ana Ekrana Ekle" / "Uygulamayi Yukle" yapabilirsiniz.\n\nChrome menusu (3 nokta) → Ana ekrana ekle');
+      noxAlert('Tarayicinizdan menuden "Ana Ekrana Ekle" / "Uygulamayi Yukle" yapabilirsiniz.\n\nChrome menusu (3 nokta) → Ana ekrana ekle');
       return false;
     }
     try {
-      _deferredPrompt.prompt();
+      _deferredPrompt.await noxPrompt();
       const choice = await _deferredPrompt.userChoice;
       _deferredPrompt = null;
       console.log('[install] Kullanici tercihi:', choice.outcome);
@@ -130,7 +130,7 @@
     setTimeout(() => _bannerGoster(), 8000);
   }
 
-  function _bannerGoster() {
+  async function _bannerGoster() {
     if (document.getElementById('install-banner')) return;
     if (_isStandalone()) return;
     const div = document.createElement('div');

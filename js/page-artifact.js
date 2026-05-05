@@ -46,8 +46,8 @@ async function artifactKullan(artId) {
     });
     var data = await resp.json();
     if (resp.ok) { toast(data.mesaj); loadArtifact(); if (typeof loadGameData === 'function') loadGameData(); }
-    else alert(data.error);
-  } catch(e) { alert('Hata'); }
+    else noxAlert(data.error);
+  } catch(e) { noxAlert('Hata'); }
 }
 
 document.addEventListener('DOMContentLoaded', function() {

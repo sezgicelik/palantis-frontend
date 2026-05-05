@@ -24,7 +24,7 @@ async function openSavasRaporFromLog(savasId) {
       headers: { 'Authorization': 'Bearer ' + token }
     });
     const data = await resp.json();
-    if (!resp.ok) { alert(data.error || 'Rapor alinamadi'); return; }
+    if (!resp.ok) { noxAlert(data.error || 'Rapor alinamadi'); return; }
     if (typeof showSavasRapor === 'function') {
       showSavasRapor(data.sonuc, data.benim_taraf, {
         saldiranAdi: data.saldiran_kral || 'Saldiran',
@@ -35,8 +35,8 @@ async function openSavasRaporFromLog(savasId) {
         savunanMoral: data.savunan_moral,
         tip: data.tip
       });
-    } else { alert('Savas rapor modulu yuklenmedi'); }
-  } catch(e) { alert('Rapor yuklenemedi: ' + e.message); }
+    } else { noxAlert('Savas rapor modulu yuklenmedi'); }
+  } catch(e) { noxAlert('Rapor yuklenemedi: ' + e.message); }
 }
 
 // v1.13.44: eksik event'ler eklendi (askeri/casus_hedefi/kadim_saldiri/takviye/kadim_ticaret/bocek_yarisi/premium/sandik)

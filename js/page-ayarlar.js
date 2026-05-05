@@ -154,8 +154,8 @@ async function tatilBaslat() {
   // v1.13.42.3: null-safe parseInt (NaN da (!sure) icin true, ama element yoksa explicit kontrol)
   var sureVal = document.getElementById('tatil-sure')?.value || '';
   var sure = parseInt(sureVal);
-  if (!sure || isNaN(sure)) { alert('Sure girin'); return; }
-  if (!confirm('Tatil modunu ' + sure + ' PG icin aktiflestireceksiniz. Emin misiniz?')) return;
+  if (!sure || isNaN(sure)) { noxAlert('Sure girin'); return; }
+  if (!await noxConfirm('Tatil modunu ' + sure + ' PG icin aktiflestireceksiniz. Emin misiniz?')) return;
   var token = getToken(); if (!token) return;
   try {
     var resp = await fetch(API_BASE + '/api/game/tatil', {
@@ -164,12 +164,12 @@ async function tatilBaslat() {
     });
     var data = await resp.json();
     if (resp.ok) { toast(data.mesaj || 'Tatil modu aktif!'); loadTatilDurum(); }
-    else alert(data.error || 'Hata');
-  } catch(e) { alert('Sunucu hatasi'); }
+    else noxAlert(data.error || 'Hata');
+  } catch(e) { noxAlert('Sunucu hatasi'); }
 }
 
 async function tatilIptal() {
-  if (!confirm('Tatili iptal etmek istediginize emin misiniz? Cooldown baslar.')) return;
+  if (!await noxConfirm('Tatili iptal etmek istediginize emin misiniz? Cooldown baslar.')) return;
   var token = getToken(); if (!token) return;
   try {
     var resp = await fetch(API_BASE + '/api/game/tatil', {
@@ -177,8 +177,8 @@ async function tatilIptal() {
     });
     var data = await resp.json();
     if (resp.ok) { toast(data.mesaj || 'Tatil iptal edildi'); loadTatilDurum(); }
-    else alert(data.error || 'Hata');
-  } catch(e) { alert('Sunucu hatasi'); }
+    else noxAlert(data.error || 'Hata');
+  } catch(e) { noxAlert('Sunucu hatasi'); }
 }
 
 // ═══ BAKICILIK ═══
@@ -269,7 +269,7 @@ async function bakiciAra() {
 
 async function bakiciTokenOlustur() {
   var bakiciId = parseInt(document.getElementById('bakici-hedef-id')?.value);
-  if (!bakiciId) { alert('Once bakici olacak oyuncuyu secin!'); return; }
+  if (!bakiciId) { noxAlert('Once bakici olacak oyuncuyu secin!'); return; }
   var gun = parseInt(document.getElementById('bakici-gun')?.value) || 3;
   // İzinleri topla
   var izinler = {};
@@ -284,19 +284,19 @@ async function bakiciTokenOlustur() {
     });
     var data = await resp.json();
     if (resp.ok) { toast('Token olusturuldu!'); loadBakicilikDurum(); }
-    else alert(data.error || 'Hata');
-  } catch(e) { alert('Sunucu hatasi'); }
+    else noxAlert(data.error || 'Hata');
+  } catch(e) { noxAlert('Sunucu hatasi'); }
 }
 
 async function bakicilikIptal() {
-  if (!confirm('Bakici tokenini iptal etmek istediginize emin misiniz?')) return;
+  if (!await noxConfirm('Bakici tokenini iptal etmek istediginize emin misiniz?')) return;
   var token = getToken(); if (!token) return;
   try {
     var resp = await fetch(API_BASE + '/api/ayarlar/bakicilik/iptal', {
       method: 'POST', headers: { 'Authorization': 'Bearer ' + token }
     });
     if (resp.ok) { toast('Token iptal edildi'); loadBakicilikDurum(); }
-  } catch(e) { alert('Hata'); }
+  } catch(e) { noxAlert('Hata'); }
 }
 
 async function telegramBagla() {
@@ -307,8 +307,8 @@ async function telegramBagla() {
     });
     var data = await resp.json();
     if (resp.ok) { toast('Baglanti kodu olusturuldu!'); loadAyarlar(); }
-    else alert(data.error);
-  } catch(e) { alert('Hata'); }
+    else noxAlert(data.error);
+  } catch(e) { noxAlert('Hata'); }
 }
 
 async function telegramTest() {
@@ -317,19 +317,19 @@ async function telegramTest() {
     var resp = await fetch(API_BASE + '/api/ayarlar/telegram/test', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } });
     var data = await resp.json();
     if (resp.ok) toast('Test bildirimi gonderildi! Telegram\'i kontrol edin.');
-    else alert(data.error || 'Hata');
-  } catch(e) { alert('Hata'); }
+    else noxAlert(data.error || 'Hata');
+  } catch(e) { noxAlert('Hata'); }
 }
 
 async function telegramKopar() {
-  if (!confirm('Telegram baglantisini kesmek istediginize emin misiniz?')) return;
+  if (!await noxConfirm('Telegram baglantisini kesmek istediginize emin misiniz?')) return;
   var token = getToken(); if (!token) return;
   try {
     var resp = await fetch(API_BASE + '/api/ayarlar/telegram/kopar', {
       method: 'POST', headers: { 'Authorization': 'Bearer ' + token }
     });
     if (resp.ok) { toast('Baglanti kesildi'); loadAyarlar(); }
-  } catch(e) { alert('Hata'); }
+  } catch(e) { noxAlert('Hata'); }
 }
 
 async function bildirimKaydet() {

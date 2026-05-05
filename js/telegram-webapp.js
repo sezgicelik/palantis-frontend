@@ -153,7 +153,7 @@
     tg,
     autoLogin: telegramAutoLogin,
     haptic: (type) => { try { tg.HapticFeedback.notificationOccurred(type || 'success'); } catch {} },
-    showAlert: (msg) => { try { tg.showAlert(msg); } catch { alert(msg); } },
+    showAlert: (msg) => { try { tg.showAlert(msg); } catch { noxAlert(msg); } },
     showConfirm: (msg) => new Promise(r => {
       try { tg.showConfirm(msg, ok => r(ok)); } catch { r(confirm(msg)); }
     }),

@@ -527,14 +527,14 @@ async function savasRaporIndirPdf(savasId) {
     URL.revokeObjectURL(url);
   } catch (e) {
     if (typeof toast === 'function') toast('PDF üretilemedi: ' + e.message);
-    else alert('PDF üretilemedi: ' + e.message);
+    else noxAlert('PDF üretilemedi: ' + e.message);
   }
 }
 
 async function savasRaporTelegramPdf(savasId) {
   try {
     const token = (typeof getToken === 'function') ? getToken() : localStorage.getItem('palantis_token');
-    if (!token) { alert('Giriş yap'); return; }
+    if (!token) { noxAlert('Giriş yap'); return; }
     if (typeof toast === 'function') toast('PDF üretiliyor...');
     const blob = await _savasRaporPdfBlob(savasId);
     if (typeof toast === 'function') toast('Telegram\'a yükleniyor...');
@@ -547,14 +547,14 @@ async function savasRaporTelegramPdf(savasId) {
     if (!r.ok) {
       const msg = d?.error || ('HTTP ' + r.status);
       if (typeof toast === 'function') toast('Hata: ' + msg);
-      else alert('Hata: ' + msg);
+      else noxAlert('Hata: ' + msg);
       return;
     }
     if (typeof toast === 'function') toast('✅ Telegram\'a gönderildi!');
-    else alert('✅ Telegram\'a gönderildi!');
+    else noxAlert('✅ Telegram\'a gönderildi!');
   } catch (e) {
     if (typeof toast === 'function') toast('PDF gönderilemedi: ' + e.message);
-    else alert('PDF gönderilemedi: ' + e.message);
+    else noxAlert('PDF gönderilemedi: ' + e.message);
   }
 }
 

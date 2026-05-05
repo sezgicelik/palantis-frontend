@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ══════════════════════════════════
 
 let _sbAramaTimeout = null;
-function sbHedefAra() {
+async function sbHedefAra() {
   const val = document.getElementById('sb-hedef-ara').value.trim();
   if (val.length < 2) {
     document.getElementById('sb-arama-sonuc').style.display = 'none';
@@ -357,7 +357,7 @@ async function sbHareketleriYukle() {
 }
 
 async function sbGorevIptal(gorevId) {
-  if (!confirm('Bu gorevi iptal etmek istediginize emin misiniz? Ordu geri donecektir.')) return;
+  if (!await noxConfirm('Bu gorevi iptal etmek istediginize emin misiniz? Ordu geri donecektir.')) return;
 
   try {
     const res = await fetch(`${API_BASE}/api/savas/iptal`, {

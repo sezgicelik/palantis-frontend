@@ -83,8 +83,8 @@ async function casusEgit() {
   try {
     var resp = await fetch(API_BASE + '/api/casus/egit', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } });
     var data = await resp.json();
-    if (resp.ok) { toast(data.mesaj); loadCasus(); } else alert(data.error);
-  } catch(e) { alert('Hata'); }
+    if (resp.ok) { toast(data.mesaj); loadCasus(); } else noxAlert(data.error);
+  } catch(e) { noxAlert('Hata'); }
 }
 
 function casusGonderModal(casusId) {
@@ -134,7 +134,7 @@ async function casusHedefAra() {
 
 async function casusGonder(casusId, gorevTipi) {
   var hedef = parseInt(document.getElementById('casus-hedef')?.value);
-  if (!hedef) { alert('Once hedef oyuncu secin (isim ile arayip tiklayin)'); return; }
+  if (!hedef) { noxAlert('Once hedef oyuncu secin (isim ile arayip tiklayin)'); return; }
   var token = getToken(); if (!token) return;
   try {
     var resp = await fetch(API_BASE + '/api/casus/gonder', {
@@ -142,8 +142,8 @@ async function casusGonder(casusId, gorevTipi) {
       body: JSON.stringify({ casusId: casusId, gorevTipi: gorevTipi, hedefPlayerId: hedef })
     });
     var data = await resp.json();
-    if (resp.ok) { toast(data.mesaj); loadCasus(); } else alert(data.error);
-  } catch(e) { alert('Hata'); }
+    if (resp.ok) { toast(data.mesaj); loadCasus(); } else noxAlert(data.error);
+  } catch(e) { noxAlert('Hata'); }
 }
 
 // v1.13.43: Casus rapor detay formatlama

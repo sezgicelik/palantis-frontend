@@ -309,7 +309,7 @@ async function savasPlanOlusturSubmit() {
   var hedef = document.getElementById('splan-hedef').value;
   var varisLocal = document.getElementById('splan-varis').value;
   var not = document.getElementById('splan-not').value;
-  if (!hedef || !varisLocal) { alert('Hedef ve varış zamanı zorunlu'); return; }
+  if (!hedef || !varisLocal) { noxAlert('Hedef ve varış zamanı zorunlu'); return; }
   try {
     var token = getToken();
     var r = await fetch(API_BASE + '/api/guild/savas-plan', {
@@ -318,12 +318,12 @@ async function savasPlanOlusturSubmit() {
       body: JSON.stringify({ hedef_player_id: parseInt(hedef), varis_zamani: new Date(varisLocal).toISOString(), not_metin: not })
     });
     var d = await r.json();
-    if (!d.ok) { alert('Hata: ' + (d.error || '?')); return; }
+    if (!d.ok) { noxAlert('Hata: ' + (d.error || '?')); return; }
     document.getElementById('savas-plan-olustur-modal').remove();
-    alert('🎯 Plan oluşturuldu');
+    noxAlert('🎯 Plan oluşturuldu');
     var savas = (SAVAS_ODASI_DATA && SAVAS_ODASI_DATA.savaslar) ? SAVAS_ODASI_DATA.savaslar[SAVAS_ODASI_AKTIF_SAVAS_IDX] : null;
     if (savas) loadSavasPlanlari(savas.rakip_guild.id);
-  } catch(e) { alert('Sunucu hatasi: ' + e.message); }
+  } catch(e) { noxAlert('Sunucu hatasi: ' + e.message); }
 }
 
 async function savasPlanKatilModal(planId) {
@@ -334,10 +334,10 @@ async function savasPlanKatilModal(planId) {
       headers: { Authorization: 'Bearer ' + token, 'Cache-Control': 'no-cache' },
       cache: 'no-store'
     });
-    if (!r.ok) { alert('Ordu listesi alinamadi (HTTP ' + r.status + ')'); return; }
+    if (!r.ok) { noxAlert('Ordu listesi alinamadi (HTTP ' + r.status + ')'); return; }
     var d = await r.json();
     var ordular = (d.armies || []).filter(a => !a.is_busy);
-    if (!ordular.length) { alert('Müsait (mesgul olmayan) ordu yok'); return; }
+    if (!ordular.length) { noxAlert('Müsait (mesgul olmayan) ordu yok'); return; }
 
     var modal = document.createElement('div');
     modal.id = 'savas-plan-katil-modal';
@@ -359,7 +359,7 @@ async function savasPlanKatilModal(planId) {
       '</div>';
     document.body.appendChild(modal);
     modal.onclick = function(e) { if (e.target === modal) modal.remove(); };
-  } catch(e) { alert('Ordu listesi alinamadi'); }
+  } catch(e) { noxAlert('Ordu listesi alinamadi'); }
 }
 
 async function savasPlanKatilSubmit(planId) {
@@ -373,16 +373,16 @@ async function savasPlanKatilSubmit(planId) {
       body: JSON.stringify({ army_id: parseInt(armyId) })
     });
     var d = await r.json();
-    if (!d.ok) { alert('Hata: ' + (d.error || '?')); return; }
+    if (!d.ok) { noxAlert('Hata: ' + (d.error || '?')); return; }
     document.getElementById('savas-plan-katil-modal').remove();
-    alert('✓ Katıldın! Kalkış: ' + d.dakika_kala + ' dk sonra');
+    noxAlert('✓ Katıldın! Kalkış: ' + d.dakika_kala + ' dk sonra');
     var savas = (SAVAS_ODASI_DATA && SAVAS_ODASI_DATA.savaslar) ? SAVAS_ODASI_DATA.savaslar[SAVAS_ODASI_AKTIF_SAVAS_IDX] : null;
     if (savas) loadSavasPlanlari(savas.rakip_guild.id);
-  } catch(e) { alert('Sunucu hatasi: ' + e.message); }
+  } catch(e) { noxAlert('Sunucu hatasi: ' + e.message); }
 }
 
 async function savasPlanIptal(planId) {
-  if (!confirm('Plani iptal et?')) return;
+  if (!await noxConfirm('Plani iptal et?')) return;
   try {
     var token = getToken();
     var r = await fetch(API_BASE + '/api/guild/savas-plan/' + planId + '/iptal', {
@@ -390,10 +390,10 @@ async function savasPlanIptal(planId) {
       headers: { 'Authorization': 'Bearer ' + token }
     });
     var d = await r.json();
-    if (!d.ok) { alert('Hata: ' + (d.error || '?')); return; }
+    if (!d.ok) { noxAlert('Hata: ' + (d.error || '?')); return; }
     var savas = (SAVAS_ODASI_DATA && SAVAS_ODASI_DATA.savaslar) ? SAVAS_ODASI_DATA.savaslar[SAVAS_ODASI_AKTIF_SAVAS_IDX] : null;
     if (savas) loadSavasPlanlari(savas.rakip_guild.id);
-  } catch(e) { alert('Sunucu hatasi: ' + e.message); }
+  } catch(e) { noxAlert('Sunucu hatasi: ' + e.message); }
 }
 
 function savasOdasiTabDegistir(idx) {
@@ -586,7 +586,7 @@ async function savasOdasiOrduGonder(hedefId, hedefKral, hx, hy) {
   const orduId = parseInt(document.getElementById('savas-ordu-sec').value);
   const sonuc = document.getElementById('savas-ordu-sonuc');
   if (!orduId) { sonuc.textContent = 'Ordu seç'; return; }
-  if (!confirm('⚔️ ' + hedefKral + ' oyuncusuna saldırı başlat?\nOrdu: ' + orduId)) return;
+  if (!await noxConfirm('⚔️ ' + hedefKral + ' oyuncusuna saldırı başlat?\nOrdu: ' + orduId)) return;
   sonuc.textContent = 'Yola çıkarılıyor...';
   sonuc.style.color = '#888';
   try {
@@ -682,7 +682,7 @@ function renderSavasOdasiBuyuler(hedefId, hedefKral) {
 }
 
 async function savasOdasiBuyuYap(buyuId, hedefId, hedefKral) {
-  if (!confirm('🔮 ' + hedefKral + ' oyuncusuna "' + buyuId + '" büyüsü yapmak istiyor musun?')) return;
+  if (!await noxConfirm('🔮 ' + hedefKral + ' oyuncusuna "' + buyuId + '" büyüsü yapmak istiyor musun?')) return;
   try {
     var token = getToken();
     var r = await fetch(API_BASE + '/api/buyucu-kulesi/buyu-yap', {
@@ -691,12 +691,12 @@ async function savasOdasiBuyuYap(buyuId, hedefId, hedefKral) {
       body: JSON.stringify({ buyu_id: buyuId, hedef_id: hedefId })
     });
     var d = await r.json();
-    if (!d.ok) { alert('Hata: ' + (d.error || '?')); return; }
-    alert('⚡ Büyü yapıldı: ' + (d.mesaj || hedefKral + '\'e büyü atıldı'));
+    if (!d.ok) { noxAlert('Hata: ' + (d.error || '?')); return; }
+    noxAlert('⚡ Büyü yapıldı: ' + (d.mesaj || hedefKral + '\'e büyü atıldı'));
     // Reload buyuler (mana/cooldown guncel)
     _savasBkData = null;
     loadSavasOdasiBuyuler(hedefId, hedefKral);
-  } catch(e) { alert('Sunucu hatasi: ' + e.message); }
+  } catch(e) { noxAlert('Sunucu hatasi: ' + e.message); }
 }
 
 /* ══════════════════════════════════════
@@ -762,8 +762,8 @@ function renderSavasOdasiCasuslar(hedefId, hedefKral) {
 async function savasOdasiCasusGonder(hedefId, hedefKral) {
   var casusId = parseInt(document.getElementById('savas-casus-sec').value);
   var gorevTipi = document.getElementById('savas-casus-gorev').value;
-  if (!casusId || !gorevTipi) { alert('Casus ve görev tipi seç'); return; }
-  if (!confirm('🕵️ Casus #' + casusId + ' → ' + hedefKral + ' (' + gorevTipi + ')?\nGizlilik harcanacak.')) return;
+  if (!casusId || !gorevTipi) { noxAlert('Casus ve görev tipi seç'); return; }
+  if (!await noxConfirm('🕵️ Casus #' + casusId + ' → ' + hedefKral + ' (' + gorevTipi + ')?\nGizlilik harcanacak.')) return;
   try {
     var token = getToken();
     var r = await fetch(API_BASE + '/api/casus/gonder', {
@@ -772,11 +772,11 @@ async function savasOdasiCasusGonder(hedefId, hedefKral) {
       body: JSON.stringify({ casusId: casusId, gorevTipi: gorevTipi, hedefPlayerId: hedefId })
     });
     var d = await r.json();
-    if (!d.basarili) { alert('Hata: ' + (d.error || '?')); return; }
-    alert('🕵️ ' + (d.mesaj || 'Casus gönderildi'));
+    if (!d.basarili) { noxAlert('Hata: ' + (d.error || '?')); return; }
+    noxAlert('🕵️ ' + (d.mesaj || 'Casus gönderildi'));
     _savasCasusData = null;
     loadSavasOdasiCasuslar(hedefId, hedefKral);
-  } catch(e) { alert('Sunucu hatasi: ' + e.message); }
+  } catch(e) { noxAlert('Sunucu hatasi: ' + e.message); }
 }
 
 // ─── Utility ─────────────

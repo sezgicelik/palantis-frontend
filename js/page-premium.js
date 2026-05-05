@@ -93,7 +93,7 @@ async function satinAl(paketId) {
   const token = getToken();
   if (!token) return showToast('Giris yap', 'error');
   const l = PAKET_LABEL[paketId] || { isim: paketId };
-  if (!confirm(`${l.isim} paketi icin siparis olusturulsun mu?`)) return;
+  if (!await noxConfirm(`${l.isim} paketi icin siparis olusturulsun mu?`)) return;
   try {
     const r = await fetch(API_BASE + '/api/premium/odeme-baslat', {
       method: 'POST',
@@ -158,7 +158,7 @@ async function loadSiparisler() {
 }
 
 async function iptalEt(siparisId) {
-  if (!confirm(`Siparis #${siparisId} iptal edilsin mi?`)) return;
+  if (!await noxConfirm(`Siparis #${siparisId} iptal edilsin mi?`)) return;
   const token = getToken();
   try {
     const r = await fetch(API_BASE + '/api/premium/iptal-siparis', {

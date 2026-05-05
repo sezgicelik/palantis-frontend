@@ -372,7 +372,7 @@ async function confirmBuild(){
 // Tamir fonksiyonu — v1.14.3.0 site-içi modal
 async function tamirBina(binaId) {
   const b = BLDGS[binaId];
-  const A = window.noxAlert || ((m) => alert(m));
+  const A = window.noxAlert || ((m) => noxAlert(m));
   const C = window.noxChoice || ((m, s1, s2) => Promise.resolve(confirm(`${m}\n${s1} = OK, ${s2} = İptal`) ? 0 : 1));
   if (!b || b._dayaniklilik >= 100) { await A('Bu bina tamir gerektirmiyor.'); return; }
 
@@ -406,7 +406,7 @@ async function tamirBina(binaId) {
 // v1.14.3.8: Toplu insa kuyrugunu iptal et + %80 IADE + uyari
 // Sezgi: "inşaat iptal edilince 80% i verelim ve uyarı gösterelim"
 async function iptalKuyruk(binaId, binaIsim, kalan) {
-  const A = window.noxAlert || ((m) => alert(m));
+  const A = window.noxAlert || ((m) => noxAlert(m));
   const C = window.noxConfirm || ((m) => Promise.resolve(confirm(m)));
   const ok = await C(
     `⚠️ ${binaIsim} — ${kalan} sıradaki emir iptal\n\n` +
@@ -446,8 +446,8 @@ async function iptalKuyruk(binaId, binaIsim, kalan) {
 // v1.14.3.0: Yıkma — site-içi modal (tarayıcı popup yerine)
 async function yikBina(binaId) {
   const b = BLDGS[binaId];
-  const A = window.noxAlert || ((m) => { alert(m); });
-  const P = window.noxPrompt || ((m, d) => prompt(m, d));
+  const A = window.noxAlert || ((m) => { noxAlert(m); });
+  const P = window.noxPrompt || ((m, d) => await noxPrompt(m, d));
   const CD = window.noxConfirmDanger || ((m) => Promise.resolve(confirm(m)));
 
   if (!b || b.lv <= 0) { await A('Bu bina yıkılamaz (zaten yok).'); return; }
@@ -492,8 +492,8 @@ async function yikBina(binaId) {
 
 // v1.14.3.0: Toplu tamir — site-içi modal
 async function topluTamir() {
-  const A = window.noxAlert || ((m) => alert(m));
-  const P = window.noxPrompt || ((m, d) => prompt(m, d));
+  const A = window.noxAlert || ((m) => noxAlert(m));
+  const P = window.noxPrompt || ((m, d) => await noxPrompt(m, d));
   const C = window.noxChoice || ((m, s1, s2) => Promise.resolve(confirm(`${m}\n${s1} = OK, ${s2} = İptal`) ? 0 : 1));
 
   const esikStr = await P(
@@ -538,8 +538,8 @@ async function topluTamir() {
 
 // v1.14.3.0: Hızlandırma — site-içi modal
 async function hizlandirModal(binaId, binaName) {
-  const A = window.noxAlert || ((m) => alert(m));
-  const P = window.noxPrompt || ((m, d) => prompt(m, d));
+  const A = window.noxAlert || ((m) => noxAlert(m));
+  const P = window.noxPrompt || ((m, d) => await noxPrompt(m, d));
   const info = window._insaatInfo || {};
   const maxKoylu = Math.min(info.hizlandirma_max_koylu || 20, info.bos_koylu_reel || 0);
   if (maxKoylu <= 0) { await A('Boş köylün yok — hızlandırma için köylü gerekli.'); return; }

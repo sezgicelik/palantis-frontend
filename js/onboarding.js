@@ -188,7 +188,7 @@ function obGoogleLogin() {
 }
 
 /* -- Giris / Kayit -- */
-function obLogin() {
+async function obLogin() {
   const username = document.getElementById('ob-username').value.trim();
   const password = document.getElementById('ob-password').value;
   const errEl = document.getElementById('ob-login-err');
@@ -305,7 +305,7 @@ function obBakiciGiris() {
         hesap_kral: data.hesap_kral,
         token_id: data.bakici_token_id
       }));
-      alert('Bakici girisi basarili! ' + (data.hesap_kral || '') + ' hesabina kisitli yetkilerle giriyorsunuz.');
+      noxAlert('Bakici girisi basarili! ' + (data.hesap_kral || '') + ' hesabina kisitli yetkilerle giriyorsunuz.');
       window.location.href = 'home.html';
     }
   })
@@ -355,7 +355,7 @@ function renderObIrkGrid() {
 }
 
 /* -- Bitir -- oyuna gir -- */
-function obFinish() {
+async function obFinish() {
   if (!obSelectedIrk || !obSelectedSide) return;
   if (!obSelectedKral) {
     loadPlayerFromAPI().then(p => {
@@ -382,12 +382,12 @@ function obFinish() {
       });
       return;
     }
-    if (data.error) { alert(data.error); return; }
+    if (data.error) { noxAlert(data.error); return; }
     savePlayer(data.player);
     obApplyPlayer(data.player);
     window.location.href = 'home.html';
   })
-  .catch(() => alert('Sunucuya baglanamadi!'));
+  .catch(() => noxAlert('Sunucuya baglanamadi!'));
 }
 
 function obEnterGame() {

@@ -50,11 +50,11 @@
   /* ── Subscribe + backend'e kaydet ── */
   async function istegi() {
     if (durum() === 'unsupported') {
-      alert('Bu tarayici push bildirimleri desteklemiyor.');
+      noxAlert('Bu tarayici push bildirimleri desteklemiyor.');
       return false;
     }
     if (durum() === 'denied') {
-      alert('Bildirim izni reddedildi. Tarayici ayarlarindan acmaniz gerekiyor.');
+      noxAlert('Bildirim izni reddedildi. Tarayici ayarlarindan acmaniz gerekiyor.');
       return false;
     }
 
@@ -140,7 +140,7 @@
   /* ── Test bildirim ── */
   async function test() {
     const token = tokenAl();
-    if (!token) { alert('Once giris yap'); return; }
+    if (!token) { noxAlert('Once giris yap'); return; }
     const r = await fetch(API + '/api/push/test', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
@@ -150,7 +150,7 @@
   }
 
   /* ── Setup Banner — sadece login olmus + permission='default' iken goster ── */
-  function setupBanner() {
+  async function setupBanner() {
     if (durum() !== 'default') return;       // izin verilmis veya reddedilmis
     if (!tokenAl()) return;                   // login degil
     try {
@@ -179,7 +179,7 @@
       div.remove();
       const ok = await istegi();
       if (ok) {
-        alert('🔔 Bildirimleri actin! Saldiri/kervan haberleri telefonunuza gelecek.');
+        noxAlert('🔔 Bildirimleri actin! Saldiri/kervan haberleri telefonunuza gelecek.');
       }
     };
     document.getElementById('push-banner-no').onclick = () => {

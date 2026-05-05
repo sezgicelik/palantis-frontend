@@ -76,8 +76,8 @@ async function meydanYaz() {
     });
     var data = await resp.json();
     if (resp.ok) { inp.value = ''; loadMeydanMesajlar(); }
-    else { alert('Meydan hatasi: ' + (data.error || 'Bilinmeyen hata')); }
-  } catch(e) { alert('Baglanti hatasi: ' + e.message); }
+    else { noxAlert('Meydan hatasi: ' + (data.error || 'Bilinmeyen hata')); }
+  } catch(e) { noxAlert('Baglanti hatasi: ' + e.message); }
 }
 
 // Enter ile gonder + sayfa init
@@ -174,8 +174,8 @@ async function ozelGonder() {
       body: JSON.stringify({ hedefPlayerId: hedef, baslik: baslik, mesaj: mesaj })
     });
     var data = await resp.json();
-    if (resp.ok) { toast(data.mesaj); loadOzelMesajlar(); } else alert(data.error);
-  } catch(e) { alert('Hata'); }
+    if (resp.ok) { toast(data.mesaj); loadOzelMesajlar(); } else noxAlert(data.error);
+  } catch(e) { noxAlert('Hata'); }
 }
 
 async function ozelOku(mesajId) {
