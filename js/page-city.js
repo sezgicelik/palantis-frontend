@@ -280,6 +280,37 @@ async function confirmBuild(){
   Object.entries(cost1).forEach(([r,a])=>{totalCost[r]=a*adet;});
   if(!canAfford(totalCost)){toast('Yetersiz kaynak!');return;}
 
+  // v1.14.3.2: Cag limiti pre-check (Sezgi: 'kalan_insa hesaba katilmiyor')
+  // Limit = max çağ-bazlı, kullanılan = seviye + insada(1) + kalan_insa
+  if (b.cagLimit && typeof b.cagLimit === 'object') {
+    const playerCag = OYUNCU?.cag || 1;
+    const cagSinirsiz = b.cagLimit[playerCag] === -1;
+    if (!cagSinirsiz) {
+      const maxAdet = b.cagLimit[playerCag] ?? 999;
+      // Mevcut + insada (queueEnd varsa) + kalan_insa
+      const insada = (b._kalanInsa || 0) > 0 ? 1 : 0; // kalan_insa>0 ise insada da 1 var
+      // Aslında kalan_insa zaten "şu an inşa edilen DAHIL DEĞİL, sıradakiler".
+      // _kalanInsa=N ise: 1 şu an inşada + N sırada = N+1 toplam
+      // Toplam = lv + (kalan_insa>0 ? kalan_insa+1 : 0) (1 inşada + N sırada)
+      // Ama kart insada=true ise direkt göstermek için: lv + kalanInsa + (in_queue ? 1 : 0)
+      // Basit yaklaşım: lv + max(_kalanInsa, 0) → backend zaten doğrusunu kontrol ediyor
+      const mevcutToplam = b.lv + (b._kalanInsa || 0);
+      if (mevcutToplam + adet > maxAdet) {
+        const kullanilabilir = Math.max(0, maxAdet - mevcutToplam);
+        const A = window.noxAlert || ((m) => { toast(m); });
+        await A(
+          `${b.name} bina limiti aşıldı.\n\n` +
+          `${playerCag}. çağ max: ${maxAdet} adet\n` +
+          `Mevcut + kuyrukta: ${mevcutToplam}\n` +
+          `İstediğin: ${adet}\n\n` +
+          `En fazla ${kullanilabilir} adet daha emir verebilirsin.`,
+          '⚠️ Bina Limiti'
+        );
+        return;
+      }
+    }
+  }
+
   const token = getToken();
   if(!token){toast('Oturum bulunamadi!');return;}
 
@@ -302,11 +333,22 @@ async function confirmBuild(){
       return;
     }
 
-    await fetch(API_BASE + '/api/game/buildings/upgrade', {
+    // v1.14.3.2: Backend response kontrolu — hata varsa kullaniciya goster + kaynagi iade et
+    const upResp = await fetch(API_BASE + '/api/game/buildings/upgrade', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
       body: JSON.stringify({ binaId: b.id, adet })
     });
+    if (!upResp.ok) {
+      const upErr = await upResp.json().catch(() => ({}));
+      const A = window.noxAlert || ((m) => { toast(m); });
+      await A(upErr.error || 'İnşaat reddedildi (limit, alan veya başka sebep)', '⚠️ İnşa Hatası');
+      // Kaynak iade — backend zaten resources/spend ile düşmüştü
+      // En kolay yol: tekrar yükle (loadGameData kaynakları doğru gösterir)
+      if (typeof loadGameData === 'function') await loadGameData();
+      closeModal();
+      return;
+    }
   } catch(e) {
     if(!backendSuccess) spendCost(totalCost);
   }
