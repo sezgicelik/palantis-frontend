@@ -23,14 +23,39 @@
     var R = window.RES || {};
     var E = window.EXTRA_RES || {};
     var O = window.OYUNCU || {};
-    var W = window.workers || window.population || {};
+    // v1.14.2.6: workers iki sema da kabul: backend (oduncu/madenci/ciftci/balikci/tuccar)
+    // veya frontend (wood/iron/farm/fish/merchant). Ikisi de aynı kişiyi gösterir.
+    var Wraw = window.workers || window.population || window.workersRaw || {};
+    var W = {
+      oduncu:   Wraw.oduncu   || Wraw.wood   || 0,
+      madenci:  Wraw.madenci  || Wraw.iron   || 0,
+      ciftci:   Wraw.ciftci   || Wraw.farm   || 0,
+      balikci:  Wraw.balikci  || Wraw.fish   || 0,
+      tuccar:   Wraw.tuccar   || Wraw.merchant || 0,
+      katip:    Wraw.katip    || 0,
+      izci:     Wraw.izci     || 0,
+      asker:    Wraw.asker    || 0,
+      worshipper: Wraw.worshipper || (Wraw.worshipper_beyaz||0)+(Wraw.worshipper_kirmizi||0)+(Wraw.worshipper_mavi||0)+(Wraw.worshipper_yesil||0),
+    };
     var N = window.NUFUS_DATA || null;
-    var bina = window.BUILDINGS_DATA || null;
 
+    // v1.14.2.6: BLDGS global'i const tanimli, window.BLDGS olarak erisilmez.
+    // Try-catch ile direkt erisim dene; yoksa BUILDINGS_DATA fallback.
+    var bldgsRef = null;
+    try { bldgsRef = (typeof BLDGS !== 'undefined') ? BLDGS : null; } catch(e) {}
+    var binaData = bldgsRef || window.BUILDINGS_DATA || null;
     var binaAdet = function(id) {
-      if (!bina || !bina.binalar) return 0;
-      var b = bina.binalar.find(x => x.bina_id === id);
-      return b ? (b.seviye || 0) : 0;
+      if (!binaData) return 0;
+      // BLDGS format: { oduncu: {lv: 7, ...}, ... }
+      if (binaData[id] && typeof binaData[id] === 'object') {
+        return parseInt(binaData[id].lv || binaData[id].seviye || binaData[id].adet || 0) || 0;
+      }
+      // BUILDINGS_DATA array format: { binalar: [{bina_id:'oduncu', seviye:7}, ...] }
+      if (Array.isArray(binaData.binalar)) {
+        var b = binaData.binalar.find(x => x.bina_id === id);
+        return b ? (parseInt(b.seviye) || 0) : 0;
+      }
+      return 0;
     };
 
     return {
@@ -533,17 +558,25 @@
       + '</div>';
 
     if (aktifSubTab === 'onboarding') {
-      var liste = ONBOARDING.map(function(g) {
-        var bitti = false; try { bitti = g.bitti(s); } catch {}
-        return '<div class="bk-task' + (bitti?' done':'') + '">'
-          + '<div class="bk-check">' + (bitti?'✓':'!') + '</div>'
+      // v1.14.2.6: Yapilanlari gizle, sadece eksik gorevleri goster
+      var bittiSayisi = ONBOARDING.filter(g => { try {return g.bitti(s)} catch{return false} }).length;
+      var eksikler = ONBOARDING.filter(g => { try {return !g.bitti(s)} catch{return true} });
+
+      if (eksikler.length === 0) {
+        return subTabs + '<div class="bk-success-box">🎉 Tüm başlangıç görevleri tamamlandı! Resmi Görevler sekmesine geç.</div>';
+      }
+
+      var liste = '<div style="font-size:11px;color:#94a3b8;margin-bottom:8px">' +
+                  bittiSayisi + '/' + ONBOARDING.length + ' tamamlandı — ' +
+                  eksikler.length + ' eksik görev:</div>';
+      liste += eksikler.map(function(g) {
+        return '<div class="bk-task">'
+          + '<div class="bk-check">!</div>'
           + '<div class="bk-task-info">'
             + '<div class="bk-task-title">' + safeText(g.baslik) + '</div>'
             + '<div class="bk-task-desc">' + safeText(g.aciklama) + '</div>'
           + '</div>'
-          + (bitti
-              ? '<button class="bk-action done">Tamam</button>'
-              : '<a href="' + g.link + '" class="bk-action">Git</a>')
+          + '<a href="' + g.link + '" class="bk-action">Git</a>'
           + '</div>';
       }).join('');
       return subTabs + liste;
