@@ -27,6 +27,39 @@
     var WrawDirect = null;
     try { WrawDirect = (typeof population !== 'undefined') ? population : null; } catch(e) {}
     var Wraw = WrawDirect || window.workers || window.population || window.workersRaw || {};
+
+    // v1.14.2.8: Teshis cache yuklendiyse OYUNCU/RES'in eksik alanlarini doldur
+    // OYUNCU.sehir_morali, OYUNCU.aclik, OYUNCU.ordu_morali (HUD lokal degiskenlerinde)
+    // R.kultur_puani, R.gelisim_puani gibi
+    if (teshisCache && teshisCache.ok) {
+      var to = teshisCache.oyuncu || {};
+      var tk = teshisCache.kaynak || {};
+      var ti = teshisCache.isciler || {};
+      O = Object.assign({}, O, {
+        sehir_morali: to.sehir_morali ?? O.sehir_morali ?? 0,
+        ordu_morali: to.ordu_morali ?? O.ordu_morali ?? 100,
+        aclik: to.aclik ?? O.aclik ?? 0,
+        toplam_alan: to.toplam_alan ?? O.toplam_alan,
+        kullanilan_alan: to.kullanilan_alan ?? O.kullanilan_alan,
+      });
+      R = Object.assign({}, R, {
+        altin: tk.altin ?? R.altin,
+        kultur_puani: tk.kultur_puani ?? R.kultur_puani,
+        gelisim_puani: tk.gelisim_puani ?? R.gelisim_puani,
+      });
+      // Workers
+      Wraw = Object.assign({}, Wraw, {
+        oduncu: ti.oduncu ?? Wraw.oduncu,
+        madenci: ti.madenci ?? Wraw.madenci,
+        ciftci: ti.ciftci ?? Wraw.ciftci,
+        balikci: ti.balikci ?? Wraw.balikci,
+        tuccar: ti.tuccar ?? Wraw.tuccar,
+        katip: ti.katip ?? Wraw.katip,
+        izci: ti.izci ?? Wraw.izci,
+        asker: ti.asker ?? Wraw.asker,
+        total: ti.toplam ?? Wraw.total,
+      });
+    }
     var W = {
       oduncu:   Wraw.oduncu   || Wraw.wood   || 0,
       madenci:  Wraw.madenci  || Wraw.iron   || 0,
@@ -107,8 +140,17 @@
       cozum:['Pisirme oranini hemen artir','Ciftlik/balikci kontrolu (population.html)','Pazardan bugday/balik al'] },
 
     { id:'savunmasiz', tier:'acil', tip:'warning',
-      kosul: s => s.cag >= 2 && ((s.W.asker || 0) + ((window.armies||[]).reduce((a,b) => a + (b.toplam_unite||0), 0))) === 0,
-      mesaj:'⚔️ ACIL — Hic askerin yok! Cag 2+ olarak saldiri yiyebilirsin.',
+      kosul: s => {
+        if (s.cag < 2) return false;
+        // v1.14.2.8: 3 kaynaktan kontrol et (asker + ordu + NUFUS_DATA.unite.toplam)
+        var asker = parseInt(s.W.asker) || 0;
+        var armiesTotal = 0;
+        try { armiesTotal = (window.armies || []).reduce((a,b) => a + (b.toplam_unite || 0), 0); } catch(e) {}
+        var unite = 0;
+        try { unite = (window.NUFUS_DATA && window.NUFUS_DATA.unite && window.NUFUS_DATA.unite.toplam) || 0; } catch(e) {}
+        return (asker + armiesTotal + unite) === 0;
+      },
+      mesaj:'⚔️ ACIL — Hic askerin/uniten yok! Cag 2+ olarak saldiri yiyebilirsin.',
       cozum:['army.html → Asker Egitimi','En az 100-200 piyade bas','Surlar yapildi mi kontrol et'] },
 
     { id:'moral_kritik', tier:'acil', tip:'warning',
@@ -187,6 +229,54 @@
       kosul: s => (s.binaAdet('ciftlik') >= 1 || (s.W.balikci||0) >= 5) && s.binaAdet('ocak') === 0 && s.binaAdet('firin') === 0,
       mesaj:'🍳 Ocak/Firin yok — yemekleri pisiremiyorsun (pismis 2x daha etkili).',
       cozum:['Ocak (et pisirme) veya Firin (ekmek)','Pismis = ham × 2 doyma'] },
+
+    // v1.14.2.8: Yemek kapsama uyarisi — popilasyona gore ocak/firin yetersizligi
+    { id:'yemek_kapsama_yetersiz', tier:'orta', tip:'warning',
+      kosul: s => {
+        // Toplam tuketim: total nüfus × 1 / saat
+        var total = 0;
+        try { total = (typeof population !== 'undefined' && population.total) || (s.W.total) || 0; } catch(e) {}
+        if (total < 100) return false;
+        var ocak = s.binaAdet('ocak'), firin = s.binaAdet('firin');
+        // Kapasite: ocak × 100 + firin × 200 (bugday->ekmek), benzer için (et)
+        var pisirmeKapasite = ocak * 100 + firin * 200;
+        // Eger pisirme kapasitesi nüfusun yarısından az ise yetersiz (pismis 2x etkili olduğu için yarı yeter)
+        return pisirmeKapasite < total / 2;
+      },
+      mesaj: () => {
+        var s = getState();
+        var total = 0;
+        try { total = (typeof population !== 'undefined' && population.total) || (s.W.total) || 0; } catch(e) {}
+        var ocak = s.binaAdet('ocak'), firin = s.binaAdet('firin');
+        var kap = ocak*100 + firin*200;
+        var hedef = Math.ceil(total / 2);
+        var eksikFirin = Math.ceil((hedef - kap) / 200);
+        return `🍞 Yetersiz pişirme — ${total.toLocaleString('tr-TR')} nüfus için ${kap}/${hedef} kapasite. ~${eksikFirin} fırın daha gerek (veya ${eksikFirin*2} ocak).`;
+      },
+      cozum:['Sehir → Binalar → Firin (200 kap) veya Ocak (100 kap)','Pisirme orani: population.html → Ocak/Firin Pisirme Orani','Pismis 2x etkili: 100 ekmek = 200 kişi doyurur'] },
+
+    // v1.14.2.8: Yemek üretimi kapsama (cıftlik vs nufus)
+    { id:'ciftlik_kapsama_yetersiz', tier:'orta', tip:'warning',
+      kosul: s => {
+        var total = 0;
+        try { total = (typeof population !== 'undefined' && population.total) || (s.W.total) || 0; } catch(e) {}
+        if (total < 200) return false;
+        var ciftlik = s.binaAdet('ciftlik');
+        var ciftlikUretim = ciftlik * 10; // 10 besi/saat/bina
+        // 1 besi = 20 cig et = 20 kişi doyurur. Kişi başı 1 yemek/saat.
+        // Yani total nüfusun 1/20'si kadar besi/saat lazım.
+        return ciftlikUretim < total / 20;
+      },
+      mesaj: () => {
+        var s = getState();
+        var total = 0;
+        try { total = (typeof population !== 'undefined' && population.total) || (s.W.total) || 0; } catch(e) {}
+        var ciftlik = s.binaAdet('ciftlik');
+        var hedef = Math.ceil(total / 200);
+        var eksik = Math.max(0, hedef - ciftlik);
+        return `🐄 Az ciftlik — ${total.toLocaleString('tr-TR')} nüfus için ${ciftlik}/${hedef} ciftlik. ~${eksik} ciftlik daha gerek (et üretimi).`;
+      },
+      cozum:['Sehir → Binalar → Ciftlik (10 besi/saat × 20 et = 200 doyma/bina)','Tarla + ciftci kombinasyonu da yemek katar'] },
 
     { id:'ahir_yok_cag2', tier:'orta', tip:'success',
       kosul: s => s.cag >= 2 && s.binaAdet('ahir') === 0,
@@ -477,6 +567,7 @@
   var panelAcik = false;
   var insightsCache = null;
   var questCache = null;
+  var teshisCache = null; // v1.14.2.8 — backend state (sehir_morali, KP/GP, GPS, isciler)
 
   var DISMISS_KEY = 'noxara_bilgelik_dismissed';
   function getDismissed() {
@@ -504,6 +595,19 @@
       var t = window.getToken && window.getToken();
       if (!t) return null;
       var r = await fetch(getApiBase() + '/api/player/insights', {
+        headers: { Authorization: 'Bearer ' + t }
+      });
+      if (!r.ok) return null;
+      return await r.json();
+    } catch { return null; }
+  }
+  // v1.14.2.8: Teshis endpoint — gercek backend state (sehir_morali, KP/GP, GPS)
+  // Bilgelik panelde global'ler yetmediginde bu kullanilir
+  async function fetchTeshis() {
+    try {
+      var t = window.getToken && window.getToken();
+      if (!t) return null;
+      var r = await fetch(getApiBase() + '/api/player/teshis', {
         headers: { Authorization: 'Bearer ' + t }
       });
       if (!r.ok) return null;
@@ -877,8 +981,10 @@
       // Cache 5dk geçerliydi, panel kapatıp açtığında eski liste gösteriliyordu.
       insightsCache = null;
       questCache = null;
+      teshisCache = null;
       fetchInsights().then(d => { insightsCache = d || { ok:false, error:'fetch fail' }; rerender(); });
       fetchQuests().then(d => { questCache = d || { gorevler: [] }; rerender(); });
+      fetchTeshis().then(d => { teshisCache = d; rerender(); });
     }
   }
   function panelKapat() {
