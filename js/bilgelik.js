@@ -20,12 +20,13 @@
   // GLOBAL STATE OKUYUCU
   // ──────────────────────────────────────────────
   function getState() {
-    var R = window.RES || {};
-    var E = window.EXTRA_RES || {};
-    var O = window.OYUNCU || {};
-    // v1.14.2.6: workers iki sema da kabul: backend (oduncu/madenci/ciftci/balikci/tuccar)
-    // veya frontend (wood/iron/farm/fish/merchant). Ikisi de aynı kişiyi gösterir.
-    var Wraw = window.workers || window.population || window.workersRaw || {};
+    // v1.14.2.7: const/let global'leri window'da olmaz — direkt erisim try/catch
+    var R = {}; try { R = (typeof RES !== 'undefined') ? RES : (window.RES || {}); } catch(e) {}
+    var E = {}; try { E = (typeof EXTRA_RES !== 'undefined') ? EXTRA_RES : (window.EXTRA_RES || {}); } catch(e) {}
+    var O = {}; try { O = (typeof OYUNCU !== 'undefined') ? OYUNCU : (window.OYUNCU || {}); } catch(e) {}
+    var WrawDirect = null;
+    try { WrawDirect = (typeof population !== 'undefined') ? population : null; } catch(e) {}
+    var Wraw = WrawDirect || window.workers || window.population || window.workersRaw || {};
     var W = {
       oduncu:   Wraw.oduncu   || Wraw.wood   || 0,
       madenci:  Wraw.madenci  || Wraw.iron   || 0,
