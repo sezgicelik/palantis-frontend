@@ -53,6 +53,12 @@
   badgeScript.async = true;
   document.head.appendChild(badgeScript);
 
+  // v1.14.3.0: Nox Modal — site-içi alert/confirm/prompt (tarayıcı popup'ı yerine)
+  const nmScript = document.createElement('script');
+  nmScript.src = './js/nox-modal.js?v=14230';
+  nmScript.async = false; // erken yüklensin (sayfa kodu kullanmadan önce)
+  document.head.appendChild(nmScript);
+
   // v1.14.2.1: Bilgelik Kitabi UPGRADE — 5 sekme + 35 kural + ROI + insights
   const bkScript = document.createElement('script');
   bkScript.src = './js/bilgelik.js?v=14230';

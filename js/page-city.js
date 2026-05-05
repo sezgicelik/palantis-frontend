@@ -319,13 +319,21 @@ async function confirmBuild(){
   toast(`${b.name} insaati basladi!${adetMsg}`);
 }
 
-// Tamir fonksiyonu
+// Tamir fonksiyonu — v1.14.3.0 site-içi modal
 async function tamirBina(binaId) {
   const b = BLDGS[binaId];
-  if (!b || b._dayaniklilik >= 100) { alert('Bu bina tamir gerektirmiyor.'); return; }
+  const A = window.noxAlert || ((m) => alert(m));
+  const C = window.noxChoice || ((m, s1, s2) => Promise.resolve(confirm(`${m}\n${s1} = OK, ${s2} = İptal`) ? 0 : 1));
+  if (!b || b._dayaniklilik >= 100) { await A('Bu bina tamir gerektirmiyor.'); return; }
 
-  const secim = confirm('Hızlı tamir (anında, pahalı) için OK\nNormal tamir (kuyrukta, ucuz) için İptal');
-  const endpoint = secim ? '/api/game/buildings/repair' : '/api/game/buildings/repair-queue';
+  const secim = await C(
+    `${b.name} (%${b._dayaniklilik}) tamiri için yöntem seç:\n\n• Hızlı: anında bitir, 2x altın\n• Normal: kuyruğa al, 1x altın`,
+    '⚡ Hızlı', '🔧 Normal',
+    '🔧 Tamir Yöntemi'
+  );
+  if (secim === null) return; // iptal
+  const hizli = secim === 0;
+  const endpoint = hizli ? '/api/game/buildings/repair' : '/api/game/buildings/repair-queue';
 
   try {
     const token = getToken();
@@ -336,29 +344,42 @@ async function tamirBina(binaId) {
     });
     const data = await resp.json();
     if (resp.ok) {
-      toast(secim ? `Hizli tamir! ${data.maliyet} altin harcandi.` : `Tamir kuyruga alindi (${data.tamir_suresi_pg} PG)`);
+      toast(hizli ? `⚡ Hızlı tamir! ${data.maliyet} altın harcandı.` : `🔧 Tamir kuyruğa alındı (${data.tamir_suresi_pg} PG)`);
       if (typeof loadGameData === 'function') await loadGameData();
       renderGrid();
     } else {
-      alert(data.error || 'Tamir hatasi');
+      await A(data.error || 'Tamir hatası');
     }
-  } catch(e) { alert('Sunucu hatasi'); }
+  } catch(e) { await A('Sunucu hatası: ' + e.message); }
 }
 
-// v1.14.0: Yıkma fonksiyonu — kaynak iadesi YOK, sadece alan geri alınır
+// v1.14.3.0: Yıkma — site-içi modal (tarayıcı popup yerine)
 async function yikBina(binaId) {
   const b = BLDGS[binaId];
-  if (!b || b.lv <= 0) { alert('Bu bina yıkılamaz (zaten yok).'); return; }
-  if (b.mergeOnly) { alert(`${b.name} yıkılamaz — birleştirme ile oluşur.`); return; }
+  const A = window.noxAlert || ((m) => { alert(m); });
+  const P = window.noxPrompt || ((m, d) => prompt(m, d));
+  const CD = window.noxConfirmDanger || ((m) => Promise.resolve(confirm(m)));
+
+  if (!b || b.lv <= 0) { await A('Bu bina yıkılamaz (zaten yok).'); return; }
+  if (b.mergeOnly) { await A(`${b.name} yıkılamaz — birleştirme ile oluşur.`); return; }
 
   // Kaç adet input
-  const adetStr = prompt(`${b.name} kaç adet yıkılsın? (1-${b.lv})\n⚠ Kaynak iadesi YOK, sadece alan geri döner.`, '1');
+  const adetStr = await P(
+    `${b.name} kaç adet yıkılsın? (1-${b.lv})\n⚠ Kaynak iadesi YOK, sadece alan geri döner.`,
+    '1',
+    `🔨 ${b.name} Yıkımı`
+  );
   if (!adetStr) return;
   const adet = parseInt(adetStr);
-  if (!adet || adet < 1 || adet > b.lv) { alert('Geçersiz adet.'); return; }
+  if (!adet || adet < 1 || adet > b.lv) { await A('Geçersiz adet.'); return; }
 
   const alanGeri = adet * (typeof binaAlanFE === 'function' ? binaAlanFE(binaId) : 1);
-  if (!confirm(`${adet} ${b.name} yıkılacak.\nAlan geri dönüşü: ${alanGeri}\nKaynak iadesi: YOK\n\nDevam?`)) return;
+  const onayli = await CD(
+    `${adet} adet ${b.name} yıkılacak.\n\n• Alan geri dönüşü: ${alanGeri}\n• Kaynak iadesi: YOK\n\nDevam etmek istiyor musun?`,
+    '⚠️ Yıkım Onayı',
+    `🔨 Yık (${adet})`
+  );
+  if (!onayli) return;
 
   try {
     const token = getToken();
@@ -374,19 +395,33 @@ async function yikBina(binaId) {
       if (typeof loadBuildingsFromBackend === 'function') await loadBuildingsFromBackend();
       renderGrid();
     } else {
-      alert(data.error || 'Yıkım hatası');
+      await A(data.error || 'Yıkım hatası');
     }
-  } catch(e) { alert('Sunucu hatası: ' + e.message); }
+  } catch(e) { await A('Sunucu hatası: ' + e.message); }
 }
 
-// v1.14.0: Toplu tamir
+// v1.14.3.0: Toplu tamir — site-içi modal
 async function topluTamir() {
-  const esikStr = prompt('Dayanıklılık yüzdesi kaçın altındakiler tamir edilsin?\n(Örn: 30 → %30 altı olanlar)', '30');
+  const A = window.noxAlert || ((m) => alert(m));
+  const P = window.noxPrompt || ((m, d) => prompt(m, d));
+  const C = window.noxChoice || ((m, s1, s2) => Promise.resolve(confirm(`${m}\n${s1} = OK, ${s2} = İptal`) ? 0 : 1));
+
+  const esikStr = await P(
+    'Dayanıklılık yüzdesi kaçın altındakiler tamir edilsin?\n(Örn: 30 → %30 altı olanlar)',
+    '30',
+    '🔧 Toplu Tamir'
+  );
   if (!esikStr) return;
   const esik = parseInt(esikStr);
-  if (!esik || esik < 1 || esik > 99) { alert('Geçersiz yüzde (1-99).'); return; }
+  if (!esik || esik < 1 || esik > 99) { await A('Geçersiz yüzde (1-99).'); return; }
 
-  const tip = confirm('Hızlı (anında) = OK\nNormal (kuyrukta, ucuz) = İptal') ? 'hizli' : 'normal';
+  const secim = await C(
+    'Tamir tipini seç:\n\n• Hızlı: anında bitir, 2x altın\n• Normal: kuyruğa al, 1x altın',
+    '⚡ Hızlı', '🔧 Normal',
+    'Tamir Tipi'
+  );
+  if (secim === null) return;
+  const tip = secim === 0 ? 'hizli' : 'normal';
 
   try {
     const token = getToken();
@@ -406,24 +441,26 @@ async function topluTamir() {
       if (typeof loadBuildingsFromBackend === 'function') await loadBuildingsFromBackend();
       renderGrid();
     } else {
-      alert(data.error || 'Toplu tamir hatası');
+      await A(data.error || 'Toplu tamir hatası');
     }
-  } catch(e) { alert('Sunucu hatası: ' + e.message); }
+  } catch(e) { await A('Sunucu hatası: ' + e.message); }
 }
 
-// v1.14.0.60: Hızlandırma modal (Hızlandırma modunda inşaata ek köylü ekle)
+// v1.14.3.0: Hızlandırma — site-içi modal
 async function hizlandirModal(binaId, binaName) {
+  const A = window.noxAlert || ((m) => alert(m));
+  const P = window.noxPrompt || ((m, d) => prompt(m, d));
   const info = window._insaatInfo || {};
   const maxKoylu = Math.min(info.hizlandirma_max_koylu || 20, info.bos_koylu_reel || 0);
-  if (maxKoylu <= 0) { alert('Boş köylün yok — hızlandırma için köylü gerekli.'); return; }
+  if (maxKoylu <= 0) { await A('Boş köylün yok — hızlandırma için köylü gerekli.'); return; }
   const oran = info.hizlandirma_oran_yuzde || 5;
-  const girdi = prompt(
-    `⚡ ${binaName} inşaatını hızlandır\n\n` +
+  const girdi = await P(
     `Her ek köylü: %${oran} süre azaltır\n` +
     `Maksimum: ${maxKoylu} köylü (%${Math.min(100, maxKoylu*oran)} hızlanma)\n` +
     `Boş köylün: ${info.bos_koylu_reel}\n\n` +
     `Kaç köylü atamak istersin? (1-${maxKoylu})`,
-    String(Math.min(5, maxKoylu))
+    String(Math.min(5, maxKoylu)),
+    `⚡ ${binaName} İnşaat Hızlandır`
   );
   const ek = parseInt(girdi);
   if (!ek || ek < 1 || ek > maxKoylu) return;
@@ -441,9 +478,9 @@ async function hizlandirModal(binaId, binaName) {
       renderGrid();
       renderQueue();
     } else {
-      alert(data.error || 'Hızlandırma hatası');
+      await A(data.error || 'Hızlandırma hatası');
     }
-  } catch(e) { alert('Sunucu hatası: ' + e.message); }
+  } catch(e) { await A('Sunucu hatası: ' + e.message); }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
