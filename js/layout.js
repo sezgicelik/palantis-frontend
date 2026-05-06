@@ -1201,8 +1201,8 @@ document.addEventListener('DOMContentLoaded', initLayout);
 */
 // v1.14.3.9: Build stamp — tiklanabilir, cache temizleyip yenileme yapar
 (function buildStamp(){
-  const BUILD = 'v1.14.3.13';
-  const TS    = '2026-05-06 200+ chrome popup -> nox-modal (22 dosya temizlendi)';
+  const BUILD = 'v1.14.3.14';
+  const TS    = '2026-05-06 Admin Oyuncu Mudahale paneli + Logging analizi';
   function mount(){
     if (document.getElementById('build-stamp')) return;
     const div = document.createElement('div');

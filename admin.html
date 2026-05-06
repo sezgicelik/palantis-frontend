@@ -87,6 +87,7 @@
     <button onclick="switchTab('iz-surme',this)" style="background:linear-gradient(135deg,#16a085 0%,#0e6b52 100%);color:#fff">🕵️ Iz Surme</button>
     <button onclick="switchTab('bug-bildirimleri',this)" style="background:linear-gradient(135deg,#e74c3c 0%,#922b21 100%);color:#fff">🐛 Bug Bildirimleri</button>
     <button onclick="switchTab('insaat-mod',this)" style="background:linear-gradient(135deg,#d4a257 0%,#8a6a1a 100%);color:#fff">🏗️ İnşaat Modu</button>
+    <button onclick="switchTab('oyuncu-mudahale',this)" style="background:linear-gradient(135deg,#3498db 0%,#1f618d 100%);color:#fff">🛠️ Oyuncu Müdahale</button>
   </div>
 
   <!-- CRON TAB -->
@@ -1336,6 +1337,116 @@
 
     <button class="act" onclick="insaatModKaydet()" style="background:#d4a257;color:#000;padding:8px 20px;font-weight:bold">💾 Kaydet</button>
     <span id="im-msg" style="margin-left:10px;font-size:11px"></span>
+  </div>
+
+  <!-- v1.14.3.14 OYUNCU MUDAHALE TAB — tek panelden tum oyuncu islemleri -->
+  <div id="tab-oyuncu-mudahale" class="panel">
+    <h3 style="color:#3498db">🛠️ Oyuncu Müdahale Paneli</h3>
+    <p style="font-size:11px;color:#888;margin-bottom:14px">
+      Oyuncu ID gir, tüm işlemler tek noktadan. (Eski dağınık endpoint'lerin merkezleştirilmiş hali — v1.14.3.14)
+    </p>
+
+    <!-- Universal Player ID input -->
+    <div class="card" style="background:linear-gradient(135deg,rgba(52,152,219,0.15) 0%,rgba(31,97,141,0.1) 100%);border-left:4px solid #3498db;margin-bottom:16px">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <label style="font-size:12px;color:#aaa">🎯 OYUNCU ID:</label>
+        <input id="om-pid" type="number" placeholder="123" style="padding:8px;width:120px;background:#0a0a0a;border:2px solid #3498db;color:#fff;border-radius:4px;font-size:14px;font-weight:bold;letter-spacing:1px" onchange="omPlayerLoad()">
+        <span style="color:#666">veya</span>
+        <input id="om-isim" type="text" placeholder="Kral ismi (ara)" style="padding:8px;width:160px;background:#0a0a0a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px" oninput="omIsimAra()">
+        <div id="om-isim-sonuc" style="font-size:11px;color:#666"></div>
+        <button class="act" onclick="omPlayerLoad()" style="background:#3498db;color:#fff">📥 Yükle</button>
+      </div>
+      <div id="om-player-info" style="margin-top:10px;padding:10px;background:#0d0d0d;border-radius:4px;font-size:11px;color:#888;display:none"></div>
+    </div>
+
+    <!-- Eylem grid -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px">
+
+      <!-- 1. Şifre değiştir -->
+      <div class="card">
+        <h4 style="color:#e74c3c;margin-top:0">🔑 Şifre Değiştir</h4>
+        <input id="om-yeni-sifre" type="password" placeholder="Yeni şifre (min 6)" style="padding:6px;width:100%;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px;margin-bottom:6px">
+        <button class="act" onclick="omSifreDegistir()" style="background:#e74c3c;color:#fff;width:100%">🔑 Sıfırla</button>
+        <div style="font-size:10px;color:#666;margin-top:4px">Oyuncuya bilgi verilmez. Test sonrası kendisine söyle.</div>
+      </div>
+
+      <!-- 2. Player Fix -->
+      <div class="card">
+        <h4 style="color:#f39c12;margin-top:0">🔧 Player Fix</h4>
+        <p style="font-size:11px;color:#888;margin:0 0 6px">Oyuncu state'ini onarır: nüfus senkron, alan, dayanıklılık, kalan_insa orphan, vs.</p>
+        <button class="act" onclick="omFixPlayer()" style="background:#f39c12;color:#fff;width:100%">🛠️ Otomatik Onar</button>
+      </div>
+
+      <!-- 3. Bildirim Tanı -->
+      <div class="card">
+        <h4 style="color:#9b59b6;margin-top:0">🔔 Bildirim Tanı</h4>
+        <p style="font-size:11px;color:#888;margin:0 0 6px">Telegram + push abonelik durumu, son bildirim, hata logu.</p>
+        <button class="act" onclick="omBildirimTani()" style="background:#9b59b6;color:#fff;width:100%">📡 Tanıla</button>
+        <pre id="om-bildirim-out" style="font-size:10px;background:#0a0a0a;padding:6px;border-radius:3px;margin-top:6px;color:#888;max-height:200px;overflow:auto;display:none"></pre>
+      </div>
+
+      <!-- 4. Kaynak İzle / İade -->
+      <div class="card">
+        <h4 style="color:#16a085;margin-top:0">📦 Kaynak İzle / İade</h4>
+        <p style="font-size:11px;color:#888;margin:0 0 6px">Son 24h kaynak gelir/gider veya manuel kaynak iade.</p>
+        <button class="act" onclick="omKaynakIzle()" style="background:#16a085;color:#fff;width:100%;margin-bottom:4px">📊 İzle</button>
+        <input id="om-kaynak-tip" placeholder="altin / odun / ..." style="padding:4px;width:100%;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px;margin-bottom:4px;font-size:11px">
+        <input id="om-kaynak-miktar" type="number" placeholder="miktar" style="padding:4px;width:100%;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px;margin-bottom:4px;font-size:11px">
+        <button class="act" onclick="omKaynakIade()" style="background:#27ae60;color:#fff;width:100%">💰 İade Et</button>
+      </div>
+
+      <!-- 5. İz Sürme -->
+      <div class="card">
+        <h4 style="color:#d4af37;margin-top:0">🕵️ İz Sürme</h4>
+        <p style="font-size:11px;color:#888;margin:0 0 6px">Session aktivite, IP, cihaz, multi-account, anomali tespiti.</p>
+        <button class="act" onclick="omIzSurme()" style="background:#d4af37;color:#000;width:100%">🔍 İzle</button>
+        <pre id="om-iz-out" style="font-size:10px;background:#0a0a0a;padding:6px;border-radius:3px;margin-top:6px;color:#888;max-height:200px;overflow:auto;display:none"></pre>
+      </div>
+
+      <!-- 6. Reyting Detay -->
+      <div class="card">
+        <h4 style="color:#e67e22;margin-top:0">⚔️ Reyting Detay</h4>
+        <p style="font-size:11px;color:#888;margin:0 0 6px">Ordu rey, asker dağılımı, savaş geçmişi.</p>
+        <button class="act" onclick="omReytingDetay()" style="background:#e67e22;color:#fff;width:100%">📊 Göster</button>
+      </div>
+
+      <!-- 7. Moral Tarihçesi -->
+      <div class="card">
+        <h4 style="color:#c0392b;margin-top:0">🛡️ Moral Tarihçesi</h4>
+        <p style="font-size:11px;color:#888;margin:0 0 6px">Şehir + ordu morali geçmişi, kaynaklar, GPS.</p>
+        <select id="om-moral-gun" style="padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px;font-size:11px;width:100%;margin-bottom:4px">
+          <option value="3">3 gün</option><option value="7" selected>7 gün</option><option value="14">14 gün</option><option value="30">30 gün</option>
+        </select>
+        <button class="act" onclick="omMoralTarih()" style="background:#c0392b;color:#fff;width:100%">📈 Göster</button>
+      </div>
+
+      <!-- 8. Vergi Test -->
+      <div class="card">
+        <h4 style="color:#d4a257;margin-top:0">💰 Vergi Test</h4>
+        <p style="font-size:11px;color:#888;margin:0 0 6px">5 vergi sisteminin canlı karşılaştırması.</p>
+        <button class="act" onclick="omVergiTest()" style="background:#d4a257;color:#000;width:100%">🧮 Hesapla</button>
+      </div>
+
+      <!-- 9. Kervan Müdahale -->
+      <div class="card">
+        <h4 style="color:#8e44ad;margin-top:0">🐪 Kervan Müdahale</h4>
+        <p style="font-size:11px;color:#888;margin:0 0 6px">Kervan debug, zorla varış, durum değiştir.</p>
+        <button class="act" onclick="omKervanDebug()" style="background:#8e44ad;color:#fff;width:100%;margin-bottom:4px">🔍 Kervan Listesi</button>
+        <input id="om-kervan-id" type="number" placeholder="Kervan ID" style="padding:4px;width:100%;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px;margin-bottom:4px;font-size:11px">
+        <button class="act" onclick="omKervanVardir()" style="background:#27ae60;color:#fff;width:100%">⚡ Zorla Vardır</button>
+      </div>
+
+      <!-- 10. Casus Force -->
+      <div class="card">
+        <h4 style="color:#34495e;margin-top:0">🕵️‍♂️ Casus Force</h4>
+        <p style="font-size:11px;color:#888;margin:0 0 6px">Görevdeki casusu zorla tamamla.</p>
+        <input id="om-casus-id" type="number" placeholder="Casus ID" style="padding:4px;width:100%;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px;margin-bottom:4px;font-size:11px">
+        <button class="act" onclick="omCasusForce()" style="background:#34495e;color:#fff;width:100%">⚡ Zorla Tamamla</button>
+      </div>
+
+    </div>
+
+    <div id="om-detay" style="margin-top:14px"></div>
   </div>
 
   <!-- v1.14.0.52 BUG BILDIRIMLERI TAB -->
@@ -5470,6 +5581,207 @@ async function bugSil(id) {
     if (d.ok) loadBugList();
     else alert('Hata: ' + (d.error || r.status));
   } catch (e) { alert('Hata: ' + e.message); }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   v1.14.3.14: OYUNCU MUDAHALE PANELI — tek sekmeden tum oyuncu islemleri
+   Sezgi: "tek 'oyuncu ID gir' yer olsun, butun mudahaleleri buradan yap"
+═══════════════════════════════════════════════════════════════ */
+function omGetPid() {
+  const v = document.getElementById('om-pid').value;
+  if (!v) { alert('Önce Oyuncu ID gir.'); return null; }
+  return parseInt(v);
+}
+function omLog(msg, type) {
+  const d = document.getElementById('om-detay');
+  const renk = type === 'err' ? '#e74c3c' : type === 'ok' ? '#2ecc71' : '#3498db';
+  const ts = new Date().toLocaleTimeString('tr-TR');
+  d.innerHTML = `<div class="card" style="border-left:3px solid ${renk}"><div style="color:${renk};font-weight:bold;font-size:12px;margin-bottom:6px">[${ts}] ${msg.split('\n')[0]}</div><pre style="font-size:11px;color:#ccc;margin:0;white-space:pre-wrap">${msg.split('\n').slice(1).join('\n') || ''}</pre></div>` + d.innerHTML;
+}
+
+// İsim ile arama → ID otomatik doldur
+let _omIsimDebounce = null;
+function omIsimAra() {
+  clearTimeout(_omIsimDebounce);
+  const isim = document.getElementById('om-isim').value.trim();
+  if (isim.length < 2) { document.getElementById('om-isim-sonuc').innerHTML = ''; return; }
+  _omIsimDebounce = setTimeout(async () => {
+    try {
+      const r = await fetch(API + '/api/admin/players?q=' + encodeURIComponent(isim), { headers: hdr() });
+      const d = await r.json();
+      const list = (d.oyuncular || d || []).slice(0, 5);
+      const out = document.getElementById('om-isim-sonuc');
+      if (list.length === 0) { out.innerHTML = '<span style="color:#888">eşleşme yok</span>'; return; }
+      out.innerHTML = list.map(p =>
+        `<a href="#" style="color:#3498db;margin-right:8px" onclick="document.getElementById('om-pid').value='${p.player_id||p.id}';omPlayerLoad();return false">${p.kral||p.kullanici_adi} (${p.player_id||p.id})</a>`
+      ).join('');
+    } catch(e) { /* sessiz */ }
+  }, 300);
+}
+
+async function omPlayerLoad() {
+  const pid = omGetPid(); if (!pid) return;
+  try {
+    const r = await fetch(API + '/api/admin/players?player_id=' + pid, { headers: hdr() });
+    const d = await r.json();
+    const o = (d.oyuncular || []).find(p => (p.player_id||p.id) == pid) || (d.oyuncular || [])[0] || d;
+    if (!o) { document.getElementById('om-player-info').innerHTML = '<span style="color:#e74c3c">Oyuncu bulunamadı.</span>'; document.getElementById('om-player-info').style.display = 'block'; return; }
+    const info = document.getElementById('om-player-info');
+    info.style.display = 'block';
+    info.innerHTML = `
+      <div style="display:flex;gap:14px;flex-wrap:wrap;color:#ccc">
+        <span>👑 <b>${o.kral || o.kullanici_adi || '?'}</b></span>
+        <span>🏛️ Çağ: <b>${o.cag||'?'}</b></span>
+        <span>🛡️ Taraf: <b>${o.taraf||'?'}</b></span>
+        <span>🧬 Irk: <b>${o.irk||'?'}</b></span>
+        <span>👥 Nüfus: <b>${(o.nufus||0).toLocaleString('tr-TR')}</b></span>
+        <span>🪙 Altın: <b>${(o.altin||0).toLocaleString('tr-TR')}</b></span>
+        <span>🛡️ Ş.Moral: <b>${o.sehir_morali||0}</b></span>
+        <span>⚔️ O.Moral: <b>${o.ordu_morali||0}</b></span>
+      </div>
+    `;
+    omLog('Oyuncu yüklendi: ' + (o.kral||pid), 'ok');
+  } catch(e) { omLog('Yükleme hatası: ' + e.message, 'err'); }
+}
+
+async function omSifreDegistir() {
+  const pid = omGetPid(); if (!pid) return;
+  const yeni = document.getElementById('om-yeni-sifre').value;
+  if (!yeni || yeni.length < 6) { alert('Şifre en az 6 karakter olmalı.'); return; }
+  if (!confirm('Oyuncu ' + pid + ' şifresini SIFIRLAMAK istediğine emin misin?\nGeri alınamaz.')) return;
+  try {
+    const r = await fetch(API + '/api/admin/sifre-degistir', {
+      method: 'POST', headers: hdr(), body: JSON.stringify({ player_id: pid, yeni_sifre: yeni })
+    });
+    const d = await r.json();
+    if (d.ok || r.ok) {
+      omLog('🔑 Şifre değiştirildi (player ' + pid + ')', 'ok');
+      document.getElementById('om-yeni-sifre').value = '';
+    } else omLog('Hata: ' + (d.error || r.status), 'err');
+  } catch(e) { omLog('Hata: ' + e.message, 'err'); }
+}
+
+async function omFixPlayer() {
+  const pid = omGetPid(); if (!pid) return;
+  if (!confirm('Player ' + pid + ' state otomatik onarılacak. Devam?')) return;
+  try {
+    const r = await fetch(API + '/api/admin/fix-player', {
+      method: 'POST', headers: hdr(), body: JSON.stringify({ player_id: pid })
+    });
+    const d = await r.json();
+    omLog('🔧 Fix Player\n' + JSON.stringify(d, null, 2), r.ok ? 'ok' : 'err');
+  } catch(e) { omLog('Hata: ' + e.message, 'err'); }
+}
+
+async function omBildirimTani() {
+  const pid = omGetPid(); if (!pid) return;
+  try {
+    const r = await fetch(API + '/api/admin/player/' + pid + '/bildirim-tani', { headers: hdr() });
+    const d = await r.json();
+    const out = document.getElementById('om-bildirim-out');
+    out.style.display = 'block';
+    out.textContent = JSON.stringify(d, null, 2);
+    omLog('🔔 Bildirim tanılama tamamlandı', 'ok');
+  } catch(e) { omLog('Hata: ' + e.message, 'err'); }
+}
+
+async function omKaynakIzle() {
+  const pid = omGetPid(); if (!pid) return;
+  try {
+    const r = await fetch(API + '/api/admin/player/' + pid + '/kaynak-izle?gun=2', { headers: hdr() });
+    const d = await r.json();
+    omLog('📊 Kaynak İzle (Son 48h)\n' + JSON.stringify(d, null, 2), 'ok');
+  } catch(e) { omLog('Hata: ' + e.message, 'err'); }
+}
+
+async function omKaynakIade() {
+  const pid = omGetPid(); if (!pid) return;
+  const tip = document.getElementById('om-kaynak-tip').value.trim();
+  const miktar = parseInt(document.getElementById('om-kaynak-miktar').value);
+  if (!tip || !miktar) { alert('Kaynak tip + miktar gerekli'); return; }
+  if (!confirm(`Player ${pid} → +${miktar} ${tip} eklenecek. Devam?`)) return;
+  try {
+    const r = await fetch(API + '/api/admin/player/' + pid + '/kaynak-iade', {
+      method: 'POST', headers: hdr(), body: JSON.stringify({ kaynak: tip, miktar })
+    });
+    const d = await r.json();
+    omLog(`💰 Kaynak iade: +${miktar} ${tip}\n` + JSON.stringify(d, null, 2), r.ok ? 'ok' : 'err');
+  } catch(e) { omLog('Hata: ' + e.message, 'err'); }
+}
+
+async function omIzSurme() {
+  const pid = omGetPid(); if (!pid) return;
+  try {
+    const r = await fetch(API + '/api/admin/anomali-detay?player_id=' + pid, { headers: hdr() });
+    const d = await r.json();
+    const out = document.getElementById('om-iz-out');
+    out.style.display = 'block';
+    out.textContent = JSON.stringify(d, null, 2);
+    omLog('🕵️ İz sürme tamamlandı', 'ok');
+  } catch(e) { omLog('Hata: ' + e.message, 'err'); }
+}
+
+async function omReytingDetay() {
+  const pid = omGetPid(); if (!pid) return;
+  try {
+    const r = await fetch(API + '/api/admin/player/' + pid + '/reyting-detay', { headers: hdr() });
+    const d = await r.json();
+    omLog('⚔️ Reyting Detay\n' + JSON.stringify(d, null, 2), 'ok');
+  } catch(e) { omLog('Hata: ' + e.message, 'err'); }
+}
+
+async function omMoralTarih() {
+  const pid = omGetPid(); if (!pid) return;
+  const gun = document.getElementById('om-moral-gun').value || 7;
+  try {
+    const r = await fetch(`${API}/api/admin/player/${pid}/moral-tarihcesi?gun=${gun}`, { headers: hdr() });
+    const d = await r.json();
+    omLog(`🛡️ Moral Tarihcesi (${gun} gun)\n` + JSON.stringify(d, null, 2), 'ok');
+  } catch(e) { omLog('Hata: ' + e.message, 'err'); }
+}
+
+async function omVergiTest() {
+  const pid = omGetPid(); if (!pid) return;
+  try {
+    const r = await fetch(API + '/api/admin/vergi-test/' + pid, { headers: hdr() });
+    const d = await r.json();
+    omLog('💰 Vergi Test (5 sistem)\n' + JSON.stringify(d, null, 2), 'ok');
+  } catch(e) { omLog('Hata: ' + e.message, 'err'); }
+}
+
+async function omKervanDebug() {
+  const pid = omGetPid(); if (!pid) return;
+  try {
+    const r = await fetch(API + '/api/admin/kervan-debug?player_id=' + pid, { headers: hdr() });
+    const d = await r.json();
+    omLog('🐪 Kervan Listesi\n' + JSON.stringify(d, null, 2), 'ok');
+  } catch(e) { omLog('Hata: ' + e.message, 'err'); }
+}
+
+async function omKervanVardir() {
+  const kid = parseInt(document.getElementById('om-kervan-id').value);
+  if (!kid) { alert('Kervan ID gir'); return; }
+  if (!confirm('Kervan ' + kid + ' zorla vardırılacak. Devam?')) return;
+  try {
+    const r = await fetch(API + '/api/admin/kervan-vardir', {
+      method: 'POST', headers: hdr(), body: JSON.stringify({ kervan_id: kid })
+    });
+    const d = await r.json();
+    omLog('⚡ Kervan vardırıldı\n' + JSON.stringify(d, null, 2), r.ok ? 'ok' : 'err');
+  } catch(e) { omLog('Hata: ' + e.message, 'err'); }
+}
+
+async function omCasusForce() {
+  const cid = parseInt(document.getElementById('om-casus-id').value);
+  if (!cid) { alert('Casus ID gir'); return; }
+  if (!confirm('Casus ' + cid + ' görev zorla tamamlanacak. Devam?')) return;
+  try {
+    const r = await fetch(API + '/api/admin/casus/force-tamamla', {
+      method: 'POST', headers: hdr(), body: JSON.stringify({ casus_id: cid })
+    });
+    const d = await r.json();
+    omLog('⚡ Casus zorla tamamlandı\n' + JSON.stringify(d, null, 2), r.ok ? 'ok' : 'err');
+  } catch(e) { omLog('Hata: ' + e.message, 'err'); }
 }
 </script>
 <script src="js/sw-register.js?v=13467"></script>
