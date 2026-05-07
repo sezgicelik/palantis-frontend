@@ -1,6 +1,6 @@
 // v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
 // Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
-const CACHE_NAME = 'noxara-v14470'; // v1.14.3.18 — Koloni kaynak listesi duzeltildi (mitril vb. tuccar marketi)
+const CACHE_NAME = 'noxara-v14480'; // v1.14.3.19 — Koloni Bulucu 5-madde fix (admin, premium menu, min/max, Saldir)
 
 // Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [

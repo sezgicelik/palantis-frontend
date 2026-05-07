@@ -163,11 +163,12 @@ function renderSidebar(){
         <a href="sandik.html" class="menu-item sub-item${isActive('sandik.html')}">📦 Kader Sandıkları</a>
       </div>
 
-      <!-- v1.14.1.54: Premium altinda Artifactlar -->
+      <!-- v1.14.1.54: Premium altinda Artifactlar + v1.14.3.19: Koloni Bulucu link -->
       <a href="premium.html" class="menu-item${isPremium?' on':''}" style="color:#d4af37">⚜ Premium</a>
       <div class="submenu" style="display:${isPremium?'block':'none'}">
         <a href="premium.html" class="menu-item sub-item${isActive('premium.html')}">⚜ Premium Paketler</a>
         <a href="artifact.html" class="menu-item sub-item${isActive('artifact.html')}">🧰 Artifactlar</a>
+        <a href="map.html?koloniBulucu=1" class="menu-item sub-item" onclick="setTimeout(()=>{if(typeof kolBulucuAc==='function')kolBulucuAc()},800)">⭐ Koloni Bulucu</a>
       </div>
 
       <a href="bug-bildir.html" class="menu-item${isActive('bug-bildir.html')}" style="color:#e74c3c">🐛 Bug Bildir</a>
@@ -1201,8 +1202,8 @@ document.addEventListener('DOMContentLoaded', initLayout);
 */
 // v1.14.3.9: Build stamp — tiklanabilir, cache temizleyip yenileme yapar
 (function buildStamp(){
-  const BUILD = 'v1.14.3.18';
-  const TS    = '2026-05-07 Koloni Bulucu kaynak listesi DUZELTILDI (tüccar marketi degil!)';
+  const BUILD = 'v1.14.3.19';
+  const TS    = '2026-05-07 Koloni Bulucu 5-madde fix: admin kaynak, premium menu, min/max bonus, Saldir butonu';
   function mount(){
     if (document.getElementById('build-stamp')) return;
     const div = document.createElement('div');
