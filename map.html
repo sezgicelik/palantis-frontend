@@ -72,25 +72,37 @@
         </div>
 
         <div id="kol-bulucu-icerik" style="display:none">
-          <!-- v1.14.3.17: Kaynak filtresi -->
+          <!-- v1.14.3.18: Kaynak filtresi (KOLONI tipleri — tüccar marketi DEĞİL!) -->
           <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;align-items:center">
             <span style="font-size:11px;color:#888">📦 Kaynak:</span>
             <select id="kb-kaynak" onchange="kbAra()" style="padding:4px 8px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">
               <option value="">Hepsi</option>
-              <option value="odun">🪓 Odun</option>
-              <option value="metal">⛏️ Metal</option>
-              <option value="bugday">🌾 Buğday</option>
-              <option value="balik">🐟 Balık</option>
-              <option value="gumus">🪙 Gümüş</option>
-              <option value="bakir">🔶 Bakır</option>
-              <option value="mitril">💎 Mitril</option>
-              <option value="kalay">⚪ Kalay</option>
-              <option value="kehribar">🟠 Kehribar</option>
-              <option value="obsidyen">🖤 Obsidyen</option>
-              <option value="yakut">🔴 Yakut</option>
-              <option value="zumrut">🟢 Zümrüt</option>
-              <option value="ejderha_tasi">🐉 Ejderha Taşı</option>
-              <option value="elmas">💠 Elmas</option>
+              <optgroup label="🌾 Temel">
+                <option value="odun">🪓 Odun</option>
+                <option value="metal">⛏️ Metal</option>
+                <option value="altin">🪙 Altın</option>
+                <option value="bugday">🌾 Buğday</option>
+                <option value="balik">🐟 Balık</option>
+              </optgroup>
+              <optgroup label="🔥 İşlenmiş">
+                <option value="kereste">🪵 Kereste</option>
+                <option value="islenmis">⚒️ İşlenmiş Metal</option>
+                <option value="ekmek">🍞 Ekmek</option>
+                <option value="pismis">🍳 Pişmiş Balık</option>
+                <option value="pismis_et">🥩 Pişmiş Et</option>
+              </optgroup>
+              <optgroup label="✨ Mana">
+                <option value="mana_beyaz">⚪ Mana (Beyaz)</option>
+                <option value="mana_kirmizi">🔴 Mana (Kırmızı)</option>
+                <option value="mana_mavi">🔵 Mana (Mavi)</option>
+                <option value="mana_yesil">🟢 Mana (Yeşil)</option>
+              </optgroup>
+              <optgroup label="🐉 Özel">
+                <option value="at">🐎 At</option>
+                <option value="kurt">🐺 Kurt</option>
+                <option value="gizlilik">🥷 Gizlilik</option>
+                <option value="buyulu_yumurta">🥚 Büyülü Yumurta</option>
+              </optgroup>
             </select>
             <span style="font-size:11px;color:#888;margin-left:auto">🎯 Strateji:</span>
           </div>
@@ -128,17 +140,25 @@
         document.querySelectorAll('.kb-strateji').forEach(b => b.classList.toggle('on', b.dataset.s === s));
         kbAra();
       }
+      // v1.14.3.18: KOLONI kaynak tipleri (KAYNAK_TIPLERI from game/koloni.js)
+      // NOT: mitril/gümüş/elmas vb. tüccar marketi hammaddesi — KOLONI vermez!
       const KAYNAK_IKON = {
-        odun:'🪓', metal:'⛏️', bugday:'🌾', balik:'🐟',
-        gumus:'🪙', bakir:'🔶', mitril:'💎', kalay:'⚪',
-        kehribar:'🟠', obsidyen:'🖤', yakut:'🔴', zumrut:'🟢',
-        ejderha_tasi:'🐉', elmas:'💠', altin:'🥇'
+        // Temel
+        odun:'🪓', metal:'⛏️', altin:'🪙', bugday:'🌾', balik:'🐟',
+        // İşlenmiş
+        kereste:'🪵', islenmis:'⚒️', ekmek:'🍞', pismis:'🍳', pismis_et:'🥩',
+        // Mana
+        mana_beyaz:'⚪', mana_kirmizi:'🔴', mana_mavi:'🔵', mana_yesil:'🟢',
+        // Özel
+        at:'🐎', kurt:'🐺', gizlilik:'🥷', buyulu_yumurta:'🥚'
       };
       const KAYNAK_AD = {
-        odun:'Odun', metal:'Metal', bugday:'Buğday', balik:'Balık',
-        gumus:'Gümüş', bakir:'Bakır', mitril:'Mitril', kalay:'Kalay',
-        kehribar:'Kehribar', obsidyen:'Obsidyen', yakut:'Yakut', zumrut:'Zümrüt',
-        ejderha_tasi:'Ejderha Taşı', elmas:'Elmas', altin:'Altın'
+        odun:'Odun', metal:'Metal', altin:'Altın', bugday:'Buğday', balik:'Balık',
+        kereste:'Kereste', islenmis:'İşlenmiş Metal', ekmek:'Ekmek',
+        pismis:'Pişmiş Balık', pismis_et:'Pişmiş Et',
+        mana_beyaz:'Mana (Beyaz)', mana_kirmizi:'Mana (Kırmızı)',
+        mana_mavi:'Mana (Mavi)', mana_yesil:'Mana (Yeşil)',
+        at:'At', kurt:'Kurt', gizlilik:'Gizlilik', buyulu_yumurta:'Büyülü Yumurta'
       };
       async function kbAra() {
         const token = getToken(); if (!token) return;

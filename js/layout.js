@@ -1201,8 +1201,8 @@ document.addEventListener('DOMContentLoaded', initLayout);
 */
 // v1.14.3.9: Build stamp — tiklanabilir, cache temizleyip yenileme yapar
 (function buildStamp(){
-  const BUILD = 'v1.14.3.17';
-  const TS    = '2026-05-07 Koloni Bulucu: kaynak filtre + tipi rozet + nasil al rehberi';
+  const BUILD = 'v1.14.3.18';
+  const TS    = '2026-05-07 Koloni Bulucu kaynak listesi DUZELTILDI (tüccar marketi degil!)';
   function mount(){
     if (document.getElementById('build-stamp')) return;
     const div = document.createElement('div');
