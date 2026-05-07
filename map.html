@@ -98,6 +98,30 @@
         </div>
       </div>
     </div>
+    <!-- v1.14.3.22: Fethet ordu seçimi modal -->
+    <div id="kb-fethet-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:10001;padding:20px;overflow:auto" onclick="if(event.target===this)kbFethetKapat()">
+      <div style="max-width:700px;margin:30px auto;background:#0d0d0d;border:2px solid #2ecc71;border-radius:8px;padding:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <h2 style="color:#2ecc71;margin:0;font-size:18px">🏆 Koloniyi Fethet</h2>
+          <button onclick="kbFethetKapat()" style="background:none;border:1px solid #333;color:#888;font-size:18px;cursor:pointer;width:30px;height:30px;border-radius:50%">✕</button>
+        </div>
+
+        <div id="kb-fet-bilgi" style="padding:10px 14px;background:rgba(46,204,113,0.08);border:1px solid rgba(46,204,113,0.3);border-radius:4px;margin-bottom:12px;font-size:12px;color:#ccc">
+          <!-- Koloni bilgisi dolu -->
+        </div>
+
+        <div style="padding:10px 14px;background:rgba(243,156,18,0.08);border:1px solid rgba(243,156,18,0.3);border-radius:4px;margin-bottom:14px;font-size:11px;color:#e8a560;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span style="font-size:16px">⚠️</span>
+          <span>Koloni ordusu için <b>2 Eşek</b> + <b>100 boş Köylü</b> gerekli (eski Palantis kuralı, Çağ atlamaz).</span>
+        </div>
+
+        <h3 style="color:#c8a96e;font-size:13px;margin:0 0 10px;border-bottom:1px solid #2a2010;padding-bottom:4px">🛡️ Şehirde Hazır Ordularım</h3>
+        <div id="kb-fet-ordular" style="max-height:340px;overflow-y:auto">
+          <div style="padding:20px;text-align:center;color:#888">⏳ Ordular yükleniyor...</div>
+        </div>
+      </div>
+    </div>
+
     <style>
       .kb-row { padding:8px 10px;background:#111;border:1px solid #222;border-radius:4px;margin-bottom:4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:11px;color:#ccc }
       .kb-row:hover { border-color:#d4af37 }
@@ -120,6 +144,92 @@
           setTimeout(kolBulucuAc, 600);
         }
       });
+
+      // v1.14.3.22: FETH ET ordu secim modal (Sezgi: "fethet'e basinca gelisme yok")
+      let KB_FET_KOLONI = null;
+      function kbFethetKapat() { document.getElementById('kb-fethet-modal').style.display = 'none'; }
+      async function kbFethetAc(koloniId, koord, kaynakTipi, bonusOran) {
+        if (!koloniId) { (window.noxAlert||alert)('Koloni ID alinamadi'); return; }
+        KB_FET_KOLONI = { id: koloniId, koord, kaynak_tipi: kaynakTipi, bonus_oran: bonusOran };
+        const ikon = (KAYNAK_IKON[kaynakTipi] || '📦');
+        const ad = (KAYNAK_AD[kaynakTipi] || kaynakTipi);
+        document.getElementById('kb-fet-bilgi').innerHTML =
+          `<b>📍 Koord:</b> ${koord} · <b>Kaynak:</b> ${ikon} ${ad} <span style="color:#f39c12;font-weight:bold">+%${Math.round(bonusOran)}/saat</span>`;
+        document.getElementById('kb-fethet-modal').style.display = 'block';
+        // Orduları yükle
+        const liste = document.getElementById('kb-fet-ordular');
+        liste.innerHTML = '<div style="padding:20px;text-align:center;color:#888">⏳ Ordular yükleniyor...</div>';
+        try {
+          const tk = getToken();
+          const r = await fetch(API_BASE + '/api/army', { headers: { Authorization: 'Bearer ' + tk } });
+          const d = await r.json();
+          if (!r.ok) { liste.innerHTML = '<div style="color:#e74c3c;padding:14px">Hata: ' + (d.error || r.status) + '</div>'; return; }
+
+          // Esek ve koylu kontrolu icin oyuncu verisi
+          const rrR = await fetch(API_BASE + '/api/game/resources', { headers: { Authorization: 'Bearer ' + tk } });
+          const rData = await rrR.json();
+          const esek = (rData.essek || rData.eshek || 0);
+          const wR = await fetch(API_BASE + '/api/game/workers', { headers: { Authorization: 'Bearer ' + tk } });
+          const wData = await wR.json();
+          const bosKoylu = (wData.bos || wData.koylu_bos || wData.bosKoylu || 0);
+
+          const ordular = (d.ordular || d || []).filter(o => !o.gorev || o.gorev.durum !== 'yolda');
+          const sehirdekiler = ordular.filter(o => !o.koord_x || (o.koord_x === wData.koord_x));
+
+          // Genel uyari
+          const uyariEsek = esek < 2 ? `<div style="padding:8px;background:rgba(231,76,60,0.15);border:1px solid #e74c3c;color:#e74c3c;border-radius:4px;margin-bottom:8px;font-size:11px">⚠️ Sadece <b>${esek}/2</b> eşek var. Koloni fethedemezsin (Buyu Dukkani'ndan al).</div>` : '';
+          const uyariKoylu = bosKoylu < 100 ? `<div style="padding:8px;background:rgba(231,76,60,0.15);border:1px solid #e74c3c;color:#e74c3c;border-radius:4px;margin-bottom:8px;font-size:11px">⚠️ Sadece <b>${bosKoylu}/100</b> boş köylü var. Köylü atamasını azalt.</div>` : '';
+          const uyariOk = esek >= 2 && bosKoylu >= 100 ? `<div style="padding:8px;background:rgba(46,204,113,0.1);border:1px solid #2ecc71;color:#2ecc71;border-radius:4px;margin-bottom:8px;font-size:11px">✅ Eşek: <b>${esek}/2</b> · Boş köylü: <b>${bosKoylu}/100</b> — Hazır.</div>` : '';
+
+          if (ordular.length === 0) {
+            liste.innerHTML = uyariEsek + uyariKoylu + uyariOk + '<div style="padding:14px;color:#888;text-align:center">Şehrinde ordun yok. army.html\'den ordu kur.</div>';
+            return;
+          }
+
+          let html = uyariEsek + uyariKoylu + uyariOk;
+          for (const o of ordular) {
+            const orduId = o.ordu_id || o.id || o.slot;
+            const isim = o.isim || ('Ordu ' + orduId);
+            const toplamUnite = (o.uniteler||[]).reduce((a,u)=>a+(u.adet||0), 0);
+            const dis = (o.koord_x && o.koord_x !== wData.koord_x);
+            const disabledReason = dis ? 'Bu ordu şehir dışında' : (esek < 2 ? '2 eşek gerekli' : (bosKoylu < 100 ? '100 köylü gerekli' : ''));
+            const disabled = disabledReason ? 'disabled' : '';
+            html += `<div style="padding:10px;background:#111;border:1px solid ${dis?'#3a2010':'#2a2a2a'};border-radius:4px;margin-bottom:6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <span style="color:#d4af37;font-weight:bold;min-width:70px">⚔️ ${isim}</span>
+              <span style="color:#888;font-size:11px">${toplamUnite.toLocaleString()} ünite</span>
+              ${dis ? '<span style="color:#e67e22;font-size:10px">📍 dışarda</span>' : '<span style="color:#2ecc71;font-size:10px">🏛️ şehirde</span>'}
+              <button onclick="kbFethetOnay('${orduId}')" ${disabled} style="margin-left:auto;background:${disabled?'#333':'#2ecc71'};color:${disabled?'#666':'#000'};border:none;padding:6px 14px;border-radius:3px;font-weight:bold;cursor:${disabled?'not-allowed':'pointer'};font-size:12px" title="${disabledReason}">🏆 Bu Ordu ile FETHET</button>
+            </div>`;
+          }
+          liste.innerHTML = html;
+        } catch(e) {
+          liste.innerHTML = '<div style="color:#e74c3c;padding:14px">Bağlantı hatası: ' + e.message + '</div>';
+        }
+      }
+
+      async function kbFethetOnay(orduId) {
+        if (!KB_FET_KOLONI) return;
+        const C = window.noxConfirm || ((m) => Promise.resolve(confirm(m)));
+        const A = window.noxAlert || ((m) => alert(m));
+        const ok = await C(`📍 ${KB_FET_KOLONI.koord} kolonisini ${orduId} ile fethetmek istediğine emin misin?\n\n• 2 Eşek + 100 Köylü düşülecek (Eşek dönüşsüz)\n• Bu ordu koloni'ye yerleşecek (saldırılarda kullanamazsın)\n\nFethet?`);
+        if (!ok) return;
+        try {
+          const tk = getToken();
+          const r = await fetch(API_BASE + '/api/koloni/' + KB_FET_KOLONI.id + '/fethet', {
+            method: 'POST',
+            headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+tk },
+            body: JSON.stringify({ orduId })
+          });
+          const d = await r.json();
+          if (!r.ok) { await A('Fetih başarısız: ' + (d.error || r.status)); return; }
+          if (window.NoxToast) NoxToast.success('🏆 Koloni fethedildi: ' + KB_FET_KOLONI.koord);
+          else if (window.showToast) showToast('Koloni fethedildi!', 'success');
+          kbFethetKapat();
+          if (typeof kbAra === 'function') kbAra(); // listeyi yenile
+        } catch(e) {
+          await A('Sunucu hatası: ' + e.message);
+        }
+      }
       // v1.14.3.18: KOLONI kaynak tipleri (KAYNAK_TIPLERI from game/koloni.js)
       // NOT: mitril/gümüş/elmas vb. tüccar marketi hammaddesi — KOLONI vermez!
       // v1.14.3.20: tas kaldirildi (Sezgi: oyunda yok, eski deploy artigi)
@@ -222,9 +332,9 @@
               const kaynakBadge = k.kaynak_tipi
                 ? `<span style="background:#3a2810;color:#f39c12;padding:3px 10px;border-radius:3px;font-size:11px;font-weight:bold;min-width:120px;text-align:center" title="+%${k.bonus_oran}/saat üretim bonusu">${KAYNAK_IKON[k.kaynak_tipi]||'📦'} ${KAYNAK_AD[k.kaynak_tipi]||k.kaynak_tipi} +%${Math.round(k.bonus_oran)}</span>`
                 : '';
-              // v1.14.3.19: Saldir/Fethet butonu (Sezgi 5. madde)
+              // v1.14.3.22: FETHET artık çalışan modal (Sezgi: "FETH ET'e basınca gelişme yok")
               const aksiyon = k.bos
-                ? `<a href="map.html?x=${k.x}&y=${k.y}&action=fethet" class="kb-fethet" title="Boş slot — fethet">🏆 FETHET</a>`
+                ? `<button onclick="kbFethetAc(${k.id||0},'${k.koord}','${k.kaynak_tipi||''}',${k.bonus_oran||0})" class="kb-fethet" title="Boş slot — fethet (2 eşek + 100 köylü)">🏆 FETHET</button>`
                 : `<a href="army.html?saldiri=1&hedef_x=${k.x}&hedef_y=${k.y}" class="kb-saldir" title="Bu koordinata saldırı düzenle">⚔️ SALDIR</a>`;
               return `
                 <div class="kb-row ${k.bos?'bos':'dolu'}">

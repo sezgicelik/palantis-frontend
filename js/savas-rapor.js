@@ -471,8 +471,8 @@ function showSavasRapor(sonuc, benimTaraf, opts) {
 
     <div class="sr-btn-row">
       <button class="sr-btn" onclick="closeSavasRapor()">Kapat</button>
-      <button class="sr-btn" onclick="savasRaporIndirPdf(${data.id})" style="background:rgba(46,204,113,.1);color:#2ecc71;border-color:rgba(46,204,113,.4)">📄 PDF İndir</button>
-      <button class="sr-btn" onclick="savasRaporTelegramPdf(${data.id})" style="background:rgba(52,152,219,.1);color:#3498db;border-color:rgba(52,152,219,.4)">📨 Telegram'a Gönder</button>
+      ${opts && opts.id ? `<button class="sr-btn" onclick="savasRaporIndirPdf(${opts.id})" style="background:rgba(46,204,113,.1);color:#2ecc71;border-color:rgba(46,204,113,.4)">📄 PDF İndir</button>
+      <button class="sr-btn" onclick="savasRaporTelegramPdf(${opts.id})" style="background:rgba(52,152,219,.1);color:#3498db;border-color:rgba(52,152,219,.4)">📨 Telegram'a Gönder</button>` : ''}
     </div>
   `;
 
