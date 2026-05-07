@@ -83,6 +83,7 @@ const MK_IKONLAR = {
 let MK_DATA = {};
 let MK_SATIS_MIKTAR = {};
 let MK_OTO_SAT = {}; // v1.13.51: {gumus: {aktif,esik,cag_min,aktif_cag,...}, ...}
+let MK_PREMIUM = { aktif: false, tier: null, min_kur: 130 }; // v1.14.3.16
 
 async function loadMarket() {
   const token = getToken(); if (!token) return;
@@ -96,6 +97,7 @@ async function loadMarket() {
     if (otoResp.ok) {
       const otoData = await otoResp.json();
       MK_OTO_SAT = otoData.hammaddeler || {};
+      MK_PREMIUM = otoData.premium || { aktif: false, tier: null, min_kur: 130 }; // v1.14.3.16
     }
     renderMarket();
   } catch(e) {
@@ -103,41 +105,46 @@ async function loadMarket() {
   }
 }
 
-// v1.13.51: Oto-sat tek hammadde toggle
+// v1.13.51 + v1.14.3.16: Oto-sat tek hammadde toggle (kur eşiği dahil)
 async function mkOtoSatToggle(key, aktif) {
   const token = getToken(); if (!token) return;
   const esik = parseInt(document.getElementById('mk-esik-'+key)?.value) || 0;
+  const kur_esigi = parseInt(document.getElementById('mk-kur-'+key)?.value) || MK_PREMIUM.min_kur;
   try {
     const resp = await fetch(API_BASE + '/api/game/market/oto-sat', {
       method: 'PUT',
       headers: { 'Content-Type':'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ hammadde: key, aktif, esik })
+      body: JSON.stringify({ hammadde: key, aktif, esik, kur_esigi })
     });
     const data = await resp.json();
     if (resp.ok) {
       if (!MK_OTO_SAT[key]) MK_OTO_SAT[key] = {};
       MK_OTO_SAT[key].aktif = aktif;
       MK_OTO_SAT[key].esik = esik;
-      toast('🔄 Oto-sat ' + (aktif?'AÇIK':'KAPALI') + ': ' + (MK_DATA.fiyatlar[key]?.isim||key));
+      MK_OTO_SAT[key].kur_esigi = data.kur_esigi || kur_esigi;
+      toast('🤖 Oto-sat ' + (aktif?'AÇIK':'KAPALI') + ': ' + (MK_DATA.fiyatlar[key]?.isim||key));
       renderMarket();
     } else { toast(data.error || 'Hata'); }
   } catch(e) { toast('Bağlantı hatası'); }
 }
 
-// Eşik kaydet (input blur/Enter)
+// Eşik kaydet (input blur/Enter) — hem stok eşik hem kur eşik
 async function mkEsikKaydet(key) {
   const token = getToken(); if (!token) return;
   const esik = parseInt(document.getElementById('mk-esik-'+key)?.value) || 0;
+  const kur_esigi = parseInt(document.getElementById('mk-kur-'+key)?.value) || MK_PREMIUM.min_kur;
   const aktif = !!MK_OTO_SAT[key]?.aktif;
   try {
-    await fetch(API_BASE + '/api/game/market/oto-sat', {
+    const r = await fetch(API_BASE + '/api/game/market/oto-sat', {
       method: 'PUT',
       headers: { 'Content-Type':'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ hammadde: key, aktif, esik })
+      body: JSON.stringify({ hammadde: key, aktif, esik, kur_esigi })
     });
+    const data = await r.json();
     if (!MK_OTO_SAT[key]) MK_OTO_SAT[key] = {};
     MK_OTO_SAT[key].esik = esik;
-    toast('Eşik kaydedildi: ' + esik.toLocaleString('tr-TR'));
+    MK_OTO_SAT[key].kur_esigi = data.kur_esigi || kur_esigi;
+    toast('Eşik kaydedildi (stok: ' + esik.toLocaleString('tr-TR') + ', kur: %' + (data.kur_esigi || kur_esigi) + ')');
   } catch(e) {}
 }
 
@@ -214,10 +221,16 @@ function renderMarket() {
     const opaStyle = kilitli ? 'opacity:0.45' : '';
     const cagBadge = f.cag_min > 1 ? `<span style="background:${kilitli?'#4a2010':'#103a10'};color:${kilitli?'#e67e22':'#2ecc71'};padding:1px 5px;border-radius:3px;font-size:11px;margin-left:4px">${kilitli?'🔒 '+f.cag_min+'. Çağ':'✓ '+f.cag_min+'. Çağ+'}</span>` : '';
 
-    // v1.13.51: Oto-sat durumu
-    const oto = MK_OTO_SAT[key] || { aktif: false, esik: 0 };
+    // v1.13.51: Oto-sat durumu + v1.14.3.16: Kur tetikli
+    const oto = MK_OTO_SAT[key] || { aktif: false, esik: 0, kur_esigi: MK_PREMIUM.min_kur };
     const otoAktif = !!oto.aktif;
-    const otoBadge = otoAktif ? '<span style="background:#103a10;color:#2ecc71;padding:1px 5px;border-radius:3px;font-size:11px;margin-left:4px">🔄 OTO</span>' : '';
+    const otoKurEsigi = oto.kur_esigi || MK_PREMIUM.min_kur;
+    const kurUygun = kur >= otoKurEsigi; // anlik kur eşiği aşıyor mu
+    const otoBadge = otoAktif
+      ? (kurUygun
+          ? '<span style="background:#103a10;color:#2ecc71;padding:1px 5px;border-radius:3px;font-size:11px;margin-left:4px" title="Kur eşik aştı, satılıyor">🔄 OTO ✓</span>'
+          : '<span style="background:#3a2810;color:#e67e22;padding:1px 5px;border-radius:3px;font-size:11px;margin-left:4px" title="Kur eşik altında, beklemede">🔄 OTO ⏸</span>')
+      : '';
 
     return `
     <div style="padding:6px 10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#111;border:1px solid ${otoAktif?'#1a4a1a':'#1e1e1e'};border-radius:4px;margin-bottom:2px;${opaStyle}">
@@ -242,17 +255,31 @@ function renderMarket() {
         <button class="btn" style="min-width:60px;padding:3px 8px;font-size:10px" onclick="mkSat('${key}')">💰 Sat</button>`}
       </div>
       ${kilitli ? '' : `
-      <div style="width:100%;display:flex;align-items:center;gap:6px;padding-top:4px;border-top:1px dashed #2a2a2a">
+      <div style="width:100%;display:flex;align-items:center;gap:6px;padding-top:4px;border-top:1px dashed #2a2a2a;flex-wrap:wrap">
+        ${MK_PREMIUM.aktif ? `
         <label style="display:flex;align-items:center;gap:4px;font-size:10px;color:${otoAktif?'#2ecc71':'#888'};cursor:pointer">
           <input type="checkbox" ${otoAktif?'checked':''} onchange="mkOtoSatToggle('${key}', this.checked)">
-          🔄 Oto-Sat (sabit ${f.baz_fiyat||1} altın/adet)
+          🤖 Oto-Sat
         </label>
-        <span style="font-size:10px;color:#888;margin-left:auto">Eşik:</span>
+        <span style="font-size:10px;color:#888">Stok eşik:</span>
         <input id="mk-esik-${key}" type="number" min="0" value="${oto.esik||0}"
                onblur="mkEsikKaydet('${key}')"
                onkeydown="if(event.key==='Enter')this.blur()"
-               style="width:80px;padding:2px 4px;background:#0a0a0a;border:1px solid #333;color:#ddd;border-radius:3px;font-size:10px">
-        <span style="font-size:11px;color:#666">(stok > eşik ise fazlası satılır)</span>
+               style="width:70px;padding:2px 4px;background:#0a0a0a;border:1px solid #333;color:#ddd;border-radius:3px;font-size:10px"
+               title="Stoktan bu kadarı saklanır, fazlası satılır">
+        <span style="font-size:10px;color:#888;margin-left:8px">Min Kur:</span>
+        <input id="mk-kur-${key}" type="number" min="${MK_PREMIUM.min_kur}" max="150" step="1" value="${otoKurEsigi}"
+               onblur="mkEsikKaydet('${key}')"
+               onkeydown="if(event.key==='Enter')this.blur()"
+               style="width:54px;padding:2px 4px;background:#0a0a0a;border:1px solid ${kurUygun?'#1a4a1a':'#3a2010'};color:${kurUygun?'#2ecc71':'#e67e22'};border-radius:3px;font-size:10px"
+               title="Kur bu yüzdenin üstüne çıkınca satılır (min ${MK_PREMIUM.min_kur}% — ${MK_PREMIUM.tier ? MK_PREMIUM.tier.toUpperCase() : ''} paket)">
+        <span style="font-size:10px;color:#666">% (anlık: <b style="color:${kurUygun?'#2ecc71':'#888'}">%${kur}</b>)</span>
+        ` : `
+        <div style="width:100%;padding:6px 10px;background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.3);border-radius:4px;font-size:11px;color:#d4af37;display:flex;align-items:center;gap:8px">
+          <span style="font-size:14px">⭐</span>
+          <span>Otomatik Market Satışı <b>PREMIUM</b> özellik. Kur dalgalanmalarında en yüksek fiyatlardan satar.</span>
+          <a href="premium.html" style="margin-left:auto;color:#fff;background:#d4af37;padding:3px 10px;border-radius:3px;text-decoration:none;font-size:11px;font-weight:bold">Premium Al</a>
+        </div>`}
       </div>`}
     </div>`;
   }).join('');

@@ -51,7 +51,111 @@
   <div id="sidebar-mount"></div>
   <div class="main-content">
 
-    <h2 style="color:#c8a96e;font-family:'Cinzel',serif;margin:0 0 6px;font-size:clamp(14px,3.5vw,20px)">🗺️ Dünya Haritası</h2>
+    <h2 style="color:#c8a96e;font-family:'Cinzel',serif;margin:0 0 6px;font-size:clamp(14px,3.5vw,20px);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      🗺️ Dünya Haritası
+      <button class="btn" onclick="kolBulucuAc()" style="margin-left:auto;background:linear-gradient(135deg,#d4af37 0%,#8e6f1a 100%);color:#fff;border:none;padding:6px 14px;font-size:12px;font-weight:bold;border-radius:4px;cursor:pointer">⭐ Koloni Bulucu</button>
+    </h2>
+
+    <!-- v1.14.3.16: Koloni Bulucu Modal (Premium) -->
+    <div id="kol-bulucu-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:10000;padding:20px;overflow:auto" onclick="if(event.target===this)kolBulucuKapat()">
+      <div style="max-width:900px;margin:20px auto;background:#0d0d0d;border:2px solid #d4af37;border-radius:8px;padding:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <h2 style="color:#d4af37;margin:0;font-size:20px">⭐ Koloni Bulucu <span style="font-size:11px;color:#888">PREMIUM</span></h2>
+          <button onclick="kolBulucuKapat()" style="background:none;border:1px solid #333;color:#888;font-size:18px;cursor:pointer;width:30px;height:30px;border-radius:50%">✕</button>
+        </div>
+
+        <div id="kol-bulucu-prem-uyari" style="display:none;padding:14px;background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.4);border-radius:6px;margin-bottom:14px;color:#d4af37">
+          <b>⭐ Premium Özellik</b>
+          <p style="margin:6px 0 10px;color:#aaa;font-size:13px">Koloni Bulucu ile bölgenin zenginliği, mesafe, savunmasızlık skorlarına göre en iyi koloni hedeflerini görürsün. Tier bazlı limit:<br>
+          🥉 Bronz: 5 öneri · 🥈 Gümüş: 10 öneri · 🥇 Altın: 20 öneri + skor detayı</p>
+          <a href="premium.html" style="display:inline-block;background:#d4af37;color:#0a0a0a;padding:6px 16px;border-radius:4px;text-decoration:none;font-weight:bold">Premium Al</a>
+        </div>
+
+        <div id="kol-bulucu-icerik" style="display:none">
+          <!-- Strateji secimi -->
+          <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
+            <label class="kb-strateji on" data-s="optimal" onclick="kbStratejiSec('optimal')">🎯 Optimal</label>
+            <label class="kb-strateji" data-s="yakin" onclick="kbStratejiSec('yakin')">🏃 Yakın</label>
+            <label class="kb-strateji" data-s="zengin" onclick="kbStratejiSec('zengin')">💎 Zengin</label>
+            <label class="kb-strateji" data-s="zayif" onclick="kbStratejiSec('zayif')">🛡️ Zayıf Savunma</label>
+            <button class="btn" onclick="kbAra()" style="margin-left:auto;background:#d4af37;color:#000;font-weight:bold">🔍 Ara</button>
+          </div>
+
+          <div id="kol-bulucu-sonuc" style="background:#080808;border-radius:6px;padding:8px;min-height:100px;color:#888;font-size:11px;text-align:center">Strateji seç ve "Ara"ya tıkla</div>
+        </div>
+      </div>
+    </div>
+    <style>
+      .kb-strateji { padding:6px 12px;background:#1a1a1a;border:1px solid #333;color:#aaa;border-radius:4px;cursor:pointer;font-size:12px;user-select:none }
+      .kb-strateji:hover { border-color:#d4af37;color:#d4af37 }
+      .kb-strateji.on { background:#d4af37;color:#000;border-color:#d4af37;font-weight:bold }
+      .kb-row { padding:8px 10px;background:#111;border:1px solid #222;border-radius:4px;margin-bottom:4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:11px;color:#ccc }
+      .kb-row:hover { border-color:#d4af37 }
+      .kb-row.bos { border-left:3px solid #2ecc71 }
+      .kb-row.dolu { border-left:3px solid #e67e22 }
+    </style>
+    <script>
+      let KB_STRATEJI = 'optimal';
+      function kolBulucuAc() {
+        document.getElementById('kol-bulucu-modal').style.display = 'block';
+        kbAra();
+      }
+      function kolBulucuKapat() { document.getElementById('kol-bulucu-modal').style.display = 'none'; }
+      function kbStratejiSec(s) {
+        KB_STRATEJI = s;
+        document.querySelectorAll('.kb-strateji').forEach(b => b.classList.toggle('on', b.dataset.s === s));
+        kbAra();
+      }
+      async function kbAra() {
+        const token = getToken(); if (!token) return;
+        const sonuc = document.getElementById('kol-bulucu-sonuc');
+        sonuc.innerHTML = '<div style="color:#888;padding:20px">⏳ Aranıyor...</div>';
+        try {
+          const r = await fetch(API_BASE + '/api/map/koloni-bulucu?strateji=' + KB_STRATEJI, {
+            headers: { Authorization: 'Bearer ' + token }
+          });
+          if (r.status === 403) {
+            const d = await r.json();
+            document.getElementById('kol-bulucu-prem-uyari').style.display = 'block';
+            document.getElementById('kol-bulucu-icerik').style.display = 'none';
+            sonuc.innerHTML = '';
+            return;
+          }
+          if (!r.ok) { sonuc.innerHTML = '<div style="color:#e74c3c">Hata: ' + r.status + '</div>'; return; }
+          document.getElementById('kol-bulucu-prem-uyari').style.display = 'none';
+          document.getElementById('kol-bulucu-icerik').style.display = 'block';
+          const d = await r.json();
+          if (!d.onerilenler || d.onerilenler.length === 0) {
+            sonuc.innerHTML = '<div style="color:#888;padding:20px">Hiç aday bulunamadı.</div>';
+            return;
+          }
+          const tierBadge = `<span style="background:#d4af37;color:#000;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:bold">${(d.tier||'').toUpperCase()}</span>`;
+          sonuc.innerHTML =
+            `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;color:#888;font-size:11px">
+              <span>🎯 Strateji: <b style="color:#d4af37">${d.strateji}</b> · ${tierBadge} · ${d.onerilenler.length}/${d.toplam_aday} öneri</span>
+            </div>` +
+            d.onerilenler.map((k, i) => {
+              const sahip = k.bos
+                ? '<span style="color:#2ecc71">⭐ BOŞ SLOT</span>'
+                : `<span style="color:#e67e22">${k.sahip.kral} (Çağ ${k.sahip.cag}, ${k.sahip.taraf})</span> <span style="color:#888">· ${k.sahip.off_saat}sa offline</span>`;
+              const bonusStr = Object.entries(k.bolge_bonus || {}).map(([key, v]) => `${key} +${v}%`).join(' · ');
+              return `
+                <div class="kb-row ${k.bos?'bos':'dolu'}">
+                  <span style="font-size:14px;font-weight:bold;color:#d4af37;min-width:24px">#${i+1}</span>
+                  <a href="map.html?x=${k.x}&y=${k.y}" style="color:#3498db;text-decoration:none;font-weight:bold;min-width:80px">📍 ${k.koord}</a>
+                  <span style="color:#888;font-size:11px">${k.mesafe} sektör</span>
+                  <span style="color:#888;font-size:11px">${k.bolge}${bonusStr ? ' · '+bonusStr : ''}</span>
+                  <span style="margin-left:auto">${sahip}</span>
+                  <span style="background:#1a3a1a;color:#2ecc71;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:bold;min-width:50px;text-align:center">⭐ ${k.skor}</span>
+                </div>
+                ${k.skor_detay ? `<div style="margin:-2px 0 4px 30px;font-size:10px;color:#666">${k.skor_detay}</div>` : ''}
+              `;
+            }).join('');
+        } catch(e) {
+          sonuc.innerHTML = '<div style="color:#e74c3c">Bağlantı hatası: ' + e.message + '</div>';
+        }
+      }
+    </script>
 
     <!-- Navigasyon -->
     <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px;flex-wrap:wrap">
