@@ -161,44 +161,43 @@
         liste.innerHTML = '<div style="padding:20px;text-align:center;color:#888">⏳ Ordular yükleniyor...</div>';
         try {
           const tk = getToken();
-          const r = await fetch(API_BASE + '/api/army', { headers: { Authorization: 'Bearer ' + tk } });
+          // v1.14.3.23: dogru endpoint /api/army/state (armies + bos_koylu birlikte doner)
+          const r = await fetch(API_BASE + '/api/army/state', { headers: { Authorization: 'Bearer ' + tk } });
           const d = await r.json();
           if (!r.ok) { liste.innerHTML = '<div style="color:#e74c3c;padding:14px">Hata: ' + (d.error || r.status) + '</div>'; return; }
 
-          // Esek ve koylu kontrolu icin oyuncu verisi
+          // Esek icin /api/game/resources
           const rrR = await fetch(API_BASE + '/api/game/resources', { headers: { Authorization: 'Bearer ' + tk } });
           const rData = await rrR.json();
-          const esek = (rData.essek || rData.eshek || 0);
-          const wR = await fetch(API_BASE + '/api/game/workers', { headers: { Authorization: 'Bearer ' + tk } });
-          const wData = await wR.json();
-          const bosKoylu = (wData.bos || wData.koylu_bos || wData.bosKoylu || 0);
+          const esek = parseInt(rData.essek || rData.eshek || 0) || 0;
+          const bosKoylu = parseInt(d.bos_koylu || 0) || 0;
 
-          const ordular = (d.ordular || d || []).filter(o => !o.gorev || o.gorev.durum !== 'yolda');
-          const sehirdekiler = ordular.filter(o => !o.koord_x || (o.koord_x === wData.koord_x));
+          const ordular = (d.armies || []);
 
-          // Genel uyari
-          const uyariEsek = esek < 2 ? `<div style="padding:8px;background:rgba(231,76,60,0.15);border:1px solid #e74c3c;color:#e74c3c;border-radius:4px;margin-bottom:8px;font-size:11px">⚠️ Sadece <b>${esek}/2</b> eşek var. Koloni fethedemezsin (Buyu Dukkani'ndan al).</div>` : '';
-          const uyariKoylu = bosKoylu < 100 ? `<div style="padding:8px;background:rgba(231,76,60,0.15);border:1px solid #e74c3c;color:#e74c3c;border-radius:4px;margin-bottom:8px;font-size:11px">⚠️ Sadece <b>${bosKoylu}/100</b> boş köylü var. Köylü atamasını azalt.</div>` : '';
+          const uyariEsek = esek < 2 ? `<div style="padding:8px;background:rgba(231,76,60,0.15);border:1px solid #e74c3c;color:#e74c3c;border-radius:4px;margin-bottom:8px;font-size:11px">⚠️ Sadece <b>${esek}/2</b> eşek var. Koloni fethedemezsin (Büyü Dükkanı'ndan al).</div>` : '';
+          const uyariKoylu = bosKoylu < 100 ? `<div style="padding:8px;background:rgba(231,76,60,0.15);border:1px solid #e74c3c;color:#e74c3c;border-radius:4px;margin-bottom:8px;font-size:11px">⚠️ Sadece <b>${bosKoylu}/100</b> boş köylü var. Köylü atamasını azalt (Nüfus & İşçiler).</div>` : '';
           const uyariOk = esek >= 2 && bosKoylu >= 100 ? `<div style="padding:8px;background:rgba(46,204,113,0.1);border:1px solid #2ecc71;color:#2ecc71;border-radius:4px;margin-bottom:8px;font-size:11px">✅ Eşek: <b>${esek}/2</b> · Boş köylü: <b>${bosKoylu}/100</b> — Hazır.</div>` : '';
 
           if (ordular.length === 0) {
-            liste.innerHTML = uyariEsek + uyariKoylu + uyariOk + '<div style="padding:14px;color:#888;text-align:center">Şehrinde ordun yok. army.html\'den ordu kur.</div>';
+            liste.innerHTML = uyariEsek + uyariKoylu + uyariOk + '<div style="padding:14px;color:#888;text-align:center">Şehrinde ordun yok. <a href="army.html" style="color:#d4af37">army.html</a>\'den ordu kur.</div>';
             return;
           }
 
           let html = uyariEsek + uyariKoylu + uyariOk;
           for (const o of ordular) {
-            const orduId = o.ordu_id || o.id || o.slot;
-            const isim = o.isim || ('Ordu ' + orduId);
-            const toplamUnite = (o.uniteler||[]).reduce((a,u)=>a+(u.adet||0), 0);
-            const dis = (o.koord_x && o.koord_x !== wData.koord_x);
-            const disabledReason = dis ? 'Bu ordu şehir dışında' : (esek < 2 ? '2 eşek gerekli' : (bosKoylu < 100 ? '100 köylü gerekli' : ''));
+            // /api/army/state armies sonucunda: { id, isim, gorev, totalAtk, totalDef, totalUnits, ... }
+            const orduId = 'ordu_' + (o.slot || o.id || 1);
+            const isim = o.isim || ('Ordu ' + (o.slot||o.id));
+            const toplamUnite = parseInt(o.totalUnits || 0) || 0;
+            const yolda = o.gorev && (o.gorev.durum === 'yolda' || o.gorev.tip);
+            const disabledReason = yolda ? 'Ordu görevde' : (esek < 2 ? '2 eşek gerekli' : (bosKoylu < 100 ? '100 köylü gerekli' : (toplamUnite === 0 ? 'Bu ordunda ünite yok' : '')));
             const disabled = disabledReason ? 'disabled' : '';
-            html += `<div style="padding:10px;background:#111;border:1px solid ${dis?'#3a2010':'#2a2a2a'};border-radius:4px;margin-bottom:6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-              <span style="color:#d4af37;font-weight:bold;min-width:70px">⚔️ ${isim}</span>
+            html += `<div style="padding:10px;background:#111;border:1px solid ${yolda?'#3a2010':'#2a2a2a'};border-radius:4px;margin-bottom:6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <span style="color:#d4af37;font-weight:bold;min-width:80px">⚔️ ${isim}</span>
               <span style="color:#888;font-size:11px">${toplamUnite.toLocaleString()} ünite</span>
-              ${dis ? '<span style="color:#e67e22;font-size:10px">📍 dışarda</span>' : '<span style="color:#2ecc71;font-size:10px">🏛️ şehirde</span>'}
-              <button onclick="kbFethetOnay('${orduId}')" ${disabled} style="margin-left:auto;background:${disabled?'#333':'#2ecc71'};color:${disabled?'#666':'#000'};border:none;padding:6px 14px;border-radius:3px;font-weight:bold;cursor:${disabled?'not-allowed':'pointer'};font-size:12px" title="${disabledReason}">🏆 Bu Ordu ile FETHET</button>
+              ${yolda ? '<span style="color:#e67e22;font-size:10px">📍 görevde</span>' : '<span style="color:#2ecc71;font-size:10px">🏛️ şehirde</span>'}
+              <span style="color:#888;font-size:10px">ATK <b style="color:#e74c3c">${Math.round(o.totalAtk||0).toLocaleString()}</b> · DEF <b style="color:#3498db">${Math.round(o.totalDef||0).toLocaleString()}</b></span>
+              <button onclick="kbFethetOnay('${orduId}')" ${disabled} style="margin-left:auto;background:${disabled?'#333':'#2ecc71'};color:${disabled?'#666':'#000'};border:none;padding:6px 14px;border-radius:3px;font-weight:bold;cursor:${disabled?'not-allowed':'pointer'};font-size:12px" title="${disabledReason}">🏆 FETHET</button>
             </div>`;
           }
           liste.innerHTML = html;
