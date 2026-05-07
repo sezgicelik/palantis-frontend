@@ -72,6 +72,28 @@
         </div>
 
         <div id="kol-bulucu-icerik" style="display:none">
+          <!-- v1.14.3.17: Kaynak filtresi -->
+          <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;align-items:center">
+            <span style="font-size:11px;color:#888">📦 Kaynak:</span>
+            <select id="kb-kaynak" onchange="kbAra()" style="padding:4px 8px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">
+              <option value="">Hepsi</option>
+              <option value="odun">🪓 Odun</option>
+              <option value="metal">⛏️ Metal</option>
+              <option value="bugday">🌾 Buğday</option>
+              <option value="balik">🐟 Balık</option>
+              <option value="gumus">🪙 Gümüş</option>
+              <option value="bakir">🔶 Bakır</option>
+              <option value="mitril">💎 Mitril</option>
+              <option value="kalay">⚪ Kalay</option>
+              <option value="kehribar">🟠 Kehribar</option>
+              <option value="obsidyen">🖤 Obsidyen</option>
+              <option value="yakut">🔴 Yakut</option>
+              <option value="zumrut">🟢 Zümrüt</option>
+              <option value="ejderha_tasi">🐉 Ejderha Taşı</option>
+              <option value="elmas">💠 Elmas</option>
+            </select>
+            <span style="font-size:11px;color:#888;margin-left:auto">🎯 Strateji:</span>
+          </div>
           <!-- Strateji secimi -->
           <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
             <label class="kb-strateji on" data-s="optimal" onclick="kbStratejiSec('optimal')">🎯 Optimal</label>
@@ -81,7 +103,7 @@
             <button class="btn" onclick="kbAra()" style="margin-left:auto;background:#d4af37;color:#000;font-weight:bold">🔍 Ara</button>
           </div>
 
-          <div id="kol-bulucu-sonuc" style="background:#080808;border-radius:6px;padding:8px;min-height:100px;color:#888;font-size:11px;text-align:center">Strateji seç ve "Ara"ya tıkla</div>
+          <div id="kol-bulucu-sonuc" style="background:#080808;border-radius:6px;padding:8px;min-height:100px;color:#888;font-size:11px;text-align:center">Strateji ve kaynak seç, sonra "Ara"ya tıkla</div>
         </div>
       </div>
     </div>
@@ -106,16 +128,27 @@
         document.querySelectorAll('.kb-strateji').forEach(b => b.classList.toggle('on', b.dataset.s === s));
         kbAra();
       }
+      const KAYNAK_IKON = {
+        odun:'🪓', metal:'⛏️', bugday:'🌾', balik:'🐟',
+        gumus:'🪙', bakir:'🔶', mitril:'💎', kalay:'⚪',
+        kehribar:'🟠', obsidyen:'🖤', yakut:'🔴', zumrut:'🟢',
+        ejderha_tasi:'🐉', elmas:'💠', altin:'🥇'
+      };
+      const KAYNAK_AD = {
+        odun:'Odun', metal:'Metal', bugday:'Buğday', balik:'Balık',
+        gumus:'Gümüş', bakir:'Bakır', mitril:'Mitril', kalay:'Kalay',
+        kehribar:'Kehribar', obsidyen:'Obsidyen', yakut:'Yakut', zumrut:'Zümrüt',
+        ejderha_tasi:'Ejderha Taşı', elmas:'Elmas', altin:'Altın'
+      };
       async function kbAra() {
         const token = getToken(); if (!token) return;
         const sonuc = document.getElementById('kol-bulucu-sonuc');
         sonuc.innerHTML = '<div style="color:#888;padding:20px">⏳ Aranıyor...</div>';
+        const kaynak = document.getElementById('kb-kaynak')?.value || '';
         try {
-          const r = await fetch(API_BASE + '/api/map/koloni-bulucu?strateji=' + KB_STRATEJI, {
-            headers: { Authorization: 'Bearer ' + token }
-          });
+          const url = API_BASE + '/api/map/koloni-bulucu?strateji=' + KB_STRATEJI + (kaynak ? '&kaynak=' + kaynak : '');
+          const r = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
           if (r.status === 403) {
-            const d = await r.json();
             document.getElementById('kol-bulucu-prem-uyari').style.display = 'block';
             document.getElementById('kol-bulucu-icerik').style.display = 'none';
             sonuc.innerHTML = '';
@@ -126,31 +159,45 @@
           document.getElementById('kol-bulucu-icerik').style.display = 'block';
           const d = await r.json();
           if (!d.onerilenler || d.onerilenler.length === 0) {
-            sonuc.innerHTML = '<div style="color:#888;padding:20px">Hiç aday bulunamadı.</div>';
+            const filtre = kaynak ? ` (${KAYNAK_AD[kaynak]||kaynak} filtresi)` : '';
+            sonuc.innerHTML = `<div style="color:#888;padding:20px">Hiç aday bulunamadı${filtre}.</div>`;
             return;
           }
           const tierBadge = `<span style="background:#d4af37;color:#000;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:bold">${(d.tier||'').toUpperCase()}</span>`;
+
+          // Mevcut kaynak sayim ozet
+          const sayimChips = Object.entries(d.kaynak_sayim||{}).sort((a,b)=>b[1]-a[1]).slice(0,8)
+            .map(([k,v]) => `<span style="background:#1a1a1a;color:#888;padding:2px 6px;border-radius:3px;font-size:10px;margin:0 2px" title="${KAYNAK_AD[k]||k}: ${v} aday">${KAYNAK_IKON[k]||'📦'}${v}</span>`).join('');
+
           sonuc.innerHTML =
-            `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;color:#888;font-size:11px">
-              <span>🎯 Strateji: <b style="color:#d4af37">${d.strateji}</b> · ${tierBadge} · ${d.onerilenler.length}/${d.toplam_aday} öneri</span>
+            `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;color:#888;font-size:11px;flex-wrap:wrap;gap:6px">
+              <span>🎯 <b style="color:#d4af37">${d.strateji}</b> · ${tierBadge} · ${d.onerilenler.length}/${d.toplam_aday} öneri</span>
+              <span>${sayimChips}</span>
             </div>` +
             d.onerilenler.map((k, i) => {
               const sahip = k.bos
                 ? '<span style="color:#2ecc71">⭐ BOŞ SLOT</span>'
-                : `<span style="color:#e67e22">${k.sahip.kral} (Çağ ${k.sahip.cag}, ${k.sahip.taraf})</span> <span style="color:#888">· ${k.sahip.off_saat}sa offline</span>`;
+                : `<span style="color:#e67e22">${k.sahip.kral} (Çağ ${k.sahip.cag}, ${k.sahip.taraf})</span> <span style="color:#888">· ${k.sahip.off_saat}sa off</span>`;
               const bonusStr = Object.entries(k.bolge_bonus || {}).map(([key, v]) => `${key} +${v}%`).join(' · ');
+              const kaynakBadge = k.kaynak_tipi
+                ? `<span style="background:#3a2810;color:#f39c12;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:bold;min-width:90px;text-align:center" title="${KAYNAK_AD[k.kaynak_tipi]||k.kaynak_tipi} +%${k.bonus_oran}/saat">${KAYNAK_IKON[k.kaynak_tipi]||'📦'} ${KAYNAK_AD[k.kaynak_tipi]||k.kaynak_tipi} +%${Math.round(k.bonus_oran)}</span>`
+                : '';
               return `
                 <div class="kb-row ${k.bos?'bos':'dolu'}">
                   <span style="font-size:14px;font-weight:bold;color:#d4af37;min-width:24px">#${i+1}</span>
-                  <a href="map.html?x=${k.x}&y=${k.y}" style="color:#3498db;text-decoration:none;font-weight:bold;min-width:80px">📍 ${k.koord}</a>
+                  <a href="map.html?x=${k.x}&y=${k.y}" style="color:#3498db;text-decoration:none;font-weight:bold;min-width:80px" title="Haritada gör">📍 ${k.koord}</a>
+                  ${kaynakBadge}
                   <span style="color:#888;font-size:11px">${k.mesafe} sektör</span>
-                  <span style="color:#888;font-size:11px">${k.bolge}${bonusStr ? ' · '+bonusStr : ''}</span>
+                  <span style="color:#888;font-size:10px">${k.bolge}${bonusStr ? ' · '+bonusStr : ''}</span>
                   <span style="margin-left:auto">${sahip}</span>
                   <span style="background:#1a3a1a;color:#2ecc71;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:bold;min-width:50px;text-align:center">⭐ ${k.skor}</span>
                 </div>
                 ${k.skor_detay ? `<div style="margin:-2px 0 4px 30px;font-size:10px;color:#666">${k.skor_detay}</div>` : ''}
               `;
-            }).join('');
+            }).join('') +
+            `<div style="margin-top:10px;padding:8px;background:#0a1a0a;border:1px solid #1a3a1a;border-radius:4px;color:#888;font-size:10px">
+              💡 <b>Nasıl alırım?</b> Koord linkine (📍) tıkla → harita o noktaya gider → Boş slot ise <b>FETHET</b> butonu, dolu slot ise saldırı planlayabilirsin (army.html → saldırı, hedef koord olarak kullan).
+            </div>`;
         } catch(e) {
           sonuc.innerHTML = '<div style="color:#e74c3c">Bağlantı hatası: ' + e.message + '</div>';
         }
