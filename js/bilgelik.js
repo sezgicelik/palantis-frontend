@@ -650,6 +650,7 @@
     { baslik:'İşçi Maaşları', icerik:'Saatlik (XX:00 cron): Tüccar 300 · Oduncu/Madenci 5 · Çiftçi/Balıkçı 3 · Esir 0. Hipnoz İŞÇİLERİ ETKİLEMEZ (sadece asker maaşı muaf). Ödenemezse altın 0\'a clamp, moral etkisi yok.' },
     { baslik:'Asker Maaşı vs İşçi Maaşı', icerik:'Asker maaşı ordu_morali etkiler (+5 ödenir, -10 ödenemez). İşçi maaşı sadece altın gideri — moral değişmez. Hipnoz yalnız ASKER maaşını muaf eder.' },
     { baslik:'İnşaat İptali', icerik:'Toplu inşa kuyruğu iptal edilirse %80 iade + %20 vazgeçme cezası. Mevcut in_queue inşaat devam eder. Bina kart ve kuyruk widget\'ında ✕ butonu ile.' },
+    { baslik:'Telegram Hashtag Filtresi', icerik:'Bot her bildirimin altına #saldiri #pazar #savas #gorev #bina #unite #kervan gibi hashtag ekler. Telegram\'da hashtag\'e UZUN BAS → "Tüm #saldiri mesajları" filtresi otomatik açılır. Saldırılarını, satışlarını veya görevlerini tek tıkla görebilirsin.' },
   ];
 
   // ──────────────────────────────────────────────

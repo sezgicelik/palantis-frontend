@@ -1,6 +1,6 @@
 // v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
 // Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
-const CACHE_NAME = 'noxara-v14430'; // v1.14.3.14 — Admin Oyuncu Mudahale paneli + nox-modal global
+const CACHE_NAME = 'noxara-v14440'; // v1.14.3.15 — Telegram hashtag (DM kategorize) + Codex maddesi
 
 // Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [
