@@ -1202,8 +1202,8 @@ document.addEventListener('DOMContentLoaded', initLayout);
 */
 // v1.14.3.9: Build stamp — tiklanabilir, cache temizleyip yenileme yapar
 (function buildStamp(){
-  const BUILD = 'v1.14.3.23';
-  const TS    = '2026-05-08 FETH ET endpoint duzeltildi (/api/army/state)';
+  const BUILD = 'v1.14.3.24';
+  const TS    = '2026-05-08 Admin: Koylu Ekle + Esek Ekle butonlari (Oyuncu Mudahale)';
   function mount(){
     if (document.getElementById('build-stamp')) return;
     const div = document.createElement('div');

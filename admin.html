@@ -1445,6 +1445,22 @@
         <button class="act" onclick="omCasusForce()" style="background:#34495e;color:#fff;width:100%">⚡ Zorla Tamamla</button>
       </div>
 
+      <!-- v1.14.3.24: 11. Köylü Ekle (Sezgi: "ben orduya esek ve koylu ekleyemiyorum") -->
+      <div class="card" style="border:1px solid #2ecc71">
+        <h4 style="color:#2ecc71;margin-top:0">👥 Köylü Ekle</h4>
+        <p style="font-size:11px;color:#888;margin:0 0 6px">workers.total artırılır. Koloni fetih için 100 boş köylü gerekli.</p>
+        <input id="om-koylu-adet" type="number" placeholder="Adet (1-100000)" min="1" max="100000" value="100" style="padding:4px;width:100%;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px;margin-bottom:4px;font-size:11px">
+        <button class="act" onclick="omKoyluEkle()" style="background:#2ecc71;color:#000;width:100%;font-weight:bold">👥 Ekle</button>
+      </div>
+
+      <!-- v1.14.3.24: 12. Eşek Ekle -->
+      <div class="card" style="border:1px solid #e67e22">
+        <h4 style="color:#e67e22;margin-top:0">🐴 Eşek Ekle</h4>
+        <p style="font-size:11px;color:#888;margin:0 0 6px">resources.essek artırılır. Koloni fetih için 2 eşek gerekli.</p>
+        <input id="om-essek-adet" type="number" placeholder="Adet (1-1000)" min="1" max="1000" value="5" style="padding:4px;width:100%;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px;margin-bottom:4px;font-size:11px">
+        <button class="act" onclick="omEsekEkle()" style="background:#e67e22;color:#fff;width:100%;font-weight:bold">🐴 Ekle</button>
+      </div>
+
     </div>
 
     <div id="om-detay" style="margin-top:14px"></div>
@@ -5798,6 +5814,36 @@ async function omCasusForce() {
     });
     const d = await r.json();
     omLog('⚡ Casus zorla tamamlandı\n' + JSON.stringify(d, null, 2), r.ok ? 'ok' : 'err');
+  } catch(e) { omLog('Hata: ' + e.message, 'err'); }
+}
+
+// v1.14.3.24: Köylü ekle
+async function omKoyluEkle() {
+  const pid = omGetPid(); if (!pid) return;
+  const adet = parseInt(document.getElementById('om-koylu-adet').value);
+  if (!adet || adet < 1) { alert('Geçerli adet gir (1-100000)'); return; }
+  if (!confirm(`Player ${pid} → workers.total += ${adet} (boş köylü). Devam?`)) return;
+  try {
+    const r = await fetch(API + '/api/admin/player/' + pid + '/koylu-ekle', {
+      method: 'POST', headers: hdr(), body: JSON.stringify({ adet })
+    });
+    const d = await r.json();
+    omLog(`👥 Köylü ekleme\n` + JSON.stringify(d, null, 2), r.ok ? 'ok' : 'err');
+  } catch(e) { omLog('Hata: ' + e.message, 'err'); }
+}
+
+// v1.14.3.24: Eşek ekle
+async function omEsekEkle() {
+  const pid = omGetPid(); if (!pid) return;
+  const adet = parseInt(document.getElementById('om-essek-adet').value);
+  if (!adet || adet < 1) { alert('Geçerli adet gir (1-1000)'); return; }
+  if (!confirm(`Player ${pid} → resources.essek += ${adet}. Devam?`)) return;
+  try {
+    const r = await fetch(API + '/api/admin/player/' + pid + '/essek-ekle', {
+      method: 'POST', headers: hdr(), body: JSON.stringify({ adet })
+    });
+    const d = await r.json();
+    omLog(`🐴 Eşek ekleme\n` + JSON.stringify(d, null, 2), r.ok ? 'ok' : 'err');
   } catch(e) { omLog('Hata: ' + e.message, 'err'); }
 }
 
