@@ -60,15 +60,22 @@ async function loadAktifOyuncular() {
     }
     function _tarafRenk(t) { return t === 'iyi' ? '#d4af37' : '#9370f7'; }
 
+    // v1.14.3.36 — Tikla → ozel mesaj formu o oyuncuyla doldurulur
     liste.innerHTML = oyuncular.map(function(p) {
       var guildEt = p.guild_tag ? '<span style="color:#888">[' + _esc(p.guild_tag) + ']</span> ' : '';
       var koord = p.koord ? '<span style="color:#666;font-size:10px"> ' + _esc(p.koord) + '</span>' : '';
-      return '<div style="padding:5px 6px;border-bottom:1px solid #1a1a1a;line-height:1.4">' +
+      var safeIsim = (p.kullanici_adi||'').replace(/['"\\<>]/g,'');
+      return '<div onclick="aktifOyuncuyaMesaj(\'' + safeIsim + '\')" ' +
+             'style="padding:5px 6px;border-bottom:1px solid #1a1a1a;line-height:1.4;cursor:pointer;transition:background 0.15s" ' +
+             'onmouseover="this.style.background=\'rgba(212,175,55,0.06)\'" ' +
+             'onmouseout="this.style.background=\'\'" ' +
+             'title="✉️ ' + _esc(p.kullanici_adi) + ' kullanicisina mesaj gonder">' +
         '<div>' +
           '<span style="font-size:10px">' + _ikon(p.durum) + '</span> ' +
           guildEt +
           '<span style="color:' + _tarafRenk(p.taraf) + ';font-weight:bold">' + _esc(p.kullanici_adi) + '</span>' +
           koord +
+          '<span style="float:right;color:#666;font-size:11px">✉️</span>' +
         '</div>' +
         '<div style="font-size:10px;color:' + _renk(p.durum) + ';margin-left:14px">' + _zaman(p.saniye_once) + '</div>' +
       '</div>';
@@ -86,6 +93,47 @@ async function loadAktifOyuncular() {
     if (meydanTabAcik && document.getElementById('aktif-liste')) loadAktifOyuncular();
   }, 30000);
 })();
+
+/* ═══════════════════════════════════════════════════════
+   v1.14.3.36 — Aktif oyuncuya tikla -> ozel mesaj formu
+   Tek tikla: tab gecisi + form acma + isim arama + secim
+   ═══════════════════════════════════════════════════════ */
+async function aktifOyuncuyaMesaj(kullaniciAdi) {
+  if (!kullaniciAdi) return;
+  // 1) Ozel Mesajlar tab'ina gec
+  meydanTab('ozel');
+  // 2) Mesaj gonder formunu ac (kapaliysa)
+  var modalEl = document.getElementById('ozel-gonder-modal');
+  if (!modalEl || modalEl.style.display === 'none') {
+    ozelMesajGonderModal();
+  }
+  // 3) Hedef arama input'unu doldur + ara
+  setTimeout(async function() {
+    var inp = document.getElementById('ozel-hedef-isim');
+    if (inp) {
+      inp.value = kullaniciAdi;
+      // Otomatik ara — backend'den oyuncu listesi getir
+      try {
+        var token = getToken(); if (!token) return;
+        var resp = await fetch(API_BASE + '/api/player/ara?isim=' + encodeURIComponent(kullaniciAdi),
+          { headers: { 'Authorization': 'Bearer ' + token } });
+        var data = await resp.json();
+        // Tam eslesen oyuncuyu otomatik sec
+        var tam = data.find(p => p.kullanici_adi === kullaniciAdi) || data[0];
+        if (tam) {
+          var hidden = document.getElementById('ozel-hedef');
+          var sonuc  = document.getElementById('ozel-hedef-sonuc');
+          if (hidden) hidden.value = tam.id;
+          if (sonuc)  sonuc.innerHTML = '<span style="color:#2ecc71">✓ Seçildi: <b>' + escapeHtml(tam.kullanici_adi) + '</b> (' + tam.koord_x + ':' + tam.koord_y + ')</span>';
+        }
+        // Mesaj alanina focus
+        var msgArea = document.getElementById('ozel-mesaj');
+        if (msgArea) msgArea.focus();
+      } catch(e) { /* sessiz */ }
+    }
+  }, 150);
+}
+window.aktifOyuncuyaMesaj = aktifOyuncuyaMesaj;
 
 function ozelSubTab(sub) {
   document.getElementById('ozel-mesajlar').style.display = sub === 'gelen' ? 'block' : 'none';
@@ -270,8 +318,18 @@ document.addEventListener('DOMContentLoaded', function() {
     attempts++;
     if ((typeof OYUNCU !== 'undefined' && OYUNCU?.kral) || attempts > 20) {
       clearInterval(check);
-      loadMeydanMesajlar();
-      loadAktifOyuncular(); // v1.14.3.35: aktif oyuncular paneli ilk yukleme
+      // v1.14.3.36 — URL ?tab=ozel veya ?tab=ozel&yeni=ISIM ile gelirse direkt ozel mesaj
+      var params = new URLSearchParams(location.search);
+      if (params.get('tab') === 'ozel') {
+        meydanTab('ozel');
+        var yeniIsim = params.get('yeni');
+        if (yeniIsim) {
+          aktifOyuncuyaMesaj(decodeURIComponent(yeniIsim));
+        }
+      } else {
+        loadMeydanMesajlar();
+        loadAktifOyuncular();
+      }
     }
   }, 500);
   // Otomatik yenileme: 30 saniyede bir yeni mesajlari getir

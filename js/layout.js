@@ -154,7 +154,7 @@ function renderSidebar(){
       <a href="reports.html" class="menu-item${isActive('reports.html')}">📊 Raporlar <span style="color:#888;font-size:10px">(Şehir · Savaş · Casus · Guild)</span></a>
       <a href="gorev.html" class="menu-item${isActive('gorev.html')}">📜 Görevler <span id="gorev-badge" style="display:none;background:#e74c3c;color:#fff;font-size:11px;padding:1px 5px;border-radius:8px;margin-left:4px"></span></a>
 
-      <a href="meydan.html" class="menu-item${isSosyal?' on':''}">🎭 Sosyal & Eğlence</a>
+      <a href="meydan.html?tab=ozel" class="menu-item${isSosyal?' on':''}">🎭 Sosyal & Eğlence <span id="ozel-mesaj-badge-ana" style="display:none;background:#e74c3c;color:#fff;font-size:11px;padding:1px 6px;border-radius:8px;margin-left:4px;font-weight:bold"></span></a>
       <div class="submenu" style="display:${isSosyal?'block':'none'}">
         <a href="meydan.html" class="menu-item sub-item${isActive('meydan.html')}">💬 Şehir Meydanı</a>
         <a href="meydan.html?tab=ozel" class="menu-item sub-item">✉️ Özel Mesajlar <span id="ozel-mesaj-badge" style="display:none;background:#e74c3c;color:#fff;font-size:11px;padding:1px 5px;border-radius:8px;margin-left:4px"></span></a>
@@ -1202,8 +1202,8 @@ document.addEventListener('DOMContentLoaded', initLayout);
 */
 // v1.14.3.9: Build stamp — tiklanabilir, cache temizleyip yenileme yapar
 (function buildStamp(){
-  const BUILD = 'v1.14.3.35';
-  const TS    = '2026-05-08 Sehir Meydani aktif oyuncular paneli (online/aktif/yakin)';
+  const BUILD = 'v1.14.3.36';
+  const TS    = '2026-05-08 Aktif oyuncuya tikla->mesaj + global ozel mesaj badge polling';
   function mount(){
     if (document.getElementById('build-stamp')) return;
     const div = document.createElement('div');
@@ -1236,5 +1236,137 @@ document.addEventListener('DOMContentLoaded', initLayout);
     document.addEventListener('DOMContentLoaded', mount);
   } else {
     mount();
+  }
+})();
+
+/* ═══════════════════════════════════════════════════════
+   v1.14.3.36 — GLOBAL OZEL MESAJ BILDIRIM POLLING
+   ═══════════════════════════════════════════════════════
+   Her sayfada arka planda calisir.
+   - 30 saniyede bir okunmamis ozel mesaj sayisini ceker
+   - Sidebar'da #ozel-mesaj-badge'i gunceller (sayi gosterir)
+   - Yeni mesaj geldiginde toast bildirimi cikarir
+   - Browser sekmesi titreşir (favicon/title flash)
+   - Notification API destekliyse desktop bildirim
+   ═══════════════════════════════════════════════════════ */
+(function _ozelMesajPolling() {
+  if (typeof window === 'undefined') return;
+  if (window._ozelMesajPollingActive) return;
+  window._ozelMesajPollingActive = true;
+
+  let lastOkunmamis = -1; // ilk fetch'te bildirim cikartmamak icin
+  let originalTitle = document.title;
+  let titleFlashInterval = null;
+
+  function getApi() {
+    return (typeof API_BASE !== 'undefined') ? API_BASE : 'https://palantis-backend-production.up.railway.app';
+  }
+  function getTok() {
+    return localStorage.getItem('palantis_token');
+  }
+
+  function startTitleFlash(count) {
+    if (titleFlashInterval) clearInterval(titleFlashInterval);
+    let toggle = false;
+    titleFlashInterval = setInterval(() => {
+      toggle = !toggle;
+      document.title = toggle ? `(${count} ✉) Yeni Mesaj — Noxara` : originalTitle;
+    }, 1500);
+    // Sayfa focus alinca dur
+    window.addEventListener('focus', stopTitleFlash, { once: true });
+  }
+  function stopTitleFlash() {
+    if (titleFlashInterval) { clearInterval(titleFlashInterval); titleFlashInterval = null; }
+    document.title = originalTitle;
+  }
+
+  async function pollOzelMesaj() {
+    const tok = getTok();
+    if (!tok) return; // login degil
+    try {
+      const r = await fetch(getApi() + '/api/meydan/ozel', {
+        headers: { 'Authorization': 'Bearer ' + tok }
+      });
+      if (!r.ok) return;
+      const d = await r.json();
+      const okunmamis = parseInt(d.okunmamis) || 0;
+
+      // Sidebar badge guncelle (alt menu + ana menu)
+      ['ozel-mesaj-badge', 'ozel-mesaj-badge-ana'].forEach(id => {
+        const b = document.getElementById(id);
+        if (!b) return;
+        if (okunmamis > 0) {
+          b.style.display = 'inline-block';
+          b.textContent = okunmamis;
+          b.style.animation = 'pulseOzel 2s infinite';
+        } else {
+          b.style.display = 'none';
+        }
+      });
+
+      // Yeni mesaj geldi mi? (ilk fetch'te lastOkunmamis=-1, bildirim verme)
+      if (lastOkunmamis >= 0 && okunmamis > lastOkunmamis) {
+        const yeni = okunmamis - lastOkunmamis;
+        const yeniMesaj = (d.mesajlar || []).find(m => !m.okundu);
+        const gonderen = yeniMesaj?.gonderen_adi ? String(yeniMesaj.gonderen_adi).slice(0, 30) : 'biri';
+        // Toast bildirim (varsa) — toast.js showToast(msg, type) imzasi
+        try {
+          const toastMsg = `✉️ ${gonderen} size özel mesaj gönderdi!${yeni > 1 ? ' (+' + (yeni-1) + ' daha)' : ''}`;
+          if (typeof showToast === 'function') showToast(toastMsg, 'info');
+          else if (typeof toast === 'function') toast(toastMsg);
+        } catch {}
+        // Browser tab title flash
+        startTitleFlash(okunmamis);
+        // Desktop notification (kullanici izin verirse)
+        if ('Notification' in window && Notification.permission === 'granted') {
+          try {
+            new Notification('Noxara — Yeni Özel Mesaj', {
+              body: `${gonderen} size mesaj gönderdi`,
+              icon: '/icons/icon-192.svg',
+              tag: 'noxara-ozel'
+            });
+          } catch {}
+        }
+      }
+
+      lastOkunmamis = okunmamis;
+    } catch (e) { /* sessiz fail */ }
+  }
+
+  // CSS ekle (badge pulse animasyon)
+  if (!document.getElementById('ozel-mesaj-anim-css')) {
+    const s = document.createElement('style');
+    s.id = 'ozel-mesaj-anim-css';
+    s.textContent = `
+      @keyframes pulseOzel {
+        0%,100% { box-shadow: 0 0 0 0 rgba(231,76,60,0.6); }
+        50%     { box-shadow: 0 0 0 6px rgba(231,76,60,0); }
+      }
+    `;
+    document.head.appendChild(s);
+  }
+
+  // Notification permission iste (sadece bir kez, kullanici tetiklemesinden sonra)
+  function notifPermBir() {
+    if ('Notification' in window && Notification.permission === 'default') {
+      // Kullanici etkilesimi sonra iste — agresif olmasin
+      document.addEventListener('click', () => {
+        if (Notification.permission === 'default') {
+          try { Notification.requestPermission(); } catch {}
+        }
+      }, { once: true });
+    }
+  }
+
+  // Init
+  function init() {
+    pollOzelMesaj(); // ilk fetch
+    setInterval(pollOzelMesaj, 30000); // 30sn'de bir
+    notifPermBir();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => setTimeout(init, 1500));
+  } else {
+    setTimeout(init, 1500);
   }
 })();
