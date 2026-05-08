@@ -1,6 +1,6 @@
 // v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
 // Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
-const CACHE_NAME = 'noxara-v14570'; // v1.14.3.28 — KRITIK FIX: page-city syntax error
+const CACHE_NAME = 'noxara-v14580'; // v1.14.3.29 — 3 hata fix: binalar + guild koylu + cig et bagis
 
 // Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [
