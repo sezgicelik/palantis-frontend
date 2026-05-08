@@ -246,9 +246,10 @@ function renderMarket() {
       </div>
       <div style="flex:1;display:flex;align-items:center;gap:4px;justify-content:flex-end;min-width:200px">
         ${kilitli ? `<span style="color:#e67e22;font-size:11px;font-style:italic">Bu hammadde ${f.cag_min}. Çağ'da açılır</span>` : `
+        <!-- TODO v1.14.4: -100/-10/+10/+100 step adjuster — toplam stok 100K+ olunca anlamsiz, slider veya % adimina cevirelim -->
         <button class="btn ghost" style="padding:2px 6px;font-size:10px" onclick="mkAdjust('${key}',-100)">−100</button>
         <button class="btn ghost" style="padding:2px 5px;font-size:10px" onclick="mkAdjust('${key}',-10)">−10</button>
-        <span id="mk-m-${key}" style="min-width:36px;text-align:center;font-weight:bold;color:#d4af37;font-size:12px">${MK_SATIS_MIKTAR[key]}</span>
+        <span id="mk-m-${key}" style="min-width:60px;text-align:center;font-weight:bold;color:#d4af37;font-size:12px">${(MK_SATIS_MIKTAR[key]||0).toLocaleString('tr-TR')}</span>
         <button class="btn ghost" style="padding:2px 5px;font-size:10px" onclick="mkAdjust('${key}',10)">+10</button>
         <button class="btn ghost" style="padding:2px 6px;font-size:10px" onclick="mkAdjust('${key}',100)">+100</button>
         <button class="btn ghost" style="padding:2px 6px;font-size:10px;color:#f1c40f" onclick="mkAdjust('${key}','max')">MAX</button>
@@ -294,7 +295,7 @@ function mkAdjust(key, delta) {
     MK_SATIS_MIKTAR[key] = Math.max(0, Math.min((MK_SATIS_MIKTAR[key]||0) + delta, f.miktar));
   }
   const el = document.getElementById('mk-m-' + key);
-  if (el) el.textContent = MK_SATIS_MIKTAR[key];
+  if (el) el.textContent = (MK_SATIS_MIKTAR[key]||0).toLocaleString('tr-TR');
 }
 
 async function mkSat(key) {

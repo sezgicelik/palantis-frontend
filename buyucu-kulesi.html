@@ -53,11 +53,14 @@
 .parsomen-card .p-isim { font-size:12px; color:#8e44ad; font-weight:700 }
 .parsomen-card .p-adet { font-size:11px; color:#c9a84c }
 
-.log-row { display:flex; gap:8px; padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.03); font-size:11px; font-family:'Crimson Pro',serif; align-items:center }
-.log-row .log-icon { font-size:14px }
-.log-row .log-zaman { color:#666; min-width:60px; font-size:10px }
-.log-row .log-mesaj { color:#ccc; flex:1 }
-.log-row.basarisiz .log-mesaj { color:#e74c3c }
+/* v1.14.3.30: gecmis log okunaklilik iyilestirme */
+.log-row { display:flex; gap:10px; padding:8px 8px; border-bottom:1px solid rgba(255,255,255,0.05); font-size:12px; font-family:'Crimson Pro',serif; align-items:center; background:rgba(20,18,14,0.4); margin-bottom:2px; border-radius:4px }
+.log-row:hover { background:rgba(212,162,87,0.06) }
+.log-row .log-icon { font-size:15px }
+.log-row .log-zaman { color:#999; min-width:80px; font-size:11px }
+.log-row .log-mesaj { color:#e0d6c0; flex:1 }
+.log-row.basarisiz { background:rgba(231,76,60,0.05) }
+.log-row.basarisiz .log-mesaj { color:#f4b4ae }
 </style>
 </head>
 <body>
@@ -743,7 +746,7 @@ async function bkLoadLog() {
       return `<div class="log-row ${l.basarili ? '' : 'basarisiz'}">
         <span class="log-icon">${l.basarili ? '\u2705' : '\u274C'}</span>
         <span class="log-zaman">${tarih}</span>
-        <span class="log-mesaj">${l.buyu_id} (K${l.kademe}) — ${l.detay || (l.basarili ? 'Basarili' : 'Basarisiz')}</span>
+        <span class="log-mesaj"><b style="color:${l.basarili ? '#e8d4a8' : '#e74c3c'}">${(()=>{const b=(bkData?.buyuler||[]).find(x=>x.id===l.buyu_id);return b?b.isim:(l.buyu_id||'?').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());})()}</b> <span style="color:#888">K${l.kademe}</span> — <span style="color:#bbb">${l.detay || (l.basarili ? 'Basarili' : 'Basarisiz')}</span></span>
       </div>`;
     }).join('');
   } catch(e) {}

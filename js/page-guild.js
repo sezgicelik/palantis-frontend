@@ -237,15 +237,15 @@ function renderGuildPageHUD(data) {
     <div class="card" style="padding:8px 12px;margin-bottom:12px;background:linear-gradient(90deg,rgba(212,175,55,0.05),transparent);border-left:3px solid var(--race-color);display:flex;flex-wrap:wrap;align-items:center;gap:16px;font-size:11px">
       <span style="font-family:Cinzel,serif;color:var(--race-color);font-weight:bold;font-size:13px">🏰 [${g.tag}] ${g.isim}</span>
       <span style="color:#888">|</span>
-      <span>👥 Nüfus: <b style="color:${nufusRenk}">${mevcut}/${siniri}</b> <span style="color:#666">(%${nufusYuzde})</span></span>
+      <span>👥 Nüfus: <b style="color:${nufusRenk}">${(Number(mevcut)||0).toLocaleString('tr-TR')}/${(Number(siniri)||0).toLocaleString('tr-TR')}</b> <span style="color:#666">(%${nufusYuzde})</span></span>
       <span style="color:#888">|</span>
       <span>🎖 Moral: <b style="color:${moralRenk}">${moral}/100</b></span>
       <span style="color:#888">|</span>
       <span title="${aclikTooltip}" style="cursor:help">${aclikIkon} Açlık: <b style="color:${aclikRenk}">${aclikYuzde}/100</b></span>
       <span style="color:#888">|</span>
-      <span>📐 Alan: <b style="color:${alanRenk}">${alanK}/${alanT}</b> <span style="color:#666">(%${alanYuzde})</span></span>
+      <span>📐 Alan: <b style="color:${alanRenk}">${(Number(alanK)||0).toLocaleString('tr-TR')}/${(Number(alanT)||0).toLocaleString('tr-TR')}</b> <span style="color:#666">(%${alanYuzde})</span></span>
       <span style="color:#888">|</span>
-      <span>🙏 WS: <b style="color:#9b59b6">${wsT}</b></span>
+      <span>🙏 WS: <b style="color:#9b59b6">${(Number(wsT)||0).toLocaleString('tr-TR')}</b></span>
       ${mb+mk+mm+my > 0 ? `
       <span style="color:#888">|</span>
       <span>🔮 Mana:
@@ -1573,12 +1573,20 @@ async function guildSehirTasi(guildId) {
   } catch(e) { if(msg) msg.innerHTML = '<span style="color:#e74c3c">Baglanti hatasi</span>'; }
 }
 
+// v1.14.3.30: Bagis prompt'ina %20 default hint (oyuncunun mevcut stogu × 0.20)
 async function guildBagis(guildId, kaynak) {
-  var miktar = await noxPrompt(kaynak + ' ne kadar bagislamak istiyorsunuz?');
-  if (!miktar || isNaN(miktar) || parseInt(miktar) <= 0) return;
+  var stok = (typeof RES !== 'undefined' && RES[kaynak]) ? Math.floor(Number(RES[kaynak])||0) : 0;
+  var yuzde20 = Math.floor(stok * 0.20);
+  var hint = stok > 0
+    ? (kaynak + ' bagis miktari?\n\nMevcut stok: ' + stok.toLocaleString('tr-TR') + '\nOnerilen %20: ' + yuzde20.toLocaleString('tr-TR') + '\n\n(Bos birakirsan %20 bagislanir)')
+    : (kaynak + ' ne kadar bagislamak istiyorsunuz?');
+  var raw = await noxPrompt(hint, yuzde20.toString());
+  if (raw === null) return; // iptal
+  var miktar = (raw === '' || raw === undefined) ? yuzde20 : parseInt(raw);
+  if (!miktar || isNaN(miktar) || miktar <= 0) return;
   try {
     var resp = await fetch(API_BASE + '/api/guild/' + guildId + '/bagis', {
-      method: 'POST', headers: guildHdr(), body: JSON.stringify({ kaynak: kaynak, miktar: parseInt(miktar) })
+      method: 'POST', headers: guildHdr(), body: JSON.stringify({ kaynak: kaynak, miktar: miktar })
     });
     var data = await resp.json();
     if (resp.ok) { toast(data.mesaj); loadGuild(); } else noxAlert(data.error);
@@ -2522,18 +2530,20 @@ async function renderTabDagitim(el, data) {
       html += '<div style="font-size:10px;color:#f39c12;margin-bottom:8px">ℹ️ Sadece lider ve yardimci oranlari degistirebilir</div>';
     }
 
-    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
+    // v1.14.3.30 — okunaklilik: font 10→12, padding artirildi, isim/yuzde acik renk
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
     DAGITIM_KAYNAKLAR.forEach(function(k) {
       var val = parseInt(dag[k]) || 0;
       var icon = KAYNAK_IKON[k] || '';
-      html += '<div style="padding:6px;background:#0a0a0a;border-radius:4px">' +
-        '<div style="display:flex;justify-content:space-between;margin-bottom:3px">' +
-          '<span style="font-size:10px">' + icon + ' ' + DAGITIM_ISIM[k] + '</span>' +
-          '<span id="dag-val-' + k + '" style="font-size:10px;color:#d4af37;font-weight:bold">%' + val + '</span>' +
+      var renk = val === 0 ? '#666' : (val >= 50 ? '#2ecc71' : (val >= 25 ? '#f1c40f' : '#e8d4a8'));
+      html += '<div style="padding:10px 12px;background:#0a0a0a;border-radius:6px;border:1px solid #2a2820">' +
+        '<div style="display:flex;justify-content:space-between;margin-bottom:6px;align-items:center">' +
+          '<span style="font-size:12px;color:#e0d6c0">' + icon + ' ' + DAGITIM_ISIM[k] + '</span>' +
+          '<span id="dag-val-' + k + '" style="font-size:13px;color:' + renk + ';font-weight:bold">%' + val + '</span>' +
         '</div>' +
         (isLiderYardimci
           ? '<input id="dag-inp-' + k + '" type="range" min="0" max="100" value="' + val + '" oninput="guildDagitimSliderGuncelle(\'' + k + '\')" style="width:100%">'
-          : '<div style="height:6px;background:#1a1a1a;border-radius:3px"><div style="width:' + val + '%;height:100%;background:#d4af37;border-radius:3px"></div></div>') +
+          : '<div style="height:8px;background:#1a1a1a;border-radius:4px"><div style="width:' + val + '%;height:100%;background:' + renk + ';border-radius:4px"></div></div>') +
       '</div>';
     });
     html += '</div>';
@@ -2552,9 +2562,13 @@ async function renderTabDagitim(el, data) {
 }
 
 function guildDagitimSliderGuncelle(kaynak) {
-  var val = document.getElementById('dag-inp-' + kaynak).value;
+  var val = parseInt(document.getElementById('dag-inp-' + kaynak).value) || 0;
   var disp = document.getElementById('dag-val-' + kaynak);
-  if (disp) disp.textContent = '%' + val;
+  if (disp) {
+    disp.textContent = '%' + val;
+    var renk = val === 0 ? '#666' : (val >= 50 ? '#2ecc71' : (val >= 25 ? '#f1c40f' : '#e8d4a8'));
+    disp.style.color = renk;
+  }
 }
 
 async function guildDagitimKaydet(gId) {

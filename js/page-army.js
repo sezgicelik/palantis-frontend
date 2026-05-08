@@ -46,8 +46,21 @@ function renderUpgrades(){
   if(!panel) return;
   const side = OYUNCU && OYUNCU.taraf === 'kotu' ? 'dark' : 'light';
 
+  // v1.14.3.30: Kaynak ozeti UST kisimda (gelistirme yaparken hangi kaynakta ne kadar var?)
+  // At/Kurt kaldirildi (gelistirme bunlari kullanmiyor — sadece GP/KP/Islenmis/Altin)
+  const _f = (typeof fmt==='function') ? fmt : (n => Math.floor(Number(n)||0).toLocaleString('tr-TR'));
+  const kaynakOzet = `
+    <div style="background:linear-gradient(90deg,rgba(212,175,55,0.06),transparent);border:1px solid #2a2820;border-radius:8px;padding:10px 14px;margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <span style="color:#888;font-size:11px;margin-right:4px">📊 Mevcut kaynaklar:</span>
+      <span style="background:#0a0a0a;padding:6px 12px;border-radius:5px;border:1px solid #333;font-size:12px">💰 Altın: <b style="color:#f1c40f">${_f(RES.altin||0)}</b></span>
+      <span style="background:#0a0a0a;padding:6px 12px;border-radius:5px;border:1px solid #333;font-size:12px">🔧 Gelişim Puanı: <b style="color:#3498db">${_f(RES.gelisim_puani||0)}</b></span>
+      <span style="background:#0a0a0a;padding:6px 12px;border-radius:5px;border:1px solid #333;font-size:12px">🎭 Kültür Puanı: <b style="color:#e67e22">${_f(RES.kultur_puani||0)}</b></span>
+      <span style="background:#0a0a0a;padding:6px 12px;border-radius:5px;border:1px solid #333;font-size:12px">⚙️ İşlenmiş: <b style="color:#95a5a6">${_f(RES.islenmis||0)}</b></span>
+    </div>`;
+
   let html = `
   <div style="padding:15px">
+    ${kaynakOzet}
     <h3 style="color:#f5f0e8;margin:0 0 15px">Global Gelistirmeler</h3>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
       <div style="background:#1a1a0a;border:1px solid #333;border-radius:8px;padding:12px;flex:1;min-width:200px">
@@ -101,20 +114,15 @@ function renderUpgrades(){
 
   html += `</div>
 
-    <h3 style="color:#f5f0e8;margin:20px 0 15px">Extra Kaynaklar</h3>
-    ${(()=>{
-      // v1.14.1.52: TR locale format helper (3.187 yerine 3187.0 cirkin idi)
-      const _f = (typeof fmt==='function') ? fmt : (n => Math.floor(Number(n)||0).toLocaleString('tr-TR'));
-      return `
+    <h3 style="color:#f5f0e8;margin:20px 0 15px">Diğer Stratejik Kaynaklar</h3>
+    <div style="color:#888;font-size:11px;margin-bottom:8px">Bu kaynaklar ünite eğitiminde kullanılır (geliştirme dışı)</div>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">At/Kurt: <b style="color:#f1c40f">${_f(EXTRA_RES.at||EXTRA_RES.kurt||0)}</b></div>
-      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">Mana: <b style="color:#9b59b6">${_f(Math.floor(EXTRA_RES.mana||0))}</b></div>
-      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">Gizlilik: <b style="color:#2ecc71">${_f(Math.floor(EXTRA_RES.gizlilik||0))}</b></div>
-      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">B.Yumurta: <b style="color:#e67e22">${_f(Math.floor(EXTRA_RES.buyulu_yumurta||0))}</b></div>
-      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">Çiğ Et: <b style="color:#c0392b">${_f(RES.cig_et||0)}</b></div>
-      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333">Pişmiş Et: <b style="color:#e67e22">${_f(RES.pismis_et||0)}</b></div>
-    </div>`;
-    })()}
+      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333;color:#ddd">Mana: <b style="color:#9b59b6">${_f(Math.floor(EXTRA_RES.mana||0))}</b></div>
+      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333;color:#ddd">Gizlilik: <b style="color:#2ecc71">${_f(Math.floor(EXTRA_RES.gizlilik||0))}</b></div>
+      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333;color:#ddd">B.Yumurta: <b style="color:#e67e22">${_f(Math.floor(EXTRA_RES.buyulu_yumurta||0))}</b></div>
+      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333;color:#ddd">Çiğ Et: <b style="color:#c0392b">${_f(RES.cig_et||0)}</b></div>
+      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333;color:#ddd">Pişmiş Et: <b style="color:#e67e22">${_f(RES.pismis_et||0)}</b></div>
+    </div>
   </div>`;
 
   panel.innerHTML = html;

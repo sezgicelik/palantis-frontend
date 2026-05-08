@@ -19,6 +19,20 @@ const GOREV_RENK = {
   kaynak_hirsizligi:'#f39c12', kargasa:'#e74c3c', bilim_hirsizligi:'#9b59b6',
   stratejik_bilgiler:'#3498db', katliam:'#e74c3c', sabotaj:'#e74c3c'
 };
+// v1.14.3.30 — Operasyon detay aciklamasi (FIX 8: tooltip "Kargasa ne ise yarar?")
+const GOREV_ACIKLAMA = {
+  bolge_incele:        'Hedefin bulundugu bolge ID\'sini ve koordinatini ogrenir.',
+  koloni_incele:       'Hedefin tum kolonileri + kaynak tipi + bonus oranlarini listeler.',
+  ordu_incele:         'Hedefin tum ordulari, ATK/DEF gucleri ve unite sayilarini gosterir.',
+  ordu_saldiri_incele: 'Hedefin yolda olan ordularini (saldiri/donus) tespit eder.',
+  yemek_hirsizligi:    'Hedefin bugday/balik/pismis ekmek stogundan calar (max %15 stok).',
+  kaynak_hirsizligi:   'Hedefin altin/odun/metal/kereste/islenmis stogundan calar (max %10).',
+  kargasa:             'Hedefin SEHIR moralini -100 dusurur (yuksek riskli, koylu kacisi tetikleyebilir).',
+  bilim_hirsizligi:    'Hedeften bilim/teknoloji bilgisi sızdırır (gelisim_puani transfer).',
+  stratejik_bilgiler:  'Hedefin ORDU moralini ve cesaret puanini ogrenir.',
+  katliam:             'Hedefin koylu nufusunu oldurur (50-200 koylu, agir gizlilik maliyeti).',
+  sabotaj:             'Hedefin 1-3 binasina 20-40 dayaniklilik hasari verir.'
+};
 
 async function loadCasus() {
   var token = getToken(); if (!token) return;
@@ -97,8 +111,10 @@ function casusGonderModal(casusId) {
     var isim = GOREV_ISIMLERI[tip] || tip;
     var ikon = GOREV_IKONLARI[tip] || '🕵️';
     var renk = GOREV_RENK[tip] || '#555';
+    var aciklama = GOREV_ACIKLAMA[tip] || '';
+    var tipText = aciklama + (aciklama?'\n\n':'') + 'Sure: ' + g.sure + ' PG | Gizlilik: ' + g.gizlilik + ' | Basari: %' + g.baz_basari;
     return '<button style="padding:5px 10px;font-size:11px;background:' + renk + '22;border:1px solid ' + renk + '44;color:' + renk + ';border-radius:4px;cursor:pointer;font-family:Cinzel,serif;letter-spacing:0.5px" ' +
-      'onclick="casusGonder(' + casusId + ',\'' + tip + '\')" title="Sure: ' + g.sure + ' PG | Gizlilik: ' + g.gizlilik + ' | Basari: %' + g.baz_basari + '">' +
+      'onclick="casusGonder(' + casusId + ',\'' + tip + '\')" title="' + tipText.replace(/"/g,'&quot;') + '">' +
       ikon + ' ' + isim + ' <span style="font-size:11px;color:#888">(' + g.sure + 'PG / ' + g.gizlilik + 'G)</span></button>';
   }).join('');
 
@@ -110,9 +126,22 @@ function casusGonderModal(casusId) {
       '<div id="casus-hedef-sonuc" style="font-size:10px;margin-top:4px;min-height:16px"></div>' +
       '<input id="casus-hedef" type="hidden">' +
     '</div>' +
-    '<div style="font-size:11px;color:#555;margin-bottom:6px">Gorev secin (hover ile detay gorun):</div>' +
-    '<div style="display:flex;gap:4px;flex-wrap:wrap">' + butonlar + '</div>' +
+    '<div style="font-size:11px;color:#555;margin-bottom:6px">Gorev secin (uzerine gelince detay panelde acilir):</div>' +
+    '<div id="casus-op-detay" style="display:none;padding:10px;background:rgba(212,162,87,0.08);border:1px solid rgba(212,162,87,0.3);border-radius:6px;margin-bottom:8px;font-size:12px;color:#e0d6c0;min-height:36px"></div>' +
+    '<div style="display:flex;gap:4px;flex-wrap:wrap" id="casus-op-butonlar">' + butonlar + '</div>' +
   '</div>';
+
+  // v1.14.3.30 — buton hover'da detay panele yansisin
+  setTimeout(function(){
+    var det = document.getElementById('casus-op-detay');
+    var par = document.getElementById('casus-op-butonlar');
+    if (det && par) {
+      par.querySelectorAll('button').forEach(function(b){
+        b.addEventListener('mouseenter', function(){ det.style.display='block'; det.textContent = b.title; });
+        b.addEventListener('mouseleave', function(){ det.style.display='none'; });
+      });
+    }
+  }, 50);
 }
 
 async function casusHedefAra() {

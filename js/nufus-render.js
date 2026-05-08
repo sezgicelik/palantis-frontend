@@ -29,12 +29,14 @@ async function loadNufus() {
 /* ----- Tek render fonksiyonu — tum UI alanlarini gunceller ----- */
 function renderNufus(d) {
   if (!d || !d.ok) return;
-  const set = (id, v) => { const e = document.getElementById(id); if (e) e.innerText = v; };
+  // v1.14.3.30: tr-TR formatla (82476 → 82.476)
+  const fmt = v => (Number(v) || 0).toLocaleString('tr-TR');
+  const set = (id, v) => { const e = document.getElementById(id); if (e) e.innerText = (typeof v === 'number') ? fmt(v) : v; };
 
   // ── HUD ustteki "Nufus X/Y" box ──
   const box = document.getElementById('hud-nufus-box');
   if (box) {
-    box.textContent = d.nufus.mevcut + '/' + d.nufus.sinir;
+    box.textContent = fmt(d.nufus.mevcut) + '/' + fmt(d.nufus.sinir);
     box.style.color = d.nufus.mevcut > d.nufus.sinir ? '#e74c3c' : '';
   }
   set('hud-nufus',        d.isci.toplam + d.asker.ham + d.worshipper.toplam); // atanan
