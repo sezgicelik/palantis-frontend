@@ -1202,8 +1202,8 @@ document.addEventListener('DOMContentLoaded', initLayout);
 */
 // v1.14.3.9: Build stamp — tiklanabilir, cache temizleyip yenileme yapar
 (function buildStamp(){
-  const BUILD = 'v1.14.3.34';
-  const TS    = '2026-05-08 GUVENLIK paketi: XSS escape + 401 handler (audit fix)';
+  const BUILD = 'v1.14.3.35';
+  const TS    = '2026-05-08 Sehir Meydani aktif oyuncular paneli (online/aktif/yakin)';
   function mount(){
     if (document.getElementById('build-stamp')) return;
     const div = document.createElement('div');

@@ -5,9 +5,87 @@ function meydanTab(tab) {
   document.getElementById('ozel-tab').style.display = tab === 'ozel' ? 'block' : 'none';
   document.getElementById('tab-meydan').className = 'atab' + (tab === 'meydan' ? ' on' : '');
   document.getElementById('tab-ozel').className = 'atab' + (tab === 'ozel' ? ' on' : '');
-  if (tab === 'meydan') loadMeydanMesajlar();
+  if (tab === 'meydan') { loadMeydanMesajlar(); loadAktifOyuncular(); }
   if (tab === 'ozel') loadOzelMesajlar();
 }
+
+/* ═══════════════════════════════════════════════════════
+   v1.14.3.35 — Aktif Oyuncular Paneli (sag yan)
+   Veri kaynagi: backend /api/meydan/aktif-oyuncular
+   Kategoriler: 🟢 Online (5dk) / 🟡 Aktif (30dk) / ⚪ Yakin (2sa)
+   ═══════════════════════════════════════════════════════ */
+async function loadAktifOyuncular() {
+  var token = getToken(); if (!token) return;
+  var liste = document.getElementById('aktif-liste');
+  var ozet  = document.getElementById('aktif-ozet');
+  if (!liste) return;
+  try {
+    var resp = await fetch(API_BASE + '/api/meydan/aktif-oyuncular', { headers: { 'Authorization': 'Bearer ' + token } });
+    if (!resp.ok) { liste.innerHTML = '<div style="color:#e74c3c">Yüklenemedi</div>'; return; }
+    var data = await resp.json();
+    var oyuncular = data.oyuncular || [];
+    var o = data.ozet || { online:0, aktif:0, yakin:0, toplam:0 };
+
+    if (ozet) {
+      ozet.innerHTML = '⏱️ Aktif: <span style="color:#e8d4a8">' + o.toplam + '</span> ' +
+        '<span style="color:#666">(</span>' +
+        '<span style="color:#2ecc71" title="Son 5 dakika">🟢' + o.online + '</span> ' +
+        '<span style="color:#f1c40f" title="Son 30 dakika">🟡' + o.aktif + '</span> ' +
+        '<span style="color:#888" title="Son 2 saat">⚪' + o.yakin + '</span>' +
+        '<span style="color:#666">)</span>';
+    }
+
+    if (!oyuncular.length) {
+      liste.innerHTML = '<div style="color:#666;font-size:11px;padding:6px;text-align:center">Aktif oyuncu yok</div>';
+      return;
+    }
+
+    // v1.14.3.34 — XSS escape (kullanici_adi backend'den geliyor ama yine de escape)
+    function _esc(s) { return (typeof escapeHtml === 'function') ? escapeHtml(s) : String(s||''); }
+
+    function _zaman(sn) {
+      if (sn < 60) return 'şimdi';
+      if (sn < 3600) return Math.floor(sn/60) + ' dk önce';
+      return Math.floor(sn/3600) + ' sa önce';
+    }
+    function _renk(durum) {
+      if (durum === 'online') return '#2ecc71';
+      if (durum === 'aktif')  return '#f1c40f';
+      return '#888';
+    }
+    function _ikon(durum) {
+      if (durum === 'online') return '🟢';
+      if (durum === 'aktif')  return '🟡';
+      return '⚪';
+    }
+    function _tarafRenk(t) { return t === 'iyi' ? '#d4af37' : '#9370f7'; }
+
+    liste.innerHTML = oyuncular.map(function(p) {
+      var guildEt = p.guild_tag ? '<span style="color:#888">[' + _esc(p.guild_tag) + ']</span> ' : '';
+      var koord = p.koord ? '<span style="color:#666;font-size:10px"> ' + _esc(p.koord) + '</span>' : '';
+      return '<div style="padding:5px 6px;border-bottom:1px solid #1a1a1a;line-height:1.4">' +
+        '<div>' +
+          '<span style="font-size:10px">' + _ikon(p.durum) + '</span> ' +
+          guildEt +
+          '<span style="color:' + _tarafRenk(p.taraf) + ';font-weight:bold">' + _esc(p.kullanici_adi) + '</span>' +
+          koord +
+        '</div>' +
+        '<div style="font-size:10px;color:' + _renk(p.durum) + ';margin-left:14px">' + _zaman(p.saniye_once) + '</div>' +
+      '</div>';
+    }).join('');
+  } catch(e) {
+    liste.innerHTML = '<div style="color:#e74c3c;font-size:11px">Bağlantı hatası</div>';
+  }
+}
+
+// Otomatik yenileme — 30 saniyede bir
+(function _autoRefreshAktif() {
+  if (typeof window === 'undefined') return;
+  setInterval(function() {
+    var meydanTabAcik = document.getElementById('meydan-tab')?.style.display !== 'none';
+    if (meydanTabAcik && document.getElementById('aktif-liste')) loadAktifOyuncular();
+  }, 30000);
+})();
 
 function ozelSubTab(sub) {
   document.getElementById('ozel-mesajlar').style.display = sub === 'gelen' ? 'block' : 'none';
@@ -188,7 +266,14 @@ async function ozelOku(mesajId) {
 
 document.addEventListener('DOMContentLoaded', function() {
   var attempts = 0;
-  var check = setInterval(function() { attempts++; if ((typeof OYUNCU !== 'undefined' && OYUNCU?.kral) || attempts > 20) { clearInterval(check); loadMeydanMesajlar(); } }, 500);
+  var check = setInterval(function() {
+    attempts++;
+    if ((typeof OYUNCU !== 'undefined' && OYUNCU?.kral) || attempts > 20) {
+      clearInterval(check);
+      loadMeydanMesajlar();
+      loadAktifOyuncular(); // v1.14.3.35: aktif oyuncular paneli ilk yukleme
+    }
+  }, 500);
   // Otomatik yenileme: 30 saniyede bir yeni mesajlari getir
   setInterval(function() {
     var meydanEl = document.getElementById('meydan-tab');
