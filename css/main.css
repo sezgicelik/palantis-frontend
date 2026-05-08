@@ -307,35 +307,67 @@ body{
 }
 
 /* ===== ARAZİ TEKLİFLERİ ===== */
+/* v1.14.3.26: Sezgi: "koyu tonla yazılmış okuyamıyoruz" — explicit renkler */
 .land-offer{
   display:flex;
   align-items:center;
   justify-content:space-between;
   gap:12px;
   padding:14px 16px;
-  border:1px solid #333;
+  border:1px solid #3a3020;
   border-radius:10px;
-  background:#141414;
+  background:linear-gradient(135deg, #1a1410 0%, #141010 100%);
+  color:#f0e8d8;
   margin-top:12px;
 }
-.land-left{ font-size:15px; }
-.land-right{
+.land-offer .land-left{ font-size:15px; color:#f0e8d8; }
+.land-offer .land-left b{ color:#2ecc71; font-size:18px; }
+.land-offer .land-right{
   display:flex;
   align-items:center;
   gap:12px;
 }
+.land-offer .info{ color:#d4af37; font-weight:700; font-size:14px; }
 .land-offer .btn-action{
   width:auto;
   margin-top:0;
   padding:10px 14px;
+  background:linear-gradient(135deg, #d4af37 0%, #b08f4d 100%);
+  color:#0a0604;
+  border:none;
+  font-weight:700;
+  border-radius:6px;
+  cursor:pointer;
+  font-family:'Cinzel',serif;
+  letter-spacing:1px;
+}
+.land-offer .btn-action:hover:not(:disabled){
+  background:linear-gradient(135deg, #f0c875 0%, #d4af37 100%);
+}
+.land-offer .btn-action:disabled{
+  background:#2a2018;
+  color:#666;
+  cursor:not-allowed;
 }
 .land-offer.disabled{
-  opacity:.55;
+  opacity:.6;
   filter:grayscale(0.4);
 }
 .land-offer.sold{
-  border-left:4px solid var(--race-color);
+  border-left:4px solid #2ecc71;
+  background:linear-gradient(135deg, rgba(46,204,113,0.08) 0%, #141010 100%);
 }
+.land-offer.sold .info{ color:#2ecc71; }
+
+/* Tema-parşömen uyumu */
+body.tema-parsomen .land-offer{
+  background:linear-gradient(135deg, #ebdbb5 0%, #f4e7c7 100%);
+  color:#1a1208;
+  border-color:#8b6914;
+}
+body.tema-parsomen .land-offer .land-left,
+body.tema-parsomen .land-offer .land-left b{ color:#1a1208; }
+body.tema-parsomen .land-offer .info{ color:#8b6914; }
 
 /* =========================
    HUDBAR — Minimalist Cam + Parsomen Karma

@@ -154,38 +154,51 @@ function renderOffers(){
 }
 
 async function buyOffer(id){
-  if(landState.chosenThisCycle){
-    toast("Bu dongude zaten 1 arazi aldin.");
+  // v1.14.3.26 FIX: Sezgi "alan satin alamiyorum"
+  // - chosenThisCycle frontend flag'i hatali check (sayfa yenilenince false kaliyor)
+  // - Backend zaten 4 saatlik dongu kontrolu yapiyor — UI flag gereksiz
+  // - Hata durumunda detayli toast
+  const offer = landState.offers.find(x=>x.id===id);
+  if(!offer || offer.status!=="active") {
+    toast("Bu teklif aktif degil.");
     return;
   }
-  const offer = landState.offers.find(x=>x.id===id);
-  if(!offer || offer.status!=="active") return;
 
   if(RES.altin < offer.price){
-    toast("Yetersiz altin.");
+    toast("Yetersiz altin (gereken: " + offer.price.toLocaleString('tr-TR') + ", mevcut: " + (RES.altin||0).toLocaleString('tr-TR') + ")");
     return;
   }
   if(landState.land + offer.amount > landState.landLimit){
-    toast("Cag limitini asiyorsun.");
+    toast("Cag limitini asiyorsun (" + landState.landLimit + ")");
     return;
   }
 
   const token = getToken();
-  if(token) {
-    try {
-      const resp = await fetch(API_BASE + '/api/game/alan/buy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-        body: JSON.stringify({ miktar: offer.amount, fiyat: offer.price })
-      });
-      const data = await resp.json();
-      if(!resp.ok){ toast(data.error || 'Hata'); return; }
-      landState.land = data.yeni_alan;
-      RES.altin -= offer.price;
-    } catch(e) { toast('Sunucu hatasi'); return; }
-  } else {
-    RES.altin -= offer.price;
-    landState.land += offer.amount;
+  if(!token) {
+    toast("Giris yapman gerekli.");
+    return;
+  }
+  try {
+    const resp = await fetch(API_BASE + '/api/game/alan/buy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ miktar: offer.amount, fiyat: offer.price })
+    });
+    const data = await resp.json();
+    if(!resp.ok){
+      toast((data.error || 'Hata') + (data.detail ? ' — ' + data.detail : ''));
+      console.warn('[alan/buy fail]', resp.status, data);
+      return;
+    }
+    landState.land = data.yeni_alan || (landState.land + offer.amount);
+    RES.altin = Math.max(0, RES.altin - offer.price);
+
+    if (window.NoxToast) NoxToast.success('🌱 +' + offer.amount + ' alan satın alındı! Toplam: ' + landState.land);
+    else toast('Alan alındı: +' + offer.amount);
+  } catch(e) {
+    toast('Sunucu hatasi: ' + e.message);
+    console.error('[alan/buy error]', e);
+    return;
   }
 
   landState.chosenThisCycle = true;
