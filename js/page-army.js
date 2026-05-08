@@ -58,29 +58,30 @@ function renderUpgrades(){
       <span style="background:#0a0a0a;padding:6px 12px;border-radius:5px;border:1px solid #333;font-size:12px">⚙️ İşlenmiş: <b style="color:#95a5a6">${_f(RES.islenmis||0)}</b></span>
     </div>`;
 
+  // v1.14.3.33: TUM YAZILAR ACIK RENK (#e8d4a8 / #f5f0e8) — eski #aaa #888 #fff koyu zemin uzerinde okunmuyordu
   let html = `
-  <div style="padding:15px">
+  <div style="padding:15px;color:#e0d6c0">
     ${kaynakOzet}
-    <h3 style="color:#f5f0e8;margin:0 0 15px">Global Gelistirmeler</h3>
+    <h3 style="color:#d4af37;margin:0 0 15px;font-family:Cinzel,serif;letter-spacing:1px">⚔️ Global Geliştirmeler</h3>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
-      <div style="background:#1a1a0a;border:1px solid #333;border-radius:8px;padding:12px;flex:1;min-width:200px">
-        <div style="color:#f1c40f;font-weight:bold">Askeri Gelistirme</div>
-        <div style="color:#aaa;font-size:11px;margin:4px 0">Ünite üretim altın maliyetini azaltır (%10/seviye)</div>
-        <div style="color:#fff;margin:8px 0">Seviye: <b>${ASKERI_GEL_SEV}</b> / ${ASKERI_GEL_MAX}</div>
-        <div style="color:#f1c40f;font-size:12px">İndirim: %${ASKERI_GEL_SEV*10}</div>
-        ${ASKERI_GEL_SEV<ASKERI_GEL_MAX?`<button class="btn-action" onclick="upgradeGlobal('askeri')" style="margin-top:8px;padding:4px 12px;font-size:11px">Yükselt (${gelMaliyet('askeri')} Altın)</button>`:'<div style="color:#2ecc71;margin-top:8px">MAX SEVİYE</div>'}
+      <div style="background:#1a1a0a;border:1px solid #3a3020;border-radius:8px;padding:14px;flex:1;min-width:220px">
+        <div style="color:#f1c40f;font-weight:bold;font-size:14px">Askeri Geliştirme</div>
+        <div style="color:#c8b896;font-size:12px;margin:6px 0">Ünite üretim altın maliyetini azaltır (%10/seviye)</div>
+        <div style="color:#e8d4a8;margin:8px 0;font-size:13px">Seviye: <b style="color:#fff">${ASKERI_GEL_SEV}</b> <span style="color:#888">/ ${ASKERI_GEL_MAX}</span></div>
+        <div style="color:#2ecc71;font-size:13px;font-weight:bold">İndirim: %${ASKERI_GEL_SEV*10}</div>
+        ${ASKERI_GEL_SEV<ASKERI_GEL_MAX?`<button class="btn-action" onclick="upgradeGlobal('askeri')" style="margin-top:10px;padding:6px 14px;font-size:12px">Yükselt (${gelMaliyet('askeri')} Altın)</button>`:'<div style="color:#2ecc71;margin-top:10px;font-weight:bold">✓ MAX SEVİYE</div>'}
       </div>
-      <div style="background:#1a1a0a;border:1px solid #333;border-radius:8px;padding:12px;flex:1;min-width:200px">
-        <div style="color:#f1c40f;font-weight:bold">Maaş Geliştirme</div>
-        <div style="color:#aaa;font-size:11px;margin:4px 0">Tüm ünitelerin maaşını azaltır (%5/seviye)</div>
-        <div style="color:#fff;margin:8px 0">Seviye: <b>${MAAS_GEL_SEV}</b> / ${MAAS_GEL_MAX}</div>
-        <div style="color:#f1c40f;font-size:12px">İndirim: %${MAAS_GEL_SEV*5}</div>
-        ${MAAS_GEL_SEV<MAAS_GEL_MAX?`<button class="btn-action" onclick="upgradeGlobal('maas')" style="margin-top:8px;padding:4px 12px;font-size:11px">Yükselt (${gelMaliyet('maas')} Altın)</button>`:'<div style="color:#2ecc71;margin-top:8px">MAX SEVİYE</div>'}
+      <div style="background:#1a1a0a;border:1px solid #3a3020;border-radius:8px;padding:14px;flex:1;min-width:220px">
+        <div style="color:#f1c40f;font-weight:bold;font-size:14px">Maaş Geliştirme</div>
+        <div style="color:#c8b896;font-size:12px;margin:6px 0">Tüm ünitelerin maaşını azaltır (%5/seviye)</div>
+        <div style="color:#e8d4a8;margin:8px 0;font-size:13px">Seviye: <b style="color:#fff">${MAAS_GEL_SEV}</b> <span style="color:#888">/ ${MAAS_GEL_MAX}</span></div>
+        <div style="color:#2ecc71;font-size:13px;font-weight:bold">İndirim: %${MAAS_GEL_SEV*5}</div>
+        ${MAAS_GEL_SEV<MAAS_GEL_MAX?`<button class="btn-action" onclick="upgradeGlobal('maas')" style="margin-top:10px;padding:6px 14px;font-size:12px">Yükselt (${gelMaliyet('maas')} Altın)</button>`:'<div style="color:#2ecc71;margin-top:10px;font-weight:bold">✓ MAX SEVİYE</div>'}
       </div>
     </div>
 
-    <h3 style="color:#f5f0e8;margin:0 0 15px">Uniteye Ozel Gelistirmeler</h3>
-    <div style="color:#aaa;font-size:11px;margin-bottom:10px">Her kademe ${GEL_MALIYET} altin. Gelistirmeler geri alinamaz!</div>
+    <h3 style="color:#d4af37;margin:0 0 8px;font-family:Cinzel,serif;letter-spacing:1px">🎯 Üniteye Özel Geliştirmeler</h3>
+    <div style="color:#c8b896;font-size:12px;margin-bottom:12px">Her kademe ${GEL_MALIYET} altın + GP/KP/işlenmiş gerektirir. Geliştirmeler geri alınamaz!</div>
     <div style="display:flex;flex-direction:column;gap:8px">`;
 
   const playerUnits = Object.values(UNITS).filter(u=>u.side===side && u.producible !== false);
@@ -92,21 +93,21 @@ function renderUpgrades(){
     const defMax = gel.def >= u.defGelMax;
 
     html += `
-    <div style="background:#111;border:1px solid #222;border-radius:6px;padding:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-      <div style="font-size:20px;width:30px;text-align:center">${u.icon}</div>
-      <div style="min-width:100px"><b style="color:#e8e0d0">${u.name}</b><br><span style="color:#666;font-size:10px">ATK:${curAtk} DEF:${curDef}</span></div>
+    <div style="background:#141008;border:1px solid #2a2820;border-radius:6px;padding:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div style="font-size:24px;width:34px;text-align:center">${u.icon}</div>
+      <div style="min-width:120px"><b style="color:#e8d4a8;font-size:13px">${u.name}</b><br><span style="color:#a89880;font-size:11px">ATK:${curAtk} DEF:${curDef}</span></div>
       <div style="flex:1;display:flex;gap:8px;flex-wrap:wrap">
-        <div style="background:#1a0a0a;padding:6px 10px;border-radius:4px;border:1px solid #331111">
-          <span style="color:#e74c3c;font-size:11px">ATK Gel.</span>
-          <span style="color:#fff;font-size:11px"> ${gel.atk}/${u.atkGelMax}</span>
-          <span style="color:#666;font-size:10px"> (+${u.atkGelArtis}/sv)</span>
-          ${!atkMax?`<button onclick="upgradeUnit('${u.id}','atk')" style="margin-left:6px;padding:2px 8px;font-size:10px;background:#e74c3c;color:#fff;border:none;border-radius:3px;cursor:pointer">+</button>`:'<span style="color:#2ecc71;font-size:10px;margin-left:4px">MAX</span>'}
+        <div style="background:#2a0a0a;padding:8px 12px;border-radius:5px;border:1px solid #5a2020">
+          <span style="color:#ff7060;font-size:12px;font-weight:bold">⚔️ ATK</span>
+          <span style="color:#fff;font-size:12px;margin-left:4px"> ${gel.atk}/${u.atkGelMax}</span>
+          <span style="color:#a89880;font-size:11px"> (+${u.atkGelArtis}/sv)</span>
+          ${!atkMax?`<button onclick="upgradeUnit('${u.id}','atk')" style="margin-left:8px;padding:3px 10px;font-size:11px;background:#e74c3c;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold">+</button>`:'<span style="color:#2ecc71;font-size:11px;margin-left:6px;font-weight:bold">✓ MAX</span>'}
         </div>
-        <div style="background:#0a0a1a;padding:6px 10px;border-radius:4px;border:1px solid #111133">
-          <span style="color:#3498db;font-size:11px">DEF Gel.</span>
-          <span style="color:#fff;font-size:11px"> ${gel.def}/${u.defGelMax}</span>
-          <span style="color:#666;font-size:10px"> (+${u.defGelArtis}/sv)</span>
-          ${!defMax?`<button onclick="upgradeUnit('${u.id}','def')" style="margin-left:6px;padding:2px 8px;font-size:10px;background:#3498db;color:#fff;border:none;border-radius:3px;cursor:pointer">+</button>`:'<span style="color:#2ecc71;font-size:10px;margin-left:4px">MAX</span>'}
+        <div style="background:#0a0a2a;padding:8px 12px;border-radius:5px;border:1px solid #20305a">
+          <span style="color:#5dade2;font-size:12px;font-weight:bold">🛡️ DEF</span>
+          <span style="color:#fff;font-size:12px;margin-left:4px"> ${gel.def}/${u.defGelMax}</span>
+          <span style="color:#a89880;font-size:11px"> (+${u.defGelArtis}/sv)</span>
+          ${!defMax?`<button onclick="upgradeUnit('${u.id}','def')" style="margin-left:8px;padding:3px 10px;font-size:11px;background:#3498db;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold">+</button>`:'<span style="color:#2ecc71;font-size:11px;margin-left:6px;font-weight:bold">✓ MAX</span>'}
         </div>
       </div>
     </div>`;
@@ -114,15 +115,8 @@ function renderUpgrades(){
 
   html += `</div>
 
-    <h3 style="color:#f5f0e8;margin:20px 0 15px">Diğer Stratejik Kaynaklar</h3>
-    <div style="color:#888;font-size:11px;margin-bottom:8px">Bu kaynaklar ünite eğitiminde kullanılır (geliştirme dışı)</div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333;color:#ddd">Mana: <b style="color:#9b59b6">${_f(Math.floor(EXTRA_RES.mana||0))}</b></div>
-      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333;color:#ddd">Gizlilik: <b style="color:#2ecc71">${_f(Math.floor(EXTRA_RES.gizlilik||0))}</b></div>
-      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333;color:#ddd">B.Yumurta: <b style="color:#e67e22">${_f(Math.floor(EXTRA_RES.buyulu_yumurta||0))}</b></div>
-      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333;color:#ddd">Çiğ Et: <b style="color:#c0392b">${_f(RES.cig_et||0)}</b></div>
-      <div style="background:#111;padding:8px 14px;border-radius:6px;border:1px solid #333;color:#ddd">Pişmiş Et: <b style="color:#e67e22">${_f(RES.pismis_et||0)}</b></div>
-    </div>
+    <!-- v1.14.3.33: "Diger Stratejik Kaynaklar" sectionu user istegi ile tamamen kaldirildi.
+         Bu kaynaklar zaten "Ordu" sekmesinde "Unite Egitim Kaynaklari" basligi altinda gosteriliyor. -->
   </div>`;
 
   panel.innerHTML = html;
@@ -1283,11 +1277,12 @@ function updateArmyStats(){
     var _renk = (_kisi && ['beyaz','kirmizi','mavi','yesil'].includes(_kisi)) ? _kisi
               : (_tr === 'kotu' ? 'kirmizi' : 'beyaz');
     var RENK_AD = { beyaz:'Beyaz', kirmizi:'Kırmızı', mavi:'Mavi', yesil:'Yeşil' };
-    var RENK_RENK = { beyaz:'#f0e8d8', kirmizi:'#e74c3c', mavi:'#3498db', yesil:'#2ecc71' };
+    // v1.14.3.33 — Beyaz mana koyu zeminde okunmuyordu. Altin/krem rengine cevirildi
+    var RENK_RENK = { beyaz:'#d4af37', kirmizi:'#e74c3c', mavi:'#5dade2', yesil:'#2ecc71' };
     var el = document.getElementById('ax-mana-renk');
     if (el) { el.textContent = RENK_AD[_renk]; el.style.color = RENK_RENK[_renk]; }
     var ax = document.getElementById('ax-mana');
-    if (ax) ax.style.color = RENK_RENK[_renk];
+    if (ax) { ax.style.color = RENK_RENK[_renk]; ax.style.textShadow = '0 0 4px rgba(0,0,0,0.7)'; ax.style.fontWeight = 'bold'; }
   }
 }
 

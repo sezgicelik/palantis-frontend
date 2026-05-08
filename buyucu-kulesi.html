@@ -53,14 +53,16 @@
 .parsomen-card .p-isim { font-size:12px; color:#8e44ad; font-weight:700 }
 .parsomen-card .p-adet { font-size:11px; color:#c9a84c }
 
-/* v1.14.3.30: gecmis log okunaklilik iyilestirme */
-.log-row { display:flex; gap:10px; padding:8px 8px; border-bottom:1px solid rgba(255,255,255,0.05); font-size:12px; font-family:'Crimson Pro',serif; align-items:center; background:rgba(20,18,14,0.4); margin-bottom:2px; border-radius:4px }
-.log-row:hover { background:rgba(212,162,87,0.06) }
+/* v1.14.3.33: gecmis log okunaklilik (basarisiz icin SARI degil KIRMIZI tema) */
+.log-row { display:flex; gap:10px; padding:8px 8px; border-bottom:1px solid rgba(255,255,255,0.05); font-size:12px; font-family:'Crimson Pro',serif; align-items:center; background:rgba(20,18,14,0.6); margin-bottom:2px; border-radius:4px }
+.log-row:hover { background:rgba(212,162,87,0.08) }
 .log-row .log-icon { font-size:15px }
-.log-row .log-zaman { color:#999; min-width:80px; font-size:11px }
-.log-row .log-mesaj { color:#e0d6c0; flex:1 }
-.log-row.basarisiz { background:rgba(231,76,60,0.05) }
-.log-row.basarisiz .log-mesaj { color:#f4b4ae }
+.log-row .log-zaman { color:#bba98a; min-width:80px; font-size:11px }
+.log-row .log-mesaj { color:#e8d4a8; flex:1 }
+.log-row.basarisiz { background:rgba(60,15,15,0.5); border-left:3px solid #e74c3c }
+.log-row.basarisiz .log-mesaj { color:#ffb4ae }
+.log-row.basarisiz .log-mesaj b { color:#ff9080 !important }
+.log-row.basarisiz .log-zaman { color:#cc8080 }
 </style>
 </head>
 <body>

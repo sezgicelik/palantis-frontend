@@ -1,6 +1,6 @@
 // v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
 // Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
-const CACHE_NAME = 'noxara-v14610'; // v1.14.3.32 — Artifact 'Suresi doldu' fix + Admin anomali Number cast
+const CACHE_NAME = 'noxara-v14620'; // v1.14.3.33 — KRITIK noxPrompt iptal + UX okunaklilik paketi
 
 // Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [

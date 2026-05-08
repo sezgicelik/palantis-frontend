@@ -160,11 +160,20 @@
       document.addEventListener('keydown', onKey);
 
       // Button click
+      // v1.14.3.33 KRITIK FIX — Eski mantik: input varsa ve value!==false ise inputEl.value donderiyordu.
+      // Bu, Iptal butonu (value=null) icin de inputEl.value donderdiginden noxPrompt iptal'inde
+      // bagis/ islem yine yapiliyordu. Yeni mantik: SADECE primary buton VEYA value==='__INPUT__'
+      // olan buton input degerini doner. Diger butonlar kendi value'sunu doner (Iptal=null gibi).
       modal.querySelectorAll('.nox-modal-btn').forEach(btn => {
         btn.onclick = () => {
           const i = parseInt(btn.dataset.i);
           const btnDef = buttons[i];
-          const val = input && btnDef.value !== false ? (inputEl ? inputEl.value : btnDef.value) : btnDef.value;
+          let val;
+          if (input && (btnDef.value === '__INPUT__' || (btnDef.primary && btnDef.value !== null && btnDef.value !== false))) {
+            val = inputEl ? inputEl.value : btnDef.value;
+          } else {
+            val = btnDef.value;
+          }
           close(val);
         };
       });
