@@ -1202,8 +1202,8 @@ document.addEventListener('DOMContentLoaded', initLayout);
 */
 // v1.14.3.9: Build stamp — tiklanabilir, cache temizleyip yenileme yapar
 (function buildStamp(){
-  const BUILD = 'v1.14.3.27';
-  const TS    = '2026-05-08 Yardimci birim: essek+koylu UNITS uye, koloni fetih ordudan kontrol';
+  const BUILD = 'v1.14.3.28';
+  const TS    = '2026-05-08 KRITIK FIX: page-city/install-prompt syntax error (BLDGS yuklenmiyordu)';
   function mount(){
     if (document.getElementById('build-stamp')) return;
     const div = document.createElement('div');

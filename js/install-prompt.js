@@ -66,7 +66,7 @@
       return false;
     }
     try {
-      _deferredPrompt.await noxPrompt();
+      _deferredPrompt.prompt();
       const choice = await _deferredPrompt.userChoice;
       _deferredPrompt = null;
       console.log('[install] Kullanici tercihi:', choice.outcome);
