@@ -5634,19 +5634,36 @@ function omLog(msg, type) {
 
 // İsim ile arama → ID otomatik doldur
 let _omIsimDebounce = null;
+// v1.14.3.37: /oyuncu-bul endpoint'i kullaniliyor (username/kral/email LIKE search)
+// Eski /admin/players sadece kral'a bakiyordu, Claude_Admin (login adi) bulunamiyordu.
 function omIsimAra() {
   clearTimeout(_omIsimDebounce);
   const isim = document.getElementById('om-isim').value.trim();
   if (isim.length < 2) { document.getElementById('om-isim-sonuc').innerHTML = ''; return; }
   _omIsimDebounce = setTimeout(async () => {
     try {
-      const r = await fetch(API + '/api/admin/players?q=' + encodeURIComponent(isim), { headers: hdr() });
+      const r = await fetch(API + '/api/admin/oyuncu-bul?q=' + encodeURIComponent(isim), { headers: hdr() });
       const d = await r.json();
-      const list = (d.oyuncular || d || []).slice(0, 5);
+      const list = (d.oyuncular || []).slice(0, 8);
       const out = document.getElementById('om-isim-sonuc');
-      if (list.length === 0) { out.innerHTML = '<span style="color:#888">eşleşme yok</span>'; return; }
+      if (list.length === 0) {
+        // Fallback: eski endpoint
+        const r2 = await fetch(API + '/api/admin/players?q=' + encodeURIComponent(isim), { headers: hdr() });
+        const d2 = await r2.json();
+        const list2 = (d2.oyuncular || d2 || []).slice(0, 5);
+        if (list2.length === 0) { out.innerHTML = '<span style="color:#888">eşleşme yok</span>'; return; }
+        out.innerHTML = list2.map(p =>
+          `<a href="#" style="color:#3498db;margin-right:8px" onclick="document.getElementById('om-pid').value='${p.player_id||p.id}';omPlayerLoad();return false">${p.kral||p.kullanici_adi} (${p.player_id||p.id})</a>`
+        ).join('');
+        return;
+      }
+      // Yeni endpoint sonucu — username + kral ikisini de goster
       out.innerHTML = list.map(p =>
-        `<a href="#" style="color:#3498db;margin-right:8px" onclick="document.getElementById('om-pid').value='${p.player_id||p.id}';omPlayerLoad();return false">${p.kral||p.kullanici_adi} (${p.player_id||p.id})</a>`
+        `<a href="#" style="color:#3498db;margin-right:8px;display:inline-block;padding:2px 6px;background:#0a0a0a;border-radius:3px" ` +
+        `onclick="document.getElementById('om-pid').value='${p.player_id}';omPlayerLoad();return false" ` +
+        `title="user_id: ${p.user_id} | last_login: ${p.last_login||'?'}">` +
+        `<b>${p.kral||'-'}</b> <span style="color:#888">(${p.username})</span> <span style="color:#666">[${p.player_id}]</span>` +
+        `</a>`
       ).join('');
     } catch(e) { /* sessiz */ }
   }, 300);
@@ -5677,6 +5694,8 @@ async function omPlayerLoad() {
   } catch(e) { omLog('Yükleme hatası: ' + e.message, 'err'); }
 }
 
+// v1.14.3.37: Backend artik 3 farkli giris kabul ediyor (player_id/username/kral)
+// Frontend player_id gonderir, backend players JOIN ile users.id'yi bulur.
 async function omSifreDegistir() {
   const pid = omGetPid(); if (!pid) return;
   const yeni = document.getElementById('om-yeni-sifre').value;
@@ -5684,13 +5703,17 @@ async function omSifreDegistir() {
   if (!confirm('Oyuncu ' + pid + ' şifresini SIFIRLAMAK istediğine emin misin?\nGeri alınamaz.')) return;
   try {
     const r = await fetch(API + '/api/admin/sifre-degistir', {
-      method: 'POST', headers: hdr(), body: JSON.stringify({ player_id: pid, yeni_sifre: yeni })
+      method: 'POST', headers: hdr(),
+      body: JSON.stringify({ player_id: pid, yeni_sifre: yeni })
     });
     const d = await r.json();
-    if (d.ok || r.ok) {
-      omLog('🔑 Şifre değiştirildi (player ' + pid + ')', 'ok');
+    if (r.ok && d.ok) {
+      omLog('🔑 ' + (d.mesaj || 'Şifre değiştirildi (player ' + pid + ')'), 'ok');
       document.getElementById('om-yeni-sifre').value = '';
-    } else omLog('Hata: ' + (d.error || r.status), 'err');
+      alert('✓ Şifre değiştirildi!\n\n' + (d.mesaj || '') + '\n\nYeni şifreyi oyuncuya iletmeyi unutma.');
+    } else {
+      omLog('Hata: ' + (d.error || ('HTTP ' + r.status)) + (d.ipucu ? ' (' + d.ipucu + ')' : ''), 'err');
+    }
   } catch(e) { omLog('Hata: ' + e.message, 'err'); }
 }
 

@@ -1202,8 +1202,8 @@ document.addEventListener('DOMContentLoaded', initLayout);
 */
 // v1.14.3.9: Build stamp — tiklanabilir, cache temizleyip yenileme yapar
 (function buildStamp(){
-  const BUILD = 'v1.14.3.36';
-  const TS    = '2026-05-08 Aktif oyuncuya tikla->mesaj + global ozel mesaj badge polling';
+  const BUILD = 'v1.14.3.37';
+  const TS    = '2026-05-08 Admin sifre degistirme fix + Oyuncu Bul (username/kral arama)';
   function mount(){
     if (document.getElementById('build-stamp')) return;
     const div = document.createElement('div');
