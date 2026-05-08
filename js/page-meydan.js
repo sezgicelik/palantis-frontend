@@ -45,14 +45,15 @@ async function loadMeydanMesajlar() {
     var resp = await fetch(API_BASE + '/api/meydan/mesajlar', { headers: { 'Authorization': 'Bearer ' + token } });
     var data = await resp.json();
     if (!data.length) { el.innerHTML = '<div style="color:#555;text-align:center;padding:40px">Henuz mesaj yok. Ilk mesaji siz yazin!</div>'; return; }
+    // v1.14.3.34 — XSS guvenlik: kullanici_adi + guild_tag escape edildi
     el.innerHTML = data.map(function(m) {
       var tarafRenk = m.taraf === 'iyi' ? '#d4af37' : '#9370f7';
-      var guildTag = m.guild_tag ? '<span style="color:#888;font-size:11px">[' + m.guild_tag + ']</span> ' : '';
+      var guildTag = m.guild_tag ? '<span style="color:#888;font-size:11px">[' + escapeHtml(m.guild_tag) + ']</span> ' : '';
       var saat = new Date(m.created_at).toLocaleTimeString('tr-TR', {hour:'2-digit',minute:'2-digit'});
       return '<div style="padding:4px 0;border-bottom:1px solid #1a1a1a">' +
         '<span style="color:#555;font-size:11px;margin-right:4px">' + saat + '</span>' +
         guildTag +
-        '<span style="color:' + tarafRenk + ';font-weight:bold;font-size:11px">' + m.kullanici_adi + ':</span> ' +
+        '<span style="color:' + tarafRenk + ';font-weight:bold;font-size:11px">' + escapeHtml(m.kullanici_adi) + ':</span> ' +
         '<span style="color:#ccc">' + escapeHtml(m.mesaj) + '</span>' +
       '</div>';
     }).join('');
@@ -111,9 +112,10 @@ async function loadOzelMesajlar() {
         mesajlar.map(function(m) {
           var okunduIcon = m.okundu ? '📧' : '📩';
           var tarih = new Date(m.created_at).toLocaleString('tr-TR');
+          // v1.14.3.34 — XSS guvenlik: gonderen_adi + baslik escape edildi
           return '<div class="card" style="padding:8px 10px;margin-bottom:4px;' + (!m.okundu ? 'border-left-color:#e74c3c' : '') + '">' +
             '<div style="display:flex;justify-content:space-between;font-size:10px">' +
-              '<span>' + okunduIcon + ' <b>' + m.gonderen_adi + '</b>' + (m.baslik ? ' — ' + m.baslik : '') + '</span>' +
+              '<span>' + okunduIcon + ' <b>' + escapeHtml(m.gonderen_adi) + '</b>' + (m.baslik ? ' — ' + escapeHtml(m.baslik) : '') + '</span>' +
               '<span style="color:#555">' + tarih + '</span>' +
             '</div>' +
             '<div style="font-size:10px;color:#ccc;margin-top:3px">' + escapeHtml(m.mesaj).substring(0, 200) + '</div>' +

@@ -214,10 +214,12 @@ function showSavasRapor(sonuc, benimTaraf, opts) {
   const resultText = berabere ? 'BERABERE' : (kazandim ? 'ZAFER!' : 'YENILGI');
   const resultIcon = berabere ? '⚔' : (kazandim ? '🏆' : '💀');
 
-  const saldiranAdi = opts?.saldiranAdi || 'Saldiran';
-  const savunanAdi = opts?.savunanAdi || 'Savunan';
-  const saldiranKoord = opts?.saldiranKoord || '—';
-  const savunanKoord = opts?.savunanKoord || '—';
+  // v1.14.3.34 — XSS guvenlik: kullanici girisli alanlar escape edildi
+  const _esc = (typeof escapeHtml === 'function') ? escapeHtml : (s => String(s||'').replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'})[c]));
+  const saldiranAdi = _esc(opts?.saldiranAdi || 'Saldiran');
+  const savunanAdi = _esc(opts?.savunanAdi || 'Savunan');
+  const saldiranKoord = _esc(opts?.saldiranKoord || '—');
+  const savunanKoord = _esc(opts?.savunanKoord || '—');
   const tipLabel = opts?.tip === 'koloni' ? 'Koloni Muharebesi' : opts?.tip === 'kadim_saldiri' ? 'Kadim Sehir Saldirisi' : 'PvP Muharebesi';
   const saldiranMoral = opts?.saldiranMoral ?? 100;
   const savunanMoral = opts?.savunanMoral ?? 100;

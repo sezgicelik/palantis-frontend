@@ -237,7 +237,8 @@ var KAYNAK_ISIM = {
   bugday:'buğday', balik:'balık', ekmek:'ekmek', pismis:'pişmiş balık', pismis_et:'pişmiş et'
 };
 function _fmtNum(n){ n=parseInt(n)||0; return n.toLocaleString('tr-TR'); }
-function _escCasus(s){ s=String(s==null?'':s); return s.replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+// v1.14.3.34 — XSS: apostrof + slash + backtick eklendi (attribute injection korumasi)
+function _escCasus(s){ s=String(s==null?'':s); return s.replace(/[&<>"'`\/]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#x60;','/':'&#x2F;'}[c]; }); }
 function casusDetayMetin(r) {
   var s = r.sonuc || {};
   if (typeof s === 'string') { try { s = JSON.parse(s); } catch(e){ s = {}; } }

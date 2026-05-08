@@ -129,11 +129,13 @@ async function guildListele() {
     wrap.innerHTML = '<div style="font-size:10px;color:#888;margin-bottom:6px">Aktif Guildler:</div>' +
       data.map(function(g) {
         var bekliyor = !!bekR[g.id];
+        // v1.14.3.34 — XSS: guild tag/isim escape + onclick parametresi safe
+        var safeIsim = (g.isim||'').replace(/['"\\<>]/g,'');
         var btn = bekliyor
           ? '<button class="btn-action" style="width:auto;padding:4px 12px;font-size:10px;background:#555;color:#fff" onclick="guildIstegiIptal(' + g.id + ')">⏳ Bekliyor (İptal)</button>'
-          : '<button class="btn-action" style="width:auto;padding:4px 12px;font-size:10px" onclick="guildIstekGonder(' + g.id + ',\'' + (g.isim||'').replace(/[\'"]/g,'') + '\')">📨 Üyelik İste</button>';
+          : '<button class="btn-action" style="width:auto;padding:4px 12px;font-size:10px" onclick="guildIstekGonder(' + g.id + ',\'' + safeIsim + '\')">📨 Üyelik İste</button>';
         return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:#111;border:1px solid #222;border-radius:6px;margin-bottom:4px">' +
-          '<div><span style="color:var(--race-color);font-weight:bold;font-size:12px">[' + (g.tag||'?') + ']</span> <span style="font-size:11px">' + (g.isim||'?') + '</span> <span style="font-size:11px;color:#888">(' + (g.uye_sayisi||0) + ' uye)</span></div>' +
+          '<div><span style="color:var(--race-color);font-weight:bold;font-size:12px">[' + escapeHtml(g.tag||'?') + ']</span> <span style="font-size:11px">' + escapeHtml(g.isim||'?') + '</span> <span style="font-size:11px;color:#888">(' + (parseInt(g.uye_sayisi)||0) + ' uye)</span></div>' +
           btn +
         '</div>';
       }).join('');

