@@ -2438,19 +2438,19 @@ async function loadAnomaliler() {
     html += `<h4 style="font-size:12px;color:#e74c3c;margin-top:10px">🤖 BOT ŞÜPHESİ — Yüksek İstek (>500 istek/oturum)</h4>`;
     if ((d.yuksek_istek||[]).length === 0) html += '<div style="color:var(--muted);font-size:11px">Şüpheli durum yok ✓</div>';
     else html += `<table style="font-size:10px"><thead><tr><th>Kullanıcı</th><th>JTI</th><th>IP</th><th>İstek</th><th>Saat Aktif</th><th>İstek/Saat</th></tr></thead><tbody>` +
-      d.yuksek_istek.map(r => `<tr><td>${r.username || r.user_id}</td><td><code>${(r.token_jti||'').substring(0,8)}...</code></td><td>${r.ip_address}</td><td><b style="color:#e74c3c">${r.request_count}</b></td><td>${(r.saat_aktif||0).toFixed(1)}h</td><td>${Math.floor(r.request_count / Math.max(0.1, r.saat_aktif||1))}/h</td></tr>`).join('') + '</tbody></table>';
+      d.yuksek_istek.map(r => { const sa = Number(r.saat_aktif)||0; const rc = Number(r.request_count)||0; return `<tr><td>${r.username || r.user_id}</td><td><code>${(r.token_jti||'').substring(0,8)}...</code></td><td>${r.ip_address}</td><td><b style="color:#e74c3c">${rc}</b></td><td>${sa.toFixed(1)}h</td><td>${Math.floor(rc / Math.max(0.1, sa||1))}/h</td></tr>`; }).join('') + '</tbody></table>';
 
     // 2. Multi-account
     html += `<h4 style="font-size:12px;color:#e67e22;margin-top:14px">🔁 MULTI-ACCOUNT — Aynı IP'den 3+ Hesap</h4>`;
     if ((d.multi_account||[]).length === 0) html += '<div style="color:var(--muted);font-size:11px">Şüpheli durum yok ✓</div>';
     else html += `<table style="font-size:10px"><thead><tr><th>IP</th><th>Hesap Sayısı</th><th>User ID'ler</th><th>Son Aktivite</th></tr></thead><tbody>` +
-      d.multi_account.map(r => `<tr><td>${r.ip_address}</td><td><b style="color:#e67e22">${r.user_sayisi}</b></td><td>${(r.user_idler||[]).join(', ')}</td><td>${fmtDate(r.son_aktivite)}</td></tr>`).join('') + '</tbody></table>';
+      d.multi_account.map(r => `<tr><td>${r.ip_address}</td><td><b style="color:#e67e22">${Number(r.user_sayisi)||0}</b></td><td>${(r.user_idler||[]).join(', ')}</td><td>${fmtDate(r.son_aktivite)}</td></tr>`).join('') + '</tbody></table>';
 
     // 3. Headless
     html += `<h4 style="font-size:12px;color:#9b59b6;margin-top:14px">👻 HEADLESS ŞÜPHESİ — Mobile + boş device_model + 200+ istek</h4>`;
     if ((d.headless_sansi||[]).length === 0) html += '<div style="color:var(--muted);font-size:11px">Şüpheli durum yok ✓</div>';
     else html += `<table style="font-size:10px"><thead><tr><th>Kullanıcı</th><th>IP</th><th>Cihaz</th><th>Model</th><th>OS</th><th>Tarayıcı</th><th>İstek</th></tr></thead><tbody>` +
-      d.headless_sansi.map(r => `<tr><td>${r.username || r.user_id}</td><td>${r.ip_address}</td><td>${r.device_type}</td><td>${r.device_model||'-'}</td><td>${r.os}</td><td>${r.browser}</td><td>${r.request_count}</td></tr>`).join('') + '</tbody></table>';
+      d.headless_sansi.map(r => `<tr><td>${r.username || r.user_id}</td><td>${r.ip_address}</td><td>${r.device_type}</td><td>${r.device_model||'-'}</td><td>${r.os}</td><td>${r.browser}</td><td>${Number(r.request_count)||0}</td></tr>`).join('') + '</tbody></table>';
 
     sonucEl.innerHTML = html;
   } catch(e) {
