@@ -735,6 +735,37 @@
     <h3>Anomali & Guvenlik Loglari</h3>
     <p style="font-size:10px;color:var(--muted);margin-bottom:10px">Harcamasiz uretim, hizli insaat, muhasebe denetimi sonuclari</p>
 
+    <!-- v1.14.3.39: BOT KORUMA CONFIG (Klanlar tarzi periodic captcha) -->
+    <div style="margin-bottom:14px;padding:12px;background:linear-gradient(135deg,rgba(212,175,55,0.08),rgba(184,148,29,0.04));border:1px solid #3a3020;border-left:4px solid #d4af37;border-radius:6px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <span style="font-size:18px">🛡️</span>
+        <span style="font-size:13px;color:#d4af37;font-weight:bold;font-family:Cinzel,serif;letter-spacing:0.5px">BOT KORUMA SİSTEMİ (Klanlar tarzı)</span>
+      </div>
+      <div style="font-size:11px;color:#c8b896;margin-bottom:10px;line-height:1.5">
+        Her N istekte bir kullanıcıya "Robot musun?" sorulur (Cloudflare Turnstile). Bot çözemez, insan çözer.
+        Belirli sayıda başarısızsa otomatik ban.
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
+        <label style="font-size:11px;color:#aaa">
+          <input type="checkbox" id="bk-aktif" checked> Sistem aktif
+        </label>
+        <label style="font-size:11px;color:#aaa">Eşik (kaç istekte bir):
+          <input id="bk-threshold" type="number" value="200" min="10" max="10000" style="width:90px;padding:3px;background:#0a0a0a;border:1px solid #333;color:#ddd;border-radius:3px">
+        </label>
+        <label style="font-size:11px;color:#aaa">Max başarısız:
+          <input id="bk-fail-max" type="number" value="3" min="1" max="10" style="width:60px;padding:3px;background:#0a0a0a;border:1px solid #333;color:#ddd;border-radius:3px">
+        </label>
+        <label style="font-size:11px;color:#aaa">Cooldown (dk):
+          <input id="bk-cooldown" type="number" value="60" min="0" max="1440" style="width:80px;padding:3px;background:#0a0a0a;border:1px solid #333;color:#ddd;border-radius:3px">
+        </label>
+        <label style="font-size:11px;color:#aaa">Ban süresi (sa):
+          <input id="bk-ban" type="number" value="24" min="1" max="168" style="width:70px;padding:3px;background:#0a0a0a;border:1px solid #333;color:#ddd;border-radius:3px">
+        </label>
+        <button class="act" onclick="botKorumaKaydet()" style="background:#d4af37;color:#0a0604;font-weight:bold">💾 Kaydet</button>
+      </div>
+      <div id="bk-msg" style="font-size:11px;margin-top:8px;color:#27ae60"></div>
+    </div>
+
     <!-- v1.14.0.47: Anomali esik config (admin'den ayarlanabilir) -->
     <div style="margin-bottom:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px;background:#1a0e08;border:1px solid #3a1f10;border-radius:4px">
       <span style="font-size:11px;color:#e67e22;font-weight:bold">⚠️ Anomali Tespit Esigi:</span>
@@ -5192,6 +5223,50 @@ async function anomaliEsikLoad() {
     }
   } catch(e) {}
 }
+// v1.14.3.39 — Bot Koruma config yukle + kaydet
+async function botKorumaYukle() {
+  try {
+    const r = await fetch(API + '/api/admin/bot-koruma-config', { headers: hdr() });
+    const d = await r.json();
+    if (d.ok && d.live) {
+      document.getElementById('bk-aktif').checked = !!d.live.aktif;
+      document.getElementById('bk-threshold').value = d.live.threshold || 200;
+      document.getElementById('bk-fail-max').value = d.live.fail_max || 3;
+      document.getElementById('bk-cooldown').value = d.live.cooldown_min || 60;
+      document.getElementById('bk-ban').value = d.live.ban_saat || 24;
+    }
+  } catch(e) { /* sessiz */ }
+}
+async function botKorumaKaydet() {
+  const msgEl = document.getElementById('bk-msg');
+  const cfg = {
+    aktif: document.getElementById('bk-aktif').checked,
+    threshold: parseInt(document.getElementById('bk-threshold').value),
+    fail_max: parseInt(document.getElementById('bk-fail-max').value),
+    cooldown_min: parseInt(document.getElementById('bk-cooldown').value),
+    ban_saat: parseInt(document.getElementById('bk-ban').value),
+  };
+  try {
+    const r = await fetch(API + '/api/admin/bot-koruma-config', {
+      method: 'POST', headers: hdr(), body: JSON.stringify(cfg)
+    });
+    const d = await r.json();
+    if (r.ok && d.ok) {
+      msgEl.textContent = '✓ ' + d.mesaj + ' — ' + JSON.stringify(d.cfg);
+      msgEl.style.color = '#27ae60';
+    } else {
+      msgEl.textContent = '✗ ' + (d.error || r.status);
+      msgEl.style.color = '#e74c3c';
+    }
+  } catch(e) {
+    msgEl.textContent = '✗ ' + e.message; msgEl.style.color = '#e74c3c';
+  }
+}
+// Sayfa yuklendiginde otomatik yukle
+document.addEventListener('DOMContentLoaded', () => setTimeout(() => {
+  if (document.getElementById('bk-aktif')) botKorumaYukle();
+}, 1000));
+
 async function anomaliEsikKaydet() {
   const altin_sapma = document.getElementById('anom-altin-sapma').value;
   const yuzde = document.getElementById('anom-yuzde').value;

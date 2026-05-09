@@ -1202,8 +1202,8 @@ document.addEventListener('DOMContentLoaded', initLayout);
 */
 // v1.14.3.9: Build stamp — tiklanabilir, cache temizleyip yenileme yapar
 (function buildStamp(){
-  const BUILD = 'v1.14.3.38';
-  const TS    = '2026-05-09 Otomatik Guncelleme Banner (hard refresh sorunu cozuldu)';
+  const BUILD = 'v1.14.3.39';
+  const TS    = '2026-05-09 KLANLAR-tarzi BOT KORUMA: Periodic captcha + auto-ban';
   function mount(){
     if (document.getElementById('build-stamp')) return;
     const div = document.createElement('div');
@@ -1369,6 +1369,22 @@ document.addEventListener('DOMContentLoaded', initLayout);
   } else {
     setTimeout(init, 1500);
   }
+})();
+
+/* ═══════════════════════════════════════════════════════
+   v1.14.3.39 — Bot Koruma: nox-captcha.js'i dinamik yukle
+   ═══════════════════════════════════════════════════════
+   Her sayfada otomatik yuklenir (layout.js zaten her sayfada).
+   Boylece tum HTML'lere tek tek <script> eklemek gerekmez.
+   ═══════════════════════════════════════════════════════ */
+(function _yukleNoxCaptcha() {
+  if (typeof window === 'undefined') return;
+  if (window.NoxCaptcha) return;
+  const s = document.createElement('script');
+  // js/ dizininde — relatif yol
+  s.src = (location.pathname.includes('/') ? './js/' : 'js/') + 'nox-captcha.js?v=14390';
+  s.async = false; // diger script'lerden once yuklensin
+  document.head.appendChild(s);
 })();
 
 /* ═══════════════════════════════════════════════════════
