@@ -203,8 +203,22 @@ async function meydanYaz() {
     });
     var data = await resp.json();
     if (resp.ok) { inp.value = ''; loadMeydanMesajlar(); }
-    else { noxAlert('Meydan hatasi: ' + (data.error || 'Bilinmeyen hata')); }
-  } catch(e) { noxAlert('Baglanti hatasi: ' + e.message); }
+    else {
+      // v1.14.3.40: Rate limit (429) ve diger hatalar toast ile (modal yerine — daha az invasiv)
+      var hataMsg = data.error || 'Bilinmeyen hata';
+      if (resp.status === 429) {
+        // Flood koruma: kalan_sn varsa onu kullan
+        if (typeof showToast === 'function') showToast('⏱️ ' + hataMsg, 'warning');
+        else if (typeof toast === 'function') toast(hataMsg);
+      } else {
+        if (typeof showToast === 'function') showToast(hataMsg, 'error');
+        else noxAlert(hataMsg);
+      }
+    }
+  } catch(e) {
+    if (typeof showToast === 'function') showToast('Bağlantı hatası: ' + e.message, 'error');
+    else noxAlert('Baglanti hatasi: ' + e.message);
+  }
 }
 
 // Enter ile gonder + sayfa init
