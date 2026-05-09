@@ -1202,8 +1202,8 @@ document.addEventListener('DOMContentLoaded', initLayout);
 */
 // v1.14.3.9: Build stamp — tiklanabilir, cache temizleyip yenileme yapar
 (function buildStamp(){
-  const BUILD = 'v1.14.3.40';
-  const TS    = '2026-05-09 Meydan flood: 1dk/4 mesaj + acik hata mesaji + toast';
+  const BUILD = 'v1.14.3.41';
+  const TS    = '2026-05-09 Auto-ban interval cast bug fix (test ile yakalandi)';
   function mount(){
     if (document.getElementById('build-stamp')) return;
     const div = document.createElement('div');
