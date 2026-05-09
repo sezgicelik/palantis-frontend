@@ -1202,8 +1202,8 @@ document.addEventListener('DOMContentLoaded', initLayout);
 */
 // v1.14.3.9: Build stamp — tiklanabilir, cache temizleyip yenileme yapar
 (function buildStamp(){
-  const BUILD = 'v1.14.3.48';
-  const TS    = '2026-05-10 Guild izinli_kaynaklar bos array fix + Katip debug endpoint';
+  const BUILD = 'v1.14.3.49';
+  const TS    = '2026-05-10 Guild isci dagilim UI: oyuncu sayfasi gibi (manuel input + −10/+10/MAX)';
   function mount(){
     if (document.getElementById('build-stamp')) return;
     const div = document.createElement('div');

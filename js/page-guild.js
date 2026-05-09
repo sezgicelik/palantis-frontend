@@ -1480,25 +1480,38 @@ function renderTabIsciler(el, data) {
       '<div class="card" style="text-align:center;padding:8px"><div style="font-size:18px">🙏</div><div style="font-size:14px;color:#d4af37;font-weight:bold">' + fmt(nufus.worshipper) + '</div><div style="font-size:11px;color:#888">Worshipper</div></div>' +
     '</div>';
 
-  // v1.13: İşçi dagilimi (5 tip + kapasite gostergesi)
-  var isciHTML = '<div class="card">' +
-    '<div style="font-size:11px;color:var(--race-color);font-weight:bold;margin-bottom:6px">⚒️ İşçi Dagilimi</div>' +
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">' +
-      ['oduncu','madenci','ciftci','balikci','tuccar'].map(function(tip) {
-        var mevcut = isciler[tip] || 0;
-        var kap = kapasite[tip];
-        var kapText = kap < 999999 ? ' <span style="color:#666;font-size:11px">/ ' + fmt(kap) + '</span>' : '';
-        var doluRenk = kap < 999999 && mevcut >= kap ? '#e74c3c' : '#d4af37';
-        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:#111;border-radius:4px">' +
-          '<span style="font-size:10px">' + (ISCI_IKON[tip]||'') + ' ' + tip + ': <span style="color:' + doluRenk + ';font-weight:bold">' + fmt(mevcut) + '</span>' + kapText + '</span>' +
-          (myYetkiler.isci_ata ? '<div style="display:flex;gap:2px">' +
-            '<button style="background:#2ecc71;color:#000;border:none;padding:2px 6px;border-radius:3px;font-size:11px;cursor:pointer" onclick="guildIsciAta(' + g.id + ',\'' + tip + '\')">+</button>' +
-            '<button style="background:#e74c3c;color:#fff;border:none;padding:2px 6px;border-radius:3px;font-size:11px;cursor:pointer" onclick="guildIsciCikar(' + g.id + ',\'' + tip + '\')">-</button>' +
-          '</div>' : '') +
-        '</div>';
-      }).join('') +
-    '</div>' +
-    '<div style="font-size:11px;color:#555;margin-top:6px">Kapasite: tarla×50 ciftci, balikci×20 (oduncu/madenci/tuccar sinirsiz)</div>' +
+  // v1.14.3.49: İşçi dagilimi — oyuncu sayfasi (population) tasarimina uyumlandi.
+  // Manuel input + -10/-/+/+10/MAX butonlari, acik renk yazi, dolu satir kirmizi border.
+  var ISCI_AD = { oduncu:'Oduncu', madenci:'Madenci', ciftci:'Çiftçi', balikci:'Balıkçı', tuccar:'Tüccar' };
+  var bosKoylu = parseInt(nufus.koylu) || 0;
+  var canEdit = !!myYetkiler.isci_ata;
+  var isciHTML = '<div class="card" style="padding:14px">' +
+    '<div style="font-size:13px;color:#d4af37;font-weight:bold;margin-bottom:4px;font-family:Cinzel,serif;letter-spacing:0.5px">⚒️ İŞÇİ DAĞILIMI</div>' +
+    '<div style="font-size:11px;color:#c8b896;margin-bottom:10px">Boş köylü: <b style="color:#e8d4a8">' + fmt(bosKoylu) + '</b>' +
+      (canEdit ? '' : ' <span style="color:#888">(yetkin yok — sadece görüntüleme)</span>') + '</div>' +
+    ['oduncu','madenci','ciftci','balikci','tuccar'].map(function(tip) {
+      var mevcut = parseInt(isciler[tip]) || 0;
+      var kap = parseInt(kapasite[tip]) || 0;
+      var sınırlı = kap > 0 && kap < 999999;
+      var dolu = sınırlı && mevcut >= kap;
+      var deger = sınırlı ? (fmt(mevcut) + ' / ' + fmt(kap)) : fmt(mevcut);
+      var border = dolu ? '#5a2020' : '#2a2820';
+      var renk = dolu ? '#ff7060' : '#e8d4a8';
+      return '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(20,18,14,0.6);border:1px solid ' + border + ';border-radius:5px;margin-bottom:5px">' +
+        '<span style="font-size:18px;width:24px;text-align:center">' + (ISCI_IKON[tip]||'') + '</span>' +
+        '<span style="min-width:75px;font-size:12px;color:#e8d4a8;font-weight:bold">' + ISCI_AD[tip] + '</span>' +
+        '<span style="flex:1;font-size:13px;color:' + renk + ';text-align:right">' + deger + '</span>' +
+        (canEdit ? '<div style="display:flex;gap:3px;align-items:center">' +
+          '<button onclick="guildIsciDelta(' + g.id + ',\'' + tip + '\',-10)" style="padding:3px 8px;font-size:11px;background:#2a1414;color:#ff9080;border:1px solid #5a2020;border-radius:3px;cursor:pointer;font-weight:bold">−10</button>' +
+          '<button onclick="guildIsciDelta(' + g.id + ',\'' + tip + '\',-1)"  style="padding:3px 8px;font-size:11px;background:#2a1414;color:#ff9080;border:1px solid #5a2020;border-radius:3px;cursor:pointer;font-weight:bold">−</button>' +
+          '<input id="gisci-' + tip + '" type="number" min="0" value="' + mevcut + '" style="width:64px;padding:3px 6px;background:#0a0a0a;border:1px solid #3a3020;color:#e8d4a8;border-radius:3px;font-size:12px;text-align:center" onkeydown="if(event.key===\'Enter\')guildIsciSet(' + g.id + ',\'' + tip + '\')" onblur="guildIsciSet(' + g.id + ',\'' + tip + '\')">' +
+          '<button onclick="guildIsciDelta(' + g.id + ',\'' + tip + '\',1)"   style="padding:3px 8px;font-size:11px;background:#143014;color:#80ff80;border:1px solid #205a20;border-radius:3px;cursor:pointer;font-weight:bold">+</button>' +
+          '<button onclick="guildIsciDelta(' + g.id + ',\'' + tip + '\',10)"  style="padding:3px 8px;font-size:11px;background:#143014;color:#80ff80;border:1px solid #205a20;border-radius:3px;cursor:pointer;font-weight:bold">+10</button>' +
+          '<button onclick="guildIsciMax(' + g.id + ',\'' + tip + '\')" style="padding:3px 10px;font-size:11px;background:#3a2a10;color:#d4af37;border:1px solid #c8a96e;border-radius:3px;cursor:pointer;font-weight:bold" title="Bos koyluleri tamamiyla ata">MAX</button>' +
+        '</div>' : '') +
+      '</div>';
+    }).join('') +
+    '<div style="font-size:11px;color:#a89880;margin-top:8px;padding-top:6px;border-top:1px solid #2a2820">📋 Kapasite: <b style="color:#e8d4a8">tarla × 50</b> çiftçi · <b style="color:#e8d4a8">balıkçı × 20</b> · <span style="color:#888">oduncu / madenci / tüccar sınırsız</span></div>' +
   '</div>';
 
   // Asker yap butonu
@@ -1629,28 +1642,67 @@ async function guildKoyluBagis(guildId, maxLimit) {
   } catch(e) { noxAlert('Hata'); }
 }
 
+// v1.14.3.49: Eski guildIsciAta/guildIsciCikar artik delta-bazli wrapper.
+// Yeni inline UI: -10/-/input/+/+10/MAX. Toplu istek yok (her tıklama API çağrısı).
+async function _guildIsciApi(guildId, tip, delta) {
+  if (delta === 0) return;
+  var url = delta > 0 ? '/isci-ata' : '/isci-cikar';
+  try {
+    var resp = await fetch(API_BASE + '/api/guild/' + guildId + url, {
+      method: 'POST', headers: guildHdr(), body: JSON.stringify({ tip: tip, adet: Math.abs(delta) })
+    });
+    var data = await resp.json();
+    if (resp.ok) {
+      if (typeof showToast === 'function') showToast(data.mesaj || (delta>0?'+'+delta:''+delta) + ' ' + tip, 'success');
+      else toast(data.mesaj);
+      loadGuild();
+    } else {
+      if (typeof showToast === 'function') showToast(data.error || 'Hata', 'error');
+      else noxAlert(data.error);
+    }
+  } catch(e) {
+    if (typeof showToast === 'function') showToast('Bağlantı hatası', 'error');
+    else noxAlert('Hata');
+  }
+}
+
+window.guildIsciDelta = async function(guildId, tip, delta) {
+  await _guildIsciApi(guildId, tip, delta);
+};
+
+window.guildIsciSet = async function(guildId, tip) {
+  // Input'taki yeni deger ile mevcut arasi delta hesapla
+  var inp = document.getElementById('gisci-' + tip);
+  if (!inp) return;
+  var yeniDeger = Math.max(0, parseInt(inp.value) || 0);
+  // Mevcut degeri DOM'dan oku (rendering sirasinda yazildigi value)
+  var mevcut = parseInt(inp.defaultValue) || 0;
+  var delta = yeniDeger - mevcut;
+  if (delta === 0) return;
+  await _guildIsciApi(guildId, tip, delta);
+};
+
+window.guildIsciMax = async function(guildId, tip) {
+  // Bos koylunun tamamini ata (backend zaten kapasite kontrolu yapar)
+  var bos = parseInt(GUILD_DATA?.guild_nufus?.koylu) || 0;
+  if (bos <= 0) {
+    if (typeof showToast === 'function') showToast('Boş köylü yok', 'warning');
+    return;
+  }
+  await _guildIsciApi(guildId, tip, bos);
+};
+
+// Eski isimler (geri uyumluluk)
 async function guildIsciAta(guildId, tip) {
   var adet = await noxPrompt(tip + ' icin kac koylu atamak istiyorsunuz?');
   if (!adet || isNaN(adet) || parseInt(adet) <= 0) return;
-  try {
-    var resp = await fetch(API_BASE + '/api/guild/' + guildId + '/isci-ata', {
-      method: 'POST', headers: guildHdr(), body: JSON.stringify({ tip: tip, adet: parseInt(adet) })
-    });
-    var data = await resp.json();
-    if (resp.ok) { toast(data.mesaj); loadGuild(); } else noxAlert(data.error);
-  } catch(e) { noxAlert('Hata'); }
+  await _guildIsciApi(guildId, tip, parseInt(adet));
 }
 
 async function guildIsciCikar(guildId, tip) {
   var adet = await noxPrompt(tip + ' kac isciyi koyluye donusturmek istiyorsunuz?');
   if (!adet || isNaN(adet) || parseInt(adet) <= 0) return;
-  try {
-    var resp = await fetch(API_BASE + '/api/guild/' + guildId + '/isci-cikar', {
-      method: 'POST', headers: guildHdr(), body: JSON.stringify({ tip: tip, adet: parseInt(adet) })
-    });
-    var data = await resp.json();
-    if (resp.ok) { toast(data.mesaj); loadGuild(); } else noxAlert(data.error);
-  } catch(e) { noxAlert('Hata'); }
+  await _guildIsciApi(guildId, tip, -parseInt(adet));
 }
 
 async function guildAskerYap(guildId) {
