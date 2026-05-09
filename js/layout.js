@@ -1202,8 +1202,8 @@ document.addEventListener('DOMContentLoaded', initLayout);
 */
 // v1.14.3.9: Build stamp — tiklanabilir, cache temizleyip yenileme yapar
 (function buildStamp(){
-  const BUILD = 'v1.14.3.37';
-  const TS    = '2026-05-08 Admin sifre degistirme fix + Oyuncu Bul (username/kral arama)';
+  const BUILD = 'v1.14.3.38';
+  const TS    = '2026-05-09 Otomatik Guncelleme Banner (hard refresh sorunu cozuldu)';
   function mount(){
     if (document.getElementById('build-stamp')) return;
     const div = document.createElement('div');
@@ -1368,5 +1368,133 @@ document.addEventListener('DOMContentLoaded', initLayout);
     document.addEventListener('DOMContentLoaded', () => setTimeout(init, 1500));
   } else {
     setTimeout(init, 1500);
+  }
+})();
+
+/* ═══════════════════════════════════════════════════════
+   v1.14.3.38 — OTOMATIK GUNCELLEME UYARISI
+   ═══════════════════════════════════════════════════════
+   Hard refresh sorununu cozer: oyuncu sayfayi acik tutarken
+   biz deploy yaparsak, 60 saniye icinde "Güncelleme var, Yenile" toast'u cikar.
+   Tek tikla SW unregister + cache temizle + reload.
+
+   Calisma mantigi:
+   1. Sayfa yuklenince /api/version cek, ilk versiyonu localStorage'a yaz
+   2. Her 60 saniyede /api/version yeniden cek
+   3. Versiyon degisirse → goster:
+      - Toast: "🔄 Yeni güncelleme — Tıkla yenile"
+      - Sidebar/HUD'da kalici banner
+   4. Banner'a/toast'a tiklayinca otomatik:
+      - SW unregister + caches.delete + location.reload(true)
+   ═══════════════════════════════════════════════════════ */
+(function _versiyonPolling() {
+  if (typeof window === 'undefined') return;
+  if (window._noxVersionPollingActive) return;
+  window._noxVersionPollingActive = true;
+
+  const STORAGE_KEY = 'noxara_backend_version';
+  let _bilinenVersiyon = null; // null = henuz ilk fetch yapilmadi
+  let _bannerGosterildi = false;
+
+  function getApi() {
+    return (typeof API_BASE !== 'undefined') ? API_BASE : 'https://palantis-backend-production.up.railway.app';
+  }
+
+  async function temizleVeYenile() {
+    try {
+      // SW unregister
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        for (const r of regs) await r.unregister();
+      }
+      // Cache Storage temizle
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(k => caches.delete(k)));
+      }
+    } catch(e) {}
+    // Hard reload
+    location.reload(true);
+  }
+
+  function bannerGoster(yeniVer) {
+    if (_bannerGosterildi) return;
+    _bannerGosterildi = true;
+
+    // Sayfa ustunde sticky banner (yenilemeyi gormezden gelinemez)
+    const banner = document.createElement('div');
+    banner.id = 'nox-update-banner';
+    banner.style.cssText = `
+      position:fixed; top:0; left:0; right:0;
+      background:linear-gradient(90deg,#d4af37,#b8941d);
+      color:#0a0604; font-family:Cinzel,serif; font-weight:bold;
+      padding:10px 16px; text-align:center; z-index:99998;
+      cursor:pointer; box-shadow:0 2px 12px rgba(212,175,55,0.4);
+      letter-spacing:0.5px; font-size:13px;
+      animation:slideDownBanner 0.4s ease-out;
+    `;
+    banner.innerHTML = `🔄 <span style="margin:0 8px">YENİ GÜNCELLEME GELDİ</span>
+      <span style="background:#0a0604;color:#d4af37;padding:3px 10px;border-radius:4px;margin-left:8px;font-size:11px">Tıkla → Otomatik Yenile</span>
+      <span style="float:right;cursor:pointer;padding:0 8px" title="Şimdi değil — sonra yenilersin" onclick="event.stopPropagation();this.parentElement.remove();window._noxBannerGosterildi=false">✕</span>`;
+    banner.onclick = temizleVeYenile;
+    document.body.appendChild(banner);
+
+    // Animation CSS
+    if (!document.getElementById('nox-update-banner-css')) {
+      const s = document.createElement('style');
+      s.id = 'nox-update-banner-css';
+      s.textContent = `
+        @keyframes slideDownBanner {
+          from { transform: translateY(-100%); }
+          to { transform: translateY(0); }
+        }
+      `;
+      document.head.appendChild(s);
+    }
+
+    // Toast (varsa) — banner ile beraber
+    try {
+      if (typeof showToast === 'function') {
+        showToast('🔄 Yeni versiyon: ' + yeniVer + ' — Üst banner\'a tıkla', 'info');
+      }
+    } catch {}
+  }
+
+  async function checkVersion() {
+    try {
+      const r = await fetch(getApi() + '/api/version', { cache: 'no-store' });
+      if (!r.ok) return;
+      const d = await r.json();
+      const ver = d.version;
+      if (!ver) return;
+
+      const localBilenen = localStorage.getItem(STORAGE_KEY);
+
+      if (_bilinenVersiyon === null) {
+        // Ilk fetch — localStorage ile karsilastir
+        _bilinenVersiyon = ver;
+        if (localBilenen && localBilenen !== ver) {
+          // Sayfa yuklenirken zaten yeni versiyon varsa kullaniciya bildir (asset'leri eski olabilir)
+          bannerGoster(ver);
+        }
+        localStorage.setItem(STORAGE_KEY, ver);
+      } else if (ver !== _bilinenVersiyon) {
+        // Sayfa acikken yeni deploy oldu
+        _bilinenVersiyon = ver;
+        localStorage.setItem(STORAGE_KEY, ver);
+        bannerGoster(ver);
+      }
+    } catch (e) { /* sessiz fail */ }
+  }
+
+  function init() {
+    checkVersion(); // ilk fetch
+    setInterval(checkVersion, 60000); // 60 sn'de bir
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => setTimeout(init, 3000));
+  } else {
+    setTimeout(init, 3000);
   }
 })();
