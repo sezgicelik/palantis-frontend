@@ -466,12 +466,15 @@ async function hpLoadIsciTablo() {
     });
     if (!r.ok) { el.innerHTML = '<span class="loading">API hata</span>'; return; }
     const w = await r.json();
+    // v1.14.3.47: katip + izci eklendi (esir karsiliklari yok, esir hep 0)
     const tipler = [
       { key: 'oduncu',  ad: '🌳 Oduncu' },
       { key: 'madenci', ad: '⛓ Madenci' },
       { key: 'ciftci',  ad: '🌾 Çiftçi' },
       { key: 'balikci', ad: '🎣 Balıkçı' },
-      { key: 'tuccar',  ad: '💰 Tüccar' }
+      { key: 'tuccar',  ad: '💰 Tüccar' },
+      { key: 'katip',   ad: '📚 Katip' },
+      { key: 'izci',    ad: '🏞 İzci' }
     ];
     let toplam_isci = 0, toplam_esir = 0;
     let rows = '';

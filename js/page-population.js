@@ -23,8 +23,9 @@ async function loadIsciMaasOzet() {
     document.getElementById('isci-maas-gunluk').textContent = m.gunluk_toplam.toLocaleString('tr-TR') + ' altın';
 
     const detayEl = document.getElementById('isci-maas-detay');
-    const ICONS = { tuccar:'🛒', oduncu:'🪓', madenci:'⛏', ciftci:'🌾', balikci:'🎣' };
-    const ADLAR = { tuccar:'Tüccar', oduncu:'Oduncu', madenci:'Madenci', ciftci:'Çiftçi', balikci:'Balıkçı' };
+    // v1.14.3.47: katip + izci ikonlari eklendi
+    const ICONS = { tuccar:'🛒', oduncu:'🪓', madenci:'⛏', ciftci:'🌾', balikci:'🎣', katip:'📚', izci:'🏞' };
+    const ADLAR = { tuccar:'Tüccar', oduncu:'Oduncu', madenci:'Madenci', ciftci:'Çiftçi', balikci:'Balıkçı', katip:'Katip', izci:'İzci' };
     detayEl.innerHTML = Object.entries(m.detay || {}).map(([tip, x]) =>
       `<span style="background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.3);padding:3px 8px;border-radius:12px;color:#c8a96e">${ICONS[tip]||''} ${ADLAR[tip]||tip}: ${x.adet} × ${x.birim} = <b style="color:#d4af37">${x.toplam.toLocaleString('tr-TR')}</b></span>`
     ).join('');
