@@ -1202,8 +1202,8 @@ document.addEventListener('DOMContentLoaded', initLayout);
 */
 // v1.14.3.9: Build stamp — tiklanabilir, cache temizleyip yenileme yapar
 (function buildStamp(){
-  const BUILD = 'v1.14.3.47';
-  const TS    = '2026-05-10 Izci/Katip maas+dashboard UI fix + 7 SAVEPOINT bug (cron uretim)';
+  const BUILD = 'v1.14.3.48';
+  const TS    = '2026-05-10 Guild izinli_kaynaklar bos array fix + Katip debug endpoint';
   function mount(){
     if (document.getElementById('build-stamp')) return;
     const div = document.createElement('div');
