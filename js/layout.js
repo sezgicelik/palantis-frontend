@@ -1202,8 +1202,8 @@ document.addEventListener('DOMContentLoaded', initLayout);
 */
 // v1.14.3.9: Build stamp — tiklanabilir, cache temizleyip yenileme yapar
 (function buildStamp(){
-  const BUILD = 'v1.14.3.49';
-  const TS    = '2026-05-10 Guild isci dagilim UI: oyuncu sayfasi gibi (manuel input + −10/+10/MAX)';
+  const BUILD = 'v1.14.3.52';
+  const TS    = '2026-05-10 Tapinak limit kalkti (her renk max 2500 WS) + Katip cast fix';
   function mount(){
     if (document.getElementById('build-stamp')) return;
     const div = document.createElement('div');
