@@ -1202,8 +1202,8 @@ document.addEventListener('DOMContentLoaded', initLayout);
 */
 // v1.14.3.9: Build stamp — tiklanabilir, cache temizleyip yenileme yapar
 (function buildStamp(){
-  const BUILD = 'v1.14.3.56';
-  const TS    = '2026-05-10 Frontend UNITS\'e essek + koylu eklendi (yardimci birim eksikti)';
+  const BUILD = 'v1.14.3.57';
+  const TS    = '2026-05-10 Ordu islemler menusune Esek + Koylu hizli ekleme butonlari';
   function mount(){
     if (document.getElementById('build-stamp')) return;
     const div = document.createElement('div');

@@ -368,6 +368,58 @@ async function orduKur(){
   }
 }
 
+// v1.14.3.57: Hizli yardimci birim ekleme (train + assign tek akista)
+window.hizliEsekEkle = async function(orduId) {
+  return _hizliYardimciEkle(orduId, 'essek', 'Eşek', '🫏');
+};
+window.hizliKoyluEkle = async function(orduId) {
+  return _hizliYardimciEkle(orduId, 'koylu', 'Köylü', '👨‍🌾');
+};
+async function _hizliYardimciEkle(orduId, uniteId, isim, ikon) {
+  const ordu = ORDULAR.find(o => o.id === orduId);
+  if (!ordu) return;
+  const adetStr = await noxPrompt(`${ikon} Bu orduya kaç ${isim.toLowerCase()} eklensin?\n\n(Ordu: ${ordu.isim})`, '10');
+  if (adetStr === null) return;
+  const adet = Math.max(0, parseInt(adetStr) || 0);
+  if (adet <= 0) return;
+  const token = getToken(); if (!token) return;
+  try {
+    // 1) Once egit (havuza ekler) — trainDays=0 oldugu icin aninda biter
+    const trainResp = await fetch(API_BASE + '/api/army/train', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ unite_id: uniteId, adet })
+    });
+    const trainData = await trainResp.json();
+    if (!trainResp.ok) {
+      const msg = trainData.error || 'Egitim hatasi';
+      if (typeof showToast === 'function') showToast('❌ ' + msg, 'error');
+      else toast(msg);
+      return;
+    }
+    // 2) Havuzdan orduya assign et
+    const assignResp = await fetch(API_BASE + '/api/army/armies/' + orduId + '/units', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ unite_id: uniteId, adet })
+    });
+    const assignData = await assignResp.json();
+    if (!assignResp.ok) {
+      if (typeof showToast === 'function') showToast('⚠️ Egit OK ama orduya eklenemedi: ' + (assignData.error || 'Hata'), 'warning');
+      else toast('Eğit OK ama orduya eklenmedi');
+    } else {
+      if (typeof showToast === 'function') showToast(`✓ ${ikon} +${adet} ${isim} → "${ordu.isim}" ordusuna eklendi`, 'success');
+      else toast(`+${adet} ${isim} → ${ordu.isim}`);
+    }
+    await loadArmyPool();
+    if (typeof loadGameData === 'function') await loadGameData();
+    renderOrduListe();
+  } catch (e) {
+    if (typeof showToast === 'function') showToast('Bağlantı hatası: ' + e.message, 'error');
+    else toast('Bağlantı hatası');
+  }
+}
+
 async function orduSil(id){
   const ordu = ORDULAR.find(o=>o.id===id);
   if(!ordu) return;
@@ -539,7 +591,12 @@ function renderOrduListe(){
               '<button class="btn ghost" style="font-size:10px;padding:5px 8px;color:#e74c3c;border-color:#e74c3c44" onclick="orduGeriCagir(' + o.id + ')">🏠 Geri Cagir</button>'
             : '') +
           '</div>' +
-          '<div style="margin-top:10px"><button class="btn ghost" style="font-size:10px;padding:4px 8px;width:100%" onclick="orduSil(' + o.id + ')">Ordumu Sil</button></div>' +
+          // v1.14.3.57: Hizli Esek/Koylu ekleme butonlari (Sezgi: Islemler altina ekle)
+          '<div style="margin-top:8px;display:flex;gap:4px">' +
+            '<button class="btn ghost" style="font-size:10px;padding:4px 6px;flex:1;color:#d4af37;border-color:#d4af3744" onclick="hizliEsekEkle(' + o.id + ')" title="Bu orduya esek ekle (resources.essek\'ten dusulur)">🫏 Eşek Ekle</button>' +
+            '<button class="btn ghost" style="font-size:10px;padding:4px 6px;flex:1;color:#2ecc71;border-color:#2ecc7144" onclick="hizliKoyluEkle(' + o.id + ')" title="Bu orduya koylu ekle (workers bos koyluden dusulur)">👨‍🌾 Köylü Ekle</button>' +
+          '</div>' +
+          '<div style="margin-top:6px"><button class="btn ghost" style="font-size:10px;padding:4px 8px;width:100%" onclick="orduSil(' + o.id + ')">Ordumu Sil</button></div>' +
         '</div>' +
         // Sag: Unite listesi
         '<div style="padding:10px 12px">' +
