@@ -124,7 +124,24 @@
   }
 
   // ──────────────────────────────────────────────
+  // v1.14.3.71: Backend gorev durumu helper — kosul_tipi+kosul_deger eslesen
+  // gorev tamamlanmis (odul_alindi/tamamlandi/saglandiMi) ise true.
+  // ──────────────────────────────────────────────
+  function backendGorevTamam(kosulTipi, kosulDeger) {
+    try {
+      var qc = questCache;
+      if (!qc || !qc.gorevler) return null; // henuz yuklenmedi
+      var g = qc.gorevler.find(x =>
+        x.kosul_tipi === kosulTipi && String(x.kosul_deger) === String(kosulDeger));
+      if (!g) return null;
+      return (g.durum === 'odul_alindi' || g.durum === 'tamamlandi' || g.saglandiMi === true);
+    } catch(e) { return null; }
+  }
+
+  // ──────────────────────────────────────────────
   // ONBOARDING GÖREVLER (10 — yeni oyuncu için)
+  // v1.14.3.71: Asker/ordu/koloni kontrolleri backend gorev durumunu da kontrol eder
+  // (Sezgi feedback: ordu kurdum, koloni fethettim ama bilgelik halen 'eksik' diyor)
   // ──────────────────────────────────────────────
   var ONBOARDING = [
     { id:'oduncu', baslik:'Oduncu kampi yap', aciklama:'Odun uretimi temel — en az 1 oduncu kur.',
@@ -137,16 +154,40 @@
     { id:'sehir_meydani', baslik:'Sehir Meydani kur', aciklama:'Diger oyuncularla chatlesmek icin gerekli.',
       bitti: s => s.binaAdet('sehir_meydani') >= 1, link:'city.html?tab=binalar' },
     { id:'asker', baslik:'Ilk askerini bas', aciklama:'Koylu sayisindan asker secip sehrini koru.',
-      bitti: s => (s.W.asker||0) >= 5, link:'army.html?tab=units' },
+      bitti: s => {
+        // v1.14.3.71: Asker = ham asker (havuz) + ordudaki toplam birim
+        var ham = (s.W.asker||0);
+        var ordudaToplam = 0;
+        try { ordudaToplam = (window.armies||[]).reduce((a,b) => a + (b.combat_units || b.total_units || b.totalUnits || 0), 0); } catch(e){}
+        // teshisCache'tan da fallback
+        if (ordudaToplam === 0) {
+          try { ordudaToplam = (window.NUFUS_DATA && window.NUFUS_DATA.unite && window.NUFUS_DATA.unite.toplam) || 0; } catch(e){}
+        }
+        return (ham + ordudaToplam) >= 5;
+      }, link:'army.html?tab=units' },
     { id:'ordu_kur', baslik:'Ordu olustur', aciklama:'Askerleri orduya ata, savaslara hazirla.',
-      bitti: s => (s.O.aktif_ordu_sayisi||0) >= 1 || (window.armies||[]).length >= 1, link:'army.html?tab=armies' },
+      bitti: s => {
+        // v1.14.3.71: Backend gorev durumunu kullan (en guvenilir)
+        var qOk = backendGorevTamam('ordu_kur', '1');
+        if (qOk === true) return true;
+        // Fallback: window.armies, OYUNCU
+        if ((s.O.aktif_ordu_sayisi||0) >= 1) return true;
+        try { if ((window.armies||[]).length >= 1) return true; } catch(e){}
+        return false;
+      }, link:'army.html?tab=armies' },
     { id:'tapinak', baslik:'Tapinak yap', aciklama:'Worshipperlara mana uretmesi icin.',
       bitti: s => s.binaAdet('rathe_tapinagi') + s.binaAdet('xegony_tapinagi') + s.binaAdet('fennin_tapinagi') + s.binaAdet('tunare_tapinagi') >= 1,
       link:'city.html?tab=binalar&filter=askeri' },
     { id:'pazar', baslik:'Pazar kur', aciklama:'Kervan + buyu dukkani + oyuncu pazarina giris.',
       bitti: s => s.binaAdet('pazar') >= 1, link:'city.html?tab=binalar' },
     { id:'koloni', baslik:'Ilk kolonini fethet', aciklama:'Haritada bos koloni bul, ordu ile fethet.',
-      bitti: s => (s.O.koloni_sayisi || 0) >= 1, link:'map.html' },
+      bitti: s => {
+        // v1.14.3.71: Backend gorev durumunu kullan
+        var qOk = backendGorevTamam('koloni_fethet', '1');
+        if (qOk === true) return true;
+        if ((s.O.koloni_sayisi || 0) >= 1) return true;
+        return false;
+      }, link:'map.html' },
     { id:'cag2', baslik:'2. Caga gec', aciklama:'Daha fazla bina/unite acilir.',
       bitti: s => s.cag >= 2, link:'cag.html' },
   ];

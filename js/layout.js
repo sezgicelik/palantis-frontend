@@ -1202,8 +1202,8 @@ document.addEventListener('DOMContentLoaded', initLayout);
 */
 // v1.14.3.9: Build stamp — tiklanabilir, cache temizleyip yenileme yapar
 (function buildStamp(){
-  const BUILD = 'v1.14.3.70';
-  const TS    = '2026-05-10 Esek/Koylu egitim DEGIL transfer (instant) - havuzdan/nufustan dogrudan';
+  const BUILD = 'v1.14.3.71';
+  const TS    = '2026-05-10 Bilgelik onboarding backend gorev senkron (asker/ordu_kur/koloni)';
   function mount(){
     if (document.getElementById('build-stamp')) return;
     const div = document.createElement('div');
