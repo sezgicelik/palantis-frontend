@@ -854,7 +854,8 @@ function renderUnitGrid(side, gridId){
   const id = gridId || ('ugrid-'+side);
   const grid = document.getElementById(id);
   if(!grid) return;
-  const units = Object.values(UNITS).filter(u=>u.side===side && u.producible !== false);
+  // v1.14.3.56: Yardimci birimler (essek/koylu) side='neutral' — her iki tarafta gozukur
+  const units = Object.values(UNITS).filter(u=>(u.side===side || u.side==='neutral') && u.producible !== false);
   grid.innerHTML = '';
 
   // v1.14.0.94: Sablon seciminden gore render

@@ -385,6 +385,31 @@ const _ISLENMIS_SVG = '<svg width="15" height="11" viewBox="0 0 15 11" style="di
 const RICONS={odun:'🌳',metal:_METAL_SVG,bugday:'🌾',balik:'🎣',altin:'💰',kereste:'🪵',islenmis:_ISLENMIS_SVG,ekmek:'🍞',pismis:'🍳',cig_et:'🥩',pismis_et:'🍖',mana:'🔮',at:'🐴',kurt:'🐺',gizlilik:'🎯',buyulu_yumurta:'🥚'};
 
 const UNITS = {
+  /* ═══════════ YARDIMCI BIRIMLER (her iki taraf — savasta yer almaz) ═══════════
+     v1.14.3.27 backend tanimi vardi ama frontend UNITS'te yoktu (v1.14.3.56 fix).
+     side:'neutral' ile her iki tarafta gozukur. Egitim icin: extraCost'tan tuketilir. */
+  essek:{id:'essek',side:'neutral',icon:'🫏',img:null,name:'Eşek',role:'Yardımcı (Taşıma)',tier:0,trainDays:0,
+    baseAtk:0,baseDef:0,zirh:0,iska:0,maas:0,
+    atkGelArtis:0,defGelArtis:0,atkGelMax:0,defGelMax:0,
+    saldiriCarpan:0, savasTurlari:[],
+    cost:{},
+    extraCost:{essek:1},  // resources.essek'ten 1 dusulur
+    yardimci:true,
+    traits:['Savaşa girmez','Koloni fethi: 2 gerekli'],
+    trainTime:0,maxCount:99999,count:0,
+    desc:"Yardımcı taşıma birimi. Savaşta yer almaz. Koloni fethetmek için orduda 2 eşek gerekir."},
+
+  koylu:{id:'koylu',side:'neutral',icon:'👨‍🌾',img:null,name:'Köylü',role:'Yardımcı (Yerleşim)',tier:0,trainDays:0,
+    baseAtk:0,baseDef:0,zirh:0,iska:0,maas:0,
+    atkGelArtis:0,defGelArtis:0,atkGelMax:0,defGelMax:0,
+    saldiriCarpan:0, savasTurlari:[],
+    cost:{},
+    extraCost:{bos_koylu:1},  // workers.total'dan 1 (boş) düşülür
+    yardimci:true,
+    traits:['Savaşa girmez','Koloni fethi: 100 gerekli'],
+    trainTime:0,maxCount:99999,count:0,
+    desc:"Yardımcı yerleşimci birim. Savaşta yer almaz. Koloni fethetmek için orduda 100 köylü gerekir."},
+
   /* ═══════════ AYDINLIK ═══════════ */
   piyade:{id:'piyade',side:'light',icon:'🗡️',img:'img/units/piyade.png',name:'Piyade',role:'Hafif Piyade',tier:1,trainDays:2,
     baseAtk:2,baseDef:10,zirh:20,iska:10,maas:20,
