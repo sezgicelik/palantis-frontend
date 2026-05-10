@@ -102,6 +102,28 @@
   }
 
   // ──────────────────────────────────────────────
+  // v1.14.3.69: MORAL HELPERS — CLAUDE.md ile uyumlu
+  // CAG_MORAL_MAKS dogrusu: 1:1500, 2:2000, 3:2500, 4:3000, 5:5000
+  // (Eski yanlis lineer 1500-5000 4 ayri yerde kullaniliyordu)
+  // ──────────────────────────────────────────────
+  function moralMaks(cag) {
+    return ({1:1500, 2:2000, 3:2500, 4:3000, 5:5000})[cag] || 1500;
+  }
+  // Mutluluk = sehir_morali (ham) + bina_moral_bonus
+  // teshisCache.moral'dan gelir (v1.14.3.69 backend ekledi)
+  function mutlulukToplam(s) {
+    if (teshisCache && teshisCache.moral) {
+      return teshisCache.moral.toplam || 0;
+    }
+    return (s.O.sehir_morali || 0); // fallback
+  }
+  function mutlulukYuzde(s) {
+    var max = (teshisCache && teshisCache.moral && teshisCache.moral.cag_max) || moralMaks(s.cag);
+    var t = mutlulukToplam(s);
+    return Math.min(100, Math.round((t / max) * 100));
+  }
+
+  // ──────────────────────────────────────────────
   // ONBOARDING GÖREVLER (10 — yeni oyuncu için)
   // ──────────────────────────────────────────────
   var ONBOARDING = [
@@ -154,12 +176,9 @@
       cozum:['army.html → Asker Egitimi','En az 100-200 piyade bas','Surlar yapildi mi kontrol et'] },
 
     { id:'moral_kritik', tier:'acil', tip:'warning',
-      kosul: s => {
-        var max = ({1:1500, 2:2375, 3:3250, 4:4125, 5:5000})[s.cag] || 1500;
-        return (s.O.sehir_morali || 0) < max * 0.20;
-      },
-      mesaj:'😡 ACIL — Sehir morali %20 altinda. Vergi alinamaz, koylu kacar.',
-      cozum:['Festival baslat (festival.html)','Vergi oranini sifirla','GPS binalari (asma_bahceler/muze/koliseum)'] },
+      kosul: s => mutlulukYuzde(s) < 20,
+      mesaj: () => '😡 ACIL — Mutluluk %' + mutlulukYuzde(getState()) + ' (bina bonusu dahil). Köylü kaçışı + üretim çarpanı düşük.',
+      cozum:['Festival baslat (festival.html)','Vergi oranini sifirla','GPS binalari yap (asma_bahceler/muze/koliseum)','Bina moral bonusu: lonca+50, tapinaklar+25, taverna+40, muze+80, asma_bahceler+100'] },
 
     { id:'kasa_negatif', tier:'acil', tip:'warning',
       kosul: s => (s.R.altin || 0) < 0,
@@ -179,11 +198,10 @@
 
     { id:'moral_dusuk', tier:'orta', tip:'warning',
       kosul: s => {
-        var max = ({1:1500, 2:2375, 3:3250, 4:4125, 5:5000})[s.cag] || 1500;
-        var m = s.O.sehir_morali || 0;
-        return m >= max * 0.20 && m < max * 0.40;
+        var y = mutlulukYuzde(s);
+        return y >= 20 && y < 40;
       },
-      mesaj:'😔 Sehir morali dusuk — uretim/vergi azalir, halk huzursuz.',
+      mesaj: () => '😔 Mutluluk %' + mutlulukYuzde(getState()) + ' düşük — üretim/vergi azalır, halk huzursuz.',
       cozum:['Yemek cesitliligi (3+ tip = +1/saat)','Festival baslat','GPS binalari'] },
 
     { id:'no_oduncu', tier:'orta', tip:'warning',
@@ -441,11 +459,8 @@
       cozum:['premium.html → bronz/gumus/altin paket','Cag 3 = 1.0x, cag 5 = 1.5x carpan'] },
 
     { id:'gpsile_moral_kazani', tier:'ileri', tip:'success',
-      kosul: s => {
-        var max = ({1:1500, 2:2375, 3:3250, 4:4125, 5:5000})[s.cag] || 1500;
-        return s.cag >= 3 && (s.O.sehir_morali || 0) < max * 0.7;
-      },
-      mesaj:'😊 Sehir moralini hizla yukseltebilirsin — GPS binalari pasif +1 ila +6/saat.',
+      kosul: s => s.cag >= 3 && mutlulukYuzde(s) < 70,
+      mesaj:'😊 Mutluluğu hızla yükseltebilirsin — GPS binalari pasif +1 ila +6/saat.',
       cozum:['Asma Bahceler (cag 4): +100 bonus','Muze (cag 3): +80 bonus','GPS≥%100 → +6/saat recovery'] },
 
     { id:'serap_buyu', tier:'ileri', tip:'success',
@@ -597,8 +612,7 @@
     });
 
     // GPS binaları — moral düşük + cağ uygun
-    var max = ({1:1500, 2:2375, 3:3250, 4:4125, 5:5000})[s.cag] || 1500;
-    if ((s.O.sehir_morali || 0) < max * 0.6 && s.cag >= 3) {
+    if (mutlulukYuzde(s) < 60 && s.cag >= 3) {
       roi.push({
         bina:'GPS Binası (asma_bahceler/muze/koliseum)', kademe:'+1', etki:'+50-100 moral pasif',
         maliyet:'altın+islenmis',
@@ -839,14 +853,18 @@
       + (dismissed.length ? '<button class="bk-subtab reset" title="Tüm gizlenmiş kuralları geri getir" onclick="bilgelik.undismiss()">↻ ' + dismissed.length + '</button>' : '')
       + '</div>';
 
-    // Hizli durum kart
-    var max = ({1:1500, 2:2375, 3:3250, 4:4125, 5:5000})[s.cag] || 1500;
-    var moralPct = Math.round(((s.O.sehir_morali || 0) / max) * 100);
+    // Hizli durum kart — v1.14.3.69 mutluluk_toplam (ham + bina bonus) gosterir
+    var max = (teshisCache && teshisCache.moral && teshisCache.moral.cag_max) || moralMaks(s.cag);
+    var ham = (teshisCache && teshisCache.moral && teshisCache.moral.ham) ?? (s.O.sehir_morali || 0);
+    var binaBonus = (teshisCache && teshisCache.moral && teshisCache.moral.bina_bonus) || 0;
+    var toplam = ham + binaBonus;
+    var moralPct = Math.min(100, Math.round((toplam / max) * 100));
+    var moralStr = fmt(toplam) + '/' + fmt(max) + ' (%' + moralPct + ')' + (binaBonus > 0 ? ' [ham ' + fmt(ham) + ' + bina +' + fmt(binaBonus) + ']' : '');
     var durum = '<div class="bk-card">'
       + '<h4>📦 Hızlı Durum</h4>'
       + '<div class="bk-row"><span>Çağ</span><b>' + s.cag + '</b></div>'
       + '<div class="bk-row"><span>Açlık</span><b class="' + ((s.O.aclik||0) > 50 ? 'bad' : 'good') + '">%' + (s.O.aclik||0) + '</b></div>'
-      + '<div class="bk-row"><span>Şehir Morali</span><b class="' + (moralPct < 30 ? 'bad' : (moralPct < 60 ? 'mid' : 'good')) + '">' + fmt(s.O.sehir_morali||0) + ' (%' + moralPct + ')</b></div>'
+      + '<div class="bk-row"><span>Mutluluk</span><b class="' + (moralPct < 30 ? 'bad' : (moralPct < 60 ? 'mid' : 'good')) + '">' + moralStr + '</b></div>'
       + '<div class="bk-row"><span>Ordu Morali</span><b>' + (s.O.ordu_morali||100) + '/100</b></div>'
       + '<div class="bk-row"><span>Altın</span><b>' + fmt(s.R.altin||0) + '</b></div>'
       + '<div class="bk-row"><span>Buğday</span><b>' + fmt(s.R.bugday||0) + '</b></div>'
