@@ -1202,8 +1202,8 @@ document.addEventListener('DOMContentLoaded', initLayout);
 */
 // v1.14.3.9: Build stamp — tiklanabilir, cache temizleyip yenileme yapar
 (function buildStamp(){
-  const BUILD = 'v1.14.3.66';
-  const TS    = '2026-05-10 4 ejderha (altin/mavi/siyah/kirmizi) lore metni + CSS hue-rotate renk';
+  const BUILD = 'v1.14.3.67';
+  const TS    = '2026-05-10 Bot koruma sadece state-changing aksiyonlari sayar (GET sayilmaz)';
   function mount(){
     if (document.getElementById('build-stamp')) return;
     const div = document.createElement('div');
