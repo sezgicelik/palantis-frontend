@@ -1202,8 +1202,8 @@ document.addEventListener('DOMContentLoaded', initLayout);
 */
 // v1.14.3.9: Build stamp — tiklanabilir, cache temizleyip yenileme yapar
 (function buildStamp(){
-  const BUILD = 'v1.14.3.57';
-  const TS    = '2026-05-10 Ordu islemler menusune Esek + Koylu hizli ekleme butonlari';
+  const BUILD = 'v1.14.3.58';
+  const TS    = '2026-05-10 Koloni Fethet UI: ordu icindeki esek+koylu unite kontrolu (yeni mantik)';
   function mount(){
     if (document.getElementById('build-stamp')) return;
     const div = document.createElement('div');
