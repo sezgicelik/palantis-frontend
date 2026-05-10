@@ -388,27 +388,28 @@ const UNITS = {
   /* ═══════════ YARDIMCI BIRIMLER (her iki taraf — savasta yer almaz) ═══════════
      v1.14.3.27 backend tanimi vardi ama frontend UNITS'te yoktu (v1.14.3.56 fix).
      side:'neutral' ile her iki tarafta gozukur. Egitim icin: extraCost'tan tuketilir. */
+  // v1.14.3.60: ordu birimi olarak essek/koylu — sehir nufusundan AYRI. Sadece altin maliyet.
   essek:{id:'essek',side:'neutral',icon:'🫏',img:null,name:'Eşek',role:'Yardımcı (Taşıma)',tier:0,trainDays:0,
     baseAtk:0,baseDef:0,zirh:0,iska:0,maas:0,
     atkGelArtis:0,defGelArtis:0,atkGelMax:0,defGelMax:0,
     saldiriCarpan:0, savasTurlari:[],
-    cost:{},
-    extraCost:{essek:1},  // resources.essek'ten 1 dusulur
+    cost:{altin:50},
+    extraCost:{},
     yardimci:true,
-    traits:['Savaşa girmez','Koloni fethi: 2 gerekli'],
+    traits:['Savaşa girmez','Koloni fethi: 2 gerekli','50 altın/adet'],
     trainTime:0,maxCount:99999,count:0,
-    desc:"Yardımcı taşıma birimi. Savaşta yer almaz. Koloni fethetmek için orduda 2 eşek gerekir."},
+    desc:"Yardımcı taşıma birimi. Savaşta yer almaz. Koloni fethetmek için orduda 2 eşek gerekir. Şehir kaynağı tüketmez, sadece altın."},
 
   koylu:{id:'koylu',side:'neutral',icon:'👨‍🌾',img:null,name:'Köylü',role:'Yardımcı (Yerleşim)',tier:0,trainDays:0,
     baseAtk:0,baseDef:0,zirh:0,iska:0,maas:0,
     atkGelArtis:0,defGelArtis:0,atkGelMax:0,defGelMax:0,
     saldiriCarpan:0, savasTurlari:[],
-    cost:{},
-    extraCost:{bos_koylu:1},  // workers.total'dan 1 (boş) düşülür
+    cost:{altin:10},
+    extraCost:{},
     yardimci:true,
-    traits:['Savaşa girmez','Koloni fethi: 100 gerekli'],
+    traits:['Savaşa girmez','Koloni fethi: 100 gerekli','10 altın/adet'],
     trainTime:0,maxCount:99999,count:0,
-    desc:"Yardımcı yerleşimci birim. Savaşta yer almaz. Koloni fethetmek için orduda 100 köylü gerekir."},
+    desc:"Yardımcı yerleşimci birim. Savaşta yer almaz. Koloni fethetmek için orduda 100 köylü gerekir. Şehirdeki nüfusu etkilemez, sadece altın."},
 
   /* ═══════════ AYDINLIK ═══════════ */
   piyade:{id:'piyade',side:'light',icon:'🗡️',img:'img/units/piyade.png',name:'Piyade',role:'Hafif Piyade',tier:1,trainDays:2,
