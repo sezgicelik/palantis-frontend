@@ -1202,8 +1202,8 @@ document.addEventListener('DOMContentLoaded', initLayout);
 */
 // v1.14.3.9: Build stamp — tiklanabilir, cache temizleyip yenileme yapar
 (function buildStamp(){
-  const BUILD = 'v1.14.3.62';
-  const TS    = '2026-05-10 Uretim Saatlik Detay tablosuna Koloni sutunu eklendi';
+  const BUILD = 'v1.14.3.63';
+  const TS    = '2026-05-10 Koloni log duplikasyonu fix + premium koloni_bonus UI';
   function mount(){
     if (document.getElementById('build-stamp')) return;
     const div = document.createElement('div');
