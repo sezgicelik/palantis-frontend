@@ -117,13 +117,59 @@ let _spotlightEl = null;
 let _backdropEl = null;
 let _bannerEl = null;
 
+/* ── v1.14.3.68: Backend gorev durumu ile senkron ── */
+async function rehberBackendSenkron() {
+  if (typeof getToken !== 'function') return;
+  const tk = getToken();
+  if (!tk) return;
+  try {
+    const apiBase = (typeof API_BASE !== 'undefined') ? API_BASE : '';
+    const r = await fetch(apiBase + '/api/gorev/liste', { headers: { Authorization: 'Bearer ' + tk }, cache:'no-store' });
+    if (!r.ok) return;
+    const d = await r.json();
+    const gorevler = d.gorevler || [];
+    // Tamamlanmis gorevler (durum='odul_alindi' veya 'tamamlandi')
+    const tamamlanmislar = new Set();
+    gorevler.forEach(g => {
+      if (g.durum === 'odul_alindi' || g.durum === 'tamamlandi' || g.saglandiMi) {
+        tamamlanmislar.add(g.kosul_tipi + ':' + g.kosul_deger);
+      }
+    });
+    // Rehber adimlarini sirayla tara, ilk tamamlanmamis adima atla
+    let yeniMevcut = parseInt(localStorage.getItem(REHBER_ADIM_STORAGE)) || 1;
+    for (const a of REHBER_ADIMLARI) {
+      if (!a.kosulTipi) continue; // info-only adimlar (ozelTip:'merkez' vs)
+      const key = a.kosulTipi + ':' + a.kosulDeger;
+      if (tamamlanmislar.has(key)) {
+        // Bu adim backend'de tamamlanmis — atla
+        if (a.adim >= yeniMevcut) yeniMevcut = a.adim + 1;
+      }
+    }
+    // Son adimi gectiyse rehber bitmis
+    const maxAdim = Math.max(...REHBER_ADIMLARI.map(a => a.adim));
+    if (yeniMevcut > maxAdim) {
+      localStorage.setItem(REHBER_STORAGE, '1');
+      localStorage.removeItem(REHBER_ADIM_STORAGE);
+      return;
+    }
+    localStorage.setItem(REHBER_ADIM_STORAGE, String(yeniMevcut));
+    _mevcutAdim = yeniMevcut;
+  } catch(e) { /* sessiz fallback */ }
+}
+
 /* ── Init — sayfa yuklendiginde cagrilir ── */
-function rehberInit() {
+async function rehberInit() {
   // Tamamlandiysa gosterme
   if (localStorage.getItem(REHBER_STORAGE) === '1') return;
 
   // Token yoksa (giris yapilmamis) gosterme
   if (typeof getToken === 'function' && !getToken()) return;
+
+  // v1.14.3.68: Backend ile senkron — gorev tamamsa adim ileri at
+  await rehberBackendSenkron();
+
+  // Senkron sonrasi rehber bittiyse gosterme
+  if (localStorage.getItem(REHBER_STORAGE) === '1') return;
 
   // Mevcut adimi oku
   _mevcutAdim = parseInt(localStorage.getItem(REHBER_ADIM_STORAGE)) || 1;
