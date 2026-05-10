@@ -100,7 +100,12 @@
     .then(function(data) {
       if (!data || !data.bildirimler || !data.bildirimler.length) return;
       data.bildirimler.slice().reverse().forEach(function(b, i) {
-        setTimeout(function() { gosterPopup(b); }, i * 500);
+        // v1.14.3.65: Epik olay (nadir ejderha) — kucuk popup yerine tam ekran animasyon
+        if (b.tip === 'epik_ejderha' && typeof window.nxEpikEjderhaGoster === 'function') {
+          setTimeout(function() { window.nxEpikEjderhaGoster(b); }, i * 500);
+        } else {
+          setTimeout(function() { gosterPopup(b); }, i * 500);
+        }
       });
     })
     .catch(function() {});

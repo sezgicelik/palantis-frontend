@@ -1,6 +1,6 @@
 // v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
 // Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
-const CACHE_NAME = 'noxara-v14820'; // v1.14.3.63 — Koloni log dup fix + premium UI
+const CACHE_NAME = 'noxara-v14830'; // v1.14.3.65 — Epik ejderha animasyonu (yumurta + buyuk)
 
 // Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [
@@ -11,7 +11,10 @@ const STATIC_ASSETS = [
   './manifest.json',
   './css/main.css',
   './icons/icon-192.svg',
-  './icons/icon-512.svg'
+  './icons/icon-512.svg',
+  // v1.14.3.65: Epik olay gorselleri
+  './img/events/altin_ejder_yumurta.jpg',
+  './img/events/altin_ejder_buyuk.jpg'
 ];
 
 // ═══════════════════════════════════════════════════════════════
