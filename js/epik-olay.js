@@ -134,6 +134,67 @@
     }, 800);
   }
 
+  // v1.14.3.65b: Ejderhaya ozel lore metinleri
+  // 4 ejderha + ortak fallback. Faz 1 = yumurta, Faz 2 = buyuk hali.
+  var EJDERHA_LORE = {
+    altin_ejderha: {
+      renk: '#f5d07a',   // altin glow
+      hue: 0,            // CSS filter (hue-rotate)
+      faz1: {
+        title: '🥚 EFSANEVİ BİR YUMURTA ÇATLIYOR',
+        subtitle: 'Aurium\'un binlerce yıllık uykusunda bir kıvılcım uyandı...',
+        mesaj: 'Tapınakların derinliklerinde altın bir ışık huzmesi belirdi.'
+      },
+      faz2: {
+        title: '🐲 ALTIN EJDERHA UYANDI!',
+        subtitle: 'Aurium\'un kayıp ihtişamı geri döndü — Aydınlığın efsanesi geldi.',
+        mesaj: 'Mağaradan zafer naralı bir kükreyiş yükseldi, gökyüzü altınla doldu.'
+      }
+    },
+    mavi_ejderha: {
+      renk: '#5fb8e3',
+      hue: 180,
+      faz1: {
+        title: '🥚 BİR YUMURTA KIPIRDIYOR',
+        subtitle: 'Mağaranın derinliklerinden serin bir nefes esti...',
+        mesaj: 'Mavi bir alev yumurtanın çatlaklarından sızmaya başladı.'
+      },
+      faz2: {
+        title: '🐲 MAVİ EJDERHA UYANDI!',
+        subtitle: 'Gökyüzü ile bir kez daha buluştu — sadık bir koruyucu doğdu.',
+        mesaj: 'Aydınlık taraf güçlü bir müttefik kazandı.'
+      }
+    },
+    siyah_ejderha: {
+      renk: '#a06be0',
+      hue: 250,
+      faz1: {
+        title: '🥚 LANETLİ BİR YUMURTA',
+        subtitle: 'Mağaradan bir inilti bütün Noxara\'da yankılandı...',
+        mesaj: 'Gorathul\'un karanlık efsanesi yeniden uyanmaya başladı.'
+      },
+      faz2: {
+        title: '🐲 SİYAH EJDERHA UYANDI!',
+        subtitle: 'Karanlığın en güçlü silahı ölüm uykusundan kalktı.',
+        mesaj: 'Gece kanat çırpıyor — düşmanların kalbinde korku başladı.'
+      }
+    },
+    kirmizi_ejderha: {
+      renk: '#e35f5f',
+      hue: 330,
+      faz1: {
+        title: '🥚 KIZIL BİR KOR PARLIYOR',
+        subtitle: 'Mağaranın taşlarına ateşten çatlaklar düşüyor...',
+        mesaj: 'Yumurtanın içinden alev nefesi sızdı.'
+      },
+      faz2: {
+        title: '🐲 KIZIL EJDERHA UYANDI!',
+        subtitle: 'Alevden doğdu, intikam istiyor — Karanlık tarafa savaş kuvveti geldi.',
+        mesaj: 'Magaranın duvarları kıpkırmızı parlıyor.'
+      }
+    }
+  };
+
   function gosterEpikEjderha(bildirim) {
     if (_aktif) return;  // zaten aktifse skip
     _aktif = true;
@@ -147,13 +208,20 @@
 
     var ekstra = bildirim.ekstra || {};
     var ejderhaId = ekstra.ejderha_id || 'altin_ejderha';
-    var isim = bildirim.mesaj || 'Mağarana bir ejderha geldi!';
+    var lore = EJDERHA_LORE[ejderhaId] || EJDERHA_LORE.altin_ejderha;
+
+    // Title rengini ejderhaya gore ayarla
+    titleEl.style.color = lore.renk;
+    titleEl.style.textShadow = '0 0 30px ' + lore.renk + ', 0 4px 12px #000';
+
+    // BG hue rotation (altin gorseli renk degisikligi)
+    bg.style.filter = 'brightness(0.85) hue-rotate(' + lore.hue + 'deg)';
 
     // FAZ 1: Yumurta (0-30 sn)
-    titleEl.textContent = '🥚 BİR YUMURTA ÇATLIYOR';
+    titleEl.textContent = lore.faz1.title;
     titleEl.className = 'glowing';
-    subEl.textContent = 'Mağaranın derinliklerinde altın renkli bir ışık parlıyor...';
-    mesajEl.textContent = '';
+    subEl.textContent = lore.faz1.subtitle;
+    mesajEl.textContent = lore.faz1.mesaj;
 
     // BG yumurta
     bg.style.backgroundImage = 'url(img/events/altin_ejder_yumurta.jpg)';
@@ -175,11 +243,9 @@
 
     // FAZ 2: Buyuk hal (30 sn sonra)
     var t1 = setTimeout(function() {
-      titleEl.textContent = '🐲 ' + isim.split(' bulundu')[0].split('Mağaranda bir ').slice(-1)[0].toUpperCase() + ' UYANDI!';
-      // Fallback: sadece "EJDERHA UYANDI"
-      if (titleEl.textContent.length > 40) titleEl.textContent = '🐲 EJDERHA UYANDI!';
-      subEl.textContent = 'Yıllarca beklenen güç ortaya çıkıyor';
-      mesajEl.textContent = isim;
+      titleEl.textContent = lore.faz2.title;
+      subEl.textContent = lore.faz2.subtitle;
+      mesajEl.textContent = lore.faz2.mesaj;
 
       // BG fade -> buyuk
       bg.classList.remove('show', 'zoom');

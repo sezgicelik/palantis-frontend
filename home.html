@@ -446,11 +446,23 @@
 <script src="js/epik-olay.js"></script>
 <script src="js/bildirim-popup.js"></script>
 
-<!-- v1.14.3.65: GECICI test butonu - epik ejderha animasyonu -->
-<div id="epik-test-btn-wrap" style="position:fixed; top:80px; right:16px; z-index:9999;">
-  <button onclick="if(typeof nxEpikTest==='function'){nxEpikTest();}else{alert('epik-olay.js yuklenmedi! Sayfayi yenile (Ctrl+F5)');}"
-          style="background:linear-gradient(135deg,#c9a84c,#f5d07a); color:#000; border:1px solid #8b6f1f; padding:10px 16px; border-radius:6px; font-weight:bold; font-family:Cinzel,serif; box-shadow:0 4px 12px rgba(201,168,76,0.4); cursor:pointer; font-size:13px;">
-    🐲 Epik Test
+<!-- v1.14.3.66: GECICI test butonlari - 4 ejderha epik animasyon -->
+<div id="epik-test-btn-wrap" style="position:fixed; top:80px; right:16px; z-index:9999; display:flex; flex-direction:column; gap:6px;">
+  <button onclick="window.nxEpikEjderhaGoster({tip:'epik_ejderha',mesaj:'Mağaranda bir Altın Ejderha bulundu! Hazinene eklendi.',ekstra:{ejderha_id:'altin_ejderha',nadir:true}});"
+          style="background:linear-gradient(135deg,#c9a84c,#f5d07a); color:#000; border:1px solid #8b6f1f; padding:8px 14px; border-radius:5px; font-weight:bold; font-family:Cinzel,serif; box-shadow:0 4px 10px rgba(201,168,76,0.4); cursor:pointer; font-size:12px;">
+    🐲 Altın Test
+  </button>
+  <button onclick="window.nxEpikEjderhaGoster({tip:'epik_ejderha',mesaj:'Mağaranda bir Mavi Ejderha bulundu! Hazinene eklendi.',ekstra:{ejderha_id:'mavi_ejderha',nadir:false}});"
+          style="background:linear-gradient(135deg,#3a7ba8,#5fb8e3); color:#fff; border:1px solid #1f4a8b; padding:8px 14px; border-radius:5px; font-weight:bold; font-family:Cinzel,serif; box-shadow:0 4px 10px rgba(95,184,227,0.4); cursor:pointer; font-size:12px;">
+    🐲 Mavi Test
+  </button>
+  <button onclick="window.nxEpikEjderhaGoster({tip:'epik_ejderha',mesaj:'Mağaranda bir Siyah Ejderha bulundu! Hazinene eklendi.',ekstra:{ejderha_id:'siyah_ejderha',nadir:true}});"
+          style="background:linear-gradient(135deg,#4a2862,#a06be0); color:#fff; border:1px solid #2a1640; padding:8px 14px; border-radius:5px; font-weight:bold; font-family:Cinzel,serif; box-shadow:0 4px 10px rgba(160,107,224,0.4); cursor:pointer; font-size:12px;">
+    🐲 Siyah Test
+  </button>
+  <button onclick="window.nxEpikEjderhaGoster({tip:'epik_ejderha',mesaj:'Mağaranda bir Kırmızı Ejderha bulundu! Hazinene eklendi.',ekstra:{ejderha_id:'kirmizi_ejderha',nadir:false}});"
+          style="background:linear-gradient(135deg,#8b2222,#e35f5f); color:#fff; border:1px solid #4a1010; padding:8px 14px; border-radius:5px; font-weight:bold; font-family:Cinzel,serif; box-shadow:0 4px 10px rgba(227,95,95,0.4); cursor:pointer; font-size:12px;">
+    🐲 Kırmızı Test
   </button>
 </div>
 <script>

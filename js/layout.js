@@ -1202,8 +1202,8 @@ document.addEventListener('DOMContentLoaded', initLayout);
 */
 // v1.14.3.9: Build stamp — tiklanabilir, cache temizleyip yenileme yapar
 (function buildStamp(){
-  const BUILD = 'v1.14.3.65';
-  const TS    = '2026-05-10 Epik Ejderha animasyonu - yumurta 30sn + buyuk 30sn fullscreen';
+  const BUILD = 'v1.14.3.66';
+  const TS    = '2026-05-10 4 ejderha (altin/mavi/siyah/kirmizi) lore metni + CSS hue-rotate renk';
   function mount(){
     if (document.getElementById('build-stamp')) return;
     const div = document.createElement('div');
