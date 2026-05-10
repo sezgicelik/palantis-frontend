@@ -445,6 +445,14 @@
 <script src="js/page-home-dashboard.js?v=14140"></script>
 <script src="js/epik-olay.js"></script>
 <script src="js/bildirim-popup.js"></script>
+
+<!-- v1.14.3.65: GECICI test butonu - epik ejderha animasyonu -->
+<div id="epik-test-btn-wrap" style="position:fixed; top:80px; right:16px; z-index:9999;">
+  <button onclick="if(typeof nxEpikTest==='function'){nxEpikTest();}else{alert('epik-olay.js yuklenmedi! Sayfayi yenile (Ctrl+F5)');}"
+          style="background:linear-gradient(135deg,#c9a84c,#f5d07a); color:#000; border:1px solid #8b6f1f; padding:10px 16px; border-radius:6px; font-weight:bold; font-family:Cinzel,serif; box-shadow:0 4px 12px rgba(201,168,76,0.4); cursor:pointer; font-size:13px;">
+    🐲 Epik Test
+  </button>
+</div>
 <script>
 // Panel toggle
 function hpToggle(head){
