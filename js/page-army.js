@@ -378,39 +378,31 @@ window.hizliKoyluEkle = async function(orduId) {
 async function _hizliYardimciEkle(orduId, uniteId, isim, ikon) {
   const ordu = ORDULAR.find(o => o.id === orduId);
   if (!ordu) return;
-  const adetStr = await noxPrompt(`${ikon} Bu orduya kaç ${isim.toLowerCase()} eklensin?\n\n(Ordu: ${ordu.isim})`, '10');
+  const aciklama = uniteId === 'essek'
+    ? `${ikon} Bu orduya kaç ${isim.toLowerCase()} eklensin?\n\n(Eşekler şehir havuzundan alınır — pazardan satın alınır veya ahır binası üretir)\n\nOrdu: ${ordu.isim}`
+    : `${ikon} Bu orduya kaç ${isim.toLowerCase()} eklensin?\n\n(Boş köylüler şehir nüfusundan alınır — geri dönüşsüz, kalıcı transfer)\n\nOrdu: ${ordu.isim}`;
+  const adetStr = await noxPrompt(aciklama, '10');
   if (adetStr === null) return;
   const adet = Math.max(0, parseInt(adetStr) || 0);
   if (adet <= 0) return;
   const token = getToken(); if (!token) return;
   try {
-    // 1) Once egit (havuza ekler) — trainDays=0 oldugu icin aninda biter
-    const trainResp = await fetch(API_BASE + '/api/army/train', {
+    // v1.14.3.70: INSTANT transfer — egitim DEGIL.
+    // Esek: resources.essek havuzundan (kervan ile paylasilir)
+    // Koylu: workers.bos_koylu'dan (geri donusumsuz, kalici)
+    const r = await fetch(API_BASE + '/api/army/' + orduId + '/yardimci-ekle', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ unite_id: uniteId, adet })
+      body: JSON.stringify({ tip: uniteId, adet })
     });
-    const trainData = await trainResp.json();
-    if (!trainResp.ok) {
-      const msg = trainData.error || 'Egitim hatasi';
-      if (typeof showToast === 'function') showToast('❌ ' + msg, 'error');
-      else toast(msg);
+    const d = await r.json();
+    if (!r.ok) {
+      if (typeof showToast === 'function') showToast('❌ ' + (d.error || 'Hata'), 'error');
+      else toast(d.error || 'Hata');
       return;
     }
-    // 2) Havuzdan orduya assign et
-    const assignResp = await fetch(API_BASE + '/api/army/armies/' + orduId + '/units', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ unite_id: uniteId, adet })
-    });
-    const assignData = await assignResp.json();
-    if (!assignResp.ok) {
-      if (typeof showToast === 'function') showToast('⚠️ Egit OK ama orduya eklenemedi: ' + (assignData.error || 'Hata'), 'warning');
-      else toast('Eğit OK ama orduya eklenmedi');
-    } else {
-      if (typeof showToast === 'function') showToast(`✓ ${ikon} +${adet} ${isim} → "${ordu.isim}" ordusuna eklendi`, 'success');
-      else toast(`+${adet} ${isim} → ${ordu.isim}`);
-    }
+    if (typeof showToast === 'function') showToast(`✓ ${ikon} +${adet} ${isim} → "${ordu.isim}" ordusuna katildi`, 'success');
+    else toast(`+${adet} ${isim} → ${ordu.isim}`);
     await loadArmyPool();
     if (typeof loadGameData === 'function') await loadGameData();
     renderOrduListe();
