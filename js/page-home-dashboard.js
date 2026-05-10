@@ -155,6 +155,7 @@ async function hpUretimDetayTablo() {
     const bolge = d.bolge_bonus || {};
     const irk = d.irk_bonus || {};
     const buyu = d.buyu_bonus || {};
+    const koloni = d.koloni_bonus || {}; // v1.14.3.62: koloni bonus yuzdeleri
     const toplam = d.toplam || {};
 
     const pData = (() => { try { return JSON.parse(localStorage.getItem('palantis_player') || 'null'); } catch { return null; } })();
@@ -177,11 +178,13 @@ async function hpUretimDetayTablo() {
       const irkYuzde = parseFloat(irk[kaynak]) || 0;
       const buyuYuzde = hammadde.includes(kaynak) ? (parseFloat(buyu.hammadde)||0)
                      : yiyecek.includes(kaynak) ? (parseFloat(buyu.yiyecek)||0) : 0;
+      const koloniYuzde = parseFloat(koloni[kaynak]) || 0; // v1.14.3.62
       const bolgeEk = Math.floor(bazMiktar * bolgeYuzde / 100);
       const irkEk = Math.floor(bazMiktar * irkYuzde / 100);
       const premEk = Math.floor(bazMiktar * premYuzde / 100);
       const buyuEk = Math.floor(bazMiktar * buyuYuzde / 100);
-      const toplamDeger = parseFloat(toplam[kaynak]) || (bazMiktar + bolgeEk + irkEk + premEk + buyuEk);
+      const koloniEk = Math.floor(bazMiktar * koloniYuzde / 100);
+      const toplamDeger = parseFloat(toplam[kaynak]) || (bazMiktar + bolgeEk + irkEk + premEk + buyuEk + koloniEk);
       rows += '<tr style="border-bottom:1px solid #151515">' +
         '<td style="padding:4px 6px;color:#ccc">' + label + '</td>' +
         '<td style="padding:4px 4px;text-align:right;color:#aaa">' + fmt(bazMiktar) + '</td>' +
@@ -189,6 +192,7 @@ async function hpUretimDetayTablo() {
         '<td style="padding:4px 4px;text-align:right;color:#e67e22">' + (irkEk > 0 ? '+' + fmt(irkEk) : '—') + '</td>' +
         '<td style="padding:4px 4px;text-align:right;color:#f1c40f">' + (premEk > 0 ? '+' + fmt(premEk) : '—') + '</td>' +
         '<td style="padding:4px 4px;text-align:right;color:#9b59b6">' + (buyuEk > 0 ? '+' + fmt(buyuEk) : '—') + '</td>' +
+        '<td style="padding:4px 4px;text-align:right;color:#1abc9c">' + (koloniEk > 0 ? '+' + fmt(koloniEk) : '—') + '</td>' +
         '<td style="padding:4px 6px;text-align:right;color:#2ecc71;font-weight:bold">' + fmt(toplamDeger) + '</td>' +
       '</tr>';
     }
@@ -200,7 +204,7 @@ async function hpUretimDetayTablo() {
         const rCol = { beyaz:'#f5f5f5', kirmizi:'#e74c3c', mavi:'#3498db', yesil:'#2ecc71' }[renk];
         rows += '<tr style="border-bottom:1px solid #151515">' +
           '<td style="padding:4px 6px;color:' + rCol + '">🔮 Mana ' + renk.charAt(0).toUpperCase()+renk.slice(1) + '</td>' +
-          '<td colspan="5" style="padding:4px;text-align:right;color:#555;font-size:10px;font-style:italic">(bilge + yakariş dahil)</td>' +
+          '<td colspan="6" style="padding:4px;text-align:right;color:#555;font-size:10px;font-style:italic">(bilge + yakariş dahil)</td>' +
           '<td style="padding:4px 6px;text-align:right;color:' + rCol + ';font-weight:bold">' + fmt(val) + '</td>' +
         '</tr>';
       }
@@ -216,6 +220,7 @@ async function hpUretimDetayTablo() {
           '<th style="padding:5px 4px;text-align:right;color:#e67e22">Irk</th>' +
           '<th style="padding:5px 4px;text-align:right;color:#f1c40f">Prem</th>' +
           '<th style="padding:5px 4px;text-align:right;color:#9b59b6">Büyü/Art.</th>' +
+          '<th style="padding:5px 4px;text-align:right;color:#1abc9c">Koloni</th>' +
           '<th style="padding:5px 6px;text-align:right;color:#2ecc71">TOPLAM/sa</th>' +
         '</tr></thead><tbody>' + rows + '</tbody></table></div>';
   } catch(e) {
