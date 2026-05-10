@@ -185,7 +185,8 @@
           for (const o of ordular) {
             const orduId = 'ordu_' + (o.slot || o.id || 1);
             const isim = o.isim || ('Ordu ' + (o.slot||o.id));
-            const toplamUnite = parseInt(o.totalUnits || 0) || 0;
+            // v1.14.3.61: combat_units (essek/koylu haric) — backend yeni alan
+            const toplamUnite = parseInt(o.combat_units ?? o.combatUnits ?? o.total_units ?? o.totalUnits ?? 0) || 0;
             const yolda = o.gorev && (o.gorev.durum === 'yolda' || o.gorev.tip);
 
             // Ordu icindeki essek/koylu sayisi
@@ -196,9 +197,10 @@
               if (u.unite_id === 'koylu' || u.id === 'koylu') koyluOrdu = parseInt(u.adet) || 0;
             }
 
-            const hazır = essekOrdu >= 2 && koyluOrdu >= 100 && !yolda && toplamUnite > 0;
+            // v1.14.3.61: Min 100 SAVAS unitesi (essek/koylu haric) — sehirden cikis kurali
+            const hazır = essekOrdu >= 2 && koyluOrdu >= 100 && !yolda && toplamUnite >= 100;
             const disabledReason = yolda ? 'Ordu görevde' :
-              (toplamUnite === 0 ? 'Bu ordunda ünite yok' :
+              (toplamUnite < 100 ? `Bu ordunda ${toplamUnite}/100 savaş ünitesi var (eşek/köylü sayılmaz)` :
               (essekOrdu < 2 ? `Bu ordunda ${essekOrdu}/2 eşek var` :
               (koyluOrdu < 100 ? `Bu ordunda ${koyluOrdu}/100 köylü var` : '')));
             const disabled = disabledReason ? 'disabled' : '';

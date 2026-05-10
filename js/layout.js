@@ -1202,8 +1202,8 @@ document.addEventListener('DOMContentLoaded', initLayout);
 */
 // v1.14.3.9: Build stamp — tiklanabilir, cache temizleyip yenileme yapar
 (function buildStamp(){
-  const BUILD = 'v1.14.3.60';
-  const TS    = '2026-05-10 Esek/Koylu sehir kaynagi tuketmez (sadece altin) + koloni id kabul';
+  const BUILD = 'v1.14.3.61';
+  const TS    = '2026-05-10 Min 100 SAVAS unitesi sehirden cikis kurali (essek/koylu haric)';
   function mount(){
     if (document.getElementById('build-stamp')) return;
     const div = document.createElement('div');
