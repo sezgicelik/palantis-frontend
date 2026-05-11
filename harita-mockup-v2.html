@@ -216,7 +216,7 @@ body::before {
   border-color: var(--primary);
 }
 
-/* ═══ HARITA — Stitch v3 BG (gerçek 6x6 strategic map) ═══ */
+/* ═══ HARITA — BG atmosfer, slot'lar CSS ile cizilir ═══ */
 .harita-wrap {
   position: relative;
   aspect-ratio: 1360 / 754;
@@ -230,39 +230,91 @@ body::before {
   overflow: visible;
   padding: 0;
 }
+/* BG'nin slot'larini bulaniklastir (sadece atmosfer kalsin) — kendi grid'imi cizecegim */
+.harita-wrap::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, rgba(14,14,14,0.5) 0%, rgba(14,14,14,0.75) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
 
 .harita-wrap.region-iyi      { background-image: url('img/map/world_bg_v3.png'); }
 .harita-wrap.region-buyulu   { background-image: url('img/map/world_bg_v2_3.png'); }
 .harita-wrap.region-kotu     { background-image: url('img/map/world_bg_v2_2.png'); }
 .harita-wrap.region-bataklik { background-image: url('img/map/world_bg_v2_4.png'); }
 
-/* 6x6 overlay grid — TRANSPARAN, BG'nin kutuları görünür */
+/* 6x6 grid — kendi cercevemi cizerim, BG sadece atmosfer */
 .grid {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: 5;  /* BG karartmasinin ustunde */
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   grid-template-rows: repeat(6, 1fr);
-  gap: 0;
+  gap: 8px;
   width: 100%;
   height: 100%;
-  padding: 0;
+  padding: 20px;
 }
 
-/* ─── SLOT — BG'nin üstüne sadece ikon+etiket ─── */
+/* ─── SLOT — kendi yuvarlak slot cercevemi cizerim ─── */
 .slot {
   position: relative;
-  background: transparent;    /* SAYDAM — Stitch kutusu görünür */
-  border: none;               /* GRID ÇIZGISI YOK */
   cursor: pointer;
   transition: all 0.18s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 4px;
+  padding: 0;
   overflow: visible;
+}
+/* Her slotta merkez tabani yuvarlak (BG'den bagimsiz) — sadece dolu slotlarda */
+.slot:not(.empty)::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 78%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at center,
+      rgba(243,189,111,0.18) 0%,
+      rgba(14,10,6,0.5) 50%,
+      rgba(14,10,6,0.85) 100%);
+  border: 2px solid rgba(243,189,111,0.4);
+  box-shadow:
+    inset 0 0 20px rgba(0,0,0,0.6),
+    0 0 12px rgba(0,0,0,0.5);
+  z-index: 0;
+}
+.slot.koloni:not(.empty)::before {
+  width: 88%;
+  border-color: rgba(243,189,111,0.6);
+  background:
+    radial-gradient(ellipse at center,
+      rgba(243,189,111,0.25) 0%,
+      rgba(14,10,6,0.5) 50%,
+      rgba(14,10,6,0.85) 100%);
+}
+.slot.oyuncu.iyi:not(.empty)::before {
+  border-color: rgba(95,168,227,0.5);
+}
+.slot.oyuncu.kotu:not(.empty)::before {
+  border-color: rgba(227,95,95,0.5);
+}
+.slot:not(.empty):hover::before {
+  border-color: var(--primary);
+  background:
+    radial-gradient(ellipse at center,
+      rgba(243,189,111,0.32) 0%,
+      rgba(14,10,6,0.55) 50%,
+      rgba(14,10,6,0.85) 100%);
+  box-shadow:
+    inset 0 0 20px rgba(243,189,111,0.2),
+    0 0 25px rgba(243,189,111,0.5);
 }
 .slot:hover {
   z-index: 10;
