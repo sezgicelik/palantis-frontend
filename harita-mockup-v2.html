@@ -216,84 +216,71 @@ body::before {
   border-color: var(--primary);
 }
 
-/* ═══ HARITA GRID ═══ */
+/* ═══ HARITA — Stitch'in kutuları zaten BG'de var ═══ */
 .harita-wrap {
   position: relative;
-  aspect-ratio: 1366 / 768;
+  aspect-ratio: 1376 / 768;
   background-image: url('img/map/world_bg_1.png');
-  background-size: cover;
+  background-size: 100% 100%;  /* tam doldur — bozulma yok */
   background-position: center;
   border: 1px solid var(--outline-variant);
   box-shadow:
-    inset 0 0 80px rgba(0,0,0,0.7),
+    inset 0 0 60px rgba(0,0,0,0.5),
     0 0 50px rgba(0,0,0,0.6);
-  overflow: hidden;
-  padding: 24px;
+  overflow: visible;
+  padding: 0;  /* slot padding YOK — BG kutusu direkt görünür */
 }
 
-/* Bölge bazlı arka plan değiştirici (toggle butonları için class) */
 .harita-wrap.region-iyi      { background-image: url('img/map/world_bg_1.png'); }
 .harita-wrap.region-buyulu   { background-image: url('img/map/world_bg_3.png'); }
 .harita-wrap.region-kotu     { background-image: url('img/map/world_bg_2.png'); }
 .harita-wrap.region-bataklik { background-image: url('img/map/world_bg_4.png'); }
 
-.harita-wrap::before {
-  content: '';
-  position: absolute; inset: 0;
-  background:
-    linear-gradient(180deg, rgba(14,14,14,0.55) 0%, rgba(14,14,14,0.25) 30%, rgba(14,14,14,0.25) 70%, rgba(14,14,14,0.7) 100%);
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* 6x6 Grid */
+/* 6x6 overlay grid — TRANSPARAN, BG'nin kutuları görünür */
 .grid {
-  position: relative;
+  position: absolute;
+  inset: 0;
   z-index: 2;
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   grid-template-rows: repeat(6, 1fr);
-  gap: 8px;
+  gap: 0;
   width: 100%;
   height: 100%;
+  padding: 0;
 }
 
-/* ─── SLOT (genel) ─── */
+/* ─── SLOT — BG'nin üstüne sadece ikon+etiket ─── */
 .slot {
   position: relative;
-  background: rgba(14,14,14,0.5);
-  border: 1px solid rgba(243,189,111,0.25);
+  background: transparent;    /* SAYDAM — Stitch kutusu görünür */
+  border: none;               /* GRID ÇIZGISI YOK */
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.18s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   padding: 4px;
-  overflow: hidden;
-  backdrop-filter: blur(1px);
+  overflow: visible;
 }
 .slot:hover {
-  border-color: var(--primary);
-  background: rgba(20,20,20,0.7);
-  transform: scale(1.04);
   z-index: 10;
-  box-shadow:
-    0 0 0 1px var(--primary),
-    0 0 30px rgba(243,189,111,0.4),
-    0 4px 16px rgba(0,0,0,0.8);
+  filter: drop-shadow(0 0 12px rgba(243,189,111,0.7));
 }
+.slot:hover .slot-icon { transform: scale(1.08); }
+.slot:hover .slot-bottom { background: rgba(20,16,10,0.95); border-color: var(--primary); }
 
-/* Slot içeriği */
+/* ─── Slot içeriği — koord etiketi sol üst, ikon merkez, isim alt ─── */
 .slot-coord {
   position: absolute;
-  top: 3px; left: 4px;
+  top: 2px; left: 4px;
   font-family: 'Cinzel', serif;
   font-size: 9px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.08em;
-  color: rgba(243,189,111,0.65);
-  text-shadow: 0 1px 2px #000;
+  color: rgba(243,189,111,0.85);
+  text-shadow: 0 0 4px #000, 0 1px 2px #000;
   z-index: 3;
 }
 .slot-icon-wrap {
@@ -302,101 +289,120 @@ body::before {
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding-top: 8px;
+  padding-top: 4px;
+  max-height: 70%;
 }
 .slot-icon {
-  width: 80%;
-  height: 80%;
-  max-width: 90px;
+  max-width: 70%;
+  max-height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 0 8px rgba(0,0,0,0.8));
+  transition: transform 0.18s ease;
+  filter:
+    drop-shadow(0 2px 4px rgba(0,0,0,0.9))
+    drop-shadow(0 0 6px rgba(0,0,0,0.6));
 }
+
+/* İsim etiketi — kapsül halinde slot ALTINDA (Stitch kutusu altına oturur) */
 .slot-bottom {
-  width: 100%;
+  position: absolute;
+  bottom: 4%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(14,10,6,0.85);
+  border: 1px solid rgba(243,189,111,0.3);
+  padding: 2px 7px;
+  min-width: 60px;
+  max-width: 92%;
   text-align: center;
-  padding: 3px 2px;
+  transition: all 0.18s ease;
+  z-index: 2;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.7);
 }
 .slot-name {
   font-family: 'Cinzel', serif;
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  text-shadow: 0 1px 3px #000;
+  color: var(--on-surface);
+  line-height: 1.1;
 }
 .slot-meta {
   font-family: 'Cinzel', serif;
-  font-size: 8px;
-  letter-spacing: 0.1em;
+  font-size: 7.5px;
+  letter-spacing: 0.08em;
   color: var(--on-surface-variant);
   text-transform: uppercase;
-  margin-top: 1px;
-  text-shadow: 0 1px 2px #000;
+  margin-top: 0;
+  line-height: 1.1;
 }
 
-/* ─── Oyuncu Slot ─── */
-.slot.oyuncu .slot-name { color: var(--on-surface); }
-.slot.oyuncu.iyi { border-color: rgba(95,168,227,0.5); }
-.slot.oyuncu.iyi:hover { border-color: var(--iyi); box-shadow: 0 0 0 1px var(--iyi), 0 0 30px rgba(95,168,227,0.4); }
-.slot.oyuncu.iyi .slot-name { color: #a8d4f0; }
+/* ─── Oyuncu Slot — taraf rengi sadece etiket border'ı ─── */
+.slot.oyuncu.iyi .slot-bottom  { border-color: rgba(95,168,227,0.6); }
+.slot.oyuncu.iyi .slot-name    { color: #a8d4f0; }
+.slot.oyuncu.kotu .slot-bottom { border-color: rgba(227,95,95,0.6); }
+.slot.oyuncu.kotu .slot-name   { color: #f0a8a8; }
 
-.slot.oyuncu.kotu { border-color: rgba(227,95,95,0.5); }
-.slot.oyuncu.kotu:hover { border-color: var(--kotu); box-shadow: 0 0 0 1px var(--kotu), 0 0 30px rgba(227,95,95,0.4); }
-.slot.oyuncu.kotu .slot-name { color: #f0a8a8; }
-
-/* ─── Koloni Slot ─── */
-.slot.koloni { border-color: rgba(212,162,87,0.6); }
-.slot.koloni:hover {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 1px var(--primary), 0 0 35px rgba(243,189,111,0.5);
-}
+/* ─── Koloni Slot — altın bonus rozetı + altın etiket ─── */
+.slot.koloni .slot-bottom { border-color: rgba(243,189,111,0.55); }
 .slot.koloni .slot-name { color: var(--primary); }
 .slot.koloni .slot-bonus {
   position: absolute;
-  top: 3px; right: 4px;
+  top: 2px; right: 4px;
   background: linear-gradient(180deg, var(--primary), var(--primary-container));
   color: var(--on-primary);
   font-family: 'Cinzel', serif;
   font-size: 9px;
   font-weight: 700;
   padding: 1px 5px;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.03em;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.3),
-    0 1px 3px rgba(0,0,0,0.6);
+    0 0 6px rgba(243,189,111,0.5),
+    0 1px 3px rgba(0,0,0,0.7);
   z-index: 3;
 }
 
-/* ─── SEN — özel ─── */
+/* ─── SEN — pulse halo (BG'nin kutusu üstüne çakılı) ─── */
 .slot.sen {
-  border: 2px solid var(--primary);
-  background:
-    radial-gradient(ellipse at center, rgba(243,189,111,0.18) 0%, rgba(14,14,14,0.6) 70%);
-  animation: senPulse 2.5s ease-in-out infinite;
   z-index: 5;
 }
-@keyframes senPulse {
-  0%, 100% { box-shadow: 0 0 0 1px var(--primary), 0 0 25px rgba(243,189,111,0.5); }
-  50% { box-shadow: 0 0 0 2px var(--primary), 0 0 50px rgba(243,189,111,0.8); }
+.slot.sen .slot-icon {
+  filter:
+    drop-shadow(0 0 14px var(--primary))
+    drop-shadow(0 0 8px rgba(243,189,111,0.7))
+    drop-shadow(0 2px 4px rgba(0,0,0,0.9));
+  animation: senIconPulse 2.4s ease-in-out infinite;
 }
+@keyframes senIconPulse {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 14px var(--primary)) drop-shadow(0 0 8px rgba(243,189,111,0.7)) drop-shadow(0 2px 4px rgba(0,0,0,0.9)); }
+  50% { transform: scale(1.05); filter: drop-shadow(0 0 24px var(--primary)) drop-shadow(0 0 14px rgba(243,189,111,1)) drop-shadow(0 2px 4px rgba(0,0,0,0.9)); }
+}
+.slot.sen .slot-bottom {
+  background: linear-gradient(180deg, var(--primary) 0%, var(--primary-container) 100%);
+  border: 1px solid var(--on-primary);
+  box-shadow: 0 0 16px rgba(243,189,111,0.7), 0 1px 4px rgba(0,0,0,0.8);
+}
+.slot.sen .slot-name { color: var(--on-primary); text-shadow: none; }
+.slot.sen .slot-meta { color: rgba(68,43,0,0.75); }
 .slot.sen::after {
   content: '⚜ SEN ⚜';
   position: absolute;
-  top: -2px; left: 50%;
-  transform: translateX(-50%) translateY(-50%);
+  top: 4%; left: 50%;
+  transform: translateX(-50%);
   background: linear-gradient(180deg, var(--primary), var(--primary-container));
   color: var(--on-primary);
   font-family: 'Cinzel', serif;
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 700;
-  letter-spacing: 0.15em;
-  padding: 2px 10px;
+  letter-spacing: 0.18em;
+  padding: 1px 8px;
   white-space: nowrap;
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.3),
-    0 0 12px rgba(243,189,111,0.7),
+    inset 0 1px 0 rgba(255,255,255,0.4),
+    0 0 12px rgba(243,189,111,0.9),
     0 2px 4px rgba(0,0,0,0.8);
   z-index: 4;
 }
@@ -822,9 +828,10 @@ body::before {
       kral adı, boşsa "Boş" yazar.
     </p>
     <p>
-      <strong>Arka plan</strong>: Bölgeye göre 4 varyasyon (Stitch Aydınlık Vadiler, Büyülü
-      Orman, Lav Diyarı, Obsidian Bataklığı). Üstteki "Bölge Seçici" ile test edebilirsin.
-      Sisli karartma overlay (üst/alt) ile slot okunabilirliği korunur.
+      <strong>Arka plan</strong>: Stitch'in 4 dünya haritası varyasyonu — <em>kutular zaten
+      görselde belirli</em>, ben üstüne grid çizgisi koymadım. Slot'lar tamamen şeffaf, sadece
+      ikon + isim kapsülü görünür. Stitch kutusunun üstüne oturur. Hover'da ikon büyür + altın
+      glow, isim kapsülü altın border alır.
     </p>
 
     <h3 style="margin-top:20px;">🗺️ Lejant</h3>
