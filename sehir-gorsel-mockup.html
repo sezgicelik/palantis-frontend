@@ -448,6 +448,351 @@
   }
   .v1-aciklama a:hover { border-bottom-style: solid; }
 
+  /* ════════════════════════════════════════════════════════════════
+     V1 — HOT ZONE OVERLAY SISTEMI (gercek gorsel + tiklanabilir bina)
+     ════════════════════════════════════════════════════════════════ */
+
+  /* HUD Şeridi (üst kaynak özet) */
+  .v1-hud {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1px;
+    background: var(--outline-variant);
+    border: 1px solid var(--outline-variant);
+    margin-bottom: var(--space-gutter);
+    box-shadow:
+      inset 0 1px 0 rgba(243,189,111,0.15),
+      0 0 30px rgba(0,0,0,0.6);
+  }
+  .hud-cell {
+    background: linear-gradient(180deg, var(--surface-container) 0%, var(--surface-container-low) 100%);
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .hud-icon {
+    font-size: 24px;
+    filter: drop-shadow(0 0 8px rgba(243,189,111,0.4));
+  }
+  .hud-label {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--on-surface-variant);
+    line-height: 1;
+  }
+  .hud-value {
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-top: 3px;
+  }
+
+  /* ─── Şehir görseli wrapper (gerçek görsel arka plan) ─── */
+  .v1-sehir-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1366 / 768;
+    background-image: url('img/events/noxara_sehir_bg.png');
+    background-size: cover;
+    background-position: center;
+    border: 1px solid var(--outline-variant);
+    box-shadow:
+      inset 0 0 60px rgba(0,0,0,0.5),
+      0 0 40px rgba(0,0,0,0.7);
+    overflow: hidden;
+    margin-bottom: var(--space-gutter);
+  }
+  /* Üst gradient karartma (HUD ile blend) */
+  .v1-sehir-wrap::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(180deg, rgba(14,14,14,0.6) 0%, transparent 12%, transparent 88%, rgba(14,14,14,0.85) 100%);
+    pointer-events: none;
+    z-index: 2;
+  }
+  /* Atmosferik fog */
+  .v1-sehir-wrap::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 30% 20%, rgba(243,189,111,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 30% at 70% 70%, rgba(212,162,87,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  /* Şehir başlık (üst-orta overlay) */
+  .v1-sehir-title {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    z-index: 10;
+    pointer-events: none;
+  }
+  .title-deco {
+    font-size: 22px;
+    color: var(--primary);
+    filter: drop-shadow(0 0 12px rgba(243,189,111,0.6));
+    margin-bottom: -2px;
+  }
+  .v1-sehir-title h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: 0.25em;
+    margin: 0;
+    text-shadow:
+      0 0 30px rgba(243,189,111,0.7),
+      0 0 60px rgba(243,189,111,0.4),
+      0 3px 6px #000;
+  }
+  .title-sub {
+    font-family: 'EB Garamond', serif;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--on-surface-variant);
+    text-shadow: 0 1px 4px #000;
+    margin-top: 4px;
+    letter-spacing: 0.05em;
+  }
+
+  /* ─── HOT ZONE ─── */
+  .hot-zone {
+    position: absolute;
+    z-index: 5;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .hot-zone.built {
+    /* Subtle golden outline on hover only */
+    background: transparent;
+  }
+  .hot-zone.built:hover {
+    background:
+      radial-gradient(ellipse at center, rgba(243,189,111,0.18) 0%, transparent 70%);
+    box-shadow: 0 0 0 1px rgba(243,189,111,0.4) inset, 0 0 30px rgba(243,189,111,0.25);
+  }
+
+  /* Hot zone pin (yapılmış binanın etiketi) */
+  .hz-pin {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(180deg, rgba(20,20,20,0.92) 0%, rgba(10,10,10,0.95) 100%);
+    border: 1px solid var(--outline-variant);
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    box-shadow:
+      inset 0 1px 0 rgba(243,189,111,0.2),
+      inset 0 -1px 0 rgba(0,0,0,0.6),
+      0 2px 8px rgba(0,0,0,0.6);
+    opacity: 0.85;
+    transition: all 0.2s;
+  }
+  .hot-zone.built:hover .hz-pin {
+    opacity: 1;
+    border-color: var(--primary);
+    box-shadow:
+      inset 0 1px 0 rgba(243,189,111,0.4),
+      inset 0 -1px 0 rgba(0,0,0,0.6),
+      0 0 20px rgba(243,189,111,0.4);
+    transform: translateX(-50%) translateY(-2px);
+  }
+  .hz-icon {
+    font-size: 16px;
+    filter: drop-shadow(0 0 4px rgba(243,189,111,0.5));
+  }
+  .hz-name {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: 0.12em;
+  }
+  .hz-sv {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--on-primary);
+    background: linear-gradient(180deg, var(--primary), var(--primary-container));
+    padding: 1px 5px;
+    letter-spacing: 0.08em;
+  }
+
+  /* Ana Kale — özel büyük etiket (üst-orta) */
+  .kale-label {
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(180deg, rgba(20,20,20,0.95) 0%, rgba(10,10,10,0.95) 100%);
+    border: 1px solid var(--primary);
+    padding: 6px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    box-shadow:
+      inset 0 1px 0 rgba(243,189,111,0.4),
+      0 0 24px rgba(243,189,111,0.5);
+  }
+  .kale-label .hz-icon { font-size: 20px; }
+  .kale-label .hz-name { font-size: 13px; letter-spacing: 0.2em; }
+  .kale-label .hz-sv { font-size: 11px; padding: 2px 7px; }
+
+  /* Boş arazi hot zone */
+  .hot-zone.empty {
+    background:
+      repeating-linear-gradient(45deg,
+        rgba(26,20,16,0.3) 0px,
+        rgba(26,20,16,0.3) 4px,
+        rgba(58,48,32,0.3) 4px,
+        rgba(58,48,32,0.3) 6px);
+    border: 1px dashed rgba(243,189,111,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hot-zone.empty:hover {
+    border-color: var(--primary);
+    border-style: solid;
+    background:
+      repeating-linear-gradient(45deg,
+        rgba(58,48,32,0.4) 0px,
+        rgba(58,48,32,0.4) 4px,
+        rgba(80,68,52,0.5) 4px,
+        rgba(80,68,52,0.5) 6px);
+    box-shadow: 0 0 25px rgba(243,189,111,0.4) inset, 0 0 20px rgba(243,189,111,0.3);
+  }
+  .hz-empty-pin {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    pointer-events: none;
+  }
+  .hz-plus {
+    font-family: 'Cinzel', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--primary);
+    line-height: 1;
+    text-shadow: 0 0 12px rgba(243,189,111,0.6);
+    transition: transform 0.3s;
+  }
+  .hot-zone.empty:hover .hz-plus {
+    transform: rotate(90deg) scale(1.15);
+  }
+  .hz-empty-name {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: 0.18em;
+    text-shadow: 0 1px 3px #000;
+  }
+
+  /* Tooltip — parchment style (gercek hot zone) */
+  .hot-zone[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: -36px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(180deg, var(--parchment) 0%, #e0d8c0 100%);
+    color: var(--leather);
+    padding: 6px 14px;
+    font-family: 'EB Garamond', serif;
+    font-size: 12px;
+    font-style: italic;
+    white-space: nowrap;
+    border: 1px solid var(--outline);
+    box-shadow:
+      0 0 25px rgba(243,189,111,0.4),
+      0 4px 12px rgba(0,0,0,0.8);
+    z-index: 100;
+    pointer-events: none;
+  }
+
+  /* Alt Aksiyon Bandı (Weathered Stone butonlar) */
+  .v1-action-bar {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: var(--space-artifact);
+  }
+  .v1-btn {
+    background:
+      linear-gradient(180deg,
+        var(--surface-container-high) 0%,
+        var(--surface-container) 50%,
+        var(--surface-container-low) 100%);
+    color: var(--primary);
+    border: 1px solid var(--outline-variant);
+    padding: 12px 16px;
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow:
+      inset 0 1px 0 rgba(243,189,111,0.2),
+      inset 0 -2px 0 rgba(0,0,0,0.6),
+      0 0 0 1px var(--void);
+  }
+  .v1-btn:hover {
+    background:
+      linear-gradient(180deg,
+        var(--surface-container-highest) 0%,
+        var(--surface-container-high) 50%,
+        var(--surface-container) 100%);
+    text-shadow: 0 0 10px rgba(243,189,111,0.7);
+    box-shadow:
+      inset 0 1px 0 rgba(243,189,111,0.4),
+      inset 0 -2px 0 rgba(0,0,0,0.6),
+      0 0 0 1px var(--primary),
+      0 0 20px rgba(243,189,111,0.3);
+  }
+  .v1-btn.primary {
+    border-color: var(--primary);
+    background:
+      linear-gradient(180deg,
+        var(--primary-container) 0%,
+        var(--primary) 30%,
+        var(--inverse-primary, #7e5711) 100%);
+    color: var(--on-primary);
+    text-shadow: none;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.3),
+      inset 0 -2px 0 rgba(0,0,0,0.3),
+      0 0 20px rgba(243,189,111,0.4);
+  }
+  .v1-btn.primary:hover {
+    filter: brightness(1.12);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.4),
+      inset 0 -2px 0 rgba(0,0,0,0.3),
+      0 0 30px rgba(243,189,111,0.6);
+  }
+
   /* Responsive */
   @media (max-width: 720px) {
     .v1-title { font-size: 28px; }
@@ -458,6 +803,11 @@
       gap: 12px;
     }
     .v1-info-block.right { text-align: left; align-items: flex-start; }
+    .v1-hud { grid-template-columns: repeat(3, 1fr); }
+    .v1-action-bar { grid-template-columns: repeat(2, 1fr); }
+    .v1-sehir-title h1 { font-size: 24px; letter-spacing: 0.15em; }
+    .hz-name { font-size: 8px; }
+    .hz-icon { font-size: 13px; }
   }
   body {
     margin: 0;
@@ -863,8 +1213,9 @@
 
 <!-- ═══════════════════════════════════════════════════
      V1 — OBSIDIAN & GOLD ARTIFACT SYSTEM (Stitch)
-     Skeuomorphic dark fantasy + Diorama mantığı:
-     yapılmış binalar görsel, yapılmamışlar boş arazi
+     GERCEK GORSEL ARKAPLAN + Hot Zone Overlay
+     Stitch'in urettigi epik sehir gorseli kullaniliyor.
+     Binalar bu gorselin uzerine tiklanabilir bolgeler.
      ═══════════════════════════════════════════════════ -->
 <div id="view-v1" class="v1-app">
 
@@ -878,126 +1229,194 @@
 
   <div class="v1-container">
 
-    <!-- ─── Başlık ─── -->
-    <div class="v1-header">
-      <h1 class="v1-title">⚜ Norfall ⚜</h1>
-      <p class="v1-subtitle">"Karanlık çağda altın ışıyor — şehrin yükseliyor."</p>
+    <!-- ─── Üst HUD Şeridi (kaynak özet) ─── -->
+    <div class="v1-hud">
+      <div class="hud-cell">
+        <span class="hud-icon">👑</span>
+        <div class="hud-text">
+          <div class="hud-label">Kral</div>
+          <div class="hud-value">Sezgi · Çağ V</div>
+        </div>
+      </div>
+      <div class="hud-cell">
+        <span class="hud-icon">💰</span>
+        <div class="hud-text">
+          <div class="hud-label">Altın</div>
+          <div class="hud-value">2.4M</div>
+        </div>
+      </div>
+      <div class="hud-cell">
+        <span class="hud-icon">🌳</span>
+        <div class="hud-text">
+          <div class="hud-label">Odun</div>
+          <div class="hud-value">850K</div>
+        </div>
+      </div>
+      <div class="hud-cell">
+        <span class="hud-icon">⛓</span>
+        <div class="hud-text">
+          <div class="hud-label">Metal</div>
+          <div class="hud-value">420K</div>
+        </div>
+      </div>
+      <div class="hud-cell">
+        <span class="hud-icon">😊</span>
+        <div class="hud-text">
+          <div class="hud-label">Mutluluk</div>
+          <div class="hud-value">6653</div>
+        </div>
+      </div>
+      <div class="hud-cell">
+        <span class="hud-icon">📐</span>
+        <div class="hud-text">
+          <div class="hud-label">Alan</div>
+          <div class="hud-value">7858/9973</div>
+        </div>
+      </div>
     </div>
 
-    <!-- ─── Şehir Bilgi Bandı ─── -->
-    <div class="v1-info-bar">
-      <div class="v1-info-block">
-        <span class="v1-info-label">Kral</span>
-        <span class="v1-info-value">Sezgi</span>
+    <!-- ─── ŞEHİR GÖRSELİ + HOT ZONE'lar ─── -->
+    <div class="v1-sehir-wrap">
+
+      <!-- Görsel başlık üst-orta -->
+      <div class="v1-sehir-title">
+        <div class="title-deco">⚜</div>
+        <h1>NORFALL</h1>
+        <div class="title-sub">"Karanlık çağda altın ışıyor."</div>
       </div>
-      <div class="v1-info-block center">
-        <span class="v1-info-label">Şehir Puanı</span>
-        <span class="v1-info-value">10.316</span>
+
+      <!-- ═══ Hot Zone'lar (gorseldeki binalara denk gelen tiklanabilir bolgeler) ═══ -->
+
+      <!-- ANA KALE — merkez, gotik kara kule -->
+      <div class="hot-zone built kale" style="top:8%; left:42%; width:18%; height:55%;"
+           data-tooltip="Ana Kale — Şehrin kalbi · SV 30 · ⏳ 20:17:25">
+        <div class="hz-label kale-label">
+          <span class="hz-icon">🏰</span>
+          <span class="hz-name">ANA KALE</span>
+          <span class="hz-sv">SV 30</span>
+        </div>
       </div>
-      <div class="v1-info-block right">
-        <span class="v1-info-label">Çağ</span>
-        <span class="v1-info-value">V — Yıldız</span>
+
+      <!-- DENİZ FENERİ — sol -->
+      <div class="hot-zone built" style="top:25%; left:7%; width:8%; height:25%;"
+           data-tooltip="Deniz Feneri — Liman koruması · SV 5">
+        <div class="hz-pin">
+          <span class="hz-icon">🗼</span>
+          <span class="hz-name">FENER</span>
+          <span class="hz-sv">SV 5</span>
+        </div>
       </div>
+
+      <!-- BÜYÜK ÇİFTLİK / TARLA — sağ alt -->
+      <div class="hot-zone built" style="bottom:5%; right:5%; width:18%; height:25%;"
+           data-tooltip="Tarla & Çiftlik — Buğday + besi · SV 15 · ⏳ 03:21:00">
+        <div class="hz-pin">
+          <span class="hz-icon">🌾</span>
+          <span class="hz-name">TARLA</span>
+          <span class="hz-sv">SV 15</span>
+        </div>
+      </div>
+
+      <!-- KASABA KAPISI / SAAT KULESİ — sağ üst -->
+      <div class="hot-zone built" style="top:25%; right:8%; width:10%; height:30%;"
+           data-tooltip="Şehir Kapısı + Saat Kulesi — Surlar · SV 12">
+        <div class="hz-pin">
+          <span class="hz-icon">🛡️</span>
+          <span class="hz-name">SURLAR</span>
+          <span class="hz-sv">SV 12</span>
+        </div>
+      </div>
+
+      <!-- KIŞLA / SOLDAKI YAPI — orta sol -->
+      <div class="hot-zone built" style="top:25%; left:22%; width:14%; height:25%;"
+           data-tooltip="Kışla — Asker eğitimi · SV 20">
+        <div class="hz-pin">
+          <span class="hz-icon">⚔️</span>
+          <span class="hz-name">KIŞLA</span>
+          <span class="hz-sv">SV 20</span>
+        </div>
+      </div>
+
+      <!-- EVLER / ŞEHİR MERKEZİ — alt orta -->
+      <div class="hot-zone built" style="bottom:18%; left:38%; width:24%; height:18%;"
+           data-tooltip="Evler — Nüfus 87,129 · 2010 Ev · 195 Köy · 12 Kasaba">
+        <div class="hz-pin">
+          <span class="hz-icon">🏘️</span>
+          <span class="hz-name">EVLER</span>
+          <span class="hz-sv">×2010</span>
+        </div>
+      </div>
+
+      <!-- KIYI EVLERİ — sol alt -->
+      <div class="hot-zone built" style="bottom:8%; left:3%; width:14%; height:20%;"
+           data-tooltip="Liman Hanı — Taverna · SV 8">
+        <div class="hz-pin">
+          <span class="hz-icon">🍺</span>
+          <span class="hz-name">TAVERNA</span>
+          <span class="hz-sv">SV 8</span>
+        </div>
+      </div>
+
+      <!-- BOS ARAZI — Ahir (kale arkasi sol bos alan) -->
+      <div class="hot-zone empty" style="top:55%; left:12%; width:10%; height:15%;"
+           data-tooltip="Boş Arazi — Ahır inşa et (at üretimi)">
+        <div class="hz-empty-pin">
+          <span class="hz-plus">+</span>
+          <span class="hz-empty-name">AHIR</span>
+        </div>
+      </div>
+
+      <!-- BOS ARAZI — Lonca (sag orta bos alan) -->
+      <div class="hot-zone empty" style="top:60%; right:22%; width:10%; height:15%;"
+           data-tooltip="Boş Arazi — Lonca inşa et (gizlilik üretimi)">
+        <div class="hz-empty-pin">
+          <span class="hz-plus">+</span>
+          <span class="hz-empty-name">LONCA</span>
+        </div>
+      </div>
+
+      <!-- BOS ARAZI — Mağara (sol orta) -->
+      <div class="hot-zone empty" style="top:42%; left:1%; width:6%; height:12%;"
+           data-tooltip="Boş Arazi — Mağara inşa et (ejderha şansı)">
+        <div class="hz-empty-pin">
+          <span class="hz-plus">+</span>
+          <span class="hz-empty-name">MAĞARA</span>
+        </div>
+      </div>
+
     </div>
 
-    <!-- ─── DIORAMA: 3×3 grid (8 bina + ortada meydan) ─── -->
-    <!-- Yapılmış olanlar = built (görsel)
-         Yapılmamış olanlar = empty (boş arazi, + ikon ile inşa daveti) -->
-    <div class="v1-diorama">
-
-      <!-- [1] Ana Kale -->
-      <div class="v1-slot built" data-tooltip="Ana Kale — şehrin kalbi">
-        <div class="v1-bina-icon">🏰</div>
-        <div class="v1-bina-isim">Ana Kale</div>
-        <div class="v1-bina-seviye">SV 30</div>
-        <div class="v1-bina-timer">⏳ 20:17:25</div>
-      </div>
-
-      <!-- [2] Surlar (yapılmış) -->
-      <div class="v1-slot built" data-tooltip="Surlar — savunma %30 bonus">
-        <div class="v1-bina-icon">🛡️</div>
-        <div class="v1-bina-isim">Surlar</div>
-        <div class="v1-bina-seviye">SV 12</div>
-      </div>
-
-      <!-- [3] Büyücü Kulesi -->
-      <div class="v1-slot built" data-tooltip="Büyücü Kulesi — 5 büyü açar">
-        <div class="v1-bina-icon">🔮</div>
-        <div class="v1-bina-isim">Büyücü Kulesi</div>
-        <div class="v1-bina-seviye">SV 5</div>
-      </div>
-
-      <!-- [4] Oduncu Kampı -->
-      <div class="v1-slot built" data-tooltip="Oduncu Kampı — 50 işçi kapasitesi">
-        <div class="v1-bina-icon">🌳</div>
-        <div class="v1-bina-isim">Oduncu Kampı</div>
-        <div class="v1-bina-seviye">SV 25</div>
-      </div>
-
-      <!-- [5] ORTADAKİ MEYDAN (özel görsel — küçük) -->
-      <div class="v1-slot built" data-tooltip="Şehir Meydanı — chat & toplantı yeri" style="background:radial-gradient(circle at 50% 40%, rgba(243,189,111,0.15) 0%, var(--surface-container-low) 50%, var(--surface-container-lowest) 100%);">
-        <div class="v1-bina-icon" style="font-size:42px;">⚜</div>
-        <div class="v1-bina-isim">Meydan</div>
-        <div class="v1-bina-seviye">SV 10</div>
-      </div>
-
-      <!-- [6] Mağara (ejderha) -->
-      <div class="v1-slot built" data-tooltip="Mağara — ejderha bulma şansı">
-        <div class="v1-bina-icon">🐲</div>
-        <div class="v1-bina-isim">Mağara</div>
-        <div class="v1-bina-seviye">SV 8</div>
-      </div>
-
-      <!-- [7] Tarla -->
-      <div class="v1-slot built" data-tooltip="Tarla — buğday üretimi">
-        <div class="v1-bina-icon">🌾</div>
-        <div class="v1-bina-isim">Tarla</div>
-        <div class="v1-bina-seviye">SV 15</div>
-        <div class="v1-bina-timer">⏳ 03:21:00</div>
-      </div>
-
-      <!-- [8] BOŞ — Ahır yapılmamış -->
-      <div class="v1-slot empty" data-tooltip="Boş Arazi — Ahır inşa et (at üretimi)">
-        <div class="empty-icon">+</div>
-        <div class="empty-label">Ahır<br>İnşa Et</div>
-      </div>
-
-      <!-- [9] BOŞ — Lonca yapılmamış -->
-      <div class="v1-slot empty" data-tooltip="Boş Arazi — Lonca inşa et (gizlilik üretimi)">
-        <div class="empty-icon">+</div>
-        <div class="empty-label">Lonca<br>İnşa Et</div>
-      </div>
-
+    <!-- ─── Alt Aksiyon Bandı ─── -->
+    <div class="v1-action-bar">
+      <button class="v1-btn"><span>🗺️</span> Harita</button>
+      <button class="v1-btn"><span>⚔️</span> Ordu</button>
+      <button class="v1-btn primary"><span>🏗️</span> İnşa Et</button>
+      <button class="v1-btn"><span>🔮</span> Büyüler</button>
+      <button class="v1-btn"><span>📜</span> Raporlar</button>
     </div>
 
-    <!-- ─── Tasarım Açıklama ─── -->
+    <!-- ─── Tasarım Notu ─── -->
     <div class="v1-aciklama">
-      <h3>🎨 Tasarım Felsefesi</h3>
+      <h3>🎨 Tasarım — Stitch Obsidian & Gold</h3>
       <p>
-        <strong>Obsidian & Gold Artifact System</strong> — Karanlık fantastik atmosferinde
-        <em>tactile/skeuomorphic</em> yaklaşım. UI bir ekran değil, gölgelerden gelen kadim
-        eserlerin koleksiyonu gibi hissedilir. Mum ışığında dokunulan ahşap, taş ve metal.
+        <strong>Şehir görseli:</strong> Stitch tarafından üretilen <em>noxara_sehir_bg.png</em>
+        (1.7MB, 1366×768). Dark fantasy gotik atmosfer — devasa kara taş kale, fenerli evler,
+        sis altındaki dağlar, deniz feneri, kasaba kapısı.
       </p>
       <p>
-        <strong>Diorama Mantığı:</strong> Her bina bir slot. <strong>Yapılmış</strong> olanlar
-        ikon + seviye + isim ile görünür (mum ışığı glow). <strong>Yapılmamış</strong> olanlar
-        toprak kaplı boş arazi (taranmış doku, kesik kenarlar) — hover ile altın çerçeve aktive
-        olur, "+" sembolü 90° döner.
+        <strong>Hot Zone Mantığı:</strong> Görsel arka planda sabit; üstüne yerleştirilmiş 10
+        tıklanabilir bölge. <strong>Yapılmış</strong> binalar altın çerçeve + isim/seviye etiketi.
+        <strong>Boş araziler</strong> kesik altın çizgi + "+" sembolü, hover'da glow.
       </p>
       <p>
-        <strong>Renk paleti:</strong> Obsidian void <strong>#131313</strong>,
-        Burnished Gold <strong>#f3bd6f</strong>, Parchment <strong>#f0e8d8</strong>.
-        Kırmızı sadece kritik (inşaat timer, savaş uyarısı) için. Cinzel header, EB Garamond
-        body. Köşeler keskin (border-radius: 0) — hand-cut taş duygusu.
-      </p>
-      <p>
-        <strong>Bina Üzerine Hover:</strong> Mana effect — sıcak amber glow, +2px hafif yukarı
-        yükselir (torch ışığı altında parlıyor hissi). Parchment tooltip ortaçağ mektubu gibi
-        kayar gelir.
+        <strong>Atmosfer:</strong> Ember parçacıkları yukarı süzülür (12sn döngü), HUD kenarları
+        filigree L-bracket'larla, alt aksiyon bandında "weathered stone" butonlar (1px highlight
+        bevel + 2px shadow bevel). Cinzel uppercase header'lar, parchment tooltip.
       </p>
       <p style="margin-top:18px;font-size:13px;color:var(--outline)">
-        🔥 <strong>Atmosfer detayları:</strong> Ember parçacıkları yukarı yükselir (12sn döngü),
-        radyal fog overlay (sabit pozisyon), kenar filigree köşelerde altın L-bracket'lar.
+        <strong>Sonraki adım:</strong> Hot zone koordinatları gerçek <em>buildings</em> DB'sine
+        bağlanır. Bina yapıldığında <code>built</code> class, yıkıldığında <code>empty</code>
+        class otomatik. Click → mevcut <code>city.html</code> bina modal'ı açılır.
       </p>
     </div>
 
