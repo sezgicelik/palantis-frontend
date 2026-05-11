@@ -271,6 +271,21 @@ body::before {
 .slot:hover .slot-icon { transform: scale(1.08); }
 .slot:hover .slot-bottom { background: rgba(20,16,10,0.95); border-color: var(--primary); }
 
+/* BOŞ slot — hiçbir şey gösterme, sadece koordinat etiketi hover'da */
+.slot.empty {
+  cursor: default;
+}
+.slot.empty .slot-coord {
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+.slot.empty:hover .slot-coord {
+  opacity: 0.7;
+}
+.slot.empty:hover {
+  filter: none;  /* glow yok */
+}
+
 /* ─── Slot içeriği — koord etiketi sol üst, ikon merkez, isim alt ─── */
 .slot-coord {
   position: absolute;
@@ -302,22 +317,27 @@ body::before {
     drop-shadow(0 0 6px rgba(0,0,0,0.6));
 }
 
-/* İsim etiketi — kapsül halinde slot ALTINDA (Stitch kutusu altına oturur) */
+/* İsim etiketi — minimal pill, opacity 0 (sadece hover'da görünür) */
 .slot-bottom {
   position: absolute;
-  bottom: 4%;
+  bottom: 2%;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(14,10,6,0.85);
-  border: 1px solid rgba(243,189,111,0.3);
+  background: rgba(14,10,6,0.92);
+  border: 1px solid rgba(243,189,111,0.4);
   padding: 2px 7px;
-  min-width: 60px;
+  min-width: 56px;
   max-width: 92%;
   text-align: center;
   transition: all 0.18s ease;
   z-index: 2;
   box-shadow: 0 1px 4px rgba(0,0,0,0.7);
+  opacity: 0;
+  pointer-events: none;
 }
+.slot:hover .slot-bottom { opacity: 1; }
+/* SEN için her zaman görünür */
+.slot.sen .slot-bottom { opacity: 1; }
 .slot-name {
   font-family: 'Cinzel', serif;
   font-size: 9.5px;
@@ -637,11 +657,8 @@ body::before {
       </div>
 
       <!-- ROW Y=23 -->
-      <div class="slot oyuncu iyi" data-tip="Pippin · Buçukluk · Aydınlık · 3.420 puan">
-        <div class="slot-coord">97:23</div>
-        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_bucukluk.png" alt="Buçukluk"></div>
-        <div class="slot-bottom"><div class="slot-name">Pippin</div><div class="slot-meta">Buçukluk</div></div>
-      </div>
+      <!-- 97:23 BOŞ — Stitch'in BG kutusu görünür kalır, ben overlay koymuyorum -->
+      <div class="slot empty"><div class="slot-coord">97:23</div></div>
       <div class="slot koloni" data-tip="Metal İşleme · %25 bonus · sahipsiz">
         <div class="slot-coord">98:23</div>
         <div class="slot-bonus">+25%</div>
@@ -658,11 +675,8 @@ body::before {
         <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_kara_elf.png" alt="Kara Elf"></div>
         <div class="slot-bottom"><div class="slot-name">Mor'Khazz</div><div class="slot-meta">Kara Elf</div></div>
       </div>
-      <div class="slot oyuncu kotu" data-tip="Krodan · Ogre · Karanlık · 4.890 puan">
-        <div class="slot-coord">101:23</div>
-        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_ogre.png" alt="Ogre"></div>
-        <div class="slot-bottom"><div class="slot-name">Krodan</div><div class="slot-meta">Ogre</div></div>
-      </div>
+      <!-- 101:23 BOŞ -->
+      <div class="slot empty"><div class="slot-coord">101:23</div></div>
       <div class="slot oyuncu iyi" data-tip="Cedric · İnsan · Aydınlık · 5.730 puan">
         <div class="slot-coord">102:23</div>
         <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_human.png" alt="İnsan"></div>
@@ -681,11 +695,8 @@ body::before {
         <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_human.png" alt="İnsan"></div>
         <div class="slot-bottom"><div class="slot-name">Beren</div><div class="slot-meta">İnsan</div></div>
       </div>
-      <div class="slot oyuncu kotu" data-tip="Tharak · Undead · Karanlık · 8.200 puan">
-        <div class="slot-coord">99:24</div>
-        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_undead.png" alt="Undead"></div>
-        <div class="slot-bottom"><div class="slot-name">Tharak</div><div class="slot-meta">Undead</div></div>
-      </div>
+      <!-- 99:24 BOŞ -->
+      <div class="slot empty"><div class="slot-coord">99:24</div></div>
       <div class="slot koloni" data-tip="Maden Kolonisi · %20 bonus · sahipli (Thorgrim)">
         <div class="slot-coord">100:24</div>
         <div class="slot-bonus">+20%</div>
@@ -731,11 +742,8 @@ body::before {
         <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_kara_elf.png" alt="Kara Elf"></div>
         <div class="slot-bottom"><div class="slot-name">Drogath</div><div class="slot-meta">Kara Elf</div></div>
       </div>
-      <div class="slot oyuncu kotu" data-tip="Korruk · Ogre · Karanlık · 3.910 puan">
-        <div class="slot-coord">102:25</div>
-        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_ogre.png" alt="Ogre"></div>
-        <div class="slot-bottom"><div class="slot-name">Korruk</div><div class="slot-meta">Ogre</div></div>
-      </div>
+      <!-- 102:25 BOŞ -->
+      <div class="slot empty"><div class="slot-coord">102:25</div></div>
 
       <!-- ROW Y=26 -->
       <div class="slot oyuncu kotu" data-tip="Nyssa · Undead · Karanlık · 7.150 puan">
@@ -799,11 +807,8 @@ body::before {
         <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/colony_maden.png" alt="Maden"></div>
         <div class="slot-bottom"><div class="slot-name">Maden</div><div class="slot-meta">Boş</div></div>
       </div>
-      <div class="slot oyuncu kotu" data-tip="Zhul'gar · Undead · Karanlık · 6.340 puan">
-        <div class="slot-coord">102:27</div>
-        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_undead.png" alt="Undead"></div>
-        <div class="slot-bottom"><div class="slot-name">Zhul'gar</div><div class="slot-meta">Undead</div></div>
-      </div>
+      <!-- 102:27 BOŞ -->
+      <div class="slot empty"><div class="slot-coord">102:27</div></div>
 
     </div>
   </div>
@@ -816,7 +821,9 @@ body::before {
       (<strong>⚜ SEN ⚜</strong> rozetı + altın pulsing border). Etrafında ±2-3 koordinat aralığı.
     </p>
     <p>
-      <strong>Slot içerikleri (her harita 36 tam dolu):</strong>
+      <strong>Slot içerikleri:</strong> Dolu olanlar (oyuncu/koloni) overlay ikon + hover'da
+      etiket gösterir. <strong>Boş koordinatlar</strong> (örn. 97:23, 99:24, 101:23, 102:25,
+      102:27) hiçbir şey çizmez — Stitch'in BG kutusu olduğu gibi görünür kalır.
     </p>
     <p>
       🏰 <strong>25 oyuncu krallığı</strong> — 8 ırktan birine uygun şehir ikonu. Aydınlık taraf
@@ -851,11 +858,38 @@ body::before {
       <div class="legend-item"><img class="legend-icon" src="img/map/colony_maden.png"><span class="legend-label">Maden Kolonisi</span></div>
     </div>
 
+    <h3 style="margin-top:24px;">📝 Stitch'e Yeniden Sipariş İçin Prompt</h3>
+    <p style="font-family:'Courier New',monospace;background:rgba(243,189,111,0.06);padding:12px;border-left:3px solid var(--primary);font-size:12px;line-height:1.5;color:var(--on-surface-variant);white-space:pre-wrap;">8 isometric fantasy city icons for a strategic map game.
+Races: Human, Elf, Dwarf, Halfling, Dark Elf, Orc, Ogre, Undead.
+
+CRITICAL REQUIREMENTS:
+- TRANSPARENT BACKGROUND (no card, no platform under building)
+- Just the city silhouette floating - nothing underneath
+- Same isometric angle (35°) and scale across all 8 icons
+- Dark fantasy gothic art, gold/torch ambient lighting
+- 512×512px per icon, PNG with alpha channel
+- Designed to OVERLAY on existing world map circular slots</p>
+
+    <p style="font-family:'Courier New',monospace;background:rgba(243,189,111,0.06);padding:12px;border-left:3px solid var(--primary);font-size:12px;line-height:1.5;color:var(--on-surface-variant);white-space:pre-wrap;margin-top:8px;">5 isometric fantasy resource colony icons:
+Gold Mine, Lumber Camp, Metal Smelter, Fishing Village, Ore Mine.
+
+CRITICAL REQUIREMENTS:
+- TRANSPARENT BACKGROUND (no card, no platform)
+- Just the building/structure silhouette - nothing underneath
+- Same isometric angle (35°) and scale as race city icons
+- Dark fantasy style, gold/torch lighting
+- 512×512px per icon, PNG with alpha channel
+- Designed to OVERLAY on map circular slots</p>
+
     <p style="margin-top:18px;font-size:13px;color:var(--outline)">
+      <strong>Şu anki ikonlar:</strong> Stitch'in ilk verdiği "kart formatlı" ikonlardan koyu
+      arka plan PIL ile temizlendi (~yarı transparent). Yine de tam temiz değil — Stitch'e
+      yukarıdaki prompt ile yeniden çiziminden temiz silüet alırsan ideal olur.
+    </p>
+    <p style="font-size:13px;color:var(--outline)">
       <strong>Sonraki adım:</strong> Bu mockup beğenildikten sonra <code>map.html</code> ile
-      entegrasyon — backend <code>/api/koloni/harita</code> ve <code>/api/player/bolgede</code>
-      endpoint'lerinden gerçek data → slot içerikleri otomatik dolacak. Click → mevcut profil/koloni
-      modalleri açılacak.
+      entegrasyon — <code>/api/koloni/harita</code> ve <code>/api/player/bolgede</code>
+      endpoint'lerinden gerçek data → slot içerikleri otomatik dolacak.
     </p>
   </div>
 
