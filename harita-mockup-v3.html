@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noxara — Harita v3 (Absolute Positioning, Sezgi İpucu)</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* Sezgi'nin Stitch İpucu:
+   "Haritayı 1376x768px bir kap (container) olarak düşün.
+    Binaları bu alan üzerinde % (yüzdelik) cinsinden koordinatlara göre
+    position: absolute ile yerleştir.
+    Binaların altına yumuşak bir gölge (drop-shadow) ekleyerek haritayla bütünleştir.
+    Yan menüleri kaldırarak odağı tamamen 36 noktalı stratejik haritaya ver." */
+
+:root {
+  --surface: #131313;
+  --surface-low: #1c1b1b;
+  --surface-cont: #201f1f;
+  --primary: #f3bd6f;
+  --primary-dark: #d4a257;
+  --on-primary: #442b00;
+  --outline: #9c8f7f;
+  --outline-variant: #4f4538;
+  --iyi: #5fa8e3;
+  --kotu: #e35f5f;
+  --parchment: #f0e8d8;
+  --leather: #1a1410;
+  --error: #ffb4ab;
+  --error-container: #93000a;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #0a0a0a;
+  color: #e5e2e1;
+  font-family: 'EB Garamond', Georgia, serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Ember atmospheric particles */
+@keyframes emberRise {
+  0% { transform: translateY(0); opacity: 0; }
+  10% { opacity: 0.7; }
+  100% { transform: translateY(-100vh) translateX(40px); opacity: 0; }
+}
+.ember {
+  position: fixed;
+  bottom: -10px;
+  width: 3px; height: 3px;
+  background: var(--primary);
+  box-shadow: 0 0 6px var(--primary);
+  filter: blur(0.5px);
+  animation: emberRise 14s infinite linear;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* ─── Minimal Üst Başlık (TEK SATIR, yan menü yok) ─── */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 28px;
+  background: linear-gradient(180deg, rgba(20,20,20,0.95) 0%, rgba(10,10,10,0.85) 100%);
+  border-bottom: 1px solid var(--outline-variant);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.tb-title {
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--primary);
+  text-transform: uppercase;
+  text-shadow: 0 0 20px rgba(243,189,111,0.4);
+}
+.tb-info {
+  display: flex;
+  gap: 24px;
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--outline);
+}
+.tb-info span b { color: var(--primary); }
+.tb-actions { display: flex; gap: 6px; }
+.tb-btn {
+  background: linear-gradient(180deg, rgba(40,40,40,0.8), rgba(20,20,20,0.8));
+  color: var(--primary);
+  border: 1px solid var(--outline-variant);
+  padding: 6px 12px;
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.tb-btn:hover {
+  border-color: var(--primary);
+  text-shadow: 0 0 10px rgba(243,189,111,0.6);
+}
+
+/* ─── HARİTA KABI: 1376×768 (Sezgi'nin önerdiği oran) ─── */
+.map-container {
+  max-width: 1376px;
+  margin: 20px auto;
+  position: relative;
+  aspect-ratio: 1376 / 768;
+  background-image: url('img/map/world_bg_v3.png');
+  background-size: cover;
+  background-position: center;
+  border: 1px solid var(--outline-variant);
+  box-shadow:
+    inset 0 0 80px rgba(0,0,0,0.6),
+    0 8px 40px rgba(0,0,0,0.8);
+  overflow: visible;
+}
+
+/* BG'nin orijinal slot çizimlerini gizle/karart — kendi düzgün 6×6 grid'imi koyuyorum */
+.map-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(10,10,10,0.55) 0%, rgba(10,10,10,0.4) 50%, rgba(10,10,10,0.7) 100%),
+    radial-gradient(ellipse at center, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 80%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ─── 36 MARKER — POSITION: ABSOLUTE (% bazlı) ─── */
+/* Sezgi: position: absolute ile (%, px) konumla */
+/* 6×6 grid eşit dağıtım:
+   X: 7%, 22.6%, 38.2%, 53.8%, 69.4%, 85% (her sütun %15.6 fark)
+   Y: 8%, 22%, 36%, 50%, 64%, 78% (her satır %14 fark) */
+.map-marker {
+  position: absolute;
+  width: 12.5%;
+  aspect-ratio: 1.0;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  z-index: 5;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  transition: filter 0.2s ease;
+}
+
+/* Yuvarlak slot tabanı — BG'den bağımsız, BG karartmasının üstünde */
+.map-marker::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 85%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -45%);
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at center,
+      rgba(243,189,111,0.12) 0%,
+      rgba(20,15,10,0.4) 50%,
+      rgba(10,8,5,0.2) 80%,
+      transparent 100%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Marker tipine göre alt taban */
+.map-marker.oyuncu.iyi::before { background: radial-gradient(ellipse at center, rgba(95,168,227,0.15) 0%, rgba(20,15,10,0.4) 50%, transparent 100%); }
+.map-marker.oyuncu.kotu::before { background: radial-gradient(ellipse at center, rgba(227,95,95,0.15) 0%, rgba(20,15,10,0.4) 50%, transparent 100%); }
+.map-marker.koloni::before { background: radial-gradient(ellipse at center, rgba(243,189,111,0.22) 0%, rgba(30,20,10,0.5) 50%, transparent 100%); width: 95%; }
+
+/* ─── İkon ─── */
+.marker-icon {
+  width: 120%;
+  transform: translateY(-10%);
+  filter:
+    drop-shadow(0 12px 14px rgba(0,0,0,0.85))
+    drop-shadow(0 0 8px rgba(0,0,0,0.5));
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+.map-marker:hover .marker-icon {
+  transform: translateY(-18%) scale(1.08);
+  filter:
+    drop-shadow(0 18px 16px rgba(0,0,0,0.85))
+    drop-shadow(0 0 18px rgba(243,189,111,0.7));
+}
+
+/* ─── Koord etiketi (hover'da fade in) ─── */
+.marker-coord {
+  position: absolute;
+  top: 6%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: rgba(243,189,111,0.9);
+  text-shadow: 0 0 6px #000, 0 1px 2px #000;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.map-marker:hover .marker-coord { opacity: 1; }
+
+/* ─── İsim etiketi (hover'da slide up) ─── */
+.marker-label {
+  position: absolute;
+  bottom: -2%;
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  background: linear-gradient(180deg, rgba(20,15,10,0.97) 0%, rgba(10,8,5,0.97) 100%);
+  border: 1px solid rgba(243,189,111,0.5);
+  padding: 4px 10px;
+  min-width: 60px;
+  white-space: nowrap;
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--primary);
+  text-shadow: 0 1px 2px #000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.8), 0 0 0 1px rgba(0,0,0,0.5);
+  opacity: 0;
+  transition: all 0.22s ease;
+  z-index: 4;
+  pointer-events: none;
+}
+.map-marker:hover .marker-label {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.map-marker.oyuncu.iyi .marker-label { border-color: rgba(95,168,227,0.6); color: #a8d4f0; }
+.map-marker.oyuncu.kotu .marker-label { border-color: rgba(227,95,95,0.6); color: #f0a8a8; }
+.map-marker.koloni .marker-label { border-color: var(--primary); color: var(--primary); }
+
+/* Koloni bonus % rozetı */
+.marker-bonus {
+  position: absolute;
+  top: 10%;
+  right: 10%;
+  background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+  color: var(--on-primary);
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 1px 5px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.3),
+    0 0 8px rgba(243,189,111,0.5),
+    0 2px 4px rgba(0,0,0,0.7);
+  z-index: 3;
+  opacity: 0;
+  transform: scale(0.7);
+  transition: all 0.22s ease;
+}
+.map-marker:hover .marker-bonus {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ─── SEN — özel ─── */
+.map-marker.sen {
+  z-index: 10;
+}
+.map-marker.sen::before {
+  background: radial-gradient(ellipse at center, rgba(243,189,111,0.4) 0%, rgba(60,40,15,0.6) 40%, transparent 100%);
+  width: 105%;
+  animation: senPulse 2.5s ease-in-out infinite;
+}
+@keyframes senPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(243,189,111,0); }
+  50% { box-shadow: 0 0 40px 10px rgba(243,189,111,0.3); }
+}
+.map-marker.sen .marker-icon {
+  filter:
+    drop-shadow(0 12px 14px rgba(0,0,0,0.85))
+    drop-shadow(0 0 18px rgba(243,189,111,0.8));
+}
+.map-marker.sen .marker-label {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+  color: var(--on-primary);
+  border-color: var(--on-primary);
+  box-shadow: 0 0 18px rgba(243,189,111,0.7), 0 4px 12px rgba(0,0,0,0.8);
+}
+.map-marker.sen .marker-coord { opacity: 1; }
+
+/* ─── ALT BAR (HUD özet, minimal) ─── */
+.bottom-info {
+  max-width: 1376px;
+  margin: 12px auto;
+  padding: 10px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  color: var(--outline);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.bottom-info span b { color: var(--primary); margin-left: 6px; }
+
+/* ─── Açıklama (alt) ─── */
+.aciklama {
+  max-width: 1376px;
+  margin: 24px auto;
+  padding: 18px 24px;
+  background: linear-gradient(180deg, var(--surface-cont), var(--surface-low));
+  border: 1px solid var(--outline-variant);
+  position: relative;
+}
+.aciklama::before, .aciklama::after {
+  content: '';
+  position: absolute;
+  width: 10px; height: 10px;
+  border: 2px solid var(--primary);
+}
+.aciklama::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+.aciklama::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+.aciklama h3 {
+  font-family: 'Cinzel', serif;
+  color: var(--primary);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+.aciklama p {
+  font-family: 'EB Garamond', serif;
+  line-height: 1.6;
+  color: #b8b0a0;
+  margin: 0 0 8px;
+  font-size: 13px;
+}
+.aciklama strong { color: var(--primary); }
+.aciklama code {
+  background: rgba(243,189,111,0.1);
+  color: var(--primary);
+  padding: 1px 6px;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+@media (max-width: 900px) {
+  .topbar { flex-direction: column; gap: 8px; padding: 10px 14px; text-align: center; }
+  .tb-info { font-size: 10px; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .marker-label { font-size: 8px; }
+  .marker-coord { font-size: 8px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Ember particles -->
+<div class="ember" style="left:8%; animation-delay:0s;"></div>
+<div class="ember" style="left:22%; animation-delay:3s;"></div>
+<div class="ember" style="left:40%; animation-delay:6s;"></div>
+<div class="ember" style="left:58%; animation-delay:1.5s;"></div>
+<div class="ember" style="left:76%; animation-delay:9s;"></div>
+<div class="ember" style="left:92%; animation-delay:4.5s;"></div>
+
+<!-- ─── ÜST TEK ÇIZGI BAR (yan menü YOK, tüm odak haritada) ─── -->
+<div class="topbar">
+  <div class="tb-title">⚜ Noxara Dünyası ⚜</div>
+  <div class="tb-info">
+    <span>Koord <b>100 : 25</b></span>
+    <span>Bölge <b>Sisli Vadiler</b></span>
+    <span>Krallık <b>25</b></span>
+    <span>Koloni <b>11</b></span>
+  </div>
+  <div class="tb-actions">
+    <button class="tb-btn">⬅</button>
+    <button class="tb-btn">⌖ Şehrim</button>
+    <button class="tb-btn">➡</button>
+  </div>
+</div>
+
+<!-- ═══ HARITA (Sezgi'nin ipucu: 1376×768 container, absolute marker'lar) ═══ -->
+<div class="map-container">
+
+  <!-- 36 marker — 6×6 grid eşit dağıtım (%) -->
+  <!-- X: 7% / 22.6% / 38.2% / 53.8% / 69.4% / 85% -->
+  <!-- Y: 12% / 26% / 40% / 54% / 68% / 82% -->
+
+  <!-- ─── ROW 1 (Y=12%, koord Y=22) ─── -->
+  <div class="map-marker oyuncu iyi" style="left:7%; top:12%;">
+    <div class="marker-coord">97:22</div>
+    <img class="marker-icon" src="img/map/race_human.png" alt="">
+    <div class="marker-label">Ulrich</div>
+  </div>
+  <div class="map-marker oyuncu iyi" style="left:22.6%; top:12%;">
+    <div class="marker-coord">98:22</div>
+    <img class="marker-icon" src="img/map/race_elf.png" alt="">
+    <div class="marker-label">Lyra</div>
+  </div>
+  <div class="map-marker koloni" style="left:38.2%; top:12%;">
+    <div class="marker-coord">99:22</div>
+    <div class="marker-bonus">+22%</div>
+    <img class="marker-icon" src="img/map/colony_altin.png" alt="">
+    <div class="marker-label">Altın · Boş</div>
+  </div>
+  <div class="map-marker oyuncu iyi" style="left:53.8%; top:12%;">
+    <div class="marker-coord">100:22</div>
+    <img class="marker-icon" src="img/map/race_cuce.png" alt="">
+    <div class="marker-label">Thorgrim</div>
+  </div>
+  <div class="map-marker oyuncu kotu" style="left:69.4%; top:12%;">
+    <div class="marker-coord">101:22</div>
+    <img class="marker-icon" src="img/map/race_ork.png" alt="">
+    <div class="marker-label">Vorgath</div>
+  </div>
+  <div class="map-marker koloni" style="left:85%; top:12%;">
+    <div class="marker-coord">102:22</div>
+    <div class="marker-bonus">+18%</div>
+    <img class="marker-icon" src="img/map/colony_kereste.png" alt="">
+    <div class="marker-label">Kereste · Pippin</div>
+  </div>
+
+  <!-- ─── ROW 2 (Y=26%, koord Y=23) ─── -->
+  <!-- 97:23 BOŞ -->
+  <div class="map-marker koloni" style="left:22.6%; top:26%;">
+    <div class="marker-coord">98:23</div>
+    <div class="marker-bonus">+25%</div>
+    <img class="marker-icon" src="img/map/colony_metal.png" alt="">
+    <div class="marker-label">Metal · Boş</div>
+  </div>
+  <div class="map-marker oyuncu iyi" style="left:38.2%; top:26%;">
+    <div class="marker-coord">99:23</div>
+    <img class="marker-icon" src="img/map/race_elf.png" alt="">
+    <div class="marker-label">Aelarion</div>
+  </div>
+  <div class="map-marker oyuncu kotu" style="left:53.8%; top:26%;">
+    <div class="marker-coord">100:23</div>
+    <img class="marker-icon" src="img/map/race_kara_elf.png" alt="">
+    <div class="marker-label">Mor'Khazz</div>
+  </div>
+  <!-- 101:23 BOŞ -->
+  <div class="map-marker oyuncu iyi" style="left:85%; top:26%;">
+    <div class="marker-coord">102:23</div>
+    <img class="marker-icon" src="img/map/race_human.png" alt="">
+    <div class="marker-label">Cedric</div>
+  </div>
+
+  <!-- ─── ROW 3 (Y=40%, koord Y=24) ─── -->
+  <div class="map-marker koloni" style="left:7%; top:40%;">
+    <div class="marker-coord">97:24</div>
+    <div class="marker-bonus">+15%</div>
+    <img class="marker-icon" src="img/map/colony_koy.png" alt="">
+    <div class="marker-label">Buğday · Boş</div>
+  </div>
+  <div class="map-marker oyuncu iyi" style="left:22.6%; top:40%;">
+    <div class="marker-coord">98:24</div>
+    <img class="marker-icon" src="img/map/race_human.png" alt="">
+    <div class="marker-label">Beren</div>
+  </div>
+  <!-- 99:24 BOŞ -->
+  <div class="map-marker koloni" style="left:53.8%; top:40%;">
+    <div class="marker-coord">100:24</div>
+    <div class="marker-bonus">+20%</div>
+    <img class="marker-icon" src="img/map/colony_maden.png" alt="">
+    <div class="marker-label">Maden · Thorgrim</div>
+  </div>
+  <div class="map-marker oyuncu iyi" style="left:69.4%; top:40%;">
+    <div class="marker-coord">101:24</div>
+    <img class="marker-icon" src="img/map/race_elf.png" alt="">
+    <div class="marker-label">Galadriel</div>
+  </div>
+  <div class="map-marker oyuncu kotu" style="left:85%; top:40%;">
+    <div class="marker-coord">102:24</div>
+    <img class="marker-icon" src="img/map/race_ork.png" alt="">
+    <div class="marker-label">Skarn</div>
+  </div>
+
+  <!-- ─── ROW 4 (Y=54%, koord Y=25 — SEN burada) ─── -->
+  <div class="map-marker oyuncu iyi" style="left:7%; top:54%;">
+    <div class="marker-coord">97:25</div>
+    <img class="marker-icon" src="img/map/race_cuce.png" alt="">
+    <div class="marker-label">Borin</div>
+  </div>
+  <div class="map-marker oyuncu iyi" style="left:22.6%; top:54%;">
+    <div class="marker-coord">98:25</div>
+    <img class="marker-icon" src="img/map/race_bucukluk.png" alt="">
+    <div class="marker-label">Faelar</div>
+  </div>
+  <div class="map-marker koloni" style="left:38.2%; top:54%;">
+    <div class="marker-coord">99:25</div>
+    <div class="marker-bonus">+25%</div>
+    <img class="marker-icon" src="img/map/colony_altin.png" alt="">
+    <div class="marker-label">Altın · SEN</div>
+  </div>
+  <!-- SEN -->
+  <div class="map-marker oyuncu iyi sen" style="left:53.8%; top:54%;">
+    <div class="marker-coord">100:25</div>
+    <img class="marker-icon" src="img/map/race_elf.png" alt="">
+    <div class="marker-label">⚜ SEZGI ⚜</div>
+  </div>
+  <div class="map-marker oyuncu kotu" style="left:69.4%; top:54%;">
+    <div class="marker-coord">101:25</div>
+    <img class="marker-icon" src="img/map/race_kara_elf.png" alt="">
+    <div class="marker-label">Drogath</div>
+  </div>
+  <!-- 102:25 BOŞ -->
+
+  <!-- ─── ROW 5 (Y=68%, koord Y=26) ─── -->
+  <div class="map-marker oyuncu kotu" style="left:7%; top:68%;">
+    <div class="marker-coord">97:26</div>
+    <img class="marker-icon" src="img/map/race_undead.png" alt="">
+    <div class="marker-label">Nyssa</div>
+  </div>
+  <div class="map-marker koloni" style="left:22.6%; top:68%;">
+    <div class="marker-coord">98:26</div>
+    <div class="marker-bonus">+20%</div>
+    <img class="marker-icon" src="img/map/colony_kereste.png" alt="">
+    <div class="marker-label">Kereste · Boş</div>
+  </div>
+  <div class="map-marker oyuncu iyi" style="left:38.2%; top:68%;">
+    <div class="marker-coord">99:26</div>
+    <img class="marker-icon" src="img/map/race_human.png" alt="">
+    <div class="marker-label">Eowyn</div>
+  </div>
+  <div class="map-marker oyuncu iyi" style="left:53.8%; top:68%;">
+    <div class="marker-coord">100:26</div>
+    <img class="marker-icon" src="img/map/race_elf.png" alt="">
+    <div class="marker-label">Daerion</div>
+  </div>
+  <div class="map-marker koloni" style="left:69.4%; top:68%;">
+    <div class="marker-coord">101:26</div>
+    <div class="marker-bonus">+19%</div>
+    <img class="marker-icon" src="img/map/colony_metal.png" alt="">
+    <div class="marker-label">Metal · Vorgath</div>
+  </div>
+  <div class="map-marker oyuncu kotu" style="left:85%; top:68%;">
+    <div class="marker-coord">102:26</div>
+    <img class="marker-icon" src="img/map/race_kara_elf.png" alt="">
+    <div class="marker-label">Bal'thorn</div>
+  </div>
+
+  <!-- ─── ROW 6 (Y=82%, koord Y=27) ─── -->
+  <div class="map-marker oyuncu iyi" style="left:7%; top:82%;">
+    <div class="marker-coord">97:27</div>
+    <img class="marker-icon" src="img/map/race_cuce.png" alt="">
+    <div class="marker-label">Hardrin</div>
+  </div>
+  <div class="map-marker oyuncu kotu" style="left:22.6%; top:82%;">
+    <div class="marker-coord">98:27</div>
+    <img class="marker-icon" src="img/map/race_ork.png" alt="">
+    <div class="marker-label">Grommash</div>
+  </div>
+  <div class="map-marker koloni" style="left:38.2%; top:82%;">
+    <div class="marker-coord">99:27</div>
+    <div class="marker-bonus">+16%</div>
+    <img class="marker-icon" src="img/map/colony_koy.png" alt="">
+    <div class="marker-label">Balık · Boş</div>
+  </div>
+  <div class="map-marker oyuncu iyi" style="left:53.8%; top:82%;">
+    <div class="marker-coord">100:27</div>
+    <img class="marker-icon" src="img/map/race_bucukluk.png" alt="">
+    <div class="marker-label">Mira</div>
+  </div>
+  <div class="map-marker koloni" style="left:69.4%; top:82%;">
+    <div class="marker-coord">101:27</div>
+    <div class="marker-bonus">+23%</div>
+    <img class="marker-icon" src="img/map/colony_maden.png" alt="">
+    <div class="marker-label">Maden · Boş</div>
+  </div>
+  <!-- 102:27 BOŞ -->
+
+</div>
+
+<!-- Alt bilgi şeridi -->
+<div class="bottom-info">
+  <span>SAYFA <b>X 97-102</b></span>
+  <span>·</span>
+  <span>SATIR <b>Y 22-27</b></span>
+  <span>·</span>
+  <span>BOŞ KOORD <b>5</b></span>
+  <span>·</span>
+  <span>DOLU SLOT <b>31</b></span>
+</div>
+
+<!-- ─── Açıklama ─── -->
+<div class="aciklama">
+  <h3>🎨 Harita V3 — Absolute Positioning (Sezgi İpucu)</h3>
+  <p>
+    <strong>Sezgi'nin Stitch ipucu birebir uygulandı:</strong> Harita 1376×768 kap, her marker
+    <code>position: absolute</code> ile <code>%</code> bazlı koordinata yerleşti. CSS Grid YOK.
+    36 nokta eşit dağıtım: X = 7/22.6/38.2/53.8/69.4/85 %, Y = 12/26/40/54/68/82 %.
+  </p>
+  <p>
+    <strong>Marker tekniği</strong>: ikon <code>width:120%</code> (yuvarlağın dışına %20 taşar),
+    <code>translateY(-10%)</code> perspektif düzeltir, <code>drop-shadow(0 12px 14px)</code> ile
+    haritaya bütünleşir — Stitch <code>yerle_im_rehberi.md</code> talimatları.
+  </p>
+  <p>
+    <strong>Temiz arayüz</strong>: yan menüler kaldırıldı, üstte tek satır TopBar + altta minimal
+    bilgi şeridi. Tüm odak <strong>36 noktalı stratejik haritada</strong>. BG karartma overlay'i
+    ile Stitch'in orijinal slot çizimleri arkada zayıfça gözükür (atmosfer), benim 6×6 düzgün
+    grid'im önde.
+  </p>
+  <p>
+    <strong>Boş koordinatlar (5 adet)</strong>: 97:23, 99:24, 101:23, 102:25, 102:27 — hiçbir
+    marker yok, sadece BG manzarası görünür.
+  </p>
+  <p>
+    <strong>Hover'da:</strong> ikon büyür + yukarı kalkar (translateY -18% + scale 1.08), koordinat
+    fade in, isim etiketi slide up, koloni'lerde altın <strong>+%bonus</strong> rozetı ortaya
+    çıkar.
+  </p>
+  <p style="margin-top:14px;font-size:12px;color:#888">
+    <strong>Karşılaştır:</strong>
+    <a href="harita-mockup-v2.html" style="color:var(--primary)">v2 (CSS Grid)</a> · v3 (mevcut) ·
+    <a href="sehir-gorsel-mockup.html" style="color:var(--primary)">Şehir mockup</a>
+  </p>
+</div>
+
+</body>
+</html>
