@@ -216,25 +216,25 @@ body::before {
   border-color: var(--primary);
 }
 
-/* ═══ HARITA — Stitch'in kutuları zaten BG'de var ═══ */
+/* ═══ HARITA — Stitch v3 BG (gerçek 6x6 strategic map) ═══ */
 .harita-wrap {
   position: relative;
-  aspect-ratio: 1376 / 768;
-  background-image: url('img/map/world_bg_1.png');
-  background-size: 100% 100%;  /* tam doldur — bozulma yok */
+  aspect-ratio: 1360 / 754;
+  background-image: url('img/map/world_bg_v3.png');
+  background-size: 100% 100%;
   background-position: center;
   border: 1px solid var(--outline-variant);
   box-shadow:
-    inset 0 0 60px rgba(0,0,0,0.5),
+    inset 0 0 60px rgba(0,0,0,0.4),
     0 0 50px rgba(0,0,0,0.6);
   overflow: visible;
-  padding: 0;  /* slot padding YOK — BG kutusu direkt görünür */
+  padding: 0;
 }
 
-.harita-wrap.region-iyi      { background-image: url('img/map/world_bg_1.png'); }
-.harita-wrap.region-buyulu   { background-image: url('img/map/world_bg_3.png'); }
-.harita-wrap.region-kotu     { background-image: url('img/map/world_bg_2.png'); }
-.harita-wrap.region-bataklik { background-image: url('img/map/world_bg_4.png'); }
+.harita-wrap.region-iyi      { background-image: url('img/map/world_bg_v3.png'); }
+.harita-wrap.region-buyulu   { background-image: url('img/map/world_bg_v2_3.png'); }
+.harita-wrap.region-kotu     { background-image: url('img/map/world_bg_v2_2.png'); }
+.harita-wrap.region-bataklik { background-image: url('img/map/world_bg_v2_4.png'); }
 
 /* 6x6 overlay grid — TRANSPARAN, BG'nin kutuları görünür */
 .grid {
@@ -294,33 +294,52 @@ body::before {
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: rgba(243,189,111,0.85);
+  color: rgba(243,189,111,0.9);
   text-shadow: 0 0 4px #000, 0 1px 2px #000;
   z-index: 3;
+  opacity: 0;
+  transition: opacity 0.2s ease;
 }
-/* İkon — BG'deki YUVARLAK slot içine sığacak şekilde */
+.slot:hover .slot-coord { opacity: 1; }
+/* MARKER — yerlesim_rehberi.md teknigi (Stitch'in tavsiyesi) */
 .slot-icon-wrap {
   position: absolute;
-  top: 50%;
   left: 50%;
+  top: 50%;
   transform: translate(-50%, -50%);
-  width: 55%;
-  height: 55%;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  border-radius: 50%;
-  overflow: hidden;
-  /* İçindeki ikonu yuvarlak maskele */
+  pointer-events: none;
 }
+/* Oyuncu marker — KÜÇÜK (60-70px) */
+.slot.oyuncu .slot-icon-wrap {
+  width: 70%; height: 70%;
+  max-width: 78px; max-height: 78px;
+}
+/* Koloni marker — BÜYÜK (80-100px) */
+.slot.koloni .slot-icon-wrap {
+  width: 92%; height: 92%;
+  max-width: 105px; max-height: 105px;
+}
+/* SEN — büyük + pulse */
+.slot.sen .slot-icon-wrap {
+  width: 92%; height: 92%;
+  max-width: 110px; max-height: 110px;
+}
+/* İkon: yuvarlağın dışına %20 taşar (derinlik) + translateY -10% perspektif */
 .slot-icon {
-  width: 100%;
-  height: 100%;
+  width: 120%;
+  height: 120%;
   object-fit: contain;
-  transition: transform 0.18s ease;
+  transform: translateY(-10%);
+  transition: transform 0.2s ease;
   filter:
-    drop-shadow(0 1px 3px rgba(0,0,0,0.95))
-    drop-shadow(0 0 4px rgba(0,0,0,0.6));
+    drop-shadow(0 10px 14px rgba(0,0,0,0.85))   /* haritaya gölge - zemine sabitler */
+    drop-shadow(0 0 6px rgba(0,0,0,0.5));
+}
+.slot:hover .slot-icon {
+  transform: translateY(-16%) scale(1.08);
 }
 
 /* İsim etiketi — minimal pill, opacity 0 (sadece hover'da görünür) */
@@ -821,10 +840,16 @@ body::before {
 
   <!-- ─── Açıklama ─── -->
   <div class="aciklama">
-    <h3>🎨 Harita V2 — Diorama Tactical Grid</h3>
+    <h3>🎨 Harita V2 — Stitch v3 Marker Sistemi</h3>
+    <p>
+      <strong>Yerleşim rehberi</strong> uygulandı (Stitch'in <code>yerle_im_rehberi.md</code>):
+      Oyuncu marker 60-70px (küçük), Koloni marker 80-100px (büyük), ikon %120 boy +
+      <code>translateY(-10%)</code> + <code>drop-shadow(0 10px 14px)</code> = zemine sabit
+      duran 3D hissi.
+    </p>
     <p>
       <strong>6×6 = 36 slot</strong>. Oyuncunun mevcut koordinatı <code>100:25</code> merkezde
-      (<strong>⚜ SEN ⚜</strong> rozetı + altın pulsing border). Etrafında ±2-3 koordinat aralığı.
+      (<strong>⚜ SEN ⚜</strong> rozetı + altın pulsing border).
     </p>
     <p>
       <strong>Slot içerikleri:</strong> Dolu olanlar (oyuncu/koloni) overlay ikon + hover'da
