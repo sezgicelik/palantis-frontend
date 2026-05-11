@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noxara — Dünya Haritası v2 (6×6 Tactical Grid)</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════════════════════════════
+   OBSIDIAN & GOLD ARTIFACT SYSTEM (Stitch DESIGN.md)
+   ════════════════════════════════════════════════════════════════ */
+:root {
+  --surface: #131313;
+  --surface-container-lowest: #0e0e0e;
+  --surface-container-low: #1c1b1b;
+  --surface-container: #201f1f;
+  --surface-container-high: #2a2a2a;
+  --surface-container-highest: #353534;
+  --on-surface: #e5e2e1;
+  --on-surface-variant: #d3c4b3;
+  --outline: #9c8f7f;
+  --outline-variant: #4f4538;
+  --primary: #f3bd6f;
+  --on-primary: #442b00;
+  --primary-container: #d4a257;
+  --inverse-primary: #7e5711;
+  --error: #ffb4ab;
+  --error-container: #93000a;
+  --void: #0a0a0a;
+  --leather: #1a1410;
+  --wood: #3a3020;
+  --parchment: #f0e8d8;
+  --space-base: 8px;
+  --space-gutter: 16px;
+  --space-padding: 24px;
+
+  /* Taraf renkleri */
+  --iyi: #5fa8e3;
+  --kotu: #e35f5f;
+  --tarafsiz: #d4a257;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0; padding: 0;
+  background: var(--surface-container-lowest);
+  color: var(--on-surface);
+  font-family: 'EB Garamond', Georgia, serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 800px 400px at 20% 30%, rgba(243,189,111,0.04) 0%, transparent 70%),
+    radial-gradient(ellipse 600px 300px at 80% 70%, rgba(212,162,87,0.03) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Ember particles */
+@keyframes emberRise {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  10% { opacity: 0.9; }
+  100% { transform: translateY(-100vh) translateX(40px); opacity: 0; }
+}
+.ember {
+  position: fixed;
+  bottom: -10px;
+  width: 3px; height: 3px;
+  background: var(--primary);
+  box-shadow: 0 0 6px var(--primary), 0 0 12px rgba(243,189,111,0.5);
+  filter: blur(0.5px);
+  animation: emberRise 14s infinite linear;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+  position: relative;
+  z-index: 3;
+}
+
+/* ─── BAŞLIK ─── */
+.page-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.page-title {
+  font-family: 'Cinzel', serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: 0.2em;
+  margin: 0;
+  text-shadow: 0 0 30px rgba(243,189,111,0.4), 0 3px 6px #000;
+  text-transform: uppercase;
+}
+.page-subtitle {
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  color: var(--on-surface-variant);
+  font-size: 15px;
+  margin: 4px 0 0;
+}
+
+/* ─── HUD ─── */
+.hud {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1px;
+  background: var(--outline-variant);
+  border: 1px solid var(--outline-variant);
+  margin-bottom: 16px;
+  box-shadow:
+    inset 0 1px 0 rgba(243,189,111,0.15),
+    0 0 30px rgba(0,0,0,0.6);
+}
+.hud-cell {
+  background: linear-gradient(180deg, var(--surface-container) 0%, var(--surface-container-low) 100%);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hud-icon {
+  font-size: 22px;
+  filter: drop-shadow(0 0 8px rgba(243,189,111,0.4));
+}
+.hud-label {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--on-surface-variant);
+  line-height: 1;
+}
+.hud-value {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-top: 3px;
+}
+
+/* ─── NAVIGASYON BAR ─── */
+.nav-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 18px;
+  background: linear-gradient(180deg, var(--surface-container) 0%, var(--surface-container-low) 100%);
+  border: 1px solid var(--outline-variant);
+  margin-bottom: 16px;
+  position: relative;
+  box-shadow: inset 0 1px 0 rgba(243,189,111,0.1);
+}
+.nav-bar::before, .nav-bar::after {
+  content: '';
+  position: absolute;
+  width: 12px; height: 12px;
+  border: 2px solid var(--primary);
+}
+.nav-bar::before {
+  top: -1px; left: -1px;
+  border-right: none; border-bottom: none;
+}
+.nav-bar::after {
+  bottom: -1px; right: -1px;
+  border-left: none; border-top: none;
+}
+.nav-info {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  color: var(--primary);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.nav-info b { color: var(--primary); font-weight: 700; }
+.nav-info span { color: var(--on-surface-variant); }
+.nav-buttons {
+  display: flex; gap: 8px;
+}
+.nav-btn {
+  background: linear-gradient(180deg, var(--surface-container-high) 0%, var(--surface-container) 100%);
+  color: var(--primary);
+  border: 1px solid var(--outline-variant);
+  padding: 8px 14px;
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow:
+    inset 0 1px 0 rgba(243,189,111,0.2),
+    inset 0 -2px 0 rgba(0,0,0,0.6);
+}
+.nav-btn:hover {
+  border-color: var(--primary);
+  text-shadow: 0 0 10px rgba(243,189,111,0.7);
+  box-shadow:
+    inset 0 1px 0 rgba(243,189,111,0.4),
+    0 0 20px rgba(243,189,111,0.3);
+}
+.nav-btn.center {
+  background: linear-gradient(180deg, var(--primary-container) 0%, var(--inverse-primary) 100%);
+  color: var(--on-primary);
+  border-color: var(--primary);
+}
+
+/* ═══ HARITA GRID ═══ */
+.harita-wrap {
+  position: relative;
+  aspect-ratio: 1366 / 768;
+  background-image: url('img/map/world_bg_1.png');
+  background-size: cover;
+  background-position: center;
+  border: 1px solid var(--outline-variant);
+  box-shadow:
+    inset 0 0 80px rgba(0,0,0,0.7),
+    0 0 50px rgba(0,0,0,0.6);
+  overflow: hidden;
+  padding: 24px;
+}
+
+/* Bölge bazlı arka plan değiştirici (toggle butonları için class) */
+.harita-wrap.region-iyi      { background-image: url('img/map/world_bg_1.png'); }
+.harita-wrap.region-buyulu   { background-image: url('img/map/world_bg_3.png'); }
+.harita-wrap.region-kotu     { background-image: url('img/map/world_bg_2.png'); }
+.harita-wrap.region-bataklik { background-image: url('img/map/world_bg_4.png'); }
+
+.harita-wrap::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, rgba(14,14,14,0.55) 0%, rgba(14,14,14,0.25) 30%, rgba(14,14,14,0.25) 70%, rgba(14,14,14,0.7) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 6x6 Grid */
+.grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+}
+
+/* ─── SLOT (genel) ─── */
+.slot {
+  position: relative;
+  background: rgba(14,14,14,0.5);
+  border: 1px solid rgba(243,189,111,0.25);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 4px;
+  overflow: hidden;
+  backdrop-filter: blur(1px);
+}
+.slot:hover {
+  border-color: var(--primary);
+  background: rgba(20,20,20,0.7);
+  transform: scale(1.04);
+  z-index: 10;
+  box-shadow:
+    0 0 0 1px var(--primary),
+    0 0 30px rgba(243,189,111,0.4),
+    0 4px 16px rgba(0,0,0,0.8);
+}
+
+/* Slot içeriği */
+.slot-coord {
+  position: absolute;
+  top: 3px; left: 4px;
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: rgba(243,189,111,0.65);
+  text-shadow: 0 1px 2px #000;
+  z-index: 3;
+}
+.slot-icon-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding-top: 8px;
+}
+.slot-icon {
+  width: 80%;
+  height: 80%;
+  max-width: 90px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 8px rgba(0,0,0,0.8));
+}
+.slot-bottom {
+  width: 100%;
+  text-align: center;
+  padding: 3px 2px;
+}
+.slot-name {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 3px #000;
+}
+.slot-meta {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: var(--on-surface-variant);
+  text-transform: uppercase;
+  margin-top: 1px;
+  text-shadow: 0 1px 2px #000;
+}
+
+/* ─── Oyuncu Slot ─── */
+.slot.oyuncu .slot-name { color: var(--on-surface); }
+.slot.oyuncu.iyi { border-color: rgba(95,168,227,0.5); }
+.slot.oyuncu.iyi:hover { border-color: var(--iyi); box-shadow: 0 0 0 1px var(--iyi), 0 0 30px rgba(95,168,227,0.4); }
+.slot.oyuncu.iyi .slot-name { color: #a8d4f0; }
+
+.slot.oyuncu.kotu { border-color: rgba(227,95,95,0.5); }
+.slot.oyuncu.kotu:hover { border-color: var(--kotu); box-shadow: 0 0 0 1px var(--kotu), 0 0 30px rgba(227,95,95,0.4); }
+.slot.oyuncu.kotu .slot-name { color: #f0a8a8; }
+
+/* ─── Koloni Slot ─── */
+.slot.koloni { border-color: rgba(212,162,87,0.6); }
+.slot.koloni:hover {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary), 0 0 35px rgba(243,189,111,0.5);
+}
+.slot.koloni .slot-name { color: var(--primary); }
+.slot.koloni .slot-bonus {
+  position: absolute;
+  top: 3px; right: 4px;
+  background: linear-gradient(180deg, var(--primary), var(--primary-container));
+  color: var(--on-primary);
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  letter-spacing: 0.05em;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.3),
+    0 1px 3px rgba(0,0,0,0.6);
+  z-index: 3;
+}
+
+/* ─── SEN — özel ─── */
+.slot.sen {
+  border: 2px solid var(--primary);
+  background:
+    radial-gradient(ellipse at center, rgba(243,189,111,0.18) 0%, rgba(14,14,14,0.6) 70%);
+  animation: senPulse 2.5s ease-in-out infinite;
+  z-index: 5;
+}
+@keyframes senPulse {
+  0%, 100% { box-shadow: 0 0 0 1px var(--primary), 0 0 25px rgba(243,189,111,0.5); }
+  50% { box-shadow: 0 0 0 2px var(--primary), 0 0 50px rgba(243,189,111,0.8); }
+}
+.slot.sen::after {
+  content: '⚜ SEN ⚜';
+  position: absolute;
+  top: -2px; left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  background: linear-gradient(180deg, var(--primary), var(--primary-container));
+  color: var(--on-primary);
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  padding: 2px 10px;
+  white-space: nowrap;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.3),
+    0 0 12px rgba(243,189,111,0.7),
+    0 2px 4px rgba(0,0,0,0.8);
+  z-index: 4;
+}
+
+/* ─── Tooltip ─── */
+.slot[data-tip]:hover::before {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, var(--parchment) 0%, #e0d8c0 100%);
+  color: var(--leather);
+  padding: 6px 12px;
+  font-family: 'EB Garamond', serif;
+  font-size: 12px;
+  font-style: italic;
+  white-space: nowrap;
+  border: 1px solid var(--outline);
+  box-shadow:
+    0 0 25px rgba(243,189,111,0.4),
+    0 4px 12px rgba(0,0,0,0.8);
+  z-index: 100;
+  pointer-events: none;
+}
+
+/* ─── BÖLGE SEÇİCİ (mockup test için) ─── */
+.region-selector {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  margin: 16px 0;
+}
+.region-btn {
+  background: var(--surface-container);
+  color: var(--on-surface-variant);
+  border: 1px solid var(--outline-variant);
+  padding: 6px 14px;
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.region-btn:hover { color: var(--primary); border-color: var(--primary); }
+.region-btn.active {
+  background: linear-gradient(180deg, var(--primary-container), var(--inverse-primary));
+  color: var(--on-primary);
+  border-color: var(--primary);
+}
+
+/* ─── AÇIKLAMA ─── */
+.aciklama {
+  background: linear-gradient(180deg, var(--surface-container-low) 0%, var(--surface-container-lowest) 100%);
+  border: 1px solid var(--outline-variant);
+  padding: 20px 24px;
+  margin-top: 20px;
+  position: relative;
+  box-shadow: inset 0 1px 0 rgba(243,189,111,0.1);
+}
+.aciklama::before, .aciklama::after {
+  content: '';
+  position: absolute;
+  width: 12px; height: 12px;
+  border: 2px solid var(--primary);
+}
+.aciklama::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+.aciklama::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+.aciklama h3 {
+  font-family: 'Cinzel', serif;
+  color: var(--primary);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin: 0 0 12px;
+  font-size: 16px;
+}
+.aciklama p {
+  font-family: 'EB Garamond', serif;
+  line-height: 1.65;
+  color: var(--on-surface-variant);
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+.aciklama strong { color: var(--primary); }
+.aciklama code {
+  background: rgba(243,189,111,0.1);
+  color: var(--primary);
+  padding: 1px 6px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+}
+
+/* Legend */
+.legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(14,14,14,0.5);
+  border: 1px solid rgba(243,189,111,0.2);
+}
+.legend-icon {
+  width: 36px; height: 36px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.legend-label {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--on-surface-variant);
+}
+
+@media (max-width: 900px) {
+  .hud { grid-template-columns: repeat(3, 1fr); }
+  .nav-bar { flex-direction: column; gap: 8px; align-items: stretch; text-align: center; }
+  .slot-name { font-size: 8px; }
+  .slot-coord { font-size: 7px; }
+  .page-title { font-size: 24px; letter-spacing: 0.1em; }
+}
+</style>
+</head>
+<body>
+
+<!-- Ember particles -->
+<div class="ember" style="left:8%; animation-delay:0s;"></div>
+<div class="ember" style="left:22%; animation-delay:3s;"></div>
+<div class="ember" style="left:40%; animation-delay:6s;"></div>
+<div class="ember" style="left:58%; animation-delay:1.5s;"></div>
+<div class="ember" style="left:76%; animation-delay:9s;"></div>
+<div class="ember" style="left:92%; animation-delay:4.5s;"></div>
+
+<div class="container">
+
+  <!-- ─── Başlık ─── -->
+  <div class="page-header">
+    <h1 class="page-title">⚜ Dünya Haritası ⚜</h1>
+    <p class="page-subtitle">"36 koordinat — 25 krallık, 11 koloni. Her parça bir hikaye."</p>
+  </div>
+
+  <!-- ─── HUD ─── -->
+  <div class="hud">
+    <div class="hud-cell">
+      <span class="hud-icon">⌖</span>
+      <div><div class="hud-label">Koordinat</div><div class="hud-value">100 : 25</div></div>
+    </div>
+    <div class="hud-cell">
+      <span class="hud-icon">🗺️</span>
+      <div><div class="hud-label">Bölge</div><div class="hud-value">Sisli Vadiler</div></div>
+    </div>
+    <div class="hud-cell">
+      <span class="hud-icon">☀️</span>
+      <div><div class="hud-label">Taraf</div><div class="hud-value">Aydınlık</div></div>
+    </div>
+    <div class="hud-cell">
+      <span class="hud-icon">👑</span>
+      <div><div class="hud-label">Krallıklar</div><div class="hud-value">25</div></div>
+    </div>
+    <div class="hud-cell">
+      <span class="hud-icon">🏛️</span>
+      <div><div class="hud-label">Koloniler</div><div class="hud-value">11</div></div>
+    </div>
+  </div>
+
+  <!-- ─── Navigasyon ─── -->
+  <div class="nav-bar">
+    <div class="nav-info">
+      Sayfa: <b>X 97–102</b> <span>·</span> <b>Y 22–27</b>
+    </div>
+    <div class="nav-buttons">
+      <button class="nav-btn" title="X-10 batıya">⬅ BATI</button>
+      <button class="nav-btn" title="Y-6 kuzeye">⬆ KUZEY</button>
+      <button class="nav-btn center" title="Kendi şehrime dön">⌖ ŞEHRİM</button>
+      <button class="nav-btn" title="Y+6 güneye">⬇ GÜNEY</button>
+      <button class="nav-btn" title="X+10 doğuya">DOĞU ➡</button>
+    </div>
+  </div>
+
+  <!-- ─── Bölge seçici (mockup test) ─── -->
+  <div class="region-selector">
+    <button class="region-btn active" onclick="setRegion('iyi', this)">☀️ Aydınlık Vadileri</button>
+    <button class="region-btn" onclick="setRegion('buyulu', this)">🌿 Büyülü Orman</button>
+    <button class="region-btn" onclick="setRegion('kotu', this)">🔥 Lav Diyarı</button>
+    <button class="region-btn" onclick="setRegion('bataklik', this)">🌫️ Obsidian Bataklığı</button>
+  </div>
+
+  <!-- ─── HARİTA ─── -->
+  <div class="harita-wrap region-iyi" id="harita">
+    <div class="grid">
+      <!-- 36 slot — soldan sağa, üstten alta. Y=22..27, X=97..102 -->
+
+      <!-- ROW Y=22 -->
+      <div class="slot oyuncu iyi" data-tip="Kral Ulrich · İnsan · Aydınlık · 4.230 puan">
+        <div class="slot-coord">97:22</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_human.png" alt="İnsan"></div>
+        <div class="slot-bottom"><div class="slot-name">Ulrich</div><div class="slot-meta">İnsan</div></div>
+      </div>
+      <div class="slot oyuncu iyi" data-tip="Lyra · Elf · Aydınlık · 6.842 puan">
+        <div class="slot-coord">98:22</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_elf.png" alt="Elf"></div>
+        <div class="slot-bottom"><div class="slot-name">Lyra</div><div class="slot-meta">Elf</div></div>
+      </div>
+      <div class="slot koloni" data-tip="Altın Koloni · %22 bonus · sahipsiz">
+        <div class="slot-coord">99:22</div>
+        <div class="slot-bonus">+22%</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/colony_altin.png" alt="Altın"></div>
+        <div class="slot-bottom"><div class="slot-name">Altın</div><div class="slot-meta">Boş</div></div>
+      </div>
+      <div class="slot oyuncu iyi" data-tip="Thorgrim · Cüce · Aydınlık · 8.910 puan">
+        <div class="slot-coord">100:22</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_cuce.png" alt="Cüce"></div>
+        <div class="slot-bottom"><div class="slot-name">Thorgrim</div><div class="slot-meta">Cüce</div></div>
+      </div>
+      <div class="slot oyuncu kotu" data-tip="Vorgath · Ork · Karanlık · 5.180 puan">
+        <div class="slot-coord">101:22</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_ork.png" alt="Ork"></div>
+        <div class="slot-bottom"><div class="slot-name">Vorgath</div><div class="slot-meta">Ork</div></div>
+      </div>
+      <div class="slot koloni" data-tip="Kereste Kolonisi · %18 bonus · sahipli (Pippin)">
+        <div class="slot-coord">102:22</div>
+        <div class="slot-bonus">+18%</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/colony_kereste.png" alt="Kereste"></div>
+        <div class="slot-bottom"><div class="slot-name">Kereste</div><div class="slot-meta">Pippin</div></div>
+      </div>
+
+      <!-- ROW Y=23 -->
+      <div class="slot oyuncu iyi" data-tip="Pippin · Buçukluk · Aydınlık · 3.420 puan">
+        <div class="slot-coord">97:23</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_bucukluk.png" alt="Buçukluk"></div>
+        <div class="slot-bottom"><div class="slot-name">Pippin</div><div class="slot-meta">Buçukluk</div></div>
+      </div>
+      <div class="slot koloni" data-tip="Metal İşleme · %25 bonus · sahipsiz">
+        <div class="slot-coord">98:23</div>
+        <div class="slot-bonus">+25%</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/colony_metal.png" alt="Metal"></div>
+        <div class="slot-bottom"><div class="slot-name">Metal</div><div class="slot-meta">Boş</div></div>
+      </div>
+      <div class="slot oyuncu iyi" data-tip="Aelarion · Elf · Aydınlık · 9.115 puan">
+        <div class="slot-coord">99:23</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_elf.png" alt="Elf"></div>
+        <div class="slot-bottom"><div class="slot-name">Aelarion</div><div class="slot-meta">Elf</div></div>
+      </div>
+      <div class="slot oyuncu kotu" data-tip="Mor'Khazz · Kara Elf · Karanlık · 7.560 puan">
+        <div class="slot-coord">100:23</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_kara_elf.png" alt="Kara Elf"></div>
+        <div class="slot-bottom"><div class="slot-name">Mor'Khazz</div><div class="slot-meta">Kara Elf</div></div>
+      </div>
+      <div class="slot oyuncu kotu" data-tip="Krodan · Ogre · Karanlık · 4.890 puan">
+        <div class="slot-coord">101:23</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_ogre.png" alt="Ogre"></div>
+        <div class="slot-bottom"><div class="slot-name">Krodan</div><div class="slot-meta">Ogre</div></div>
+      </div>
+      <div class="slot oyuncu iyi" data-tip="Cedric · İnsan · Aydınlık · 5.730 puan">
+        <div class="slot-coord">102:23</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_human.png" alt="İnsan"></div>
+        <div class="slot-bottom"><div class="slot-name">Cedric</div><div class="slot-meta">İnsan</div></div>
+      </div>
+
+      <!-- ROW Y=24 -->
+      <div class="slot koloni" data-tip="Köy/Buğday Kolonisi · %15 bonus · sahipsiz">
+        <div class="slot-coord">97:24</div>
+        <div class="slot-bonus">+15%</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/colony_koy.png" alt="Köy"></div>
+        <div class="slot-bottom"><div class="slot-name">Buğday</div><div class="slot-meta">Boş</div></div>
+      </div>
+      <div class="slot oyuncu iyi" data-tip="Beren · İnsan · Aydınlık · 6.420 puan">
+        <div class="slot-coord">98:24</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_human.png" alt="İnsan"></div>
+        <div class="slot-bottom"><div class="slot-name">Beren</div><div class="slot-meta">İnsan</div></div>
+      </div>
+      <div class="slot oyuncu kotu" data-tip="Tharak · Undead · Karanlık · 8.200 puan">
+        <div class="slot-coord">99:24</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_undead.png" alt="Undead"></div>
+        <div class="slot-bottom"><div class="slot-name">Tharak</div><div class="slot-meta">Undead</div></div>
+      </div>
+      <div class="slot koloni" data-tip="Maden Kolonisi · %20 bonus · sahipli (Thorgrim)">
+        <div class="slot-coord">100:24</div>
+        <div class="slot-bonus">+20%</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/colony_maden.png" alt="Maden"></div>
+        <div class="slot-bottom"><div class="slot-name">Maden</div><div class="slot-meta">Thorgrim</div></div>
+      </div>
+      <div class="slot oyuncu iyi" data-tip="Galadriel · Elf · Aydınlık · 11.250 puan">
+        <div class="slot-coord">101:24</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_elf.png" alt="Elf"></div>
+        <div class="slot-bottom"><div class="slot-name">Galadriel</div><div class="slot-meta">Elf</div></div>
+      </div>
+      <div class="slot oyuncu kotu" data-tip="Skarn · Ork · Karanlık · 6.780 puan">
+        <div class="slot-coord">102:24</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_ork.png" alt="Ork"></div>
+        <div class="slot-bottom"><div class="slot-name">Skarn</div><div class="slot-meta">Ork</div></div>
+      </div>
+
+      <!-- ROW Y=25 (SEN burada — 100:25) -->
+      <div class="slot oyuncu iyi" data-tip="Borin · Cüce · Aydınlık · 4.560 puan">
+        <div class="slot-coord">97:25</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_cuce.png" alt="Cüce"></div>
+        <div class="slot-bottom"><div class="slot-name">Borin</div><div class="slot-meta">Cüce</div></div>
+      </div>
+      <div class="slot oyuncu iyi" data-tip="Faelar · Buçukluk · Aydınlık · 2.840 puan">
+        <div class="slot-coord">98:25</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_bucukluk.png" alt="Buçukluk"></div>
+        <div class="slot-bottom"><div class="slot-name">Faelar</div><div class="slot-meta">Buçukluk</div></div>
+      </div>
+      <div class="slot koloni" data-tip="Altın Kolonisi · %25 bonus · sahipli (Sezgi — sen)">
+        <div class="slot-coord">99:25</div>
+        <div class="slot-bonus">+25%</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/colony_altin.png" alt="Altın"></div>
+        <div class="slot-bottom"><div class="slot-name">Altın</div><div class="slot-meta">SEN</div></div>
+      </div>
+      <!-- ⚜ SEN ⚜ -->
+      <div class="slot oyuncu iyi sen" data-tip="Sezgi · Elf · Aydınlık · 10.316 puan (SEN)">
+        <div class="slot-coord">100:25</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_elf.png" alt="Elf"></div>
+        <div class="slot-bottom"><div class="slot-name">Sezgi</div><div class="slot-meta">Elf · 10316p</div></div>
+      </div>
+      <div class="slot oyuncu kotu" data-tip="Drogath · Kara Elf · Karanlık · 9.420 puan">
+        <div class="slot-coord">101:25</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_kara_elf.png" alt="Kara Elf"></div>
+        <div class="slot-bottom"><div class="slot-name">Drogath</div><div class="slot-meta">Kara Elf</div></div>
+      </div>
+      <div class="slot oyuncu kotu" data-tip="Korruk · Ogre · Karanlık · 3.910 puan">
+        <div class="slot-coord">102:25</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_ogre.png" alt="Ogre"></div>
+        <div class="slot-bottom"><div class="slot-name">Korruk</div><div class="slot-meta">Ogre</div></div>
+      </div>
+
+      <!-- ROW Y=26 -->
+      <div class="slot oyuncu kotu" data-tip="Nyssa · Undead · Karanlık · 7.150 puan">
+        <div class="slot-coord">97:26</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_undead.png" alt="Undead"></div>
+        <div class="slot-bottom"><div class="slot-name">Nyssa</div><div class="slot-meta">Undead</div></div>
+      </div>
+      <div class="slot koloni" data-tip="Kereste Kolonisi · %20 bonus · sahipsiz">
+        <div class="slot-coord">98:26</div>
+        <div class="slot-bonus">+20%</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/colony_kereste.png" alt="Kereste"></div>
+        <div class="slot-bottom"><div class="slot-name">Kereste</div><div class="slot-meta">Boş</div></div>
+      </div>
+      <div class="slot oyuncu iyi" data-tip="Eowyn · İnsan · Aydınlık · 5.890 puan">
+        <div class="slot-coord">99:26</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_human.png" alt="İnsan"></div>
+        <div class="slot-bottom"><div class="slot-name">Eowyn</div><div class="slot-meta">İnsan</div></div>
+      </div>
+      <div class="slot oyuncu iyi" data-tip="Daerion · Elf · Aydınlık · 7.890 puan">
+        <div class="slot-coord">100:26</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_elf.png" alt="Elf"></div>
+        <div class="slot-bottom"><div class="slot-name">Daerion</div><div class="slot-meta">Elf</div></div>
+      </div>
+      <div class="slot koloni" data-tip="Metal İşleme · %19 bonus · sahipli (Vorgath)">
+        <div class="slot-coord">101:26</div>
+        <div class="slot-bonus">+19%</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/colony_metal.png" alt="Metal"></div>
+        <div class="slot-bottom"><div class="slot-name">Metal</div><div class="slot-meta">Vorgath</div></div>
+      </div>
+      <div class="slot oyuncu kotu" data-tip="Bal'thorn · Kara Elf · Karanlık · 8.610 puan">
+        <div class="slot-coord">102:26</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_kara_elf.png" alt="Kara Elf"></div>
+        <div class="slot-bottom"><div class="slot-name">Bal'thorn</div><div class="slot-meta">Kara Elf</div></div>
+      </div>
+
+      <!-- ROW Y=27 -->
+      <div class="slot oyuncu iyi" data-tip="Hardrin · Cüce · Aydınlık · 3.720 puan">
+        <div class="slot-coord">97:27</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_cuce.png" alt="Cüce"></div>
+        <div class="slot-bottom"><div class="slot-name">Hardrin</div><div class="slot-meta">Cüce</div></div>
+      </div>
+      <div class="slot oyuncu kotu" data-tip="Grommash · Ork · Karanlık · 9.870 puan">
+        <div class="slot-coord">98:27</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_ork.png" alt="Ork"></div>
+        <div class="slot-bottom"><div class="slot-name">Grommash</div><div class="slot-meta">Ork</div></div>
+      </div>
+      <div class="slot koloni" data-tip="Köy/Balıkçı Kolonisi · %16 bonus · sahipsiz">
+        <div class="slot-coord">99:27</div>
+        <div class="slot-bonus">+16%</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/colony_koy.png" alt="Köy"></div>
+        <div class="slot-bottom"><div class="slot-name">Balık</div><div class="slot-meta">Boş</div></div>
+      </div>
+      <div class="slot oyuncu iyi" data-tip="Mira · Buçukluk · Aydınlık · 4.180 puan">
+        <div class="slot-coord">100:27</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_bucukluk.png" alt="Buçukluk"></div>
+        <div class="slot-bottom"><div class="slot-name">Mira</div><div class="slot-meta">Buçukluk</div></div>
+      </div>
+      <div class="slot koloni" data-tip="Maden Kolonisi · %23 bonus · sahipsiz">
+        <div class="slot-coord">101:27</div>
+        <div class="slot-bonus">+23%</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/colony_maden.png" alt="Maden"></div>
+        <div class="slot-bottom"><div class="slot-name">Maden</div><div class="slot-meta">Boş</div></div>
+      </div>
+      <div class="slot oyuncu kotu" data-tip="Zhul'gar · Undead · Karanlık · 6.340 puan">
+        <div class="slot-coord">102:27</div>
+        <div class="slot-icon-wrap"><img class="slot-icon" src="img/map/race_undead.png" alt="Undead"></div>
+        <div class="slot-bottom"><div class="slot-name">Zhul'gar</div><div class="slot-meta">Undead</div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─── Açıklama ─── -->
+  <div class="aciklama">
+    <h3>🎨 Harita V2 — Diorama Tactical Grid</h3>
+    <p>
+      <strong>6×6 = 36 slot</strong>. Oyuncunun mevcut koordinatı <code>100:25</code> merkezde
+      (<strong>⚜ SEN ⚜</strong> rozetı + altın pulsing border). Etrafında ±2-3 koordinat aralığı.
+    </p>
+    <p>
+      <strong>Slot içerikleri (her harita 36 tam dolu):</strong>
+    </p>
+    <p>
+      🏰 <strong>25 oyuncu krallığı</strong> — 8 ırktan birine uygun şehir ikonu. Aydınlık taraf
+      mavi tonlu çerçeve, Karanlık taraf kızıl tonlu çerçeve. Hover'da kral adı + puan tooltip.
+    </p>
+    <p>
+      💰 <strong>11 koloni</strong> — kaynak tipine göre 5 ikon: Altın · Kereste · Metal İşleme ·
+      Köy/Buğday · Maden. Üst sağda altın <strong>+%bonus</strong> rozetı. Sahipli ise alt metada
+      kral adı, boşsa "Boş" yazar.
+    </p>
+    <p>
+      <strong>Arka plan</strong>: Bölgeye göre 4 varyasyon (Stitch Aydınlık Vadiler, Büyülü
+      Orman, Lav Diyarı, Obsidian Bataklığı). Üstteki "Bölge Seçici" ile test edebilirsin.
+      Sisli karartma overlay (üst/alt) ile slot okunabilirliği korunur.
+    </p>
+
+    <h3 style="margin-top:20px;">🗺️ Lejant</h3>
+    <div class="legend">
+      <div class="legend-item"><img class="legend-icon" src="img/map/race_human.png"><span class="legend-label">İnsan (Aydınlık)</span></div>
+      <div class="legend-item"><img class="legend-icon" src="img/map/race_elf.png"><span class="legend-label">Elf (Aydınlık)</span></div>
+      <div class="legend-item"><img class="legend-icon" src="img/map/race_cuce.png"><span class="legend-label">Cüce (Aydınlık)</span></div>
+      <div class="legend-item"><img class="legend-icon" src="img/map/race_bucukluk.png"><span class="legend-label">Buçukluk (Aydınlık)</span></div>
+      <div class="legend-item"><img class="legend-icon" src="img/map/race_kara_elf.png"><span class="legend-label">Kara Elf (Karanlık)</span></div>
+      <div class="legend-item"><img class="legend-icon" src="img/map/race_ork.png"><span class="legend-label">Ork (Karanlık)</span></div>
+      <div class="legend-item"><img class="legend-icon" src="img/map/race_ogre.png"><span class="legend-label">Ogre (Karanlık)</span></div>
+      <div class="legend-item"><img class="legend-icon" src="img/map/race_undead.png"><span class="legend-label">Undead (Karanlık)</span></div>
+      <div class="legend-item"><img class="legend-icon" src="img/map/colony_altin.png"><span class="legend-label">Altın Kolonisi</span></div>
+      <div class="legend-item"><img class="legend-icon" src="img/map/colony_kereste.png"><span class="legend-label">Kereste/Odun Kolonisi</span></div>
+      <div class="legend-item"><img class="legend-icon" src="img/map/colony_metal.png"><span class="legend-label">Metal İşleme Kolonisi</span></div>
+      <div class="legend-item"><img class="legend-icon" src="img/map/colony_koy.png"><span class="legend-label">Köy/Yemek Kolonisi</span></div>
+      <div class="legend-item"><img class="legend-icon" src="img/map/colony_maden.png"><span class="legend-label">Maden Kolonisi</span></div>
+    </div>
+
+    <p style="margin-top:18px;font-size:13px;color:var(--outline)">
+      <strong>Sonraki adım:</strong> Bu mockup beğenildikten sonra <code>map.html</code> ile
+      entegrasyon — backend <code>/api/koloni/harita</code> ve <code>/api/player/bolgede</code>
+      endpoint'lerinden gerçek data → slot içerikleri otomatik dolacak. Click → mevcut profil/koloni
+      modalleri açılacak.
+    </p>
+  </div>
+
+</div>
+
+<script>
+function setRegion(region, btn) {
+  const map = document.getElementById('harita');
+  map.classList.remove('region-iyi', 'region-buyulu', 'region-kotu', 'region-bataklik');
+  map.classList.add('region-' + region);
+  document.querySelectorAll('.region-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+</script>
+
+</body>
+</html>
