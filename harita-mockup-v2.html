@@ -337,19 +337,23 @@ body::before {
   width: 92%; height: 92%;
   max-width: 110px; max-height: 110px;
 }
-/* İkon: yuvarlağın dışına %20 taşar (derinlik) + translateY -10% perspektif */
+/* v1.14.3.81: Sprite terrain'e gomulmus hissi — heavy drop-shadow kaldirildi */
 .slot-icon {
-  width: 120%;
-  height: 120%;
+  width: 110%;
+  height: 110%;
   object-fit: contain;
-  transform: translateY(-10%);
+  transform: translateY(-6%);
   transition: transform 0.2s ease;
+  /* Hafif zemin golgesi (yere bagliyor) + edge yumusatma (terrain'e karistirma) */
   filter:
-    drop-shadow(0 10px 14px rgba(0,0,0,0.85))   /* haritaya gölge - zemine sabitler */
-    drop-shadow(0 0 6px rgba(0,0,0,0.5));
+    drop-shadow(0 2px 1px rgba(0,0,0,0.35))
+    contrast(1.02) saturate(0.95);
+  /* Edge fade — sprite'in transparent kenarini terrain'e blend */
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 65%, rgba(0,0,0,0.5) 85%, transparent 100%);
+  mask-image:          radial-gradient(ellipse at center, #000 65%, rgba(0,0,0,0.5) 85%, transparent 100%);
 }
 .slot:hover .slot-icon {
-  transform: translateY(-16%) scale(1.08);
+  transform: translateY(-10%) scale(1.1);
 }
 
 /* İsim etiketi — minimal pill, opacity 0 (sadece hover'da görünür) */
