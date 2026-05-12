@@ -1,6 +1,6 @@
 // v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
 // Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
-const CACHE_NAME = 'noxara-v14905'; // v1.14.3.82 — Cercevesiz sprite v2 (8 kale + 3 koloni temiz)
+const CACHE_NAME = 'noxara-v14906'; // v1.14.3.83 — Beyaz BG silindi (14 sprite RGB->RGBA, gercek transparent)
 
 // Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [
