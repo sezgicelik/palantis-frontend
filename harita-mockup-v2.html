@@ -216,25 +216,27 @@ body::before {
   border-color: var(--primary);
 }
 
-/* ═══ HARITA — BG atmosfer, slot'lar CSS ile cizilir ═══ */
+/* ═══ HARITA — KARE 6x6 chunk, Stitch terrain dolu BG ═══ */
 .harita-wrap {
   position: relative;
-  aspect-ratio: 1360 / 754;
+  aspect-ratio: 1 / 1;             /* v1.14.3.79: 6x6 -> kare */
+  max-width: 720px;
+  margin: 0 auto;
   background-image: url('img/map/terrain/bg-orman.png');
   background-size: 100% 100%;
   background-position: center;
   border: 1px solid var(--outline-variant);
   box-shadow:
-    inset 0 0 60px rgba(0,0,0,0.4),
+    inset 0 0 50px rgba(0,0,0,0.35),
     0 0 50px rgba(0,0,0,0.6);
   overflow: visible;
   padding: 0;
 }
-/* BG'nin slot'larini bulaniklastir (sadece atmosfer kalsin) — kendi grid'imi cizecegim */
+/* v1.14.3.79: agir karartma kaldirildi — Stitch terrain net gorunsun */
 .harita-wrap::before {
   content: '';
   position: absolute; inset: 0;
-  background: radial-gradient(ellipse at center, rgba(14,14,14,0.35) 0%, rgba(14,14,14,0.6) 100%);
+  background: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.18) 100%);
   pointer-events: none;
   z-index: 1;
 }
@@ -261,11 +263,11 @@ body::before {
   padding: 20px;
 }
 
-/* ─── SLOT — kendi yuvarlak slot cercevemi cizerim ─── */
+/* ─── SLOT — yuvarlak madalyon YOK, sprite direkt terrain üzerinde ─── */
 .slot {
   position: relative;
   cursor: pointer;
-  transition: all 0.18s ease;
+  transition: filter 0.18s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -273,58 +275,43 @@ body::before {
   padding: 0;
   overflow: visible;
 }
-/* Her slotta merkez tabani yuvarlak (BG'den bagimsiz) — sadece dolu slotlarda */
-.slot:not(.empty)::before {
-  content: '';
-  position: absolute;
-  top: 50%; left: 50%;
-  width: 78%;
-  aspect-ratio: 1;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background:
-    radial-gradient(ellipse at center,
-      rgba(243,189,111,0.18) 0%,
-      rgba(14,10,6,0.5) 50%,
-      rgba(14,10,6,0.85) 100%);
-  border: 2px solid rgba(243,189,111,0.4);
-  box-shadow:
-    inset 0 0 20px rgba(0,0,0,0.6),
-    0 0 12px rgba(0,0,0,0.5);
-  z-index: 0;
-}
-.slot.koloni:not(.empty)::before {
-  width: 88%;
-  border-color: rgba(243,189,111,0.6);
-  background:
-    radial-gradient(ellipse at center,
-      rgba(243,189,111,0.25) 0%,
-      rgba(14,10,6,0.5) 50%,
-      rgba(14,10,6,0.85) 100%);
-}
-.slot.oyuncu.iyi:not(.empty)::before {
-  border-color: rgba(95,168,227,0.5);
-}
-.slot.oyuncu.kotu:not(.empty)::before {
-  border-color: rgba(227,95,95,0.5);
-}
-.slot:not(.empty):hover::before {
-  border-color: var(--primary);
-  background:
-    radial-gradient(ellipse at center,
-      rgba(243,189,111,0.32) 0%,
-      rgba(14,10,6,0.55) 50%,
-      rgba(14,10,6,0.85) 100%);
-  box-shadow:
-    inset 0 0 20px rgba(243,189,111,0.2),
-    0 0 25px rgba(243,189,111,0.5);
-}
+/* v1.14.3.79: yuvarlak base kaldirildi — sprite kendi silueti */
 .slot:hover {
   z-index: 10;
-  filter: drop-shadow(0 0 12px rgba(243,189,111,0.7));
+  filter: drop-shadow(0 0 14px rgba(243,189,111,0.85));
 }
-.slot:hover .slot-icon { transform: scale(1.08); }
-.slot:hover .slot-bottom { background: rgba(20,16,10,0.95); border-color: var(--primary); }
+.slot:hover .slot-icon { transform: translateY(-12%) scale(1.1); }
+/* Taraf vurgu — sprite altinda hafif renkli halo (yuvarlak madalyon DEGIL) */
+.slot.oyuncu.iyi:not(.empty)::after,
+.slot.oyuncu.kotu:not(.empty)::after,
+.slot.sen::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 55%;
+  width: 70%; aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(14px);
+  opacity: 0.55;
+}
+.slot.oyuncu.iyi::after  { background: radial-gradient(circle, #5fa8e3 0%, transparent 70%); }
+.slot.oyuncu.kotu::after { background: radial-gradient(circle, #e35f5f 0%, transparent 70%); }
+.slot.sen::after         { background: radial-gradient(circle, #2ecc71 0%, transparent 70%); opacity: 0.75; }
+.slot.koloni:not(.empty)::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 55%;
+  width: 75%; aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(243,189,111,0.6) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(14px);
+  opacity: 0.5;
+}
 
 /* BOŞ slot — hiçbir şey gösterme, sadece koordinat etiketi hover'da */
 .slot.empty {
