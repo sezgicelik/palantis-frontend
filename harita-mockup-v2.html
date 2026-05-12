@@ -275,43 +275,11 @@ body::before {
   padding: 0;
   overflow: visible;
 }
-/* v1.14.3.79: yuvarlak base kaldirildi — sprite kendi silueti */
+/* v1.14.3.80: TEMIZ — sprite direkt terrain ustunde, halo/madalyon YOK */
 .slot:hover {
   z-index: 10;
-  filter: drop-shadow(0 0 14px rgba(243,189,111,0.85));
 }
-.slot:hover .slot-icon { transform: translateY(-12%) scale(1.1); }
-/* Taraf vurgu — sprite altinda hafif renkli halo (yuvarlak madalyon DEGIL) */
-.slot.oyuncu.iyi:not(.empty)::after,
-.slot.oyuncu.kotu:not(.empty)::after,
-.slot.sen::after {
-  content: '';
-  position: absolute;
-  left: 50%; top: 55%;
-  width: 70%; aspect-ratio: 1;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 0;
-  filter: blur(14px);
-  opacity: 0.55;
-}
-.slot.oyuncu.iyi::after  { background: radial-gradient(circle, #5fa8e3 0%, transparent 70%); }
-.slot.oyuncu.kotu::after { background: radial-gradient(circle, #e35f5f 0%, transparent 70%); }
-.slot.sen::after         { background: radial-gradient(circle, #2ecc71 0%, transparent 70%); opacity: 0.75; }
-.slot.koloni:not(.empty)::after {
-  content: '';
-  position: absolute;
-  left: 50%; top: 55%;
-  width: 75%; aspect-ratio: 1;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(243,189,111,0.6) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 0;
-  filter: blur(14px);
-  opacity: 0.5;
-}
+.slot:hover .slot-icon { transform: translateY(-12%) scale(1.12); }
 
 /* BOŞ slot — hiçbir şey gösterme, sadece koordinat etiketi hover'da */
 .slot.empty {
