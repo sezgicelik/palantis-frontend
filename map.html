@@ -43,6 +43,135 @@
 #map-klasik-wrap .kname { font:600 7px 'Cinzel',serif; text-shadow:0 0 5px #000,1px 1px 0 #000,-1px -1px 0 #000; white-space:nowrap; max-width:56px; overflow:hidden; text-overflow:ellipsis; letter-spacing:.2px; line-height:1; margin-top:1px; }
 #map-klasik-wrap td.kc.kown { box-shadow:inset 0 0 10px rgba(80,160,255,0.25); }
 #map-klasik-wrap td.kc.kenemy { box-shadow:inset 0 0 10px rgba(220,60,60,0.2); }
+
+/* v1.14.3.88: STITCH VIEW — CSS grid, terrain BG + sprite */
+#map-stitch {
+  position: relative;
+  aspect-ratio: 1/1;
+  width: 100%;
+  max-width: 640px;
+  background-size: 100% 100%;
+  background-position: center;
+  border: 1px solid #4f4538;
+  box-shadow: inset 0 0 50px rgba(0,0,0,0.35), 0 0 50px rgba(0,0,0,0.6);
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  overflow: visible;
+}
+#map-stitch::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.18) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+.sslot {
+  position: relative;
+  cursor: pointer;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 2;
+}
+.sslot.empty { cursor: default; }
+.sslot:hover { z-index: 10; }
+.sslot:hover .sslot-icon { transform: translateY(-10%) scale(1.12); }
+.sslot-coord {
+  position: absolute; top: 1px; left: 3px;
+  font: 700 9px 'Cinzel',serif;
+  color: rgba(243,189,111,0.75);
+  text-shadow: 0 0 4px #000;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity .15s;
+  pointer-events: none;
+}
+.sslot:hover .sslot-coord { opacity: 1; }
+.sslot.empty:hover .sslot-coord { opacity: 0.6; }
+.sslot-iconwrap {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 92%; aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+}
+.sslot-icon {
+  width: 110%; height: 110%;
+  object-fit: contain;
+  transform: translateY(-6%);
+  transition: transform .15s ease;
+  filter: drop-shadow(0 3px 3px rgba(0,0,0,0.5)) contrast(1.02) saturate(0.95);
+}
+.sslot.sen .sslot-icon {
+  filter: drop-shadow(0 3px 3px rgba(0,0,0,0.5)) drop-shadow(0 0 8px rgba(46,204,113,0.7));
+}
+.sslot.kotu .sslot-icon {
+  filter: drop-shadow(0 3px 3px rgba(0,0,0,0.5)) drop-shadow(0 0 6px rgba(231,76,60,0.45));
+}
+.sslot-bonus {
+  position: absolute;
+  bottom: 1px; right: 2px;
+  font: 700 9px 'Cinzel',serif;
+  color: #f1c40f;
+  text-shadow: 0 0 3px #000, 0 0 1px #000;
+  z-index: 3;
+  pointer-events: none;
+}
+.sslot-emoji {
+  position: absolute;
+  top: 2px; right: 3px;
+  font-size: 14px;
+  filter: drop-shadow(0 1px 2px #000);
+  z-index: 3;
+  pointer-events: none;
+}
+.sslot-name {
+  position: absolute;
+  bottom: 1px; left: 50%;
+  transform: translateX(-50%);
+  font: 600 9px 'Cinzel',serif;
+  white-space: nowrap;
+  color: #fff;
+  text-shadow: 0 0 4px #000, 0 1px 2px #000;
+  z-index: 3;
+  pointer-events: none;
+  max-width: 90%; overflow: hidden; text-overflow: ellipsis;
+}
+.sslot.sen .sslot-name  { color: #2ecc71; }
+.sslot.kotu .sslot-name { color: #f0a8a8; }
+.sslot-guild {
+  position: absolute; inset: 8%;
+  background: rgba(155,89,182,0.7);
+  border: 2px solid #d4af37;
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  font: 700 11px 'Cinzel',serif;
+  text-shadow: 0 0 4px #000;
+  z-index: 2;
+}
+.sslot-kadim {
+  position: absolute; inset: 8%;
+  background: linear-gradient(135deg, rgba(243,156,18,0.85), rgba(155,89,40,0.85));
+  border: 2px solid #d4af37;
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-size: 26px;
+  text-shadow: 0 0 8px #000;
+  z-index: 2;
+}
+.sslot-konus {
+  position: absolute;
+  top: 2px; left: 50%;
+  transform: translateX(-50%);
+  width: 12px; height: 12px;
+  background: rgba(155,89,182,0.95);
+  border: 1px solid #fff;
+  border-radius: 50%;
+  z-index: 4;
+}
 </style>
 </head>
 <body>
@@ -375,7 +504,8 @@
 
     <!-- Navigasyon -->
     <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px;flex-wrap:wrap">
-      <button class="btn ghost map-view-btn active" id="vbtn-2d" onclick="setView('2d')">🎨 2D</button>
+      <button class="btn ghost map-view-btn active" id="vbtn-stitch" onclick="setView('stitch')">⚜ Stitch</button>
+      <button class="btn ghost map-view-btn" id="vbtn-2d" onclick="setView('2d')">🎨 2D</button>
       <button class="btn ghost map-view-btn" id="vbtn-grid" onclick="setView('grid')">📊 Grid</button>
       <button class="btn ghost map-view-btn" id="vbtn-klasik" onclick="setView('klasik')">📜 Klasik</button>
       <span style="color:#222">|</span>
@@ -398,8 +528,13 @@
       <div id="map-info-content" style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px"></div>
     </div>
 
+    <!-- v1.14.3.88: Stitch View — 6x6 CSS grid, sprite + terrain BG -->
+    <div id="map-stitch-wrap" style="display:flex;justify-content:center;padding:8px">
+      <div id="map-stitch"></div>
+    </div>
+
     <!-- 2D Canvas Harita -->
-    <div id="map-2d-wrap" style="background:#080808;border-radius:6px;padding:4px;overflow:auto;max-height:600px">
+    <div id="map-2d-wrap" style="background:#080808;border-radius:6px;padding:4px;overflow:auto;max-height:600px;display:none">
       <canvas id="map-canvas" width="530" height="2450"></canvas>
     </div>
 
@@ -457,7 +592,7 @@ let MAP_BENIM_SAYFA = 1;
 let MAP_BENIM_X = null;
 let MAP_BENIM_Y = null;
 let MAP_DATA = null;
-let MAP_VIEW = '2d';
+let MAP_VIEW = 'stitch'; // v1.14.3.88: default stitch view
 
 // v1.14.3.75: Dinamik harita boyutu — backend response'undan gelir
 let MAP_HARITA_X = 200;
@@ -560,14 +695,17 @@ function getBolge(x, y) {
 
 function setView(v) {
   MAP_VIEW = v;
+  document.getElementById('vbtn-stitch').classList.toggle('active', v === 'stitch');
   document.getElementById('vbtn-2d').classList.toggle('active', v === '2d');
   document.getElementById('vbtn-grid').classList.toggle('active', v === 'grid');
   document.getElementById('vbtn-klasik').classList.toggle('active', v === 'klasik');
+  document.getElementById('map-stitch-wrap').style.display = v === 'stitch' ? 'flex' : 'none';
   document.getElementById('map-2d-wrap').style.display = v === '2d' ? 'block' : 'none';
   document.getElementById('map-grid-wrap').style.display = v === 'grid' ? 'block' : 'none';
   document.getElementById('map-klasik-wrap').style.display = v === 'klasik' ? 'block' : 'none';
   if (MAP_DATA) {
-    if (v === '2d') render2D();
+    if (v === 'stitch') renderStitch();
+    else if (v === '2d') render2D();
     else if (v === 'grid') renderGrid();
     else renderKlasik();
   }
@@ -623,7 +761,8 @@ async function mapYukle() {
     if (MAP_DATA.sayfa_x) MAP_SAYFA_X = MAP_DATA.sayfa_x;
     if (MAP_DATA.sayfa_y) MAP_SAYFA_Y = MAP_DATA.sayfa_y;
     mapNavUpdate();
-    if (MAP_VIEW === '2d') render2D();
+    if (MAP_VIEW === 'stitch') renderStitch();
+    else if (MAP_VIEW === '2d') render2D();
     else if (MAP_VIEW === 'grid') renderGrid();
     else renderKlasik();
   } catch(e) {}
@@ -660,6 +799,114 @@ function mapGitEvim() {
   MAP_SAYFA_X = Math.ceil(MAP_BENIM_X / MAP_CHUNK_W);
   MAP_SAYFA_Y = Math.ceil(MAP_BENIM_Y / MAP_CHUNK_H);
   mapYukle();
+}
+
+// ═══════════════════════════════════════════════════════
+// STITCH VIEW — CSS Grid + Stitch sprite (v1.14.3.88)
+// 6x6 chunk grid, terrain BG dolgu, oyuncu/koloni sprite
+// ═══════════════════════════════════════════════════════
+const TERRAIN_BG_URL = {
+  orman:    'img/map/terrain/bg-orman.png?v=14387',
+  dag:      'img/map/terrain/bg-dag.png?v=14387',
+  col:      'img/map/terrain/bg-col.png?v=14387',
+  volkanik: 'img/map/terrain/bg-volkanik.png?v=14387',
+  bataklik: 'img/map/terrain/bg-bataklik.png?v=14387',
+};
+function castleSrc(irk) {
+  if (!irk || !RACE_CASTLE_NAMES.includes(irk)) return null;
+  return 'img/map/castles/castle-' + irk + '.png?v=14387';
+}
+function colonySrc(kaynak) {
+  const cat = COLONY_CAT_MAP[kaynak] || 'maden';
+  return 'img/map/colonies/colony-' + cat + '.png?v=14387';
+}
+
+function renderStitch() {
+  if (!MAP_DATA) return;
+  const wrap = document.getElementById('map-stitch');
+  if (!wrap) return;
+
+  const xMin = MAP_DATA.xMin, xMax = MAP_DATA.xMax;
+  const yMin = MAP_DATA.yMin || 1, yMax = MAP_DATA.yMax || MAP_HARITA_Y;
+  const cols = (xMax - xMin + 1);
+  const rows = (yMax - yMin + 1);
+  wrap.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  wrap.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+
+  // Chunk terrain
+  const tName = chunkTerrain(MAP_SAYFA_X, MAP_SAYFA_Y);
+  wrap.style.backgroundImage = `url('${TERRAIN_BG_URL[tName]}')`;
+
+  // Cell map (single source of truth for each koord)
+  const cellMap = {};
+  (MAP_DATA.oyuncular || []).forEach(o => { cellMap[o.x + ':' + o.y] = { tip: 'oyuncu', d: o }; });
+  (MAP_DATA.koloniler || []).forEach(k => { cellMap[k.x + ':' + k.y] = { tip: 'koloni', d: k }; });
+  (MAP_DATA.guildSehirler || []).forEach(g => {
+    const key = g.x + ':' + g.y;
+    if (!cellMap[key]) cellMap[key] = { tip: 'guild', d: g };
+  });
+  (MAP_DATA.kadimSehirler || []).forEach(k => { cellMap[k.x + ':' + k.y] = { tip: 'kadim', d: k }; });
+  const konusMap = {};
+  (MAP_DATA.konuslananlar || []).forEach(t => { konusMap[t.x + ':' + t.y] = t; });
+
+  const escapeHtml = (s) => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const parts = [];
+  for (let y = yMin; y <= yMax; y++) {
+    for (let x = xMin; x <= xMax; x++) {
+      const cell = cellMap[x + ':' + y];
+      const konus = konusMap[x + ':' + y];
+      let cls = 'sslot', inner = '';
+      if (!cell) cls += ' empty';
+      if (cell) {
+        if (cell.tip === 'oyuncu') {
+          const o = cell.d;
+          cls += ' oyuncu ' + (o.benMi ? 'sen' : (o.taraf === 'kotu' ? 'kotu' : 'iyi'));
+          const src = castleSrc(o.irk);
+          const tip = escapeHtml(`${o.kral} · ${o.irk || '?'} · ${o.taraf === 'iyi' ? 'Aydınlık' : 'Karanlık'}` + (o.sehir_degeri ? ` · ${o.sehir_degeri.toLocaleString('tr-TR')} puan` : ''));
+          if (src) {
+            inner += `<div class="sslot-iconwrap"><img class="sslot-icon" src="${src}" alt="${escapeHtml(o.irk)}" loading="lazy"></div>`;
+          }
+          inner += `<div class="sslot-name">${escapeHtml((o.kral || '?').substring(0, 10))}</div>`;
+          parts.push(`<div class="${cls}" data-x="${x}" data-y="${y}" title="${tip}">${inner}<div class="sslot-coord">${x}:${y}</div></div>`);
+          continue;
+        } else if (cell.tip === 'koloni') {
+          const k = cell.d;
+          cls += ' koloni';
+          if (k.sahip_kral) cls += ' sahipli';
+          const src = colonySrc(k.kaynak_tipi);
+          const emoji = (typeof KAYNAK_IKON !== 'undefined' && KAYNAK_IKON[k.kaynak_tipi]) || '⛏';
+          const tip = escapeHtml(`${k.kaynak_tipi} kolonisi · %${k.bonus_oran} bonus · ${k.sahip_kral ? 'sahipli: ' + k.sahip_kral : 'sahipsiz'}`);
+          inner += `<div class="sslot-iconwrap"><img class="sslot-icon" src="${src}" alt="${escapeHtml(k.kaynak_tipi)}" loading="lazy"></div>`;
+          inner += `<div class="sslot-emoji">${emoji}</div>`;
+          inner += `<div class="sslot-bonus">+${k.bonus_oran || 0}%</div>`;
+          inner += `<div class="sslot-name">${escapeHtml(k.sahip_kral ? k.sahip_kral.substring(0, 9) : (k.kaynak_tipi||'').substring(0, 10))}</div>`;
+          parts.push(`<div class="${cls}" data-x="${x}" data-y="${y}" title="${tip}">${inner}<div class="sslot-coord">${x}:${y}</div></div>`);
+          continue;
+        } else if (cell.tip === 'guild') {
+          const g = cell.d;
+          inner += `<div class="sslot-guild">[${escapeHtml((g.tag || '?').substring(0, 4))}]</div>`;
+          parts.push(`<div class="sslot" data-x="${x}" data-y="${y}" title="${escapeHtml(g.isim || 'Guild Şehri')}">${inner}<div class="sslot-coord">${x}:${y}</div></div>`);
+          continue;
+        } else if (cell.tip === 'kadim') {
+          const k = cell.d;
+          inner += `<div class="sslot-kadim">★</div>`;
+          inner += `<div class="sslot-name">${escapeHtml((k.isim || '').substring(0, 9))}</div>`;
+          parts.push(`<div class="sslot" data-x="${x}" data-y="${y}" title="Kadim Şehir: ${escapeHtml(k.isim || '')}">${inner}<div class="sslot-coord">${x}:${y}</div></div>`);
+          continue;
+        }
+      }
+      if (konus) inner += `<div class="sslot-konus" title="Ordu konuşlu"></div>`;
+      parts.push(`<div class="${cls}" data-x="${x}" data-y="${y}">${inner}<div class="sslot-coord">${x}:${y}</div></div>`);
+    }
+  }
+  wrap.innerHTML = parts.join('');
+  // Click handler — kendi data attribute'lerinden koord oku
+  wrap.onclick = (e) => {
+    const slot = e.target.closest('.sslot');
+    if (!slot) return;
+    const sx = parseInt(slot.dataset.x), sy = parseInt(slot.dataset.y);
+    if (sx && sy) mapSecHucre(sx, sy);
+  };
 }
 
 // ═══════════════════════════════════
