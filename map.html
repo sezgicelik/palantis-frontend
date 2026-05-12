@@ -475,6 +475,58 @@ let MAP_TOTAL_CHUNKS = 1;
 let MAP_BENIM_SAYFA_X = 1;
 let MAP_BENIM_SAYFA_Y = 1;
 
+// v1.14.3.78: Stitch asset bundle (5 terrain + 8 kale + 6 koloni)
+const TERRAIN_BG_NAMES = ['orman', 'dag', 'col', 'volkanik', 'bataklik'];
+const RACE_CASTLE_NAMES = ['insan', 'elf', 'cuce', 'bucukluk', 'kara_elf', 'ork', 'ogre_irk', 'undead'];
+const COLONY_CAT_NAMES = ['maden', 'orman', 'tarla', 'balik', 'atolye', 'mistik'];
+const COLONY_CAT_MAP = {
+  // maden
+  metal: 'maden', altin: 'maden',
+  // orman (kütük)
+  odun: 'orman', kereste: 'orman',
+  // tarla
+  bugday: 'tarla', ekmek: 'tarla',
+  // balık
+  balik: 'balik', pismis: 'balik',
+  // atölye
+  islenmis: 'atolye', pismis_et: 'atolye',
+  // mistik
+  mana_beyaz: 'mistik', mana_kirmizi: 'mistik', mana_mavi: 'mistik', mana_yesil: 'mistik',
+  at: 'mistik', kurt: 'mistik', gizlilik: 'mistik', buyulu_yumurta: 'mistik',
+};
+const STITCH_IMG = { terrain: {}, castle: {}, colony: {} };
+let STITCH_LOADED = false;
+
+function _loadStitchImg(path) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => { console.warn('[map] asset yuklenemedi:', path); resolve(null); };
+    img.src = path;
+  });
+}
+async function preloadStitchAssets() {
+  if (STITCH_LOADED) return;
+  const tasks = [];
+  for (const n of TERRAIN_BG_NAMES) tasks.push(_loadStitchImg('img/map/terrain/bg-' + n + '.png').then(i => STITCH_IMG.terrain[n] = i));
+  for (const n of RACE_CASTLE_NAMES) tasks.push(_loadStitchImg('img/map/castles/castle-' + n + '.png').then(i => STITCH_IMG.castle[n] = i));
+  for (const n of COLONY_CAT_NAMES) tasks.push(_loadStitchImg('img/map/colonies/colony-' + n + '.png').then(i => STITCH_IMG.colony[n] = i));
+  await Promise.all(tasks);
+  STITCH_LOADED = true;
+}
+function chunkTerrain(sx, sy) {
+  // Deterministic hash — ayni chunk her zaman ayni terrain
+  const hash = ((sx * 31 + sy * 17 + 7) >>> 0) % TERRAIN_BG_NAMES.length;
+  return TERRAIN_BG_NAMES[hash];
+}
+function castleImg(irk) {
+  return (irk && STITCH_IMG.castle && STITCH_IMG.castle[irk]) || null;
+}
+function colonyImg(kaynak) {
+  const cat = COLONY_CAT_MAP[kaynak] || 'maden';
+  return (STITCH_IMG.colony && STITCH_IMG.colony[cat]) || null;
+}
+
 // KAYNAK_IKON yukarida (satir ~254) Koloni Bulucu icin tanimli — global, burada redeclare YOK
 const TARAF_RENK = { iyi:'#3498db', kotu:'#e74c3c' };
 
@@ -523,10 +575,14 @@ function setView(v) {
 
 async function mapInit() {
   const token = getToken(); if (!token) return;
+  // v1.14.3.78: Stitch görsellerini paralel preload + me fetch
+  const [meResp] = await Promise.all([
+    fetch(API_BASE + '/api/map/me', { headers: { 'Authorization': 'Bearer ' + token } }).catch(() => null),
+    preloadStitchAssets().catch(() => {}),
+  ]);
   try {
-    const resp = await fetch(API_BASE + '/api/map/me', { headers: { 'Authorization': 'Bearer ' + token } });
-    if (resp.ok) {
-      const data = await resp.json();
+    if (meResp && meResp.ok) {
+      const data = await meResp.json();
       MAP_BENIM_X = data.koordinat.x;
       MAP_BENIM_Y = data.koordinat.y;
     }
@@ -641,11 +697,11 @@ function render2D() {
   const konusMap = {};
   (MAP_DATA.konuslananlar || []).forEach(t => { konusMap[t.x + ':' + t.y] = t; });
 
-  // Arka plan
+  // Arka plan (sayfa boslugu)
   ctx.fillStyle = '#050505';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // X header
+  // X header (üst)
   ctx.fillStyle = '#888';
   ctx.font = 'bold 9px Crimson Pro, sans-serif';
   ctx.textAlign = 'center';
@@ -653,96 +709,140 @@ function render2D() {
   for (let c = 0; c < cols; c++) {
     ctx.fillText(xMin + c, padL + (c + 0.5) * TW, padT * 0.5);
   }
-
-  // Tile çizimi
+  // Y header (sol)
   for (let r = 0; r < rows; r++) {
-    // Y label — chunk'ta her satir gosterilebilir (az satir)
     ctx.fillStyle = '#555';
     ctx.font = '8px sans-serif';
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
     ctx.fillText(yMin + r, padL - 2, padT + (r + 0.5) * TH);
+  }
 
+  // v1.14.3.78: CHUNK ARKA PLANI — terrain stitch görseli (tek büyük draw, grid çizgisi yok)
+  const tName = chunkTerrain(MAP_SAYFA_X, MAP_SAYFA_Y);
+  const tImg = STITCH_IMG.terrain[tName];
+  if (tImg) {
+    ctx.drawImage(tImg, padL, padT, cols * TW, rows * TH);
+  } else {
+    // Fallback: koyu zemin (görsel henüz yüklenmedi)
+    ctx.fillStyle = '#1a1208';
+    ctx.fillRect(padL, padT, cols * TW, rows * TH);
+  }
+
+  // Per-cell sprites (oyuncu kale, koloni sprite, guild/kadim marker, konuslanan)
+  for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       const x = xMin + c;
       const y = yMin + r;
       const px = padL + c * TW;
       const py = padT + r * TH;
-      const bolge = getBolge(x, y);
-      const bolgeId = bolge ? bolge.id : 'merkez';
 
-      // Tile çiz (TW x TH boyutunda)
-      const tile = getTile(x, y, bolgeId);
-      ctx.drawImage(tile, px, py, TW, TH);
-
-      // Oyuncu / Koloni / Guild / Kadim overlay
       const cell = cellMap[x + ':' + y];
       if (cell) {
         if (cell.tip === 'oyuncu') {
           const o = cell.d;
-          const renk = o.benMi ? '#2ecc71' : (o.taraf === 'iyi' ? '#3498db' : '#e74c3c');
-          ctx.fillStyle = renk;
-          ctx.fillRect(px + 1, py + 1, TW - 2, TH - 2);
-          ctx.fillStyle = '#fff';
-          ctx.font = `${Math.min(TH - 2, 8)}px sans-serif`;
+          const img = castleImg(o.irk);
+          const size = TW * 0.94;
+          const offX = (TW - size) / 2;
+          const offY = (TH - size) / 2;
+          if (img) {
+            // benim'sem hafif yeşil hale
+            if (o.benMi) {
+              ctx.shadowColor = 'rgba(46,204,113,0.8)';
+              ctx.shadowBlur = TW * 0.18;
+            } else if (o.taraf === 'kotu') {
+              ctx.shadowColor = 'rgba(231,76,60,0.5)';
+              ctx.shadowBlur = TW * 0.1;
+            }
+            ctx.drawImage(img, px + offX, py + offY, size, size);
+            ctx.shadowBlur = 0;
+          } else {
+            // fallback
+            ctx.fillStyle = o.taraf === 'iyi' ? '#3498db' : '#e74c3c';
+            ctx.fillRect(px + 3, py + 3, TW - 6, TH - 6);
+          }
+          // Kral adı altta
+          const label = (o.kral || '?').substring(0, 8);
+          const fs = Math.max(8, Math.floor(TS * 0.14));
+          ctx.font = `bold ${fs}px sans-serif`;
           ctx.textAlign = 'center';
-          ctx.fillText(o.kral?.substring(0, 3) || '?', px + TW / 2, py + TH / 2 + 2);
+          ctx.textBaseline = 'alphabetic';
+          ctx.strokeStyle = '#000';
+          ctx.lineWidth = 2;
+          ctx.strokeText(label, px + TW / 2, py + TH - 2);
+          ctx.fillStyle = o.benMi ? '#2ecc71' : '#fff';
+          ctx.fillText(label, px + TW / 2, py + TH - 2);
         } else if (cell.tip === 'koloni') {
           const k = cell.d;
-          ctx.fillStyle = k.sahip_kral ? 'rgba(231,76,60,0.6)' : 'rgba(46,204,113,0.4)';
-          ctx.fillRect(px + 1, py + 1, TW - 2, TH - 2);
-          ctx.fillStyle = '#fff';
-          ctx.font = `${Math.min(TH - 2, 7)}px sans-serif`;
+          const img = colonyImg(k.kaynak_tipi);
+          const size = TW * 0.82;
+          const offX = (TW - size) / 2;
+          const offY = (TH - size) / 2;
+          if (img) {
+            if (k.sahip_kral) {
+              ctx.shadowColor = 'rgba(231,76,60,0.7)';
+              ctx.shadowBlur = TW * 0.12;
+            }
+            ctx.drawImage(img, px + offX, py + offY, size, size);
+            ctx.shadowBlur = 0;
+          } else {
+            ctx.fillStyle = 'rgba(241,196,15,0.4)';
+            ctx.fillRect(px + 4, py + 4, TW - 8, TH - 8);
+          }
+          // Sağ üstte kaynak ikon emoji
+          const emoji = (typeof KAYNAK_IKON !== 'undefined' && KAYNAK_IKON[k.kaynak_tipi]) || '⛏';
+          ctx.font = `${Math.max(10, Math.floor(TS * 0.28))}px sans-serif`;
           ctx.textAlign = 'center';
-          ctx.fillText('K', px + TW / 2, py + TH / 2 + 2);
+          ctx.textBaseline = 'middle';
+          ctx.fillText(emoji, px + TW * 0.78, py + TH * 0.22);
+          // Altta bonus oranı
+          const bTxt = '+' + (k.bonus_oran || 0) + '%';
+          const bfs = Math.max(8, Math.floor(TS * 0.13));
+          ctx.font = `bold ${bfs}px sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'alphabetic';
+          ctx.strokeStyle = '#000';
+          ctx.lineWidth = 2;
+          ctx.strokeText(bTxt, px + TW / 2, py + TH - 2);
+          ctx.fillStyle = '#f1c40f';
+          ctx.fillText(bTxt, px + TW / 2, py + TH - 2);
         } else if (cell.tip === 'guild') {
-          // v1.13.7: Guild sehir (mor)
           const g = cell.d;
-          ctx.fillStyle = '#9b59b6';
-          ctx.fillRect(px + 1, py + 1, TW - 2, TH - 2);
+          ctx.fillStyle = 'rgba(155,89,182,0.85)';
+          ctx.fillRect(px + 4, py + 4, TW - 8, TH - 8);
           ctx.fillStyle = '#fff';
-          ctx.font = `bold ${Math.min(TH - 2, 7)}px sans-serif`;
+          ctx.font = `bold ${Math.max(9, Math.floor(TS * 0.18))}px sans-serif`;
           ctx.textAlign = 'center';
-          ctx.fillText('[' + (g.tag || '?').substring(0, 3) + ']', px + TW / 2, py + TH / 2 + 2);
+          ctx.textBaseline = 'middle';
+          ctx.fillText('[' + (g.tag || '?').substring(0, 3) + ']', px + TW / 2, py + TH / 2);
         } else if (cell.tip === 'kadim') {
-          // v1.13.7: Kadim sehir (altin sari, onemli)
           const k = cell.d;
-          ctx.fillStyle = k.taraf === 'aydinlik' ? '#f39c12' : '#8e44ad';
-          ctx.fillRect(px + 1, py + 1, TW - 2, TH - 2);
+          ctx.fillStyle = k.taraf === 'aydinlik' ? 'rgba(243,156,18,0.9)' : 'rgba(142,68,173,0.9)';
+          ctx.fillRect(px + 4, py + 4, TW - 8, TH - 8);
           ctx.strokeStyle = '#d4af37';
-          ctx.lineWidth = 1;
-          ctx.strokeRect(px + 1, py + 1, TW - 2, TH - 2);
+          ctx.lineWidth = 2;
+          ctx.strokeRect(px + 4, py + 4, TW - 8, TH - 8);
           ctx.fillStyle = '#fff';
-          ctx.font = `bold ${Math.min(TH - 2, 7)}px sans-serif`;
+          ctx.font = `bold ${Math.max(12, Math.floor(TS * 0.3))}px sans-serif`;
           ctx.textAlign = 'center';
-          ctx.fillText('★' + (k.isim || '?').substring(0, 3), px + TW / 2, py + TH / 2 + 2);
+          ctx.textBaseline = 'middle';
+          ctx.fillText('★', px + TW / 2, py + TH / 2);
         }
       }
 
-      // v1.9.3: Konuşlanan ordu ikonu (küçük kalkan)
+      // Konuşlanan ordu (sağ üst köşede küçük mor nokta)
       const konus = konusMap[x + ':' + y];
       if (konus) {
-        ctx.fillStyle = 'rgba(155,89,182,0.8)';
+        ctx.fillStyle = 'rgba(155,89,182,0.95)';
         ctx.beginPath();
-        ctx.arc(px + TW - 5, py + 2, 3, 0, Math.PI * 2);
+        ctx.arc(px + TW - 6, py + 6, Math.max(3, TS * 0.06), 0, Math.PI * 2);
         ctx.fill();
-        ctx.fillStyle = '#fff';
-        ctx.font = '5px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('⛨', px + TW - 5, py + 4);
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 1;
+        ctx.stroke();
       }
     }
   }
-
-  // Bölge sınır çizgileri
-  ctx.strokeStyle = 'rgba(200,169,110,0.2)';
-  ctx.lineWidth = 1;
-  ctx.setLineDash([3, 3]);
-  [16, 33].forEach(yBound => {
-    const ly = padT + yBound * TH;
-    ctx.beginPath(); ctx.moveTo(padL, ly); ctx.lineTo(canvas.width, ly); ctx.stroke();
-  });
-  ctx.setLineDash([]);
 
   // Kendi konumuna scroll
   if (MAP_DATA.benim && MAP_DATA.benim.x >= MAP_DATA.xMin && MAP_DATA.benim.x <= MAP_DATA.xMax) {

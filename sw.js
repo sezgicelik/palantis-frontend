@@ -1,6 +1,6 @@
 // v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
 // Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
-const CACHE_NAME = 'noxara-v14903'; // v1.14.3.76 — 6x6 chunk view (36 hucre/sayfa)
+const CACHE_NAME = 'noxara-v14904'; // v1.14.3.78 — Stitch sprite render (5 terrain + 8 kale + 6 koloni)
 
 // Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [
