@@ -379,14 +379,17 @@
       <button class="btn ghost map-view-btn" id="vbtn-grid" onclick="setView('grid')">📊 Grid</button>
       <button class="btn ghost map-view-btn" id="vbtn-klasik" onclick="setView('klasik')">📜 Klasik</button>
       <span style="color:#222">|</span>
-      <button class="btn ghost" onclick="mapSayfa(MAP_SAYFA - 1)" id="map-prev" style="padding:3px 8px">⬅</button>
+      <!-- v1.14.3.76: 2D chunk navigasyonu (6x6 default) -->
+      <button class="btn ghost" onclick="mapChunkNav(-1, 0)" id="map-prev" style="padding:3px 8px" title="Batı">⬅</button>
+      <button class="btn ghost" onclick="mapChunkNav(0, -1)" id="map-up" style="padding:3px 8px" title="Kuzey">⬆</button>
+      <button class="btn ghost" onclick="mapChunkNav(0, 1)" id="map-down" style="padding:3px 8px" title="Güney">⬇</button>
+      <button class="btn ghost" onclick="mapChunkNav(1, 0)" id="map-next" style="padding:3px 8px" title="Doğu">➡</button>
       <div style="padding:3px 10px;background:#2a1a00;border:1px solid #d4af37;color:#d4af37;border-radius:4px;font-weight:bold;font-size:11px">
-        Sayfa <span id="map-sayfa-label">1</span>/20 (X:<span id="map-x-range">1-10</span>)
+        X:<span id="map-x-range">1-6</span> Y:<span id="map-y-range">1-6</span> <span style="color:#888">·</span> <span id="map-sayfa-label">1</span>/<span id="map-total-label">?</span>
       </div>
-      <button class="btn ghost" onclick="mapSayfa(MAP_SAYFA + 1)" id="map-next" style="padding:3px 8px">➡</button>
-      <input id="map-git-input" placeholder="Sf" style="width:32px;padding:3px;background:#111;border:1px solid #333;color:#fff;border-radius:3px;text-align:center;font-size:11px" type="number" min="1" max="20">
+      <input id="map-git-input" placeholder="X,Y" style="width:46px;padding:3px;background:#111;border:1px solid #333;color:#fff;border-radius:3px;text-align:center;font-size:11px">
       <button class="btn ghost" onclick="mapGitInput()" style="padding:3px 8px;font-size:10px">Git</button>
-      <button class="btn ghost" style="color:#2ecc71;padding:3px 8px;font-size:10px" onclick="mapSayfa(MAP_BENIM_SAYFA)">🏠 Evim</button>
+      <button class="btn ghost" style="color:#2ecc71;padding:3px 8px;font-size:10px" onclick="mapGitEvim()">🏠 Evim</button>
     </div>
 
     <!-- Bilgi Paneli (ÜSTTE) -->
@@ -449,17 +452,28 @@
 <script src="js/savas-rapor.js?v=14119"></script>
 <script src="js/map-tiles.js"></script>
 <script>
-let MAP_SAYFA = 1;
+let MAP_SAYFA = 1; // back-compat (linear page numarasi)
 let MAP_BENIM_SAYFA = 1;
 let MAP_BENIM_X = null;
 let MAP_BENIM_Y = null;
 let MAP_DATA = null;
 let MAP_VIEW = '2d';
 
-// v1.14.3.75: Dinamik harita boyutu — backend /api/map/sayfa response'undan gelir
+// v1.14.3.75: Dinamik harita boyutu — backend response'undan gelir
 let MAP_HARITA_X = 200;
 let MAP_HARITA_Y = 50;
-let MAP_HARITA_PAGES = 20; // ceil(MAP_HARITA_X / 10)
+let MAP_HARITA_PAGES = 20; // back-compat
+
+// v1.14.3.76: Chunk view (6x6 default — 36 hucre/sayfa)
+let MAP_CHUNK_W = 6;
+let MAP_CHUNK_H = 6;
+let MAP_SAYFA_X = 1;
+let MAP_SAYFA_Y = 1;
+let MAP_X_CHUNKS = 1;
+let MAP_Y_CHUNKS = 1;
+let MAP_TOTAL_CHUNKS = 1;
+let MAP_BENIM_SAYFA_X = 1;
+let MAP_BENIM_SAYFA_Y = 1;
 
 // KAYNAK_IKON yukarida (satir ~254) Koloni Bulucu icin tanimli — global, burada redeclare YOK
 const TARAF_RENK = { iyi:'#3498db', kotu:'#e74c3c' };
@@ -515,42 +529,81 @@ async function mapInit() {
       const data = await resp.json();
       MAP_BENIM_X = data.koordinat.x;
       MAP_BENIM_Y = data.koordinat.y;
-      MAP_BENIM_SAYFA = Math.ceil(MAP_BENIM_X / 10);
-      MAP_SAYFA = MAP_BENIM_SAYFA;
     }
   } catch(e) {}
-  mapYukle();
+  // İlk yükle: chunk meta + benim pozisyon
+  await mapYukle();
+  // Eve gec (chunk meta backend'den geldi)
+  if (MAP_BENIM_X) {
+    MAP_BENIM_SAYFA_X = Math.ceil(MAP_BENIM_X / MAP_CHUNK_W);
+    MAP_BENIM_SAYFA_Y = Math.ceil(MAP_BENIM_Y / MAP_CHUNK_H);
+    if (MAP_SAYFA_X !== MAP_BENIM_SAYFA_X || MAP_SAYFA_Y !== MAP_BENIM_SAYFA_Y) {
+      MAP_SAYFA_X = MAP_BENIM_SAYFA_X;
+      MAP_SAYFA_Y = MAP_BENIM_SAYFA_Y;
+      mapYukle();
+    }
+  }
 }
 
 async function mapYukle() {
-  const label = document.getElementById('map-sayfa-label');
-  const range = document.getElementById('map-x-range');
-  const xMin = (MAP_SAYFA - 1) * 10 + 1;
-  const xMax = Math.min(MAP_SAYFA * 10, MAP_HARITA_X);
-  if (label) label.textContent = MAP_SAYFA;
-  if (range) range.textContent = xMin + '-' + xMax;
-  document.getElementById('map-prev').disabled = MAP_SAYFA <= 1;
-  document.getElementById('map-next').disabled = MAP_SAYFA >= MAP_HARITA_PAGES;
-
   const token = getToken(); if (!token) return;
   try {
-    const resp = await fetch(API_BASE + '/api/map/sayfa?sayfa=' + MAP_SAYFA, {
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
+    const url = API_BASE + '/api/map/sayfa?sayfa_x=' + MAP_SAYFA_X + '&sayfa_y=' + MAP_SAYFA_Y + '&w=' + MAP_CHUNK_W + '&h=' + MAP_CHUNK_H;
+    const resp = await fetch(url, { headers: { 'Authorization': 'Bearer ' + token } });
     if (!resp.ok) return;
     MAP_DATA = await resp.json();
-    // v1.14.3.75: backend'den harita boyutu — bolge ve render globallerini guncelle
+    // Harita boyutu + chunk meta backend'den
     if (MAP_DATA.harita) {
       MAP_HARITA_X = MAP_DATA.harita.x || 200;
       MAP_HARITA_Y = MAP_DATA.harita.y || 50;
-      MAP_HARITA_PAGES = MAP_DATA.harita.toplamSayfa || Math.ceil(MAP_HARITA_X / 10);
+      MAP_CHUNK_W = MAP_DATA.harita.chunk_w || 6;
+      MAP_CHUNK_H = MAP_DATA.harita.chunk_h || 6;
+      MAP_X_CHUNKS = MAP_DATA.harita.xChunks || 1;
+      MAP_Y_CHUNKS = MAP_DATA.harita.yChunks || 1;
+      MAP_TOTAL_CHUNKS = MAP_DATA.harita.toplamSayfa || (MAP_X_CHUNKS * MAP_Y_CHUNKS);
+      MAP_HARITA_PAGES = MAP_DATA.harita.eskiToplamSayfa || MAP_TOTAL_CHUNKS;
       rebuildBolgelerClient();
-      document.getElementById('map-next').disabled = MAP_SAYFA >= MAP_HARITA_PAGES;
     }
+    if (MAP_DATA.sayfa_x) MAP_SAYFA_X = MAP_DATA.sayfa_x;
+    if (MAP_DATA.sayfa_y) MAP_SAYFA_Y = MAP_DATA.sayfa_y;
+    mapNavUpdate();
     if (MAP_VIEW === '2d') render2D();
     else if (MAP_VIEW === 'grid') renderGrid();
     else renderKlasik();
   } catch(e) {}
+}
+
+function mapNavUpdate() {
+  const yRange = document.getElementById('map-y-range');
+  const range = document.getElementById('map-x-range');
+  const label = document.getElementById('map-sayfa-label');
+  const total = document.getElementById('map-total-label');
+  if (range && MAP_DATA) range.textContent = MAP_DATA.xMin + '-' + MAP_DATA.xMax;
+  if (yRange && MAP_DATA) yRange.textContent = MAP_DATA.yMin + '-' + MAP_DATA.yMax;
+  // Linear sayfa = (xPage-1) * yChunks + yPage  (column-major)
+  const linear = (MAP_SAYFA_X - 1) * MAP_Y_CHUNKS + MAP_SAYFA_Y;
+  if (label) label.textContent = linear;
+  if (total) total.textContent = MAP_TOTAL_CHUNKS;
+  document.getElementById('map-prev').disabled = MAP_SAYFA_X <= 1;
+  document.getElementById('map-next').disabled = MAP_SAYFA_X >= MAP_X_CHUNKS;
+  document.getElementById('map-up').disabled = MAP_SAYFA_Y <= 1;
+  document.getElementById('map-down').disabled = MAP_SAYFA_Y >= MAP_Y_CHUNKS;
+}
+
+function mapChunkNav(dx, dy) {
+  const nx = Math.max(1, Math.min(MAP_X_CHUNKS, MAP_SAYFA_X + dx));
+  const ny = Math.max(1, Math.min(MAP_Y_CHUNKS, MAP_SAYFA_Y + dy));
+  if (nx === MAP_SAYFA_X && ny === MAP_SAYFA_Y) return;
+  MAP_SAYFA_X = nx;
+  MAP_SAYFA_Y = ny;
+  mapYukle();
+}
+
+function mapGitEvim() {
+  if (!MAP_BENIM_X) return;
+  MAP_SAYFA_X = Math.ceil(MAP_BENIM_X / MAP_CHUNK_W);
+  MAP_SAYFA_Y = Math.ceil(MAP_BENIM_Y / MAP_CHUNK_H);
+  mapYukle();
 }
 
 // ═══════════════════════════════════
@@ -560,16 +613,18 @@ function render2D() {
   const canvas = document.getElementById('map-canvas');
   if (!canvas || !MAP_DATA) return;
   const ctx = canvas.getContext('2d');
-  // Grid haritadaki en-boy oraniyla AYNI — X:48px Y:10px orani
-  // v1.14.3.75: rows dinamik (harita boyutuna gore)
-  const cols = 10, rows = MAP_HARITA_Y;
-  const TW = 48; // X genisligi (grid ile ayni)
-  const TH = 10; // Y yuksekligi (grid ile ayni)
-  const padL = 20, padT = 16;
+  // v1.14.3.76: Chunk view — kare hucreler (her hucre buyuk gorunsun)
+  const cols = (MAP_DATA.xMax - MAP_DATA.xMin + 1);
+  const rows = (MAP_DATA.yMax - MAP_DATA.yMin + 1);
+  // Cell boyutu: 320/N kadar (max 80px, min 24px), kare
+  const TS = Math.max(24, Math.min(80, Math.floor(480 / Math.max(cols, rows))));
+  const TW = TS, TH = TS;
+  const padL = 24, padT = 20;
   canvas.width = padL + cols * TW;
   canvas.height = padT + rows * TH;
 
   const xMin = MAP_DATA.xMin;
+  const yMin = MAP_DATA.yMin;
   const cellMap = {};
   (MAP_DATA.oyuncular || []).forEach(o => { cellMap[o.x + ':' + o.y] = { tip: 'oyuncu', d: o }; });
   (MAP_DATA.koloniler || []).forEach(k => { cellMap[k.x + ':' + k.y] = { tip: 'koloni', d: k }; });
@@ -601,18 +656,16 @@ function render2D() {
 
   // Tile çizimi
   for (let r = 0; r < rows; r++) {
-    // Y label
-    if ((r + 1) % 5 === 0 || r === 0) {
-      ctx.fillStyle = '#555';
-      ctx.font = '8px sans-serif';
-      ctx.textAlign = 'right';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(r + 1, padL - 2, padT + (r + 0.5) * TH);
-    }
+    // Y label — chunk'ta her satir gosterilebilir (az satir)
+    ctx.fillStyle = '#555';
+    ctx.font = '8px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(yMin + r, padL - 2, padT + (r + 0.5) * TH);
 
     for (let c = 0; c < cols; c++) {
       const x = xMin + c;
-      const y = r + 1;
+      const y = yMin + r;
       const px = padL + c * TW;
       const py = padT + r * TH;
       const bolge = getBolge(x, y);
@@ -701,7 +754,7 @@ function render2D() {
   }
 }
 
-// Canvas tıklama
+// Canvas tıklama — v1.14.3.76: chunk view (kare hucre, xMin/yMin offset)
 function canvas2Cell(e) {
   const canvas = document.getElementById('map-canvas');
   if (!canvas || !MAP_DATA) return null;
@@ -710,11 +763,14 @@ function canvas2Cell(e) {
   const scaleY = canvas.height / rect.height;
   const mx = (e.clientX - rect.left) * scaleX;
   const my = (e.clientY - rect.top) * scaleY;
-  const c = Math.floor((mx - 20) / 48);
-  const r = Math.floor((my - 16) / 10);
-  // v1.14.3.75: row sinir dinamik
-  if (c < 0 || c >= 10 || r < 0 || r >= MAP_HARITA_Y) return null;
-  return { x: MAP_DATA.xMin + c, y: r + 1 };
+  const cols = (MAP_DATA.xMax - MAP_DATA.xMin + 1);
+  const rows = (MAP_DATA.yMax - MAP_DATA.yMin + 1);
+  const TS = Math.max(24, Math.min(80, Math.floor(480 / Math.max(cols, rows))));
+  const padL = 24, padT = 20;
+  const c = Math.floor((mx - padL) / TS);
+  const r = Math.floor((my - padT) / TS);
+  if (c < 0 || c >= cols || r < 0 || r >= rows) return null;
+  return { x: MAP_DATA.xMin + c, y: MAP_DATA.yMin + r };
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -753,8 +809,9 @@ function renderGrid() {
   for (let x = xMin; x <= xMax; x++) html += '<th>' + x + '</th>';
   html += '</tr></thead><tbody>';
 
-  // v1.14.3.75: Y limiti dinamik
-  for (let y = 1; y <= MAP_HARITA_Y; y++) {
+  // v1.14.3.76: Chunk view — yMin..yMax aralığı
+  const yMin = MAP_DATA.yMin || 1, yMax = MAP_DATA.yMax || MAP_HARITA_Y;
+  for (let y = yMin; y <= yMax; y++) {
     html += '<tr><th>' + y + '</th>';
     for (let x = xMin; x <= xMax; x++) {
       const cell = cellMap[x + ':' + y];
@@ -838,8 +895,9 @@ function renderKlasik() {
   for (let x = xMin; x <= xMax; x++) html += '<th class="kcoord">' + x + '</th>';
   html += '</tr></thead><tbody>';
 
-  // v1.14.3.75: Y limiti dinamik
-  for (let y = 1; y <= MAP_HARITA_Y; y++) {
+  // v1.14.3.76: Chunk view
+  const yMin = MAP_DATA.yMin || 1, yMax = MAP_DATA.yMax || MAP_HARITA_Y;
+  for (let y = yMin; y <= yMax; y++) {
     html += '<tr><td class="ky">' + y + '</td>';
     for (let x = xMin; x <= xMax; x++) {
       const bolge = getBolge(x, y);
@@ -1068,15 +1126,29 @@ async function koloniCekil(koloniId) {
   }
 }
 
+// v1.14.3.76: Back-compat (eski cagrilar icin) — linear sayfa -> chunk
 function mapSayfa(s) {
-  MAP_SAYFA = Math.max(1, Math.min(20, s));
-  // Tile cache temizle (bellek yönetimi)
+  const linear = Math.max(1, Math.min(MAP_TOTAL_CHUNKS, s));
+  MAP_SAYFA_X = Math.floor((linear - 1) / MAP_Y_CHUNKS) + 1;
+  MAP_SAYFA_Y = ((linear - 1) % MAP_Y_CHUNKS) + 1;
   Object.keys(TILE_CACHE).forEach(k => delete TILE_CACHE[k]);
   mapYukle();
 }
+// v1.14.3.76: "X,Y" formati (ornegin "5,3") veya linear sayfa
 function mapGitInput() {
   const inp = document.getElementById('map-git-input');
-  if (inp) mapSayfa(parseInt(inp.value) || 1);
+  if (!inp) return;
+  const v = (inp.value || '').trim();
+  if (v.includes(',')) {
+    const [sx, sy] = v.split(',').map(s => parseInt(s.trim()));
+    if (sx && sy) {
+      MAP_SAYFA_X = Math.max(1, Math.min(MAP_X_CHUNKS, sx));
+      MAP_SAYFA_Y = Math.max(1, Math.min(MAP_Y_CHUNKS, sy));
+      mapYukle();
+    }
+  } else {
+    mapSayfa(parseInt(v) || 1);
+  }
 }
 </script>
 <script src="js/sw-register.js?v=13467"></script>
