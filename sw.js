@@ -1,6 +1,6 @@
 // v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
 // Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
-const CACHE_NAME = 'noxara-v14901'; // v1.14.3.73 — map.html KAYNAK_IKON duplicate const fix
+const CACHE_NAME = 'noxara-v14902'; // v1.14.3.75 — harita boyutu dinamik (admin XX/YY)
 
 // Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [

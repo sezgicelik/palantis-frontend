@@ -456,20 +456,32 @@ let MAP_BENIM_Y = null;
 let MAP_DATA = null;
 let MAP_VIEW = '2d';
 
+// v1.14.3.75: Dinamik harita boyutu — backend /api/map/sayfa response'undan gelir
+let MAP_HARITA_X = 200;
+let MAP_HARITA_Y = 50;
+let MAP_HARITA_PAGES = 20; // ceil(MAP_HARITA_X / 10)
+
 // KAYNAK_IKON yukarida (satir ~254) Koloni Bulucu icin tanimli — global, burada redeclare YOK
 const TARAF_RENK = { iyi:'#3498db', kotu:'#e74c3c' };
 
-const BOLGELER_CLIENT = [
-  { id:'kuzey_bati', xMin:1,xMax:66, yMin:1,yMax:16 },
-  { id:'kuzey_orta', xMin:1,xMax:66, yMin:17,yMax:33 },
-  { id:'kuzey_dogu', xMin:1,xMax:66, yMin:34,yMax:50 },
-  { id:'orta_bati', xMin:67,xMax:133, yMin:1,yMax:16 },
-  { id:'merkez', xMin:67,xMax:133, yMin:17,yMax:33 },
-  { id:'orta_dogu', xMin:67,xMax:133, yMin:34,yMax:50 },
-  { id:'guney_bati', xMin:134,xMax:200, yMin:1,yMax:16 },
-  { id:'guney_orta', xMin:134,xMax:200, yMin:17,yMax:33 },
-  { id:'guney_dogu', xMin:134,xMax:200, yMin:34,yMax:50 },
-];
+// v1.14.3.75: 9 BOLGE — koordinatlar harita boyutuna gore auto-rescale
+let BOLGELER_CLIENT = [];
+function rebuildBolgelerClient() {
+  const X = MAP_HARITA_X, Y = MAP_HARITA_Y;
+  const xStep = Math.ceil(X / 3), yStep = Math.ceil(Y / 3);
+  const meta = [
+    { id:'kuzey_bati', bandX:0, bandY:0 }, { id:'kuzey_orta', bandX:0, bandY:1 }, { id:'kuzey_dogu', bandX:0, bandY:2 },
+    { id:'orta_bati',  bandX:1, bandY:0 }, { id:'merkez',     bandX:1, bandY:1 }, { id:'orta_dogu',  bandX:1, bandY:2 },
+    { id:'guney_bati', bandX:2, bandY:0 }, { id:'guney_orta', bandX:2, bandY:1 }, { id:'guney_dogu', bandX:2, bandY:2 },
+  ];
+  BOLGELER_CLIENT = meta.map(m => ({
+    id: m.id,
+    xMin: m.bandX * xStep + 1, xMax: Math.min((m.bandX + 1) * xStep, X),
+    yMin: m.bandY * yStep + 1, yMax: Math.min((m.bandY + 1) * yStep, Y),
+  }));
+}
+rebuildBolgelerClient();
+
 const BOLGE_TILE_BG = {
   kuzey_bati:'#143814', kuzey_orta:'#1a2838', kuzey_dogu:'#222830',
   orta_bati:'#2a2a10', merkez:'#1a1810', orta_dogu:'#2a2210',
@@ -514,11 +526,11 @@ async function mapYukle() {
   const label = document.getElementById('map-sayfa-label');
   const range = document.getElementById('map-x-range');
   const xMin = (MAP_SAYFA - 1) * 10 + 1;
-  const xMax = MAP_SAYFA * 10;
+  const xMax = Math.min(MAP_SAYFA * 10, MAP_HARITA_X);
   if (label) label.textContent = MAP_SAYFA;
   if (range) range.textContent = xMin + '-' + xMax;
   document.getElementById('map-prev').disabled = MAP_SAYFA <= 1;
-  document.getElementById('map-next').disabled = MAP_SAYFA >= 20;
+  document.getElementById('map-next').disabled = MAP_SAYFA >= MAP_HARITA_PAGES;
 
   const token = getToken(); if (!token) return;
   try {
@@ -527,6 +539,14 @@ async function mapYukle() {
     });
     if (!resp.ok) return;
     MAP_DATA = await resp.json();
+    // v1.14.3.75: backend'den harita boyutu — bolge ve render globallerini guncelle
+    if (MAP_DATA.harita) {
+      MAP_HARITA_X = MAP_DATA.harita.x || 200;
+      MAP_HARITA_Y = MAP_DATA.harita.y || 50;
+      MAP_HARITA_PAGES = MAP_DATA.harita.toplamSayfa || Math.ceil(MAP_HARITA_X / 10);
+      rebuildBolgelerClient();
+      document.getElementById('map-next').disabled = MAP_SAYFA >= MAP_HARITA_PAGES;
+    }
     if (MAP_VIEW === '2d') render2D();
     else if (MAP_VIEW === 'grid') renderGrid();
     else renderKlasik();
@@ -541,7 +561,8 @@ function render2D() {
   if (!canvas || !MAP_DATA) return;
   const ctx = canvas.getContext('2d');
   // Grid haritadaki en-boy oraniyla AYNI — X:48px Y:10px orani
-  const cols = 10, rows = 50;
+  // v1.14.3.75: rows dinamik (harita boyutuna gore)
+  const cols = 10, rows = MAP_HARITA_Y;
   const TW = 48; // X genisligi (grid ile ayni)
   const TH = 10; // Y yuksekligi (grid ile ayni)
   const padL = 20, padT = 16;
@@ -691,7 +712,8 @@ function canvas2Cell(e) {
   const my = (e.clientY - rect.top) * scaleY;
   const c = Math.floor((mx - 20) / 48);
   const r = Math.floor((my - 16) / 10);
-  if (c < 0 || c >= 10 || r < 0 || r >= 50) return null;
+  // v1.14.3.75: row sinir dinamik
+  if (c < 0 || c >= 10 || r < 0 || r >= MAP_HARITA_Y) return null;
   return { x: MAP_DATA.xMin + c, y: r + 1 };
 }
 
@@ -731,7 +753,8 @@ function renderGrid() {
   for (let x = xMin; x <= xMax; x++) html += '<th>' + x + '</th>';
   html += '</tr></thead><tbody>';
 
-  for (let y = 1; y <= 50; y++) {
+  // v1.14.3.75: Y limiti dinamik
+  for (let y = 1; y <= MAP_HARITA_Y; y++) {
     html += '<tr><th>' + y + '</th>';
     for (let x = xMin; x <= xMax; x++) {
       const cell = cellMap[x + ':' + y];
@@ -815,7 +838,8 @@ function renderKlasik() {
   for (let x = xMin; x <= xMax; x++) html += '<th class="kcoord">' + x + '</th>';
   html += '</tr></thead><tbody>';
 
-  for (let y = 1; y <= 50; y++) {
+  // v1.14.3.75: Y limiti dinamik
+  for (let y = 1; y <= MAP_HARITA_Y; y++) {
     html += '<tr><td class="ky">' + y + '</td>';
     for (let x = xMin; x <= xMax; x++) {
       const bolge = getBolge(x, y);
