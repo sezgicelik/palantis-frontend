@@ -130,55 +130,8 @@
 <span class="material-symbols-outlined text-primary cursor-pointer hover:scale-95 duration-150" data-icon="account_circle">account_circle</span>
 </div>
 </nav>
-<!-- Side Navigation Bar -->
-<aside class="fixed left-0 top-16 h-[calc(100vh-64px)] w-64 bg-surface-container border-r border-outline-variant shadow-xl z-40 flex flex-col hidden lg:flex">
-<div class="p-6 flex items-center gap-3">
-<div class="w-12 h-12 rounded-full border border-primary overflow-hidden shadow-sm">
-<img class="w-full h-full object-cover" data-alt="An ornate circular medieval crest representing an Archmage with dark violet and gold accents, set against an obsidian background. The mood is mystical and ancient with subtle magical embers glowing around the edges of the sigil, evoking the dark fantasy aesthetic of Noxara Realms." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPtg2bW8YTJDJZJY2FrC0TPFP0Vq3MS4Sd3mJRF06MKq3nTjKd2j_mKI7esm4sjmdp1RUb4kjwe4LltbCRSNiofiM96cSIBI6bVdlHhBsfzhlfErSN71kIzT018DwWXo-dDfkQS2lyuUj_raqVXx93g14edltjqQumssTUqy1hw6BQucwjdpPyPKH39vcXdra-w_vRe39wcrCjeKP19M3-0BwNQGoJ_f_c5yVjrJVj1myHu-ik8vE9q2Oih66mk0Bl9-dzBPDBhGo"/>
-</div>
-<div>
-<p class="font-headline-md text-sm text-primary">Overlord Sezgi</p>
-<p class="font-body-md text-xs text-on-surface-variant">Level 42 Archmage</p>
-</div>
-</div>
-<nav class="flex-grow py-4">
-<div class="bg-secondary-container text-on-secondary-container rounded-lg mx-2 my-1 px-4 py-3 flex items-center gap-3 active:translate-x-1 duration-200 cursor-pointer">
-<span class="material-symbols-outlined" data-icon="fort">fort</span>
-<span class="font-label-lg text-label-lg">Kingdom</span>
-</div>
-<div class="text-on-surface-variant hover:text-primary hover:bg-surface-variant mx-2 my-1 px-4 py-3 flex items-center gap-3 transition-all duration-200 cursor-pointer">
-<span class="material-symbols-outlined" data-icon="swords">swords</span>
-<span class="font-label-lg text-label-lg">Military</span>
-</div>
-<div class="text-on-surface-variant hover:text-primary hover:bg-surface-variant mx-2 my-1 px-4 py-3 flex items-center gap-3 transition-all duration-200 cursor-pointer">
-<span class="material-symbols-outlined" data-icon="package_2">package_2</span>
-<span class="font-label-lg text-label-lg">Resources</span>
-</div>
-<div class="text-on-surface-variant hover:text-primary hover:bg-surface-variant mx-2 my-1 px-4 py-3 flex items-center gap-3 transition-all duration-200 cursor-pointer">
-<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
-<span class="font-label-lg text-label-lg">Research</span>
-</div>
-<div class="text-on-surface-variant hover:text-primary hover:bg-surface-variant mx-2 my-1 px-4 py-3 flex items-center gap-3 transition-all duration-200 cursor-pointer">
-<span class="material-symbols-outlined" data-icon="storefront">storefront</span>
-<span class="font-label-lg text-label-lg">Market</span>
-</div>
-</nav>
-<div class="p-4">
-<button class="w-full bg-primary text-on-primary font-bold py-3 rounded-lg shadow-lg hover:brightness-110 active:scale-95 transition-all font-label-lg">Deploy Troops</button>
-</div>
-<div class="mt-auto border-t border-outline-variant p-4 space-y-2">
-<div class="flex items-center gap-3 text-on-surface-variant hover:text-primary cursor-pointer px-4">
-<span class="material-symbols-outlined" data-icon="mail">mail</span>
-<span class="font-label-lg text-label-lg">Mail</span>
-</div>
-<div class="flex items-center gap-3 text-on-surface-variant hover:text-primary cursor-pointer px-4">
-<span class="material-symbols-outlined" data-icon="settings">settings</span>
-<span class="font-label-lg text-label-lg">Settings</span>
-</div>
-</div>
-</aside>
-<!-- Main Content Canvas -->
-<main class="lg:ml-64 pt-16 pb-20 min-h-screen relative parchment-texture">
+<!-- v1.14.3.94: Sol menu kaldirildi (user feedback) — main full-width -->
+<main class="pt-16 pb-20 min-h-screen relative parchment-texture">
 <!-- Resource Sticky Top Bar -->
 <header class="sticky top-16 z-30 bg-surface-container-low/95 backdrop-blur-md border-b border-primary/20 h-20 flex items-center justify-between px-artifact-margin">
 <div class="flex items-center gap-8">
@@ -195,18 +148,17 @@
 <span class="text-on-surface font-body-lg">890</span>
 </div>
 </div>
-<div class="flex items-center gap-3">
-<button class="px-4 py-1.5 rounded-full border border-primary bg-primary/10 text-primary font-label-lg hover:bg-primary/20 transition-all">All</button>
-<button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant font-label-lg hover:bg-surface-variant transition-all">Only GP</button>
-<button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant font-label-lg hover:bg-surface-variant transition-all">Only KP</button>
-<button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant font-label-lg hover:bg-surface-variant transition-all">Combined</button>
+<div class="flex items-center gap-3" id="filter-chips">
+<button data-filter="hepsi" class="filter-chip px-4 py-1.5 rounded-full border border-primary bg-primary/10 text-primary font-label-lg hover:bg-primary/20 transition-all active">Hepsi</button>
+<button data-filter="gp" class="filter-chip px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant font-label-lg hover:bg-surface-variant transition-all">GP — Gelişim Puanı</button>
+<button data-filter="kp" class="filter-chip px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant font-label-lg hover:bg-surface-variant transition-all">KP — Kültür Puanı</button>
 </div>
 </header>
 <!-- Tech Tree Interface -->
 <section class="max-w-[1200px] mx-auto py-12 px-6 flex justify-between items-start gap-12 overflow-x-auto scrollbar-hide">
 <!-- COLUMN 1: GP (Gelişim Puanı) -->
-<div class="flex-shrink-0 w-[300px] flex flex-col gap-16">
-<h2 class="text-center font-display-lg text-primary glow-sm border-b border-primary/30 pb-4">GP - Gelişim Puanı</h2>
+<div class="tree-col flex-shrink-0 w-[300px] flex flex-col gap-16" data-col="gp">
+<h2 class="text-center font-display-lg text-primary glow-sm border-b border-primary/30 pb-4">GP — Gelişim Puanı</h2>
 <div class="grid grid-cols-1 gap-12">
 <!-- Branch: Üretim -->
 <div class="flex flex-col items-center">
@@ -269,8 +221,8 @@
 </div>
 </div>
 <!-- COLUMN 2: KP (Kültür Puanı) -->
-<div class="flex-shrink-0 w-[300px] flex flex-col gap-16">
-<h2 class="text-center font-display-lg text-primary glow-sm border-b border-primary/30 pb-4">KP - Kültür Puanı</h2>
+<div class="tree-col flex-shrink-0 w-[300px] flex flex-col gap-16" data-col="kp">
+<h2 class="text-center font-display-lg text-primary glow-sm border-b border-primary/30 pb-4">KP — Kültür Puanı</h2>
 <div class="grid grid-cols-1 gap-12">
 <!-- Branch: Bilgi -->
 <div class="flex flex-col items-center">
@@ -319,9 +271,9 @@
 </div>
 </div>
 </div>
-<!-- COLUMN 3: GP + KP Combined -->
-<div class="flex-shrink-0 w-[300px] flex flex-col gap-16">
-<h2 class="text-center font-display-lg text-primary glow-sm border-b border-primary/30 pb-4">GP + KP Karma</h2>
+<!-- COLUMN 3: GP + KP Combined (Hepsi filtre'sinde gorunur) -->
+<div class="tree-col flex-shrink-0 w-[300px] flex flex-col gap-16" data-col="karma">
+<h2 class="text-center font-display-lg text-primary glow-sm border-b border-primary/30 pb-4">GP + KP — Karma</h2>
 <div class="grid grid-cols-1 gap-12">
 <!-- Branch: Büyü Kulesi -->
 <div class="flex flex-col items-center">
@@ -365,24 +317,35 @@
 </section>
 </main>
 <!-- Bottom Navigation Bar (Resource Summary & Quick Links) -->
-<nav class="fixed bottom-0 left-0 w-full z-50 h-20 bg-surface-container-high border-t border-primary/30 shadow-[0_-4px_20px_rgba(243,189,111,0.15)] flex justify-around items-center px-gutter py-2">
-<div class="flex flex-col items-center justify-center text-primary glow-sm">
-<span class="material-symbols-outlined" data-icon="payments">payments</span>
-<span class="font-label-lg text-label-lg">Gold: 1.2M</span>
-</div>
-<div class="flex flex-col items-center justify-center text-on-surface-variant opacity-80 hover:opacity-100 hover:text-primary-fixed transition-colors">
-<span class="material-symbols-outlined" data-icon="forest">forest</span>
-<span class="font-label-lg text-label-lg">Wood: 450K</span>
-</div>
-<div class="flex flex-col items-center justify-center text-on-surface-variant opacity-80 hover:opacity-100 hover:text-primary-fixed transition-colors">
-<span class="material-symbols-outlined" data-icon="handyman">handyman</span>
-<span class="font-label-lg text-label-lg">Metal: 89K</span>
-</div>
-<div class="flex flex-col items-center justify-center text-on-surface-variant opacity-80 hover:opacity-100 hover:text-primary-fixed transition-colors">
-<span class="material-symbols-outlined" data-icon="restaurant">restaurant</span>
-<span class="font-label-lg text-label-lg">Food: 12K</span>
-</div>
-</nav>
+<!-- v1.14.3.94: Alt resource nav kaldirildi (zaten ust bar'da var) -->
 <!-- Visual Polish: Atmosphere Overlay -->
 <div class="fixed inset-0 pointer-events-none bg-gradient-to-t from-background via-transparent to-transparent opacity-40"></div>
+
+<script>
+  // v1.14.3.94: Filter chips — Hepsi / GP / KP
+  document.addEventListener('DOMContentLoaded', () => {
+    const chips = document.querySelectorAll('.filter-chip');
+    const cols = document.querySelectorAll('.tree-col');
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        chips.forEach(c => {
+          c.classList.remove('active', 'bg-primary/10', 'text-primary', 'border-primary');
+          c.classList.add('border-outline-variant', 'text-on-surface-variant');
+        });
+        chip.classList.add('active', 'bg-primary/10', 'text-primary', 'border-primary');
+        chip.classList.remove('border-outline-variant', 'text-on-surface-variant');
+        const f = chip.dataset.filter;
+        cols.forEach(col => {
+          const c = col.dataset.col;
+          // Hepsi: 3 kolon goster | GP: GP+Karma | KP: KP+Karma
+          let show;
+          if (f === 'hepsi') show = true;
+          else if (f === 'gp') show = (c === 'gp' || c === 'karma');
+          else if (f === 'kp') show = (c === 'kp' || c === 'karma');
+          col.style.display = show ? 'flex' : 'none';
+        });
+      });
+    });
+  });
+</script>
 </body></html>
