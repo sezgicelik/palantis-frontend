@@ -67,12 +67,8 @@ const DURUM_ISIM = { sehirde:'Sehirde', yolda_gidis:'Yolda', yolda_donus:'Donuyo
 const HEDEF_ISIM = { pazar:'Pazar', buyu_dukkani:'Buyu Dukkani' };
 const DURUM_RENK = { sehirde:'#2ecc71', yolda_gidis:'#f39c12', yolda_donus:'#f39c12', pazarda:'#3498db', buyu_dukkaninda:'#9b59b6' };
 const KAYNAKLAR = ['altin','odun','metal','islenmis','kereste','bugday','balik','cig_et','ekmek','pismis','pismis_et'];
-const KAYNAK_ISIM = {
-  altin:'Altın', odun:'Odun', metal:'Metal', islenmis:'Isl.Metal', kereste:'Kereste',
-  bugday:'Buğday', balik:'Balık', cig_et:'Çiğ Et', ekmek:'Ekmek', pismis:'Pişmiş', pismis_et:'Pişmiş Et',
-  mana_beyaz:'Beyaz Mana', mana_kirmizi:'Kirmizi Mana', mana_mavi:'Mavi Mana', mana_yesil:'Yesil Mana',
-  ates_tozu:'Kristal Tozu', ay_cigi:'Ay Tasi', golgeler_otu:'Karanlik Esans', ejderha_goz_damla:'Ejderha Pulu',
-};
+// v1.14.3.96: TEK doğruluk — merkez LABELS (eski ASCII Türkçe karaktersizdi: Kirmizi/Yesil/Ay Tasi vb)
+const KAYNAK_ISIM = (typeof LABELS !== 'undefined' && LABELS.kaynak) || {};
 const PARSOMEN_ISIM = {
   dogum:'Dogum', beceri:'Beceri', ejderha_korkusu:'Ejderha Korkusu', ejderha_sevinci:'Ejderha Sevinci',
   kesif:'Kesif', motivasyon_h:'Motivasyon (H)', motivasyon_y:'Motivasyon (Y)', olum_sisi:'Olum Sisi',

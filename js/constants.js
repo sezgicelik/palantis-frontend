@@ -1,5 +1,92 @@
 /* constants.js — Palantis game constants */
 
+/* ════════════════════════════════════════════════════════════
+   v1.14.3.96 — MERKEZI LABELS DICT (i18n hazirligi)
+   TEK kaynak: bütün UI metinleri buradan çekilir.
+   - 4 dosyadaki ayrı KAYNAK_ISIM dict'leri tutarsızdı
+     (Kırmızı vs Kirmizi, Yeşil vs Yesil, Ay Tasi vs Ay Çiği vb)
+   - Artık tüm Türkçe karakter düzgün, tek standart.
+   - Yeni dil eklendiğinde LABELS_EN, LABELS_DE vs eklenebilir.
+════════════════════════════════════════════════════════════ */
+const LABELS = {
+  kaynak: {
+    altin:'Altın', odun:'Odun', metal:'Metal', bugday:'Buğday', balik:'Balık',
+    kereste:'Kereste', islenmis:'İşlenmiş Metal', ekmek:'Ekmek',
+    pismis:'Pişmiş Balık', cig_et:'Çiğ Et', pismis_et:'Pişmiş Et',
+    mana_beyaz:'Beyaz Mana', mana_kirmizi:'Kırmızı Mana',
+    mana_mavi:'Mavi Mana', mana_yesil:'Yeşil Mana',
+    at:'At', kurt:'Kurt', gizlilik:'Gizlilik', buyulu_yumurta:'Büyülü Yumurta',
+    besi_hayvani:'Besi Hayvanı',
+    ates_tozu:'Ateş Tozu', ay_cigi:'Ay Çiği',
+    golgeler_otu:'Gölgeler Otu', ejderha_goz_damla:'Ejderha Göz Damlası',
+    essek:'Eşek', koylu:'Köylü', asker:'Asker',
+    gelisim_puani:'Gelişim Puanı', kultur_puani:'Kültür Puanı',
+    cesaret_puani:'Cesaret Puanı',
+  },
+  isci: {
+    oduncu:'Oduncu', madenci:'Madenci', ciftci:'Çiftçi', balikci:'Balıkçı',
+    tuccar:'Tüccar', izci:'İzci', katip:'Kâtip', worshipper:'İbadet Eden',
+  },
+  unite: {
+    essek:'Eşek', koylu:'Köylü',
+    piyade:'Piyade', baltaci:'Baltacı', okcu:'Okçu', savasci:'Savaşçı',
+    sovalye:'Şövalye', suvari:'Süvari', paladin:'Paladin', kolcu:'Kolcu',
+    buyucu:'Büyücü', isin_savasci:'Işın Savaşçısı', rahip:'Rahip',
+    mavi_ejderha:'Mavi Ejderha', altin_ejderha:'Altın Ejderha',
+    iskelet:'İskelet', goblin:'Goblin', iskelet_okcu:'İskelet Okçu',
+    ogre:'Ogre', troll:'Troll', ork:'Ork', golem:'Golem',
+    kara_sovalye:'Kara Şövalye', kara_elf:'Kara Elf',
+    golge_savasci:'Gölge Savaşçısı', kara_rahip:'Kara Rahip',
+    kirmizi_ejderha:'Kırmızı Ejderha', siyah_ejderha:'Siyah Ejderha',
+  },
+  bina: {
+    oduncu:'Oduncu Kampı', kereste_atolyesi:'Kereste Atölyesi',
+    tarla:'Tarla', balikci:'Balıkçı Limanı', isleme:'İşleme Atölyesi',
+    ocak:'Ocak', firin:'Fırın', ciftlik:'Çiftlik',
+    ev:'Ev', koy:'Köy', kasaba:'Kasaba',
+    pazar:'Pazar', surlar:'Surlar', sehir_meydani:'Şehir Meydanı',
+    ahir:'Ahır', lonca:'Lonca', buyulu_tarla:'Büyülü Tarla',
+    buyu_kulesi:'Büyü Kulesi', kule:'Savunma Kulesi',
+    magara:'Mağara', istihbarat:'İstihbarat',
+    rathe_tapinagi:'Rathe Tapınağı', xegony_tapinagi:'Xegony Tapınağı',
+    fennin_tapinagi:'Fennin Tapınağı', tunare_tapinagi:'Tunare Tapınağı',
+    okul:'Okul', universite:'Üniversite', akademi:'Akademi',
+    kutuphane:'Kütüphane', buyuk_kutuphane:'Büyük Kütüphane',
+    tiyatro:'Tiyatro', opera_evi:'Opera Evi',
+    arena:'Arena', koliseum:'Koliseum', taverna:'Taverna',
+    asma_bahceler:'Asma Bahçeler', muze:'Müze',
+    noxara_hani:'Noxara Hanı', katedral:'Katedral',
+    guild_binasi:'Guild Binası',
+  },
+  sehir_gel: {
+    oduncu_gel:'Oduncu Geliştirmesi', madenci_gel:'Madenci Geliştirmesi',
+    ciftci_gel:'Çiftçi Geliştirmesi', balikci_gel:'Balıkçı Geliştirmesi',
+    ticaret_gel:'Ticaret Geliştirmesi',
+    kereste_gel:'Kereste İşleme', metal_gel:'Metal İşleme',
+    firin_gel:'Fırın Verimi', et_gel:'Et İşleme',
+    vergi_gel:'Vergi Toleransı', insaat_gel:'İnşaat Maliyeti',
+    ahir_gel:'Ahır Geliştirmesi', lonca_gel:'Lonca Verimi',
+    buyulu_gel:'Büyülü Tarla', mana_gel:'Mana Verimi',
+    essek_gel:'Eşek Şansı',
+  },
+  cag: {
+    1:'I. Çağ — Karanlık', 2:'II. Çağ — Demir', 3:'III. Çağ — Altın',
+    4:'IV. Çağ — Ejderha', 5:'V. Çağ — Kadim',
+  },
+};
+
+// Helper: anahtardan label çek (fallback: anahtarın kendisi)
+function L(kategori, anahtar) {
+  return (LABELS[kategori] && LABELS[kategori][anahtar]) || anahtar;
+}
+
+// Geriye uyumluluk: 4 dosyada eski KAYNAK_ISIM kullanan kod kırılmasın
+if (typeof window !== 'undefined') {
+  window.LABELS = LABELS;
+  window.L = L;
+  if (!window.KAYNAK_ISIM) window.KAYNAK_ISIM = LABELS.kaynak;
+}
+
 const LAND_PRICE_PER_TILE = 28;
 
 const IRKLAR = {

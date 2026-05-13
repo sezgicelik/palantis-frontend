@@ -10,14 +10,10 @@ var KAYNAK_IKON = {altin:'💰',odun:'🌳',metal:'⛏️',bugday:'🌾',balik:'
   cig_et:'🥩',pismis_et:'🍖',pismis:'🍳',ekmek:'🍞',koylu:'👨‍🌾',
   mana_beyaz:'⚪',mana_kirmizi:'🔴',mana_mavi:'🔵',mana_yesil:'🟢',
   at:'🐴',kurt:'🐺',gizlilik:'🎯',buyulu_yumurta:'🥚'};
-// v1.14.1.53: Tek dogruluk kaynak — oyun ici Türkçe isimler (büyük harf düzgün)
-var KAYNAK_ISIM = {altin:'Altın',odun:'Odun',metal:'Metal',bugday:'Buğday',balik:'Balık',
-  kereste:'Kereste',islenmis:'İşlenmiş Metal',cig_et:'Çiğ Et',pismis_et:'Pişmiş Et',
-  pismis:'Pişmiş Balık',ekmek:'Ekmek',koylu:'Köylü',
-  mana_beyaz:'Beyaz Mana',mana_kirmizi:'Kırmızı Mana',mana_mavi:'Mavi Mana',mana_yesil:'Yeşil Mana',
-  at:'At',kurt:'Kurt',gizlilik:'Gizlilik',buyulu_yumurta:'Büyülü Yumurta'};
+// v1.14.3.96: TEK doğruluk kaynak — merkez LABELS dict'inden al
+var KAYNAK_ISIM = (typeof LABELS !== 'undefined' && LABELS.kaynak) || {};
+var ISCI_ISIM   = (typeof LABELS !== 'undefined' && LABELS.isci)   || {};
 var ISCI_IKON = {oduncu:'🪓',madenci:'⛏️',ciftci:'🌾',balikci:'🐟',tuccar:'💼'};
-var ISCI_ISIM = {oduncu:'Oduncu',madenci:'Madenci',ciftci:'Çiftçi',balikci:'Balıkçı',tuccar:'Tüccar'};
 var BINA_ISIM_GUILD = {oduncu:'Oduncu Kampı',kereste_atolyesi:'Kereste Atölyesi',tarla:'Tarla',
   balikci:'Balıkçı Limanı',isleme:'İşleme Atölyesi',ocak:'Ocak',firin:'Fırın',
   surlar:'Surlar',ev:'Ev',koy:'Köy',kasaba:'Kasaba',ciftlik:'Çiftlik',ahir:'Ahır',

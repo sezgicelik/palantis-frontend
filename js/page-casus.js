@@ -231,11 +231,8 @@ async function casusGonder(casusId, gorevTipi) {
   } catch(e) { noxAlert('Hata'); }
 }
 
-// v1.13.43: Casus rapor detay formatlama
-var KAYNAK_ISIM = {
-  altin:'altın', odun:'odun', kereste:'kereste', metal:'metal', islenmis:'işlenmiş',
-  bugday:'buğday', balik:'balık', ekmek:'ekmek', pismis:'pişmiş balık', pismis_et:'pişmiş et'
-};
+// v1.14.3.96: TEK doğruluk — merkez LABELS dict'inden (kucuk harf eski tutarsizdi)
+var KAYNAK_ISIM = (typeof LABELS !== 'undefined' && LABELS.kaynak) || {};
 function _fmtNum(n){ n=parseInt(n)||0; return n.toLocaleString('tr-TR'); }
 // v1.14.3.34 — XSS: apostrof + slash + backtick eklendi (attribute injection korumasi)
 function _escCasus(s){ s=String(s==null?'':s); return s.replace(/[&<>"'`\/]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#x60;','/':'&#x2F;'}[c]; }); }

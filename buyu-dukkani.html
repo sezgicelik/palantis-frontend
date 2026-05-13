@@ -92,13 +92,8 @@ let BD_STOK = null;
 let BD_KERVAN_ID = null;
 let buyuKervanlar = [];
 
-// Kaynak isim cevirici (kervan yukunde guzel gosterim)
-const BD_KAYNAK_ISIM = {
-  altin:'Altın', odun:'Odun', metal:'Metal', islenmis:'Isl.Metal', kereste:'Kereste',
-  bugday:'Buğday', balik:'Balık', cig_et:'Çiğ Et', ekmek:'Ekmek', pismis:'Pişmiş', pismis_et:'Pişmiş Et',
-  mana_beyaz:'Beyaz Mana', mana_kirmizi:'Kirmizi Mana', mana_mavi:'Mavi Mana', mana_yesil:'Yesil Mana',
-  ates_tozu:'Kristal Tozu', ay_cigi:'Ay Tasi', golgeler_otu:'Karanlik Esans', ejderha_goz_damla:'Ejderha Pulu',
-};
+// v1.14.3.96: TEK doğruluk — merkez LABELS dict'inden (eski Kirmizi/Yesil/Ay Tasi ASCII'ydi)
+const BD_KAYNAK_ISIM = (typeof LABELS !== 'undefined' && LABELS.kaynak) || {};
 function bdKaynakIsim(key) {
   if (BD_KAYNAK_ISIM[key]) return BD_KAYNAK_ISIM[key];
   if (key.startsWith('parsomen_')) {
