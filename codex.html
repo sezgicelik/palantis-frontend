@@ -680,6 +680,43 @@ function NodeDetay({ node, onGit, breadcrumb, geri, kilitli }) {
       {node.quote && (
         <div className="cx-quote">"{node.quote}"</div>
       )}
+
+      {/* v1.14.3.97: Yapılandırılmış kaynaklar (sources) + kullanım (sinks) — Ekonomi Akışı */}
+      {(node.kaynaklar || node.kullanim) && (
+        <>
+          <div className="cx-section-h">💎 <span>Ekonomi Akışı</span></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+            {node.kaynaklar && node.kaynaklar.length > 0 && (
+              <div className="border border-green-700/30 rounded-lg p-3 bg-green-900/10">
+                <div className="text-green-400 font-bold text-xs uppercase tracking-widest mb-2">⬅️ Nereden Elde Edilir</div>
+                <div className="flex flex-col gap-2">
+                  {node.kaynaklar.map((k, i) => (
+                    <div key={i} className="text-xs">
+                      <div className="text-green-300 font-bold">{k.yer}</div>
+                      <div className="text-nox-dim leading-snug">{k.detay}</div>
+                      {k.kod && <div className="text-[10px] text-nox-dim/70 font-mono mt-0.5">{k.kod}</div>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {node.kullanim && node.kullanim.length > 0 && (
+              <div className="border border-red-700/30 rounded-lg p-3 bg-red-900/10">
+                <div className="text-red-400 font-bold text-xs uppercase tracking-widest mb-2">➡️ Nerede Kullanılır</div>
+                <div className="flex flex-col gap-2">
+                  {node.kullanim.map((k, i) => (
+                    <div key={i} className="text-xs">
+                      <div className="text-red-300 font-bold">{k.yer}</div>
+                      <div className="text-nox-dim leading-snug">{k.detay}</div>
+                      {k.kod && <div className="text-[10px] text-nox-dim/70 font-mono mt-0.5">{k.kod}</div>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }
