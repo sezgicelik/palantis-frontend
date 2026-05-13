@@ -2,257 +2,139 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Noxara — Tech Tree Mockup Seçimi</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noxara — Tech Tree Mockup Sekmeleri</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Orbitron:wght@500;700&family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; }
-  body {
-    margin: 0; min-height: 100vh; padding: 24px;
-    background:
-      radial-gradient(ellipse at center, #1a0c14 0%, #050203 100%);
-    font-family: 'Cinzel', serif;
-    color: #e8dcc4;
-  }
-  h1 {
-    text-align: center;
-    color: #d4af37;
-    font-size: 28px;
-    letter-spacing: 4px;
-    margin: 0 0 8px;
-  }
-  .sub {
-    text-align: center;
-    color: #888;
-    font-size: 12px;
-    letter-spacing: 2px;
-    margin-bottom: 32px;
-  }
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 24px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  .card {
-    background: linear-gradient(180deg, #1a1410, #0a0604);
-    border: 2px solid #3a3020;
-    border-radius: 12px;
-    padding: 24px;
-    cursor: pointer;
-    transition: all .2s;
-    position: relative;
-    overflow: hidden;
-  }
-  .card:hover {
-    transform: translateY(-4px);
-    border-color: #d4af37;
-    box-shadow: 0 0 24px rgba(212,175,55,0.3);
-  }
-  .card-tag {
-    position: absolute; top: 12px; right: 12px;
-    padding: 3px 10px;
-    background: #d4af37;
-    color: #0a0604;
-    font-size: 10px;
-    letter-spacing: 1px;
-    border-radius: 3px;
-    font-weight: 700;
-  }
-  .v1-card .card-tag { background: #c8a96e; }
-  .v2-card .card-tag { background: #00e5ff; color: #0a0e1a; }
-  .v3-card .card-tag { background: #ff6818; color: #0a0503; }
+  html, body { margin:0; padding:0; height:100%; background:#050203; color:#e8dcc4; font-family:'Cinzel',serif; overflow:hidden; }
 
-  .preview {
-    height: 160px;
-    border-radius: 8px;
-    margin-bottom: 16px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 60px;
-    position: relative;
-    overflow: hidden;
+  .topbar {
+    display:flex; align-items:center; gap:12px;
+    padding:8px 16px;
+    background: linear-gradient(180deg, #1a0c14 0%, #0a0604 100%);
+    border-bottom: 1px solid #3a3020;
+    height: 56px;
+    flex-shrink: 0;
   }
-  .v1-card .preview {
-    background: linear-gradient(180deg, #0f0a06 0%, #0a0604 100%);
+  .title {
+    color:#d4af37;
+    font-size:14px;
+    letter-spacing:3px;
+    font-weight:700;
+    white-space: nowrap;
+  }
+  .tabs {
+    display:flex;
+    gap:6px;
+    flex:1;
+    overflow-x:auto;
+    padding: 0 8px;
+  }
+  .tab {
+    padding: 8px 16px;
     border: 1px solid #3a3020;
-  }
-  .v2-card .preview {
-    background:
-      linear-gradient(180deg, rgba(10,14,26,0.6) 0%, rgba(5,6,13,0.9) 100%);
-    border: 1px solid rgba(0,229,255,0.4);
-    box-shadow: inset 0 0 30px rgba(0,229,255,0.1);
-  }
-  .v2-card .preview::before {
-    content: ''; position: absolute; inset: 0;
-    background-image:
-      linear-gradient(rgba(0,200,255,0.06) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,200,255,0.06) 1px, transparent 1px);
-    background-size: 16px 16px;
-  }
-  .v3-card .preview {
-    background:
-      radial-gradient(ellipse at 50% 0%, rgba(255,104,24,0.2) 0%, transparent 60%),
-      linear-gradient(180deg, #1a0c0a 0%, #100604 100%);
-    border: 2px double #c8a04a;
-  }
-
-  .card h2 {
-    font-size: 18px;
-    margin: 0 0 8px;
-    letter-spacing: 2px;
-  }
-  .v1-card h2 { color: #d4af37; font-family: 'Cinzel', serif; }
-  .v2-card h2 { color: #00e5ff; font-family: 'Orbitron', sans-serif; text-shadow: 0 0 10px rgba(0,229,255,0.5); }
-  .v3-card h2 { color: #f0c875; font-family: 'UnifrakturCook', serif; font-size: 24px; text-shadow: 0 0 8px rgba(255,104,24,0.5); }
-
-  .card p {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 14px;
-    color: #b0a085;
-    line-height: 1.5;
-    margin: 0 0 12px;
-  }
-  .features {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 16px;
-    font-size: 12px;
-    font-family: sans-serif;
-  }
-  .features li {
-    padding: 4px 0;
-    color: #c8a96e;
-    border-bottom: 1px dotted rgba(200,169,110,0.15);
-  }
-  .features li::before {
-    content: '✦ ';
-    color: #d4af37;
-    margin-right: 4px;
-  }
-  .open-btn {
-    display: block;
-    width: 100%;
-    padding: 10px;
     background: transparent;
-    border: 1px solid currentColor;
-    color: #d4af37;
+    color: #888;
     font-family: 'Cinzel', serif;
     font-size: 12px;
     letter-spacing: 2px;
     text-transform: uppercase;
-    text-decoration: none;
-    text-align: center;
+    cursor: pointer;
     border-radius: 4px;
     transition: all .15s;
+    white-space: nowrap;
+    font-weight: 600;
   }
-  .v1-card .open-btn { color: #d4af37; }
-  .v2-card .open-btn { color: #00e5ff; }
-  .v3-card .open-btn { color: #ff6818; }
-  .open-btn:hover {
-    background: currentColor;
+  .tab:hover {
+    border-color: #d4af37;
+    color: #d4af37;
   }
-  .open-btn:hover {
-    color: #0a0604 !important;
-    background: #d4af37;
-  }
-  .v2-card .open-btn:hover { background: #00e5ff; color: #0a0e1a !important; }
-  .v3-card .open-btn:hover { background: #ff6818; color: #0a0503 !important; }
+  .tab.active { color: #0a0604; font-weight: 700; }
+  .tab.active.v1 { background: #d4af37; border-color: #d4af37; }
+  .tab.active.v2 { background: #00e5ff; border-color: #00e5ff; }
+  .tab.active.v3 { background: #ff6818; border-color: #ff6818; }
+  .tab.active.v4 { background: #c8a04a; border-color: #c8a04a; }
 
-  .v4-card .card-tag { background: #6dff6d; color: #0a0604; }
-  .v4-card .preview {
-    background:
-      radial-gradient(ellipse at 50% 100%, rgba(48,96,160,0.2) 0%, transparent 60%),
-      radial-gradient(ellipse at 50% 0%, rgba(255,133,48,0.15) 0%, transparent 60%),
-      linear-gradient(180deg, #060508 0%, #14101c 100%);
-    border: 1px solid #c8a04a;
+  .tab .badge {
+    display: inline-block;
+    margin-left: 4px;
+    padding: 1px 6px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 3px;
+    font-size: 9px;
+    letter-spacing: 0.5px;
   }
-  .v4-card h2 { color: #c8a04a; font-family: 'UnifrakturCook', serif; font-size: 22px; }
-  .v4-card .open-btn { color: #c8a04a; }
-  .v4-card .open-btn:hover { background: #c8a04a; color: #0a0604 !important; }
+
+  .iframe-wrap {
+    width: 100%;
+    height: calc(100vh - 56px);
+    background: #050203;
+    overflow: auto;
+  }
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+
+  /* Mobil */
+  @media (max-width: 720px) {
+    .topbar { flex-direction: column; height: auto; align-items: stretch; padding: 8px; gap: 6px; }
+    .title { text-align: center; font-size: 12px; letter-spacing: 2px; }
+    .tabs { padding: 0; }
+    .tab { padding: 6px 10px; font-size: 10px; letter-spacing: 1px; }
+    .iframe-wrap { height: calc(100vh - 110px); }
+  }
 </style>
 </head>
 <body>
 
-<h1>📜 NOXARA TECH TREE — TASARIM SEÇİMİ</h1>
-<div class="sub">4 alternatif mockup • Hepsinde aynı veri (45 SEHIR_GEL + 12 birim ATK/DEF + prerequisites)</div>
-
-<div class="grid">
-
-  <!-- V1: Klasik Ortaçağ -->
-  <div class="card v1-card">
-    <div class="card-tag">V1 — KLASİK</div>
-    <div class="preview">📜⚔️🛡️</div>
-    <h2>Klasik Ortaçağ</h2>
-    <p>İlk yaptığımız tasarım. Sıcak parşömen tonları, altın aksanlar. 3 sütun: Çağlar | Geliştirmeler | Birimler.</p>
-    <ul class="features">
-      <li>Cinzel serif tipografi</li>
-      <li>Kategori filter butonları (Kaynak/İşleme/Ekonomi/Askeri/Mana)</li>
-      <li>Açık 3 sütun layout</li>
-      <li>Altın-yeşil prereq okları (eklendi)</li>
-      <li>Çağ kolon → kategori bağlantı çizgileri</li>
-    </ul>
-    <a href="tech-tree-mockup.html" class="open-btn">→ V1'i Aç</a>
+<div class="topbar">
+  <div class="title">📜 NOXARA TECH TREE</div>
+  <div class="tabs" id="tab-bar">
+    <button class="tab v1 active" data-v="v1" data-src="tech-tree-mockup.html">V1 — Klasik <span class="badge">altın</span></button>
+    <button class="tab v2"        data-v="v2" data-src="tech-tree-mockup-v2.html">V2 — Cyberpunk <span class="badge">neon</span></button>
+    <button class="tab v3"        data-v="v3" data-src="tech-tree-mockup-v3.html">V3 — Ejder <span class="badge">gotik</span></button>
+    <button class="tab v4"        data-v="v4" data-src="tech-tree-mockup-v4.html">V4 — Bilgelik Ağacı <span class="badge">en detaylı</span></button>
   </div>
-
-  <!-- V2: Cyberpunk -->
-  <div class="card v2-card">
-    <div class="card-tag">V2 — CYBERPUNK</div>
-    <div class="preview" style="color:#00e5ff">⬢⬡⬢</div>
-    <h2>Cyberpunk Matrix</h2>
-    <p>Mindustry + Twilight Imperium ilhamı. Hexagonal node'lar, neon glow, SVG bağlantı çizgileri, dark blue/purple arkaplan.</p>
-    <ul class="features">
-      <li>Hexagonal node'lar (branch rengiyle)</li>
-      <li>Orbitron + Rajdhani futuristik font</li>
-      <li>Cyan↔Pink gradient prereq okları</li>
-      <li>Tier T1-T5 satır gruplaması</li>
-      <li>Köşe HUD braketleri + grid overlay</li>
-      <li>Sticky tier label sol kolon</li>
-    </ul>
-    <a href="tech-tree-mockup-v2.html" class="open-btn">→ V2'yi Aç</a>
-  </div>
-
-  <!-- V4: Bilgelik Ağacı (TREE FROM ROOT) -->
-  <div class="card v4-card">
-    <div class="card-tag">V4 — AĞAÇ</div>
-    <div class="preview" style="color:#c8a04a">🌳⚜️🌿</div>
-    <h2>Bilgelik Ağacı</h2>
-    <p>Kökten yukarı dallanan gerçek ağaç. NOXARA root'tan başlar, her dal yukarı doğru büyür. <b>Maliyetler kart üzerinde görünür</b> (GP/KP/İşl).</p>
-    <ul class="features">
-      <li>🌳 <b>Kökten yukarı dallanma</b> (root bottom)</li>
-      <li>💰 <b>GP/KP/İşl maliyetleri kart üzerinde</b></li>
-      <li>Otomatik depth hesaplama (prereq derinliği)</li>
-      <li>Organik bezier dal eğrileri (kahve→altın→yeşil gradient)</li>
-      <li>9 dal yatay slot — branş bazlı X konum</li>
-      <li>Kademe progress bar (her node)</li>
-      <li>Tooltip: detaylı maliyet + önkoşul durumu</li>
-      <li>Üst kaynak çubuğu (mevcut GP/KP/İşl)</li>
-    </ul>
-    <a href="tech-tree-mockup-v4.html" class="open-btn">→ V4'ü Aç</a>
-  </div>
-
-  <!-- V3: Karanlık Çağ / Ejder -->
-  <div class="card v3-card">
-    <div class="card-tag">V3 — EJDER</div>
-    <div class="preview" style="color:#ff6818">🐉🔥⚔</div>
-    <h2>Karanlık Çağ / Ejder</h2>
-    <p>Eski parşömen + ejder pulu estetiği. UnifrakturCook gotik başlık, kan kırmızısı + kor turuncu. Roma rakamlı çağ pulları.</p>
-    <ul class="features">
-      <li>Ejder pulu shape node'lar</li>
-      <li>UnifrakturCook gotik tipografi</li>
-      <li>Roma rakamlı çağ pulları (I-V)</li>
-      <li>Ember (kor) gradient prereq çizgileri</li>
-      <li>Parşömen dokulu tooltip</li>
-      <li>Kan kırmızısı tier numaraları</li>
-      <li>Branch flag (rune) küçük işaret</li>
-    </ul>
-    <a href="tech-tree-mockup-v3.html" class="open-btn">→ V3'ü Aç</a>
-  </div>
-
 </div>
 
-<div style="text-align:center;margin-top:32px;color:#888;font-size:11px;letter-spacing:1px">
-  Tüm mockuplar aynı veri yapısını kullanır. Backend'e bağlandığında hepsi aynı API'den beslenir.
+<div class="iframe-wrap">
+  <iframe id="mock-frame" src="tech-tree-mockup.html" loading="eager" title="Tech Tree Mockup"></iframe>
 </div>
+
+<script>
+  const tabBar = document.getElementById('tab-bar');
+  const frame = document.getElementById('mock-frame');
+
+  tabBar.addEventListener('click', e => {
+    const btn = e.target.closest('.tab');
+    if (!btn) return;
+    // active sınıfı switch
+    tabBar.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    // iframe src değiştir
+    const src = btn.dataset.src;
+    if (frame.src.split('/').pop().split('?')[0] !== src) {
+      frame.src = src;
+    }
+    // URL hash güncelle (paylaşılabilir)
+    history.replaceState(null, '', '#' + btn.dataset.v);
+  });
+
+  // Sayfa yüklenirken hash kontrolü (örn. #v3 ile direkt v3'e açılsın)
+  function applyHash() {
+    const v = location.hash.replace('#', '').toLowerCase();
+    if (v && ['v1','v2','v3','v4'].includes(v)) {
+      const btn = tabBar.querySelector(`.tab[data-v="${v}"]`);
+      if (btn) btn.click();
+    }
+  }
+  window.addEventListener('hashchange', applyHash);
+  applyHash();
+</script>
 
 </body>
 </html>
