@@ -1,351 +1,351 @@
 <!DOCTYPE html>
-
 <html class="dark" lang="tr"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Noxara Realms - Gelişim Ağacı</title>
+<title>Noxara — Gelişim Ağacı (V5)</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800&amp;family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<style>.material-symbols-outlined {
-    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24
-    }
-.parchment-texture {
-    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuAj92j14AHLYkiUFf4lJMnXn6MrviQEUv1n8k4SI2CRHKEOUqjmL1vY7_vPkfma2VoPI1luFyTXn4dJzy22p44uqn2dK0TkYQyllgd64VDJLuvfGN2XOd_hsfLJ_0USKEZUijaKZjoYZxm-6NB0HuEFeafuaNcHl6f8tAj4HNSc3xrro2ZB6B_195YNiy98kr5n4z9-Bbzegpy3iououZtn8-A26BmmS0jrYWauVYC5-xC5FzbjG3_erQ6Kebh-UUmUQICkJ3RneDg)
-    }
-.glow-sm {
-    text-shadow: 0 0 8px rgba(243, 189, 111, 0.5)
-    }
-.scrollbar-hide::-webkit-scrollbar {
-    display: none
-    }
-.tech-card-active {
-    box-shadow: inset 0 0 10px rgba(243, 189, 111, 0.2), 0 4px 15px rgba(0, 0, 0, 0.5)
-    }</style>
+<style>
+.material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24 }
+.parchment-texture { background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuAj92j14AHLYkiUFf4lJMnXn6MrviQEUv1n8k4SI2CRHKEOUqjmL1vY7_vPkfma2VoPI1luFyTXn4dJzy22p44uqn2dK0TkYQyllgd64VDJLuvfGN2XOd_hsfLJ_0USKEZUijaKZjoYZxm-6NB0HuEFeafuaNcHl6f8tAj4HNSc3xrro2ZB6B_195YNiy98kr5n4z9-Bbzegpy3iououZtn8-A26BmmS0jrYWauVYC5-xC5FzbjG3_erQ6Kebh-UUmUQICkJ3RneDg) }
+.glow-sm { text-shadow: 0 0 8px rgba(243, 189, 111, 0.5) }
+.scrollbar-hide::-webkit-scrollbar { display: none }
+.tech-card-active { box-shadow: inset 0 0 10px rgba(243, 189, 111, 0.2), 0 4px 15px rgba(0, 0, 0, 0.5) }
+</style>
 <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "inverse-on-surface": "#313030",
-                        "surface-tint": "#f3bd6f",
-                        "surface-container-high": "#2a2a2a",
-                        "surface-variant": "#353534",
-                        "on-error-container": "#ffdad6",
-                        "background": "#131313",
-                        "on-secondary-container": "#c6b6a0",
-                        "tertiary-fixed": "#ede0d9",
-                        "surface-bright": "#3a3939",
-                        "secondary-container": "#534736",
-                        "on-secondary-fixed": "#231a0c",
-                        "on-primary-fixed": "#291800",
-                        "inverse-primary": "#7e5711",
-                        "surface-dim": "#131313",
-                        "surface-container-highest": "#353534",
-                        "primary-container": "#d4a257",
-                        "outline": "#9c8f7f",
-                        "on-surface-variant": "#d3c4b3",
-                        "on-primary": "#442b00",
-                        "secondary-fixed": "#f2e0c8",
-                        "on-tertiary-fixed": "#211a16",
-                        "primary-fixed-dim": "#f3bd6f",
-                        "primary": "#f3bd6f",
-                        "on-secondary-fixed-variant": "#504534",
-                        "on-secondary": "#392f1f",
-                        "on-primary-container": "#583900",
-                        "surface-container-lowest": "#0e0e0e",
-                        "on-surface": "#e5e2e1",
-                        "inverse-surface": "#e5e2e1",
-                        "on-tertiary": "#362f2a",
-                        "secondary-fixed-dim": "#d5c4ad",
-                        "on-background": "#e5e2e1",
-                        "surface-container-low": "#1c1b1b",
-                        "on-error": "#690005",
-                        "outline-variant": "#4f4538",
-                        "surface-container": "#201f1f",
-                        "on-tertiary-fixed-variant": "#4d4540",
-                        "error-container": "#93000a",
-                        "tertiary-fixed-dim": "#d1c4bd",
-                        "primary-fixed": "#ffddb1",
-                        "on-primary-fixed-variant": "#624000",
-                        "tertiary-container": "#b4a9a2",
-                        "secondary": "#d5c4ad",
-                        "surface": "#131313",
-                        "on-tertiary-container": "#463e39",
-                        "tertiary": "#d1c4bd",
-                        "error": "#ffb4ab"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "full": "9999px"
-                    },
-                    "spacing": {
-                        "container-padding": "24px",
-                        "artifact-margin": "32px",
-                        "gutter": "16px",
-                        "base": "8px"
-                    },
-                    "fontFamily": {
-                        "headline-lg": ["Cinzel"],
-                        "display-lg": ["Cinzel"],
-                        "body-lg": ["EB Garamond"],
-                        "headline-md": ["Cinzel"],
-                        "headline-lg-mobile": ["Cinzel"],
-                        "body-md": ["EB Garamond"],
-                        "label-lg": ["Cinzel"]
-                    },
-                    "fontSize": {
-                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "0.02em", "fontWeight": "600"}],
-                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "0.05em", "fontWeight": "700"}],
-                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
-                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
-                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
-                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
-                        "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.1em", "fontWeight": "700"}]
-                    }
-                },
-            },
-        }
-    </script>
+tailwind.config = {
+  darkMode: "class",
+  theme: { extend: {
+    colors: {
+      "surface-tint":"#f3bd6f","surface-container-high":"#2a2a2a","surface-variant":"#353534",
+      "background":"#131313","surface-bright":"#3a3939","secondary-container":"#534736",
+      "inverse-primary":"#7e5711","surface-dim":"#131313","surface-container-highest":"#353534",
+      "primary-container":"#d4a257","outline":"#9c8f7f","on-surface-variant":"#d3c4b3",
+      "on-primary":"#442b00","primary-fixed-dim":"#f3bd6f","primary":"#f3bd6f",
+      "on-secondary-fixed-variant":"#504534","on-secondary":"#392f1f",
+      "on-primary-container":"#583900","surface-container-lowest":"#0e0e0e",
+      "on-surface":"#e5e2e1","inverse-surface":"#e5e2e1","on-tertiary":"#362f2a",
+      "secondary-fixed-dim":"#d5c4ad","on-background":"#e5e2e1","surface-container-low":"#1c1b1b",
+      "outline-variant":"#4f4538","surface-container":"#201f1f","tertiary-fixed-dim":"#d1c4bd",
+      "primary-fixed":"#ffddb1","tertiary-container":"#b4a9a2","secondary":"#d5c4ad",
+      "surface":"#131313","tertiary":"#d1c4bd","error":"#ffb4ab"
+    },
+    borderRadius: { DEFAULT:"0.25rem", lg:"0.5rem", xl:"0.75rem", full:"9999px" },
+    spacing: { "container-padding":"24px","artifact-margin":"32px","gutter":"16px","base":"8px" },
+    fontFamily: {
+      "headline-lg":["Cinzel"],"display-lg":["Cinzel"],"body-lg":["EB Garamond"],
+      "headline-md":["Cinzel"],"body-md":["EB Garamond"],"label-lg":["Cinzel"]
+    },
+    fontSize: {
+      "headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"0.02em","fontWeight":"600"}],
+      "display-lg":["48px",{"lineHeight":"56px","letterSpacing":"0.05em","fontWeight":"700"}],
+      "body-lg":["18px",{"lineHeight":"28px","fontWeight":"400"}],
+      "headline-md":["24px",{"lineHeight":"32px","fontWeight":"600"}],
+      "body-md":["16px",{"lineHeight":"24px","fontWeight":"400"}],
+      "label-lg":["14px",{"lineHeight":"20px","letterSpacing":"0.1em","fontWeight":"700"}]
+    }
+  } }
+}
+</script>
 </head>
 <body class="bg-background text-on-surface selection:bg-primary selection:text-on-primary">
-<!-- Top Navigation Bar -->
+
+<!-- Top Nav -->
 <nav class="bg-surface-container-lowest border-b border-outline-variant shadow-md fixed top-0 left-0 w-full z-50 h-16 flex justify-between items-center px-artifact-margin">
-<div class="flex items-center gap-4">
-<span class="font-display-lg text-headline-md font-bold tracking-widest text-primary">NOXARA REALMS</span>
-<div class="hidden md:flex gap-6 ml-8">
-<a class="text-on-surface-variant font-medium hover:text-primary-fixed-dim transition-colors duration-300 font-label-lg text-label-lg" href="#">Wiki</a>
-<a class="text-on-surface-variant font-medium hover:text-primary-fixed-dim transition-colors duration-300 font-label-lg text-label-lg" href="#">Community</a>
-<a class="text-on-surface-variant font-medium hover:text-primary-fixed-dim transition-colors duration-300 font-label-lg text-label-lg" href="#">Ranking</a>
-<a class="text-on-surface-variant font-medium hover:text-primary-fixed-dim transition-colors duration-300 font-label-lg text-label-lg" href="#">Map</a>
-</div>
-</div>
-<div class="flex items-center gap-4">
-<span class="material-symbols-outlined text-primary cursor-pointer hover:scale-95 duration-150" data-icon="settings">settings</span>
-<span class="material-symbols-outlined text-primary cursor-pointer hover:scale-95 duration-150" data-icon="notifications">notifications</span>
-<span class="material-symbols-outlined text-primary cursor-pointer hover:scale-95 duration-150" data-icon="account_circle">account_circle</span>
-</div>
+  <div class="flex items-center gap-4">
+    <span class="font-display-lg text-headline-md font-bold tracking-widest text-primary">NOXARA — GELİŞİM AĞACI</span>
+  </div>
+  <div class="flex items-center gap-4">
+    <span class="material-symbols-outlined text-primary cursor-pointer hover:scale-95 duration-150">settings</span>
+    <span class="material-symbols-outlined text-primary cursor-pointer hover:scale-95 duration-150">notifications</span>
+    <span class="material-symbols-outlined text-primary cursor-pointer hover:scale-95 duration-150">account_circle</span>
+  </div>
 </nav>
-<!-- v1.14.3.94: Sol menu kaldirildi (user feedback) — main full-width -->
-<main class="pt-16 pb-20 min-h-screen relative parchment-texture">
-<!-- Resource Sticky Top Bar -->
-<header class="sticky top-16 z-30 bg-surface-container-low/95 backdrop-blur-md border-b border-primary/20 h-20 flex items-center justify-between px-artifact-margin">
-<div class="flex items-center gap-8">
-<div class="flex items-center gap-2">
-<span class="text-primary font-bold font-headline-md">GP:</span>
-<span class="text-on-surface font-body-lg">124</span>
-</div>
-<div class="flex items-center gap-2">
-<span class="text-primary font-bold font-headline-md">KP:</span>
-<span class="text-on-surface font-body-lg">56</span>
-</div>
-<div class="flex items-center gap-2">
-<span class="text-primary font-bold font-headline-md">İşl:</span>
-<span class="text-on-surface font-body-lg">890</span>
-</div>
-</div>
-<div class="flex items-center gap-3" id="filter-chips">
-<button data-filter="hepsi" class="filter-chip px-4 py-1.5 rounded-full border border-primary bg-primary/10 text-primary font-label-lg hover:bg-primary/20 transition-all active">Hepsi</button>
-<button data-filter="gp" class="filter-chip px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant font-label-lg hover:bg-surface-variant transition-all">GP — Gelişim Puanı</button>
-<button data-filter="kp" class="filter-chip px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant font-label-lg hover:bg-surface-variant transition-all">KP — Kültür Puanı</button>
-</div>
+
+<main class="pt-16 pb-12 min-h-screen relative parchment-texture">
+
+<!-- Resource bar -->
+<header class="sticky top-16 z-30 bg-surface-container-low/95 backdrop-blur-md border-b border-primary/20 h-20 flex items-center justify-between px-artifact-margin flex-wrap gap-4">
+  <div class="flex items-center gap-8 flex-wrap">
+    <div class="flex items-center gap-2"><span class="text-primary font-bold font-headline-md">GP:</span><span class="text-on-surface font-body-lg">124</span></div>
+    <div class="flex items-center gap-2"><span class="text-primary font-bold font-headline-md">KP:</span><span class="text-on-surface font-body-lg">56</span></div>
+    <div class="flex items-center gap-2"><span class="text-primary font-bold font-headline-md">İşl:</span><span class="text-on-surface font-body-lg">890</span></div>
+    <div class="flex items-center gap-2"><span class="text-primary font-bold font-headline-md">Çağ:</span><span class="text-on-surface font-body-lg">III</span></div>
+  </div>
+  <div class="flex items-center gap-3" id="filter-chips">
+    <button data-filter="hepsi" class="filter-chip px-4 py-1.5 rounded-full border border-primary bg-primary/10 text-primary font-label-lg active">Hepsi</button>
+    <button data-filter="gp" class="filter-chip px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant font-label-lg">GP — Gelişim Puanı</button>
+    <button data-filter="kp" class="filter-chip px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant font-label-lg">KP — Kültür Puanı</button>
+  </div>
 </header>
-<!-- Tech Tree Interface -->
-<section class="max-w-[1200px] mx-auto py-12 px-6 flex justify-between items-start gap-12 overflow-x-auto scrollbar-hide">
-<!-- COLUMN 1: GP (Gelişim Puanı) -->
-<div class="tree-col flex-shrink-0 w-[300px] flex flex-col gap-16" data-col="gp">
-<h2 class="text-center font-display-lg text-primary glow-sm border-b border-primary/30 pb-4">GP — Gelişim Puanı</h2>
-<div class="grid grid-cols-1 gap-12">
-<!-- Branch: Üretim -->
-<div class="flex flex-col items-center">
-<span class="text-xs text-on-surface-variant font-label-lg mb-4 uppercase tracking-widest">Üretim</span>
-<div class="flex flex-col-reverse items-center gap-0">
-<!-- Sv 1 - Bought -->
-<div class="w-[200px] h-[40px] bg-surface-container-high border-2 border-primary rounded-md flex items-center px-3 gap-2 relative tech-card-active">
-<span class="material-symbols-outlined text-primary text-sm" data-icon="construction">construction</span>
-<div class="flex-grow flex flex-col justify-center">
-<span class="text-[10px] font-bold text-primary leading-tight">Taş Ocağı Sv 1</span>
-<span class="text-[9px] text-on-surface-variant leading-tight">Tamamlandı</span>
+
+<!-- Tech tree — 3 columns, 8 sub-branches, gerçek veriler -->
+<section class="max-w-[1400px] mx-auto py-12 px-6 flex justify-center items-start gap-8 flex-wrap">
+
+<!-- ═══════════════════════════════════════════════════════════
+     COLUMN 1: ÜRETİM (GP odaklı — 5 hammadde + 4 işleme = 9 öğe)
+═══════════════════════════════════════════════════════════ -->
+<div class="tree-col flex-shrink-0 w-[320px] flex flex-col gap-12" data-col="gp">
+  <h2 class="text-center font-display-lg text-primary glow-sm border-b border-primary/30 pb-4 text-2xl">🌾 ÜRETİM</h2>
+
+  <!-- HAMMADDE alt dal -->
+  <div class="flex flex-col items-center">
+    <span class="text-xs text-on-surface-variant font-label-lg mb-4 uppercase tracking-widest">Hammadde</span>
+    <div class="flex flex-col-reverse items-center gap-0 w-full" id="dal-hammadde"></div>
+  </div>
+
+  <!-- İŞLEME alt dal -->
+  <div class="flex flex-col items-center">
+    <span class="text-xs text-on-surface-variant font-label-lg mb-4 uppercase tracking-widest">İşleme</span>
+    <div class="flex flex-col-reverse items-center gap-0 w-full" id="dal-isleme"></div>
+  </div>
 </div>
-<span class="material-symbols-outlined text-primary text-sm" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+
+<!-- ═══════════════════════════════════════════════════════════
+     COLUMN 2: EKONOMİ & YAPI (Karma — 3 ekonomi + 3 askeri yapı)
+═══════════════════════════════════════════════════════════ -->
+<div class="tree-col flex-shrink-0 w-[320px] flex flex-col gap-12" data-col="karma">
+  <h2 class="text-center font-display-lg text-primary glow-sm border-b border-primary/30 pb-4 text-2xl">💰 EKONOMİ & YAPI</h2>
+
+  <!-- EKONOMİ alt dal -->
+  <div class="flex flex-col items-center">
+    <span class="text-xs text-on-surface-variant font-label-lg mb-4 uppercase tracking-widest">Ekonomi</span>
+    <div class="flex flex-col-reverse items-center gap-0 w-full" id="dal-ekonomi"></div>
+  </div>
+
+  <!-- YAPI alt dal (Ahır, Lonca, Büyülü Tarla) -->
+  <div class="flex flex-col items-center">
+    <span class="text-xs text-on-surface-variant font-label-lg mb-4 uppercase tracking-widest">Şehir Yapı</span>
+    <div class="flex flex-col-reverse items-center gap-0 w-full" id="dal-yapi"></div>
+  </div>
 </div>
-<!-- Line -->
-<div class="w-0.5 h-6 bg-primary/50"></div>
-<!-- Sv 2 - Current -->
-<div class="w-[200px] h-[40px] bg-surface-container-high border border-primary/30 rounded-md flex items-center px-3 gap-2 relative hover:border-primary transition-all cursor-pointer">
-<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="forest">forest</span>
-<div class="flex-grow flex flex-col justify-center">
-<span class="text-[10px] font-bold text-on-surface leading-tight">Kereste Sv 2</span>
-<span class="text-[9px] text-primary leading-tight">Maliyet: 40 GP</span>
+
+<!-- ═══════════════════════════════════════════════════════════
+     COLUMN 3: ASKERİ & MİSTİK (KP+GP karma)
+═══════════════════════════════════════════════════════════ -->
+<div class="tree-col flex-shrink-0 w-[320px] flex flex-col gap-12" data-col="kp">
+  <h2 class="text-center font-display-lg text-primary glow-sm border-b border-primary/30 pb-4 text-2xl">⚔️ ASKERİ & MİSTİK</h2>
+
+  <!-- ASKERİ alt dal -->
+  <div class="flex flex-col items-center">
+    <span class="text-xs text-on-surface-variant font-label-lg mb-4 uppercase tracking-widest">Askeri Geliştirme</span>
+    <div class="flex flex-col-reverse items-center gap-0 w-full" id="dal-askeri"></div>
+  </div>
+
+  <!-- MİSTİK + ÇAĞ alt dal -->
+  <div class="flex flex-col items-center">
+    <span class="text-xs text-on-surface-variant font-label-lg mb-4 uppercase tracking-widest">Mistik & Çağ</span>
+    <div class="flex flex-col-reverse items-center gap-0 w-full" id="dal-mistik"></div>
+  </div>
+
+  <!-- BİRİM ATK/DEF (genişletilebilir) -->
+  <div class="flex flex-col items-center">
+    <span class="text-xs text-on-surface-variant font-label-lg mb-4 uppercase tracking-widest">Birim ATK/DEF (örnek)</span>
+    <div class="flex flex-col-reverse items-center gap-0 w-full" id="dal-birim"></div>
+    <button onclick="alert('Aydınlık: 13 birim × 2 (ATK+DEF) = 26 geliştirme\\nKaranlık: aynı sayıda\\nMockup\\'da örnek 3 birim gösteriliyor.')" class="mt-4 text-xs text-primary underline hover:no-underline">Tümünü gör (26 birim)</button>
+  </div>
 </div>
-</div>
-<!-- Line -->
-<div class="w-0.5 h-6 bg-primary/50 opacity-30"></div>
-<!-- Sv 3 - Locked -->
-<div class="w-[200px] h-[40px] bg-surface-container-lowest border border-outline-variant/30 rounded-md flex items-center px-3 gap-2 relative opacity-30">
-<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="lock">lock</span>
-<div class="flex-grow flex flex-col justify-center">
-<span class="text-[10px] font-bold text-on-surface leading-tight">Maden Sv 3</span>
-<span class="text-[9px] text-on-surface-variant leading-tight">Kilitli</span>
-</div>
-</div>
-</div>
-</div>
-<!-- Branch: Ekonomi -->
-<div class="flex flex-col items-center">
-<span class="text-xs text-on-surface-variant font-label-lg mb-4 uppercase tracking-widest">Ekonomi</span>
-<div class="flex flex-col-reverse items-center gap-0">
-<div class="w-[200px] h-[40px] bg-surface-container-high border-2 border-primary rounded-md flex items-center px-3 gap-2 relative tech-card-active">
-<span class="material-symbols-outlined text-primary text-sm" data-icon="payments">payments</span>
-<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-primary leading-tight">Pazar Sv 1</span></div>
-<span class="material-symbols-outlined text-primary text-sm" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-</div>
-<div class="w-0.5 h-6 bg-primary/50"></div>
-<div class="w-[200px] h-[40px] bg-surface-container-high border-2 border-primary rounded-md flex items-center px-3 gap-2 relative tech-card-active">
-<span class="material-symbols-outlined text-primary text-sm" data-icon="trending_up">trending_up</span>
-<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-primary leading-tight">Vergi Sv 2</span></div>
-<span class="material-symbols-outlined text-primary text-sm" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-</div>
-<div class="w-0.5 h-6 bg-primary/50"></div>
-<div class="w-[200px] h-[40px] bg-surface-container-high border border-primary/30 rounded-md flex items-center px-3 gap-2 relative hover:border-primary transition-all cursor-pointer">
-<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="account_balance">account_balance</span>
-<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-on-surface leading-tight">Banka Sv 3</span></div>
-<span class="text-[9px] text-primary leading-tight">85 GP</span>
-</div>
-</div>
-</div>
-</div>
-</div>
-<!-- COLUMN 2: KP (Kültür Puanı) -->
-<div class="tree-col flex-shrink-0 w-[300px] flex flex-col gap-16" data-col="kp">
-<h2 class="text-center font-display-lg text-primary glow-sm border-b border-primary/30 pb-4">KP — Kültür Puanı</h2>
-<div class="grid grid-cols-1 gap-12">
-<!-- Branch: Bilgi -->
-<div class="flex flex-col items-center">
-<span class="text-xs text-on-surface-variant font-label-lg mb-4 uppercase tracking-widest">Bilgi</span>
-<div class="flex flex-col-reverse items-center gap-0">
-<div class="w-[200px] h-[40px] bg-surface-container-high border-2 border-primary rounded-md flex items-center px-3 gap-2 relative tech-card-active">
-<span class="material-symbols-outlined text-primary text-sm" data-icon="auto_stories">auto_stories</span>
-<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-primary leading-tight">Yazıtlar Sv 1</span></div>
-<span class="material-symbols-outlined text-primary text-sm" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-</div>
-<div class="w-0.5 h-6 bg-primary/50"></div>
-<div class="w-[200px] h-[40px] bg-surface-container-high border border-primary/30 rounded-md flex items-center px-3 gap-2 relative hover:border-primary transition-all cursor-pointer">
-<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="history_edu">history_edu</span>
-<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-on-surface leading-tight">Felsefe Sv 2</span></div>
-<span class="text-[9px] text-primary leading-tight">30 KP</span>
-</div>
-<div class="w-0.5 h-6 bg-primary/50 opacity-30"></div>
-<div class="w-[200px] h-[40px] bg-surface-container-lowest border border-outline-variant/30 rounded-md flex items-center px-3 gap-2 relative opacity-30">
-<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="lock">lock</span>
-<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-on-surface leading-tight">Mantık Sv 3</span></div>
-</div>
-</div>
-</div>
-<!-- Branch: Kültür -->
-<div class="flex flex-col items-center">
-<span class="text-xs text-on-surface-variant font-label-lg mb-4 uppercase tracking-widest">Kültür</span>
-<div class="flex flex-col-reverse items-center gap-0">
-<div class="w-[200px] h-[40px] bg-surface-container-high border-2 border-primary rounded-md flex items-center px-3 gap-2 relative tech-card-active">
-<span class="material-symbols-outlined text-primary text-sm" data-icon="theater_comedy">theater_comedy</span>
-<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-primary leading-tight">Tiyatro Sv 1</span></div>
-<span class="material-symbols-outlined text-primary text-sm" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-</div>
-<div class="w-0.5 h-6 bg-primary/50"></div>
-<div class="w-[200px] h-[40px] bg-surface-container-high border-2 border-primary rounded-md flex items-center px-3 gap-2 relative tech-card-active">
-<span class="material-symbols-outlined text-primary text-sm" data-icon="palette">palette</span>
-<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-primary leading-tight">Sanat Sv 2</span></div>
-<span class="material-symbols-outlined text-primary text-sm" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-</div>
-<div class="w-0.5 h-6 bg-primary/50"></div>
-<div class="w-[200px] h-[40px] bg-surface-container-high border border-primary/30 rounded-md flex items-center px-3 gap-2 relative hover:border-primary transition-all cursor-pointer">
-<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="music_note">music_note</span>
-<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-on-surface leading-tight">Müzik Sv 3</span></div>
-<span class="text-[9px] text-primary leading-tight">55 KP</span>
-</div>
-</div>
-</div>
-</div>
-</div>
-<!-- COLUMN 3: GP + KP Combined (Hepsi filtre'sinde gorunur) -->
-<div class="tree-col flex-shrink-0 w-[300px] flex flex-col gap-16" data-col="karma">
-<h2 class="text-center font-display-lg text-primary glow-sm border-b border-primary/30 pb-4">GP + KP — Karma</h2>
-<div class="grid grid-cols-1 gap-12">
-<!-- Branch: Büyü Kulesi -->
-<div class="flex flex-col items-center">
-<span class="text-xs text-on-surface-variant font-label-lg mb-4 uppercase tracking-widest">Büyü Kulesi</span>
-<div class="flex flex-col-reverse items-center gap-0">
-<div class="w-[200px] h-[40px] bg-surface-container-high border-2 border-primary rounded-md flex items-center px-3 gap-2 relative tech-card-active">
-<span class="material-symbols-outlined text-primary text-sm" data-icon="auto_fix_high">auto_fix_high</span>
-<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-primary leading-tight">Çırak Sv 1</span></div>
-<span class="material-symbols-outlined text-primary text-sm" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-</div>
-<div class="w-0.5 h-6 bg-primary/50 opacity-30"></div>
-<div class="w-[200px] h-[40px] bg-surface-container-lowest border border-outline-variant/30 rounded-md flex items-center px-3 gap-2 relative opacity-30">
-<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="lock">lock</span>
-<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-on-surface leading-tight">Element Sv 2</span></div>
-</div>
-<div class="w-0.5 h-6 bg-primary/50 opacity-30"></div>
-<div class="w-[200px] h-[40px] bg-surface-container-lowest border border-outline-variant/30 rounded-md flex items-center px-3 gap-2 relative opacity-30">
-<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="lock">lock</span>
-<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-on-surface leading-tight">Üstat Sv 3</span></div>
-</div>
-</div>
-</div>
-<!-- Branch: Harikalar -->
-<div class="flex flex-col items-center">
-<span class="text-xs text-on-surface-variant font-label-lg mb-4 uppercase tracking-widest">Harikalar</span>
-<div class="flex flex-col-reverse items-center gap-0">
-<div class="w-[200px] h-[40px] bg-surface-container-high border border-primary/30 rounded-md flex items-center px-3 gap-2 relative hover:border-primary transition-all cursor-pointer">
-<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="castle">castle</span>
-<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-on-surface leading-tight">Gözlemevi Sv 1</span></div>
-<span class="text-[9px] text-primary leading-tight">100 GP + 100 KP</span>
-</div>
-<div class="w-0.5 h-6 bg-primary/50 opacity-30"></div>
-<div class="w-[200px] h-[40px] bg-surface-container-lowest border border-outline-variant/30 rounded-md flex items-center px-3 gap-2 relative opacity-30">
-<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="lock">lock</span>
-<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-on-surface leading-tight">Yüce Tapınak Sv 2</span></div>
-</div>
-</div>
-</div>
-</div>
-</div>
+
 </section>
 </main>
-<!-- Bottom Navigation Bar (Resource Summary & Quick Links) -->
-<!-- v1.14.3.94: Alt resource nav kaldirildi (zaten ust bar'da var) -->
-<!-- Visual Polish: Atmosphere Overlay -->
+
+<!-- Atmosfer overlay -->
 <div class="fixed inset-0 pointer-events-none bg-gradient-to-t from-background via-transparent to-transparent opacity-40"></div>
 
 <script>
-  // v1.14.3.94: Filter chips — Hepsi / GP / KP
-  document.addEventListener('DOMContentLoaded', () => {
-    const chips = document.querySelectorAll('.filter-chip');
-    const cols = document.querySelectorAll('.tree-col');
-    chips.forEach(chip => {
-      chip.addEventListener('click', () => {
-        chips.forEach(c => {
-          c.classList.remove('active', 'bg-primary/10', 'text-primary', 'border-primary');
-          c.classList.add('border-outline-variant', 'text-on-surface-variant');
-        });
-        chip.classList.add('active', 'bg-primary/10', 'text-primary', 'border-primary');
-        chip.classList.remove('border-outline-variant', 'text-on-surface-variant');
-        const f = chip.dataset.filter;
-        cols.forEach(col => {
-          const c = col.dataset.col;
-          // Hepsi: 3 kolon goster | GP: GP+Karma | KP: KP+Karma
-          let show;
-          if (f === 'hepsi') show = true;
-          else if (f === 'gp') show = (c === 'gp' || c === 'karma');
-          else if (f === 'kp') show = (c === 'kp' || c === 'karma');
-          col.style.display = show ? 'flex' : 'none';
-        });
+// ════════════════════════════════════════════════════════════
+// VERİ (backend SEHIR_GEL + askeri_gel + units.js'ten)
+// ════════════════════════════════════════════════════════════
+const oyuncuCag = 3;              // mock: oyuncu çağı
+const seviyeler = {               // mock: oyuncunun mevcut seviyeleri
+  oduncu_gel:5, madenci_gel:3, ciftci_gel:4, balikci_gel:2, ticaret_gel:1,
+  kereste_gel:3, metal_gel:2, firin_gel:1, et_gel:0,
+  vergi_gel:2, insaat_gel:1, essek_gel:0,
+  ahir_gel:1, lonca_gel:0, buyulu_gel:0,
+  askeri_gel:3, maas_gel:2, mana_gel:1,
+  piyade_atk:4, piyade_def:3,
+  sovalye_atk:2, sovalye_def:1,
+  buyucu_atk:1, buyucu_def:0,
+};
+
+// Maliyet formülleri (backend'le aynı)
+function sehirGelMaliyet(kademe) { return { gp: 5*kademe, kp: 2*kademe, isl: 100*kademe }; }
+function askeriMaliyet(kademe)   { return { gp:10*kademe, kp: 5*kademe, isl: 100*kademe }; }
+// Çağ kilidi (kademe 1-2→Ç1, 3-4→Ç2, ...)
+function gerekenCag(kademe) { return Math.ceil(kademe / 2); }
+
+// ŞEHIR GELIŞTIRMELERİ (16 adet, max kademe 10)
+const SEHIR_GEL = {
+  // KAYNAK
+  oduncu_gel:    { isim:'Oduncu',         icon:'forest',     etki:'Oduncu→odun +%1/sv',     max:10, dal:'hammadde' },
+  madenci_gel:   { isim:'Madenci',        icon:'construction',etki:'Madenci→metal +%1/sv',  max:10, dal:'hammadde' },
+  ciftci_gel:    { isim:'Çiftçi',         icon:'agriculture',etki:'Çiftçi→buğday +%1/sv',  max:10, dal:'hammadde' },
+  balikci_gel:   { isim:'Balıkçı',        icon:'set_meal',   etki:'Balıkçı→balık +%1/sv',  max:10, dal:'hammadde' },
+  ticaret_gel:   { isim:'Ticaret',        icon:'storefront', etki:'Markette değerli +%1/sv', max:10, dal:'hammadde' },
+  // İŞLEME
+  kereste_gel:   { isim:'Kereste',        icon:'park',       etki:'Kereste verimi +%1/sv', max:10, dal:'isleme' },
+  metal_gel:     { isim:'Metal İşleme',   icon:'handyman',   etki:'İşlenmiş metal +%1/sv', max:10, dal:'isleme' },
+  firin_gel:     { isim:'Fırın',          icon:'restaurant', etki:'Ekmek+pişmiş +%1/sv',   max:10, dal:'isleme' },
+  et_gel:        { isim:'Et İşleme',      icon:'lunch_dining',etki:'Pişmiş et verimi +%1/sv', max:10, dal:'isleme' },
+  // EKONOMİ
+  vergi_gel:     { isim:'Vergi Toleransı',icon:'payments',   etki:'Vergi moral cezası -%1/sv', max:10, dal:'ekonomi' },
+  insaat_gel:    { isim:'İnşaat',         icon:'engineering',etki:'Bina maliyeti -%1/sv',  max:10, dal:'ekonomi' },
+  essek_gel:     { isim:'Eşşek Şansı',    icon:'pets',       etki:'Pazarda eşşek +%0.1/sv',max:10, dal:'ekonomi' },
+  // ŞEHIR YAPI (Askeri kategori)
+  ahir_gel:      { isim:'Ahır',           icon:'shield_moon',etki:'At/Kurt üretim +%1/sv', max:10, dal:'yapi' },
+  lonca_gel:     { isim:'Lonca',          icon:'visibility_off',etki:'Gizlilik +%1/sv',   max:10, dal:'yapi' },
+  buyulu_gel:    { isim:'Büyülü Tarla',   icon:'egg',        etki:'Büyülü yumurta +%1/sv', max:10, dal:'yapi' },
+  // MİSTİK
+  mana_gel:      { isim:'Mana Verimi',    icon:'auto_fix_high',etki:'Worshipper mana +%1/sv',max:10, dal:'mistik' },
+};
+
+// ASKERİ GELİŞTİRME (max sv = çağ × 3, üst sınır 15)
+const ASKERI_GEL = {
+  askeri_gel: { isim:'Askeri Geliştirme', icon:'shield',  etki:'Ünite eğitim altın -%10/sv', max:15, dal:'askeri' },
+  maas_gel:   { isim:'Maaş İndirimi',     icon:'paid',    etki:'Ordu maaşı -%5/sv',          max:15, dal:'askeri' },
+};
+
+// ÇAĞ ATLAMA (4 atlama: 1→2, 2→3, 3→4, 4→5)
+const CAG_ATLA = [
+  { isim:'II. Çağ — Demir',   icon:'looks_two',   gp:30,  kp:15, isl:500,   dal:'mistik' },
+  { isim:'III. Çağ — Altın',  icon:'looks_3',     gp:80,  kp:40, isl:1500,  dal:'mistik' },
+  { isim:'IV. Çağ — Ejderha', icon:'looks_4',     gp:200, kp:100,isl:5000,  dal:'mistik' },
+  { isim:'V. Çağ — Kadim',    icon:'looks_5',     gp:500, kp:250,isl:15000, dal:'mistik' },
+];
+
+// BİRİM ATK/DEF (örnek 3 birim — backend'de 28 ünite × 2 = 56 var)
+const BIRIM_GEL = {
+  piyade_atk:   { isim:'Piyade ATK',   icon:'gpp_good',  etki:'Piyade ATK +1/sv',    max:10, dal:'birim' },
+  piyade_def:   { isim:'Piyade DEF',   icon:'gpp_maybe', etki:'Piyade DEF +1/sv',    max:10, dal:'birim' },
+  sovalye_atk:  { isim:'Şövalye ATK',  icon:'gpp_good',  etki:'Şövalye ATK +1/sv',   max:10, dal:'birim' },
+  sovalye_def:  { isim:'Şövalye DEF',  icon:'gpp_maybe', etki:'Şövalye DEF +1/sv',   max:10, dal:'birim' },
+  buyucu_atk:   { isim:'Büyücü ATK',   icon:'gpp_good',  etki:'Büyücü ATK +1/sv',    max:10, dal:'birim' },
+  buyucu_def:   { isim:'Büyücü DEF',   icon:'gpp_maybe', etki:'Büyücü DEF +1/sv',    max:10, dal:'birim' },
+};
+
+// ════════════════════════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════════════════════════
+function kart(opts) {
+  const { id, isim, icon, etki, sv, maxSv, costFn, gerekenCag: gc, oyuncuCag: oc } = opts;
+  const bought    = sv > 0;
+  const current   = sv < maxSv;
+  const cagYeter  = oc >= gc;
+  const sonraki   = sv + 1;
+  const cost      = costFn ? costFn(sonraki) : null;
+  const locked    = !cagYeter || sv >= maxSv;
+  // Card class
+  let bg, br, opacity = '';
+  if (sv >= maxSv) { bg = 'bg-surface-container-high'; br = 'border-primary'; }
+  else if (locked) { bg = 'bg-surface-container-lowest'; br = 'border-outline-variant/30'; opacity = 'opacity-30'; }
+  else             { bg = 'bg-surface-container-high'; br = 'border-primary/30'; }
+  const titleColor = (sv >= maxSv || (bought && !locked)) ? 'text-primary' : 'text-on-surface';
+  const iconColor  = (sv >= maxSv) ? 'text-primary' : (bought ? 'text-primary/70' : 'text-on-surface-variant');
+
+  let costHtml = '';
+  if (sv >= maxSv) {
+    costHtml = `<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings:'FILL' 1;">check_circle</span>`;
+  } else if (locked && !cagYeter) {
+    costHtml = `<span class="text-[9px] text-on-surface-variant leading-tight">Çağ ${gc} gerek</span>`;
+  } else if (cost) {
+    costHtml = `<span class="text-[9px] text-primary leading-tight">${cost.gp}GP·${cost.kp}KP</span>`;
+  }
+
+  return `<div class="w-full h-[44px] ${bg} border ${br} rounded-md flex items-center px-3 gap-2 relative hover:border-primary transition-all cursor-pointer ${opacity}" title="${etki}">
+    <span class="material-symbols-outlined ${iconColor} text-sm">${icon}</span>
+    <div class="flex-grow flex flex-col justify-center min-w-0">
+      <span class="text-[10px] font-bold ${titleColor} leading-tight truncate">${isim}${sv > 0 ? ` (Sv ${sv})` : ''}</span>
+      <span class="text-[9px] text-on-surface-variant leading-tight truncate">${etki}</span>
+    </div>
+    ${costHtml}
+  </div>`;
+}
+
+function renderDal(domId, items, kademeKey) {
+  const el = document.getElementById(domId);
+  if (!el) return;
+  // Her geliştirme TEK kart (mevcut Sv X / Max Y gösterir)
+  el.innerHTML = items.map((it, idx) => {
+    const sep = (idx > 0) ? `<div class="w-0.5 h-3 bg-primary/30"></div>` : '';
+    return sep + it;
+  }).join('');
+}
+
+// Doldur
+document.addEventListener('DOMContentLoaded', () => {
+  // HAMMADDE
+  renderDal('dal-hammadde', Object.entries(SEHIR_GEL).filter(([,v]) => v.dal === 'hammadde').map(([id, v]) =>
+    kart({ id, isim: v.isim, icon: v.icon, etki: v.etki, sv: seviyeler[id] || 0, maxSv: v.max, costFn: sehirGelMaliyet, gerekenCag: gerekenCag((seviyeler[id]||0)+1), oyuncuCag })
+  ));
+  // İŞLEME
+  renderDal('dal-isleme', Object.entries(SEHIR_GEL).filter(([,v]) => v.dal === 'isleme').map(([id, v]) =>
+    kart({ id, isim: v.isim, icon: v.icon, etki: v.etki, sv: seviyeler[id] || 0, maxSv: v.max, costFn: sehirGelMaliyet, gerekenCag: gerekenCag((seviyeler[id]||0)+1), oyuncuCag })
+  ));
+  // EKONOMİ
+  renderDal('dal-ekonomi', Object.entries(SEHIR_GEL).filter(([,v]) => v.dal === 'ekonomi').map(([id, v]) =>
+    kart({ id, isim: v.isim, icon: v.icon, etki: v.etki, sv: seviyeler[id] || 0, maxSv: v.max, costFn: sehirGelMaliyet, gerekenCag: gerekenCag((seviyeler[id]||0)+1), oyuncuCag })
+  ));
+  // YAPI (Ahır/Lonca/Büyülü)
+  renderDal('dal-yapi', Object.entries(SEHIR_GEL).filter(([,v]) => v.dal === 'yapi').map(([id, v]) =>
+    kart({ id, isim: v.isim, icon: v.icon, etki: v.etki, sv: seviyeler[id] || 0, maxSv: v.max, costFn: sehirGelMaliyet, gerekenCag: gerekenCag((seviyeler[id]||0)+1), oyuncuCag })
+  ));
+  // ASKERİ
+  const askeriItems = Object.entries(ASKERI_GEL).map(([id, v]) =>
+    kart({ id, isim: v.isim, icon: v.icon, etki: v.etki, sv: seviyeler[id] || 0,
+           maxSv: Math.min(oyuncuCag * 3, v.max),
+           costFn: askeriMaliyet, gerekenCag: 1, oyuncuCag })
+  );
+  renderDal('dal-askeri', askeriItems);
+  // MİSTİK (mana + 4 çağ atlama)
+  const mistikItems = [];
+  const manaItem = SEHIR_GEL.mana_gel;
+  mistikItems.push(kart({ id:'mana_gel', isim:manaItem.isim, icon:manaItem.icon, etki:manaItem.etki,
+                          sv:seviyeler.mana_gel || 0, maxSv:manaItem.max, costFn:sehirGelMaliyet,
+                          gerekenCag: gerekenCag((seviyeler.mana_gel||0)+1), oyuncuCag }));
+  // Çağ atlama (her biri tek seferlik, sv ya 0 ya 1)
+  CAG_ATLA.forEach((ca, idx) => {
+    const hedefCag = idx + 2;
+    const bought = oyuncuCag >= hedefCag;
+    const locked = oyuncuCag < (hedefCag - 1);
+    mistikItems.push(`<div class="w-full h-[44px] ${bought ? 'bg-surface-container-high border-primary' : (locked ? 'bg-surface-container-lowest border-outline-variant/30 opacity-30' : 'bg-surface-container-high border-primary/30')} border rounded-md flex items-center px-3 gap-2 relative hover:border-primary transition-all cursor-pointer" title="${ca.gp} GP + ${ca.kp} KP + ${ca.isl} İşl gerek">
+      <span class="material-symbols-outlined ${bought ? 'text-primary' : 'text-on-surface-variant'} text-sm">${ca.icon}</span>
+      <div class="flex-grow flex flex-col justify-center min-w-0">
+        <span class="text-[10px] font-bold ${bought ? 'text-primary' : 'text-on-surface'} leading-tight truncate">${ca.isim}</span>
+        <span class="text-[9px] text-on-surface-variant leading-tight truncate">Çağ atlama</span>
+      </div>
+      ${bought ? `<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings:'FILL' 1;">check_circle</span>` : `<span class="text-[9px] text-primary leading-tight">${ca.gp}GP·${ca.kp}KP</span>`}
+    </div>`);
+  });
+  renderDal('dal-mistik', mistikItems);
+  // BİRİM (örnek 3 birim — backend'de 26)
+  renderDal('dal-birim', Object.entries(BIRIM_GEL).map(([id, v]) =>
+    kart({ id, isim: v.isim, icon: v.icon, etki: v.etki, sv: seviyeler[id] || 0,
+           maxSv: v.max, costFn: askeriMaliyet, gerekenCag: 1, oyuncuCag })
+  ));
+
+  // Filter chip handler
+  const chips = document.querySelectorAll('.filter-chip');
+  const cols = document.querySelectorAll('.tree-col');
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      chips.forEach(c => {
+        c.classList.remove('active','bg-primary/10','text-primary','border-primary');
+        c.classList.add('border-outline-variant','text-on-surface-variant');
+      });
+      chip.classList.add('active','bg-primary/10','text-primary','border-primary');
+      chip.classList.remove('border-outline-variant','text-on-surface-variant');
+      const f = chip.dataset.filter;
+      cols.forEach(col => {
+        const c = col.dataset.col;
+        let show;
+        if (f === 'hepsi') show = true;
+        else if (f === 'gp') show = (c === 'gp' || c === 'karma');
+        else if (f === 'kp') show = (c === 'kp' || c === 'karma');
+        col.style.display = show ? 'flex' : 'none';
       });
     });
   });
+});
 </script>
 </body></html>
