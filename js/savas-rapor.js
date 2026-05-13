@@ -265,7 +265,7 @@ function showSavasRapor(sonuc, benimTaraf, opts) {
     for (const [k,v] of Object.entries(g.sehir_yagmasi)) {
       if (v > 0) arr.push(`<div class="sr-gani-item" style="color:${signColor}"><span class="ico">🏴</span><span class="ico">${ikon(k)}</span><span class="val">${signStr}${fmt(v)}</span></div>`);
     }
-    if (arr.length > 0) ganimetItemleri.push({ cat: 'Sehir Yagmasi', items: arr });
+    if (arr.length > 0) ganimetItemleri.push({ cat: 'Şehir Yağması', items: arr });
   }
   const diger = [];
   if (g.alan_transferi && g.alan_transferi.miktar > 0) {

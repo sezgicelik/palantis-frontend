@@ -604,7 +604,7 @@ async function loadEsirler() {
     const izinli = d.donusum_izinli_uniteler || d.izinli_uniteler || [];
 
     if (kampSev === 0) {
-      wrap.innerHTML = '<div style="padding:16px;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);border-radius:6px;color:#e74c3c">🔒 <b>Esir Kampi yok!</b> Savas sonrasi gelen esirler kacar. <a href="city.html" style="color:#f1c40f">Sehir sayfasindan</a> Esir Kampi insa et.</div>';
+      wrap.innerHTML = '<div style="padding:16px;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);border-radius:6px;color:#e74c3c">🔒 <b>Esir Kampı yok!</b> Savaş sonrası gelen esirler kaçar. <a href="city.html" style="color:#f1c40f">Şehir sayfasından</a> Esir Kampı inşa et.</div>';
       return;
     }
 
@@ -620,12 +620,12 @@ async function loadEsirler() {
         '<div><div style="font-size:10px;color:#888">Kamp Seviyesi</div><div style="font-size:14px;color:#9b59b6;font-weight:bold">' + kampSev + '</div></div>' +
       '</div>' +
       '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">' +
-        satir('Bosta', e.bos, '⛓️') +
+        satir('Boşta', e.bos, '⛓️') +
         satir('Oduncu', e.oduncu, '🪓') +
         satir('Madenci', e.madenci, '⛏️') +
-        satir('Ciftci', e.ciftci, '🌾') +
-        satir('Balikci', e.balikci, '🎣') +
-        satir('Tuccar', e.tuccar, '💼') +
+        satir('Çiftçi', e.ciftci, '🌾') +
+        satir('Balıkçı', e.balikci, '🎣') +
+        satir('Tüccar', e.tuccar, '💼') +
       '</div>';
 
     if ((e.bos||0) > 0) {

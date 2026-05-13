@@ -108,11 +108,11 @@
 
     <!-- Sekmeler -->
     <div class="bk-tabs">
-      <button class="bk-tab active" onclick="bkSwitchTab('kitap')">Buyu Kitabi</button>
-      <button class="bk-tab" onclick="bkSwitchTab('parsomen')">Parsomenler</button>
-      <button class="bk-tab" onclick="bkSwitchTab('aktif')">Aktif Buyuler</button>
+      <button class="bk-tab active" onclick="bkSwitchTab('kitap')">Büyü Kitabı</button>
+      <button class="bk-tab" onclick="bkSwitchTab('parsomen')">Parşömenler</button>
+      <button class="bk-tab" onclick="bkSwitchTab('aktif')">Aktif Büyüler</button>
       <button class="bk-tab" onclick="bkSwitchTab('cooldown')">Cooldownlar</button>
-      <button class="bk-tab" onclick="bkSwitchTab('log')">Gecmis</button>
+      <button class="bk-tab" onclick="bkSwitchTab('log')">Geçmiş</button>
       <button class="bk-tab" onclick="bkSwitchTab('bilge')">Bilge Secimi</button>
     </div>
 
@@ -226,22 +226,22 @@ function bkShowSonuc(basarili, data, buyuId) {
     el.style.borderLeft = '5px solid #2ecc71';
     el.style.color = '#2ecc71';
     ikon.textContent = '✨';
-    baslik.textContent = `BASARILI: ${buyuAdi}${hedefLbl}`;
+    baslik.textContent = `BAŞARILI: ${buyuAdi}${hedefLbl}`;
     detay.style.color = '#aaa';
-    detay.textContent = data.mesaj || 'Buyu basariyla yapildi';
+    detay.textContent = data.mesaj || 'Büyü başarıyla yapıldı';
   } else {
     el.style.background = 'linear-gradient(90deg, rgba(231,76,60,0.18), rgba(231,76,60,0.05))';
     el.style.border = '1px solid rgba(231,76,60,0.5)';
     el.style.borderLeft = '5px solid #e74c3c';
     el.style.color = '#e74c3c';
     ikon.textContent = '💥';
-    baslik.textContent = `BASARISIZ: ${buyuAdi}${hedefLbl}`;
+    baslik.textContent = `BAŞARISIZ: ${buyuAdi}${hedefLbl}`;
     detay.style.color = '#aaa';
     const parcalar = [];
     if (data.mesaj) parcalar.push(data.mesaj);
     if (data.iade_mana) parcalar.push(`+${data.iade_mana} mana iade`);
-    if (data.kayip_malzeme) parcalar.push(`${data.kayip_malzeme} malzeme kaybi`);
-    detay.textContent = parcalar.join(' · ') || 'Buyu basarisiz oldu';
+    if (data.kayip_malzeme) parcalar.push(`${data.kayip_malzeme} malzeme kaybı`);
+    detay.textContent = parcalar.join(' · ') || 'Büyü başarısız oldu';
   }
   el.style.display = 'block';
   // v1.13.27: Banner artik fixed position (ekran alt-ortasinda), scroll gerekmez
@@ -345,7 +345,7 @@ function bkRenderKitap() {
 
   grid.innerHTML = Object.entries(caglar).sort((a,b) => a[0]-b[0]).map(([cag, buyuler]) => {
     return `<div>
-      <div style="font-family:'Cinzel',serif;font-size:12px;color:var(--race-color);margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid rgba(212,162,87,0.15)">⚡ ${CAG_ISIMLERI[cag]||'Cag '+cag}</div>
+      <div style="font-family:'Cinzel',serif;font-size:12px;color:var(--race-color);margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid rgba(212,162,87,0.15)">⚡ ${CAG_ISIMLERI[cag]||'Çağ '+cag}</div>
       <div class="buyu-cag-grup">
         ${buyuler.map(b => {
           const kademe = kitapMap[b.id] || 0;
@@ -424,9 +424,9 @@ function bkRenderKitap() {
           let inlineBtn = '';
           if (ogrenildi && kd && !cdAktif) {
             const yapilabilir = yeterliMana && yeterliMalzeme && yeterliKule;
-            const titleTxt = !yeterliKule ? b.cag + ' Buyucu Kulesi gerekli (mevcut: ' + kuleAdet + ')'
+            const titleTxt = !yeterliKule ? b.cag + ' Büyücü Kulesi gerekli (mevcut: ' + kuleAdet + ')'
                           : !yeterliMana ? 'Yetersiz mana'
-                          : !yeterliMalzeme ? 'Yetersiz malzeme' : 'Buyuyu yap';
+                          : !yeterliMalzeme ? 'Yetersiz malzeme' : 'Büyüyü yap';
             inlineBtn = '<button class="btn gold" title="' + titleTxt + '" style="font-size:11px;padding:4px 12px;white-space:nowrap;flex-shrink:0" onclick="event.stopPropagation();bkSelectAndCast(\'' + b.id + '\')" ' +
               (!yapilabilir ? 'disabled style="opacity:0.3;font-size:11px;padding:4px 12px;white-space:nowrap;flex-shrink:0;cursor:not-allowed"' : '') +
               '>⚡ YAP</button>';
@@ -542,10 +542,10 @@ function bkRenderBuyuYap() {
     <div style="margin-top:12px;text-align:center">
       ${cdAktif
         ? `<button class="btn" disabled style="opacity:0.4">Cooldown (${bkFormatKalan(cdBuyu.bitis)})</button>`
-        : `<button class="btn gold" onclick="bkBuyuYap('${buyu.id}')" ${(!yeterliMana || !yeterliMalzeme || !yeterliKule || (isOfansif && !selectedHedef)) ? 'disabled style="opacity:0.5"' : ''}>Buyu Yap</button>`
+        : `<button class="btn gold" onclick="bkBuyuYap('${buyu.id}')" ${(!yeterliMana || !yeterliMalzeme || !yeterliKule || (isOfansif && !selectedHedef)) ? 'disabled style="opacity:0.5"' : ''}>Büyü Yap</button>`
       }
     </div>
-    ${!yeterliKule ? '<p style="color:#e74c3c;font-size:10px;text-align:center;margin-top:4px">🗼 ' + buyu.cag + ' Buyucu Kulesi gerekli! (mevcut: ' + kuleAdet + ') — Sehrimde daha fazla kule insa et.</p>' : ''}
+    ${!yeterliKule ? '<p style="color:#e74c3c;font-size:10px;text-align:center;margin-top:4px">🗼 ' + buyu.cag + ' Büyücü Kulesi gerekli! (mevcut: ' + kuleAdet + ') — Şehrimde daha fazla kule inşa et.</p>' : ''}
     ${!yeterliMana ? '<p style="color:#e74c3c;font-size:10px;text-align:center;margin-top:4px">Yetersiz mana!</p>' : ''}
     ${!yeterliMalzeme ? '<p style="color:#e74c3c;font-size:10px;text-align:center;margin-top:4px">Yetersiz malzeme!</p>' : ''}
     ${isOfansif && !selectedHedef ? '<p style="color:#f39c12;font-size:10px;text-align:center;margin-top:4px">Hedef oyuncu secin</p>' : ''}

@@ -467,7 +467,7 @@ function renderKusatmaIcerik(el, data) {
 async function kusatmaGonder(guildId) {
   var sehirEl = document.getElementById('kus-sehir');
   var orduEl = document.getElementById('kus-ordu');
-  if (!sehirEl.value || !orduEl.value) { toast('Sehir ve ordu secin'); return; }
+  if (!sehirEl.value || !orduEl.value) { toast('Şehir ve ordu seçin'); return; }
   var token = getToken();
   try {
     var r = await fetch(API_BASE + '/api/guild/' + guildId + '/ordu/kusatma-gonder', {
@@ -647,20 +647,20 @@ function renderTabGenel(el, data) {
           var kullanilan = sehir.tasima_sayaci || 0;
           var kalan = Math.max(0, maxT - kullanilan);
           return '<div style="margin-top:8px;padding-top:8px;border-top:1px solid #222">' +
-            '<div style="font-size:10px;color:#888;margin-bottom:6px">Sehir Tasi <span style="color:' + (kalan > 0 ? '#2ecc71' : '#e74c3c') + '">(' + kalan + '/' + maxT + ' hak kaldi)</span></div>' +
+            '<div style="font-size:10px;color:#888;margin-bottom:6px">Şehir Taşı <span style="color:' + (kalan > 0 ? '#2ecc71' : '#e74c3c') + '">(' + kalan + '/' + maxT + ' hak kaldı)</span></div>' +
             (kalan > 0 ?
               '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
                 '<span style="font-size:10px;color:#888">X:</span>' +
                 '<input id="guild-tasi-x" type="number" min="1" max="200" placeholder="' + sehir.x + '" style="width:55px;padding:3px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:10px">' +
                 '<span style="font-size:10px;color:#888">Y:</span>' +
                 '<input id="guild-tasi-y" type="number" min="1" max="50" placeholder="' + sehir.y + '" style="width:55px;padding:3px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:10px">' +
-                '<button class="btn-action" style="width:auto;padding:3px 12px;font-size:11px" onclick="guildSehirTasi(' + g.id + ')">Tasi</button>' +
+                '<button class="btn-action" style="width:auto;padding:3px 12px;font-size:11px" onclick="guildSehirTasi(' + g.id + ')">Taşı</button>' +
               '</div>' +
               '<div id="guild-tasi-msg" style="font-size:10px;margin-top:4px;min-height:14px"></div>'
-            : '<div style="font-size:10px;color:#e74c3c">Tasima hakkiniz kalmadi.</div>') +
+            : '<div style="font-size:10px;color:#e74c3c">Taşıma hakkınız kalmadı.</div>') +
           '</div>';
         })() : '') :
-        '<div style="font-size:10px;color:#555">Sehir bilgisi yok</div>') +
+        '<div style="font-size:10px;color:#555">Şehir bilgisi yok</div>') +
     '</div>' +
 
     // Guild VS (ATK/DEF) ozet
@@ -768,7 +768,7 @@ function renderTabUyeler(el, data) {
       extraInfo += ' SD:' + fmt(u.sehir_degeri);
     }
     return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid #1a1a1a;font-size:11px">' +
-      '<span>' + rutbeIcon + ' ' + u.kullanici_adi + ' <span style="color:#555;font-size:11px">Cag ' + (u.cag||1) + extraInfo + '</span></span>' +
+      '<span>' + rutbeIcon + ' ' + u.kullanici_adi + ' <span style="color:#555;font-size:11px">Çağ ' + (u.cag||1) + extraInfo + '</span></span>' +
       '<div style="display:flex;gap:4px;align-items:center">' + aksiyonlar + '</div>' +
     '</div>';
   }).join('');
@@ -1196,11 +1196,11 @@ async function guildYetkilerYukle(guildId) {
     if (!resp.ok) { el.innerHTML = '<span style="color:#e74c3c">Yuklenemedi</span>'; return; }
 
     var YETKI_LABEL = {
-      oyuncu_kabul:'Oyuncu Kabul', oyuncu_at:'Oyuncu At', yetki_duzenle:'Yetki Duzenle',
-      ambar_gor:'Ambar Gor', sehir_degeri_gor:'Sehir Degeri Gor', atk_def_gor:'ATK/DEF Gor',
-      ambar_istek_onayla:'Istek Onayla', guild_ordusu_gonder:'Ordu Gonder', guild_ordusu_kur:'Ordu Kur',
-      guild_unite_uret:'Unite Uret', isci_ata:'İşçi Ata', market_satis:'Market Satis',
-      koylu_bagisi:'Köylü Bagisi', vergi_dagit:'Vergi Dagit', market_otosatis:'Oto Satis',
+      oyuncu_kabul:'Oyuncu Kabul', oyuncu_at:'Oyuncu At', yetki_duzenle:'Yetki Düzenle',
+      ambar_gor:'Ambar Gör', sehir_degeri_gor:'Şehir Değeri Gör', atk_def_gor:'ATK/DEF Gör',
+      ambar_istek_onayla:'İstek Onayla', guild_ordusu_gonder:'Ordu Gönder', guild_ordusu_kur:'Ordu Kur',
+      guild_unite_uret:'Ünite Üret', isci_ata:'İşçi Ata', market_satis:'Market Satış',
+      koylu_bagisi:'Köylü Bağışı', vergi_dagit:'Vergi Dağıt', market_otosatis:'Oto Satış',
       guild_bina_yap:'Bina Yap'
     };
 
@@ -3049,8 +3049,8 @@ async function renderTabUyeOzet(el, data) {
     var KAYNAK_ISIM_LOCAL = {
       koylu:'Köylü', altin:'Altın', odun:'Odun', metal:'Metal', bugday:'Buğday', balik:'Balık',
       kereste:'Kereste', islenmis:'İşlenmiş', ekmek:'Ekmek', pismis:'Pis.Balık', pismis_et:'Pis.Et', cig_et:'Çiğ Et',
-      at:'At', kurt:'Kurt', gizlilik:'Gizlilik', buyulu_yumurta:'Buyulu Yumurta',
-      mana_beyaz:'Beyaz Mana', mana_kirmizi:'Kirmizi Mana', mana_mavi:'Mavi Mana', mana_yesil:'Yesil Mana'
+      at:'At', kurt:'Kurt', gizlilik:'Gizlilik', buyulu_yumurta:'Büyülü Yumurta',
+      mana_beyaz:'Beyaz Mana', mana_kirmizi:'Kırmızı Mana', mana_mavi:'Mavi Mana', mana_yesil:'Yeşil Mana'
     };
     var RUTBE_ETKI = { lider: '👑', yardimci: '⭐', uye: '' };
 

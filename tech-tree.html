@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Noxara — Gelişim Ağacı</title>
+
+<!-- Standart oyun assetleri -->
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" type="image/png" href="img/icon-192.png">
+
+<!-- Tailwind (sadece bu sayfa icin) -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800&amp;family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+  /* Tailwind ile uyusmazligi engellemek icin layout reset */
+  body { background:#131313; color:#e5e2e1; }
+  .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24 }
+  .parchment-texture { background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuAj92j14AHLYkiUFf4lJMnXn6MrviQEUv1n8k4SI2CRHKEOUqjmL1vY7_vPkfma2VoPI1luFyTXn4dJzy22p44uqn2dK0TkYQyllgd64VDJLuvfGN2XOd_hsfLJ_0USKEZUijaKZjoYZxm-6NB0HuEFeafuaNcHl6f8tAj4HNSc3xrro2ZB6B_195YNiy98kr5n4z9-Bbzegpy3iououZtn8-A26BmmS0jrYWauVYC5-xC5FzbjG3_erQ6Kebh-UUmUQICkJ3RneDg) }
+  .glow-sm { text-shadow: 0 0 8px rgba(243, 189, 111, 0.5) }
+  .scrollbar-hide::-webkit-scrollbar { display: none }
+  .tech-card-active { box-shadow: inset 0 0 10px rgba(243, 189, 111, 0.2), 0 4px 15px rgba(0, 0, 0, 0.5) }
+  /* Standart layout header gizleme — sayfa kendi tailwind nav kullaniyor */
+  .tt-page-content { padding-top:80px; }
+  #ttToast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+    background:#1c1b1b; border:1px solid #f3bd6f; color:#e5e2e1; padding:12px 24px;
+    border-radius:6px; z-index:1000; display:none; font-family:'EB Garamond',serif;
+    box-shadow:0 4px 20px rgba(0,0,0,0.6); }
+  .tt-card { cursor:pointer; user-select:none; }
+  .tt-card.disabled { cursor:not-allowed; pointer-events:none; }
+</style>
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode: "class",
+  theme: { extend: {
+    colors: {
+      "surface-tint":"#f3bd6f","surface-container-high":"#2a2a2a","surface-variant":"#353534",
+      "background":"#131313","surface-bright":"#3a3939","secondary-container":"#534736",
+      "inverse-primary":"#7e5711","surface-dim":"#131313","surface-container-highest":"#353534",
+      "primary-container":"#d4a257","outline":"#9c8f7f","on-surface-variant":"#d3c4b3",
+      "on-primary":"#442b00","primary-fixed-dim":"#f3bd6f","primary":"#f3bd6f",
+      "on-secondary-fixed-variant":"#504534","on-secondary":"#392f1f",
+      "on-primary-container":"#583900","surface-container-lowest":"#0e0e0e",
+      "on-surface":"#e5e2e1","inverse-surface":"#e5e2e1","on-tertiary":"#362f2a",
+      "secondary-fixed-dim":"#d5c4ad","on-background":"#e5e2e1","surface-container-low":"#1c1b1b",
+      "outline-variant":"#4f4538","surface-container":"#201f1f","tertiary-fixed-dim":"#d1c4bd",
+      "primary-fixed":"#ffddb1","tertiary-container":"#b4a9a2","secondary":"#d5c4ad",
+      "surface":"#131313","tertiary":"#d1c4bd","error":"#ffb4ab"
+    },
+    borderRadius: { DEFAULT:"0.25rem", lg:"0.5rem", xl:"0.75rem", full:"9999px" },
+    spacing: { "container-padding":"24px","artifact-margin":"32px","gutter":"16px","base":"8px" },
+    fontFamily: {
+      "headline-lg":["Cinzel"],"display-lg":["Cinzel"],"body-lg":["EB Garamond"],
+      "headline-md":["Cinzel"],"body-md":["EB Garamond"],"label-lg":["Cinzel"]
+    },
+    fontSize: {
+      "headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"0.02em","fontWeight":"600"}],
+      "display-lg":["48px",{"lineHeight":"56px","letterSpacing":"0.05em","fontWeight":"700"}],
+      "body-lg":["18px",{"lineHeight":"28px","fontWeight":"400"}],
+      "headline-md":["24px",{"lineHeight":"32px","fontWeight":"600"}],
+      "body-md":["16px",{"lineHeight":"24px","fontWeight":"400"}],
+      "label-lg":["14px",{"lineHeight":"20px","letterSpacing":"0.1em","fontWeight":"700"}]
+    }
+  } }
+}
+</script>
+
+<!-- Backend ve auth icin standart scriptler -->
+<script src="js/servers.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/constants.js"></script>
+</head>
+<body class="bg-background text-on-surface selection:bg-primary selection:text-on-primary">
+
+<!-- Top Nav: oyuncu icin kolay geri donus -->
+<nav class="bg-surface-container-lowest border-b border-outline-variant shadow-md fixed top-0 left-0 w-full z-50 h-16 flex justify-between items-center px-4 md:px-8">
+  <div class="flex items-center gap-4">
+    <a href="city.html" class="text-primary hover:text-primary/80 flex items-center gap-2" title="Krallığa Dön">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </a>
+    <span class="font-display-lg text-headline-md font-bold tracking-widest text-primary">🌳 GELİŞİM AĞACI</span>
+  </div>
+  <div class="flex items-center gap-3">
+    <a href="city.html" class="text-on-surface-variant hover:text-primary text-sm">🏰 Şehrim</a>
+    <a href="army.html" class="text-on-surface-variant hover:text-primary text-sm">⚔️ Ordu</a>
+    <a href="population.html" class="text-on-surface-variant hover:text-primary text-sm">👥 Nüfus</a>
+  </div>
+</nav>
+
+<main class="pt-16 pb-12 min-h-screen relative parchment-texture">
+
+<!-- Resource bar (real-time) -->
+<header class="sticky top-16 z-30 bg-surface-container-low/95 backdrop-blur-md border-b border-primary/20 h-20 flex items-center justify-between px-4 md:px-8 flex-wrap gap-4">
+  <div class="flex items-center gap-6 flex-wrap" id="tt-resources">
+    <div class="flex items-center gap-2"><span class="text-primary font-bold font-headline-md">GP:</span><span class="text-on-surface font-body-lg" id="tt-gp">—</span></div>
+    <div class="flex items-center gap-2"><span class="text-primary font-bold font-headline-md">KP:</span><span class="text-on-surface font-body-lg" id="tt-kp">—</span></div>
+    <div class="flex items-center gap-2"><span class="text-primary font-bold font-headline-md">İşl:</span><span class="text-on-surface font-body-lg" id="tt-isl">—</span></div>
+    <div class="flex items-center gap-2"><span class="text-primary font-bold font-headline-md">Çağ:</span><span class="text-on-surface font-body-lg" id="tt-cag">—</span></div>
+  </div>
+  <div class="flex items-center gap-2" id="filter-chips">
+    <button data-filter="hepsi" class="filter-chip px-3 py-1 rounded-full border border-primary bg-primary/10 text-primary font-label-lg text-xs active">Hepsi</button>
+    <button data-filter="gp" class="filter-chip px-3 py-1 rounded-full border border-outline-variant text-on-surface-variant font-label-lg text-xs">GP</button>
+    <button data-filter="kp" class="filter-chip px-3 py-1 rounded-full border border-outline-variant text-on-surface-variant font-label-lg text-xs">KP</button>
+  </div>
+</header>
+
+<!-- Yükleme durumu -->
+<div id="tt-loading" class="text-center py-20 text-on-surface-variant">
+  <span class="material-symbols-outlined animate-spin text-4xl">refresh</span>
+  <p class="mt-4 font-body-lg">Gelişim ağacı yükleniyor...</p>
+</div>
+
+<!-- Tech tree — 3 sutun -->
+<section id="tt-tree" class="max-w-[1400px] mx-auto py-8 px-4 md:px-6 flex justify-center items-start gap-6 flex-wrap" style="display:none">
+
+  <!-- COLUMN 1: ÜRETİM -->
+  <div class="tree-col flex-shrink-0 w-[320px] flex flex-col gap-10" data-col="gp">
+    <h2 class="text-center font-display-lg text-primary glow-sm border-b border-primary/30 pb-3 text-xl">🌾 ÜRETİM</h2>
+
+    <div class="flex flex-col items-center">
+      <span class="text-xs text-on-surface-variant font-label-lg mb-3 uppercase tracking-widest">Hammadde</span>
+      <div class="flex flex-col-reverse items-center gap-0 w-full" id="dal-hammadde"></div>
+    </div>
+
+    <div class="flex flex-col items-center">
+      <span class="text-xs text-on-surface-variant font-label-lg mb-3 uppercase tracking-widest">İşleme</span>
+      <div class="flex flex-col-reverse items-center gap-0 w-full" id="dal-isleme"></div>
+    </div>
+  </div>
+
+  <!-- COLUMN 2: EKONOMİ & YAPI -->
+  <div class="tree-col flex-shrink-0 w-[320px] flex flex-col gap-10" data-col="karma">
+    <h2 class="text-center font-display-lg text-primary glow-sm border-b border-primary/30 pb-3 text-xl">💰 EKONOMİ & YAPI</h2>
+
+    <div class="flex flex-col items-center">
+      <span class="text-xs text-on-surface-variant font-label-lg mb-3 uppercase tracking-widest">Ekonomi</span>
+      <div class="flex flex-col-reverse items-center gap-0 w-full" id="dal-ekonomi"></div>
+    </div>
+
+    <div class="flex flex-col items-center">
+      <span class="text-xs text-on-surface-variant font-label-lg mb-3 uppercase tracking-widest">Şehir Yapı</span>
+      <div class="flex flex-col-reverse items-center gap-0 w-full" id="dal-yapi"></div>
+    </div>
+  </div>
+
+  <!-- COLUMN 3: ASKERİ & MİSTİK -->
+  <div class="tree-col flex-shrink-0 w-[320px] flex flex-col gap-10" data-col="kp">
+    <h2 class="text-center font-display-lg text-primary glow-sm border-b border-primary/30 pb-3 text-xl">⚔️ ASKERİ & MİSTİK</h2>
+
+    <div class="flex flex-col items-center">
+      <span class="text-xs text-on-surface-variant font-label-lg mb-3 uppercase tracking-widest">Askeri Geliştirme</span>
+      <div class="flex flex-col-reverse items-center gap-0 w-full" id="dal-askeri"></div>
+    </div>
+
+    <div class="flex flex-col items-center">
+      <span class="text-xs text-on-surface-variant font-label-lg mb-3 uppercase tracking-widest">Mistik & Çağ</span>
+      <div class="flex flex-col-reverse items-center gap-0 w-full" id="dal-mistik"></div>
+    </div>
+
+    <div class="flex flex-col items-center">
+      <span class="text-xs text-on-surface-variant font-label-lg mb-3 uppercase tracking-widest">Birim ATK/DEF</span>
+      <div class="flex flex-col-reverse items-center gap-0 w-full" id="dal-birim"></div>
+      <button id="tt-toggle-tum-birim" class="mt-3 text-xs text-primary underline hover:no-underline">Tümünü göster (28 birim × 2)</button>
+    </div>
+  </div>
+
+</section>
+</main>
+
+<div class="fixed inset-0 pointer-events-none bg-gradient-to-t from-background via-transparent to-transparent opacity-40"></div>
+
+<div id="ttToast"></div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+// CONFIG: 16 sehir gel + 2 askeri + cag atlama + 28 birim
+// (Backend SEHIR_GEL ve UNITS ile bire bir uyumlu)
+// ════════════════════════════════════════════════════════════
+const SEHIR_GEL_META = {
+  // KAYNAK
+  oduncu_gel:    { isim:'Oduncu',         icon:'forest',     etki:'Oduncu→odun +%1/sv',          dal:'hammadde' },
+  madenci_gel:   { isim:'Madenci',        icon:'construction',etki:'Madenci→metal +%1/sv',       dal:'hammadde' },
+  ciftci_gel:    { isim:'Çiftçi',         icon:'agriculture',etki:'Çiftçi→buğday +%1/sv',       dal:'hammadde' },
+  balikci_gel:   { isim:'Balıkçı',        icon:'set_meal',   etki:'Balıkçı→balık +%1/sv',       dal:'hammadde' },
+  ticaret_gel:   { isim:'Ticaret',        icon:'storefront', etki:'Markette değerli +%1/sv',     dal:'hammadde' },
+  // ISLEME
+  kereste_gel:   { isim:'Kereste',        icon:'park',       etki:'Kereste verimi +%1/sv',       dal:'isleme' },
+  metal_gel:     { isim:'Metal İşleme',   icon:'handyman',   etki:'İşlenmiş metal +%1/sv',       dal:'isleme' },
+  firin_gel:     { isim:'Fırın',          icon:'restaurant', etki:'Ekmek+pişmiş +%1/sv',         dal:'isleme' },
+  et_gel:        { isim:'Et İşleme',      icon:'lunch_dining',etki:'Pişmiş et verimi +%1/sv',    dal:'isleme' },
+  // EKONOMI
+  vergi_gel:     { isim:'Vergi Toleransı',icon:'payments',   etki:'Vergi moral cezası -%1/sv',   dal:'ekonomi' },
+  insaat_gel:    { isim:'İnşaat',         icon:'engineering',etki:'Bina maliyeti -%1/sv',        dal:'ekonomi' },
+  essek_gel:     { isim:'Eşek Şansı',    icon:'pets',       etki:'Pazarda eşek bulma +%0.1/sv', dal:'ekonomi' },
+  // SEHIR YAPI
+  ahir_gel:      { isim:'Ahır',           icon:'shield_moon',etki:'At/Kurt üretim +%1/sv',       dal:'yapi' },
+  lonca_gel:     { isim:'Lonca',          icon:'visibility_off',etki:'Gizlilik +%1/sv',          dal:'yapi' },
+  buyulu_gel:    { isim:'Büyülü Tarla',   icon:'egg',        etki:'Büyülü yumurta +%1/sv',       dal:'yapi' },
+  // MISTIK
+  mana_gel:      { isim:'Mana Verimi',    icon:'auto_fix_high',etki:'Worshipper mana +%1/sv',    dal:'mistik' },
+};
+
+const ASKERI_META = {
+  askeri_gel: { isim:'Askeri Geliştirme', icon:'shield',  etki:'Ünite eğitim altın -%10/sv', dal:'askeri' },
+  maas_gel:   { isim:'Maaş İndirimi',     icon:'paid',    etki:'Ordu maaşı -%5/sv',          dal:'askeri' },
+};
+
+// CAG_MALIYETLERI (backend ile uyumlu — sadece UI gosterimi icin)
+const CAG_ATLA = [
+  { hedef:2, isim:'II. Çağ — Demir',   icon:'looks_two' },
+  { hedef:3, isim:'III. Çağ — Altın',  icon:'looks_3'   },
+  { hedef:4, isim:'IV. Çağ — Ejderha', icon:'looks_4'   },
+  { hedef:5, isim:'V. Çağ — Kadim',    icon:'looks_5'   },
+];
+
+// 28 birim listesi — constants.js UNITS'tan turetilir
+// (Yardimci essek/koylu haric — onlar gelistirilemez)
+let BIRIM_LISTESI = [];
+function birimListesiYap() {
+  BIRIM_LISTESI = [];
+  if (typeof UNITS !== 'object') return;
+  for (const id in UNITS) {
+    const u = UNITS[id];
+    if (!u || u.tier === 0 || u.side === 'neutral') continue;
+    BIRIM_LISTESI.push({ id, name: u.name, tier: u.tier, side: u.side });
+  }
+  BIRIM_LISTESI.sort((a,b) => a.tier - b.tier);
+}
+
+// Maliyet formulleri (backend ile bire bir)
+function sehirGelMaliyet(kademe) { return { gp:  5*kademe, kp: 2*kademe, isl: 100*kademe }; }
+function askeriMaliyet(kademe)   { return { gp: 10*kademe, kp: 5*kademe, isl: 100*kademe }; }
+function gerekenCagSehir(kademe) { return Math.ceil(kademe / 2); } // 1-2→C1, 3-4→C2 ...
+
+// ════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════
+const TT = {
+  cag: 1,
+  resources: { gelisim_puani:0, kultur_puani:0, islenmis:0 },
+  sehirGel: {},   // { gel_id: seviye }
+  askeriGel: { askeri_gel_sev:0, maas_gel_sev:0 },
+  uniteGel: {},   // { unite_id: { atk_sev, def_sev } }
+  tumBirimGoster: false,
+};
+
+// ════════════════════════════════════════════════════════════
+// API
+// ════════════════════════════════════════════════════════════
+// getToken auth.js'ten gelir; toast asagida
+function toast(msg, renk) {
+  const el = document.getElementById('ttToast');
+  el.textContent = msg;
+  el.style.borderColor = renk === 'red' ? '#ffb4ab' : (renk === 'green' ? '#7ed957' : '#f3bd6f');
+  el.style.display = 'block';
+  clearTimeout(window._ttToastT);
+  window._ttToastT = setTimeout(() => el.style.display = 'none', 3500);
+}
+
+async function fetchAll() {
+  const token = getToken();
+  if (!token) {
+    toast('Oturum bulunamadı, lütfen giriş yapın', 'red');
+    setTimeout(() => location.href = 'index.html', 1500);
+    return false;
+  }
+  const headers = { Authorization: 'Bearer ' + token };
+  try {
+    const [sehirR, gelistR, resR, cagR] = await Promise.all([
+      fetch(API_BASE + '/api/game/sehir-gel',     { headers }),
+      fetch(API_BASE + '/api/game/gelistirmeler', { headers }),
+      fetch(API_BASE + '/api/game/resources',     { headers }),
+      fetch(API_BASE + '/api/game/cag',           { headers }),
+    ]);
+    if (!sehirR.ok || !gelistR.ok || !resR.ok || !cagR.ok) {
+      toast('Veri alınamadı', 'red');
+      return false;
+    }
+    const sehir   = await sehirR.json();
+    const gelist  = await gelistR.json();
+    const res     = await resR.json();
+    const cagData = await cagR.json();
+
+    // CAG
+    TT.cag = cagData.cag || sehir.cag || 1;
+
+    // SEHIR GEL — backend: { cag, gelistirmeler: [{id, seviye, ...}] }
+    TT.sehirGel = {};
+    (sehir.gelistirmeler || []).forEach(g => { TT.sehirGel[g.id] = g.seviye || 0; });
+
+    // ASKERI + UNITE GEL — backend: { gelistirmeler: {askeri_gel_sev, maas_gel_sev}, unite_gel: {} }
+    TT.askeriGel = gelist.gelistirmeler || { askeri_gel_sev:0, maas_gel_sev:0 };
+    TT.uniteGel  = gelist.unite_gel     || {};
+
+    // KAYNAKLAR — backend /resources resources tablosu satirini doner
+    TT.resources.gelisim_puani = parseInt(res.gelisim_puani || 0);
+    TT.resources.kultur_puani  = parseInt(res.kultur_puani  || 0);
+    TT.resources.islenmis      = parseInt(res.islenmis      || 0);
+
+    return true;
+  } catch (e) {
+    console.error('[tech-tree fetchAll]', e);
+    toast('Bağlantı hatası: ' + e.message, 'red');
+    return false;
+  }
+}
+
+async function upgradeSehirGel(gelId) {
+  const token = getToken();
+  try {
+    const r = await fetch(API_BASE + '/api/game/sehir-gel/yuksel', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ gel_id: gelId }),
+    });
+    const d = await r.json();
+    if (!r.ok) { toast(d.error || 'Hata', 'red'); return; }
+    toast(d.mesaj || 'Yükseltildi', 'green');
+    await fetchAll();
+    render();
+  } catch(e) { toast('Bağlantı hatası', 'red'); }
+}
+
+async function upgradeAskeri(tip) {
+  // tip: 'askeri' | 'maas'
+  const token = getToken();
+  try {
+    const r = await fetch(API_BASE + '/api/army/gelistir', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tip }),
+    });
+    const d = await r.json();
+    if (!r.ok) { toast(d.error || 'Hata', 'red'); return; }
+    toast(tip === 'askeri' ? 'Askeri Geliştirme yükseltildi!' : 'Maaş İndirimi yükseltildi!', 'green');
+    await fetchAll();
+    render();
+  } catch(e) { toast('Bağlantı hatası', 'red'); }
+}
+
+async function upgradeUnite(uniteId, stat) {
+  // stat: 'atk' | 'def'
+  const token = getToken();
+  try {
+    const r = await fetch(API_BASE + '/api/army/gelistir', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tip: 'unite_' + stat, unite_id: uniteId }),
+    });
+    const d = await r.json();
+    if (!r.ok) { toast(d.error || 'Hata', 'red'); return; }
+    toast((UNITS[uniteId]?.name || uniteId) + ' ' + stat.toUpperCase() + ' yükseltildi!', 'green');
+    await fetchAll();
+    render();
+  } catch(e) { toast('Bağlantı hatası', 'red'); }
+}
+
+async function upgradeCag() {
+  if (!confirm('Çağ atlamak istediğinize emin misiniz? Bu işlem geri alınamaz.')) return;
+  const token = getToken();
+  try {
+    const r = await fetch(API_BASE + '/api/game/cag-atla', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+    });
+    const d = await r.json();
+    if (!r.ok) { toast(d.error || 'Hata', 'red'); return; }
+    toast(`Çağ atlandı! Yeni: ${d.cag_isim}`, 'green');
+    await fetchAll();
+    render();
+  } catch(e) { toast('Bağlantı hatası', 'red'); }
+}
+
+// ════════════════════════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════════════════════════
+function kart(opts) {
+  // opts: { id, isim, icon, etki, sv, maxSv, cost, locked, lockSebep, action, actionArg, yetersiz }
+  // action: 'sehir' | 'askeri' | 'unite_atk' | 'unite_def'
+  // actionArg: gel_id | tip | unite_id
+  const { id, isim, icon, etki, sv, maxSv, cost, locked, lockSebep, action, actionArg, yetersiz } = opts;
+  const tamamlandi = sv >= maxSv;
+
+  let bg, br, opacity = '';
+  if (tamamlandi)        { bg = 'bg-surface-container-high'; br = 'border-primary'; }
+  else if (locked)       { bg = 'bg-surface-container-lowest'; br = 'border-outline-variant/30'; opacity = 'opacity-40'; }
+  else if (yetersiz)     { bg = 'bg-surface-container-low'; br = 'border-error/40'; opacity = 'opacity-80'; }
+  else                   { bg = 'bg-surface-container-high'; br = 'border-primary/30'; }
+
+  const titleColor = (tamamlandi || sv > 0) ? 'text-primary' : 'text-on-surface';
+  const iconColor  = tamamlandi ? 'text-primary' : (sv > 0 ? 'text-primary/70' : 'text-on-surface-variant');
+
+  let costHtml = '';
+  if (tamamlandi) {
+    costHtml = `<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings:'FILL' 1;">check_circle</span>`;
+  } else if (locked) {
+    costHtml = `<span class="text-[9px] text-on-surface-variant leading-tight">${lockSebep || 'Kilitli'}</span>`;
+  } else if (cost) {
+    costHtml = `<span class="text-[9px] ${yetersiz ? 'text-error' : 'text-primary'} leading-tight text-right">${cost.gp}GP·${cost.kp}KP<br/>${cost.isl}İşl</span>`;
+  }
+
+  const tiklanabilir = !(tamamlandi || locked || yetersiz);
+  const disabledClass = tiklanabilir ? '' : 'disabled';
+  const dataAttrs = tiklanabilir
+    ? `data-action="${action || ''}" data-arg="${actionArg || ''}"`
+    : '';
+
+  return `<div class="tt-card ${disabledClass} w-full h-[44px] ${bg} border ${br} rounded-md flex items-center px-3 gap-2 relative hover:border-primary transition-all ${opacity}" title="${etki}" data-id="${id}" ${dataAttrs}>
+    <span class="material-symbols-outlined ${iconColor} text-sm">${icon}</span>
+    <div class="flex-grow flex flex-col justify-center min-w-0">
+      <span class="text-[10px] font-bold ${titleColor} leading-tight truncate">${isim}${sv > 0 ? ` (Sv ${sv}/${maxSv})` : ''}</span>
+      <span class="text-[9px] text-on-surface-variant leading-tight truncate">${etki}</span>
+    </div>
+    ${costHtml}
+  </div>`;
+}
+
+// Tek event delegation handler — sayfa basinda 1 kere baglanir
+function ttCardClickHandler(e) {
+  const card = e.target.closest('.tt-card[data-action]');
+  if (!card || card.classList.contains('disabled')) return;
+  const action = card.dataset.action;
+  const arg    = card.dataset.arg;
+  if (action === 'sehir')      upgradeSehirGel(arg);
+  else if (action === 'askeri') upgradeAskeri(arg);
+  else if (action === 'unite_atk') upgradeUnite(arg, 'atk');
+  else if (action === 'unite_def') upgradeUnite(arg, 'def');
+}
+
+function birimKart(birim, stat) {
+  // stat: 'atk' | 'def'
+  const u = UNITS[birim.id];
+  const gel = TT.uniteGel[birim.id] || { atk_sev:0, def_sev:0 };
+  const sv = stat === 'atk' ? (gel.atk_sev || 0) : (gel.def_sev || 0);
+  const maxSv = stat === 'atk' ? (u.atkGelMax || 10) : (u.defGelMax || 10);
+  const sonraki = sv + 1;
+  const cost = askeriMaliyet(sonraki);
+  const yetersiz = (TT.resources.gelisim_puani < cost.gp) ||
+                   (TT.resources.kultur_puani  < cost.kp) ||
+                   (TT.resources.islenmis      < cost.isl);
+  const sideIcon = birim.side === 'iyi' ? '🤍' : (birim.side === 'kotu' ? '🖤' : '');
+  return kart({
+    id: birim.id + '_' + stat,
+    isim: sideIcon + ' ' + birim.name + ' ' + stat.toUpperCase(),
+    icon: stat === 'atk' ? 'swords' : 'shield',
+    etki: birim.name + ' ' + stat.toUpperCase() + ' her sv ile artar (Tier ' + birim.tier + ')',
+    sv, maxSv,
+    cost, locked:false, yetersiz,
+    action: 'unite_' + stat, actionArg: birim.id,
+  });
+}
+
+function render() {
+  // Resources
+  document.getElementById('tt-gp').textContent  = TT.resources.gelisim_puani.toLocaleString('tr-TR');
+  document.getElementById('tt-kp').textContent  = TT.resources.kultur_puani.toLocaleString('tr-TR');
+  document.getElementById('tt-isl').textContent = TT.resources.islenmis.toLocaleString('tr-TR');
+  const cagRoman = ['','I','II','III','IV','V'][TT.cag] || TT.cag;
+  document.getElementById('tt-cag').textContent = cagRoman;
+
+  // Loading kapat, tree ac
+  document.getElementById('tt-loading').style.display = 'none';
+  document.getElementById('tt-tree').style.display    = 'flex';
+
+  // 16 sehir geliştirmesi — 4 dala dagilir
+  const dallar = { hammadde: [], isleme: [], ekonomi: [], yapi: [], mistik: [] };
+  for (const id in SEHIR_GEL_META) {
+    const meta = SEHIR_GEL_META[id];
+    const sv = TT.sehirGel[id] || 0;
+    const maxSv = 10;
+    const sonraki = sv + 1;
+    const cost = sehirGelMaliyet(sonraki);
+    const gerekenC = gerekenCagSehir(sonraki);
+    const cagYeter = TT.cag >= gerekenC;
+    const locked = !cagYeter && sv < maxSv;
+    const yetersiz = !locked && sv < maxSv && (
+      TT.resources.gelisim_puani < cost.gp ||
+      TT.resources.kultur_puani  < cost.kp ||
+      TT.resources.islenmis      < cost.isl
+    );
+    const k = kart({
+      id, isim: meta.isim, icon: meta.icon, etki: meta.etki,
+      sv, maxSv, cost, locked, yetersiz,
+      lockSebep: `Çağ ${gerekenC} gerekli`,
+      action: 'sehir', actionArg: id,
+    });
+    if (dallar[meta.dal]) dallar[meta.dal].push(k);
+  }
+
+  // Askeri gelistirmeler (askeri + maas)
+  const askeriKartlar = [];
+  for (const id in ASKERI_META) {
+    const meta = ASKERI_META[id];
+    const sv = id === 'askeri_gel' ? (TT.askeriGel.askeri_gel_sev || 0) : (TT.askeriGel.maas_gel_sev || 0);
+    const maxSv = Math.min(TT.cag * 3, 15);
+    const sonraki = sv + 1;
+    const cost = askeriMaliyet(sonraki);
+    const tipKisa = id === 'askeri_gel' ? 'askeri' : 'maas';
+    const yetersiz = sv < maxSv && (
+      TT.resources.gelisim_puani < cost.gp ||
+      TT.resources.kultur_puani  < cost.kp ||
+      TT.resources.islenmis      < cost.isl
+    );
+    askeriKartlar.push(kart({
+      id, isim: meta.isim, icon: meta.icon, etki: meta.etki + ' (Çağ ' + TT.cag + ' max: ' + maxSv + ')',
+      sv, maxSv, cost, locked:false, yetersiz,
+      action: 'askeri', actionArg: tipKisa,
+    }));
+  }
+
+  // Cag atlama kartlari (4 atlama)
+  const cagKartlari = [];
+  CAG_ATLA.forEach(ca => {
+    const tamamlandi = TT.cag >= ca.hedef;
+    const locked = TT.cag < (ca.hedef - 1);
+    const aktif = (TT.cag === ca.hedef - 1);
+    const bg = tamamlandi ? 'bg-surface-container-high border-primary'
+             : (locked ? 'bg-surface-container-lowest border-outline-variant/30 opacity-40'
+                       : 'bg-surface-container-high border-primary/30');
+    const handler = (aktif && !tamamlandi) ? `onclick="upgradeCag()"` : '';
+    const cursor = (aktif && !tamamlandi) ? 'cursor:pointer' : 'cursor:default';
+    cagKartlari.push(`<div class="tt-card w-full h-[44px] ${bg} border rounded-md flex items-center px-3 gap-2 relative hover:border-primary transition-all" style="${cursor}" ${handler}>
+      <span class="material-symbols-outlined ${tamamlandi ? 'text-primary' : 'text-on-surface-variant'} text-sm">${ca.icon}</span>
+      <div class="flex-grow flex flex-col justify-center min-w-0">
+        <span class="text-[10px] font-bold ${tamamlandi ? 'text-primary' : 'text-on-surface'} leading-tight truncate">${ca.isim}</span>
+        <span class="text-[9px] text-on-surface-variant leading-tight truncate">Çağ atlama</span>
+      </div>
+      ${tamamlandi ? `<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings:'FILL' 1;">check_circle</span>` :
+        (locked ? `<span class="text-[9px] text-on-surface-variant">Önceki çağ gerek</span>` :
+          `<span class="text-[9px] text-primary">Sehir/Asama</span>`)}
+    </div>`);
+  });
+
+  // Mistik dal: mana_gel + 4 cag atlama
+  const mistikKartlar = [...(dallar.mistik || []), ...cagKartlari];
+
+  // Birimler (28 birim x 2 = 56, default ilk 3 birim x 2 = 6)
+  const birimGoster = TT.tumBirimGoster ? BIRIM_LISTESI : BIRIM_LISTESI.slice(0, 3);
+  const birimKartlar = [];
+  birimGoster.forEach(b => {
+    birimKartlar.push(birimKart(b, 'atk'));
+    birimKartlar.push(birimKart(b, 'def'));
+  });
+
+  renderDal('dal-hammadde', dallar.hammadde);
+  renderDal('dal-isleme',   dallar.isleme);
+  renderDal('dal-ekonomi',  dallar.ekonomi);
+  renderDal('dal-yapi',     dallar.yapi);
+  renderDal('dal-askeri',   askeriKartlar);
+  renderDal('dal-mistik',   mistikKartlar);
+  renderDal('dal-birim',    birimKartlar);
+
+  // Tum birim toggle
+  const tBtn = document.getElementById('tt-toggle-tum-birim');
+  if (tBtn) tBtn.textContent = TT.tumBirimGoster ? 'Sadece ilk 3 birim göster' : `Tümünü göster (${BIRIM_LISTESI.length} birim × 2)`;
+}
+
+function renderDal(domId, items) {
+  const el = document.getElementById(domId);
+  if (!el) return;
+  el.innerHTML = items.map((it, idx) =>
+    (idx > 0 ? '<div class="w-0.5 h-2 bg-primary/30"></div>' : '') + it
+  ).join('');
+}
+
+// ════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', async () => {
+  birimListesiYap();
+
+  // Event delegation: tum kartlarin click'i tek listener'a bagli
+  document.getElementById('tt-tree').addEventListener('click', ttCardClickHandler);
+
+  const ok = await fetchAll();
+  if (!ok) {
+    document.getElementById('tt-loading').innerHTML =
+      '<p class="text-error font-body-lg">Yüklenemedi. <a href="city.html" class="underline">Krallığa dön</a></p>';
+    return;
+  }
+  render();
+
+  // Filter chips
+  const chips = document.querySelectorAll('.filter-chip');
+  const cols = document.querySelectorAll('.tree-col');
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      chips.forEach(c => {
+        c.classList.remove('active','bg-primary/10','text-primary','border-primary');
+        c.classList.add('border-outline-variant','text-on-surface-variant');
+      });
+      chip.classList.add('active','bg-primary/10','text-primary','border-primary');
+      chip.classList.remove('border-outline-variant','text-on-surface-variant');
+      const f = chip.dataset.filter;
+      cols.forEach(col => {
+        const c = col.dataset.col;
+        let show;
+        if (f === 'hepsi') show = true;
+        else if (f === 'gp') show = (c === 'gp' || c === 'karma');
+        else if (f === 'kp') show = (c === 'kp' || c === 'karma');
+        col.style.display = show ? 'flex' : 'none';
+      });
+    });
+  });
+
+  // Tum birim toggle
+  document.getElementById('tt-toggle-tum-birim')?.addEventListener('click', () => {
+    TT.tumBirimGoster = !TT.tumBirimGoster;
+    render();
+  });
+
+  // 60sn'de bir resource'lari yenile
+  setInterval(() => { fetchAll().then(ok => ok && render()); }, 60000);
+});
+</script>
+</body></html>

@@ -56,7 +56,7 @@ function renderSidebar(){
   // v1.14.0.49: 8 ana grup — temizlendi
   // Krallığım / Ordu & Savaş / Büyüler / Ticaret / Harita & Dünya / Sosyal & Eğlence
   // + Top-level: Guild, Raporlar (TEK link), Sıralamalar, Artifactlar, Görevler, Premium, Ayarlar
-  const krallikPages = ['city.html','population.html','festival.html','land.html'];
+  const krallikPages = ['city.html','population.html','festival.html','land.html','tech-tree.html'];
   const ordusavasPages = ['army.html','mezarlik.html','casus.html','simulator.html'];
   const buyulerPages = ['magic.html','buyucu-kulesi.html'];
   const ticPages     = ['market.html','kervan.html','pazar.html','buyu-dukkani.html'];
@@ -103,6 +103,7 @@ function renderSidebar(){
         <a href="city.html?tab=gelistirmeler" class="menu-item sub-item" style="padding-left:38px;font-size:11px;color:#aaa">↳ 📈 Geliştirmeler</a>
         <a href="city.html?tab=mutluluk" class="menu-item sub-item" style="padding-left:38px;font-size:11px;color:#aaa">↳ 😊 Mutluluk & GPS</a>
         ` : ''}
+        <a href="tech-tree.html" class="menu-item sub-item${isActive('tech-tree.html')}">🌳 Gelişim Ağacı</a>
         <a href="population.html" class="menu-item sub-item${isActive('population.html')}">👥 Nüfus & İşçiler</a>
         <a href="land.html" class="menu-item sub-item${isActive('land.html')}">🧭 Arazi</a>
         <a href="festival.html" class="menu-item sub-item${isActive('festival.html')}">🎉 Festival</a>
@@ -695,6 +696,7 @@ function initDayTransition() {
 // Pin edilebilir tum sayfalar (menu katalogu)
 const HIZLI_MENU_KATALOG = [
   { href: 'city.html',          label: 'Şehrim',           icon: '🏗️', grup: 'Krallığım' },
+  { href: 'tech-tree.html',     label: 'Gelişim Ağacı',    icon: '🌳', grup: 'Krallığım' },
   { href: 'population.html',    label: 'Nüfus & İşçiler',  icon: '👥', grup: 'Krallığım' },
   { href: 'land.html',          label: 'Arazi',            icon: '🧭', grup: 'Krallığım' },
   { href: 'festival.html',      label: 'Festival',         icon: '🎉', grup: 'Krallığım' },

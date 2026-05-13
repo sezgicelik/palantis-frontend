@@ -50,9 +50,9 @@ function startGame() {
   // v1.13.42.3: ?.value.trim() element yoksa crash ederdi — null-safe
   const kral = (document.getElementById('inp-kral')?.value || '').trim();
   const sehir = (document.getElementById('inp-sehir')?.value || '').trim();
-  if (!kral) { toast('Kral adi gir!'); return; }
-  if (!sehir) { toast('Sehir adi gir!'); return; }
-  if (!selectedIrk) { toast('Irk sec!'); return; }
+  if (!kral) { toast('Kral adı gir!'); return; }
+  if (!sehir) { toast('Şehir adı gir!'); return; }
+  if (!selectedIrk) { toast('Irk seç!'); return; }
 
   const irkData = [...IRKLAR.iyi, ...IRKLAR.kotu].find(i => i.id === selectedIrk);
   OYUNCU = { kral, sehir, irk: selectedIrk, irkData, taraf: selectedSide, cag: 1 };
@@ -770,9 +770,9 @@ function _loadAktifBuyuBonus(bonusEl, baseHtml) {
         if (!bData || !bData.ok || !bData.aktifler || !bData.aktifler.length) return;
         const BUYU_ISIM = {
           motivasyon_h:'Motivasyon (H)', motivasyon_y:'Motivasyon (Y)', ejderha_sevinci:'Ejderha Sevinci',
-          koruma:'Koruma', sessizlik:'Sessizlik', kum_firtinasi:'Kum Firtinasi', hiz:'Hiz',
+          koruma:'Koruma', sessizlik:'Sessizlik', kum_firtinasi:'Kum Fırtınası', hiz:'Hız',
           mistik_defans:'Mistik Defans', mistik_atak:'Mistik Atak', serap:'Serap',
-          buyu_kalkani:'Buyu Kalkani', hipnoz:'Hipnoz', sadakat:'Sadakat', yakaris:'Yakaris', kabus:'Kabus'
+          buyu_kalkani:'Büyü Kalkanı', hipnoz:'Hipnoz', sadakat:'Sadakat', yakaris:'Yakarış', kabus:'Kâbus'
         };
         const aktifHTML = bData.aktifler.map(a => {
           const isim = BUYU_ISIM[a.buyu_id] || a.buyu_id;

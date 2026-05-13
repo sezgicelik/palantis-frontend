@@ -617,7 +617,7 @@ async function loadSavasOdasiBuyuler(hedefId, hedefKral) {
     var token = getToken();
     var r = await fetch(API_BASE + '/api/buyucu-kulesi/durum', { headers: { Authorization: 'Bearer ' + token } });
     var d = await r.json();
-    if (!d.ok) { list.innerHTML = '<div style="color:#e74c3c">Buyucu kulesi verisi alinamadi</div>'; return; }
+    if (!d.ok) { list.innerHTML = '<div style="color:#e74c3c">Büyücü kulesi verisi alınamadı</div>'; return; }
     _savasBkData = d;
     renderSavasOdasiBuyuler(hedefId, hedefKral);
   } catch(e) {

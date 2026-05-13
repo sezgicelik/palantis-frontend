@@ -44,7 +44,7 @@ const REHBER_ADIMLARI = [
     hedef: '#isci-oduncu,.isci-row[data-tip="oduncu"],.worker-card[data-job="oduncu"]',
     pozisyon: 'right',
     baslik: 'İşçi Ata: Oduncu 👷',
-    aciklama: 'Koylulerini isciye donustur. Oduncu iscileri her saat kereste uretir. En az 3 isci ata!',
+    aciklama: 'Köylülerini işçiye dönüştür. Oduncu işçileri her saat kereste üretir. En az 3 işçi ata!',
     kosulTipi: 'isci_ata',
     kosulDeger: 'oduncu:3'
   },

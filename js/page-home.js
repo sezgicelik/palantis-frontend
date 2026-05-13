@@ -79,30 +79,30 @@ async function loadDuyurular() {
    SEHIR GORUNUMU — v1.13.8 (izometrik bina karti)
 ══════════════════════════════════ */
 const HOME_BINA_META = {
-  // ad + ikon SVG rengi (rol bazli). Admin panelinde aciklama degisebilir, biz sadece adet gosteriyoruz.
-  oduncu:{ad:'Oduncu',col:'#4a8a3a',ico:'🪓'}, kereste_atolyesi:{ad:'Kereste Atolyesi',col:'#8a6034',ico:'🏭'},
-  tarla:{ad:'Tarla',col:'#b0a030',ico:'🌾'}, ciftlik:{ad:'Ciftlik',col:'#906040',ico:'🐄'},
-  balikci:{ad:'Balikci',col:'#4080a0',ico:'🎣'}, isleme:{ad:'Isleme',col:'#a06030',ico:'⚙️'},
-  ocak:{ad:'Ocak',col:'#c06020',ico:'🔥'}, firin:{ad:'Firin',col:'#c08040',ico:'🍞'},
-  surlar:{ad:'Surlar',col:'#6a6a7a',ico:'🧱'}, ev:{ad:'Ev',col:'#8a6040',ico:'🏠'},
-  koy:{ad:'Koy',col:'#a08050',ico:'🏘️'}, kasaba:{ad:'Kasaba',col:'#9a7040',ico:'🏛️'},
-  pazar:{ad:'Pazar',col:'#b08030',ico:'💰'}, ahir:{ad:'Ahir',col:'#704020',ico:'🐴'},
-  lonca:{ad:'Lonca',col:'#6040a0',ico:'🗡️'}, buyulu_tarla:{ad:'Buyulu Tarla',col:'#a040a0',ico:'🌸'},
-  buyu_kulesi:{ad:'Buyu Kulesi',col:'#8050c0',ico:'🔮'}, kule:{ad:'Kule',col:'#7a7a7a',ico:'🗼'},
-  magara:{ad:'Mağara',col:'#505050',ico:'⛰️'}, istihbarat:{ad:'İstihbarat',col:'#606060',ico:'🕵️'},
-  akademi:{ad:'Akademi',col:'#5080c0',ico:'🎓'}, sehir_meydani:{ad:'Sehir Meydani',col:'#d4af37',ico:'⛲'},
-  guild_binasi:{ad:'Guild Binasi',col:'#9b59b6',ico:'🏰'},
-  rathe_tapinagi:{ad:'Rathe Tapinagi',col:'#d0a040',ico:'⛪'},
-  xegony_tapinagi:{ad:'Xegony Tapinagi',col:'#d04040',ico:'⛪'},
-  fennin_tapinagi:{ad:'Fennin Tapinagi',col:'#4040d0',ico:'⛪'},
-  tunare_tapinagi:{ad:'Tunare Tapinagi',col:'#40d040',ico:'⛪'},
-  okul:{ad:'Okul',col:'#5080b0',ico:'📚'}, universite:{ad:'Universite',col:'#4060a0',ico:'🎓'},
-  kutuphane:{ad:'Kutuphane',col:'#806040',ico:'📖'}, tiyatro:{ad:'Tiyatro',col:'#a04060',ico:'🎭'},
-  arena:{ad:'Arena',col:'#a03030',ico:'🏟️'}, asma_bahceler:{ad:'Asma Bahceler',col:'#60a060',ico:'🌿'},
-  muze:{ad:'Muze',col:'#806020',ico:'🏛️'}, noxara_hani:{ad:'Noxara Hani',col:'#b07030',ico:'🏨'},
-  taverna:{ad:'Taverna',col:'#c08050',ico:'🍺'},
-  okcu_kulesi:{ad:'Okcu Kulesi',col:'#4a9a3a',ico:'🏹'}, mizrak_kulesi:{ad:'Mizrak Kulesi',col:'#a06040',ico:'🔱'},
-  balista_kulesi:{ad:'Balista Kulesi',col:'#a08040',ico:'🏯'}, ciftlik:{ad:'Ciftlik',col:'#906040',ico:'🐄'}
+  // v1.14.3.97: ad alani LABELS.bina'dan cekilir (i18n) — burada sadece col+ico tutulur, ad merkezden gelir
+  oduncu:{ad:L('bina','oduncu'),col:'#4a8a3a',ico:'🪓'}, kereste_atolyesi:{ad:L('bina','kereste_atolyesi'),col:'#8a6034',ico:'🏭'},
+  tarla:{ad:L('bina','tarla'),col:'#b0a030',ico:'🌾'}, ciftlik:{ad:'Çiftlik',col:'#906040',ico:'🐄'},
+  balikci:{ad:L('bina','balikci'),col:'#4080a0',ico:'🎣'}, isleme:{ad:L('bina','isleme'),col:'#a06030',ico:'⚙️'},
+  ocak:{ad:L('bina','ocak'),col:'#c06020',ico:'🔥'}, firin:{ad:L('bina','firin'),col:'#c08040',ico:'🍞'},
+  surlar:{ad:L('bina','surlar'),col:'#6a6a7a',ico:'🧱'}, ev:{ad:L('bina','ev'),col:'#8a6040',ico:'🏠'},
+  koy:{ad:L('bina','koy'),col:'#a08050',ico:'🏘️'}, kasaba:{ad:L('bina','kasaba'),col:'#9a7040',ico:'🏛️'},
+  pazar:{ad:L('bina','pazar'),col:'#b08030',ico:'💰'}, ahir:{ad:L('bina','ahir'),col:'#704020',ico:'🐴'},
+  lonca:{ad:L('bina','lonca'),col:'#6040a0',ico:'🗡️'}, buyulu_tarla:{ad:L('bina','buyulu_tarla'),col:'#a040a0',ico:'🌸'},
+  buyu_kulesi:{ad:L('bina','buyu_kulesi'),col:'#8050c0',ico:'🔮'}, kule:{ad:L('bina','kule'),col:'#7a7a7a',ico:'🗼'},
+  magara:{ad:L('bina','magara'),col:'#505050',ico:'⛰️'}, istihbarat:{ad:L('bina','istihbarat'),col:'#606060',ico:'🕵️'},
+  akademi:{ad:L('bina','akademi'),col:'#5080c0',ico:'🎓'}, sehir_meydani:{ad:L('bina','sehir_meydani'),col:'#d4af37',ico:'⛲'},
+  guild_binasi:{ad:L('bina','guild_binasi'),col:'#9b59b6',ico:'🏰'},
+  rathe_tapinagi:{ad:L('bina','rathe_tapinagi'),col:'#d0a040',ico:'⛪'},
+  xegony_tapinagi:{ad:L('bina','xegony_tapinagi'),col:'#d04040',ico:'⛪'},
+  fennin_tapinagi:{ad:L('bina','fennin_tapinagi'),col:'#4040d0',ico:'⛪'},
+  tunare_tapinagi:{ad:L('bina','tunare_tapinagi'),col:'#40d040',ico:'⛪'},
+  okul:{ad:L('bina','okul'),col:'#5080b0',ico:'📚'}, universite:{ad:L('bina','universite'),col:'#4060a0',ico:'🎓'},
+  kutuphane:{ad:L('bina','kutuphane'),col:'#806040',ico:'📖'}, tiyatro:{ad:L('bina','tiyatro'),col:'#a04060',ico:'🎭'},
+  arena:{ad:L('bina','arena'),col:'#a03030',ico:'🏟️'}, asma_bahceler:{ad:L('bina','asma_bahceler'),col:'#60a060',ico:'🌿'},
+  muze:{ad:L('bina','muze'),col:'#806020',ico:'🏛️'}, noxara_hani:{ad:L('bina','noxara_hani'),col:'#b07030',ico:'🏨'},
+  taverna:{ad:L('bina','taverna'),col:'#c08050',ico:'🍺'},
+  okcu_kulesi:{ad:'Okçu Kulesi',col:'#4a9a3a',ico:'🏹'}, mizrak_kulesi:{ad:'Mızrak Kulesi',col:'#a06040',ico:'🔱'},
+  balista_kulesi:{ad:'Balista Kulesi',col:'#a08040',ico:'🏯'}, ciftlik:{ad:'Çiftlik',col:'#906040',ico:'🐄'}
 };
 
 function homeBinaSVG(col) {

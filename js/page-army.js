@@ -283,7 +283,7 @@ async function smConvert(){
 
 async function smRelease(){
   const msgEl = document.getElementById('sm-msg');
-  if(SM_MIKTAR <= 0){ msgEl.textContent = 'Koyluye cevrilecek asker sayisini belirle.'; msgEl.style.color='#e74c3c'; return; }
+  if(SM_MIKTAR <= 0){ msgEl.textContent = 'Köylüye çevrilecek asker sayısını belirle.'; msgEl.style.color='#e74c3c'; return; }
   if(SM_MIKTAR > ASKER_SAYISI){
     msgEl.textContent = `⚠️ Sadece ${ASKER_SAYISI} askerin var, ${SM_MIKTAR} köylüye çeviremezsin!`;
     msgEl.style.color = '#e74c3c';
@@ -484,10 +484,10 @@ function renderOrduListe(){
     var konumKoord = '';
     var korumada = o.konum_tipi === 'korumada';
     if (o.is_busy && o.aktif_gorev) {
-      // v1.14.0.2 FIX: Yoldaysa gercek hedef goster, "Sehirde" deme
+      // v1.14.0.2 FIX: Yoldaysa gerçek hedef göster, "Şehirde" deme
       var g = o.aktif_gorev;
-      var tipKisa = g.tip === 'saldiri' ? '⚔️ Saldiri' : g.tip === 'takviye' ? '🛡️ Takviye' :
-        g.tip === 'donus' ? '🏠 Donus' : g.tip.startsWith('donus') ? '🏠 Donus' :
+      var tipKisa = g.tip === 'saldiri' ? '⚔️ Saldırı' : g.tip === 'takviye' ? '🛡️ Takviye' :
+        g.tip === 'donus' ? '🏠 Dönüş' : g.tip.startsWith('donus') ? '🏠 Dönüş' :
         g.tip === 'koloni' ? '🏰 Koloni' : g.tip.startsWith('rolu') ? '🔀 Relay' : '🚀';
       // v1.14.0.92: N/M PG progress gosterimi
       // v1.14.1.00 FIX: +1 kaldirildi — ilk dakikalarda 0/3 gostersin (zaten 1 saat gecmeden 1/3 olamaz)
@@ -499,11 +499,11 @@ function renderOrduListe(){
       konumRenk = g.tip.startsWith('donus') ? '#27ae60' : '#e67e22';
     } else if (o.is_busy) {
       // is_busy=TRUE ama aktif_gorev null (cron catch-up sirasinda gorev silinebilir)
-      konumLabel = '⚠️ Mesgul (gorev bilgisi yok)';
+      konumLabel = '⚠️ Meşgul (görev bilgisi yok)';
       konumKoord = '';
       konumRenk = '#e74c3c';
     } else if (korumada && o.takviye) {
-      var tkLabel = o.takviye.hedef_kral ? o.takviye.hedef_kral + '\'de' : (o.takviye.koloni_isim ? o.takviye.koloni_isim + ' Ussu' : 'Konuslandi');
+      var tkLabel = o.takviye.hedef_kral ? o.takviye.hedef_kral + '\'de' : (o.takviye.koloni_isim ? o.takviye.koloni_isim + ' Üssü' : 'Konuşlandı');
       konumLabel = '📍 Korumada: ' + tkLabel;
       konumKoord = o.takviye.konum_x + ':' + o.takviye.konum_y;
       konumRenk = '#9b59b6';
@@ -604,7 +604,7 @@ function renderOrduListe(){
         '</div>' +
         // v1.14.1.43: Ordu yolda/koloninde iken duzenleme YASAK — formation paneliyle ayni kural
         ((o.is_busy || (o.konum_tipi && o.konum_tipi !== 'sehir'))
-          ? '<div style="padding:12px;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);border-radius:6px;color:#e74c3c;font-size:12px">🔒 Unite ekleme/cikarma sadece ordu <b>Sehirde</b> iken yapilabilir. Bu ordu su an yolda/konuslanmis.</div>'
+          ? '<div style="padding:12px;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);border-radius:6px;color:#e74c3c;font-size:12px">🔒 Ünite ekleme/çıkarma sadece ordu <b>Şehirde</b> iken yapılabilir. Bu ordu şu an yolda/konuşlanmış.</div>'
           : (function(){
               // ARMY+POOL birlestirilmis liste: ordudaki uniteler + havuzdaki uretilebilir uniteler
               var orduMap = {};
@@ -645,8 +645,8 @@ function renderOrduListe(){
           '<button class="btn ghost" style="font-size:11px;padding:2px 8px;color:#e74c3c;border-color:#e74c3c44" onclick="toggleFormationPanel(' + o.id + ')" title="Paneli kapat">✕ Kapat</button>' +
         '</div>' +
         (o.is_busy || (o.konum_tipi && o.konum_tipi !== 'sehir')
-          ? '<div style="padding:12px;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);border-radius:6px;color:#e74c3c;font-size:12px">🔒 Saf dizilimi sadece ordu <b>Sehirde</b> iken duzenlenebilir. Bu ordu su an yolda/konuslanmis.</div>'
-          : '<div id="formation-body-' + o.id + '"><div style="color:#888;font-size:11px;padding:10px">Yukleniyor...</div></div>'
+          ? '<div style="padding:12px;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);border-radius:6px;color:#e74c3c;font-size:12px">🔒 Saf dizilimi sadece ordu <b>Şehirde</b> iken düzenlenebilir. Bu ordu şu an yolda/konuşlanmış.</div>'
+          : '<div id="formation-body-' + o.id + '"><div style="color:#888;font-size:11px;padding:10px">Yükleniyor...</div></div>'
         ) +
       '</div>' +
       // v1.9.3: Yoldaki görev bilgi barı

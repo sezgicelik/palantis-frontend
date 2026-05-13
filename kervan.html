@@ -19,7 +19,7 @@
   <div class="main-content">
 
     <h2 style="color:#c8a96e;font-family:'Cinzel',serif;margin:0 0 8px;font-size:clamp(16px,4vw,22px)">🐪 Kervan Yonetimi</h2>
-    <p style="color:#666;font-size:11px;margin-bottom:16px">Eseklerinle kervan olustur, kaynak yukle, pazara veya buyu dukkanina gonder.</p>
+    <p style="color:#666;font-size:11px;margin-bottom:16px">Eşeklerinle kervan oluştur, kaynak yükle, pazara veya büyü dükkânına gönder.</p>
 
     <!-- Ozet -->
     <div class="city-stats" style="margin-bottom:16px">
@@ -63,24 +63,24 @@
 <script src="js/layout.js?v=14380"></script>
 <script src="js/rehber.js"></script>
 <script>
-const DURUM_ISIM = { sehirde:'Sehirde', yolda_gidis:'Yolda', yolda_donus:'Donuyor', pazarda:'Pazarda', buyu_dukkaninda:'Buyu Dukkaninda' };
-const HEDEF_ISIM = { pazar:'Pazar', buyu_dukkani:'Buyu Dukkani' };
+const DURUM_ISIM = { sehirde:'Şehirde', yolda_gidis:'Yolda', yolda_donus:'Dönüyor', pazarda:'Pazarda', buyu_dukkaninda:'Büyü Dükkânında' };
+const HEDEF_ISIM = { pazar:'Pazar', buyu_dukkani:'Büyü Dükkânı' };
 const DURUM_RENK = { sehirde:'#2ecc71', yolda_gidis:'#f39c12', yolda_donus:'#f39c12', pazarda:'#3498db', buyu_dukkaninda:'#9b59b6' };
 const KAYNAKLAR = ['altin','odun','metal','islenmis','kereste','bugday','balik','cig_et','ekmek','pismis','pismis_et'];
 // v1.14.3.96: TEK doğruluk — merkez LABELS (eski ASCII Türkçe karaktersizdi: Kirmizi/Yesil/Ay Tasi vb)
 const KAYNAK_ISIM = (typeof LABELS !== 'undefined' && LABELS.kaynak) || {};
 const PARSOMEN_ISIM = {
-  dogum:'Dogum', beceri:'Beceri', ejderha_korkusu:'Ejderha Korkusu', ejderha_sevinci:'Ejderha Sevinci',
-  kesif:'Kesif', motivasyon_h:'Motivasyon (H)', motivasyon_y:'Motivasyon (Y)', olum_sisi:'Olum Sisi',
-  sessizlik:'Sessizlik', koruma:'Koruma', kum_firtinasi:'Kum Firtinasi', mana_yak:'Mana Yak',
-  sadakat:'Sadakat', kabus:'Kabus', bilgelik_dokunusu:'Bilgelik Dokunusu', deprem:'Deprem',
-  hiz:'Hiz', mistik_defans:'Mistik Defans', onarim:'Onarim', serap:'Serap',
-  buyu_kalkani:'Buyu Kalkani', dispel:'Dispel', ejderha_cagir:'Ejderha Cagir', hipnoz:'Hipnoz',
-  koruma_kaldir:'Koruma Kaldir', meteor_yagmuru:'Meteor Yagmuru', mistik_atak:'Mistik Atak', yakaris:'Yakaris',
+  dogum:'Doğum', beceri:'Beceri', ejderha_korkusu:'Ejderha Korkusu', ejderha_sevinci:'Ejderha Sevinci',
+  kesif:'Keşif', motivasyon_h:'Motivasyon (H)', motivasyon_y:'Motivasyon (Y)', olum_sisi:'Ölüm Sisi',
+  sessizlik:'Sessizlik', koruma:'Koruma', kum_firtinasi:'Kum Fırtınası', mana_yak:'Mana Yak',
+  sadakat:'Sadakat', kabus:'Kâbus', bilgelik_dokunusu:'Bilgelik Dokunuşu', deprem:'Deprem',
+  hiz:'Hız', mistik_defans:'Mistik Defans', onarim:'Onarım', serap:'Serap',
+  buyu_kalkani:'Büyü Kalkanı', dispel:'Dispel', ejderha_cagir:'Ejderha Çağır', hipnoz:'Hipnoz',
+  koruma_kaldir:'Koruma Kaldır', meteor_yagmuru:'Meteor Yağmuru', mistik_atak:'Mistik Atak', yakaris:'Yakarış',
 };
 function kvKaynakIsim(key) {
   if (KAYNAK_ISIM[key]) return KAYNAK_ISIM[key];
-  if (key.startsWith('parsomen_')) return (PARSOMEN_ISIM[key.replace('parsomen_','')] || key.replace('parsomen_','')) + ' Parsomeni';
+  if (key.startsWith('parsomen_')) return (PARSOMEN_ISIM[key.replace('parsomen_','')] || key.replace('parsomen_','')) + ' Parşömeni';
   return key;
 }
 let KV_DATA = null;
@@ -141,7 +141,7 @@ function renderKervanlar() {
         </div>
         <div style="display:flex;gap:4px;margin-top:6px">
           <button class="btn-action" onclick="kvGonder(${k.id},'pazar')" style="padding:4px 10px;font-size:10px;width:auto">Pazara Gonder</button>
-          <button class="btn-action" onclick="kvGonder(${k.id},'buyu_dukkani')" style="padding:4px 10px;font-size:10px;width:auto;border-color:#9b59b6;color:#9b59b6">Buyu Dukkanina</button>
+          <button class="btn-action" onclick="kvGonder(${k.id},'buyu_dukkani')" style="padding:4px 10px;font-size:10px;width:auto;border-color:#9b59b6;color:#9b59b6">Büyü Dükkânına</button>
           <button class="btn-action" onclick="kvSil(${k.id})" style="padding:4px 10px;font-size:10px;width:auto;border-color:#e74c3c;color:#e74c3c">Sil</button>
         </div>`;
     } else if (hedefte) {

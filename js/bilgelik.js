@@ -151,9 +151,9 @@
     { id:'isci_ata', baslik:'Isci ata', aciklama:'Koyluleri oduncu/madenci/ciftci yap.',
       bitti: s => (s.W.oduncu||0) + (s.W.madenci||0) + (s.W.ciftci||0) >= 5,
       link:'population.html' },
-    { id:'sehir_meydani', baslik:'Sehir Meydani kur', aciklama:'Diger oyuncularla chatlesmek icin gerekli.',
+    { id:'sehir_meydani', baslik:'Şehir Meydanı kur', aciklama:'Diğer oyuncularla chatleşmek için gerekli.',
       bitti: s => s.binaAdet('sehir_meydani') >= 1, link:'city.html?tab=binalar' },
-    { id:'asker', baslik:'Ilk askerini bas', aciklama:'Koylu sayisindan asker secip sehrini koru.',
+    { id:'asker', baslik:'İlk askerini bas', aciklama:'Köylü sayısından asker seçip şehrini koru.',
       bitti: s => {
         // v1.14.3.71: Asker = ham asker (havuz) + ordudaki toplam birim
         var ham = (s.W.asker||0);
@@ -257,8 +257,8 @@
 
     { id:'no_meydan', tier:'orta', tip:'warning',
       kosul: s => s.binaAdet('sehir_meydani') === 0,
-      mesaj:'💬 Sehir Meydani yok — chat yapamaz, ozel mesaj atamaz.',
-      cozum:['Cag 1 oyuncularda zorunlu','Cok ucuz: 200 odun, 250 altin'] },
+      mesaj:'💬 Şehir Meydanı yok — chat yapamaz, özel mesaj atamaz.',
+      cozum:['Çağ 1 oyuncularda zorunlu','Çok ucuz: 200 odun, 250 altın'] },
 
     { id:'tarla_dolu', tier:'orta', tip:'warning',
       kosul: s => {
@@ -267,7 +267,7 @@
         return t > 0 && c >= t * 50;
       },
       mesaj:'🌾 Tarla kapasiten dolu. Yeni tarla yap.',
-      cozum:['Sehir → Tarla bina (her tarla +50 ciftci)','Bugday uretimini katlayabilirsin'] },
+      cozum:['Şehir → Tarla bina (her tarla +50 çiftçi)','Buğday üretimini katlayabilirsin'] },
 
     { id:'pazar_yok_cag2', tier:'orta', tip:'warning',
       kosul: s => s.cag >= 2 && s.binaAdet('pazar') === 0,
@@ -430,8 +430,8 @@
 
     { id:'ahir_yok_cag2', tier:'orta', tip:'success',
       kosul: s => s.cag >= 2 && s.binaAdet('ahir') === 0,
-      mesaj:'🐎 Ahir yok — at uretimi yok, suvari bas\'amazsin.',
-      cozum:['Sehir → Binalar → Ahir','Cag 2 askeri unite icin gerekli'] },
+      mesaj:'🐎 Ahır yok — at üretimi yok, süvari bas\'amazsın.',
+      cozum:['Şehir → Binalar → Ahır','Çağ 2 askeri ünite için gerekli'] },
 
     { id:'casus_yok', tier:'orta', tip:'success',
       kosul: s => s.cag >= 3 && s.binaAdet('istihbarat') >= 1 && (s.W.casus_sayisi || 0) === 0,

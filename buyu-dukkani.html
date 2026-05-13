@@ -18,25 +18,25 @@
   <div id="sidebar-mount"></div>
   <div class="main-content">
 
-    <h2 style="color:#9b59b6;font-family:'Cinzel',serif;margin:0 0 8px;font-size:clamp(16px,4vw,22px)">🔮 Buyu Dukkani</h2>
+    <h2 style="color:#9b59b6;font-family:'Cinzel',serif;margin:0 0 8px;font-size:clamp(16px,4vw,22px)">🔮 Büyü Dükkanı</h2>
     <!-- Kervan yok uyarisi -->
     <div id="bd-engel" style="display:none;text-align:center;padding:40px">
       <div style="font-size:40px;margin-bottom:12px">🔮</div>
-      <div style="color:#e74c3c;font-size:14px;font-weight:bold;margin-bottom:8px">Buyu dukkaninda kervanin yok!</div>
-      <div style="color:#888;font-size:12px;margin-bottom:16px">Once <a href="kervan.html" style="color:#9b59b6">Kervan sayfasindan</a> bir kervan olusturup "Buyu Dukkanina Gonder" butonuna bas.</div>
-      <a href="kervan.html" class="btn-action" style="padding:8px 20px;font-size:12px;width:auto;text-decoration:none;display:inline-block">Kervan Sayfasina Git</a>
+      <div style="color:#e74c3c;font-size:14px;font-weight:bold;margin-bottom:8px">Büyü dükkânında kervanın yok!</div>
+      <div style="color:#888;font-size:12px;margin-bottom:16px">Önce <a href="kervan.html" style="color:#9b59b6">Kervan sayfasından</a> bir kervan oluşturup "Büyü Dükkânına Gönder" butonuna bas.</div>
+      <a href="kervan.html" class="btn-action" style="padding:8px 20px;font-size:12px;width:auto;text-decoration:none;display:inline-block">Kervan Sayfasına Git</a>
     </div>
 
     <!-- Dukkan icerigi (kervan varsa gorunur) -->
     <div id="bd-icerik" style="display:none">
 
-    <p style="color:#666;font-size:11px;margin-bottom:16px">Stoklar her 2 saatte yenilenir. Kervanindaki altinla satin al.</p>
+    <p style="color:#666;font-size:11px;margin-bottom:16px">Stoklar her 2 saatte yenilenir. Kervanındaki altınla satın al.</p>
 
     <!-- Kervan secimi + icerik -->
     <div class="card" style="padding:14px;margin-bottom:16px">
-      <h3 style="color:#9b59b6;font-size:13px;margin-bottom:8px">Kervan Sec</h3>
+      <h3 style="color:#9b59b6;font-size:13px;margin-bottom:8px">Kervan Seç</h3>
       <select id="bd-kervan" onchange="bdKervanSec()" style="padding:6px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:12px;min-width:200px">
-        <option value="">-- Kervan sec --</option>
+        <option value="">-- Kervan seç --</option>
       </select>
       <div id="bd-kervan-info" style="font-size:10px;color:#888;margin-top:4px"></div>
       <div id="bd-kervan-yuk" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:3px"></div>
@@ -44,14 +44,14 @@
 
     <!-- Buyu Malzemeleri (uste) -->
     <div class="card" style="padding:14px;margin-bottom:16px">
-      <h3 style="color:#9b59b6;font-size:13px;margin-bottom:10px">Buyu Malzemeleri</h3>
+      <h3 style="color:#9b59b6;font-size:13px;margin-bottom:10px">Büyü Malzemeleri</h3>
       <div id="bd-malzeme-liste"></div>
     </div>
 
     <!-- Parsomenler -->
     <div class="card" style="padding:14px;margin-bottom:16px">
-      <h3 style="color:#8e44ad;font-size:13px;margin-bottom:10px">Parsomenler (Buyu Ogren)</h3>
-      <p style="font-size:10px;color:#666;margin-bottom:8px">Parsomen satin al, sehre goturdukten sonra Buyucu Kulesinde oku.</p>
+      <h3 style="color:#8e44ad;font-size:13px;margin-bottom:10px">Parşömenler (Büyü Öğren)</h3>
+      <p style="font-size:10px;color:#666;margin-bottom:8px">Parşömen satın al, şehre götürdükten sonra Büyücü Kulesinde oku.</p>
       <div id="bd-parsomen-liste"></div>
     </div>
 
@@ -84,9 +84,9 @@
 <script src="js/layout.js?v=14380"></script>
 <script src="js/rehber.js"></script>
 <script>
-const RENK_ISIM = { beyaz:'Beyaz', kirmizi:'Kirmizi', mavi:'Mavi', yesil:'Yesil' };
+const RENK_ISIM = { beyaz:'Beyaz', kirmizi:'Kırmızı', mavi:'Mavi', yesil:'Yeşil' };
 const RENK_CSS = { beyaz:'#f5f5f5', kirmizi:'#e74c3c', mavi:'#3498db', yesil:'#2ecc71' };
-const BOYUT_ISIM = { kucuk:'Kucuk', orta:'Orta', buyuk:'Buyuk' };
+const BOYUT_ISIM = { kucuk:'Küçük', orta:'Orta', buyuk:'Büyük' };
 const MANA_RENKLERI = ['beyaz','kirmizi','mavi','yesil'];
 let BD_STOK = null;
 let BD_KERVAN_ID = null;
@@ -106,26 +106,26 @@ function bdKaynakIsim(key) {
 
 // Parsomen tanimlari (frontend fallback — backend'den gelmezse kullanilir)
 const PARSOMEN_LISTESI = [
-  { id:'parsomen_dogum', buyu_id:'dogum', isim:'Dogum', cag:1, mana_renk:'yesil', tip:'ekonomi', kategori:'kendine', aciklama:'Gunluk dogan koylu sayisini artirir', fiyat:500 },
-  { id:'parsomen_beceri', buyu_id:'beceri', isim:'Beceri', cag:1, mana_renk:'yesil', tip:'ekonomi', kategori:'kendine', aciklama:'Koyluleri aninda isciye cevirir', fiyat:500 },
-  { id:'parsomen_ejderha_korkusu', buyu_id:'ejderha_korkusu', isim:'Ejderha Korkusu', cag:2, mana_renk:'kirmizi', tip:'saldiri', kategori:'dusmana', aciklama:'Dusman moralini dusurur', fiyat:2000 },
-  { id:'parsomen_ejderha_sevinci', buyu_id:'ejderha_sevinci', isim:'Ejderha Sevinci', cag:2, mana_renk:'beyaz', tip:'destek', kategori:'kendine', aciklama:'Kendi moralini artirir', fiyat:2000 },
-  { id:'parsomen_kesif', buyu_id:'kesif', isim:'Kesif', cag:2, mana_renk:'yesil', tip:'destek', kategori:'kendine', aciklama:'Izcilerin buldugu alan artar', fiyat:2000 },
-  { id:'parsomen_motivasyon_h', buyu_id:'motivasyon_h', isim:'Motivasyon (Hammadde)', cag:2, mana_renk:'yesil', tip:'ekonomi', kategori:'kendine', aciklama:'Altın, odun, metal uretimi artar', fiyat:2000 },
-  { id:'parsomen_motivasyon_y', buyu_id:'motivasyon_y', isim:'Motivasyon (Yiyecek)', cag:2, mana_renk:'yesil', tip:'ekonomi', kategori:'kendine', aciklama:'Buğday, balik, et uretimi artar', fiyat:2000 },
-  { id:'parsomen_olum_sisi', buyu_id:'olum_sisi', isim:'Olum Sisi', cag:2, mana_renk:'kirmizi', tip:'saldiri', kategori:'dusmana', aciklama:'Dusman koyluleri oldurur', fiyat:2000 },
-  { id:'parsomen_sessizlik', buyu_id:'sessizlik', isim:'Sessizlik', cag:2, mana_renk:'mavi', tip:'anti_buyu', kategori:'dusmana', aciklama:'Dusman buyu yapamaz', fiyat:2000 },
-  { id:'parsomen_koruma', buyu_id:'koruma', isim:'Koruma', cag:3, mana_renk:'beyaz', tip:'savunma', kategori:'kendine', aciklama:'Sehre saldiri engellenir', fiyat:5000 },
-  { id:'parsomen_kum_firtinasi', buyu_id:'kum_firtinasi', isim:'Kum Firtinasi', cag:3, mana_renk:'kirmizi', tip:'saldiri', kategori:'dusmana', aciklama:'Dusman ordulari hareket edemez', fiyat:5000 },
-  { id:'parsomen_mana_yak', buyu_id:'mana_yak', isim:'Mana Yak', cag:3, mana_renk:'mavi', tip:'saldiri', kategori:'dusmana', aciklama:'Dusman kirmizi manasini yakar', fiyat:5000 },
+  { id:'parsomen_dogum', buyu_id:'dogum', isim:'Doğum', cag:1, mana_renk:'yesil', tip:'ekonomi', kategori:'kendine', aciklama:'Günlük doğan köylü sayısını artırır', fiyat:500 },
+  { id:'parsomen_beceri', buyu_id:'beceri', isim:'Beceri', cag:1, mana_renk:'yesil', tip:'ekonomi', kategori:'kendine', aciklama:'Köylüleri anında işçiye çevirir', fiyat:500 },
+  { id:'parsomen_ejderha_korkusu', buyu_id:'ejderha_korkusu', isim:'Ejderha Korkusu', cag:2, mana_renk:'kirmizi', tip:'saldiri', kategori:'dusmana', aciklama:'Düşman moralini düşürür', fiyat:2000 },
+  { id:'parsomen_ejderha_sevinci', buyu_id:'ejderha_sevinci', isim:'Ejderha Sevinci', cag:2, mana_renk:'beyaz', tip:'destek', kategori:'kendine', aciklama:'Kendi moralini artırır', fiyat:2000 },
+  { id:'parsomen_kesif', buyu_id:'kesif', isim:'Keşif', cag:2, mana_renk:'yesil', tip:'destek', kategori:'kendine', aciklama:'İzcilerin bulduğu alan artar', fiyat:2000 },
+  { id:'parsomen_motivasyon_h', buyu_id:'motivasyon_h', isim:'Motivasyon (Hammadde)', cag:2, mana_renk:'yesil', tip:'ekonomi', kategori:'kendine', aciklama:'Altın, odun, metal üretimi artar', fiyat:2000 },
+  { id:'parsomen_motivasyon_y', buyu_id:'motivasyon_y', isim:'Motivasyon (Yiyecek)', cag:2, mana_renk:'yesil', tip:'ekonomi', kategori:'kendine', aciklama:'Buğday, balık, et üretimi artar', fiyat:2000 },
+  { id:'parsomen_olum_sisi', buyu_id:'olum_sisi', isim:'Ölüm Sisi', cag:2, mana_renk:'kirmizi', tip:'saldiri', kategori:'dusmana', aciklama:'Düşman köylüleri öldürür', fiyat:2000 },
+  { id:'parsomen_sessizlik', buyu_id:'sessizlik', isim:'Sessizlik', cag:2, mana_renk:'mavi', tip:'anti_buyu', kategori:'dusmana', aciklama:'Düşman büyü yapamaz', fiyat:2000 },
+  { id:'parsomen_koruma', buyu_id:'koruma', isim:'Koruma', cag:3, mana_renk:'beyaz', tip:'savunma', kategori:'kendine', aciklama:'Şehre saldırı engellenir', fiyat:5000 },
+  { id:'parsomen_kum_firtinasi', buyu_id:'kum_firtinasi', isim:'Kum Fırtınası', cag:3, mana_renk:'kirmizi', tip:'saldiri', kategori:'dusmana', aciklama:'Düşman orduları hareket edemez', fiyat:5000 },
+  { id:'parsomen_mana_yak', buyu_id:'mana_yak', isim:'Mana Yak', cag:3, mana_renk:'mavi', tip:'saldiri', kategori:'dusmana', aciklama:'Düşmanın kırmızı manasını yakar', fiyat:5000 },
   { id:'parsomen_sadakat', buyu_id:'sadakat', isim:'Sadakat', cag:3, mana_renk:'beyaz', tip:'ekonomi', kategori:'kendine', aciklama:'Koloni kaynak bonusu artar', fiyat:5000 },
-  { id:'parsomen_kabus', buyu_id:'kabus', isim:'Kabus', cag:3, mana_renk:'mavi', tip:'savunma', kategori:'kendine', aciklama:'Dusman casus basarisi azalir', fiyat:5000 },
-  { id:'parsomen_bilgelik_dokunusu', buyu_id:'bilgelik_dokunusu', isim:'Bilgelik Dokunusu', cag:4, mana_renk:'mavi', tip:'destek', kategori:'kendine', aciklama:'Kultur puani kazanir', fiyat:12000 },
-  { id:'parsomen_deprem', buyu_id:'deprem', isim:'Deprem', cag:4, mana_renk:'kirmizi', tip:'saldiri', kategori:'dusmana', aciklama:'Dusman binalarina hasar', fiyat:12000 },
-  { id:'parsomen_hiz', buyu_id:'hiz', isim:'Hiz', cag:4, mana_renk:'yesil', tip:'destek', kategori:'kendine', aciklama:'Ordulara hiz bonusu', fiyat:12000 },
-  { id:'parsomen_mistik_defans', buyu_id:'mistik_defans', isim:'Mistik Defans', cag:4, mana_renk:'beyaz', tip:'savunma', kategori:'kendine', aciklama:'DEF artisi, ATK dususu', fiyat:12000 },
-  { id:'parsomen_onarim', buyu_id:'onarim', isim:'Onarim', cag:4, mana_renk:'beyaz', tip:'destek', kategori:'kendine', aciklama:'Hasarli binalari tamir eder', fiyat:12000 },
-  { id:'parsomen_serap', buyu_id:'serap', isim:'Serap', cag:4, mana_renk:'mavi', tip:'savunma', kategori:'kendine', aciklama:'Toprak korumasi', fiyat:12000 },
+  { id:'parsomen_kabus', buyu_id:'kabus', isim:'Kâbus', cag:3, mana_renk:'mavi', tip:'savunma', kategori:'kendine', aciklama:'Düşman casus başarısı azalır', fiyat:5000 },
+  { id:'parsomen_bilgelik_dokunusu', buyu_id:'bilgelik_dokunusu', isim:'Bilgelik Dokunuşu', cag:4, mana_renk:'mavi', tip:'destek', kategori:'kendine', aciklama:'Kültür puanı kazanır', fiyat:12000 },
+  { id:'parsomen_deprem', buyu_id:'deprem', isim:'Deprem', cag:4, mana_renk:'kirmizi', tip:'saldiri', kategori:'dusmana', aciklama:'Düşman binalarına hasar', fiyat:12000 },
+  { id:'parsomen_hiz', buyu_id:'hiz', isim:'Hız', cag:4, mana_renk:'yesil', tip:'destek', kategori:'kendine', aciklama:'Ordulara hız bonusu', fiyat:12000 },
+  { id:'parsomen_mistik_defans', buyu_id:'mistik_defans', isim:'Mistik Defans', cag:4, mana_renk:'beyaz', tip:'savunma', kategori:'kendine', aciklama:'DEF artışı, ATK düşüşü', fiyat:12000 },
+  { id:'parsomen_onarim', buyu_id:'onarim', isim:'Onarım', cag:4, mana_renk:'beyaz', tip:'destek', kategori:'kendine', aciklama:'Hasarlı binaları tamir eder', fiyat:12000 },
+  { id:'parsomen_serap', buyu_id:'serap', isim:'Serap', cag:4, mana_renk:'mavi', tip:'savunma', kategori:'kendine', aciklama:'Toprak koruması', fiyat:12000 },
 ];
 
 // Kademe bilgileri (kademe 1,5,10 gosterimi icin)
@@ -284,7 +284,7 @@ function renderBuyuDukkani() {
         </div>`;
       }).join('') + '</div>';
   } else {
-    parEl.innerHTML = '<div style="color:#666;font-size:11px">Caginiza uygun parsomen yok.</div>';
+    parEl.innerHTML = '<div style="color:#666;font-size:11px">Çağınıza uygun parşömen yok.</div>';
   }
 
   // Mana tupleri — renk bazli satirlar, her satirda K-O-B yan yana
