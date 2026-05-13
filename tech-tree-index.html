@@ -55,6 +55,8 @@
   .tab.active.v2 { background: #00e5ff; border-color: #00e5ff; }
   .tab.active.v3 { background: #ff6818; border-color: #ff6818; }
   .tab.active.v4 { background: #c8a04a; border-color: #c8a04a; }
+  .tab.active.v5 { background: #f3bd6f; border-color: #f3bd6f; color: #442b00; }
+  .tab.v5-new { border-color: #f3bd6f; color: #f3bd6f; }
 
   .tab .badge {
     display: inline-block;
@@ -94,7 +96,8 @@
 <div class="topbar">
   <div class="title">📜 NOXARA TECH TREE</div>
   <div class="tabs" id="tab-bar">
-    <button class="tab v1 active" data-v="v1" data-src="tech-tree-mockup.html">V1 — Klasik <span class="badge">altın</span></button>
+    <button class="tab v5 active v5-new" data-v="v5" data-src="tech-tree-v5.html">V5 — GP/KP Dallar <span class="badge">🆕 önerim</span></button>
+    <button class="tab v1" data-v="v1" data-src="tech-tree-mockup.html">V1 — Klasik <span class="badge">altın</span></button>
     <button class="tab v2"        data-v="v2" data-src="tech-tree-mockup-v2.html">V2 — Cyberpunk <span class="badge">neon</span></button>
     <button class="tab v3"        data-v="v3" data-src="tech-tree-mockup-v3.html">V3 — Ejder <span class="badge">gotik</span></button>
     <button class="tab v4"        data-v="v4" data-src="tech-tree-mockup-v4.html">V4 — Bilgelik Ağacı <span class="badge">en detaylı</span></button>
@@ -102,7 +105,7 @@
 </div>
 
 <div class="iframe-wrap">
-  <iframe id="mock-frame" src="tech-tree-mockup.html" loading="eager" title="Tech Tree Mockup"></iframe>
+  <iframe id="mock-frame" src="tech-tree-v5.html" loading="eager" title="Tech Tree Mockup"></iframe>
 </div>
 
 <script>
@@ -127,7 +130,7 @@
   // Sayfa yüklenirken hash kontrolü (örn. #v3 ile direkt v3'e açılsın)
   function applyHash() {
     const v = location.hash.replace('#', '').toLowerCase();
-    if (v && ['v1','v2','v3','v4'].includes(v)) {
+    if (v && ['v1','v2','v3','v4','v5'].includes(v)) {
       const btn = tabBar.querySelector(`.tab[data-v="${v}"]`);
       if (btn) btn.click();
     }

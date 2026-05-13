@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Noxara Realms - Gelişim Ağacı</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800&amp;family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>.material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24
+    }
+.parchment-texture {
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuAj92j14AHLYkiUFf4lJMnXn6MrviQEUv1n8k4SI2CRHKEOUqjmL1vY7_vPkfma2VoPI1luFyTXn4dJzy22p44uqn2dK0TkYQyllgd64VDJLuvfGN2XOd_hsfLJ_0USKEZUijaKZjoYZxm-6NB0HuEFeafuaNcHl6f8tAj4HNSc3xrro2ZB6B_195YNiy98kr5n4z9-Bbzegpy3iououZtn8-A26BmmS0jrYWauVYC5-xC5FzbjG3_erQ6Kebh-UUmUQICkJ3RneDg)
+    }
+.glow-sm {
+    text-shadow: 0 0 8px rgba(243, 189, 111, 0.5)
+    }
+.scrollbar-hide::-webkit-scrollbar {
+    display: none
+    }
+.tech-card-active {
+    box-shadow: inset 0 0 10px rgba(243, 189, 111, 0.2), 0 4px 15px rgba(0, 0, 0, 0.5)
+    }</style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#313030",
+                        "surface-tint": "#f3bd6f",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-variant": "#353534",
+                        "on-error-container": "#ffdad6",
+                        "background": "#131313",
+                        "on-secondary-container": "#c6b6a0",
+                        "tertiary-fixed": "#ede0d9",
+                        "surface-bright": "#3a3939",
+                        "secondary-container": "#534736",
+                        "on-secondary-fixed": "#231a0c",
+                        "on-primary-fixed": "#291800",
+                        "inverse-primary": "#7e5711",
+                        "surface-dim": "#131313",
+                        "surface-container-highest": "#353534",
+                        "primary-container": "#d4a257",
+                        "outline": "#9c8f7f",
+                        "on-surface-variant": "#d3c4b3",
+                        "on-primary": "#442b00",
+                        "secondary-fixed": "#f2e0c8",
+                        "on-tertiary-fixed": "#211a16",
+                        "primary-fixed-dim": "#f3bd6f",
+                        "primary": "#f3bd6f",
+                        "on-secondary-fixed-variant": "#504534",
+                        "on-secondary": "#392f1f",
+                        "on-primary-container": "#583900",
+                        "surface-container-lowest": "#0e0e0e",
+                        "on-surface": "#e5e2e1",
+                        "inverse-surface": "#e5e2e1",
+                        "on-tertiary": "#362f2a",
+                        "secondary-fixed-dim": "#d5c4ad",
+                        "on-background": "#e5e2e1",
+                        "surface-container-low": "#1c1b1b",
+                        "on-error": "#690005",
+                        "outline-variant": "#4f4538",
+                        "surface-container": "#201f1f",
+                        "on-tertiary-fixed-variant": "#4d4540",
+                        "error-container": "#93000a",
+                        "tertiary-fixed-dim": "#d1c4bd",
+                        "primary-fixed": "#ffddb1",
+                        "on-primary-fixed-variant": "#624000",
+                        "tertiary-container": "#b4a9a2",
+                        "secondary": "#d5c4ad",
+                        "surface": "#131313",
+                        "on-tertiary-container": "#463e39",
+                        "tertiary": "#d1c4bd",
+                        "error": "#ffb4ab"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-padding": "24px",
+                        "artifact-margin": "32px",
+                        "gutter": "16px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Cinzel"],
+                        "display-lg": ["Cinzel"],
+                        "body-lg": ["EB Garamond"],
+                        "headline-md": ["Cinzel"],
+                        "headline-lg-mobile": ["Cinzel"],
+                        "body-md": ["EB Garamond"],
+                        "label-lg": ["Cinzel"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.1em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface selection:bg-primary selection:text-on-primary">
+<!-- Top Navigation Bar -->
+<nav class="bg-surface-container-lowest border-b border-outline-variant shadow-md fixed top-0 left-0 w-full z-50 h-16 flex justify-between items-center px-artifact-margin">
+<div class="flex items-center gap-4">
+<span class="font-display-lg text-headline-md font-bold tracking-widest text-primary">NOXARA REALMS</span>
+<div class="hidden md:flex gap-6 ml-8">
+<a class="text-on-surface-variant font-medium hover:text-primary-fixed-dim transition-colors duration-300 font-label-lg text-label-lg" href="#">Wiki</a>
+<a class="text-on-surface-variant font-medium hover:text-primary-fixed-dim transition-colors duration-300 font-label-lg text-label-lg" href="#">Community</a>
+<a class="text-on-surface-variant font-medium hover:text-primary-fixed-dim transition-colors duration-300 font-label-lg text-label-lg" href="#">Ranking</a>
+<a class="text-on-surface-variant font-medium hover:text-primary-fixed-dim transition-colors duration-300 font-label-lg text-label-lg" href="#">Map</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary cursor-pointer hover:scale-95 duration-150" data-icon="settings">settings</span>
+<span class="material-symbols-outlined text-primary cursor-pointer hover:scale-95 duration-150" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-primary cursor-pointer hover:scale-95 duration-150" data-icon="account_circle">account_circle</span>
+</div>
+</nav>
+<!-- Side Navigation Bar -->
+<aside class="fixed left-0 top-16 h-[calc(100vh-64px)] w-64 bg-surface-container border-r border-outline-variant shadow-xl z-40 flex flex-col hidden lg:flex">
+<div class="p-6 flex items-center gap-3">
+<div class="w-12 h-12 rounded-full border border-primary overflow-hidden shadow-sm">
+<img class="w-full h-full object-cover" data-alt="An ornate circular medieval crest representing an Archmage with dark violet and gold accents, set against an obsidian background. The mood is mystical and ancient with subtle magical embers glowing around the edges of the sigil, evoking the dark fantasy aesthetic of Noxara Realms." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPtg2bW8YTJDJZJY2FrC0TPFP0Vq3MS4Sd3mJRF06MKq3nTjKd2j_mKI7esm4sjmdp1RUb4kjwe4LltbCRSNiofiM96cSIBI6bVdlHhBsfzhlfErSN71kIzT018DwWXo-dDfkQS2lyuUj_raqVXx93g14edltjqQumssTUqy1hw6BQucwjdpPyPKH39vcXdra-w_vRe39wcrCjeKP19M3-0BwNQGoJ_f_c5yVjrJVj1myHu-ik8vE9q2Oih66mk0Bl9-dzBPDBhGo"/>
+</div>
+<div>
+<p class="font-headline-md text-sm text-primary">Overlord Sezgi</p>
+<p class="font-body-md text-xs text-on-surface-variant">Level 42 Archmage</p>
+</div>
+</div>
+<nav class="flex-grow py-4">
+<div class="bg-secondary-container text-on-secondary-container rounded-lg mx-2 my-1 px-4 py-3 flex items-center gap-3 active:translate-x-1 duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="fort">fort</span>
+<span class="font-label-lg text-label-lg">Kingdom</span>
+</div>
+<div class="text-on-surface-variant hover:text-primary hover:bg-surface-variant mx-2 my-1 px-4 py-3 flex items-center gap-3 transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="swords">swords</span>
+<span class="font-label-lg text-label-lg">Military</span>
+</div>
+<div class="text-on-surface-variant hover:text-primary hover:bg-surface-variant mx-2 my-1 px-4 py-3 flex items-center gap-3 transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="package_2">package_2</span>
+<span class="font-label-lg text-label-lg">Resources</span>
+</div>
+<div class="text-on-surface-variant hover:text-primary hover:bg-surface-variant mx-2 my-1 px-4 py-3 flex items-center gap-3 transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span class="font-label-lg text-label-lg">Research</span>
+</div>
+<div class="text-on-surface-variant hover:text-primary hover:bg-surface-variant mx-2 my-1 px-4 py-3 flex items-center gap-3 transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="storefront">storefront</span>
+<span class="font-label-lg text-label-lg">Market</span>
+</div>
+</nav>
+<div class="p-4">
+<button class="w-full bg-primary text-on-primary font-bold py-3 rounded-lg shadow-lg hover:brightness-110 active:scale-95 transition-all font-label-lg">Deploy Troops</button>
+</div>
+<div class="mt-auto border-t border-outline-variant p-4 space-y-2">
+<div class="flex items-center gap-3 text-on-surface-variant hover:text-primary cursor-pointer px-4">
+<span class="material-symbols-outlined" data-icon="mail">mail</span>
+<span class="font-label-lg text-label-lg">Mail</span>
+</div>
+<div class="flex items-center gap-3 text-on-surface-variant hover:text-primary cursor-pointer px-4">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-lg text-label-lg">Settings</span>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="lg:ml-64 pt-16 pb-20 min-h-screen relative parchment-texture">
+<!-- Resource Sticky Top Bar -->
+<header class="sticky top-16 z-30 bg-surface-container-low/95 backdrop-blur-md border-b border-primary/20 h-20 flex items-center justify-between px-artifact-margin">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-2">
+<span class="text-primary font-bold font-headline-md">GP:</span>
+<span class="text-on-surface font-body-lg">124</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-primary font-bold font-headline-md">KP:</span>
+<span class="text-on-surface font-body-lg">56</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-primary font-bold font-headline-md">İşl:</span>
+<span class="text-on-surface font-body-lg">890</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-4 py-1.5 rounded-full border border-primary bg-primary/10 text-primary font-label-lg hover:bg-primary/20 transition-all">All</button>
+<button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant font-label-lg hover:bg-surface-variant transition-all">Only GP</button>
+<button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant font-label-lg hover:bg-surface-variant transition-all">Only KP</button>
+<button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant font-label-lg hover:bg-surface-variant transition-all">Combined</button>
+</div>
+</header>
+<!-- Tech Tree Interface -->
+<section class="max-w-[1200px] mx-auto py-12 px-6 flex justify-between items-start gap-12 overflow-x-auto scrollbar-hide">
+<!-- COLUMN 1: GP (Gelişim Puanı) -->
+<div class="flex-shrink-0 w-[300px] flex flex-col gap-16">
+<h2 class="text-center font-display-lg text-primary glow-sm border-b border-primary/30 pb-4">GP - Gelişim Puanı</h2>
+<div class="grid grid-cols-1 gap-12">
+<!-- Branch: Üretim -->
+<div class="flex flex-col items-center">
+<span class="text-xs text-on-surface-variant font-label-lg mb-4 uppercase tracking-widest">Üretim</span>
+<div class="flex flex-col-reverse items-center gap-0">
+<!-- Sv 1 - Bought -->
+<div class="w-[200px] h-[40px] bg-surface-container-high border-2 border-primary rounded-md flex items-center px-3 gap-2 relative tech-card-active">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="construction">construction</span>
+<div class="flex-grow flex flex-col justify-center">
+<span class="text-[10px] font-bold text-primary leading-tight">Taş Ocağı Sv 1</span>
+<span class="text-[9px] text-on-surface-variant leading-tight">Tamamlandı</span>
+</div>
+<span class="material-symbols-outlined text-primary text-sm" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<!-- Line -->
+<div class="w-0.5 h-6 bg-primary/50"></div>
+<!-- Sv 2 - Current -->
+<div class="w-[200px] h-[40px] bg-surface-container-high border border-primary/30 rounded-md flex items-center px-3 gap-2 relative hover:border-primary transition-all cursor-pointer">
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="forest">forest</span>
+<div class="flex-grow flex flex-col justify-center">
+<span class="text-[10px] font-bold text-on-surface leading-tight">Kereste Sv 2</span>
+<span class="text-[9px] text-primary leading-tight">Maliyet: 40 GP</span>
+</div>
+</div>
+<!-- Line -->
+<div class="w-0.5 h-6 bg-primary/50 opacity-30"></div>
+<!-- Sv 3 - Locked -->
+<div class="w-[200px] h-[40px] bg-surface-container-lowest border border-outline-variant/30 rounded-md flex items-center px-3 gap-2 relative opacity-30">
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="lock">lock</span>
+<div class="flex-grow flex flex-col justify-center">
+<span class="text-[10px] font-bold text-on-surface leading-tight">Maden Sv 3</span>
+<span class="text-[9px] text-on-surface-variant leading-tight">Kilitli</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Branch: Ekonomi -->
+<div class="flex flex-col items-center">
+<span class="text-xs text-on-surface-variant font-label-lg mb-4 uppercase tracking-widest">Ekonomi</span>
+<div class="flex flex-col-reverse items-center gap-0">
+<div class="w-[200px] h-[40px] bg-surface-container-high border-2 border-primary rounded-md flex items-center px-3 gap-2 relative tech-card-active">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="payments">payments</span>
+<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-primary leading-tight">Pazar Sv 1</span></div>
+<span class="material-symbols-outlined text-primary text-sm" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="w-0.5 h-6 bg-primary/50"></div>
+<div class="w-[200px] h-[40px] bg-surface-container-high border-2 border-primary rounded-md flex items-center px-3 gap-2 relative tech-card-active">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="trending_up">trending_up</span>
+<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-primary leading-tight">Vergi Sv 2</span></div>
+<span class="material-symbols-outlined text-primary text-sm" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="w-0.5 h-6 bg-primary/50"></div>
+<div class="w-[200px] h-[40px] bg-surface-container-high border border-primary/30 rounded-md flex items-center px-3 gap-2 relative hover:border-primary transition-all cursor-pointer">
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="account_balance">account_balance</span>
+<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-on-surface leading-tight">Banka Sv 3</span></div>
+<span class="text-[9px] text-primary leading-tight">85 GP</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- COLUMN 2: KP (Kültür Puanı) -->
+<div class="flex-shrink-0 w-[300px] flex flex-col gap-16">
+<h2 class="text-center font-display-lg text-primary glow-sm border-b border-primary/30 pb-4">KP - Kültür Puanı</h2>
+<div class="grid grid-cols-1 gap-12">
+<!-- Branch: Bilgi -->
+<div class="flex flex-col items-center">
+<span class="text-xs text-on-surface-variant font-label-lg mb-4 uppercase tracking-widest">Bilgi</span>
+<div class="flex flex-col-reverse items-center gap-0">
+<div class="w-[200px] h-[40px] bg-surface-container-high border-2 border-primary rounded-md flex items-center px-3 gap-2 relative tech-card-active">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="auto_stories">auto_stories</span>
+<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-primary leading-tight">Yazıtlar Sv 1</span></div>
+<span class="material-symbols-outlined text-primary text-sm" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="w-0.5 h-6 bg-primary/50"></div>
+<div class="w-[200px] h-[40px] bg-surface-container-high border border-primary/30 rounded-md flex items-center px-3 gap-2 relative hover:border-primary transition-all cursor-pointer">
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="history_edu">history_edu</span>
+<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-on-surface leading-tight">Felsefe Sv 2</span></div>
+<span class="text-[9px] text-primary leading-tight">30 KP</span>
+</div>
+<div class="w-0.5 h-6 bg-primary/50 opacity-30"></div>
+<div class="w-[200px] h-[40px] bg-surface-container-lowest border border-outline-variant/30 rounded-md flex items-center px-3 gap-2 relative opacity-30">
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="lock">lock</span>
+<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-on-surface leading-tight">Mantık Sv 3</span></div>
+</div>
+</div>
+</div>
+<!-- Branch: Kültür -->
+<div class="flex flex-col items-center">
+<span class="text-xs text-on-surface-variant font-label-lg mb-4 uppercase tracking-widest">Kültür</span>
+<div class="flex flex-col-reverse items-center gap-0">
+<div class="w-[200px] h-[40px] bg-surface-container-high border-2 border-primary rounded-md flex items-center px-3 gap-2 relative tech-card-active">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="theater_comedy">theater_comedy</span>
+<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-primary leading-tight">Tiyatro Sv 1</span></div>
+<span class="material-symbols-outlined text-primary text-sm" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="w-0.5 h-6 bg-primary/50"></div>
+<div class="w-[200px] h-[40px] bg-surface-container-high border-2 border-primary rounded-md flex items-center px-3 gap-2 relative tech-card-active">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="palette">palette</span>
+<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-primary leading-tight">Sanat Sv 2</span></div>
+<span class="material-symbols-outlined text-primary text-sm" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="w-0.5 h-6 bg-primary/50"></div>
+<div class="w-[200px] h-[40px] bg-surface-container-high border border-primary/30 rounded-md flex items-center px-3 gap-2 relative hover:border-primary transition-all cursor-pointer">
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="music_note">music_note</span>
+<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-on-surface leading-tight">Müzik Sv 3</span></div>
+<span class="text-[9px] text-primary leading-tight">55 KP</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- COLUMN 3: GP + KP Combined -->
+<div class="flex-shrink-0 w-[300px] flex flex-col gap-16">
+<h2 class="text-center font-display-lg text-primary glow-sm border-b border-primary/30 pb-4">GP + KP Karma</h2>
+<div class="grid grid-cols-1 gap-12">
+<!-- Branch: Büyü Kulesi -->
+<div class="flex flex-col items-center">
+<span class="text-xs text-on-surface-variant font-label-lg mb-4 uppercase tracking-widest">Büyü Kulesi</span>
+<div class="flex flex-col-reverse items-center gap-0">
+<div class="w-[200px] h-[40px] bg-surface-container-high border-2 border-primary rounded-md flex items-center px-3 gap-2 relative tech-card-active">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="auto_fix_high">auto_fix_high</span>
+<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-primary leading-tight">Çırak Sv 1</span></div>
+<span class="material-symbols-outlined text-primary text-sm" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="w-0.5 h-6 bg-primary/50 opacity-30"></div>
+<div class="w-[200px] h-[40px] bg-surface-container-lowest border border-outline-variant/30 rounded-md flex items-center px-3 gap-2 relative opacity-30">
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="lock">lock</span>
+<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-on-surface leading-tight">Element Sv 2</span></div>
+</div>
+<div class="w-0.5 h-6 bg-primary/50 opacity-30"></div>
+<div class="w-[200px] h-[40px] bg-surface-container-lowest border border-outline-variant/30 rounded-md flex items-center px-3 gap-2 relative opacity-30">
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="lock">lock</span>
+<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-on-surface leading-tight">Üstat Sv 3</span></div>
+</div>
+</div>
+</div>
+<!-- Branch: Harikalar -->
+<div class="flex flex-col items-center">
+<span class="text-xs text-on-surface-variant font-label-lg mb-4 uppercase tracking-widest">Harikalar</span>
+<div class="flex flex-col-reverse items-center gap-0">
+<div class="w-[200px] h-[40px] bg-surface-container-high border border-primary/30 rounded-md flex items-center px-3 gap-2 relative hover:border-primary transition-all cursor-pointer">
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="castle">castle</span>
+<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-on-surface leading-tight">Gözlemevi Sv 1</span></div>
+<span class="text-[9px] text-primary leading-tight">100 GP + 100 KP</span>
+</div>
+<div class="w-0.5 h-6 bg-primary/50 opacity-30"></div>
+<div class="w-[200px] h-[40px] bg-surface-container-lowest border border-outline-variant/30 rounded-md flex items-center px-3 gap-2 relative opacity-30">
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="lock">lock</span>
+<div class="flex-grow flex flex-col justify-center"><span class="text-[10px] font-bold text-on-surface leading-tight">Yüce Tapınak Sv 2</span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar (Resource Summary & Quick Links) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 h-20 bg-surface-container-high border-t border-primary/30 shadow-[0_-4px_20px_rgba(243,189,111,0.15)] flex justify-around items-center px-gutter py-2">
+<div class="flex flex-col items-center justify-center text-primary glow-sm">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-label-lg text-label-lg">Gold: 1.2M</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant opacity-80 hover:opacity-100 hover:text-primary-fixed transition-colors">
+<span class="material-symbols-outlined" data-icon="forest">forest</span>
+<span class="font-label-lg text-label-lg">Wood: 450K</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant opacity-80 hover:opacity-100 hover:text-primary-fixed transition-colors">
+<span class="material-symbols-outlined" data-icon="handyman">handyman</span>
+<span class="font-label-lg text-label-lg">Metal: 89K</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant opacity-80 hover:opacity-100 hover:text-primary-fixed transition-colors">
+<span class="material-symbols-outlined" data-icon="restaurant">restaurant</span>
+<span class="font-label-lg text-label-lg">Food: 12K</span>
+</div>
+</nav>
+<!-- Visual Polish: Atmosphere Overlay -->
+<div class="fixed inset-0 pointer-events-none bg-gradient-to-t from-background via-transparent to-transparent opacity-40"></div>
+</body></html>
