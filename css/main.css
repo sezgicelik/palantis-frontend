@@ -98,6 +98,10 @@ body{
   width:100%;
 }
 
+/* v1.14.4.02 — page-wide pilot: 1400px geniş layout (Stitch tasarimlari ile uyumlu) */
+body.page-wide .layout,
+body.page-wide .hudbar { max-width: 1400px; }
+
 /* ===== SOL MENÜ (Glassmorphism) ===== */
 .sidebar{
   width:var(--sidebar-w);
