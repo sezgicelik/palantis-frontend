@@ -56,7 +56,7 @@ function renderSidebar(){
   // v1.14.0.49: 8 ana grup — temizlendi
   // Krallığım / Ordu & Savaş / Büyüler / Ticaret / Harita & Dünya / Sosyal & Eğlence
   // + Top-level: Guild, Raporlar (TEK link), Sıralamalar, Artifactlar, Görevler, Premium, Ayarlar
-  const krallikPages = ['city.html','population.html','festival.html','land.html','tech-tree.html'];
+  const krallikPages = ['city.html','population.html','festival.html','land.html','tech-tree.html','komuta.html'];
   const ordusavasPages = ['army.html','mezarlik.html','casus.html','simulator.html'];
   const buyulerPages = ['magic.html','buyucu-kulesi.html'];
   const ticPages     = ['market.html','kervan.html','pazar.html','buyu-dukkani.html'];
@@ -104,6 +104,7 @@ function renderSidebar(){
         <a href="city.html?tab=mutluluk" class="menu-item sub-item" style="padding-left:38px;font-size:11px;color:#aaa">↳ 😊 Mutluluk & GPS</a>
         ` : ''}
         <a href="tech-tree.html" class="menu-item sub-item${isActive('tech-tree.html')}">🌳 Gelişim Ağacı</a>
+        <a href="komuta.html" class="menu-item sub-item${isActive('komuta.html')}" style="color:#d4af37">🛡️ Komuta Masası <span style="font-size:9px;background:#d4af37;color:#0a0a0a;padding:1px 5px;border-radius:3px;margin-left:4px">YENİ</span></a>
         <a href="population.html" class="menu-item sub-item${isActive('population.html')}">👥 Nüfus & İşçiler</a>
         <a href="land.html" class="menu-item sub-item${isActive('land.html')}">🧭 Arazi</a>
         <a href="festival.html" class="menu-item sub-item${isActive('festival.html')}">🎉 Festival</a>

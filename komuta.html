@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noxara — Komuta Masası</title>
+
+<!-- Claude Design tasarimi: Cormorant Garamond + IM Fell English (SC) + JetBrains Mono -->
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   KOMUTA MASASI — Aydinlik Tema (Claude Design tasarimina gore)
+   v1.14.4.04 - Tasarim onizleme
+═══════════════════════════════════════════════════════════ */
+:root {
+  /* Renk paleti */
+  --paper-bg: #F1E7CF;
+  --paper-card: #FAF3DD;
+  --ink: #1A0F03;
+  --ink-soft: #5B4A2E;
+  --ink-mute: #8C7A5C;
+  --accent-gold: #A88A4C;
+  --alert-red: #8B2F2F;
+  --alert-red-soft: #C2543E;
+  --rule: #1A0F03;
+  --progress-fill: #1A0F03;
+  --progress-bg: #E5D9BB;
+
+  /* Font */
+  --f-display: 'Cormorant Garamond', 'IM Fell English', Georgia, serif;
+  --f-section: 'IM Fell English SC', 'Cormorant Garamond', serif;
+  --f-mono:    'JetBrains Mono', 'Consolas', monospace;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--f-display);
+  background: var(--paper-bg);
+  color: var(--ink);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+  /* Hafif kagit dokusu — repeat noise */
+  background-image:
+    radial-gradient(circle at 50% 50%, transparent 0%, rgba(0,0,0,0.015) 100%),
+    repeating-linear-gradient(45deg, rgba(139,113,71,0.02) 0px, rgba(139,113,71,0.02) 2px, transparent 2px, transparent 6px);
+}
+
+a { color: inherit; text-decoration: none; }
+
+.km {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px 32px 48px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TOP BAR
+═══════════════════════════════════════════════════════════ */
+.km-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 18px;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.km-logo {
+  font-family: var(--f-display);
+  font-size: 36px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+.km-date {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-left: 14px;
+  letter-spacing: 0.05em;
+}
+.km-nav {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+.km-nav a {
+  font-family: var(--f-section);
+  font-size: 14px;
+  letter-spacing: 0.18em;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: color 0.15s;
+  text-transform: uppercase;
+}
+.km-nav a:hover, .km-nav a.active { color: var(--ink); }
+.km-nav a.active {
+  border-bottom: 1.5px solid var(--ink);
+  padding-bottom: 2px;
+}
+.km-topright {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.km-icon-btn {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid transparent;
+  cursor: pointer;
+  color: var(--ink-soft);
+}
+.km-icon-btn:hover { color: var(--ink); }
+.km-profile {
+  width: 36px; height: 36px;
+  border: 1px solid var(--rule);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--f-display);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HUD BAR
+═══════════════════════════════════════════════════════════ */
+.km-hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 18px;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.km-city {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.km-city-icon {
+  width: 30px; height: 30px;
+  border: 1px solid var(--rule);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+.km-city-info { line-height: 1.2; }
+.km-city-name {
+  font-family: var(--f-display);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.km-city-meta {
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  color: var(--ink-soft);
+  letter-spacing: 0.05em;
+}
+.km-resources {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.km-res {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.km-res-icon {
+  width: 22px; height: 22px;
+  border: 1px solid var(--rule);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+}
+.km-res-data { line-height: 1.15; }
+.km-res-label {
+  font-family: var(--f-section);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--ink-soft);
+}
+.km-res-value {
+  font-family: var(--f-display);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1;
+}
+.km-res-delta {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  color: var(--ink-mute);
+  letter-spacing: 0.04em;
+}
+.km-res-delta.neg { color: var(--alert-red); }
+.km-stats {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+.km-stat {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+.km-stat-ic { font-size: 14px; }
+
+/* ═══════════════════════════════════════════════════════════
+   ALERT BANNER
+═══════════════════════════════════════════════════════════ */
+.km-alert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border: 1px solid var(--alert-red);
+  margin-bottom: 20px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.km-alert-text {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--f-display);
+  color: var(--alert-red);
+  font-size: 14px;
+}
+.km-alert-text b {
+  font-family: var(--f-section);
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.km-alert-actions { display: flex; gap: 8px; }
+.km-btn {
+  font-family: var(--f-section);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 7px 18px;
+  border: 1px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+.km-btn.alert {
+  border-color: var(--alert-red);
+  color: var(--alert-red);
+}
+.km-btn:hover { background: var(--ink); color: var(--paper-bg); }
+.km-btn.alert:hover { background: var(--alert-red); color: var(--paper-card); }
+
+/* ═══════════════════════════════════════════════════════════
+   3 KOLON GRID
+═══════════════════════════════════════════════════════════ */
+.km-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+}
+.km-col { display: flex; flex-direction: column; gap: 20px; }
+
+/* CARD */
+.km-card {
+  background: var(--paper-card);
+  border: 1px solid var(--rule);
+  padding: 18px 20px 20px;
+  position: relative;
+}
+.km-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--rule);
+}
+.km-card-title {
+  font-family: var(--f-section);
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.km-card-extra {
+  font-family: var(--f-display);
+  font-size: 12px;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+.km-card-extra a { text-decoration: underline; text-decoration-color: var(--ink-mute); }
+
+/* Row item (label + value) */
+.km-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 7px 0;
+  border-bottom: 1px dotted var(--ink-mute);
+}
+.km-row:last-child { border-bottom: none; }
+.km-row-label {
+  font-family: var(--f-display);
+  font-size: 14px;
+}
+.km-row-value {
+  font-family: var(--f-mono);
+  font-size: 13px;
+  font-weight: 500;
+}
+.km-row-value.acc { color: var(--accent-gold); }
+
+/* Progress row */
+.km-prow { padding: 8px 0; border-bottom: 1px dotted var(--ink-mute); }
+.km-prow:last-child { border-bottom: none; }
+.km-prow-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 5px;
+}
+.km-prow-label { font-family: var(--f-display); font-size: 13.5px; }
+.km-prow-value { font-family: var(--f-mono); font-size: 12px; }
+.km-progress {
+  height: 3px;
+  background: var(--progress-bg);
+  overflow: hidden;
+}
+.km-progress-fill {
+  height: 100%;
+  background: var(--progress-fill);
+  transition: width 0.3s;
+}
+.km-progress-fill.alert { background: var(--alert-red); }
+
+/* Production tiles */
+.km-prod {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-top: 4px;
+}
+.km-prod-tile {
+  border: 1px solid var(--rule);
+  padding: 12px 6px 8px;
+  text-align: center;
+  background: var(--paper-bg);
+}
+.km-prod-icon { font-size: 16px; margin-bottom: 4px; opacity: 0.7; }
+.km-prod-val {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+.km-prod-val.neg { color: var(--alert-red); }
+
+/* Footnote */
+.km-footnote {
+  text-align: center;
+  font-family: var(--f-display);
+  font-style: italic;
+  color: var(--ink-mute);
+  font-size: 12px;
+  margin-top: 32px;
+  letter-spacing: 0.04em;
+}
+
+/* Geri butonu */
+.km-back {
+  display: inline-block;
+  font-family: var(--f-section);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 12px;
+  padding: 4px 12px;
+  border: 1px solid var(--rule);
+  cursor: pointer;
+}
+.km-back:hover { background: var(--ink); color: var(--paper-bg); }
+
+/* Onizleme rozeti */
+.km-preview-badge {
+  display: inline-block;
+  font-family: var(--f-section);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border: 1px solid var(--accent-gold);
+  background: var(--accent-gold);
+  color: var(--paper-card);
+  margin-left: 8px;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .km-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 720px) {
+  .km { padding: 16px; }
+  .km-grid { grid-template-columns: 1fr; }
+  .km-hud, .km-topbar { flex-direction: column; align-items: flex-start; gap: 14px; }
+  .km-nav { gap: 14px; flex-wrap: wrap; }
+}
+
+/* Yukleniyor */
+.km-loading {
+  color: var(--ink-mute);
+  font-style: italic;
+  font-size: 13px;
+}
+</style>
+
+<!-- Sunucu + Auth scriptleri -->
+<script src="js/servers.js"></script>
+<script src="js/auth.js"></script>
+</head>
+<body>
+
+<div class="km">
+
+  <!-- Geri butonu + onizleme rozeti -->
+  <div style="margin-bottom:14px;display:flex;align-items:center;flex-wrap:wrap;gap:8px">
+    <a href="home.html" class="km-back">← Ana Ekran</a>
+    <span class="km-preview-badge">Tasarım Önizleme</span>
+    <span style="font-family:var(--f-display);font-style:italic;font-size:12px;color:var(--ink-soft);margin-left:8px">
+      Bu yeni "Komuta Masası" tasarımıdır. Yorumun bekleniyor.
+    </span>
+  </div>
+
+  <!-- ═══════════ TOP BAR ═══════════ -->
+  <div class="km-topbar">
+    <div style="display:flex;align-items:baseline">
+      <div class="km-logo">NOXARA</div>
+      <div class="km-date" id="km-date">— · GÜN — · —:—</div>
+    </div>
+    <nav class="km-nav">
+      <a href="home.html" class="active">ŞEHİR</a>
+      <a href="army.html">ORDU</a>
+      <a href="population.html">NÜFUS</a>
+      <a href="buyucu-kulesi.html">BÜYÜLER</a>
+      <a href="reports.html">RAPORLAR</a>
+      <a href="map.html">HARİTA</a>
+      <a href="guild.html">GUILD</a>
+    </nav>
+    <div class="km-topright">
+      <div class="km-icon-btn" title="Tema">☀</div>
+      <div class="km-icon-btn" title="Bildirimler">⚐</div>
+      <div class="km-profile" id="km-profile">S</div>
+    </div>
+  </div>
+
+  <!-- ═══════════ HUD BAR ═══════════ -->
+  <div class="km-hud">
+    <div class="km-city">
+      <div class="km-city-icon">⛫</div>
+      <div class="km-city-info">
+        <div class="km-city-name" id="km-city-name">—</div>
+        <div class="km-city-meta" id="km-city-meta">— · — · —,—</div>
+      </div>
+    </div>
+    <div class="km-resources" id="km-resources">
+      <!-- JS doldurur: 5 kaynak -->
+      <div class="km-loading">Kaynaklar yükleniyor…</div>
+    </div>
+    <div class="km-stats" id="km-stats">
+      <span class="km-stat"><span class="km-stat-ic">⚇</span><span id="km-pop">—</span></span>
+      <span class="km-stat"><span class="km-stat-ic">☺</span><span id="km-mood">—</span></span>
+      <span class="km-stat"><span class="km-stat-ic">⚔</span><span id="km-army">—</span></span>
+    </div>
+  </div>
+
+  <!-- ═══════════ ALERT BANNER (conditional) ═══════════ -->
+  <div class="km-alert" id="km-alert" style="display:none">
+    <div class="km-alert-text">
+      <span style="font-size:18px">⚠</span>
+      <b>GELEN SALDIRI</b>
+      <span id="km-alert-detail">—</span>
+    </div>
+    <div class="km-alert-actions">
+      <button class="km-btn alert" onclick="location.href='army.html'">Savunma Emri</button>
+      <button class="km-btn" onclick="location.href='casus.html'">İstihbarat</button>
+    </div>
+  </div>
+
+  <!-- ═══════════ 3 KOLON ═══════════ -->
+  <div class="km-grid">
+
+    <!-- ━━━━━━━━ KOLON 1: ŞEHİR ━━━━━━━━ -->
+    <div class="km-col">
+
+      <!-- Şehir Özeti -->
+      <div class="km-card">
+        <div class="km-card-head">
+          <div class="km-card-title">⛫ Şehir Özeti</div>
+          <div class="km-card-extra"><i>genel</i></div>
+        </div>
+        <div id="km-sehir-ozeti">
+          <div class="km-loading">Yükleniyor…</div>
+        </div>
+      </div>
+
+      <!-- İşçi Dağılımı -->
+      <div class="km-card">
+        <div class="km-card-head">
+          <div class="km-card-title">⚇ İşçi Dağılımı</div>
+          <div class="km-card-extra"><a href="population.html">düzenle →</a></div>
+        </div>
+        <div id="km-isci">
+          <div class="km-loading">Yükleniyor…</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ━━━━━━━━ KOLON 2: KUYRUKLAR ━━━━━━━━ -->
+    <div class="km-col">
+
+      <!-- İnşa Kuyruğu -->
+      <div class="km-card">
+        <div class="km-card-head">
+          <div class="km-card-title">⛩ İnşa Kuyruğu</div>
+          <div class="km-card-extra" id="km-insa-extra"><i>—</i></div>
+        </div>
+        <div id="km-insa">
+          <div class="km-loading">Yükleniyor…</div>
+        </div>
+      </div>
+
+      <!-- Ünite Eğitimi -->
+      <div class="km-card">
+        <div class="km-card-head">
+          <div class="km-card-title">⚔ Ünite Eğitimi</div>
+          <div class="km-card-extra" id="km-egitim-extra"><i>kışla</i></div>
+        </div>
+        <div id="km-egitim">
+          <div class="km-loading">Yükleniyor…</div>
+        </div>
+      </div>
+
+      <!-- Üretim (saatlik) -->
+      <div class="km-card">
+        <div class="km-card-head">
+          <div class="km-card-title">⚙ Üretim (Saatlik)</div>
+          <div class="km-card-extra"><i>detay</i></div>
+        </div>
+        <div class="km-prod" id="km-prod">
+          <div class="km-prod-tile"><div class="km-prod-icon">⏺</div><div class="km-prod-val">—</div></div>
+          <div class="km-prod-tile"><div class="km-prod-icon">⬡</div><div class="km-prod-val">—</div></div>
+          <div class="km-prod-tile"><div class="km-prod-icon">⌂</div><div class="km-prod-val">—</div></div>
+          <div class="km-prod-tile"><div class="km-prod-icon">✾</div><div class="km-prod-val">—</div></div>
+          <div class="km-prod-tile"><div class="km-prod-icon">◉</div><div class="km-prod-val">—</div></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ━━━━━━━━ KOLON 3: ORDU + BÜYÜ + RAPOR ━━━━━━━━ -->
+    <div class="km-col">
+
+      <!-- Ordularım -->
+      <div class="km-card">
+        <div class="km-card-head">
+          <div class="km-card-title">⚔ Ordularım</div>
+          <div class="km-card-extra" id="km-ordu-extra"><i>—</i></div>
+        </div>
+        <div id="km-ordular">
+          <div class="km-loading">Yükleniyor…</div>
+        </div>
+      </div>
+
+      <!-- Aktif Büyüler -->
+      <div class="km-card">
+        <div class="km-card-head">
+          <div class="km-card-title">✦ Aktif Büyüler</div>
+          <div class="km-card-extra" id="km-buyu-extra"><i>—</i></div>
+        </div>
+        <div id="km-buyuler">
+          <div class="km-loading">Yükleniyor…</div>
+        </div>
+      </div>
+
+      <!-- Son Raporlar -->
+      <div class="km-card">
+        <div class="km-card-head">
+          <div class="km-card-title">✎ Son Raporlar</div>
+          <div class="km-card-extra"><a href="reports.html">tümü →</a></div>
+        </div>
+        <div id="km-raporlar">
+          <div class="km-loading">Yükleniyor…</div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Alt yazi -->
+  <div class="km-footnote">
+    ↑ klasik komuta paneli · ızgara · 3 kolon · kart bazlı modüller
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// VERİ ÇEKME — Mevcut backend endpoint'lerine bagli
+// ═══════════════════════════════════════════════════════════
+const KM_LBLS = {
+  altin:'Altın', odun:'Odun', bugday:'Buğday', balik:'Balık',
+  metal:'Metal', islenmis:'İşlenmiş Metal', kereste:'Kereste',
+};
+
+function fmtNum(n) {
+  return Number(n || 0).toLocaleString('tr-TR');
+}
+function fmtSure(sec) {
+  if (!sec || sec < 0) return '—';
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+async function kmInit() {
+  const token = getToken();
+  if (!token) { location.href = 'index.html'; return; }
+  const headers = { Authorization: 'Bearer ' + token };
+
+  try {
+    const [resR, playerR, cagR, gpsR, bldR, armyR, buyuR] = await Promise.all([
+      fetch(API_BASE + '/api/game/resources',       { headers }),
+      fetch(API_BASE + '/api/player/me',            { headers }),
+      fetch(API_BASE + '/api/game/cag',             { headers }),
+      fetch(API_BASE + '/api/game/gps',             { headers }),
+      fetch(API_BASE + '/api/game/buildings',       { headers }),
+      fetch(API_BASE + '/api/game/army',            { headers }),
+      fetch(API_BASE + '/api/buyucu-kulesi/durum',  { headers }),
+    ]);
+    const resources = await resR.json();
+    const player    = await playerR.json();
+    const cagData   = await cagR.json();
+    const gpsData   = gpsR.ok ? await gpsR.json() : {};
+    const bld       = bldR.ok  ? await bldR.json()  : {};
+    const army      = armyR.ok ? await armyR.json() : { armies: [] };
+    const buyu      = buyuR.ok ? await buyuR.json() : {};
+
+    renderTop(player, cagData);
+    renderHud(player, resources);
+    renderSehirOzeti(player, resources, gpsData);
+    renderInsa(bld);
+    renderEgitim(army);
+    renderProd(resources);
+    renderOrdular(army);
+    renderBuyuler(buyu);
+    renderMockIsci();
+    renderMockRapor();
+  } catch (e) {
+    console.error('[komuta]', e);
+    document.querySelectorAll('.km-loading').forEach(el => el.textContent = '⚠ Yüklenemedi');
+  }
+}
+
+function renderTop(player, cagData) {
+  // Tarih + profil bas harfi
+  const d = new Date();
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mm = String(d.getMinutes()).padStart(2,'0');
+  const cag = cagData.cag_isim ? cagData.cag_isim.split(' — ')[0] : `Çağ ${cagData.cag || 1}`;
+  document.getElementById('km-date').textContent = `${cag.toUpperCase()} · GÜN ${d.getDate()} · ${hh}:${mm}`;
+  const kralAdi = player.kral_adi || player.username || 'S';
+  document.getElementById('km-profile').textContent = (kralAdi[0] || 'S').toUpperCase();
+}
+
+function renderHud(player, res) {
+  document.getElementById('km-city-name').textContent = player.sehir_adi || '—';
+  const irk = player.irk || '—';
+  const taraf = player.taraf || '—';
+  const koord = player.koord_x && player.koord_y ? `${player.koord_x},${player.koord_y}` : '—,—';
+  document.getElementById('km-city-meta').textContent = `${irk} · ${taraf} · ${koord}`;
+
+  const kaynaklar = [
+    { key:'altin',    label:'ALTIN',     ic:'◉' },
+    { key:'bugday',   label:'GIDA',      ic:'⚏' },
+    { key:'odun',     label:'ODUN',      ic:'⌂' },
+    { key:'metal',    label:'METAL',     ic:'⬡' },
+    { key:'islenmis', label:'İŞL.METAL', ic:'✾' },
+  ];
+  const wrap = document.getElementById('km-resources');
+  wrap.innerHTML = kaynaklar.map(k => `
+    <div class="km-res">
+      <div class="km-res-icon">${k.ic}</div>
+      <div class="km-res-data">
+        <div class="km-res-label">${k.label}</div>
+        <div class="km-res-value">${fmtNum(res[k.key])}</div>
+        <div class="km-res-delta">/sa</div>
+      </div>
+    </div>
+  `).join('');
+
+  // Mini istatistikler
+  document.getElementById('km-pop').textContent  = fmtNum(player.nufus || 0);
+  document.getElementById('km-mood').textContent = (player.sehir_morali != null ? player.sehir_morali : 0);
+  document.getElementById('km-army').textContent = fmtNum(res.asker || 0);
+}
+
+function renderSehirOzeti(player, res, gps) {
+  const html = `
+    <div class="km-row"><span class="km-row-label">Şehir Değeri</span><span class="km-row-value">${fmtNum(player.sehir_degeri || 0)}</span></div>
+    <div class="km-row"><span class="km-row-label">Mutluluk</span><span class="km-row-value">${player.sehir_morali != null ? player.sehir_morali : '—'}</span></div>
+    <div class="km-row"><span class="km-row-label">Ordu Morali</span><span class="km-row-value">${player.ordu_morali != null ? player.ordu_morali : '—'}</span></div>
+    <div class="km-row"><span class="km-row-label">Vergi</span><span class="km-row-value">%${player.vergi_orani || 0}</span></div>
+    <div class="km-row"><span class="km-row-label">GPS</span><span class="km-row-value">%${Math.round(gps.gps || 0)}</span></div>
+    <div class="km-row"><span class="km-row-label">Üretim Çıktısı</span><span class="km-row-value acc">+${fmtNum((res.altin_uretim || 0))}/sa</span></div>
+  `;
+  document.getElementById('km-sehir-ozeti').innerHTML = html;
+}
+
+function renderInsa(bld) {
+  const queue = (bld.bina_queue || bld.queue || []).slice(0, 4);
+  const ek = document.getElementById('km-insa-extra');
+  ek.innerHTML = queue.length ? `<i>${queue.length} sıra · <a href="city.html?tab=binalar">tümü →</a></i>` : '<i>0 sıra</i>';
+  if (!queue.length) {
+    document.getElementById('km-insa').innerHTML = '<div class="km-loading">İnşaat yok</div>';
+    return;
+  }
+  document.getElementById('km-insa').innerHTML = queue.map(q => {
+    const kalan = q.kalan_saniye || 0;
+    const toplam = q.toplam_saniye || (kalan + 1);
+    const pct = Math.max(0, Math.min(100, ((toplam - kalan) / toplam) * 100));
+    return `
+      <div class="km-prow">
+        <div class="km-prow-head">
+          <span class="km-prow-label">${q.bina_ad || q.bina_id} → ${q.hedef_kademe || q.kademe || ''}</span>
+          <span class="km-prow-value">${fmtSure(kalan)}</span>
+        </div>
+        <div class="km-progress"><div class="km-progress-fill" style="width:${pct}%"></div></div>
+      </div>`;
+  }).join('');
+}
+
+function renderEgitim(army) {
+  const queue = army.training_queue || [];
+  const ek = document.getElementById('km-egitim-extra');
+  ek.innerHTML = queue.length ? `<i>${queue.length} sıra</i>` : '<i>boş</i>';
+  if (!queue.length) {
+    document.getElementById('km-egitim').innerHTML = '<div class="km-loading">Eğitim yok</div>';
+    return;
+  }
+  document.getElementById('km-egitim').innerHTML = queue.slice(0,3).map(q => {
+    const kalan = q.kalan_saniye || 0;
+    const toplam = q.toplam_saniye || (kalan + 1);
+    const pct = Math.max(0, Math.min(100, ((toplam - kalan) / toplam) * 100));
+    return `
+      <div class="km-prow">
+        <div class="km-prow-head">
+          <span class="km-prow-label">${q.adet || 0} × ${q.unite_ad || q.unite_id}</span>
+          <span class="km-prow-value">${fmtSure(kalan)}</span>
+        </div>
+        <div class="km-progress"><div class="km-progress-fill" style="width:${pct}%"></div></div>
+      </div>`;
+  }).join('');
+}
+
+function renderProd(res) {
+  // Saatlik gelir hesabi: production API yoksa mockup degerler gosterilir
+  // (Gercek isi yapan: saatlik cron — frontend bilmiyor net hesabi)
+  const tiles = [
+    { ic:'⌂', val: '—', label:'odun' },
+    { ic:'⬡', val: '—', label:'metal' },
+    { ic:'⏚', val: '—', label:'bugday' },
+    { ic:'✾', val: '—', label:'islenmis' },
+    { ic:'◉', val: '—', label:'altin' },
+  ];
+  document.getElementById('km-prod').innerHTML = tiles.map(t =>
+    `<div class="km-prod-tile"><div class="km-prod-icon">${t.ic}</div><div class="km-prod-val">${t.val}</div></div>`
+  ).join('');
+}
+
+function renderOrdular(army) {
+  const ordular = army.armies || [];
+  const ek = document.getElementById('km-ordu-extra');
+  ek.innerHTML = ordular.length ? `<i>${ordular.length} birlik · <a href="army.html">tümü →</a></i>` : '<i>0 birlik</i>';
+  if (!ordular.length) {
+    document.getElementById('km-ordular').innerHTML = '<div class="km-loading">Ordu yok</div>';
+    return;
+  }
+  document.getElementById('km-ordular').innerHTML = ordular.slice(0,3).map(o => {
+    const konum = o.is_busy ? 'yolda' : (o.konum_tipi === 'sehir' ? 'şehirde' : (o.konum_tipi || 'şehirde'));
+    const adet = o.total_units || o.combat_units || 0;
+    return `
+      <div class="km-row">
+        <span class="km-row-label">＋ ${o.isim || 'Ordu ' + o.id}</span>
+        <span class="km-row-value">${konum} <b style="margin-left:8px">${fmtNum(adet)}</b></span>
+      </div>`;
+  }).join('');
+}
+
+function renderBuyuler(buyu) {
+  const aktif = (buyu && buyu.aktifler) || [];
+  const ek = document.getElementById('km-buyu-extra');
+  ek.innerHTML = aktif.length ? `<i>${aktif.length} etkin</i>` : '<i>0 etkin</i>';
+  if (!aktif.length) {
+    document.getElementById('km-buyuler').innerHTML = '<div class="km-loading">Aktif büyü yok</div>';
+    return;
+  }
+  document.getElementById('km-buyuler').innerHTML = aktif.slice(0,3).map(a => {
+    const kalan = Math.max(0, Math.floor((new Date(a.bitis) - Date.now()) / 1000));
+    return `
+      <div class="km-prow">
+        <div class="km-prow-head">
+          <span class="km-prow-label">${a.buyu_ad || a.buyu_id}</span>
+          <span class="km-prow-value">${fmtSure(kalan)}</span>
+        </div>
+        <div class="km-progress"><div class="km-progress-fill" style="width:${Math.min(100, kalan/3600*10)}%"></div></div>
+      </div>`;
+  }).join('');
+}
+
+// Mockup: backend'de henüz uygun endpoint yok, tasarim onizleme icin
+function renderMockIsci() {
+  const isciler = [
+    { ad:'Oduncu',   sayi: 186, pct: 28 },
+    { ad:'Madenci',  sayi: 146, pct: 22 },
+    { ad:'Çiftçi',   sayi: 174, pct: 26 },
+    { ad:'Balıkçı',  sayi: 94,  pct: 14 },
+    { ad:'Tüccar',   sayi: 66,  pct: 10 },
+  ];
+  document.getElementById('km-isci').innerHTML = isciler.map(i => `
+    <div class="km-prow">
+      <div class="km-prow-head">
+        <span class="km-prow-label">${i.ad}</span>
+        <span class="km-prow-value">${i.sayi} · %${i.pct}</span>
+      </div>
+      <div class="km-progress"><div class="km-progress-fill" style="width:${i.pct*2}%"></div></div>
+    </div>
+  `).join('');
+}
+
+function renderMockRapor() {
+  const raporlar = [
+    { ic:'⚔', ad:'Saldırı · Ked-Var',    zaman:'şimdi' },
+    { ic:'⚇', ad:'Casus geri döndü',     zaman:'14 dk' },
+    { ic:'◉', ad:'Pazar satışı',         zaman:'48 dk' },
+    { ic:'⛩', ad:'Demirhane → III',     zaman:'1 sa' },
+    { ic:'✦', ad:'Bereket aktif',        zaman:'2 sa' },
+  ];
+  document.getElementById('km-raporlar').innerHTML = raporlar.map(r => `
+    <div class="km-row">
+      <span class="km-row-label">${r.ic}&nbsp;&nbsp;${r.ad}</span>
+      <span class="km-row-value">${r.zaman}</span>
+    </div>
+  `).join('');
+}
+
+// Kick off
+document.addEventListener('DOMContentLoaded', kmInit);
+</script>
+
+</body>
+</html>
