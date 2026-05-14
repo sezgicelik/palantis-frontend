@@ -338,7 +338,13 @@ async function fetchAll() {
   }
 }
 
+// In-flight lock: ayni anda 1 upgrade istegi calissin
+// Race condition onleme — kullanici 9 kere click atinca 9 paralel fetch atilmaz
+let _ttBusy = false;
+
 async function upgradeSehirGel(gelId) {
+  if (_ttBusy) { toast('Lütfen bekleyin...', 'red'); return; }
+  _ttBusy = true;
   const token = getToken();
   try {
     const r = await fetch(API_BASE + '/api/game/sehir-gel/yuksel', {
@@ -347,14 +353,17 @@ async function upgradeSehirGel(gelId) {
       body: JSON.stringify({ gel_id: gelId }),
     });
     const d = await r.json();
-    if (!r.ok) { toast(d.error || 'Hata', 'red'); return; }
+    if (!r.ok) { toast(d.error || 'Hata', 'red'); _ttBusy = false; return; }
     toast(d.mesaj || 'Yükseltildi', 'green');
     await fetchAll();
     render();
   } catch(e) { toast('Bağlantı hatası', 'red'); }
+  finally { _ttBusy = false; }
 }
 
 async function upgradeAskeri(tip) {
+  if (_ttBusy) { toast('Lütfen bekleyin...', 'red'); return; }
+  _ttBusy = true;
   // tip: 'askeri' | 'maas'
   const token = getToken();
   try {
@@ -364,14 +373,17 @@ async function upgradeAskeri(tip) {
       body: JSON.stringify({ tip }),
     });
     const d = await r.json();
-    if (!r.ok) { toast(d.error || 'Hata', 'red'); return; }
+    if (!r.ok) { toast(d.error || 'Hata', 'red'); _ttBusy = false; return; }
     toast(tip === 'askeri' ? 'Askeri Geliştirme yükseltildi!' : 'Maaş İndirimi yükseltildi!', 'green');
     await fetchAll();
     render();
   } catch(e) { toast('Bağlantı hatası', 'red'); }
+  finally { _ttBusy = false; }
 }
 
 async function upgradeUnite(uniteId, stat) {
+  if (_ttBusy) { toast('Lütfen bekleyin...', 'red'); return; }
+  _ttBusy = true;
   // stat: 'atk' | 'def'
   const token = getToken();
   try {
@@ -381,15 +393,18 @@ async function upgradeUnite(uniteId, stat) {
       body: JSON.stringify({ tip: 'unite_' + stat, unite_id: uniteId }),
     });
     const d = await r.json();
-    if (!r.ok) { toast(d.error || 'Hata', 'red'); return; }
+    if (!r.ok) { toast(d.error || 'Hata', 'red'); _ttBusy = false; return; }
     toast((UNITS[uniteId]?.name || uniteId) + ' ' + stat.toUpperCase() + ' yükseltildi!', 'green');
     await fetchAll();
     render();
   } catch(e) { toast('Bağlantı hatası', 'red'); }
+  finally { _ttBusy = false; }
 }
 
 async function upgradeCag() {
+  if (_ttBusy) { toast('Lütfen bekleyin...', 'red'); return; }
   if (!confirm('Çağ atlamak istediğinize emin misiniz? Bu işlem geri alınamaz.')) return;
+  _ttBusy = true;
   const token = getToken();
   try {
     const r = await fetch(API_BASE + '/api/game/cag-atla', {
@@ -397,11 +412,12 @@ async function upgradeCag() {
       headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
     });
     const d = await r.json();
-    if (!r.ok) { toast(d.error || 'Hata', 'red'); return; }
+    if (!r.ok) { toast(d.error || 'Hata', 'red'); _ttBusy = false; return; }
     toast(`Çağ atlandı! Yeni: ${d.cag_isim}`, 'green');
     await fetchAll();
     render();
   } catch(e) { toast('Bağlantı hatası', 'red'); }
+  finally { _ttBusy = false; }
 }
 
 // ════════════════════════════════════════════════════════════
@@ -642,8 +658,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     render();
   });
 
-  // 60sn'de bir resource'lari yenile
-  setInterval(() => { fetchAll().then(ok => ok && render()); }, 60000);
+  // 60sn'de bir resource'lari yenile (ama bir upgrade islemi devam ediyorsa atla)
+  setInterval(() => {
+    if (_ttBusy) return; // upgrade isleminin ortasinda race condition olmasin
+    fetchAll().then(ok => ok && render());
+  }, 60000);
 });
 </script>
 </body></html>
