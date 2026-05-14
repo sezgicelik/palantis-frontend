@@ -272,8 +272,30 @@ async function fetchAll() {
       fetch(API_BASE + '/api/game/resources',     { headers }),
       fetch(API_BASE + '/api/game/cag',           { headers }),
     ]);
+    const statuses = {
+      'sehir-gel':     sehirR.status,
+      'gelistirmeler': gelistR.status,
+      'resources':     resR.status,
+      'cag':           cagR.status,
+    };
+    console.log('[tech-tree] status:', statuses);
     if (!sehirR.ok || !gelistR.ok || !resR.ok || !cagR.ok) {
-      toast('Veri alınamadı', 'red');
+      const failed = Object.entries(statuses).filter(([k,v]) => v !== 200).map(([k,v]) => `${k}=${v}`).join(', ');
+      toast('Veri alınamadı: ' + failed, 'red');
+      const dbg = document.getElementById('tt-loading');
+      if (dbg) dbg.innerHTML = `
+        <div style="text-align:left;max-width:600px;margin:0 auto;padding:20px;background:#1c1b1b;border:1px solid #ffb4ab;border-radius:8px">
+          <h3 style="color:#ffb4ab;font-family:Cinzel,serif;margin-bottom:12px">⚠️ Veri Alınamadı</h3>
+          <p style="color:#e5e2e1;margin-bottom:8px"><b>HTTP Status'lar:</b></p>
+          <ul style="color:#d3c4b3;margin:8px 0 16px 20px">
+            <li>/api/game/sehir-gel     → <b style="color:${sehirR.ok ? '#7ed957':'#ffb4ab'}">${sehirR.status}</b></li>
+            <li>/api/game/gelistirmeler → <b style="color:${gelistR.ok ? '#7ed957':'#ffb4ab'}">${gelistR.status}</b></li>
+            <li>/api/game/resources    → <b style="color:${resR.ok ? '#7ed957':'#ffb4ab'}">${resR.status}</b></li>
+            <li>/api/game/cag          → <b style="color:${cagR.ok ? '#7ed957':'#ffb4ab'}">${cagR.status}</b></li>
+          </ul>
+          <p style="color:#9c8f7f;font-size:12px;margin-top:16px">401 = oturum sonlandı · 404 = endpoint yok · 500 = backend hatası</p>
+          <a href="city.html" style="color:#f3bd6f;text-decoration:underline">← Krallığa dön</a>
+        </div>`;
       return false;
     }
     const sehir   = await sehirR.json();
@@ -301,6 +323,17 @@ async function fetchAll() {
   } catch (e) {
     console.error('[tech-tree fetchAll]', e);
     toast('Bağlantı hatası: ' + e.message, 'red');
+    // Sayfada gorunen debug paneli
+    const dbg = document.getElementById('tt-loading');
+    if (dbg) dbg.innerHTML = `
+      <div style="text-align:left;max-width:600px;margin:0 auto;padding:20px;background:#1c1b1b;border:1px solid #ffb4ab;border-radius:8px">
+        <h3 style="color:#ffb4ab;font-family:Cinzel,serif;margin-bottom:12px">⚠️ Bağlantı Hatası</h3>
+        <p style="color:#e5e2e1;margin-bottom:8px"><b>Hata:</b> ${e.message}</p>
+        <p style="color:#d3c4b3;margin-bottom:8px"><b>API_BASE:</b> ${typeof API_BASE !== 'undefined' ? API_BASE : 'TANIMSIZ!'}</p>
+        <p style="color:#d3c4b3;margin-bottom:8px"><b>Token:</b> ${getToken() ? 'VAR (' + getToken().substring(0,20) + '...)' : 'YOK'}</p>
+        <p style="color:#9c8f7f;font-size:12px;margin-top:16px">Bu bilgiyi geliştiriciye iletin.</p>
+        <a href="city.html" style="color:#f3bd6f;text-decoration:underline">← Krallığa dön</a>
+      </div>`;
     return false;
   }
 }
