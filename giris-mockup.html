@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noxara — Giriş (Sinematik Ejderha Mockup)</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#d4a257; --gold-bright:#f0d28a; --gold-deep:#a87b34;
+  --ink:#0a0806; --paper:#1a130c;
+  --txt:#e8dcc4; --txt-dim:#a8967a;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:'Crimson Pro',serif;
+  background:var(--ink);
+  color:var(--txt);
+  overflow:hidden;
+  position:relative;
+}
+
+/* ═══ SAHNE: tam ekran ejderha ═══ */
+.scene{position:fixed;inset:0;z-index:0}
+.scene-img{
+  position:absolute;inset:0;
+  background:url('img/events/altin_ejder_buyuk.jpg') center 38%/cover no-repeat;
+  /* hafif sinematik yaklaşma animasyonu */
+  animation:kenburns 28s ease-in-out infinite alternate;
+  transform-origin:center 40%;
+}
+@keyframes kenburns{
+  from{transform:scale(1.04)}
+  to{transform:scale(1.14)}
+}
+/* karanlık vinyet + altın ton katmanı (kart okunaklılığı) */
+.scene-veil{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 80% 70% at 50% 42%, rgba(10,8,6,.30), rgba(8,6,4,.78) 70%, rgba(5,4,3,.96) 100%),
+    linear-gradient(180deg, rgba(8,6,4,.72) 0%, rgba(8,6,4,.10) 30%, rgba(8,6,4,.55) 78%, rgba(5,4,3,.98) 100%);
+}
+.scene-glow{
+  position:absolute;inset:0;
+  background:radial-gradient(circle 40% at 50% 40%, rgba(212,162,87,.12), transparent 60%);
+  mix-blend-mode:screen;
+}
+
+/* ═══ kor / kıvılcım parçacıkları ═══ */
+.embers{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.ember{
+  position:absolute;bottom:-12px;
+  width:3px;height:3px;border-radius:50%;
+  background:var(--gold-bright);
+  box-shadow:0 0 6px 2px rgba(240,210,138,.55);
+  opacity:0;
+  animation:rise linear infinite;
+}
+@keyframes rise{
+  0%{transform:translateY(0) translateX(0) scale(1);opacity:0}
+  12%{opacity:.9}
+  85%{opacity:.5}
+  100%{transform:translateY(-102vh) translateX(var(--drift,20px)) scale(.3);opacity:0}
+}
+
+/* ═══ İçerik ═══ */
+.wrap{
+  position:relative;z-index:2;
+  min-height:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 20px;
+}
+
+/* logo */
+.brand{text-align:center;margin-bottom:22px;animation:fadeDown .9s ease both}
+.brand-rune{
+  font-family:'Cinzel',serif;
+  letter-spacing:10px;font-size:15px;
+  color:var(--gold);opacity:.7;margin-bottom:10px;
+  text-shadow:0 0 14px rgba(212,162,87,.5);
+}
+.brand-title{
+  font-family:'Cinzel Decorative',serif;font-weight:900;
+  font-size:clamp(46px,9vw,86px);line-height:.95;letter-spacing:4px;
+  background:linear-gradient(180deg,#fbe9bd 0%,var(--gold-bright) 35%,var(--gold) 60%,var(--gold-deep) 100%);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:var(--gold-bright);
+  filter:drop-shadow(0 2px 1px rgba(0,0,0,.7)) drop-shadow(0 0 26px rgba(212,162,87,.45));
+}
+.brand-lore{
+  margin-top:14px;font-size:16px;color:var(--txt);
+  max-width:440px;line-height:1.55;
+  text-shadow:0 1px 8px rgba(0,0,0,.9);
+}
+.brand-lore b{color:var(--gold-bright);font-weight:600}
+
+/* giriş kartı (cam) */
+.card{
+  width:100%;max-width:392px;
+  background:linear-gradient(180deg, rgba(20,15,9,.82), rgba(12,9,6,.88));
+  backdrop-filter:blur(13px) saturate(1.1);
+  -webkit-backdrop-filter:blur(13px) saturate(1.1);
+  border:1px solid rgba(212,162,87,.30);
+  border-radius:16px;
+  padding:26px 26px 22px;
+  box-shadow:
+    0 24px 70px rgba(0,0,0,.66),
+    0 0 0 1px rgba(0,0,0,.4),
+    inset 0 1px 0 rgba(255,225,170,.10);
+  animation:fadeUp 1s .15s ease both;
+  position:relative;
+}
+/* üst altın ince çizgi */
+.card::before{
+  content:'';position:absolute;left:26px;right:26px;top:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  opacity:.6;
+}
+
+.server-pill{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin:0 auto 18px;width:fit-content;
+  padding:6px 16px;border-radius:999px;
+  background:rgba(212,162,87,.10);
+  border:1px solid rgba(212,162,87,.28);
+  font-family:'Cinzel',serif;font-size:11px;letter-spacing:1.5px;
+  color:var(--gold-bright);cursor:pointer;transition:.2s;
+}
+.server-pill:hover{background:rgba(212,162,87,.18)}
+.server-pill .dot{width:7px;height:7px;border-radius:50%;background:#52c878;box-shadow:0 0 8px #52c878}
+.server-pill small{color:var(--txt-dim);letter-spacing:.5px}
+
+.btn-google{
+  width:100%;display:flex;align-items:center;justify-content:center;gap:10px;
+  padding:12px;border-radius:10px;cursor:pointer;
+  background:#fbfbfb;color:#222;border:none;
+  font-family:'Cinzel',serif;font-weight:600;font-size:13px;letter-spacing:.4px;
+  transition:.18s;
+}
+.btn-google:hover{background:#fff;transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+
+.divider{display:flex;align-items:center;gap:12px;margin:16px 0 14px;color:var(--txt-dim);font-size:11px;letter-spacing:2px;font-family:'Cinzel',serif}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(212,162,87,.3),transparent)}
+
+.field{margin-bottom:12px}
+.field.hidden{display:none}
+.label{
+  display:block;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1.5px;
+  color:var(--gold);margin-bottom:6px;opacity:.85;
+}
+.input{
+  width:100%;padding:12px 14px;border-radius:9px;
+  background:rgba(0,0,0,.38);
+  border:1px solid rgba(212,162,87,.22);
+  color:var(--txt);font-family:'Crimson Pro',serif;font-size:15px;
+  transition:.18s;
+}
+.input::placeholder{color:#6d6048}
+.input:focus{
+  outline:none;border-color:rgba(212,162,87,.65);
+  background:rgba(0,0,0,.5);
+  box-shadow:0 0 0 3px rgba(212,162,87,.12);
+}
+.input.mono{font-family:monospace;letter-spacing:2px;text-transform:uppercase}
+
+.btn-main{
+  width:100%;margin-top:8px;padding:14px;border-radius:10px;cursor:pointer;
+  border:1px solid rgba(255,225,170,.4);
+  background:linear-gradient(180deg,var(--gold-bright),var(--gold) 55%,var(--gold-deep));
+  color:#1a1207;font-family:'Cinzel',serif;font-weight:700;font-size:14px;letter-spacing:1.5px;
+  text-shadow:0 1px 0 rgba(255,240,200,.5);
+  box-shadow:0 8px 22px rgba(168,123,52,.4), inset 0 1px 0 rgba(255,255,255,.45);
+  transition:.18s;position:relative;overflow:hidden;
+}
+.btn-main:hover{transform:translateY(-1px);box-shadow:0 12px 30px rgba(212,162,87,.5), inset 0 1px 0 rgba(255,255,255,.5)}
+.btn-main:active{transform:translateY(0)}
+
+.toggle{
+  display:block;width:100%;margin-top:14px;text-align:center;
+  background:none;border:none;cursor:pointer;
+  color:var(--txt-dim);font-family:'Crimson Pro',serif;font-size:14px;
+}
+.toggle u{color:var(--gold-bright);text-underline-offset:3px}
+.toggle:hover u{color:#fff}
+
+.err{
+  display:none;margin-bottom:12px;padding:9px 12px;border-radius:8px;
+  background:rgba(200,60,50,.16);border:1px solid rgba(200,60,50,.4);
+  color:#f0a8a0;font-size:13px;text-align:center;
+}
+.err.show{display:block}
+
+.foot{margin-top:18px;text-align:center;font-size:11px;color:#6d6048;letter-spacing:1px;font-family:'Cinzel',serif}
+
+/* animasyonlar */
+@keyframes fadeDown{from{opacity:0;transform:translateY(-18px)}to{opacity:1;transform:none}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+
+@media(max-width:480px){
+  .scene-img{background-position:center 30%}
+  .card{padding:22px 18px 18px}
+  .brand-lore{font-size:14px}
+}
+</style>
+</head>
+<body>
+
+  <!-- Sahne -->
+  <div class="scene">
+    <div class="scene-img"></div>
+    <div class="scene-veil"></div>
+    <div class="scene-glow"></div>
+  </div>
+  <div class="embers" id="embers"></div>
+
+  <!-- İçerik -->
+  <div class="wrap">
+
+    <div class="brand">
+      <div class="brand-rune">&#5798; &#5800; &#5791; &#5800; &#5822; &#5831; &#5825; &#5765;</div>
+      <h1 class="brand-title">NOXARA</h1>
+      <p class="brand-lore">Karanlık ve aydınlık arasında, <b>kaderini sen yazacaksın.</b><br>Ordularını topla, büyülerini hazırla, tahtını kur.</p>
+    </div>
+
+    <div class="card">
+
+      <div class="server-pill">
+        <span class="dot"></span> SUNUCU 1 &nbsp;<small>· 142 oyuncu çevrimiçi</small>
+      </div>
+
+      <div class="err" id="err">Kullanıcı adı veya şifre hatalı.</div>
+
+      <button class="btn-google">
+        <svg width="17" height="17" viewBox="0 0 24 24"><path fill="#4285f4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34a853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#fbbc05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#ea4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Google ile Giriş Yap
+      </button>
+
+      <div class="divider">VEYA</div>
+
+      <div class="field hidden" id="f-email">
+        <label class="label">E-MAİL ADRESİ</label>
+        <input class="input" type="email" placeholder="ornek@mail.com">
+      </div>
+
+      <div class="field">
+        <label class="label">KULLANICI ADI</label>
+        <input class="input" type="text" placeholder="Kral adınız...">
+      </div>
+
+      <div class="field">
+        <label class="label">ŞİFRE</label>
+        <input class="input" type="password" placeholder="••••••••">
+      </div>
+
+      <div class="field hidden" id="f-davet">
+        <label class="label">DAVET KODU</label>
+        <input class="input mono" type="text" placeholder="DAV-XXXXXX">
+      </div>
+
+      <div class="field hidden" id="f-pass2">
+        <label class="label">ŞİFRE (TEKRAR)</label>
+        <input class="input" type="password" placeholder="Şifreyi tekrar gir...">
+      </div>
+
+      <button class="btn-main" id="mainBtn">&#9876;&#65039; GİRİŞ YAP</button>
+
+      <button class="toggle" id="toggleBtn" onclick="toggleReg()">
+        <span id="toggleTxt">Hesabın yok mu? <u>Kayıt ol</u></span>
+      </button>
+
+      <div class="foot">v1.9.0 · Karanlık Çağların Strateji Dünyası</div>
+    </div>
+
+  </div>
+
+<script>
+// kayıt/giriş geçişi
+var reg=false;
+function toggleReg(){
+  reg=!reg;
+  document.getElementById('f-email').classList.toggle('hidden',!reg);
+  document.getElementById('f-davet').classList.toggle('hidden',!reg);
+  document.getElementById('f-pass2').classList.toggle('hidden',!reg);
+  document.getElementById('mainBtn').innerHTML = reg ? '&#127894;&#65039; KRALLIĞINI KUR' : '&#9876;&#65039; GİRİŞ YAP';
+  document.getElementById('toggleTxt').innerHTML = reg
+    ? 'Zaten hesabın var mı? <u>Giriş yap</u>'
+    : 'Hesabın yok mu? <u>Kayıt ol</u>';
+}
+// kor parçacıkları
+(function(){
+  var box=document.getElementById('embers');
+  for(var i=0;i<34;i++){
+    var e=document.createElement('div');
+    e.className='ember';
+    var size=1+Math.random()*3;
+    e.style.left=Math.random()*100+'%';
+    e.style.width=e.style.height=size+'px';
+    e.style.setProperty('--drift',(Math.random()*80-40)+'px');
+    e.style.animationDuration=(7+Math.random()*9)+'s';
+    e.style.animationDelay=(Math.random()*10)+'s';
+    e.style.opacity=String(.3+Math.random()*.6);
+    box.appendChild(e);
+  }
+})();
+</script>
+</body>
+</html>

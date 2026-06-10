@@ -64,7 +64,7 @@ function renderSidebar(){
   // v1.14.1.54: Sidebar reorg — Sıralamalar -> Sosyal, Artifact -> Premium, IconMockup -> Ayarlar
   const sosyalPages  = ['meydan.html','bocek-yarisi.html','sandik.html','siralama.html'];
   const premiumPages = ['premium.html','artifact.html'];
-  const ayarlarPages = ['ayarlar.html','icon-mockup.html'];
+  const ayarlarPages = ['ayarlar.html','icon-mockup.html','mockup-galeri.html'];
 
   const isKrallik  = krallikPages.includes(page);
   const isOrduSavas= ordusavasPages.includes(page);
@@ -181,6 +181,7 @@ function renderSidebar(){
       <div class="submenu" style="display:${isAyarlar?'block':'none'}">
         <a href="ayarlar.html" class="menu-item sub-item${isActive('ayarlar.html')}">⚙️ Hesap Ayarları</a>
         <a href="icon-mockup.html" class="menu-item sub-item${isActive('icon-mockup.html')}" style="color:#9b59b6">🎨 İkon Mockup</a>
+        <a href="mockup-galeri.html" class="menu-item sub-item${isActive('mockup-galeri.html')}" style="color:#d4af37">🖼️ Mockup Galerisi</a>
       </div>
 
       <!-- Logout — sticky bottom -->

@@ -13,9 +13,32 @@
   .login-box { max-width:300px; margin:80px auto; text-align:center; }
   .login-box input { width:100%; padding:10px; background:#1a1a1a; border:1px solid var(--border); color:var(--text); border-radius:6px; margin:8px 0; }
   .login-box button { width:100%; padding:10px; background:var(--gold); color:#000; border:none; border-radius:6px; cursor:pointer; font-weight:bold; }
-  .tabs { display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; }
-  .tabs button { padding:8px 16px; background:var(--card); border:1px solid var(--border); color:var(--muted); cursor:pointer; border-radius:6px; font-size:12px; }
-  .tabs button.on { color:var(--gold); border-color:var(--gold); }
+  /* === SOL DIKEY MENU (sidebar) === */
+  .tabs { position:fixed; top:0; left:0; bottom:0; width:236px; background:#0d0d0d; border-right:1px solid var(--border); padding:14px 10px 30px; overflow-y:auto; z-index:50; }
+  .tabs::-webkit-scrollbar { width:7px; }
+  .tabs::-webkit-scrollbar-thumb { background:#222; border-radius:4px; }
+  .nav-brand { font-family:'Cinzel',serif; color:var(--gold); font-size:14px; text-align:center; letter-spacing:1px; margin-bottom:12px; }
+  .nav-search { width:100%; padding:8px 10px; background:#1a1a1a; border:1px solid var(--border); color:var(--text); border-radius:6px; font-size:12px; margin-bottom:10px; }
+  .nav-search:focus { outline:none; border-color:var(--gold); }
+  .nav-sec { font-size:9px; letter-spacing:1.5px; color:#555; text-transform:uppercase; margin:14px 4px 6px; }
+  .navgroup { margin-bottom:3px; }
+  .navgroup-h { display:flex; align-items:center; justify-content:space-between; gap:6px; padding:8px 9px; cursor:pointer; color:var(--gold); font-size:12px; font-weight:600; border-radius:6px; user-select:none; }
+  .navgroup-h:hover { background:#1a1a1a; }
+  .navgroup-h .chev { font-size:9px; transition:transform .18s; opacity:.6; }
+  .navgroup.collapsed .navgroup-h .chev { transform:rotate(-90deg); }
+  .navgroup-items { display:flex; flex-direction:column; gap:2px; margin:2px 0 6px 7px; padding-left:7px; border-left:1px solid #1c1c1c; }
+  .navgroup.collapsed .navgroup-items { display:none; }
+  .tabs button { text-align:left; padding:7px 10px; background:transparent; border:1px solid transparent; color:var(--muted); cursor:pointer; border-radius:6px; font-size:12px; width:100%; }
+  .tabs button:hover { background:#161616; color:#bbb; }
+  .tabs button.on { color:var(--gold); border-color:var(--gold); background:rgba(200,169,110,.08); }
+  .tabs button.hidden { display:none; }
+  .navgroup.no-match { display:none; }
+  /* icerik alanini sidebar genisligi kadar saga it */
+  #admin-panel { margin-left:256px !important; }
+  @media(max-width:760px) {
+    .tabs { position:static; width:auto; height:auto; bottom:auto; border-right:none; border-bottom:1px solid var(--border); margin-bottom:14px; padding:12px; }
+    #admin-panel { margin-left:auto !important; }
+  }
   .panel { display:none; }
   .panel.active { display:block; }
   .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px; margin-bottom:12px; }
@@ -38,6 +61,46 @@
   .cron-bar { display:flex; gap:2px; align-items:flex-end; height:40px; margin:12px 0; }
   .cron-bar .bar { flex:1; border-radius:2px 2px 0 0; min-width:4px; }
   @media(max-width:600px) { body{padding:8px;} .stat-grid{grid-template-columns:repeat(2,1fr);} }
+
+  /* ============================================================
+     ORTAK STIL KATMANI — panel icleri icin tutarli taban
+     (inline style'lari ezmez; cizgide olmayan ogeleri toparlar)
+     ============================================================ */
+  /* aksiyon butonu (.act) — 72 kullanim, onceden tanimsizdi */
+  .act { padding:7px 14px; background:#1c1c1c; border:1px solid var(--border); color:var(--text);
+         border-radius:5px; cursor:pointer; font-size:11px; font-family:inherit; transition:.15s; }
+  .act:hover { border-color:var(--gold); background:#242424; }
+  .act:active { transform:translateY(1px); }
+  .btn-small { padding:4px 9px; font-size:10px; border:1px solid var(--gold); background:transparent;
+               color:var(--gold); border-radius:4px; cursor:pointer; }
+  .btn-small:hover { background:var(--gold); color:#000; }
+
+  /* form ogeleri — cizgide olmayanlar icin taban (mevcut inline ile birebir uyumlu) */
+  input[type=text], input[type=number], input[type=password], input[type=email],
+  input[type=search], input[type=date], input:not([type]), select, textarea {
+    padding:6px; background:#1a1a1a; border:1px solid var(--border); color:var(--text);
+    border-radius:4px; font-size:11px; font-family:inherit;
+  }
+  /* GLOBAL focus — onceden hicbir alanda yoktu; altin halka her yerde tutarli */
+  input:focus, select:focus, textarea:focus {
+    outline:none; border-color:var(--gold) !important; box-shadow:0 0 0 2px rgba(200,169,110,.16);
+  }
+  textarea { resize:vertical; min-height:60px; width:100%; }
+
+  /* etiketler — 122 kullanim, cogu inline 'font-size:11px;color:muted'; bareler de uysun */
+  label { font-size:11px; color:var(--muted); }
+
+  /* alt basliklar */
+  h4 { color:var(--gold); font-size:12px; font-weight:600; margin:12px 0 6px; }
+  h5 { color:var(--text); font-size:11px; font-weight:600; margin:8px 0 4px; opacity:.85; }
+
+  /* kod/cikti bloklari ve ayrac */
+  pre { background:#111; border:1px solid var(--border); border-radius:6px; padding:10px;
+        font-size:11px; color:#bbb; overflow:auto; line-height:1.5; }
+  hr { border:none; border-top:1px solid var(--border); margin:12px 0; }
+
+  /* kart icindeki ardisik basliga ust bosluk */
+  .card h3 + p, .card h4 + p { margin-top:2px; }
 </style>
 </head>
 <body>
@@ -54,42 +117,115 @@
 <div id="admin-panel" style="display:none; max-width:1000px; margin:0 auto;">
   <h1>Noxara Admin Paneli</h1>
 
-  <div class="tabs">
-    <button class="on" onclick="switchTab('cron',this)">Cron Durumu</button>
-    <button onclick="switchTab('players',this)">Oyuncular</button>
-    <button onclick="switchTab('logins',this)">Login Loglar</button>
-    <button onclick="switchTab('actions',this)">Islemler</button>
-    <button onclick="switchTab('uniteler',this)">Uniteler</button>
-    <button onclick="switchTab('binalar',this)">Binalar</button>
-    <button onclick="switchTab('premium',this)">Premium</button>
-    <button onclick="switchTab('sezon',this)">Sezon</button>
-    <button onclick="switchTab('market-cfg',this)">Market Ayar</button>
-    <button onclick="switchTab('buyu',this)">Buyu Dukkani</button>
-    <button onclick="switchTab('irklar',this)">Irk Bonuslari</button>
-    <button onclick="switchTab('map',this)">Harita & Koloni</button>
-    <button onclick="switchTab('artifact',this)">Artifactlar</button>
-    <button onclick="switchTab('gorevler',this)">Gorevler</button>
-    <button onclick="switchTab('savas-cfg',this)">Savas Ayar</button>
-    <button onclick="switchTab('bilge-cfg',this)">Bilge</button>
-    <button onclick="switchTab('casus-cfg',this)">Casus Ayar</button>
-    <button onclick="switchTab('tatil-cfg',this)">Tatil & Ateskes</button>
-    <button onclick="switchTab('anomali',this)">Anomali</button>
-    <button onclick="switchTab('duyuru',this)">Duyurular</button>
-    <button onclick="switchTab('davet',this)">Davet Kodlari</button>
-    <button onclick="switchTab('guild-cfg',this)">Guild Ayar</button>
-    <button onclick="switchTab('pazar-deger',this)">Pazar Deger</button>
-    <button onclick="switchTab('kadim-cfg',this)">Kadim Sehir</button>
-    <button onclick="switchTab('ekonomi',this)" style="background:linear-gradient(135deg,#8e44ad 0%,#6c3483 100%);color:#fff">Ekonomi Ayar</button>
-    <button onclick="switchTab('moral-tar',this)" style="background:linear-gradient(135deg,#c0392b 0%,#922b21 100%);color:#fff">🛡️ Moral Teshis</button>
-    <button onclick="switchTab('bina-nufus',this)" style="background:linear-gradient(135deg,#16a085 0%,#117864 100%);color:#fff">🏘️ Bina Nufus</button>
-    <button onclick="switchTab('vergi-sistem',this)" style="background:linear-gradient(135deg,#d4af37 0%,#8a6a1a 100%);color:#fff">💰 Vergi Sistemi</button>
-    <button onclick="switchTab('top-ordular',this)" style="background:linear-gradient(135deg,#8e44ad 0%,#5b2c6f 100%);color:#fff">🏆 Top Ordular</button>
-    <button onclick="switchTab('iz-surme',this)" style="background:linear-gradient(135deg,#16a085 0%,#0e6b52 100%);color:#fff">🕵️ Iz Surme</button>
-    <button onclick="switchTab('bug-bildirimleri',this)" style="background:linear-gradient(135deg,#e74c3c 0%,#922b21 100%);color:#fff">🐛 Bug Bildirimleri</button>
-    <button onclick="switchTab('insaat-mod',this)" style="background:linear-gradient(135deg,#d4a257 0%,#8a6a1a 100%);color:#fff">🏗️ İnşaat Modu</button>
-    <button onclick="switchTab('oyuncu-mudahale',this)" style="background:linear-gradient(135deg,#3498db 0%,#1f618d 100%);color:#fff">🛠️ Oyuncu Müdahale</button>
-    <button onclick="switchTab('tutarlilik',this)" style="background:linear-gradient(135deg,#e74c3c 0%,#922b21 100%);color:#fff">🔍 Tutarlılık Analizi</button>
+  <div class="tabs" id="adminNav">
+    <div class="nav-brand">&#9884; NOXARA ADMIN</div>
+    <input class="nav-search" type="text" placeholder="&#128270; Sekme ara..." oninput="filterTabs(this.value)">
+
+    <div class="nav-sec">&#9312; Operasyon</div>
+
+    <div class="navgroup" data-g="oyuncular">
+      <div class="navgroup-h" onclick="toggleGroup(this)"><span>&#128100; Oyuncular</span><span class="chev">&#9660;</span></div>
+      <div class="navgroup-items">
+        <button onclick="switchTab('players',this)">&#128100; Oyuncular</button>
+        <button onclick="switchTab('oyuncu-mudahale',this)">&#128736;&#65039; Oyuncu Müdahale</button>
+        <button onclick="switchTab('actions',this)">&#9889; İşlemler</button>
+        <button onclick="switchTab('logins',this)">&#128273; Login Loglar</button>
+        <button onclick="switchTab('moral-tar',this)">&#128737;&#65039; Moral Teşhis</button>
+      </div>
+    </div>
+
+    <div class="navgroup" data-g="izleme">
+      <div class="navgroup-h" onclick="toggleGroup(this)"><span>&#128737;&#65039; İzleme & Güvenlik</span><span class="chev">&#9660;</span></div>
+      <div class="navgroup-items">
+        <button class="on" onclick="switchTab('cron',this)">&#9201;&#65039; Cron Durumu</button>
+        <button onclick="switchTab('anomali',this)">&#128680; Anomali</button>
+        <button onclick="switchTab('iz-surme',this)">&#128373;&#65039; İz Sürme</button>
+        <button onclick="switchTab('tutarlilik',this)">&#128269; Tutarlılık Analizi</button>
+        <button onclick="switchTab('bug-bildirimleri',this)">&#128027; Bug Bildirimleri</button>
+        <button onclick="switchTab('top-ordular',this)">&#127942; Top Ordular</button>
+      </div>
+    </div>
+
+    <div class="navgroup" data-g="sistem">
+      <div class="navgroup-h" onclick="toggleGroup(this)"><span>&#128226; Sistem & İletişim</span><span class="chev">&#9660;</span></div>
+      <div class="navgroup-items">
+        <button onclick="switchTab('sezon',this)">&#128197; Sezon</button>
+        <button onclick="switchTab('duyuru',this)">&#128226; Duyurular</button>
+        <button onclick="switchTab('davet',this)">&#127915; Davet Kodları</button>
+      </div>
+    </div>
+
+    <div class="nav-sec">&#9313; Yapılandırma</div>
+
+    <div class="navgroup collapsed" data-g="ekonomi">
+      <div class="navgroup-h" onclick="toggleGroup(this)"><span>&#128176; Ekonomi & Denge</span><span class="chev">&#9660;</span></div>
+      <div class="navgroup-items">
+        <button onclick="switchTab('ekonomi',this)">&#128176; Ekonomi Ayar</button>
+        <button onclick="switchTab('vergi-sistem',this)">&#129534; Vergi Sistemi</button>
+        <button onclick="switchTab('market-cfg',this)">&#127978; Market Ayar</button>
+        <button onclick="switchTab('pazar-deger',this)">&#128202; Pazar Değer</button>
+        <button onclick="switchTab('premium',this)">&#128142; Premium</button>
+        <button onclick="switchTab('bina-nufus',this)">&#127960;&#65039; Bina Nüfus</button>
+      </div>
+    </div>
+
+    <div class="navgroup collapsed" data-g="icerik">
+      <div class="navgroup-h" onclick="toggleGroup(this)"><span>&#127959;&#65039; İçerik (Yapı/Birim)</span><span class="chev">&#9660;</span></div>
+      <div class="navgroup-items">
+        <button onclick="switchTab('binalar',this)">&#127963;&#65039; Binalar</button>
+        <button onclick="switchTab('uniteler',this)">&#129482; Üniteler</button>
+        <button onclick="switchTab('irklar',this)">&#129516; Irk Bonusları</button>
+        <button onclick="switchTab('artifact',this)">&#127993; Artifactlar</button>
+        <button onclick="switchTab('buyu',this)">&#128302; Büyü Dükkanı</button>
+        <button onclick="switchTab('gorevler',this)">&#128220; Görevler</button>
+        <button onclick="switchTab('insaat-mod',this)">&#127959;&#65039; İnşaat Modu</button>
+        <button onclick="switchTab('map',this)">&#128506;&#65039; Harita & Koloni</button>
+      </div>
+    </div>
+
+    <div class="navgroup collapsed" data-g="mekanik">
+      <div class="navgroup-h" onclick="toggleGroup(this)"><span>&#9876;&#65039; Oyun Mekaniği</span><span class="chev">&#9660;</span></div>
+      <div class="navgroup-items">
+        <button onclick="switchTab('savas-cfg',this)">&#9876;&#65039; Savaş Ayar</button>
+        <button onclick="switchTab('casus-cfg',this)">&#128481;&#65039; Casus Ayar</button>
+        <button onclick="switchTab('bilge-cfg',this)">&#129497; Bilge</button>
+        <button onclick="switchTab('kadim-cfg',this)">&#127983; Kadim Şehir</button>
+        <button onclick="switchTab('guild-cfg',this)">&#127984; Guild Ayar</button>
+        <button onclick="switchTab('tatil-cfg',this)">&#127958;&#65039; Tatil & Ateşkes</button>
+      </div>
+    </div>
   </div>
+
+  <script>
+  (function(){
+    document.querySelectorAll('#adminNav .navgroup').forEach(function(g){
+      var s=localStorage.getItem('admnav:'+g.dataset.g);
+      if(s==='1') g.classList.add('collapsed');
+      else if(s==='0') g.classList.remove('collapsed');
+    });
+    // aktif sekmenin grubu acik olsun
+    var onBtn=document.querySelector('#adminNav button.on');
+    if(onBtn){ var pg=onBtn.closest('.navgroup'); if(pg) pg.classList.remove('collapsed'); }
+    window.toggleGroup=function(h){
+      var g=h.parentElement;
+      g.classList.toggle('collapsed');
+      try{ localStorage.setItem('admnav:'+g.dataset.g, g.classList.contains('collapsed')?'1':'0'); }catch(e){}
+    };
+    window.filterTabs=function(q){
+      q=(q||'').trim().toLowerCase();
+      document.querySelectorAll('#adminNav .navgroup').forEach(function(g){
+        var any=false;
+        g.querySelectorAll('.navgroup-items button').forEach(function(b){
+          var m=b.textContent.toLowerCase().indexOf(q)>=0;
+          b.classList.toggle('hidden', !!q && !m);
+          if(m) any=true;
+        });
+        if(q){ g.classList.remove('collapsed'); g.classList.toggle('no-match', !any); }
+        else { g.classList.remove('no-match'); }
+      });
+    };
+  })();
+  </script>
 
   <!-- CRON TAB -->
   <div id="tab-cron" class="panel active">
@@ -520,7 +656,7 @@
         <label style="font-size:10px;color:#aaa">kademe:
           <input id="bm-kademe" type="number" value="3" min="1" max="10" style="padding:4px;width:50px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);font-size:11px;border-radius:3px;margin-left:4px">
         </label>
-        <button class="act" onclick="adminBuyuEkle()" style="background:#8e44ad">➕ Buyu Ekle</button>
+        <button class="act" onclick="adminBuyuEkle()">➕ Buyu Ekle</button>
         <span id="bm-msg" style="font-size:10px"></span>
       </div>
 
@@ -529,7 +665,7 @@
         <label style="font-size:10px;color:#aaa">player_id:
           <input id="bme-pid" type="number" placeholder="123" style="padding:4px;width:80px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);font-size:11px;border-radius:3px;margin-left:4px">
         </label>
-        <button class="act" onclick="adminBuyuMalzemeEkle()" style="background:#2980b9">🔮 Mana+Malzeme Ekle</button>
+        <button class="act" onclick="adminBuyuMalzemeEkle()">🔮 Mana+Malzeme Ekle</button>
         <span id="bme-msg" style="font-size:10px"></span>
       </div>
 
@@ -776,7 +912,7 @@
         <input id="anom-yuzde" type="number" value="30" min="0" max="500" style="width:60px;padding:3px;background:#111;border:1px solid #333;color:#ddd;font-size:11px;margin-left:4px">
         <span style="font-size:11px;color:#555">%</span>
       </label>
-      <button class="act" onclick="anomaliEsikKaydet()" style="background:#e67e22">💾 Kaydet</button>
+      <button class="act" onclick="anomaliEsikKaydet()">💾 Kaydet</button>
       <span id="anom-esik-msg" style="font-size:10px;color:#27ae60"></span>
     </div>
 
@@ -786,8 +922,8 @@
       <span style="font-size:11px;color:#555">%</span>
       <button class="act" onclick="muhasebeEsikKaydet()">Kaydet</button>
       <span style="flex:1"></span>
-      <button class="act" onclick="anomaliDetayYukle()" style="background:#2980b9">🔍 Detay Tablosu Goster</button>
-      <button class="act" onclick="anomaliCsvIndir()" style="background:#27ae60">📊 CSV (Excel) Indir</button>
+      <button class="act" onclick="anomaliDetayYukle()">🔍 Detay Tablosu Goster</button>
+      <button class="act" onclick="anomaliCsvIndir()">📊 CSV (Excel) Indir</button>
     </div>
     <div id="anomali-list">Yukleniyor...</div>
     <!-- v1.13.59: Anomali detay tablosu -->
@@ -846,7 +982,7 @@
           <label>Alt %: <input type="number" id="da-casus-alt" min="0" value="30" style="width:80px" title="100+ = alt sinir yok" /></label>
           <label>Ust %: <input type="number" id="da-casus-ust" min="0" value="43" style="width:80px" /></label>
           <span id="da-casus-ornek" style="color:#888;font-size:11px"></span>
-          <button class="act" onclick="degerAraligiKaydet('casus')" style="background:#8e44ad">💾 Kaydet</button>
+          <button class="act" onclick="degerAraligiKaydet('casus')">💾 Kaydet</button>
           <span id="da-casus-msg" style="font-size:12px"></span>
         </div>
       </div>
@@ -859,7 +995,7 @@
           <label>Alt %: <input type="number" id="da-buyu-alt" min="0" value="30" style="width:80px" title="100+ = alt sinir yok" /></label>
           <label>Ust %: <input type="number" id="da-buyu-ust" min="0" value="43" style="width:80px" /></label>
           <span id="da-buyu-ornek" style="color:#888;font-size:11px"></span>
-          <button class="act" onclick="degerAraligiKaydet('buyu')" style="background:#1f618d">💾 Kaydet</button>
+          <button class="act" onclick="degerAraligiKaydet('buyu')">💾 Kaydet</button>
           <span id="da-buyu-msg" style="font-size:12px"></span>
         </div>
       </div>
@@ -928,13 +1064,13 @@
     <h3 style="margin-top:32px;border-top:2px solid #8e44ad;padding-top:16px;color:#bb8fce">🤝 Diplomasi Ayarlari (v1.14.0.30)</h3>
     <p style="font-size:10px;color:#888;margin-bottom:10px">Antlasma, savas hazirlik, ihanet debuff, tabiyet parametreleri</p>
     <div id="diplomasi-cfg-content">Yukleniyor...</div>
-    <button class="act" onclick="diplomasiCfgKaydet()" style="margin-top:8px;background:#8e44ad">💾 Diplomasi Kaydet</button>
+    <button class="act" onclick="diplomasiCfgKaydet()" style="margin-top:8px">💾 Diplomasi Kaydet</button>
 
     <!-- v1.14.0.46 ARASTIRMA CONFIG (Tech Tree) -->
     <h3 style="margin-top:32px;border-top:2px solid #16a085;padding-top:16px;color:#48c9b0">🔬 Guild Arastirma / Tech Tree (v1.14.0.42)</h3>
     <p style="font-size:10px;color:#888;margin-bottom:10px">5 teknoloji (uretim/savunma/atk/insaat/ekonomi) + baz maliyet + sure</p>
     <div id="arastirma-cfg-content">Yukleniyor...</div>
-    <button class="act" onclick="arastirmaCfgKaydet()" style="margin-top:8px;background:#16a085">💾 Arastirma Kaydet</button>
+    <button class="act" onclick="arastirmaCfgKaydet()" style="margin-top:8px">💾 Arastirma Kaydet</button>
   </div>
 
   <!-- PAZAR DEGER TAB (v1.13.1) -->
@@ -972,7 +1108,7 @@
     <!-- v1.14.0.47: Kusatma Durum Paneli -->
     <h3 style="margin-top:24px;border-top:1px solid #9b59b6;padding-top:16px;color:#bb8fce">🏰 Kusatma Durum Paneli</h3>
     <p style="font-size:10px;color:#888;margin-bottom:10px">Sehirlerin canli state + kusatan ordular (varis/donus zamanlari)</p>
-    <button class="act" onclick="loadKusatmaDurum()" style="margin-bottom:8px;background:#8e44ad">🔄 Durumu Yenile</button>
+    <button class="act" onclick="loadKusatmaDurum()" style="margin-bottom:8px">🔄 Durumu Yenile</button>
     <div id="kusatma-durum-content">Yukleniyor...</div>
 
     <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">Sehir Kasasina Kaynak Ekle/Cikar</h3>
@@ -1031,7 +1167,7 @@
       <label style="font-size:11px;color:#aaa">Yaricap:
         <input id="topla-yaricap" type="number" value="10" min="3" max="50" style="padding:6px;width:70px;background:#000;border:1px solid var(--border);color:#3498db;border-radius:3px;font-size:11px;margin-left:4px">
       </label>
-      <button class="act" onclick="oyuncularHaritadaTopla()" style="background:#2980b9;color:#fff">🗺 TOPLA</button>
+      <button class="act" onclick="oyuncularHaritadaTopla()">🗺 TOPLA</button>
       <span id="topla-msg" style="font-size:11px"></span>
     </div>
   </div>
@@ -1041,7 +1177,7 @@
     <h3 style="color:#c8a96e">💰 Ekonomi Ayar — Denge Parametreleri</h3>
     <p style="font-size:10px;color:#888;margin-bottom:10px">25 hardcoded denge degeri artik buradan ayarlanir. Cache: 60 saniye (kaydet sonrasi hemen temizlenir).</p>
     <div id="ekonomi-cfg-content">Yukleniyor...</div>
-    <button class="act" onclick="ekonomiCfgKaydet()" style="margin-top:12px;background:#27ae60">💾 Tum Ekonomi Ayarlarini Kaydet</button>
+    <button class="act" onclick="ekonomiCfgKaydet()" style="margin-top:12px">💾 Tum Ekonomi Ayarlarini Kaydet</button>
   </div>
 
   <!-- BINA NUFUS CONFIG TAB (v1.13.66) -->
@@ -1081,7 +1217,7 @@
       </div>
     </div>
 
-    <button class="act" onclick="binaNufusKaydet()" style="margin-top:12px;background:#16a085">💾 Bina Nüfus Config Kaydet</button>
+    <button class="act" onclick="binaNufusKaydet()" style="margin-top:12px">💾 Bina Nüfus Config Kaydet</button>
     <span id="bn-msg" style="margin-left:10px;font-size:12px"></span>
 
     <div class="card" style="margin-top:18px;background:#0f0f0f">
@@ -1257,7 +1393,7 @@
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
       <label style="font-size:11px;color:#aaa">player_id:</label>
       <input id="bt-pid" type="number" style="width:120px;padding:4px;background:#222;color:#fff;border:1px solid #555;border-radius:3px">
-      <button class="act" onclick="loadBildirimTani()" style="background:linear-gradient(135deg,#3498db 0%,#21618c 100%);color:#fff">📡 Tanı</button>
+      <button class="act" onclick="loadBildirimTani()">📡 Tanı</button>
     </div>
     <div id="bildirim-tani-content" style="font-size:11px;color:#888;margin-bottom:20px">player_id gir ve "Tanı"ya bas.</div>
 
@@ -1386,7 +1522,7 @@
         <span style="color:#666">veya</span>
         <input id="om-isim" type="text" placeholder="Kral ismi (ara)" style="padding:8px;width:160px;background:#0a0a0a;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px" oninput="omIsimAra()">
         <div id="om-isim-sonuc" style="font-size:11px;color:#666"></div>
-        <button class="act" onclick="omPlayerLoad()" style="background:#3498db;color:#fff">📥 Yükle</button>
+        <button class="act" onclick="omPlayerLoad()">📥 Yükle</button>
       </div>
       <div id="om-player-info" style="margin-top:10px;padding:10px;background:#0d0d0d;border-radius:4px;font-size:11px;color:#888;display:none"></div>
     </div>
@@ -1406,14 +1542,14 @@
       <div class="card">
         <h4 style="color:#f39c12;margin-top:0">🔧 Player Fix</h4>
         <p style="font-size:11px;color:#888;margin:0 0 6px">Oyuncu state'ini onarır: nüfus senkron, alan, dayanıklılık, kalan_insa orphan, vs.</p>
-        <button class="act" onclick="omFixPlayer()" style="background:#f39c12;color:#fff;width:100%">🛠️ Otomatik Onar</button>
+        <button class="act" onclick="omFixPlayer()" style="width:100%">🛠️ Otomatik Onar</button>
       </div>
 
       <!-- 3. Bildirim Tanı -->
       <div class="card">
         <h4 style="color:#9b59b6;margin-top:0">🔔 Bildirim Tanı</h4>
         <p style="font-size:11px;color:#888;margin:0 0 6px">Telegram + push abonelik durumu, son bildirim, hata logu.</p>
-        <button class="act" onclick="omBildirimTani()" style="background:#9b59b6;color:#fff;width:100%">📡 Tanıla</button>
+        <button class="act" onclick="omBildirimTani()" style="width:100%">📡 Tanıla</button>
         <pre id="om-bildirim-out" style="font-size:10px;background:#0a0a0a;padding:6px;border-radius:3px;margin-top:6px;color:#888;max-height:200px;overflow:auto;display:none"></pre>
       </div>
 
@@ -1421,10 +1557,10 @@
       <div class="card">
         <h4 style="color:#16a085;margin-top:0">📦 Kaynak İzle / İade</h4>
         <p style="font-size:11px;color:#888;margin:0 0 6px">Son 24h kaynak gelir/gider veya manuel kaynak iade.</p>
-        <button class="act" onclick="omKaynakIzle()" style="background:#16a085;color:#fff;width:100%;margin-bottom:4px">📊 İzle</button>
+        <button class="act" onclick="omKaynakIzle()" style="width:100%;margin-bottom:4px">📊 İzle</button>
         <input id="om-kaynak-tip" placeholder="altin / odun / ..." style="padding:4px;width:100%;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px;margin-bottom:4px;font-size:11px">
         <input id="om-kaynak-miktar" type="number" placeholder="miktar" style="padding:4px;width:100%;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px;margin-bottom:4px;font-size:11px">
-        <button class="act" onclick="omKaynakIade()" style="background:#27ae60;color:#fff;width:100%">💰 İade Et</button>
+        <button class="act" onclick="omKaynakIade()" style="width:100%">💰 İade Et</button>
       </div>
 
       <!-- 5. İz Sürme -->
@@ -1439,7 +1575,7 @@
       <div class="card">
         <h4 style="color:#e67e22;margin-top:0">⚔️ Reyting Detay</h4>
         <p style="font-size:11px;color:#888;margin:0 0 6px">Ordu rey, asker dağılımı, savaş geçmişi.</p>
-        <button class="act" onclick="omReytingDetay()" style="background:#e67e22;color:#fff;width:100%">📊 Göster</button>
+        <button class="act" onclick="omReytingDetay()" style="width:100%">📊 Göster</button>
       </div>
 
       <!-- 7. Moral Tarihçesi -->
@@ -1463,9 +1599,9 @@
       <div class="card">
         <h4 style="color:#8e44ad;margin-top:0">🐪 Kervan Müdahale</h4>
         <p style="font-size:11px;color:#888;margin:0 0 6px">Kervan debug, zorla varış, durum değiştir.</p>
-        <button class="act" onclick="omKervanDebug()" style="background:#8e44ad;color:#fff;width:100%;margin-bottom:4px">🔍 Kervan Listesi</button>
+        <button class="act" onclick="omKervanDebug()" style="width:100%;margin-bottom:4px">🔍 Kervan Listesi</button>
         <input id="om-kervan-id" type="number" placeholder="Kervan ID" style="padding:4px;width:100%;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px;margin-bottom:4px;font-size:11px">
-        <button class="act" onclick="omKervanVardir()" style="background:#27ae60;color:#fff;width:100%">⚡ Zorla Vardır</button>
+        <button class="act" onclick="omKervanVardir()" style="width:100%">⚡ Zorla Vardır</button>
       </div>
 
       <!-- 10. Casus Force -->
@@ -1473,7 +1609,7 @@
         <h4 style="color:#34495e;margin-top:0">🕵️‍♂️ Casus Force</h4>
         <p style="font-size:11px;color:#888;margin:0 0 6px">Görevdeki casusu zorla tamamla.</p>
         <input id="om-casus-id" type="number" placeholder="Casus ID" style="padding:4px;width:100%;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px;margin-bottom:4px;font-size:11px">
-        <button class="act" onclick="omCasusForce()" style="background:#34495e;color:#fff;width:100%">⚡ Zorla Tamamla</button>
+        <button class="act" onclick="omCasusForce()" style="width:100%">⚡ Zorla Tamamla</button>
       </div>
 
       <!-- v1.14.3.24: 11. Köylü Ekle (Sezgi: "ben orduya esek ve koylu ekleyemiyorum") -->
@@ -1481,7 +1617,7 @@
         <h4 style="color:#2ecc71;margin-top:0">👥 Köylü Ekle</h4>
         <p style="font-size:11px;color:#888;margin:0 0 6px">workers.total artırılır. Koloni fetih için 100 boş köylü gerekli.</p>
         <input id="om-koylu-adet" type="number" placeholder="Adet (1-100000)" min="1" max="100000" value="100" style="padding:4px;width:100%;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px;margin-bottom:4px;font-size:11px">
-        <button class="act" onclick="omKoyluEkle()" style="background:#2ecc71;color:#000;width:100%;font-weight:bold">👥 Ekle</button>
+        <button class="act" onclick="omKoyluEkle()" style="width:100%">👥 Ekle</button>
       </div>
 
       <!-- v1.14.3.24: 12. Eşek Ekle -->
@@ -1489,7 +1625,7 @@
         <h4 style="color:#e67e22;margin-top:0">🐴 Eşek Ekle</h4>
         <p style="font-size:11px;color:#888;margin:0 0 6px">resources.essek artırılır. Koloni fetih için 2 eşek gerekli.</p>
         <input id="om-essek-adet" type="number" placeholder="Adet (1-1000)" min="1" max="1000" value="5" style="padding:4px;width:100%;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px;margin-bottom:4px;font-size:11px">
-        <button class="act" onclick="omEsekEkle()" style="background:#e67e22;color:#fff;width:100%;font-weight:bold">🐴 Ekle</button>
+        <button class="act" onclick="omEsekEkle()" style="width:100%">🐴 Ekle</button>
       </div>
 
     </div>
@@ -4384,7 +4520,7 @@ async function loadKadimCfg() {
         '<td style="color:#e74c3c;font-weight:bold">'+(s.ordu_gucu||0).toLocaleString('tr-TR')+'</td>' +
         '<td><input type="number" id="ks-ordu-'+s.id+'" placeholder="ör: 50000" style="width:100px;padding:3px;background:#000;border:1px solid #444;color:#e0c97f;font-size:11px;border-radius:3px"> <button class="act" style="font-size:10px;padding:3px 8px" onclick="kadimOrduAyarla('+s.id+')">Ayarla</button></td>' +
         '<td>'+(s.holding_guild_id||'-')+'</td>' +
-        '<td><button class="act" style="font-size:10px;padding:3px 8px;background:#8e44ad" onclick="kadimKusatmaReset('+s.id+',\''+s.isim.replace(/'/g,'')+'\')">🏰 Reset</button></td>' +
+        '<td><button class="act" style="font-size:10px;padding:3px 8px" onclick="kadimKusatmaReset('+s.id+',\''+s.isim.replace(/'/g,'')+'\')">🏰 Reset</button></td>' +
         '</tr>'
       ).join('') +
       '</tbody></table>';

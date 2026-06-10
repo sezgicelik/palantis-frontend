@@ -451,6 +451,12 @@ function showSavasRapor(sonuc, benimTaraf, opts) {
       </table>
     </div>
 
+    ${(sonuc.tur_detay && sonuc.tur_detay.length > 0) ? `
+    <div class="sr-sec-title">📈 ORDU ERİME GRAFİĞİ</div>
+    <div style="position:relative;height:260px;background:rgba(0,0,0,.18);border:1px solid rgba(212,162,87,.12);border-radius:8px;padding:10px 12px;margin-bottom:10px">
+      <canvas id="sr-grafik"></canvas>
+    </div>` : ''}
+
     ${renderTurKomposizyonlari(sonuc.tur_detay || [], saldiranAdi, savunanAdi)}
 
     ${buyuBoluml ? `<div class="sr-sec-title">✨ TUR BAZLI BÜYÜLER & RAHİP DİRİLTMESİ</div>${buyuBoluml}` : '<div class="sr-buyu-sec" style="text-align:center;color:#666">Bu savaşta büyü kullanılmadı, rahip canlandırması da olmadı.</div>'}
@@ -479,6 +485,87 @@ function showSavasRapor(sonuc, benimTaraf, opts) {
   `;
 
   document.getElementById('savas-rapor-modal').classList.add('open');
+  // v1.14.4.05 — tur bazli ordu erime grafigi (Chart.js, on-demand)
+  _renderSavasGrafik(sonuc);
+}
+
+/* ════════════════════════════════════════════════════════
+   TUR BAZLI ORDU ERİME GRAFİĞİ (Chart.js CDN — lazy load)
+   v1.14.4.05 — mevcut /rapor tur_detay verisini görselleştirir
+═══════════════════════════════════════════════════════ */
+async function _ensureChartJs() {
+  if (window.Chart) return window.Chart;
+  await new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('Chart.js yuklenemedi'));
+    document.head.appendChild(s);
+  });
+  return window.Chart;
+}
+
+let _srChart = null;
+async function _renderSavasGrafik(sonuc) {
+  const cv = document.getElementById('sr-grafik');
+  if (!cv || !sonuc || !sonuc.tur_detay || !sonuc.tur_detay.length) return;
+  let Chart;
+  try { Chart = await _ensureChartJs(); }
+  catch (e) {
+    if (cv.parentElement) cv.parentElement.innerHTML =
+      '<div style="text-align:center;color:#777;font-size:11px;padding:30px 10px">📉 Grafik yüklenemedi (internet bağlantısı?)</div>';
+    return;
+  }
+  // modal bu arada kapanmış olabilir
+  if (!document.getElementById('sr-grafik')) return;
+  if (_srChart) { try { _srChart.destroy(); } catch (e) {} _srChart = null; }
+
+  const td = sonuc.tur_detay;
+  const topla = o => Object.values(o || {}).reduce((a, b) => a + (+b || 0), 0);
+  const sBas = topla(sonuc.saldiran_baslangic);
+  const vBas = topla(sonuc.savunan_baslangic);
+  const labels = ['Başlangıç'].concat(td.map(t => 'Tur ' + t.tur));
+  const sData  = [sBas].concat(td.map(t => +t.saldiran_kalan || 0));
+  const vData  = [vBas].concat(td.map(t => +t.savunan_kalan || 0));
+  const sKayip = [0].concat(td.map(t => +t.saldiran_oldurulen || 0));
+  const vKayip = [0].concat(td.map(t => +t.savunan_oldurulen || 0));
+  const tr = n => (+n || 0).toLocaleString('tr-TR');
+
+  _srChart = new Chart(cv.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: '⚔ Saldıran ordu', data: sData, borderColor: '#e8a0a0',
+          backgroundColor: 'rgba(231,76,60,.13)', fill: true, tension: .25,
+          pointRadius: 3, pointBackgroundColor: '#e74c3c', borderWidth: 2 },
+        { label: '🛡 Savunan ordu', data: vData, borderColor: '#a0c8f0',
+          backgroundColor: 'rgba(52,152,219,.13)', fill: true, tension: .25,
+          pointRadius: 3, pointBackgroundColor: '#3498db', borderWidth: 2 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: '#c8b896', font: { size: 12 } } },
+        tooltip: {
+          callbacks: {
+            afterBody: items => {
+              const i = items[0].dataIndex;
+              if (i === 0) return '';
+              return ['', 'Bu tur kaybı:', '  ⚔ Saldıran  −' + tr(sKayip[i]), '  🛡 Savunan  −' + tr(vKayip[i])];
+            }
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color: '#888' }, grid: { color: 'rgba(255,255,255,.05)' } },
+        y: { beginAtZero: true, ticks: { color: '#888', callback: v => tr(v) },
+             grid: { color: 'rgba(255,255,255,.05)' } }
+      }
+    }
+  });
 }
 
 /* ════════════════════════════════════════════════════════

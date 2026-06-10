@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noxara — Mockup Galerisi</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:#0c0a07;color:#e8dcc4;
+  font-family:system-ui,-apple-system,Segoe UI,sans-serif;
+  padding:28px 22px 60px;
+}
+header{text-align:center;margin-bottom:8px}
+h1{
+  font-family:'Cinzel',serif;font-weight:900;letter-spacing:3px;
+  font-size:30px;color:#f0d28a;
+  text-shadow:0 0 24px rgba(212,162,87,.4);
+}
+.sub{color:#a8967a;font-size:14px;margin-top:6px}
+.count{color:#7a6c52;font-size:12px;margin-top:2px}
+
+.group{max-width:1320px;margin:34px auto 0}
+.group-title{
+  font-family:'Cinzel',serif;font-size:14px;letter-spacing:2px;
+  color:#d4a257;border-bottom:1px solid rgba(212,162,87,.22);
+  padding-bottom:8px;margin-bottom:16px;text-transform:uppercase;
+}
+.grid{
+  display:grid;gap:18px;
+  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+}
+.card{
+  background:#15110b;border:1px solid rgba(212,162,87,.18);
+  border-radius:12px;overflow:hidden;
+  transition:.2s;text-decoration:none;color:inherit;display:block;
+}
+.card:hover{border-color:rgba(212,162,87,.55);transform:translateY(-3px);box-shadow:0 14px 32px rgba(0,0,0,.5)}
+.thumb{
+  position:relative;width:100%;height:200px;overflow:hidden;
+  background:#000;border-bottom:1px solid rgba(212,162,87,.15);
+}
+.thumb iframe{
+  position:absolute;top:0;left:0;
+  width:1280px;height:800px;border:0;
+  transform:scale(.3125);transform-origin:top left; /* 1280*0.3125=400 */
+  pointer-events:none;background:#0a0a0a;
+}
+.thumb .open{
+  position:absolute;inset:0;display:flex;align-items:flex-end;
+  background:linear-gradient(180deg,transparent 60%,rgba(0,0,0,.55));
+  opacity:0;transition:.2s;
+}
+.card:hover .thumb .open{opacity:1}
+.thumb .open span{
+  margin:0 auto 10px;padding:6px 14px;border-radius:999px;
+  background:rgba(212,162,87,.92);color:#1a1207;font-weight:600;font-size:12px;
+}
+.meta{padding:11px 14px}
+.name{font-family:'Cinzel',serif;font-size:14px;color:#f0d28a;font-weight:600}
+.file{font-family:monospace;font-size:11px;color:#7a6c52;margin-top:3px}
+.tag{
+  display:inline-block;margin-top:7px;padding:2px 8px;border-radius:6px;
+  font-size:10px;letter-spacing:.5px;
+}
+.tag.new{background:rgba(82,200,120,.16);color:#7fe0a0;border:1px solid rgba(82,200,120,.35)}
+.tag.live{background:rgba(212,162,87,.14);color:#e8c87a;border:1px solid rgba(212,162,87,.3)}
+.tag.old{background:rgba(120,120,120,.14);color:#9a8e78;border:1px solid rgba(120,120,120,.3)}
+.note{font-size:12px;color:#8a7c60;margin-top:6px;line-height:1.4}
+</style>
+</head>
+<body>
+<header>
+  <h1>NOXARA · MOCKUP GALERİSİ</h1>
+  <div class="sub">Projede üretilmiş tüm tasarım/mockup ekranları — tıkla, tam ekran aç</div>
+  <div class="count" id="count"></div>
+</header>
+
+<div id="root"></div>
+
+<script>
+var GROUPS = [
+  { title:'🆕 Giriş & Komuta', items:[
+    { f:'giris-mockup.html', n:'Giriş Sayfası (Sinematik Ejderha)', tag:'new', note:'Bu oturumda yapıldı — tam ekran ejderha + cam giriş kartı' },
+    { f:'komuta.html', n:'Komuta Masası (Aydınlık tema)', tag:'live', note:'v1.14.4.04 — canlı veri bağlı, bazı kısımlar mockup' },
+  ]},
+  { title:'🗺️ Harita', items:[
+    { f:'harita-mockup-v2.html', n:'Harita Mockup V2', tag:'old', note:'Stitch sprite + chunk' },
+    { f:'harita-mockup-v3.html', n:'Harita Mockup V3', tag:'old', note:'Absolute positioning, minimal arayüz' },
+    { f:'harita-mockup.html', n:'Harita Mockup V1', tag:'old' },
+  ]},
+  { title:'🌳 Tech Tree (Gelişim Ağacı)', items:[
+    { f:'tech-tree-v5.html', n:'Tech Tree V5', tag:'live', note:'Production sürümünün temeli (GP/KP dallar)' },
+    { f:'tech-tree-mockup-v4.html', n:'Tech Tree Mockup V4', tag:'old' },
+    { f:'tech-tree-mockup-v3.html', n:'Tech Tree Mockup V3', tag:'old' },
+    { f:'tech-tree-mockup-v2.html', n:'Tech Tree Mockup V2', tag:'old' },
+    { f:'tech-tree-mockup.html', n:'Tech Tree Mockup V1', tag:'old' },
+  ]},
+  { title:'🏛️ Şehir', items:[
+    { f:'sehir-gorsel-mockup.html', n:'Şehir Görsel Mockup', tag:'old', note:'Obsidian & Gold tema' },
+    { f:'sehir-ozet-mockup.html', n:'Şehir Özet Mockup', tag:'old' },
+  ]},
+  { title:'⚔️ HUD & Ordu', items:[
+    { f:'hud-mockup.html', n:'HUD Mockup', tag:'old' },
+    { f:'hud-ornek.html', n:'HUD Örnek', tag:'old' },
+    { f:'hud_tasarim.html', n:'HUD Tasarım', tag:'old' },
+    { f:'army-mockup.html', n:'Ordu Mockup', tag:'old' },
+  ]},
+  { title:'🎨 Diğer', items:[
+    { f:'icon-mockup.html', n:'İkon Mockup', tag:'old' },
+    { f:'land.html', n:'Arazi (land.html)', tag:'old', note:'Aslında Arazi Borsası sayfası' },
+  ]},
+];
+
+var total=0;
+var html='';
+GROUPS.forEach(function(g){
+  html += '<div class="group"><div class="group-title">'+g.title+'</div><div class="grid">';
+  g.items.forEach(function(it){
+    total++;
+    var note = it.note ? '<div class="note">'+it.note+'</div>' : '';
+    html += '<a class="card" href="'+it.f+'" target="_blank" rel="noopener">'
+      + '<div class="thumb"><iframe loading="lazy" src="'+it.f+'" scrolling="no"></iframe>'
+      + '<div class="open"><span>↗ Tam ekran aç</span></div></div>'
+      + '<div class="meta"><div class="name">'+it.n+'</div>'
+      + '<div class="file">'+it.f+'</div>'
+      + '<span class="tag '+it.tag+'">'+(it.tag==='new'?'YENİ':it.tag==='live'?'CANLI':'ARŞİV')+'</span>'
+      + note + '</div></a>';
+  });
+  html += '</div></div>';
+});
+document.getElementById('root').innerHTML = html;
+document.getElementById('count').textContent = total + ' mockup · ' + GROUPS.length + ' kategori';
+</script>
+</body>
+</html>
