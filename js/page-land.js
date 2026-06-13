@@ -14,11 +14,11 @@ const landState = {
 };
 
 function ageLandLimit(age){
-  if(age === 1) return 500;
-  if(age === 2) return 800;
-  if(age === 3) return 1000;
-  if(age === 4) return 1500;
-  return Infinity;
+  // Backend (routes/game.js POST /alan/buy → CAG_ALAN_LIMIT) ile BIRE BIR olmali.
+  // Eski tablo (500/800/1000/1500/∞) backend ile uyusmuyordu: cag 5'te ∞ + cag yuklenmeden
+  // age=1 fallback'i "cag limiti 500" yanlis gosterimine yol aciyordu.
+  const CAG_ALAN_LIMIT = { 1: 200, 2: 400, 3: 700, 4: 1200, 5: 2000 };
+  return CAG_ALAN_LIMIT[age] || 500;
 }
 
 // Cag ve alan backend'den guncellenecek (loadGameData ile)
