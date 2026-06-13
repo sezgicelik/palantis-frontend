@@ -274,6 +274,9 @@ async function loadGameData() {
         landState.landLimit = typeof ageLandLimit === 'function'
           ? ageLandLimit(landState.age) : toplamAlan;
         landState.gold = RES.altin || 0;
+        // Arazi sayfasi modul yuklenirken age=1 (200) ile cizilir; gercek cag
+        // buraya geldiginde ekrani yeniden ciz, yoksa "Cag Limiti" stale kalir.
+        if (typeof refreshLandNumbers === 'function') refreshLandNumbers();
       }
       // HUD stat-box
       const alanBox = document.getElementById('hud-alan-box');
