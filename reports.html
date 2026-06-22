@@ -19,14 +19,13 @@
   <div class="main-content">
 
     <!-- Rapor Sekmeleri -->
+    <!-- v1.14.x 7->3 sekme sadelestirme: Sehir/Askeri/Koloni/Ekonomi/Ticaret hepsi ayni activity_log'du.
+         Tek "Aktivite" sekmesinde kategori cipleriyle birlesti (page-activity.js KATEGORI_MAP + cache).
+         Savaslarim ve Ozet Tablo ayri veri kaynaklari oldugu icin korundu. -->
     <div class="army-tabs" style="margin-bottom:20px">
-      <button class="atab on" id="rtab-btn-sehir" onclick="reportTab('sehir',this)">🏙️ Şehir</button>
+      <button class="atab on" id="rtab-btn-sehir" onclick="reportTab('sehir',this)">📋 Aktivite</button>
       <button class="atab" id="rtab-btn-savaslarim" onclick="reportTab('savaslarim',this)">⚔️ Savaşlarım</button>
-      <button class="atab" id="rtab-btn-askeri" onclick="reportTab('askeri',this)">🛡️ Askeri</button>
-      <button class="atab" id="rtab-btn-koloni" onclick="reportTab('koloni',this)">🏰 Koloni</button>
-      <button class="atab" id="rtab-btn-ekonomi" onclick="reportTab('ekonomi',this)">💰 Ekonomi</button>
-      <button class="atab" id="rtab-btn-ticaret" onclick="reportTab('ticaret',this)">🏪 Ticaret</button>
-      <button class="atab" id="rtab-btn-ozet-tablo" onclick="reportTab('ozet-tablo',this)">📊 Ozet Tablo</button>
+      <button class="atab" id="rtab-btn-ozet-tablo" onclick="reportTab('ozet-tablo',this)">📊 Özet Tablo</button>
     </div>
 
     <!-- v1.14.0.68: Savaşlarım sekmesi (dedicated PvP report list) -->
@@ -50,13 +49,18 @@
       </div>
     </div>
 
-    <!-- Şehir Raporları -->
+    <!-- Aktivite (eski Sehir/Askeri/Koloni/Ekonomi/Ticaret — kategori cipleri page-activity.js renderActivity'de) -->
     <div id="rtab-sehir" class="report-section">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
-        <h2 style="color:#c8a96e;font-family:'Cinzel',serif;margin:0;font-size:clamp(16px,4vw,22px)">🏙️ Şehir Raporları</h2>
-        <button class="btn-action" onclick="loadActivity()" style="padding:4px 14px;font-size:11px;width:auto">↻ Yenile</button>
+        <h2 style="color:#c8a96e;font-family:'Cinzel',serif;margin:0;font-size:clamp(16px,4vw,22px)">📋 Aktivite</h2>
+        <button class="btn-action" onclick="loadActivity();loadCasusRaporlariReports(getToken())" style="padding:4px 14px;font-size:11px;width:auto">↻ Yenile</button>
       </div>
-      <!-- v1.13.62: page-activity.js uyumlu ID'ler — activity.html ile birleştirildi -->
+      <!-- v1.14.x: Casus operasyonlari zengin karti (eski Askeri sekmesinden tasindi) -->
+      <div id="askeri-casus-wrap" style="margin-bottom:20px;display:none">
+        <div style="font-size:12px;color:#9b59b6;font-weight:bold;margin-bottom:8px">🕵️ Casus Operasyonları</div>
+        <div id="askeri-casus-list"></div>
+      </div>
+      <!-- v1.13.62: page-activity.js uyumlu ID'ler -->
       <div id="activity-loading" style="color:#888;font-size:13px;text-align:center;padding:40px">Yükleniyor...</div>
       <div id="activity-list" style="display:none"></div>
       <div id="activity-empty" style="display:none;color:#777;font-size:13px;text-align:center;padding:40px">
@@ -64,62 +68,8 @@
       </div>
     </div>
 
-    <!-- Askeri Raporlar (eski Savaş) -->
-    <div id="rtab-askeri" class="report-section" style="display:none">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
-        <h2 style="color:#c8a96e;font-family:'Cinzel',serif;margin:0;font-size:clamp(16px,4vw,22px)">⚔️ Askeri Raporlar</h2>
-        <button class="btn-action" onclick="loadFilteredReport('askeri')" style="padding:4px 14px;font-size:11px;width:auto">↻ Yenile</button>
-      </div>
-      <!-- v1.14.0.27: Casus operasyonlari ayri kart (zengin detay) -->
-      <div id="askeri-casus-wrap" style="margin-bottom:20px;display:none">
-        <div style="font-size:12px;color:#9b59b6;font-weight:bold;margin-bottom:8px">🕵️ Casus Operasyonları</div>
-        <div id="askeri-casus-list"></div>
-      </div>
-      <div id="askeri-loading" style="color:#888;font-size:13px;text-align:center;padding:40px">Yükleniyor...</div>
-      <div id="askeri-list" style="display:none"></div>
-      <div id="askeri-empty" style="display:none;color:#777;font-size:13px;text-align:center;padding:40px">
-        Henüz askeri rapor yok.<br><small style="color:#555">Ünite eğitimi ve worshipper üretimi tamamlandığında burada görünür.</small>
-      </div>
-    </div>
-
-    <!-- Koloni Raporları -->
-    <div id="rtab-koloni" class="report-section" style="display:none">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
-        <h2 style="color:#c8a96e;font-family:'Cinzel',serif;margin:0;font-size:clamp(16px,4vw,22px)">🏰 Koloni Raporları</h2>
-        <button class="btn-action" onclick="loadFilteredReport('koloni')" style="padding:4px 14px;font-size:11px;width:auto">↻ Yenile</button>
-      </div>
-      <div id="koloni-loading" style="color:#888;font-size:13px;text-align:center;padding:40px">Yükleniyor...</div>
-      <div id="koloni-list" style="display:none"></div>
-      <div id="koloni-empty" style="display:none;color:#777;font-size:13px;text-align:center;padding:40px">
-        Henüz koloni kaydı yok.<br><small style="color:#555">Koloni fethi, çekilme ve kaynak akışı raporları burada görünür.</small>
-      </div>
-    </div>
-
-    <!-- Ekonomi Raporları -->
-    <div id="rtab-ekonomi" class="report-section" style="display:none">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
-        <h2 style="color:#c8a96e;font-family:'Cinzel',serif;margin:0;font-size:clamp(16px,4vw,22px)">💰 Ekonomi Raporları</h2>
-        <button class="btn-action" onclick="loadFilteredReport('ekonomi')" style="padding:4px 14px;font-size:11px;width:auto">↻ Yenile</button>
-      </div>
-      <div id="ekonomi-loading" style="color:#888;font-size:13px;text-align:center;padding:40px">Yükleniyor...</div>
-      <div id="ekonomi-list" style="display:none"></div>
-      <div id="ekonomi-empty" style="display:none;color:#777;font-size:13px;text-align:center;padding:40px">
-        Henüz ekonomi raporu yok.<br><small style="color:#555">İşçi üretimi, kereste, işlenmiş metal, at/kurt, bölge/ırk bonusu ve mana raporları burada görünür.</small>
-      </div>
-    </div>
-
-    <!-- Ticaret Raporları -->
-    <div id="rtab-ticaret" class="report-section" style="display:none">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
-        <h2 style="color:#c8a96e;font-family:'Cinzel',serif;margin:0;font-size:clamp(16px,4vw,22px)">🏪 Ticaret Raporları</h2>
-        <button class="btn-action" onclick="loadFilteredReport('ticaret')" style="padding:4px 14px;font-size:11px;width:auto">↻ Yenile</button>
-      </div>
-      <div id="ticaret-loading" style="color:#888;font-size:13px;text-align:center;padding:40px">Yükleniyor...</div>
-      <div id="ticaret-list" style="display:none"></div>
-      <div id="ticaret-empty" style="display:none;color:#777;font-size:13px;text-align:center;padding:40px">
-        Henüz ticaret kaydı yok.<br><small style="color:#555">Market satışları ve büyü dükkanı alışverişleri burada görünür.</small>
-      </div>
-    </div>
+    <!-- v1.14.x: Askeri/Koloni/Ekonomi/Ticaret sekmeleri kaldirildi — hepsi ayni activity_log'du,
+         artik tek "Aktivite" sekmesinde kategori cipleriyle gosteriliyor (yukaridaki rtab-sehir). -->
 
     <!-- v1.13.26: Ozet Tablo — Excel tarzi gelir/gider -->
     <div id="rtab-ozet-tablo" class="report-section" style="display:none">
@@ -176,12 +126,10 @@
       document.querySelectorAll('.army-tabs .atab').forEach(b => b.classList.remove('on'));
       if (el) el.classList.add('on');
       if (tab === 'sehir') {
-        // v1.13.62: activity.html ile birlestirildi — page-activity.js'in zengin render'i
-        // (tarih gruplama + tip ikonlari + filtre/gruplama) kullanilir
+        // v1.14.x: Aktivite = page-activity.js zengin render (kategori cipleri + cache) + casus karti
         if (typeof loadActivity === 'function') loadActivity();
-        else if (typeof loadFilteredReport === 'function') loadFilteredReport('sehir');
+        if (typeof loadCasusRaporlariReports === 'function') loadCasusRaporlariReports(getToken());
       }
-      if (tab === 'askeri' || tab === 'ekonomi' || tab === 'ticaret' || tab === 'koloni') loadFilteredReport(tab);
       if (tab === 'ozet-tablo') { loadOzetTablo(); }
       if (tab === 'savaslarim') { loadSavaslarim(); }
     }
@@ -517,7 +465,9 @@
         }
         if (tabParam) {
           const btn = document.getElementById('rtab-btn-' + tabParam);
+          // v1.14.x: eski sekme linkleri (askeri/koloni/ekonomi/ticaret) -> Aktivite
           if (btn) reportTab(tabParam, btn);
+          else reportTab('sehir', document.getElementById('rtab-btn-sehir'));
         } else {
           reportTab('sehir', document.getElementById('rtab-btn-sehir'));
         }
