@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="css/main.css?v=14124">
 <link rel="stylesheet" href="css/tema-parsomen.css?v=13496">
 <link rel="stylesheet" href="css/rehber.css">
-<link rel="stylesheet" href="css/manzara.css?v=1">
+<link rel="stylesheet" href="css/manzara.css?v=2">
 </head>
 <body>
 <div id="hudbar-mount"></div>
@@ -30,12 +30,13 @@
     <!-- MANZARA TAB (V1 Obsidian & Gold) — Faz 1: dekoratif + gercek sehir adi/nufus + tiklanabilir hot-zone -->
     <div id="ctab-manzara">
       <div class="manzara-wrap">
+        <!-- v1.14.x OVERLAP FIX 2: baslik sahne USTUNE degil, USTUNDE (header bar) — uzun sehir adlari cakismasin -->
+        <div class="v1-sehir-title">
+          <div class="title-deco">⚜</div>
+          <h1 id="manzara-sehir-adi">Şehrim</h1>
+          <div class="title-sub">"Karanlık çağda altın ışıyor."</div>
+        </div>
         <div class="v1-sehir-wrap">
-          <div class="v1-sehir-title">
-            <div class="title-deco">⚜</div>
-            <h1 id="manzara-sehir-adi">Şehrim</h1>
-            <div class="title-sub">"Karanlık çağda altın ışıyor."</div>
-          </div>
 
           <div class="hot-zone built kale" style="top:8%; left:42%; width:18%; height:55%;"
                onclick="cityTab('binalar')" data-tooltip="Ana Kale — Şehrin kalbi">
