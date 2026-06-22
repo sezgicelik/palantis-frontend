@@ -722,7 +722,8 @@ const HIZLI_MENU_KATALOG = [
   { href: 'meydan.html',        label: 'Şehir Meydanı',    icon: '💬', grup: 'Aktivite' },
   { href: 'bocek-yarisi.html',  label: 'Böcek Yarışı',     icon: '🪲', grup: 'Eğlence' },
   { href: 'sandik.html',        label: 'Kader Sandıkları', icon: '📦', grup: 'Eğlence' },
-  { href: 'premium.html',       label: 'Premium',          icon: '⚜',  grup: 'Diğer' }
+  { href: 'premium.html',       label: 'Premium',          icon: '⚜',  grup: 'Diğer' },
+  { href: 'mockup-galeri.html', label: 'Mockup Galerisi',  icon: '🖼️', grup: 'Diğer' }
 ];
 const HIZLI_MAX = 5;
 
