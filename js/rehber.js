@@ -136,17 +136,20 @@ async function rehberBackendSenkron() {
       }
     });
     // Rehber adimlarini sirayla tara, ilk tamamlanmamis adima atla
+    const maxAdim = Math.max(...REHBER_ADIMLARI.map(a => a.adim));
     let yeniMevcut = parseInt(localStorage.getItem(REHBER_ADIM_STORAGE)) || 1;
     for (const a of REHBER_ADIMLARI) {
       if (!a.kosulTipi) continue; // info-only adimlar (ozelTip:'merkez' vs)
       const key = a.kosulTipi + ':' + a.kosulDeger;
       if (tamamlanmislar.has(key)) {
-        // Bu adim backend'de tamamlanmis — atla
-        if (a.adim >= yeniMevcut) yeniMevcut = a.adim + 1;
+        // Bu adim backend'de tamamlanmis — SONRAKI var olan adima atla (boslukta olmesin: 6->8)
+        if (a.adim >= yeniMevcut) {
+          const nxt = rehberSonrakiAdimNo(a.adim);
+          yeniMevcut = (nxt === null) ? (maxAdim + 1) : nxt;
+        }
       }
     }
     // Son adimi gectiyse rehber bitmis
-    const maxAdim = Math.max(...REHBER_ADIMLARI.map(a => a.adim));
     if (yeniMevcut > maxAdim) {
       localStorage.setItem(REHBER_STORAGE, '1');
       localStorage.removeItem(REHBER_ADIM_STORAGE);
@@ -201,7 +204,7 @@ function rehberHudButonGoster(adim) {
   const adimEl = document.getElementById('hud-rehber-adim');
   if (!el || !adimEl) return;
   el.style.display = 'flex';
-  adimEl.textContent = adim.adim + '/' + REHBER_ADIMLARI.length;
+  adimEl.textContent = rehberSira(adim.adim) + '/' + REHBER_ADIMLARI.length;
 }
 
 // Kullanici HUD rehber butonuna tiklayinca — banner'i toggle
@@ -229,7 +232,7 @@ function rehberBannerGoster(adim) {
   _bannerEl = document.createElement('div');
   _bannerEl.className = 'rehber-banner';
   _bannerEl.innerHTML =
-    '<span class="rehber-banner-text">📜 Adim ' + adim.adim + '/' + REHBER_ADIMLARI.length + ': ' + adim.baslik + '</span>' +
+    '<span class="rehber-banner-text">📜 Adim ' + rehberSira(adim.adim) + '/' + REHBER_ADIMLARI.length + ': ' + adim.baslik + '</span>' +
     '<div style="display:flex;gap:6px;align-items:center">' +
       '<button class="rehber-banner-btn" onclick="rehberSayfayaGit()">Git →</button>' +
       '<button class="rehber-banner-btn" onclick="rehberAtla()" style="color:#666;border-color:#333">Atla</button>' +
@@ -310,13 +313,13 @@ function rehberAdimGoster(adim) {
   const gorevAdimi = adim.ozelTip !== 'merkez' && adim.hedef;
 
   _tooltipEl.innerHTML =
-    '<div class="rehber-adim-no">Adim ' + adim.adim + ' / ' + REHBER_ADIMLARI.length + '</div>' +
+    '<div class="rehber-adim-no">Adim ' + rehberSira(adim.adim) + ' / ' + REHBER_ADIMLARI.length + '</div>' +
     '<div class="rehber-baslik">' + adim.baslik + '</div>' +
     '<div class="rehber-aciklama">' + adim.aciklama + '</div>' +
     odulHTML +
     '<div class="rehber-buttons">' +
       '<button class="rehber-btn rehber-btn-atla" onclick="rehberAtla()">Atla</button>' +
-      (adim.adim >= REHBER_ADIMLARI.length
+      (rehberSira(adim.adim) >= REHBER_ADIMLARI.length
         ? '<button class="rehber-btn rehber-btn-ileri" onclick="rehberTamamla()">🎉 Tamamla</button>'
         : gorevAdimi
           ? '<button class="rehber-btn rehber-btn-ileri" onclick="rehberKapat()">👍 Tamam, Yapacagim!</button>'
@@ -388,7 +391,7 @@ function rehberGorevBanner(adim) {
   _bannerEl = document.createElement('div');
   _bannerEl.className = 'rehber-banner';
   _bannerEl.innerHTML =
-    '<span class="rehber-banner-text">📜 Adim ' + adim.adim + ': ' + adim.baslik + '</span>' +
+    '<span class="rehber-banner-text">📜 Adim ' + rehberSira(adim.adim) + ': ' + adim.baslik + '</span>' +
     '<div style="display:flex;gap:6px">' +
       '<button class="rehber-banner-btn" onclick="rehberGorevTamamla()" style="background:rgba(46,204,113,.15);border-color:rgba(46,204,113,.3);color:#2ecc71">✓ Tamamladim</button>' +
       '<button class="rehber-banner-btn" onclick="rehberBannerTekrarGoster()">📖 Tekrar Goster</button>' +
@@ -409,8 +412,27 @@ function rehberBannerTekrarGoster() {
 }
 
 /* ── Ilerleme Kontrolleri ── */
+// v1.14.3.71: Adim numaralari bitisik DEGIL (1,2,3,4,5,6,8,9,10 — 7 yok). Bu yuzden
+// "adim+1" bosluga dusup rehberi oldururdu (6->7 = yok -> erken tamamla/sessiz olum).
+// Bir numaradan SONRAKI VAR OLAN adim numarasini dondurur; yoksa null (rehber bitti).
+function rehberSonrakiAdimNo(adimNo) {
+  const sonrakiler = REHBER_ADIMLARI.map(a => a.adim).filter(n => n > adimNo).sort((a, b) => a - b);
+  return sonrakiler.length ? sonrakiler[0] : null;
+}
+
+// Adim numarasinin SIRADAKI pozisyonu (1..N) — gosterimde "10/9" yerine "9/9" icin.
+function rehberSira(adimNo) {
+  const i = REHBER_ADIMLARI.findIndex(a => a.adim === adimNo);
+  return i >= 0 ? i + 1 : adimNo;
+}
+
 function rehberIleri() {
-  _mevcutAdim++;
+  const sonrakiNo = rehberSonrakiAdimNo(_mevcutAdim);
+  if (sonrakiNo === null) {
+    rehberTamamla();
+    return;
+  }
+  _mevcutAdim = sonrakiNo;
   localStorage.setItem(REHBER_ADIM_STORAGE, _mevcutAdim);
 
   const sonrakiAdim = REHBER_ADIMLARI.find(a => a.adim === _mevcutAdim);
