@@ -48,12 +48,12 @@
                onclick="cityTab('binalar')" data-tooltip="Deniz Feneri — Liman koruması">
             <div class="hz-pin"><span class="hz-icon">🗼</span><span class="hz-name">FENER</span></div>
           </div>
-          <div class="hot-zone built manzara-lit" style="bottom:5%; right:5%; width:18%; height:25%;"
+          <div class="hot-zone built manzara-lit" id="mz-tarla" data-bina="tarla,ciftlik" style="bottom:5%; right:5%; width:18%; height:25%;"
                onclick="cityTab('binalar')" data-tooltip="Tarla & Çiftlik — Buğday + besi">
             <span class="manzara-window"></span>
             <div class="hz-pin"><span class="hz-icon">🌾</span><span class="hz-name">TARLA</span></div>
           </div>
-          <div class="hot-zone built" style="top:25%; right:8%; width:10%; height:30%;"
+          <div class="hot-zone built" id="mz-surlar" data-bina="surlar" style="top:25%; right:8%; width:10%; height:30%;"
                onclick="cityTab('binalar')" data-tooltip="Surlar & Saat Kulesi — Savunma">
             <div class="hz-pin"><span class="hz-icon">🛡️</span><span class="hz-name">SURLAR</span></div>
           </div>
@@ -61,26 +61,26 @@
                onclick="location.href='army.html'" data-tooltip="Kışla — Asker eğitimi">
             <div class="hz-pin"><span class="hz-icon">⚔️</span><span class="hz-name">KIŞLA</span></div>
           </div>
-          <div class="hot-zone built manzara-lit" id="manzara-evler-zone" style="bottom:18%; left:38%; width:24%; height:18%;"
+          <div class="hot-zone built manzara-lit" id="manzara-evler-zone" data-bina="ev,koy,kasaba" style="bottom:18%; left:38%; width:24%; height:18%;"
                onclick="location.href='population.html'" data-tooltip="Evler — Nüfus">
             <span class="manzara-window"></span>
             <div class="hz-pin"><span class="hz-icon">🏘️</span><span class="hz-name">EVLER</span></div>
           </div>
-          <div class="hot-zone built manzara-lit" style="bottom:8%; left:3%; width:14%; height:20%;"
+          <div class="hot-zone built manzara-lit" id="mz-taverna" data-bina="taverna" style="bottom:8%; left:3%; width:14%; height:20%;"
                onclick="cityTab('binalar')" data-tooltip="Liman Hanı — Taverna">
             <span class="manzara-window"></span>
             <div class="hz-pin"><span class="hz-icon">🍺</span><span class="hz-name">TAVERNA</span></div>
           </div>
 
-          <div class="hot-zone empty" style="top:55%; left:12%; width:10%; height:15%;"
+          <div class="hot-zone empty" id="mz-ahir" data-bina="ahir" style="top:55%; left:12%; width:10%; height:15%;"
                onclick="cityTab('binalar')" data-tooltip="Boş Arazi — Ahır inşa et">
             <div class="hz-empty-pin"><span class="hz-plus">+</span><span class="hz-empty-name">AHIR</span></div>
           </div>
-          <div class="hot-zone empty" style="top:60%; right:22%; width:10%; height:15%;"
+          <div class="hot-zone empty" id="mz-lonca" data-bina="lonca" style="top:60%; right:22%; width:10%; height:15%;"
                onclick="cityTab('binalar')" data-tooltip="Boş Arazi — Lonca inşa et">
             <div class="hz-empty-pin"><span class="hz-plus">+</span><span class="hz-empty-name">LONCA</span></div>
           </div>
-          <div class="hot-zone empty" style="top:42%; left:1%; width:6%; height:12%;"
+          <div class="hot-zone empty" id="mz-magara" data-bina="magara" style="top:42%; left:1%; width:6%; height:12%;"
                onclick="cityTab('binalar')" data-tooltip="Boş Arazi — Mağara inşa et">
             <div class="hz-empty-pin"><span class="hz-plus">+</span><span class="hz-empty-name">MAĞARA</span></div>
           </div>
@@ -380,6 +380,47 @@
           const f = (typeof fmt === 'function') ? fmt : (n => Number(n).toLocaleString('tr-TR'));
           zone.setAttribute('data-tooltip', 'Evler — Nüfus ' + f(d.nufus.mevcut) + ' / ' + f(d.nufus.sinir));
         }
+        await manzaraBinalariYukle(token); // FAZ2: hot-zone gercek seviye/sayac + bos/dolu
+      } catch (e) {}
+    }
+
+    // FAZ2: /api/game/buildings -> hot-zone label'i (seviye + insa sayaci) + ahir/lonca/magara built/empty
+    async function manzaraBinalariYukle(token) {
+      try {
+        const br = await fetch(API_BASE + '/api/game/buildings', { headers: { 'Authorization': 'Bearer ' + token } });
+        if (!br.ok) return;
+        const bd = await br.json();
+        const B = bd.buildings || bd || {};
+        const zinfo = (list) => {
+          let sv = 0, inQ = false;
+          (list || '').split(',').forEach(id => {
+            const b = B[id];
+            if (b) { sv += (parseInt(b.seviye) || 0); if (b.inQueue || b.in_queue) inQ = true; }
+          });
+          return { sv, inQ };
+        };
+        // Dolu zone'lar: isim yanina SV + sayac
+        ['mz-tarla', 'mz-surlar', 'mz-taverna', 'manzara-evler-zone'].forEach(id => {
+          const el = document.getElementById(id); if (!el) return;
+          const nm = el.querySelector('.hz-name'); if (!nm) return;
+          if (!nm.dataset.base) nm.dataset.base = nm.textContent;
+          const info = zinfo(el.dataset.bina);
+          nm.innerHTML = nm.dataset.base
+            + (info.sv > 0 ? ' <span style="color:#f3bd6f">SV' + info.sv + '</span>' : '')
+            + (info.inQ ? ' <span title="insa ediliyor">⏳</span>' : '');
+        });
+        // Bos zone'lar: bina yapilmissa built'e cevir (z = [id, bina_id, isim, ikon])
+        [['mz-ahir', 'ahir', 'AHIR', '🐎'], ['mz-lonca', 'lonca', 'LONCA', '🛡️'], ['mz-magara', 'magara', 'MAĞARA', '🐉']].forEach(z => {
+          const el = document.getElementById(z[0]); if (!el) return;
+          const b = B[z[1]]; const sv = b ? (parseInt(b.seviye) || 0) : 0;
+          if (sv > 0) {
+            el.classList.remove('empty'); el.classList.add('built');
+            const inQ = b && (b.inQueue || b.in_queue);
+            el.innerHTML = '<div class="hz-pin"><span class="hz-icon">' + z[3] + '</span>'
+              + '<span class="hz-name">' + z[2] + ' <span style="color:#f3bd6f">SV' + sv + '</span>'
+              + (inQ ? ' ⏳' : '') + '</span></div>';
+          }
+        });
       } catch (e) {}
     }
     // v1.14.1.30: Mutluluk verisini sayfa acilir acilmaz PRELOAD et —
