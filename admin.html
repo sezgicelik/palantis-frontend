@@ -5216,7 +5216,7 @@ async function loadEkonomiCfg() {
       '<tr><td style="padding:4px 8px"><b>'+lbl+'</b>'+(aciklama?'<div style="font-size:11px;color:#666">'+aciklama+'</div>':'')+'</td><td style="padding:4px">'+num(id, val, step)+'</td></tr>';
 
     const c = EKONOMI_CFG;
-    const I = c.isci_uretim, O = c.ozel_kaynak, Y = c.yemek, M = c.moral, G = c.guild, K = c.kervan, S = c.savas, F = c.festival;
+    const I = c.isci_uretim, O = c.ozel_kaynak, Y = c.yemek, G = c.guild, K = c.kervan, S = c.savas, F = c.festival;
 
     let html = `
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:16px">
@@ -5259,17 +5259,7 @@ async function loadEkonomiCfg() {
   </table>
 </div>
 
-<div class="card" style="padding:12px">
-  <h4 style="color:#f39c12;margin-bottom:8px">😊 Moral Caplari</h4>
-  <table style="width:100%;font-size:11px">
-    ${row('Cag 1 max', 'moral.max_cag_1', M.max_cag_1, 50)}
-    ${row('Cag 2 max', 'moral.max_cag_2', M.max_cag_2, 50)}
-    ${row('Cag 3 max', 'moral.max_cag_3', M.max_cag_3, 50)}
-    ${row('Cag 4 max', 'moral.max_cag_4', M.max_cag_4, 50)}
-    ${row('Cag 5 max', 'moral.max_cag_5', M.max_cag_5, 50)}
-    ${row('Kacis esigi', 'moral.kacis_esigi', M.kacis_esigi, 5, 'Moral < X \u2192 koylu kacar')}
-  </table>
-</div>
+<!-- FAZ2 (2026-06-23): Moral Caplari config UI kaldirildi — olu config (game/moral-config.js gecerli) -->
 
 <div class="card" style="padding:12px">
   <h4 style="color:#2ecc71;margin-bottom:8px">🏰 Guild</h4>
@@ -5330,7 +5320,6 @@ async function ekonomiCfgKaydet() {
     'ozel_kaynak.magara_ejderha_normal','ozel_kaynak.magara_ejderha_nadir',
     'ozel_kaynak.essek_spawn_sans','ozel_kaynak.essek_yem_saatlik',
     'yemek.tuketim_kisi_saatlik','yemek.aclik_ceza_dusuk','yemek.aclik_ceza_orta','yemek.aclik_bonus_dolu',
-    'moral.max_cag_1','moral.max_cag_2','moral.max_cag_3','moral.max_cag_4','moral.max_cag_5','moral.kacis_esigi',
     'guild.kurma_maliyeti','kervan.esek_kapasite','kervan.max_esek_per_kervan','savas.min_unite',
     'festival.kucuk_altin','festival.kucuk_ekmek','festival.kucuk_moral',
     'festival.buyuk_altin','festival.buyuk_ekmek','festival.buyuk_moral',
