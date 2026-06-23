@@ -168,6 +168,22 @@ async function rehberInit() {
   // Token yoksa (giris yapilmamis) gosterme
   if (typeof getToken === 'function' && !getToken()) return;
 
+  // v1.14.3.71: GECMIS DUZELTME (migration) — fix-oncesi kod bosluk degeri 7'yi
+  // (1,2,3,4,5,6,8,9,10 dizisinde olmayan) localStorage'a yazmis olabilir. Adim 6'yi
+  // (ilk unite) bitirip henuz adim 8'i (ordu) yapmamis oyuncularda noxara_rehber_adim='7'
+  // takili kalir -> find(7)=undefined -> rehber SESSIZCE oler (HUD/banner bile cikmaz).
+  // Burada dizide olmayan her adimi bir sonraki GERCEK adima snap'leriz (7 -> 8).
+  const rawAdim = parseInt(localStorage.getItem(REHBER_ADIM_STORAGE));
+  if (rawAdim && !REHBER_ADIMLARI.some(a => a.adim === rawAdim)) {
+    const norm = rehberSonrakiAdimNo(rawAdim);
+    if (norm === null) {
+      localStorage.setItem(REHBER_STORAGE, '1');
+      localStorage.removeItem(REHBER_ADIM_STORAGE);
+      return;
+    }
+    localStorage.setItem(REHBER_ADIM_STORAGE, String(norm));
+  }
+
   // v1.14.3.68: Backend ile senkron — gorev tamamsa adim ileri at
   await rehberBackendSenkron();
 

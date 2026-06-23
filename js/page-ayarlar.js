@@ -110,7 +110,7 @@ function renderAyarlar(el, data) {
       (localStorage.getItem('noxara_rehber_tamamlandi') === '1'
         ? '<div style="display:flex;align-items:center;gap:8px"><span style="color:#2ecc71;font-size:11px">✅ Rehber tamamlandi</span>' +
           '<button class="btn-action" style="width:auto;padding:4px 12px;font-size:11px;background:#333" onclick="if(typeof rehberSifirla===\'function\'){rehberSifirla();loadAyarlar();}">🔄 Tekrar Baslat</button></div>'
-        : '<div style="display:flex;align-items:center;gap:8px"><span style="color:#f1c40f;font-size:11px">⏳ Rehber devam ediyor (Adim ' + (localStorage.getItem('noxara_rehber_adim')||'1') + ')</span>' +
+        : '<div style="display:flex;align-items:center;gap:8px"><span style="color:#f1c40f;font-size:11px">⏳ Rehber devam ediyor (Adim ' + (typeof rehberSira === 'function' ? rehberSira(parseInt(localStorage.getItem('noxara_rehber_adim')) || 1) + '/' + REHBER_ADIMLARI.length : (localStorage.getItem('noxara_rehber_adim') || '1')) + ')</span>' +
           '<button class="btn-action" style="width:auto;padding:4px 12px;font-size:11px;background:#333" onclick="if(typeof rehberSifirla===\'function\'){rehberSifirla();loadAyarlar();}">🔄 Sifirla</button></div>'
       ) +
     '</div>';
