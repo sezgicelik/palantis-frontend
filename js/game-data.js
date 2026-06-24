@@ -721,17 +721,17 @@ let ASKERI_GEL_SEV = 0;
 let MAAS_GEL_SEV = 0;
 let UNIT_GEL = {};
 
-/* Gercek maliyet hesapla (askeri gelistirme indirimi: %10/seviye) */
+/* Gercek maliyet hesapla (askeri gelistirme indirimi: %1/seviye — A3: backend egitim ile tutarli) */
 function realCost(baseCost) {
   const c = {...baseCost};
   if (c.altin && ASKERI_GEL_SEV > 0) {
-    c.altin = Math.floor(c.altin * (1 - ASKERI_GEL_SEV * 0.10));
+    c.altin = Math.floor(c.altin * (1 - ASKERI_GEL_SEV * 0.01));
   }
   return c;
 }
-/* Gercek maas hesapla (maas gelistirme: %5/seviye) */
+/* Gercek maas hesapla (maas gelistirme: %5/seviye, tavan %50 — A2: backend ile tutarli) */
 function realMaas(baseMaas) {
-  return Math.floor(baseMaas * (1 - MAAS_GEL_SEV * 0.05));
+  return Math.floor(baseMaas * Math.max(1 - Math.min(MAAS_GEL_SEV, 15) * 0.05, 0.5));
 }
 /* Gercek ATK/DEF hesapla */
 function realAtk(unitId) {
