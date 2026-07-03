@@ -1521,6 +1521,14 @@ body{padding-top:38px;}
   .res-icon{font-size:11px;}
   .hud-toggle-btn{display:block!important;}
 
+  /* tur/2026-07-03 (J4): HUD sikisiklik giderme —
+     1) Sticky HAM satirinda etiket gizle (ikon + sayi yeter, sayi kirpilmasin)
+     2) hud-aligned grid kolonlari icerige gore (minmax) — sayilar ezilmek yerine
+        satir kendi icinde yatay kayar (mevcut overflow-x:auto zaten var) */
+  #hudbar > .hud-row-wrap .res-label{display:none;}
+  .hud-aligned{grid-template-columns:repeat(7,minmax(max-content,1fr));}
+  #hudbar > .hud-row-wrap .stat-box{overflow:visible;}
+
   /* Şehir istatistik grid tek sütun */
   .city-stats{grid-template-columns:1fr 1fr;gap:6px;}
   .cstat{padding:10px;}
@@ -1648,18 +1656,38 @@ body{padding-top:38px;}
   input[type="password"], input[type="search"], input[type="tel"],
   input[type="url"], textarea, select {
     font-size: 16px !important;  /* iOS Safari zoom kapsamak icin minimum 16px */
-    min-height: 40px;
+    min-height: 44px; /* tur/2026-07-03 (J4): 40 -> 44 touch target */
   }
 
-  /* === BUTONLAR === touch target 44x44 minimum */
+  /* === BUTONLAR === touch target 44x44 minimum
+     tur/2026-07-03 (J4): 40 -> 44 (Apple/Google 44px kilavuzu) */
   button, .btn, .btn-action, [role="button"], a.btn, a.menu-item {
-    min-height: 40px;
+    min-height: 44px;
     padding: 10px 14px;
   }
+  /* Isci +/- steppers: yukseklik generic kuraldan gelir; genislik de 44 olsun */
+  .worker-row button { min-width: 44px; }
+  /* Pisirme orani +/- butonlari (population.html, inline padding dar birakiyor) */
+  button[onclick^="pisirmeAdj"] { min-width: 44px; }
+  /* Meydan/siralama mini saldir butonu (hizli-saldir.js) */
+  .hs-saldir-mini { min-width: 44px; min-height: 44px; }
   /* Stat box'lar icindeki kucuk butonlar — istisna */
   .stat-box button, .res-rate, button.tiny {
     min-height: auto;
     padding: 4px 8px;
+  }
+
+  /* tur/2026-07-03 (J4): HUD toggle butonlari — 44px kurali sticky HUD satirini
+     buyutup icerigin ustune tasiriyordu. Gorsel boyut kompakt kalir, dokunma
+     alani gorunmez ::after ile ~44px'e genisletilir (layout shift yok). */
+  #hud-detay-toggle, .hud-toggle-btn {
+    min-height: auto;
+  }
+  #hud-detay-toggle { position: relative; } /* .hud-toggle-btn zaten absolute */
+  #hud-detay-toggle::after, .hud-toggle-btn::after {
+    content: '';
+    position: absolute;
+    inset: -12px -10px;
   }
 
   /* === TABLOLAR === yatay scroll smooth + min width */
@@ -1745,6 +1773,44 @@ body{padding-top:38px;}
   body { font-size: 13px; }
   /* Header icon emoji kucult */
   .menu-item { font-size: 13px; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   tur/2026-07-03 (J4): TABLO → KART GORUNUMU (opt-in)
+   Kayit-satirli tablolar dar ekranda yatay scroll yerine kart olur.
+   Kullanim: <table class="tablo-kart"> + her <td data-label="Kolon Adi">
+   (matris/pivot tablolar icin uygun DEGIL — onlarda overflow-x kalsin)
+   Ornek: siralama.html sr-table ayni desenle kendi CSS'inde yapiyor.
+═══════════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  table.tablo-kart { display: block; white-space: normal; overflow: visible; }
+  table.tablo-kart thead { display: none; }
+  table.tablo-kart tbody { display: block; width: 100%; }
+  table.tablo-kart tbody tr {
+    display: block;
+    width: 100%;
+    margin-bottom: 8px;
+    border: 1px solid #262626;
+    border-radius: 8px;
+    padding: 8px 10px;
+    background: #111;
+  }
+  table.tablo-kart tbody td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 2px;
+    border: none;
+    min-height: 28px;
+  }
+  table.tablo-kart tbody td[data-label]::before {
+    content: attr(data-label);
+    color: rgba(200,169,110,0.55);
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: .5px;
+  }
 }
 
 /* Landscape mobile — yataygelince scroll engelle */

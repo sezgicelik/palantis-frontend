@@ -68,9 +68,9 @@ async function loadAktifOyuncular() {
       var koord = p.koord ? '<span style="color:#666;font-size:10px"> ' + _esc(p.koord) + '</span>' : '';
       var safeIsim = (p.kullanici_adi||'').replace(/['"\\<>]/g,'');
       var saldirBtn = (typeof hizliSaldirAc === 'function' && p.kullanici_adi && p.kullanici_adi !== benimKral)
-        ? '<button onclick="event.stopPropagation();hizliSaldirAc(\'' + safeIsim + '\')" ' +
+        ? '<button class="hs-saldir-mini" onclick="event.stopPropagation();hizliSaldirAc(\'' + safeIsim + '\')" ' +
           'title="' + _esc(p.kullanici_adi) + ' hedefine saldır" ' +
-          'style="float:right;background:none;border:1px solid rgba(231,76,60,0.35);color:#e74c3c;border-radius:4px;padding:2px 8px;margin-left:6px;cursor:pointer;font-size:11px;min-height:28px">⚔️</button>'
+          'style="float:right;background:none;border:1px solid rgba(231,76,60,0.35);color:#e74c3c;border-radius:4px;padding:2px 8px;margin-left:6px;cursor:pointer;font-size:11px">⚔️</button>'
         : '';
       return '<div onclick="aktifOyuncuyaMesaj(\'' + safeIsim + '\')" ' +
              'style="padding:5px 6px;border-bottom:1px solid #1a1a1a;line-height:1.4;cursor:pointer;transition:background 0.15s" ' +
