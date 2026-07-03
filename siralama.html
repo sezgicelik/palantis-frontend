@@ -27,6 +27,21 @@
 .sr-dim{color:rgba(232,220,200,0.5);font-size:11px}
 .sr-loading{text-align:center;color:var(--text-dim);padding:40px;font-size:13px}
 .sr-empty{text-align:center;color:#777;padding:40px;font-size:13px}
+.sr-saldir-btn{background:rgba(231,76,60,0.12);border:1px solid rgba(231,76,60,0.4);color:#e74c3c;border-radius:5px;padding:4px 10px;cursor:pointer;font-size:12px;white-space:nowrap}
+.sr-saldir-btn:hover{background:rgba(231,76,60,0.28)}
+/* tur/2026-07-03 (J4): 480px altinda tablo -> kart gorunumu (data-label ile) */
+@media (max-width: 480px){
+  .sr-table{display:block;white-space:normal}
+  .sr-table thead{display:none}
+  .sr-table tbody{display:block;width:100%}
+  .sr-table tbody tr{display:block;width:100%;margin-bottom:8px;border:1px solid #262626;border-radius:8px;padding:8px 10px;background:#111}
+  .sr-table tbody tr.sr-me{border-color:var(--gold)}
+  .sr-table tbody td{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 2px;border:none;min-height:28px}
+  .sr-table tbody td[data-label]::before{content:attr(data-label);color:rgba(200,169,110,0.55);font-family:'Cinzel',serif;font-size:10px;letter-spacing:.5px}
+  .sr-table tbody td.sr-rank{justify-content:flex-start;font-size:15px;min-height:auto}
+  .sr-table tbody td.sr-aksiyon{justify-content:flex-end}
+  .sr-saldir-btn{min-height:44px;min-width:44px;padding:8px 16px;font-size:13px}
+}
 </style>
 </head>
 <body>
@@ -65,6 +80,7 @@
 <script src="js/nufus-render.js"></script>
 <script src="js/layout.js?v=14380"></script>
 <script src="js/rehber.js"></script>
+<script src="js/hizli-saldir.js?v=1"></script>
 <script>
 (function(){
   let currentTab = 'sehir_degeri';
@@ -117,8 +133,11 @@
       cols.forEach(c => {
         if(c.key === 'rank'){
           html += '<td class="sr-rank' + rankCls + '">' + rankMedal(rank) + '</td>';
+        } else if(c.key === 'aksiyon'){
+          html += '<td class="sr-aksiyon">' + c.render(row, isMe) + '</td>';
         } else {
-          html += '<td>' + c.render(row) + '</td>';
+          // 480px alti kart gorunumunde etiket olarak gosterilir (data-label)
+          html += '<td data-label="' + escAttr(c.label) + '">' + c.render(row) + '</td>';
         }
       });
       html += '</tr>';
@@ -136,7 +155,14 @@
   }
 
   function esc(s){ return s ? String(s).replace(/</g,'&lt;').replace(/>/g,'&gt;') : '-'; }
+  function escAttr(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
   function num(n){ return n != null ? Number(n).toLocaleString('tr-TR') : '0'; }
+
+  // tur/2026-07-03 (J3): satirdan direkt saldiri — hizli-saldir.js
+  function saldirBtn(row, isMe){
+    if(isMe || !row.kral) return '';
+    return '<button class="sr-saldir-btn" data-kral="' + escAttr(row.kral) + '" onclick="hizliSaldirAc(this.dataset.kral)" title="' + escAttr(row.kral) + ' hedefine saldır">⚔️ Saldır</button>';
+  }
 
   function raceColor(irk){
     const colors = {
@@ -154,14 +180,17 @@
           { key:'kral', label:'Kral', render: r => '<span class="sr-kral" style="color:' + raceColor(r.irk) + '">' + esc(r.kral) + '</span>' },
           { key:'deger', label:'Şehir Değeri', render: r => '<span style="color:var(--gold)">' + num(r.sehir_degeri) + '</span>' },
           { key:'cag', label:'Çağ', render: r => '<span class="sr-dim">Çağ ' + (r.cag || 1) + '</span>' },
-          { key:'irk', label:'Irk', render: r => '<span style="color:' + raceColor(r.irk) + '">' + esc(r.irk) + '</span>' }
+          { key:'irk', label:'Irk', render: r => '<span style="color:' + raceColor(r.irk) + '">' + esc(r.irk) + '</span>' },
+          { key:'aksiyon', label:'', render: saldirBtn }
         ];
       case 'ordu_gucu':
         return [
           { key:'rank', label:'#' },
           { key:'kral', label:'Kral', render: r => '<span class="sr-kral" style="color:' + raceColor(r.irk) + '">' + esc(r.kral) + '</span>' },
-          { key:'guc', label:'Toplam Güç', render: r => '<span style="color:var(--gold)">' + num(r.toplam_guc) + '</span>' },
-          { key:'ordu', label:'Ordu Sayısı', render: r => num(r.ordu_sayisi) }
+          // tur/2026-07-03 fix: backend toplam_unite dondurur (eski toplam_guc hep 0 gorunuyordu)
+          { key:'guc', label:'Toplam Ünite', render: r => '<span style="color:var(--gold)">' + num(r.toplam_unite != null ? r.toplam_unite : r.toplam_guc) + '</span>' },
+          { key:'ordu', label:'Ordu Sayısı', render: r => num(r.ordu_sayisi) },
+          { key:'aksiyon', label:'', render: saldirBtn }
         ];
       case 'guild':
         return [
@@ -174,9 +203,11 @@
         return [
           { key:'rank', label:'#' },
           { key:'kral', label:'Kral', render: r => '<span class="sr-kral" style="color:' + raceColor(r.irk) + '">' + esc(r.kral) + '</span>' },
-          { key:'cesaret', label:'Cesaret Puanı', render: r => '<span style="color:var(--gold)">' + num(r.cesaret_puani) + '</span>' },
+          // tur/2026-07-03 fix: backend alias 'cesaret' (eski cesaret_puani hep 0 gorunuyordu)
+          { key:'cesaret', label:'Cesaret Puanı', render: r => '<span style="color:var(--gold)">' + num(r.cesaret != null ? r.cesaret : r.cesaret_puani) + '</span>' },
           { key:'kazanilan', label:'Kazanılan', render: r => '<span style="color:#5a5">' + num(r.kazanilan) + '</span>' },
-          { key:'kaybedilen', label:'Kaybedilen', render: r => '<span style="color:#a55">' + num(r.kaybedilen) + '</span>' }
+          { key:'kaybedilen', label:'Kaybedilen', render: r => '<span style="color:#a55">' + num(r.kaybedilen) + '</span>' },
+          { key:'aksiyon', label:'', render: saldirBtn }
         ];
       default:
         return [];

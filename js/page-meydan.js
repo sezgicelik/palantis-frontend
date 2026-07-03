@@ -61,10 +61,17 @@ async function loadAktifOyuncular() {
     function _tarafRenk(t) { return t === 'iyi' ? '#d4af37' : '#9370f7'; }
 
     // v1.14.3.36 — Tikla → ozel mesaj formu o oyuncuyla doldurulur
+    // tur/2026-07-03 (J3): satira ⚔️ Saldir butonu eklendi (hizli-saldir.js) — kendine gosterilmez
+    var benimKral = (typeof OYUNCU !== 'undefined' && OYUNCU) ? OYUNCU.kral : null;
     liste.innerHTML = oyuncular.map(function(p) {
       var guildEt = p.guild_tag ? '<span style="color:#888">[' + _esc(p.guild_tag) + ']</span> ' : '';
       var koord = p.koord ? '<span style="color:#666;font-size:10px"> ' + _esc(p.koord) + '</span>' : '';
       var safeIsim = (p.kullanici_adi||'').replace(/['"\\<>]/g,'');
+      var saldirBtn = (typeof hizliSaldirAc === 'function' && p.kullanici_adi && p.kullanici_adi !== benimKral)
+        ? '<button onclick="event.stopPropagation();hizliSaldirAc(\'' + safeIsim + '\')" ' +
+          'title="' + _esc(p.kullanici_adi) + ' hedefine saldır" ' +
+          'style="float:right;background:none;border:1px solid rgba(231,76,60,0.35);color:#e74c3c;border-radius:4px;padding:2px 8px;margin-left:6px;cursor:pointer;font-size:11px;min-height:28px">⚔️</button>'
+        : '';
       return '<div onclick="aktifOyuncuyaMesaj(\'' + safeIsim + '\')" ' +
              'style="padding:5px 6px;border-bottom:1px solid #1a1a1a;line-height:1.4;cursor:pointer;transition:background 0.15s" ' +
              'onmouseover="this.style.background=\'rgba(212,175,55,0.06)\'" ' +
@@ -75,6 +82,7 @@ async function loadAktifOyuncular() {
           guildEt +
           '<span style="color:' + _tarafRenk(p.taraf) + ';font-weight:bold">' + _esc(p.kullanici_adi) + '</span>' +
           koord +
+          saldirBtn +
           '<span style="float:right;color:#666;font-size:11px">✉️</span>' +
         '</div>' +
         '<div style="font-size:10px;color:' + _renk(p.durum) + ';margin-left:14px">' + _zaman(p.saniye_once) + '</div>' +
