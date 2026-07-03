@@ -412,6 +412,20 @@
         </div>
       </div>
 
+      <!-- 13. tur/2026-07-03 (J5): Günlük Ekonomi Özeti + uyarılar (ekonomi-qol.js doldurur)
+           NOT: hp-grid'in SONUNA eklendi — panel id'leri index bazlı, araya eklemek eski düzenleri bozar -->
+      <div class="panel wide2">
+        <div class="panel-head" onclick="hpToggle(this)">
+          <h4>💰 Günlük Ekonomi Özeti</h4>
+          <span class="panel-toggle">▼</span>
+        </div>
+        <div class="panel-body">
+          <div id="hp-eko-uyari"></div>
+          <div id="hp-eko-ozet" class="loading">Yükleniyor…</div>
+          <div style="margin-top:6px;text-align:right"><a href="reports.html" class="ilink">Özet Tablo →</a></div>
+        </div>
+      </div>
+
     </div>
 
     <!-- Aktivite (altta genis) -->
@@ -443,6 +457,7 @@
 <script src="js/rehber.js"></script>
 <script src="js/page-home.js?v=13500"></script>
 <script src="js/page-home-dashboard.js?v=14140"></script>
+<script src="js/ekonomi-qol.js?v=1"></script>
 <script src="js/epik-olay.js"></script>
 <script src="js/bildirim-popup.js"></script>
 

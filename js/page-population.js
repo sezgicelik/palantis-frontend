@@ -165,6 +165,26 @@ function pisirmeAdj(tip, delta) {
   updatePisirmeUI();
 }
 
+/* tur/2026-07-03 (J5): Pisirme stok kontrolu — backend PUT /api/game/pisirme guard'i ile AYNI kural:
+   stogu 0 olan kaynaga oran verilemez; ET icin cig_et VEYA besi_hayvani yeterli. Sadece gosterim. */
+function pisirmeStokDurum() {
+  const R = (typeof RES !== 'undefined') ? RES : (window.RES || {});
+  const E = (typeof EXTRA_RES !== 'undefined') ? EXTRA_RES : (window.EXTRA_RES || {});
+  return {
+    bugday: { stok: parseInt(R.bugday) || 0, ad: 'Buğday' },
+    balik:  { stok: parseInt(R.balik)  || 0, ad: 'Balık' },
+    et:     { stok: (parseInt(R.cig_et) || 0) + (parseInt(E.besi_hayvani) || 0), ad: 'Et (çiğ et + besi)' }
+  };
+}
+function pisirmeStokIhlalleri() {
+  const stok = pisirmeStokDurum();
+  const ihlaller = [];
+  ['bugday', 'balik', 'et'].forEach(k => {
+    if (PISIRME[k] > 0 && stok[k].stok === 0) ihlaller.push(stok[k].ad);
+  });
+  return ihlaller;
+}
+
 function updatePisirmeUI() {
   const set = (id, v) => { const e=document.getElementById(id); if(e) e.innerText=v; };
   set('pisirme-bugday', PISIRME.bugday);
@@ -181,6 +201,27 @@ function updatePisirmeUI() {
   set('pisirme-kap-bugday', Math.floor(bKap  * PISIRME.bugday / 100));
   set('pisirme-kap-balik',  Math.floor(baKap * PISIRME.balik  / 100));
   set('pisirme-kap-et',     Math.floor(eKap  * PISIRME.et     / 100));
+
+  // tur/2026-07-03 (J5): stok gosterimi + stok=0 iken oran verilmis uyarisi
+  const stok = pisirmeStokDurum();
+  ['bugday', 'balik', 'et'].forEach(k => {
+    const el = document.getElementById('pisirme-stok-' + k);
+    if (!el) return;
+    const sifirIhlal = PISIRME[k] > 0 && stok[k].stok === 0;
+    el.innerText = stok[k].stok.toLocaleString('tr-TR');
+    el.style.color = sifirIhlal ? '#e74c3c' : (stok[k].stok === 0 ? '#666' : '#2ecc71');
+  });
+  const uyariEl = document.getElementById('pisirme-uyari');
+  if (uyariEl) {
+    const ihlaller = pisirmeStokIhlalleri();
+    if (ihlaller.length) {
+      uyariEl.style.display = 'block';
+      uyariEl.innerHTML = '⚠️ <b>' + ihlaller.join(', ') + '</b> stoğu 0 — stoğu olmayan kaynağa oran verilemez, kaydetme reddedilir. Oranı 0 yap veya stok üret.';
+    } else {
+      uyariEl.style.display = 'none';
+      uyariEl.innerHTML = '';
+    }
+  }
 }
 
 async function pisirmeKaydet() {
@@ -190,6 +231,14 @@ async function pisirmeKaydet() {
   const msgEl = document.getElementById('pisirme-msg');
   if (toplam !== 100) {
     if (msgEl) { msgEl.style.color='#e74c3c'; msgEl.innerText=`Toplam ${toplam}% \u2014 100 olmali!`; }
+    return;
+  }
+  // tur/2026-07-03 (J5): backend guard'i ile ayni on-kontrol \u2014 hatayi kaydetmeden once net goster
+  const ihlaller = pisirmeStokIhlalleri();
+  if (ihlaller.length) {
+    const m = ihlaller.join(', ') + ' sto\u011fu 0 \u2014 sto\u011fu olmayan kayna\u011fa oran verilemez';
+    if (msgEl) { msgEl.style.color='#e74c3c'; msgEl.innerText = m; }
+    if (typeof showToast === 'function') showToast('\u26a0\ufe0f ' + m, 'error');
     return;
   }
   try {
@@ -203,10 +252,13 @@ async function pisirmeKaydet() {
       if (msgEl) { msgEl.style.color='#2ecc71'; msgEl.innerText='Kaydedildi'; }
       setTimeout(() => { if(msgEl) msgEl.innerText=''; }, 3000);
     } else {
+      // tur/2026-07-03 (J5): backend hatasi artik toast ile de gosterilir (gozden kacmasin)
       if (msgEl) { msgEl.style.color='#e74c3c'; msgEl.innerText=d.error||'Hata'; }
+      if (typeof showToast === 'function') showToast('\ud83d\udd25 Pi\u015firme kaydedilemedi: ' + (d.error || 'Bilinmeyen hata'), 'error');
     }
   } catch(e) {
     if (msgEl) { msgEl.style.color='#e74c3c'; msgEl.innerText='Baglanti hatasi'; }
+    if (typeof showToast === 'function') showToast('Pi\u015firme kaydedilemedi: ba\u011flant\u0131 hatas\u0131', 'error');
   }
 }
 

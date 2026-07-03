@@ -367,6 +367,60 @@ async function confirmBuild(){
   closeModal();renderGrid();renderQueue();
   const adetMsg = adet > 1 ? ` (${adet} adet siralandi)` : '';
   toast(`${b.name} insaati basladi!${adetMsg}`);
+
+  // tur/2026-07-03 (J5): son insaati hatirla -> "Tekrar Insa" cipi
+  try { localStorage.setItem('noxara_son_insa', JSON.stringify({ id: b.id, adet: adet, ts: Date.now() })); } catch(e) {}
+  renderSonInsaChip();
+}
+
+/* ═══════════════════════════════════════════════════════
+   tur/2026-07-03 (J5): TEKRAR INSA cipi
+   Son baslatilan insaati filtre barinin ustunde tek tikla tekrar acar.
+   Direkt insa ETMEZ — modal acilir, adet on-dolu gelir (maliyet/limit
+   kontrolleri mevcut confirmBuild akisinda kalir). Sadece kisayol.
+═══════════════════════════════════════════════════════ */
+function renderSonInsaChip() {
+  const bar = document.getElementById('city-filter-bar');
+  if (!bar) return;
+  let son = null;
+  try { son = JSON.parse(localStorage.getItem('noxara_son_insa') || 'null'); } catch(e) {}
+  let chip = document.getElementById('son-insa-chip');
+  if (!son || !son.id || !BLDGS[son.id]) { if (chip) chip.remove(); return; }
+  const b = BLDGS[son.id];
+  const adet = Math.max(1, parseInt(son.adet) || 1);
+  const cost1 = b.cost(1);
+  const totalCost = {};
+  Object.entries(cost1).forEach(([r, a]) => { totalCost[r] = a * adet; });
+  const afford = canAfford(totalCost);
+  if (!chip) {
+    chip = document.createElement('div');
+    chip.id = 'son-insa-chip';
+    chip.style.cssText = 'display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px';
+    bar.parentNode.insertBefore(chip, bar);
+  }
+  chip.innerHTML =
+    '<button onclick="sonInsaTekrar()" ' +
+      'style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;min-height:36px;background:' + (afford ? 'rgba(46,204,113,0.08)' : 'rgba(255,255,255,0.03)') + ';' +
+      'border:1px solid ' + (afford ? 'rgba(46,204,113,0.4)' : '#333') + ';border-radius:6px;cursor:pointer;color:' + (afford ? '#2ecc71' : '#888') + ';font-size:12px" ' +
+      'title="Son inşaatı tekrar başlat (modal açılır, onay senin)">' +
+      '🔁 Tekrar İnşa: ' + b.icon + ' ' + b.name + (adet > 1 ? ' ×' + adet : '') +
+      (afford ? '' : ' <span style="font-size:10px;color:#e74c3c">(kaynak yetersiz)</span>') +
+    '</button>' +
+    '<button onclick="sonInsaTemizle()" title="Cipi kaldır" style="background:none;border:none;color:#555;cursor:pointer;font-size:14px;padding:4px 8px">✕</button>';
+}
+function sonInsaTekrar() {
+  let son = null;
+  try { son = JSON.parse(localStorage.getItem('noxara_son_insa') || 'null'); } catch(e) {}
+  if (!son || !son.id || !BLDGS[son.id]) return;
+  openModal(son.id);
+  const adetInput = document.getElementById('build-adet');
+  if (adetInput) { adetInput.value = Math.max(1, parseInt(son.adet) || 1); }
+  if (typeof updateBuildTotal === 'function') updateBuildTotal();
+}
+function sonInsaTemizle() {
+  try { localStorage.removeItem('noxara_son_insa'); } catch(e) {}
+  const chip = document.getElementById('son-insa-chip');
+  if (chip) chip.remove();
 }
 
 // Tamir fonksiyonu — v1.14.3.0 site-içi modal
@@ -576,4 +630,14 @@ async function hizlandirModal(binaId, binaName) {
 document.addEventListener('DOMContentLoaded', () => {
   renderGrid();
   renderQueue();
+  // tur/2026-07-03 (J5): BLDGS backend'den dolunca "Tekrar Insa" cipini ciz
+  let _sicAttempts = 0;
+  const _sicCheck = setInterval(() => {
+    _sicAttempts++;
+    const hazir = Object.values(BLDGS || {}).some(b => (b.lv || 0) > 0) || _sicAttempts > 20;
+    if (hazir) {
+      clearInterval(_sicCheck);
+      try { renderSonInsaChip(); } catch(e) {}
+    }
+  }, 500);
 });
