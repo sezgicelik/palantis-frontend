@@ -1,6 +1,6 @@
 // v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
 // Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
-const CACHE_NAME = 'noxara-v14916'; // tur/2026-07-03 — mobil cila (tablo->kart, 44px touch, HUD) + hizli saldir
+const CACHE_NAME = 'noxara-v14917'; // v1.14.4.06 — vergi_gel metin %2 + BUILD stamp guncel (surum hijyeni)
 
 // Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [
