@@ -1079,7 +1079,7 @@
       <b>🛒 Pazar/Market uclemesi:</b>
       <code>Market Ayar</code> = NPC market 10 hammadde fiyatlari ·
       <code>Pazar Deger</code> (bu sayfa) = PvP pazari dinamik fiyatlandirma + kadim sehir carpan ·
-      <code>Ekonomi Ayar</code> = vergi/moral/yemek carpanlari.
+      <code>Ekonomi Ayar</code> = uretim/ozel kaynak/festival carpanlari.
     </p>
     <h3>PvP Pazar Deger Formul Ayarlari</h3>
     <p style="font-size:10px;color:#888;margin-bottom:10px">Uretim maliyeti + arz-talep dinamik fiyatlama + kadim sehir premium</p>
@@ -5216,7 +5216,7 @@ async function loadEkonomiCfg() {
       '<tr><td style="padding:4px 8px"><b>'+lbl+'</b>'+(aciklama?'<div style="font-size:11px;color:#666">'+aciklama+'</div>':'')+'</td><td style="padding:4px">'+num(id, val, step)+'</td></tr>';
 
     const c = EKONOMI_CFG;
-    const I = c.isci_uretim, O = c.ozel_kaynak, Y = c.yemek, G = c.guild, K = c.kervan, S = c.savas, F = c.festival;
+    const I = c.isci_uretim, O = c.ozel_kaynak, G = c.guild, K = c.kervan, S = c.savas, F = c.festival;
 
     let html = `
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:16px">
@@ -5249,15 +5249,7 @@ async function loadEkonomiCfg() {
   </table>
 </div>
 
-<div class="card" style="padding:12px">
-  <h4 style="color:#e74c3c;margin-bottom:8px">🍞 Yemek Sistemi</h4>
-  <table style="width:100%;font-size:11px">
-    ${row('Kisi basi yemek/saat', 'yemek.tuketim_kisi_saatlik', Y.tuketim_kisi_saatlik, 0.1, '1 bugday/nufus/saat default')}
-    ${row('Aclik ceza (dusuk)', 'yemek.aclik_ceza_dusuk', Y.aclik_ceza_dusuk, 1, 'Doyma < %50 \u2192 moral')}
-    ${row('Aclik ceza (orta)', 'yemek.aclik_ceza_orta', Y.aclik_ceza_orta, 1, 'Doyma < %70')}
-    ${row('Aclik bonus (dolu)', 'yemek.aclik_bonus_dolu', Y.aclik_bonus_dolu, 1, 'Doyma >= %100')}
-  </table>
-</div>
+<!-- FAZ2 (2026-07-26): Yemek Sistemi config UI kaldirildi — olu config, kod okumuyordu (cron aclik/doyma hardcoded) -->
 
 <!-- FAZ2 (2026-06-23): Moral Caplari config UI kaldirildi — olu config (game/moral-config.js gecerli) -->
 
@@ -5319,7 +5311,6 @@ async function ekonomiCfgKaydet() {
     'ozel_kaynak.lonca_gizlilik_saatlik','ozel_kaynak.buyulu_tarla_yumurta_sans',
     'ozel_kaynak.magara_ejderha_normal','ozel_kaynak.magara_ejderha_nadir',
     'ozel_kaynak.essek_spawn_sans','ozel_kaynak.essek_yem_saatlik',
-    'yemek.tuketim_kisi_saatlik','yemek.aclik_ceza_dusuk','yemek.aclik_ceza_orta','yemek.aclik_bonus_dolu',
     'guild.kurma_maliyeti','kervan.esek_kapasite','kervan.max_esek_per_kervan','savas.min_unite',
     'festival.kucuk_altin','festival.kucuk_ekmek','festival.kucuk_moral',
     'festival.buyuk_altin','festival.buyuk_ekmek','festival.buyuk_moral',
