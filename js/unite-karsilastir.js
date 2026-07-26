@@ -62,6 +62,16 @@
     uniteKarsilastirCiz();
   }
 
+  // Standart saf duzeni — backend savas-helper.js standartSafDuzeniUygula ile esit:
+  // tier 1→saf 1 (on), tier 2→saf 2, tier 3→saf 3, tier 4 + rahip/kara_rahip→saf 4 (arka)
+  function _safEtiket(u) {
+    if (!u) return '—';
+    if (u.id === 'rahip' || u.id === 'kara_rahip' || u.tier >= 4) return 'Saf 4 (arka)';
+    if (u.tier === 3) return 'Saf 3';
+    if (u.tier === 2) return 'Saf 2';
+    return 'Saf 1 (ön)';
+  }
+
   function _statlar(u) {
     var atk = (typeof realAtk === 'function') ? realAtk(u.id) : u.baseAtk;
     var def = (typeof realDef === 'function') ? realDef(u.id) : u.baseDef;
@@ -102,6 +112,7 @@
     // satir: [etiket, aDeger, bDeger, sayisalA, sayisalB, yuksekMiIyi]
     var satirlar = [
       ['Tier', 'T' + a.tier, 'T' + b.tier, null, null, null],
+      ['Saf (standart düzen)', _esc(_safEtiket(a)), _esc(_safEtiket(b)), null, null, null],
       ['Rol', _esc(a.role || '—'), _esc(b.role || '—'), null, null, null],
       ['ATK (geliştirmeli)', _num(sa.atk), _num(sb.atk), sa.atk, sb.atk, true],
       ['Saldırı Çarpanı', '×' + (a.saldiriCarpan || 1), '×' + (b.saldiriCarpan || 1), a.saldiriCarpan || 1, b.saldiriCarpan || 1, true],
@@ -162,4 +173,5 @@
   window.uniteKarsilastirAc = uniteKarsilastirAc;
   window.uniteKarsilastirCiz = uniteKarsilastirCiz;
   window.uniteKarsilastirKapat = _kapat;
+  window.unitSafEtiket = _safEtiket; // page-army.js saf rozeti kullanir
 })();

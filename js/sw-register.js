@@ -61,7 +61,7 @@
 
   // v1.14.2.1: Bilgelik Kitabi UPGRADE — 5 sekme + 35 kural + ROI + insights
   const bkScript = document.createElement('script');
-  bkScript.src = './js/bilgelik.js?v=14230';
+  bkScript.src = './js/bilgelik.js?v=14231';
   bkScript.async = true;
   document.head.appendChild(bkScript);
 

@@ -102,12 +102,12 @@
   }
 
   // ──────────────────────────────────────────────
-  // v1.14.3.69: MORAL HELPERS — CLAUDE.md ile uyumlu
-  // CAG_MORAL_MAKS dogrusu: 1:1500, 2:2000, 3:2500, 4:3000, 5:5000
-  // (Eski yanlis lineer 1500-5000 4 ayri yerde kullaniliyordu)
+  // MORAL HELPERS
+  // CAG_SEHIR_MORAL_MAKS — kanonik variant A, backend game/moral-config.js ile esit
   // ──────────────────────────────────────────────
+  var CAG_SEHIR_MORAL_MAKS = {1:1500, 2:2375, 3:3250, 4:4125, 5:5000};
   function moralMaks(cag) {
-    return ({1:1500, 2:2000, 3:2500, 4:3000, 5:5000})[cag] || 1500;
+    return CAG_SEHIR_MORAL_MAKS[cag] || 1500;
   }
   // Mutluluk = sehir_morali (ham) + bina_moral_bonus
   // teshisCache.moral'dan gelir (v1.14.3.69 backend ekledi)

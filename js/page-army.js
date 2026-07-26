@@ -965,7 +965,7 @@ function renderUnitGrid(side, gridId){
       <div class="u-body">
         <div class="u-line1">
           <span class="u-name">${u.name}</span>
-          <span class="u-meta">${tierLbl} · ${u.role||''}${u.saldiriCarpan>1?' · ×'+u.saldiriCarpan:''}</span>
+          <span class="u-meta">${tierLbl} · ${u.role||''}${u.saldiriCarpan>1?' · ×'+u.saldiriCarpan:''}${typeof unitSafEtiket==='function'?' · '+unitSafEtiket(u):''}</span>
         </div>
         <div class="u-line2">${askerHTML}${costHTML}${extraHTML}</div>
       </div>
