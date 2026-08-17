@@ -220,18 +220,6 @@ function setFilter(cat,el){
   renderGrid();
 }
 
-function toggleSubMenu(id, el){
-  const allMenus = ['submenu-city', 'submenu-army'];
-  allMenus.forEach(menuId => {
-    if(menuId !== id) {
-      const m = document.getElementById(menuId);
-      if(m) m.style.display = 'none';
-    }
-  });
-  const sm = document.getElementById(id);
-  if(!sm) return;
-  sm.style.display = sm.style.display === 'none' ? 'block' : 'none';
-}
 
 function openModal(id){
   const b=BLDGS[id];if(!b)return;

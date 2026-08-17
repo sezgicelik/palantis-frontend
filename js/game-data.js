@@ -6,80 +6,6 @@
 let OYUNCU = {
   kral: null, sehir: null, irk: null, taraf: null, cag: 1
 };
-let selectedSide = 'iyi';
-let selectedIrk = null;
-
-function selectSide(side, el) {
-  selectedSide = side;
-  selectedIrk = null;
-  document.querySelectorAll('.side-btn').forEach(b => {
-    b.style.background = '#0d0d0d';
-    b.style.borderColor = '#2a2a2a';
-    b.style.color = '#666';
-  });
-  el.style.background = 'rgba(241,196,15,.08)';
-  el.style.borderColor = 'var(--race-color)';
-  el.style.color = 'var(--race-color)';
-  renderIrkGrid();
-}
-
-function renderIrkGrid() {
-  const grid = document.getElementById('irk-grid');
-  if (!grid) return;
-  const irklar = IRKLAR[selectedSide] || [];
-  grid.innerHTML = '';
-  irklar.forEach(irk => {
-    const isOn = selectedIrk === irk.id;
-    const div = document.createElement('div');
-    div.style.cssText = 'background:#0d0d0d;border:1px solid ' + (isOn ? irk.color : '#2a2a2a') + ';border-radius:10px;padding:14px;cursor:pointer;transition:.2s;box-shadow:' + (isOn ? '0 0 14px ' + irk.color + '44' : 'none');
-    div.onclick = () => selectIrk(irk.id);
-    div.innerHTML = '<div style="font-size:22px;margin-bottom:6px">' + irk.icon + '</div>'
-      + '<div style="font-family:Cinzel,serif;font-size:12px;color:' + irk.color + ';font-weight:700;margin-bottom:4px">' + irk.name + '</div>'
-      + '<div style="font-size:11px;color:#555;margin-bottom:8px;line-height:1.5">' + irk.desc + '</div>'
-      + irk.bonuslar.map(b => '<div style="font-size:10px;color:#2ecc71;margin:1px 0">' + b + '</div>').join('');
-    grid.appendChild(div);
-  });
-}
-
-function selectIrk(id) {
-  selectedIrk = id;
-  renderIrkGrid();
-}
-
-function startGame() {
-  // v1.13.42.3: ?.value.trim() element yoksa crash ederdi — null-safe
-  const kral = (document.getElementById('inp-kral')?.value || '').trim();
-  const sehir = (document.getElementById('inp-sehir')?.value || '').trim();
-  if (!kral) { toast('Kral adı gir!'); return; }
-  if (!sehir) { toast('Şehir adı gir!'); return; }
-  if (!selectedIrk) { toast('Irk seç!'); return; }
-
-  const irkData = [...IRKLAR.iyi, ...IRKLAR.kotu].find(i => i.id === selectedIrk);
-  OYUNCU = { kral, sehir, irk: selectedIrk, irkData, taraf: selectedSide, cag: 1 };
-
-  if (irkData) document.documentElement.style.setProperty('--race-color', irkData.color);
-
-  document.getElementById('setup-wrap').style.display = 'none';
-  document.getElementById('main-home').style.display = 'block';
-  const mw = document.getElementById('main-welcome');
-  if (mw) mw.textContent = kral || '\u2014';
-  const sl = document.getElementById('home-sehir-lbl');
-  if (sl) sl.textContent = sehir || '\u2014';
-  const il = document.getElementById('home-irk-lbl');
-  if (il) il.textContent = irkData ? irkData.name : (selectedIrk || '\u2014');
-  const ii = document.getElementById('home-irk-icon');
-  if (ii) ii.textContent = irkData?.icon || '\ud83d\udc51';
-  document.getElementById('home-kral').textContent = kral;
-  document.getElementById('home-sehir').textContent = sehir;
-  document.getElementById('home-irk').textContent = irkData ? irkData.icon + ' ' + irkData.name : selectedIrk;
-
-  const sidebarName = document.getElementById('sidebar-kral');
-  if (sidebarName) sidebarName.textContent = kral;
-
-  const sIrk = document.getElementById('sidebar-irk');
-  if (sIrk && irkData) sIrk.textContent = irkData.icon + ' ' + irkData.name;
-  toast(`${kral} kralligi kuruldu! ${irkData?.icon||''} ${irkData?.name||''} irkisin.`);
-}
 
 /* -- NUFUS -- */
 let population = {
@@ -213,11 +139,6 @@ async function loadGameData() {
       if (gRow) gRow.style.display = 'none';
     }
 
-    // Bina maliyetleri globale yaz (loadBuildingsFromBackend icin cache)
-    if (maliyetRaw && maliyetRaw.maliyetler) {
-      window._BINA_MALIYETLER = maliyetRaw.maliyetler;
-    }
-
     // Gorev badge
     try {
       if (gorevRaw && gorevRaw.gorevler) {
@@ -235,7 +156,6 @@ async function loadGameData() {
       const a = armyRaw || {};
       window._palantisToplamAtk = a.toplam_atk || 0;
       window._palantisToplamDef = a.toplam_def || 0;
-      window._palantisReyting = a.reyting || 0;
       window._palantisOrduMorali = a.ordu_morali ?? 0;
       const sehirEssek = parseInt(res.essek) || 0;
       const kervanEssek = (kvData && kvData.kervanlar) ? kvData.kervanlar.reduce((s,k) => s + (k.essek_sayisi || 0), 0) : 0;
@@ -683,38 +603,6 @@ async function logoutGame() {
   window.location.href = 'index.html';
 }
 
-/* -- Cag Kisitlamalari -- */
-function checkCagRestrictions(action) {
-  if (!OYUNCU || OYUNCU.cag > 1) return true;
-  const restricted = ['savas', 'guild', 'attack'];
-  if (restricted.includes(action)) {
-    toast('I. Cagda bu islem yapilamaz! II. Caga gec.');
-    return false;
-  }
-  return true;
-}
-
-/* -- Sonraki Cag -- */
-function nextCag() {
-  if (!OYUNCU) return;
-  if (OYUNCU.cag >= 5) { toast('Maksimum cagdasin!'); return; }
-  OYUNCU.cag++;
-  const roman = ['','I','II','III','IV','V'];
-  document.getElementById('cs-age').textContent = roman[OYUNCU.cag] + '. Cag';
-  document.getElementById('home-cag').textContent = roman[OYUNCU.cag] + '. Cag';
-  const hcl = document.getElementById('home-cag-lbl');
-  if (hcl) hcl.textContent = roman[OYUNCU.cag] + '. Cag';
-  // v1.14.1.27: sidebar-cag element kaldirildi — guard ekle
-  const sbc = document.getElementById('sidebar-cag');
-  if (sbc) sbc.textContent = roman[OYUNCU.cag] + '. Cag';
-  if (OYUNCU.cag > 1) {
-    const uyari = document.getElementById('cag1-uyari');
-    if (uyari) uyari.style.display = 'none';
-  }
-  toast(`${roman[OYUNCU.cag]}. Caga gecildi! Yeni binalar ve uniteler acildi.`);
-  population.max = 1500 + (OYUNCU.cag - 1) * 500;
-  updatePopulationUI();
-}
 
 /* -- Ordu Gelistirme Degiskenleri -- */
 let ASKERI_GEL_SEV = 0;

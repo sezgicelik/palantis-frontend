@@ -2097,21 +2097,6 @@ async function guildOrduSil(armyId) {
   } catch(e) { toast('Baglanti hatasi', 'error'); }
 }
 
-async function guildOrduEgit() {
-  if (!GUILD_DATA) return;
-  var unite = document.getElementById('guild-egit-unite');
-  var adet = document.getElementById('guild-egit-adet');
-  if (!unite || !unite.value.trim() || !adet || !adet.value) { toast('Unite ve adet girin', 'error'); return; }
-  try {
-    var resp = await fetch(API_BASE + '/api/guild/' + GUILD_DATA.guild.id + '/ordu/egit', {
-      method: 'POST', headers: guildHdr(), body: JSON.stringify({ unite_id: unite.value.trim(), adet: parseInt(adet.value) })
-    });
-    var d = await resp.json();
-    if (resp.ok) { toast(d.mesaj || 'Egitim baslatildi'); loadGuild(); }
-    else toast(d.error || 'Hata', 'error');
-  } catch(e) { toast('Baglanti hatasi', 'error'); }
-}
-
 // v1.14.1.35 — Kart grid'den çağırılır (per-unite adet input)
 async function guildOrduEgitV2(uniteId) {
   if (!GUILD_DATA) return;
