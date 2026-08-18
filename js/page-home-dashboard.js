@@ -7,7 +7,6 @@
 const _HP_FMT = (n) => (n || 0).toLocaleString('tr-TR');
 const _HP_FMTK = (typeof fmtK === 'function') ? (n) => fmtK(n, 0) : _HP_FMT;
 
-function _hpSet(id, html) { const el = document.getElementById(id); if (el) el.innerHTML = html; }
 function _hpText(id, text) { const el = document.getElementById(id); if (el) el.textContent = text; }
 
 /* ── 1) Sehir Basligi — OYUNCU + DOGRUDAN API (HUD gecikirse bekleme yok) ── */

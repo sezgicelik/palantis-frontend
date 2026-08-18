@@ -132,7 +132,6 @@ async function loadCasus() {
           '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:8px">' + operasyonKartlari + '</div>'
         : '') +
       '</div>' +
-      '<div id="casus-gonder-modal" style="display:none"></div>' +
       '<div id="casus-raporlar" style="margin-top:14px"></div>';
 
     loadCasusRaporlar();
@@ -158,47 +157,8 @@ async function casusEgit() {
   } catch(e) { noxAlert('Hata'); }
 }
 
-// v1.14.3.33 — Casus gonderme paneli yeniden tasarim
-// Eski: Modal acilir, butonlar yan yana, aciklama hover'da
-// Yeni: Inline kart, her operasyon bir KART (icon + isim + aciklama hep gorunur + buton)
-function casusGonderModal(casusId) {
-  var m = document.getElementById('casus-gonder-modal');
-  m.style.display = 'block';
-
-  // Her operasyon icin ACIKLAMA HEP GORUNUR kart
-  var kartlar = Object.entries(GOREV_TIPLERI).map(function(entry) {
-    var tip = entry[0], g = entry[1];
-    var isim = GOREV_ISIMLERI[tip] || tip;
-    var ikon = GOREV_IKONLARI[tip] || '🕵️';
-    var renk = GOREV_RENK[tip] || '#888';
-    var aciklama = GOREV_ACIKLAMA[tip] || '';
-    return '<div style="background:rgba(20,18,14,0.7);border:1px solid ' + renk + '33;border-left:3px solid ' + renk + ';border-radius:5px;padding:10px 12px;display:flex;flex-direction:column;gap:6px">' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">' +
-        '<div style="font-family:Cinzel,serif;font-weight:bold;font-size:13px;color:' + renk + '">' + ikon + ' ' + isim + '</div>' +
-        '<button class="btn-action" style="width:auto;padding:5px 14px;font-size:11px;background:' + renk + ';color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold" onclick="casusGonder(' + casusId + ',\'' + tip + '\')">Gönder →</button>' +
-      '</div>' +
-      '<div style="font-size:12px;color:#d4cfc0;line-height:1.4">' + aciklama + '</div>' +
-      '<div style="font-size:11px;color:#a89880;display:flex;gap:14px">' +
-        '<span>⏱️ Süre: <b style="color:#e8d4a8">' + g.sure + ' PG</b></span>' +
-        '<span>🕵️ Gizlilik: <b style="color:#e8d4a8">' + g.gizlilik + '</b></span>' +
-        '<span>✅ Başarı: <b style="color:#e8d4a8">%' + g.baz_basari + '</b></span>' +
-      '</div>' +
-    '</div>';
-  }).join('');
-
-  m.innerHTML = '<div class="card" style="margin-top:12px">' +
-    '<div style="font-size:13px;color:var(--race-color);font-weight:bold;margin-bottom:10px;font-family:Cinzel,serif;letter-spacing:1px">🎯 Casus #' + casusId + ' — Görev Seç</div>' +
-    '<div style="margin-bottom:14px;padding:10px;background:rgba(0,0,0,0.3);border-radius:5px">' +
-      '<label style="font-size:12px;color:#c8b896;font-weight:bold;display:block;margin-bottom:5px">1. Hedef Oyuncu</label>' +
-      '<input id="casus-hedef-isim" type="text" placeholder="Kral ismi yazin..." style="width:200px;padding:6px 8px;background:#0a0a0a;border:1px solid #3a3020;color:#e8d4a8;border-radius:4px;font-size:12px">' +
-      '<button onclick="casusHedefAra()" style="padding:6px 14px;background:#3a3020;border:1px solid #c8a96e;color:#e8d4a8;border-radius:4px;cursor:pointer;font-size:11px;margin-left:6px;font-weight:bold">🔍 Ara</button>' +
-      '<div id="casus-hedef-sonuc" style="font-size:11px;margin-top:6px;min-height:18px;color:#d4cfc0"></div>' +
-      '<input id="casus-hedef" type="hidden">' +
-    '</div>' +
-    '<div style="font-size:12px;color:#c8b896;font-weight:bold;margin-bottom:10px">2. Operasyon Seç (hedefi seçtikten sonra Gönder\'e bas)</div>' +
-    '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:8px">' + kartlar + '</div>' +
-  '</div>';
-}
+// v1.14.3.33 — Casus gonderme paneli yeniden tasarim: eski modal akisi kaldirildi,
+// yerine loadCasus() icindeki inline kart geldi (her operasyon bir KART).
 
 async function casusHedefAra() {
   var isim = document.getElementById('casus-hedef-isim')?.value?.trim();

@@ -194,10 +194,6 @@ body.page-wide .hudbar { max-width: 1400px; }
   overflow-x:hidden;
 }
 
-/* ===== SAYFA PANELLERİ ===== */
-.page-panel{display:none}
-.active-panel{display:block}
-
 /* ===== KART (Glassmorphism) ===== */
 .card{
   background:var(--card-bg);
@@ -606,42 +602,15 @@ body{padding-top:38px;}
 .br-prog-fill{height:100%;background:#2ecc71;border-radius:2px;transition:width 1s linear}
 .br-building-lbl{grid-column:1/-1;font-size:10px;color:#2ecc71;font-family:'Cinzel',serif;padding-top:2px}
 
-.bcard{background:#111;border:1px solid #1e1e1e;border-radius:12px;overflow:hidden;transition:.22s;position:relative;}
-.bcard:hover{border-color:#333;transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.5);}
-.bcard.building{border-color:#1a3010;}
-.bcard.locked{opacity:.45;}
-.bhead{padding:14px 16px 11px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #181818;}
-.bico{width:44px;height:44px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
-.bname{font-family:'Cinzel',serif;font-size:13px;color:#eee;margin:0 0 3px;font-weight:600;}
-.bdesc{font-size:11px;color:#999;margin:0;line-height:1.4;}
-.blevel{padding:10px 16px;border-bottom:1px solid #181818;}
-.blevel-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
-.blv-lbl{font-size:10px;color:#888;font-family:'Cinzel',serif;letter-spacing:.5px;}
-.blv-val{font-size:12px;font-weight:700;color:var(--race-color);font-family:'Cinzel',serif;}
-.bbar{height:5px;background:#1a1a1a;border-radius:3px;overflow:hidden;}
-.bbar-fill{height:100%;border-radius:3px;transition:width .4s;}
-.beffects{padding:9px 16px;display:flex;flex-wrap:wrap;gap:5px;border-bottom:1px solid #181818;}
 .etag{padding:2px 7px;border-radius:3px;font-size:10px;border:1px solid;}
 .etag.pos{color:#2ecc71;border-color:#1a3020;background:#0a1a10;}
 .etag.neg{color:#e74c3c;border-color:#301a1a;background:#1a0a0a;}
-.bcost{padding:9px 16px;border-bottom:1px solid #181818;}
-.cost-lbl{font-size:11px;color:#888;font-family:'Cinzel',serif;letter-spacing:.5px;margin-bottom:6px;}
 .cost-row{display:flex;flex-wrap:wrap;gap:5px;}
 .citem{display:flex;align-items:center;gap:3px;font-size:11px;padding:3px 7px;background:#0d0d0d;border-radius:3px;border:1px solid #1e1e1e;}
 .citem.ok{color:#ccc;} .citem.no{color:#e74c3c;}
-.bactions{padding:11px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-.btime{font-size:10px;color:#888;margin-left:auto;}
-.bprog{padding:9px 16px;background:#080f05;border-top:1px solid #132008;}
-.bprog-top{display:flex;justify-content:space-between;font-size:10px;color:#2ecc71;font-family:'Cinzel',serif;letter-spacing:.4px;margin-bottom:5px;}
-.bprog-track{height:3px;background:#1a2a10;border-radius:2px;overflow:hidden;}
-.bprog-fill{height:100%;background:#2ecc71;border-radius:2px;transition:width 1s linear;}
-.maxbadge{display:inline-flex;align-items:center;gap:3px;background:#1a1500;border:1px solid var(--race-color);color:var(--race-color);border-radius:4px;padding:3px 8px;font-size:10px;font-family:'Cinzel',serif;}
-.lockbadge{position:absolute;top:10px;right:10px;background:#111;border:1px solid #2a2a2a;border-radius:4px;padding:2px 7px;font-size:11px;color:#999;font-family:'Cinzel',serif;}
 .btn-sm{padding:9px 16px;background:var(--race-color);border:none;border-radius:6px;font-family:'Cinzel',serif;font-weight:700;cursor:pointer;color:#000;font-size:12px;letter-spacing:.5px;transition:.18s;}
 .btn-sm:hover{opacity:.85;transform:translateY(-1px);}
 .btn-sm:disabled{opacity:.3;cursor:not-allowed;transform:none;}
-.btn-ghost{background:transparent;color:#888;border:1px solid #333;}
-.btn-ghost:hover{background:#1a1a1a;color:#fff;}
 
 /* ── Genel .btn stili ── */
 .btn {
@@ -798,51 +767,17 @@ body{padding-top:38px;}
 }
 
 
-/* Ünite kartı */
-.ucard{
-  background:#111;border:1px solid #1e1e1e;border-radius:12px;
-  overflow:hidden;transition:.22s;cursor:grab;
-  position:relative;
-}
-.ucard:hover{border-color:#333;transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.5);}
-.ucard.light-unit{border-left:3px solid #f1c40f;}
-.ucard.dark-unit{border-left:3px solid #9b59b6;}
-.ucard.dragging{opacity:.5;transform:scale(.97);}
-
 /* Ünite başlık */
-.uhead{padding:8px 10px 6px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #181818;}
 .uico{width:36px;height:36px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
 .uname{font-family:'Cinzel',serif;font-size:11px;color:#eee;margin:0 0 2px;font-weight:600;}
-.urole{font-size:11px;color:#999;margin:0;letter-spacing:.3px;}
-.utier{position:absolute;top:10px;right:10px;font-size:11px;padding:2px 7px;border-radius:3px;font-family:'Cinzel',serif;letter-spacing:.5px;}
 .tier1{background:#0d1a0d;color:#2ecc71;border:1px solid #1a3020;}
 .tier2{background:#1a1500;color:#f1c40f;border:1px solid #2a2000;}
 .tier3{background:#1a0010;color:#e74c3c;border:1px solid #2a0020;}
 
-/* Stat bar */
-.ustat-row{display:flex;gap:4px;padding:5px 10px;border-bottom:1px solid #181818;}
-.ustat{flex:1;background:#0d0d0d;border-radius:4px;padding:4px 6px;}
-.ustat-lbl{font-size:11px;color:#888;font-family:'Cinzel',serif;letter-spacing:.3px;margin-bottom:2px;}
-.ustat-val{font-size:12px;font-weight:700;color:#f5f0e8;}
-.ustat-val.atk{color:#e74c3c;}
-.ustat-val.def{color:#3498db;}
-.ustat-val.spd{color:#2ecc71;}
-
-/* Özellikler */
-.utraits{padding:8px 15px;display:flex;flex-wrap:wrap;gap:4px;border-bottom:1px solid #181818;}
-.utrait{font-size:10px;padding:2px 6px;border-radius:3px;border:1px solid;background:#0d0d0d;}
-.utrait.atk{color:#e74c3c;border-color:#2a1010;}
-.utrait.def{color:#3498db;border-color:#10102a;}
-.utrait.spd{color:#2ecc71;border-color:#102a10;}
-.utrait.mag{color:#9b59b6;border-color:#1a1030;}
-.utrait.neu{color:#888;border-color:#222;}
-
 /* Adet kontrol */
-.ucount-bar{padding:6px 10px;display:flex;align-items:center;gap:5px;}
 .ucount-btn{width:24px;height:24px;background:#1a1a1a;color:#f5f0e8;border:1px solid #333;cursor:pointer;border-radius:4px;font-size:13px;line-height:1;transition:.15s;}
 .ucount-btn:hover{background:var(--race-color);color:#000;}
 .ucount-inp{width:48px;text-align:center;background:#0d0d0d;border:1px solid #222;color:#f5f0e8;padding:3px;border-radius:4px;font-size:11px;font-family:'Cinzel',serif;}
-.ucount-max{font-size:11px;color:#888;margin-left:auto;}
 .utrain-btn{padding:5px 10px;background:var(--race-color);border:none;border-radius:4px;font-family:'Cinzel',serif;font-weight:700;cursor:pointer;color:#000;font-size:10px;margin-left:auto;}
 .utrain-btn:hover{opacity:.85;}
 .utrain-btn:disabled{opacity:.3;cursor:not-allowed;}
@@ -1590,13 +1525,6 @@ body{padding-top:38px;}
 /* ═══════════════════════════════════════
    v1.9.2 — SAVAŞ BAŞLAT & HAREKET KARTLARI
 ═══════════════════════════════════════ */
-.savas-hedef-card{
-  background:rgba(20,16,8,0.9);
-  border:1px solid rgba(212,162,87,0.15);
-  border-radius:6px;
-  padding:16px;
-  margin-top:12px;
-}
 .hareket-card{
   background:rgba(18,18,28,0.7);
   border:1px solid rgba(255,255,255,0.06);
@@ -1618,16 +1546,6 @@ body{padding-top:38px;}
   height:100%;
   border-radius:3px;
   transition:width 1s ease;
-}
-.ordu-badge-gorevde{
-  display:inline-block;
-  background:rgba(231,76,60,0.15);
-  color:#e74c3c;
-  font-size:10px;
-  padding:2px 8px;
-  border-radius:10px;
-  letter-spacing:0.5px;
-  font-weight:600;
 }
 
 /* ═══════════════════════════════════════════════════════

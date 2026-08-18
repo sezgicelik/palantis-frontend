@@ -326,61 +326,6 @@ async function savasPlanOlusturSubmit() {
   } catch(e) { noxAlert('Sunucu hatasi: ' + e.message); }
 }
 
-async function savasPlanKatilModal(planId) {
-  // Ordu sec
-  try {
-    var token = getToken();
-    var r = await fetch(API_BASE + '/api/army/state?_cb=' + Date.now(), {
-      headers: { Authorization: 'Bearer ' + token, 'Cache-Control': 'no-cache' },
-      cache: 'no-store'
-    });
-    if (!r.ok) { noxAlert('Ordu listesi alinamadi (HTTP ' + r.status + ')'); return; }
-    var d = await r.json();
-    var ordular = (d.armies || []).filter(a => !a.is_busy);
-    if (!ordular.length) { noxAlert('Müsait (mesgul olmayan) ordu yok'); return; }
-
-    var modal = document.createElement('div');
-    modal.id = 'savas-plan-katil-modal';
-    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:9999';
-    var opts = ordular.map(a =>
-      '<option value="' + a.id + '">' + escHtml(a.isim || 'Ordu #'+a.id) + ' — ' + (a.toplam_unite||0) + ' ünite</option>'
-    ).join('');
-    modal.innerHTML =
-      '<div class="card" style="max-width:360px;width:90%;padding:20px;background:#0f0805;border:1px solid #5a3020">' +
-        '<h3 style="color:#c8a96e;font-family:Cinzel,serif;margin:0 0 12px">⚔️ Plana Katıl</h3>' +
-        '<label style="color:#aaa;font-size:11px">Gönderecek ordu:' +
-          '<select id="splan-katil-ordu" style="width:100%;margin-top:4px;padding:6px;background:#1a1a1a;border:1px solid #333;color:#fff;border-radius:3px">' + opts + '</select>' +
-        '</label>' +
-        '<div style="display:flex;gap:6px;margin-top:14px">' +
-          '<button class="btn-action" onclick="savasPlanKatilSubmit(' + planId + ')" style="flex:1;padding:10px;background:#8B0000;color:#fff">✓ Katıl</button>' +
-          '<button class="btn-action" onclick="document.getElementById(\'savas-plan-katil-modal\').remove()" style="padding:10px;background:#333;color:#aaa">İptal</button>' +
-        '</div>' +
-        '<div style="color:#666;font-size:10px;margin-top:10px">Ordunuz varış zamanına göre hesaplanmış kalkış zamanında otomatik yola çıkacak.</div>' +
-      '</div>';
-    document.body.appendChild(modal);
-    modal.onclick = function(e) { if (e.target === modal) modal.remove(); };
-  } catch(e) { noxAlert('Ordu listesi alinamadi'); }
-}
-
-async function savasPlanKatilSubmit(planId) {
-  var armyId = document.getElementById('splan-katil-ordu').value;
-  if (!armyId) return;
-  try {
-    var token = getToken();
-    var r = await fetch(API_BASE + '/api/guild/savas-plan/' + planId + '/katil', {
-      method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ army_id: parseInt(armyId) })
-    });
-    var d = await r.json();
-    if (!d.ok) { noxAlert('Hata: ' + (d.error || '?')); return; }
-    document.getElementById('savas-plan-katil-modal').remove();
-    noxAlert('✓ Katıldın! Kalkış: ' + d.dakika_kala + ' dk sonra');
-    var savas = (SAVAS_ODASI_DATA && SAVAS_ODASI_DATA.savaslar) ? SAVAS_ODASI_DATA.savaslar[SAVAS_ODASI_AKTIF_SAVAS_IDX] : null;
-    if (savas) loadSavasPlanlari(savas.rakip_guild.id);
-  } catch(e) { noxAlert('Sunucu hatasi: ' + e.message); }
-}
-
 async function savasPlanIptal(planId) {
   if (!await noxConfirm('Plani iptal et?')) return;
   try {
