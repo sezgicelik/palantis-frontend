@@ -1,6 +1,6 @@
 // v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
 // Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
-const CACHE_NAME = 'noxara-v14919'; // 2026-08-18: sehir degeri backend tek-kaynak (HUD lokal hesabi birakti) + koy/kasaba/firin deger korunumu + kasaba metin duzeltmesi
+const CACHE_NAME = 'noxara-v14920'; // 2026-08-18: bina fiyati backend yanitindan (10 binada gosterilen != kesilen) + olu bina-maliyetler fetch'i kaldirildi
 
 // Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [

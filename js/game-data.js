@@ -43,7 +43,10 @@ async function loadGameData() {
     // v1.14.0.89: let (const degil) — stale fallback icin reassign edilebilir
     let [
       pData, resRaw, prodRaw, workRaw, alanRaw, takvimRaw,
-      armyRaw, kvRaw, tatilRaw, ateskesRaw, gorevRaw, gRaw, maliyetRaw, nufusRaw, gpsRaw
+      // 2026-08-18: `maliyetRaw` KALDIRILDI — cekiliyordu ama hicbir yerde okunmuyordu
+      //   (her yuklemede bosa giden bir istek). Bina maliyet/aciklamasi
+      //   loadBuildingsFromBackend() icinde ayrica cekiliyor ve orada kullaniliyor.
+      armyRaw, kvRaw, tatilRaw, ateskesRaw, gorevRaw, gRaw, nufusRaw, gpsRaw
     ] = await Promise.all([
       fetchJson('/api/player/me'),
       fetchJson('/api/game/resources'),
@@ -57,7 +60,6 @@ async function loadGameData() {
       fetchJson('/api/game/ateskes'),
       fetchJson('/api/gorev/liste'),
       fetchJson('/api/guild/benim'),
-      fetchJson('/api/game/bina-maliyetler'),
       fetchJson('/api/game/nufus'),
       fetchJson('/api/game/gps'),          // v1.13.70: GPS + bina bonus + mutluluk
     ]);
@@ -431,12 +433,28 @@ async function loadBuildingsFromBackend() {
   if (!token) return;
   try {
     // v1.13.5: Bina aciklamalari admin panelinden degistirilebilir — backend'den al, BLDGS.desc override
+    // 2026-08-18: MALIYET de bu yanittan aliniyor. Onceden yanit cagriliyor ama SADECE
+    //   `aciklama` okunuyordu; fiyat FE'deki sabit tablodan geliyordu ve 10 binada
+    //   sapiyordu (or. ev 20 vs 30 altin -> 100 ev insa eden oyuncu 1.000 altini
+    //   sessizce fazladan oduyordu, ustune "yetersiz altin" hatasi aliyordu).
+    //   SUNUCU ZATEN OTORITER — kesilen tutar degismiyor, sadece ekrandaki sayi
+    //   sunucunun kestigi tutara esitleniyor. Bu bir denge degisikligi DEGIL.
+    //   Kaynak endpoint bina_config'i (canli/admin degeri) sabit tablonun ustune
+    //   bindiriyor, yani FE artik gercekten canli fiyati gosteriyor.
     try {
       const mr = await fetch(API_BASE + '/api/game/bina-maliyetler', { headers: { 'Authorization': 'Bearer ' + token } });
       if (mr.ok) {
         const maliyetler = await mr.json();
         for (const [id, m] of Object.entries(maliyetler)) {
-          if (BLDGS[id] && m.aciklama) BLDGS[id].desc = m.aciklama;
+          if (!BLDGS[id]) continue;
+          if (m.aciklama) BLDGS[id].desc = m.aciklama;
+          // mergeOnly binalar (koy/kasaba/firin) satin alinmaz, BIRLESTIRME ile olusur.
+          //   Backend fallback tablosunda firin'in fiyati var ama oyuncu o yolu hic
+          //   kullanmiyor; yazarsak olmayan bir fiyat gosterilir. Bu yuzden atlanir.
+          if (BLDGS[id].mergeOnly) continue;
+          if (m.maliyet && Object.keys(m.maliyet).length > 0) {
+            BLDGS[id].cost = () => m.maliyet;   // FE cost() seviyeden bagimsiz (43/43 sabit)
+          }
         }
       }
     } catch(e) {}
