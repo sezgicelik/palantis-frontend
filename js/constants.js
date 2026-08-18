@@ -124,6 +124,10 @@ const IRKLAR = {
    BİNA VERİTABANI — v1.1.0
    cagLimit: {1:max, 2:max, ...} — 0 veya yok = uretilemez, -1 = sinirsiz
    deger: sehir degeri (1 adet)
+     2026-08-18: BACKEND KANONU game/bina-deger.js ile esitlendi. Sehir degerini
+     backend hesaplar (game/helpers.hesaplaSehirDegeri); buradaki sayilar SADECE
+     HUD backend degerine ulasamadiginda (offline/eski cache) fallback icin kullanilir.
+     Deger korunumu: koy=10xev(21)=210 · kasaba=20xkoy(210)=4200 · firin=10xocak(75)=750
    time: uretim suresi saniye (1 P.G. = 3600)
    kapasite: isci kapasitesi (varsa)
 ══════════════════════════════════ */
@@ -180,7 +184,7 @@ const BLDGS = {
 
   firin:{id:'firin',cat:'uretim',icon:'🍞',name:'Fırın',bg:'#1a0a00',
     desc:"10 ocak birleştirince oluşur. 5 alan kaplar. 2x ocak pişirme kapasitesi.",
-    maxLv:999,lv:0,deger:0,mergeOnly:true,
+    maxLv:999,lv:0,deger:750,mergeOnly:true,   // 2026-08-18: 10 × ocak(75) — deger korunumu (backend game/bina-deger.js)
     cagLimit:{1:0,2:-1,3:-1,4:-1,5:-1},
     fx:l=>[{t:'pos',s:`Pişirme 2x ocak kap.`},{t:'pos',s:`Buğday/Balık/Et pişirir`}],
     cost:l=>({}),time:l=>7200},
@@ -348,17 +352,17 @@ const BLDGS = {
     cost:l=>({odun:100,altin:20}),time:l=>7200},
 
   koy:{id:'koy',cat:'sehir',icon:'🏘️',name:'Köy',bg:'#1a1200',
-    desc:"10 ev birleştirince oluşur. 5 alan kaplar. +100 nüfus.",
-    maxLv:999,lv:0,deger:0,mergeOnly:true,
+    desc:"10 ev birleştirince oluşur. 5 alan kaplar. +150 nüfus.",
+    maxLv:999,lv:0,deger:210,mergeOnly:true,   // 2026-08-18: 10 × ev(21) — deger korunumu
     cagLimit:{1:0,2:-1,3:-1,4:-1,5:-1},
-    fx:l=>[{t:'pos',s:`+${l*100} Nüfus sınırı`}],
+    fx:l=>[{t:'pos',s:`+${l*150} Nüfus sınırı`}],
     cost:l=>({}),time:l=>14400},
 
   kasaba:{id:'kasaba',cat:'sehir',icon:'🏙️',name:'Kasaba',bg:'#1a1600',
-    desc:"10 köy birleştirince oluşur. 25 alan kaplar. +250 nüfus.",
-    maxLv:999,lv:0,deger:800,mergeOnly:true,
+    desc:"20 köy birleştirince oluşur. 50 alan kaplar. +3000 nüfus.",
+    maxLv:999,lv:0,deger:4200,mergeOnly:true,  // 2026-08-18: 20 × köy(210) — deger korunumu
     cagLimit:{1:0,2:0,3:0,4:0,5:-1},
-    fx:l=>[{t:'pos',s:`+${l*250} Nüfus sınırı`}],
+    fx:l=>[{t:'pos',s:`+${l*3000} Nüfus sınırı`}],
     cost:l=>({}),time:l=>21600},
 
   okul:{id:'okul',cat:'gelisim',gpsAlan:'egitim',icon:'🏫',name:'Okul',bg:'#0a1200',

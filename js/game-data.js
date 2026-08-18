@@ -126,6 +126,9 @@ async function loadGameData() {
         savePlayer(pData);
         obApplyPlayer(pData);
         playerGuildId = pData.guild_id;
+        // 2026-08-18: Kendi koordinatim — loadSehirDegeri 1x1 chunk sorgusunda kullanir
+        window._noxaraKoord = (pData.koord_x && pData.koord_y)
+          ? { x: pData.koord_x, y: pData.koord_y } : null;
         // v1.13.69: Sidebar kosullu menuler (premium, guild_binasi)
         if (typeof updateConditionalMenus === 'function') updateConditionalMenus(pData);
       }
@@ -383,6 +386,45 @@ async function loadGameData() {
   }
 }
 
+/* -- 2026-08-18: SEHIR DEGERI BACKEND'DEN (tek kaynak) --
+   HUD (hud.js/updateCityStats) bu sayiyi LOKAL hesapliyordu: FE bina deger tablosu
+   (constants.js BLDGS.deger) + ordu ATK/DEF. FE tablosu backend'den saptiginda HUD,
+   siralama ve PvP deger araligi FARKLI sayi gosteriyordu. Kanonik hesap backend'de:
+   game/helpers.hesaplaSehirDegeri (game/bina-deger.js tablosu).
+
+   Kullanilan endpoint: GET /api/map/sayfa — donen `oyuncular[]` her satirda backend
+   hesapli `sehir_degeri` + kendi sehrimi isaretleyen `benMi` tasir. Sadece kendi
+   karemi istemek icin 1x1 chunk sorgulanir (w=1&h=1&sayfa_x=koord_x&sayfa_y=koord_y),
+   boylece backend tek oyuncu icin hesap yapar. (Kendi degerini TEK BASINA donen ayri
+   bir endpoint yok: /api/player/me ve /api/game/init bu alani dondurmuyor,
+   /api/game/siralama ise authMiddleware'siz oldugu icin myPlayerId'yi null donuyor.)
+
+   Deger cekilemezse window._noxaraSehirDegeri set EDILMEZ ve hud.js eski lokal
+   hesabina (artik backend kanonuyla esitlenmis degerlerle) fallback yapar. */
+async function loadSehirDegeri(force) {
+  const token = getToken();
+  const k = window._noxaraKoord;
+  if (!token || !k || !k.x || !k.y) return;
+  const url = API_BASE + '/api/map/sayfa?sayfa_x=' + k.x + '&sayfa_y=' + k.y + '&w=1&h=1';
+  const authH = { 'Authorization': 'Bearer ' + token };
+  try {
+    let d = null;
+    if (typeof cachedFetch === 'function') {
+      d = await cachedFetch(url, { headers: authH, force: force !== false });
+    } else {
+      const r = await fetch(url, { headers: authH });
+      d = r.ok ? await r.json() : null;
+    }
+    const ben = (d && Array.isArray(d.oyuncular)) ? d.oyuncular.find(o => o.benMi) : null;
+    const deger = ben ? Number(ben.sehir_degeri) : NaN;
+    if (!Number.isFinite(deger)) return;   // alan gelmedi -> lokal fallback kalsin
+    window._noxaraSehirDegeri = deger;
+    if (typeof updateCityStats === 'function') updateCityStats();
+  } catch(e) {
+    // sessiz — HUD lokal hesaba duser
+  }
+}
+
 /* -- Binalari backend'den yukle -- */
 async function loadBuildingsFromBackend() {
   const token = getToken();
@@ -439,6 +481,9 @@ async function loadBuildingsFromBackend() {
     setText('hud-used', usedArea);
     // Sehir Degeri hesapla ve HUD'a yaz (bina + ordu)
     if (typeof updateCityStats === 'function') updateCityStats();
+    // 2026-08-18: Backend sehir degerini tazele (bekletmeden; gelince updateCityStats
+    // tekrar cagirilir). Bina birlestirmeden hemen sonra da dogru sayi gorunsun diye force.
+    try { loadSehirDegeri(true); } catch(e) {}
     // Alan box guncelle
     const alanBox = document.getElementById('hud-alan-box');
     const toplamAlanG = window._palantisToplamAlan || 0;

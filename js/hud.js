@@ -289,12 +289,25 @@ function updateCityStats(){
   const toplamAlan = window._palantisToplamAlan || 0;
   const alanBox = document.getElementById('hud-alan-box');
   if(alanBox) alanBox.textContent = usedArea + '/' + toplamAlan;
-  // Sehir Degeri: bina degeri + tum unite gucu (ATK+DEF)/2
-  const binaDegeri = Object.values(BLDGS).reduce((s,b) => s + (b.lv || 0) * (b.deger || 0), 0);
-  const toplamAtk = window._palantisToplamAtk || 0;
-  const toplamDef = window._palantisToplamDef || 0;
-  const orduDegeri = Math.floor((toplamAtk + toplamDef) / 2);
-  const sehirDegeri = binaDegeri + orduDegeri;
+  // Sehir Degeri — 2026-08-18: TEK KAYNAK BACKEND (game/helpers.hesaplaSehirDegeri).
+  // HUD eskiden bu sayiyi LOKAL hesapliyordu; FE bina deger tablosu backend'den sapinca
+  // HUD ile siralama/PvP deger araligi FARKLI sayi gosteriyordu. Artik oncelik backend:
+  // game-data.js/loadSehirDegeri backend degerini window._noxaraSehirDegeri'ye yazar
+  // (GET /api/map/sayfa -> oyuncular[] icinde benMi=true satirin sehir_degeri alani).
+  // Backend degeri yoksa (offline / eski cache / koordinat atanmamis) ESKI lokal hesap
+  // fallback kalir: bina degeri + ordu (ATK+DEF)/2. Fallback tablosu da (constants.js
+  // BLDGS.deger) backend kanonu game/bina-deger.js ile esitlendi.
+  const backendSehirDegeri = Number(window._noxaraSehirDegeri);
+  let sehirDegeri;
+  if (Number.isFinite(backendSehirDegeri)) {
+    sehirDegeri = backendSehirDegeri;
+  } else {
+    const binaDegeri = Object.values(BLDGS).reduce((s,b) => s + (b.lv || 0) * (b.deger || 0), 0);
+    const toplamAtk = window._palantisToplamAtk || 0;
+    const toplamDef = window._palantisToplamDef || 0;
+    const orduDegeri = Math.floor((toplamAtk + toplamDef) / 2);
+    sehirDegeri = binaDegeri + orduDegeri;
+  }
   setText('hud-sehir-deger', sehirDegeri); // v1.13.58.1: int ver, setText numFmt formatlar — double format bug fix
   // Ana ekran hızlı stats
   const bEl=document.getElementById('hs-bina'); if(bEl) bEl.textContent=active;
