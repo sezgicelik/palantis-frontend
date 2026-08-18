@@ -1,6 +1,6 @@
 // v1.13.54: SW cache stratejisi degisti — HTML network-first, CSS/JS stale-while-revalidate
 // Amac: yeni deploy'lar PWA kullanicilarina hemen gelsin (eski cache-first'te gelmiyordu)
-const CACHE_NAME = 'noxara-v14920'; // 2026-08-18: bina fiyati backend yanitindan (10 binada gosterilen != kesilen) + olu bina-maliyetler fetch'i kaldirildi
+const CACHE_NAME = 'noxara-v14921'; // 2026-08-18: CIFT KESINTI duzeltildi — bina maliyeti artik yalnizca sunucu tarafinda bir kez kesiliyor
 
 // Relative paths — ./ olarak register edildi, subpath deploy uyumlu
 const STATIC_ASSETS = [

@@ -305,26 +305,18 @@ async function confirmBuild(){
   const token = getToken();
   if(!token){toast('Oturum bulunamadi!');return;}
 
-  let backendSuccess = false;
+  // 2026-08-18 — ÇİFT KESİNTİ DÜZELTİLDİ (Sezgi onaylı).
+  //   Buradan önce ÖNCE /api/game/resources/spend çağrılıp maliyet düşülüyor, SONRA
+  //   /api/game/buildings/upgrade çağrılıyordu — ama upgrade endpoint'i de aynı maliyeti
+  //   sunucu tarafında BAĞIMSIZ olarak kesiyor (routes/game.js "Kaynak dus"). Yani oyuncu
+  //   ilan edilen fiyatın ~2 katını ödüyordu.
+  //   Nasıl oluştu: /resources/spend çağrısı 31 Mart'tan beri vardı; 4 Nisan'da güvenlik
+  //   amacıyla sunucu taraflı kesinti eklendi (cd6e9f8) ama istemci çağrısı kaldırılmadı.
+  //   Ayrıca upgrade reddedilirse (çağ limiti/alan/kuyruk) ilk kesinti İADE EDİLMİYORDU —
+  //   aşağıdaki eski yorum "tekrar yükle" diyordu ama yeniden yükleme iade etmez, sadece
+  //   kaybı gösterir. Artık reddedilen istekte hiçbir şey kesilmediği için o sorun da yok.
+  //   İLAN EDİLEN FİYAT DEĞİŞMEDİ — sadece iki kez kesilmesi durdu.
   try {
-    const resResp = await fetch(API_BASE + '/api/game/resources/spend', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ cost: totalCost })
-    });
-    if (resResp.ok) {
-      const resData = await resResp.json();
-      if (resData.resources) {
-        Object.entries(resData.resources).forEach(([k,v]) => { if(RES[k] !== undefined) RES[k] = parseInt(v)||0; });
-      }
-      backendSuccess = true;
-    } else {
-      const err = await resResp.json();
-      toast(err.error || 'Yetersiz kaynak!');
-      return;
-    }
-
-    // v1.14.3.2: Backend response kontrolu — hata varsa kullaniciya goster + kaynagi iade et
     const upResp = await fetch(API_BASE + '/api/game/buildings/upgrade', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
@@ -334,14 +326,17 @@ async function confirmBuild(){
       const upErr = await upResp.json().catch(() => ({}));
       const A = window.noxAlert || ((m) => { toast(m); });
       await A(upErr.error || 'İnşaat reddedildi (limit, alan veya başka sebep)', '⚠️ İnşa Hatası');
-      // Kaynak iade — backend zaten resources/spend ile düşmüştü
-      // En kolay yol: tekrar yükle (loadGameData kaynakları doğru gösterir)
-      if (typeof loadGameData === 'function') await loadGameData();
       closeModal();
-      return;
+      return;   // hiçbir kaynak kesilmedi — iade gerekmiyor
     }
+    // Sunucu kesintiyi yaptı; HUD'u anında güncelle (iyimser), sonra gerçek değerlerle tazele.
+    //   Not: insaat_gel kademesi varsa sunucu %1/kademe (max %10) daha az keser; aşağıdaki
+    //   loadGameData() farkı düzeltir, yani ekranda kalıcı sapma olmaz.
+    spendCost(totalCost);
+    if (typeof loadGameData === 'function') loadGameData();
   } catch(e) {
-    if(!backendSuccess) spendCost(totalCost);
+    // Ağ hatası: istek sunucuya ulaştı mı bilinmiyor — tahmin YÜRÜTME, gerçeği sor.
+    if (typeof loadGameData === 'function') loadGameData();
   }
 
   setText('hud-w', RES.odun); setText('hud-m', RES.metal);
