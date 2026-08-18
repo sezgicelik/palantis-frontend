@@ -596,7 +596,10 @@
       </div>
       <div style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <button class="btn" onclick="saveMarketHammadde()">💾 Kaydet</button>
-        <button class="btn" onclick="mhVarsayilan()" style="background:#27ae60;color:#fff">🔄 Varsayilana Don</button>
+        <!-- 2026-08-18 GUVENLIK: Eski "Varsayilana Don" butonu KALDIRILDI — bayat yerel tabloyu
+             forma koyup ANINDA canliya yaziyordu. Yerine: backend tek-kaynagindan okuyup SADECE
+             forma yukleyen buton (kaydetme karari admine ait). -->
+        <button class="btn" onclick="mhVarsayilan()" style="background:#2a2a2a;color:#bbb" title="Varsayilan degerleri backend tek-kaynagindan alip sadece forma yukler — CANLIYA YAZMAZ">📥 Varsayilanlari Forma Yukle</button>
         <span style="font-size:10px;color:#666">Toplam oran: <b id="mh-toplam-oran">—</b>% (100 olmali)</span>
       </div>
       <div id="mh-msg" style="color:var(--green);font-size:11px;margin-top:6px"></div>
@@ -3010,23 +3013,34 @@ async function yeniSezon() {
 }
 
 // ── NPC Market Hammadde Config (v1.13.18) — 10 hammadde: isim/baz_fiyat/oran/cag_min ──
-const MH_VARSAYILAN = [
-  { kolon:'gumus',        isim:'Gümüş',        baz_fiyat:3,  oran:30,  cag_min:1, aktif:true },
-  { kolon:'bakir',        isim:'Bakır',        baz_fiyat:2,  oran:22,  cag_min:1, aktif:true },
-  { kolon:'mitril',       isim:'Mitril',       baz_fiyat:5,  oran:20,  cag_min:2, aktif:true },
-  { kolon:'kalay',        isim:'Kalay',        baz_fiyat:1,  oran:8,   cag_min:1, aktif:true },
-  { kolon:'kehribar',     isim:'Kehribar',     baz_fiyat:8,  oran:6,   cag_min:2, aktif:true },
-  { kolon:'obsidyen',     isim:'Obsidyen',     baz_fiyat:12, oran:5,   cag_min:3, aktif:true },
-  { kolon:'yakut',        isim:'Yakut',        baz_fiyat:20, oran:4,   cag_min:3, aktif:true },
-  { kolon:'zumrut',       isim:'Zümrüt',       baz_fiyat:35, oran:2.5, cag_min:4, aktif:true },
-  { kolon:'ejderha_tasi', isim:'Ejderha Taşı', baz_fiyat:30, oran:1.5, cag_min:4, aktif:true },
-  { kolon:'elmas',        isim:'Elmas',        baz_fiyat:50, oran:1,   cag_min:5, aktif:true }
-];
+// 2026-08-18 GUVENLIK: Buradaki yerel MH_VARSAYILAN dizisi TAMAMEN KALDIRILDI.
+// Market balansi oncesi (bayat) fiyatlarin kopyasiydi; iki yoldan canliya sizabiliyordu:
+//   1) "Varsayilana Don" butonu formu doldurup ANINDA kaydediyordu,
+//   2) API hatasinda form sessizce bayat degerlerle doluyordu — admin baska bir alani
+//      kaydettiginde (POST TUM tabloyu gonderir) bayat fiyatlar canliya yaziliyordu.
+// Tek kaynak artik backend: game/market-config.js -> GET /api/admin/market-hammadde/varsayilan
 let MH_DATA = [];
+
+// 2026-08-18: Market config okunamadiginda form RENDER EDILMEZ — bayat sabite dusme YOK.
+function mhHata(mesaj) {
+  MH_DATA = [];
+  const body = document.getElementById('mh-cfg-body');
+  if (body) body.innerHTML = `<tr><td colspan="6" style="color:#e74c3c;padding:8px">${mesaj}</td></tr>`;
+  const msg = document.getElementById('mh-msg');
+  if (msg) { msg.textContent = mesaj; msg.style.color = '#e74c3c'; }
+  const el = document.getElementById('mh-toplam-oran');
+  if (el) { el.textContent = '—'; el.style.color = '#e74c3c'; }
+}
 
 async function loadMarketConfig() {
   const d = await fetch(API+'/api/admin/market-hammadde', {headers:hdr()}).then(r=>r.json()).catch(()=>({ok:false}));
-  MH_DATA = (d.ok && Array.isArray(d.config) && d.config.length === 10) ? d.config : MH_VARSAYILAN.slice();
+  if (!d.ok || !Array.isArray(d.config) || d.config.length !== 10) {
+    mhHata('⚠️ Market config yuklenemedi — sayfayi yenileyin. (Canli degerler okunamadi, Kaydet kullanmayin.)');
+    return;
+  }
+  MH_DATA = d.config;
+  const msg = document.getElementById('mh-msg');
+  if (msg) { msg.textContent = ''; msg.style.color = '#2ecc71'; }
   renderMarketHammadde();
 }
 
@@ -3063,6 +3077,11 @@ function updateMhToplam() {
 }
 
 async function saveMarketHammadde() {
+  // 2026-08-18: Tablo yuklenemediyse kaydetme — bos/eksik gonderim canliyi bozmasin.
+  if (!Array.isArray(MH_DATA) || MH_DATA.length !== 10) {
+    mhHata('⚠️ Tablo yuklu degil — kaydedilmedi. Sayfayi yenileyin.');
+    return;
+  }
   const config = MH_DATA.map((h, i) => ({
     kolon: h.kolon,
     isim: document.getElementById(`mh-${i}-isim`).value.trim() || h.kolon,
@@ -3083,11 +3102,22 @@ async function saveMarketHammadde() {
   setTimeout(() => { if (msg) msg.textContent = ''; }, 3000);
 }
 
+// 2026-08-18: Varsayilanlar backend tek-kaynagindan (game/market-config.js) okunur ve
+// SADECE forma yuklenir. OTOMATIK KAYDETME YOK — kaydetme karari/sorumlulugu adminde.
 async function mhVarsayilan() {
-  if (!confirm('10 hammadde varsayilan degerlere donecek (baz fiyat, oran, cag_min). Emin misiniz?')) return;
-  MH_DATA = MH_VARSAYILAN.slice();
+  const msg = document.getElementById('mh-msg');
+  if (!confirm('Varsayilan degerler forma yuklenecek (baz fiyat, oran, cag_min). Canliya YAZILMAZ — kaydetmek icin ayrica "Kaydet"e basmaniz gerekir. Devam?')) return;
+  const d = await fetch(API+'/api/admin/market-hammadde/varsayilan', {headers:hdr()}).then(r=>r.json()).catch(()=>({ok:false}));
+  if (!d.ok || !Array.isArray(d.config) || d.config.length !== 10) {
+    if (msg) { msg.textContent = '⚠️ Varsayilanlar alinamadi — form degistirilmedi.'; msg.style.color = '#e74c3c'; }
+    return;
+  }
+  MH_DATA = d.config;
   renderMarketHammadde();
-  await saveMarketHammadde();
+  if (msg) {
+    msg.textContent = 'ℹ️ Varsayilanlar forma yuklendi — CANLIYA YAZILMADI. Uygulamak icin "Kaydet"e basin.';
+    msg.style.color = '#f1c40f';
+  }
 }
 
 // ── PvP Pazari Takas Kaynaklari (v1.13.17) ──
