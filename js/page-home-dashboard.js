@@ -156,6 +156,9 @@ async function hpUretimDetayTablo() {
     const buyu = d.buyu_bonus || {};
     const koloni = d.koloni_bonus || {}; // v1.14.3.62: koloni bonus yuzdeleri
     const toplam = d.toplam || {};
+    // 2026-08-20 (#17): carpan dokumu (moral × gelistirme × bina × guild × buyu).
+    //   Eski surumlerde alan yok -> {} ile geriye donuk uyumlu, sutun '—' gosterir.
+    const carpanlar = d.carpanlar || {};
 
     const pData = (() => { try { return JSON.parse(localStorage.getItem('palantis_player') || 'null'); } catch { return null; } })();
     const premAktif = !!(pData?.premium?.aktif);
@@ -184,6 +187,8 @@ async function hpUretimDetayTablo() {
       const buyuEk = Math.floor(bazMiktar * buyuYuzde / 100);
       const koloniEk = Math.floor(bazMiktar * koloniYuzde / 100);
       const toplamDeger = parseFloat(toplam[kaynak]) || (bazMiktar + bolgeEk + irkEk + premEk + buyuEk + koloniEk);
+      const carpanBilgi = carpanlar[kaynak];
+      const etkinCarpan = carpanBilgi ? (parseFloat(carpanBilgi.etkin) || 1) : 1;
       rows += '<tr style="border-bottom:1px solid #151515">' +
         '<td style="padding:4px 6px;color:#ccc">' + label + '</td>' +
         '<td style="padding:4px 4px;text-align:right;color:#aaa">' + fmt(bazMiktar) + '</td>' +
@@ -192,6 +197,8 @@ async function hpUretimDetayTablo() {
         '<td style="padding:4px 4px;text-align:right;color:#f1c40f">' + (premEk > 0 ? '+' + fmt(premEk) : '—') + '</td>' +
         '<td style="padding:4px 4px;text-align:right;color:#9b59b6">' + (buyuEk > 0 ? '+' + fmt(buyuEk) : '—') + '</td>' +
         '<td style="padding:4px 4px;text-align:right;color:#1abc9c">' + (koloniEk > 0 ? '+' + fmt(koloniEk) : '—') + '</td>' +
+        '<td style="padding:4px 4px;text-align:right;color:' + (etkinCarpan < 0.95 ? '#e74c3c' : etkinCarpan > 1.05 ? '#2ecc71' : '#888') + '">' +
+          (carpanBilgi ? '×' + etkinCarpan.toFixed(2) : '—') + '</td>' +
         '<td style="padding:4px 6px;text-align:right;color:#2ecc71;font-weight:bold">' + fmt(toplamDeger) + '</td>' +
       '</tr>';
     }
@@ -203,7 +210,8 @@ async function hpUretimDetayTablo() {
         const rCol = { beyaz:'#f5f5f5', kirmizi:'#e74c3c', mavi:'#3498db', yesil:'#2ecc71' }[renk];
         rows += '<tr style="border-bottom:1px solid #151515">' +
           '<td style="padding:4px 6px;color:' + rCol + '">🔮 Mana ' + renk.charAt(0).toUpperCase()+renk.slice(1) + '</td>' +
-          '<td colspan="6" style="padding:4px;text-align:right;color:#555;font-size:10px;font-style:italic">(bilge + yakariş dahil)</td>' +
+          // colspan 6 -> 7: #17 ile "Çarpan" sutunu eklendi (mana o zincire tabi degil)
+          '<td colspan="7" style="padding:4px;text-align:right;color:#555;font-size:10px;font-style:italic">(bilge + yakariş dahil)</td>' +
           '<td style="padding:4px 6px;text-align:right;color:' + rCol + ';font-weight:bold">' + fmt(val) + '</td>' +
         '</tr>';
       }
@@ -220,6 +228,10 @@ async function hpUretimDetayTablo() {
           '<th style="padding:5px 4px;text-align:right;color:#f1c40f">Prem</th>' +
           '<th style="padding:5px 4px;text-align:right;color:#9b59b6">Büyü/Art.</th>' +
           '<th style="padding:5px 4px;text-align:right;color:#1abc9c">Koloni</th>' +
+          // 2026-08-20 (#17): backend artik moral/gelistirme/bina/guild carpanlarini da
+          //   uyguluyor (eskiden ekran bunlari HIC gostermiyordu ve toplam gercegin
+          //   katlariydi). Carpan sutunu olmadan "Baz 1000 +50 = Toplam 380" tutarsiz gorunur.
+          '<th style="padding:5px 4px;text-align:right;color:#e74c3c" title="Moral × Geliştirme × Bina × Guild × Büyü">Çarpan</th>' +
           '<th style="padding:5px 6px;text-align:right;color:#2ecc71">TOPLAM/sa</th>' +
         '</tr></thead><tbody>' + rows + '</tbody></table></div>';
   } catch(e) {
