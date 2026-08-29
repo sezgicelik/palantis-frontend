@@ -186,9 +186,17 @@ async function hpUretimDetayTablo() {
       const premEk = Math.floor(bazMiktar * premYuzde / 100);
       const buyuEk = Math.floor(bazMiktar * buyuYuzde / 100);
       const koloniEk = Math.floor(bazMiktar * koloniYuzde / 100);
-      const toplamDeger = parseFloat(toplam[kaynak]) || (bazMiktar + bolgeEk + irkEk + premEk + buyuEk + koloniEk);
+      // 2026-08-20 SIFIR TUZAGI: `parseFloat(x) || yedek` deseni 0'i FALSY sayip yedege
+      //   dusuyordu. Backend #17 ile gercek 0 dondurmeye basladi (balikci gunu degilse
+      //   balik=0, tatil modunda hepsi 0) -> ekran "Balık ×1.00 → 3.600" gibi YANLIS,
+      //   uzerine ESKI hatali sayiyi gosteriyordu. Yoklukla sifir ayrildi.
+      const _toplamHam = toplam[kaynak];
+      const toplamDeger = (_toplamHam === undefined || _toplamHam === null || _toplamHam === '')
+        ? (bazMiktar + bolgeEk + irkEk + premEk + buyuEk + koloniEk)
+        : (parseFloat(_toplamHam) || 0);
       const carpanBilgi = carpanlar[kaynak];
-      const etkinCarpan = carpanBilgi ? (parseFloat(carpanBilgi.etkin) || 1) : 1;
+      const _etkinHam = carpanBilgi ? carpanBilgi.etkin : undefined;
+      const etkinCarpan = (_etkinHam === undefined || _etkinHam === null) ? 1 : (parseFloat(_etkinHam) || 0);
       rows += '<tr style="border-bottom:1px solid #151515">' +
         '<td style="padding:4px 6px;color:#ccc">' + label + '</td>' +
         '<td style="padding:4px 4px;text-align:right;color:#aaa">' + fmt(bazMiktar) + '</td>' +
