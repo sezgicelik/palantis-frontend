@@ -1496,7 +1496,7 @@ async function orduGonderAra(armyId) {
       if (kol.benim) {
         // Kendi kolonisi → üs kur
         html += '<div style="background:#e67e2222;border:1px solid #e67e2244;border-radius:6px;padding:8px 12px;margin-top:6px">' +
-          '<div style="color:#e67e22;font-size:12px">🏰 <b>' + (kol.isim||'Koloni') + '</b> — Sizin Koloniniz</div>' +
+          '<div style="color:#e67e22;font-size:12px">🏰 <b>' + esc(kol.isim||'Koloni') + '</b> — Sizin Koloniniz</div>' +
           (isRelay ?
             '<span style="color:#e74c3c;font-size:10px">Korumadaki ordu ile us kurulamaz. Once geri cagirin.</span>'
           :
@@ -1506,7 +1506,7 @@ async function orduGonderAra(armyId) {
       } else {
         // Başkasının kolonisi → baskın
         html += '<div style="background:#e74c3c22;border:1px solid #e74c3c44;border-radius:6px;padding:8px 12px;margin-top:6px">' +
-          '<div style="color:#e74c3c;font-size:12px">⚔️ <b>' + (kol.isim||'Koloni') + '</b> — ' + (kol.sahip_kral||'Bilinmeyen') + ' Kolonisi</div>' +
+          '<div style="color:#e74c3c;font-size:12px">⚔️ <b>' + esc(kol.isim||'Koloni') + '</b> — ' + esc(kol.sahip_kral||'Bilinmeyen') + ' Kolonisi</div>' +
           '<div style="color:#888;font-size:10px;margin:2px 0">Koloni baskini: Savas yapilir, fetih icin 2 Eşek + 100 köylü gerekir.</div>' +
           (isRelay ?
             '<button class="btn" style="font-size:11px;padding:5px 14px;background:#e74c3c;margin-top:4px" onclick="orduGonderRelaySaldiri(' + armyId + ',' + kol.sahip_player_id + ')">⚔️ Baskin Gonder</button>'
