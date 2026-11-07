@@ -63,7 +63,7 @@
       var maasSatir = maasAltin > 0
         ? '<div style="display:flex;justify-content:space-between;padding:3px 0;margin-top:4px;border-top:1px dashed #222;font-size:11px">' +
             '<span style="color:#aaa">🧾 Toplam Maaş (24 P.G.)</span>' +
-            '<span style="color:#f1c40f;font-weight:bold">-' + _num(maasAltin) + ' altın</span>' +
+            '<span style="color:#f1c40f;font-weight:bold">-' + _num(maasAltin) + ' Altın</span>' +
           '</div>'
         : '';
 
@@ -78,13 +78,13 @@
       var uyariEl = document.getElementById('hp-eko-uyari');
       if (uyariEl && maasAltin > 0 && maasAltin > (gelir.altin || 0)) {
         uyariEl.innerHTML += uyariChip('orta',
-          '<b>Maaş gideri altın gelirini aşıyor</b> (' + _num(maasAltin) + ' &gt; ' + _num(gelir.altin) +
+          '<b>Maaş gideri Altın gelirini aşıyor</b> (' + _num(maasAltin) + ' &gt; ' + _num(gelir.altin) +
           '). Hazine eriyor — işçi/ordu maaşlarını veya vergi gelirini gözden geçir.');
       }
       // Net altin negatifse ayrica goster
       if (uyariEl && (net.altin || 0) < 0) {
         uyariEl.innerHTML += uyariChip('orta',
-          '<b>24 P.G. altın bilançosu negatif</b> (' + _num(net.altin) + '). Pazar satışı veya vergi ayarı düşün.');
+          '<b>24 P.G. Altın bilançosu negatif</b> (' + _num(net.altin) + '). Pazar satışı veya vergi ayarı düşün.');
       }
     } catch (e) {
       ozetEl.innerHTML = '<div style="color:#e74c3c;font-size:11px">Özet yüklenemedi: ' + _esc(e.message) + '</div>';

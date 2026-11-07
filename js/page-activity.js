@@ -10,9 +10,9 @@ function _formatActivityRow(l, baseStyle) {
   if ((l.event_type === 'savas' || l.event_type === 'kadim_saldiri') && m) {
     const sid = m[1];
     const mesaj = l.mesaj.replace(/\s*\[#\d+\]\s*$/, '');
-    return '<div onclick="openSavasRaporFromLog('+sid+')" style="'+baseStyle+';color:#e0c080;cursor:pointer" onmouseover="this.style.background=\'rgba(201,168,76,0.08)\'" onmouseout="this.style.background=\'none\'">🔍 '+mesaj+' <span style="font-size:11px;color:#888">raporu gör ›</span></div>';
+    return '<div onclick="openSavasRaporFromLog('+sid+')" style="'+baseStyle+';color:#e0c080;cursor:pointer" onmouseover="this.style.background=\'rgba(201,168,76,0.08)\'" onmouseout="this.style.background=\'none\'">🔍 '+esc(mesaj)+' <span style="font-size:11px;color:#888">raporu gör ›</span></div>';
   }
-  return '<div style="'+baseStyle+'">' + l.mesaj + '</div>';
+  return '<div style="'+baseStyle+'">' + esc(l.mesaj) + '</div>';
 }
 
 // v1.13.50: Savas log'dan rapor aç (global helper — activity.html ve reports.html ortak kullanır)
@@ -153,11 +153,11 @@ function renderActivity(gunler) {
           const mesaj = l.mesaj.replace(/\s*\[#\d+\]\s*$/, '');
           contentHtml += '<div onclick="openSavasRaporFromLog('+sid+')" style="display:flex;gap:6px;padding:3px 0;font-size:11px;color:#e0c080;cursor:pointer" onmouseover="this.style.background=\'rgba(201,168,76,0.08)\'" onmouseout="this.style.background=\'none\'">' +
             '<span style="width:18px;text-align:center;flex-shrink:0">'+ikon+'</span>' +
-            '<span>🔍 '+mesaj+' <span style="font-size:11px;color:#888">raporu gör ›</span></span></div>';
+            '<span>🔍 '+esc(mesaj)+' <span style="font-size:11px;color:#888">raporu gör ›</span></span></div>';
         } else {
           contentHtml += '<div style="display:flex;gap:6px;padding:2px 0;font-size:11px;color:#999">' +
             '<span style="width:18px;text-align:center;flex-shrink:0">' + ikon + '</span>' +
-            '<span>' + l.mesaj + '</span></div>';
+            '<span>' + esc(l.mesaj) + '</span></div>';
         }
       });
     }

@@ -140,7 +140,7 @@ function setGuildHUD(g){
   stats.innerHTML = `
     <div class="stat-box" data-tip="GUILD" style="cursor:pointer" onclick="location.href='guild.html'">
       <span class="res-icon">🏰</span>
-      <div class="res-details"><span class="res-label">${tag||'GUILD'}</span><span class="res-amount" style="font-size:10px">${isim}</span></div>
+      <div class="res-details"><span class="res-label">${esc(tag)||'GUILD'}</span><span class="res-amount" style="font-size:10px">${esc(isim)}</span></div>
     </div>
     <div class="stat-box" data-tip="GUILD NUFUS">
       <span class="res-icon">👥</span>
@@ -390,7 +390,7 @@ async function loadKadimHudBanner() {
     const extra = aktifler.length > 1 ? " +" + (aktifler.length - 1) : "";
     sehirEl.textContent = fazIkon + " " + sehirAd + extra;
     box.style.borderLeftColor = renk;
-    box.title = "KADİM SALDIRI: " + s.isim + " — " + s.kalan_pg + " PG · Bütçe: " + (s.tahmini_saldiri_altin || 0).toLocaleString("tr-TR") + " altın (tıkla → pazar)";
+    box.title = "KADİM SALDIRI: " + s.isim + " — " + s.kalan_pg + " PG · Bütçe: " + (s.tahmini_saldiri_altin || 0).toLocaleString("tr-TR") + " Altın (tıkla → pazar)";
     box.style.display = "flex";
   } catch (e) {
     box.style.display = "none";

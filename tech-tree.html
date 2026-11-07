@@ -178,20 +178,20 @@ tailwind.config = {
 // ════════════════════════════════════════════════════════════
 const SEHIR_GEL_META = {
   // KAYNAK
-  oduncu_gel:    { isim:'Oduncu',         icon:'forest',     etki:'Oduncu→odun +%1/sv',          dal:'hammadde' },
-  madenci_gel:   { isim:'Madenci',        icon:'construction',etki:'Madenci→metal +%1/sv',       dal:'hammadde' },
-  ciftci_gel:    { isim:'Çiftçi',         icon:'agriculture',etki:'Çiftçi→buğday +%1/sv',       dal:'hammadde' },
-  balikci_gel:   { isim:'Balıkçı',        icon:'set_meal',   etki:'Balıkçı→balık +%1/sv',       dal:'hammadde' },
+  oduncu_gel:    { isim:'Oduncu',         icon:'forest',     etki:'Oduncu→Odun +%1/sv',          dal:'hammadde' },
+  madenci_gel:   { isim:'Madenci',        icon:'construction',etki:'Madenci→Metal +%1/sv',       dal:'hammadde' },
+  ciftci_gel:    { isim:'Çiftçi',         icon:'agriculture',etki:'Çiftçi→Buğday +%1/sv',       dal:'hammadde' },
+  balikci_gel:   { isim:'Balıkçı',        icon:'set_meal',   etki:'Balıkçı→Balık +%1/sv',       dal:'hammadde' },
   ticaret_gel:   { isim:'Ticaret',        icon:'storefront', etki:'Markette değerli +%1/sv',     dal:'hammadde' },
   // ISLEME
   kereste_gel:   { isim:'Kereste',        icon:'park',       etki:'Kereste verimi +%1/sv',       dal:'isleme' },
-  metal_gel:     { isim:'Metal İşleme',   icon:'handyman',   etki:'İşlenmiş metal +%1/sv',       dal:'isleme' },
+  metal_gel:     { isim:'Metal İşleme',   icon:'handyman',   etki:'İşlenmiş Metal +%1/sv',       dal:'isleme' },
   firin_gel:     { isim:'Fırın',          icon:'restaurant', etki:'Ekmek+pişmiş +%1/sv',         dal:'isleme' },
   et_gel:        { isim:'Et İşleme',      icon:'lunch_dining',etki:'Pişmiş et verimi +%1/sv',    dal:'isleme' },
   // EKONOMI
   vergi_gel:     { isim:'Vergi Toleransı',icon:'payments',   etki:'Vergi moral cezası -%2/sv',   dal:'ekonomi' },
   insaat_gel:    { isim:'İnşaat',         icon:'engineering',etki:'Bina maliyeti -%1/sv',        dal:'ekonomi' },
-  essek_gel:     { isim:'Eşek Şansı',    icon:'pets',       etki:'Pazarda eşek bulma +%0.1/sv', dal:'ekonomi' },
+  essek_gel:     { isim:'Eşek Şansı',    icon:'pets',       etki:'Pazarda Eşek bulma +%0.1/sv', dal:'ekonomi' },
   // SEHIR YAPI
   ahir_gel:      { isim:'Ahır',           icon:'shield_moon',etki:'At/Kurt üretim +%1/sv',       dal:'yapi' },
   lonca_gel:     { isim:'Lonca',          icon:'visibility_off',etki:'Gizlilik +%1/sv',          dal:'yapi' },
@@ -201,7 +201,7 @@ const SEHIR_GEL_META = {
 };
 
 const ASKERI_META = {
-  askeri_gel: { isim:'Askeri Geliştirme', icon:'shield',  etki:'Ünite eğitim altın -%1/sv', dal:'askeri' },
+  askeri_gel: { isim:'Askeri Geliştirme', icon:'shield',  etki:'Ünite eğitim Altın -%1/sv', dal:'askeri' },
   maas_gel:   { isim:'Maaş İndirimi',     icon:'paid',    etki:'Ordu maaşı -%5/sv',          dal:'askeri' },
 };
 
@@ -576,7 +576,7 @@ function render() {
       </div>
       ${tamamlandi ? `<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings:'FILL' 1;">check_circle</span>` :
         (locked ? `<span class="text-[9px] text-on-surface-variant">Önceki çağ gerek</span>` :
-          `<span class="text-[9px] text-primary">Sehir/Asama</span>`)}
+          `<span class="text-[9px] text-primary">Şehir/Asama</span>`)}
     </div>`);
   });
 

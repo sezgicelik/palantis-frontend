@@ -142,7 +142,7 @@ function renderTurKomposizyonlari(turDetay, saldiranAdi, savunanAdi) {
     return `<div class="sr-turn-side">
       <div class="side-hdr" style="color:${renk}">- ${kimAdi} -</div>
       <div style="display:grid;grid-template-columns:1fr 50px 35px 35px;gap:4px;font-size:11px;color:#666;margin-bottom:3px;padding-bottom:2px;border-bottom:1px solid #2a2a2a">
-        <span>Unite</span><span style="text-align:right">Sayi</span><span style="text-align:right">ATK</span><span style="text-align:right">DEF</span>
+        <span>Ünite</span><span style="text-align:right">Sayi</span><span style="text-align:right">ATK</span><span style="text-align:right">DEF</span>
       </div>
       ${satirlar}
       <div style="display:grid;grid-template-columns:1fr 50px 35px 35px;gap:4px;padding:4px 0 0;margin-top:4px;border-top:1px solid #3a3020;font-size:10px;font-family:'Courier New'">
@@ -220,7 +220,7 @@ function showSavasRapor(sonuc, benimTaraf, opts) {
   const savunanAdi = _esc(opts?.savunanAdi || 'Savunan');
   const saldiranKoord = _esc(opts?.saldiranKoord || '—');
   const savunanKoord = _esc(opts?.savunanKoord || '—');
-  const tipLabel = opts?.tip === 'koloni' ? 'Koloni Muharebesi' : opts?.tip === 'kadim_saldiri' ? 'Kadim Sehir Saldirisi' : 'PvP Muharebesi';
+  const tipLabel = opts?.tip === 'koloni' ? 'Koloni Muharebesi' : opts?.tip === 'kadim_saldiri' ? 'Kadim Şehir Saldirisi' : 'PvP Muharebesi';
   const saldiranMoral = opts?.saldiranMoral ?? 100;
   const savunanMoral = opts?.savunanMoral ?? 100;
 
@@ -325,11 +325,11 @@ function showSavasRapor(sonuc, benimTaraf, opts) {
       <div class="sr-army-title ${taraf}">${isAtk ? '⚔' : '🛡'} ${adi}${rozet}</div>
       <div class="sr-army-sub">📍 ${koord || '—'} · 😊 Moral %${moral}</div>
       ${satirlar}
-      <div class="sr-army-stat total"><span>Toplam Unite</span><span>${fmt(toplamAdet)}</span></div>
+      <div class="sr-army-stat total"><span>Toplam Ünite</span><span>${fmt(toplamAdet)}</span></div>
       <div class="sr-army-stat total"><span>Toplam ATK</span><span>${fmt(toplamAtk)}</span></div>
       <div class="sr-army-stat total"><span>Toplam DEF</span><span>${fmt(toplamDef)}</span></div>
       <div class="sr-army-stat total" style="background:rgba(231,76,60,.1);color:#e67e22">
-        <span>Kalan Unite</span>
+        <span>Kalan Ünite</span>
         <span>${fmt(kalan)}</span>
       </div>
     </div>`;

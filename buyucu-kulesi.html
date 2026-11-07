@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Noxara - Buyucu Kulesi</title>
+<title>Noxara - Büyücü Kulesi</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
@@ -74,14 +74,14 @@
     <!-- Kaynak Ozeti -->
     <div class="city-stats" style="margin-bottom:16px">
       <div class="cstat" style="border-left:3px solid #f0e8d8"><span class="snum" id="bk-mana-beyaz" style="color:#f0e8d8">0</span><span class="slbl">Beyaz Mana</span></div>
-      <div class="cstat" style="border-left:3px solid #e74c3c"><span class="snum" id="bk-mana-kirmizi" style="color:#e74c3c">0</span><span class="slbl">Kirmizi Mana</span></div>
+      <div class="cstat" style="border-left:3px solid #e74c3c"><span class="snum" id="bk-mana-kirmizi" style="color:#e74c3c">0</span><span class="slbl">Kırmızı Mana</span></div>
       <div class="cstat" style="border-left:3px solid #3498db"><span class="snum" id="bk-mana-mavi" style="color:#3498db">0</span><span class="slbl">Mavi Mana</span></div>
-      <div class="cstat" style="border-left:3px solid #2ecc71"><span class="snum" id="bk-mana-yesil" style="color:#2ecc71">0</span><span class="slbl">Yesil Mana</span></div>
+      <div class="cstat" style="border-left:3px solid #2ecc71"><span class="snum" id="bk-mana-yesil" style="color:#2ecc71">0</span><span class="slbl">Yeşil Mana</span></div>
     </div>
     <div class="city-stats" style="margin-bottom:16px">
       <div class="cstat"><span class="snum" id="bk-ates">0</span><span class="slbl">Kristal Tozu</span></div>
-      <div class="cstat"><span class="snum" id="bk-ay">0</span><span class="slbl">Ay Tasi</span></div>
-      <div class="cstat"><span class="snum" id="bk-golge">0</span><span class="slbl">Karanlik Esans</span></div>
+      <div class="cstat"><span class="snum" id="bk-ay">0</span><span class="slbl">Ay Taşı</span></div>
+      <div class="cstat"><span class="snum" id="bk-golge">0</span><span class="slbl">Karanlık Esans</span></div>
       <div class="cstat"><span class="snum" id="bk-ejderha">0</span><span class="slbl">Ejderha Pulu</span></div>
     </div>
 
@@ -100,7 +100,7 @@
         <div style="font-size:12px;color:#f39c12">
           <b>⚠️ Sehirdeki kervanlarda bekleyen malzeme:</b>
           <span id="bk-kervan-ozet" style="color:#c8a96e">—</span>
-          <div style="font-size:10px;color:#888;margin-top:3px">Bu malzemeler envanterinize gecmedigi icin buyu yapamayabilirsiniz. Kervanlari bosaltin.</div>
+          <div style="font-size:10px;color:#888;margin-top:3px">Bu malzemeler envanterinize gecmedigi icin büyü yapamayabilirsiniz. Kervanlari bosaltin.</div>
         </div>
         <a href="kervan.html" style="padding:6px 14px;background:#f39c12;color:#000;font-weight:bold;font-size:11px;text-decoration:none;border-radius:4px">Kervanlara Git →</a>
       </div>
@@ -144,7 +144,7 @@
     <div id="tab-parsomen" class="bk-panel">
       <p style="color:#888;font-size:12px;margin-bottom:10px">Okunmamis parsomenler. "Oku" butonuyla buyuyu ogren veya kademe artir.</p>
       <div id="bk-parsomen-list"></div>
-      <div id="bk-parsomen-empty" style="color:#666;font-size:12px;text-align:center;padding:30px">Parsomen envanteriniz bos. Buyu dukkanindan parsomen satin alin.</div>
+      <div id="bk-parsomen-empty" style="color:#666;font-size:12px;text-align:center;padding:30px">Parşömen envanteriniz boş. Büyü Dükkanı'ndan parşömen satin alin.</div>
     </div>
 
     <!-- Aktif Buyuler -->
@@ -156,7 +156,7 @@
     <!-- Cooldownlar -->
     <div id="tab-cooldown" class="bk-panel">
       <div id="bk-cd-list"></div>
-      <div id="bk-cd-empty" style="color:#666;font-size:12px;text-align:center;padding:30px">Cooldown'da buyu yok.</div>
+      <div id="bk-cd-empty" style="color:#666;font-size:12px;text-align:center;padding:30px">Cooldown'da büyü yok.</div>
     </div>
 
     <!-- Gecmis -->
@@ -176,14 +176,14 @@
 <script src="js/theme.js"></script>
 <script src="js/cache-fetch.js"></script>
 <script src="js/game-data.js?v=14133"></script>
-<script src="js/hud.js?v=13500"></script>
+<script src="js/hud.js?v=13501"></script>
 <script src="js/nufus-render.js"></script>
-<script src="js/layout.js?v=14380"></script>
+<script src="js/layout.js?v=14381"></script>
 <script>
 const API = typeof getApiBase === 'function' ? getApiBase() : (window.API_BASE || 'https://palantis-backend-production.up.railway.app');
-const MANA_RENK_ISIM = { beyaz:'Beyaz', kirmizi:'Kirmizi', mavi:'Mavi', yesil:'Yesil' };
+const MANA_RENK_ISIM = { beyaz:'Beyaz', kirmizi:'Kırmızı', mavi:'Mavi', yesil:'Yeşil' };
 const MANA_RENK_RENK = { beyaz:'#f0e6d2', kirmizi:'#e74c3c', mavi:'#3498db', yesil:'#2ecc71' };
-const MALZEME_ISIM = { ates_tozu:'Kristal Tozu', ay_cigi:'Ay Tasi', golgeler_otu:'Karanlik Esans', ejderha_goz_damla:'Ejderha Pulu' };
+const MALZEME_ISIM = { ates_tozu:'Kristal Tozu', ay_cigi:'Ay Taşı', golgeler_otu:'Karanlık Esans', ejderha_goz_damla:'Ejderha Pulu' };
 const TIP_IKON = { ekonomi:'\u{1F4B0}', destek:'\u{1F6E1}\uFE0F', savunma:'\u{1F3F0}', saldiri:'\u2694\uFE0F', ozel:'\u2728', anti_buyu:'\u{1F52E}' };
 
 let bkData = null;
@@ -264,7 +264,7 @@ async function bkCheckKervan() {
     if (!uyariEl || !ozetEl) return;
 
     const malzemeKolonlari = ['ates_tozu','ay_cigi','golgeler_otu','ejderha_goz_damla'];
-    const malzemeIsim = { ates_tozu:'Kristal Tozu', ay_cigi:'Ay Tasi', golgeler_otu:'Karanlik Esans', ejderha_goz_damla:'Ejderha Pulu' };
+    const malzemeIsim = { ates_tozu:'Kristal Tozu', ay_cigi:'Ay Taşı', golgeler_otu:'Karanlık Esans', ejderha_goz_damla:'Ejderha Pulu' };
     const toplam = {};
     let toplamParsomen = 0;
 
@@ -330,14 +330,14 @@ function bkSwitchTab(tab) {
 // ═══ BUYU KITABI ═══
 function bkRenderKitap() {
   const grid = document.getElementById('bk-kitap-grid');
-  if (!bkData?.buyuler?.length) { grid.innerHTML = '<p style="color:#666;font-size:12px">Henuz buyu ogrenmediniz.</p>'; return; }
+  if (!bkData?.buyuler?.length) { grid.innerHTML = '<p style="color:#666;font-size:12px">Henuz büyü ogrenmediniz.</p>'; return; }
 
   const kitapMap = {};
   (bkData.kitap || []).forEach(k => kitapMap[k.buyu_id] = k.kademe);
 
   // Caglara gore grupla
   const caglar = {};
-  const CAG_ISIMLERI = {1:'1. Cag — Sonatas',2:'2. Cag — Heonteas',3:'3. Cag — Meridias',4:'4. Cag — Celestias',5:'5. Cag — Eternias'};
+  const CAG_ISIMLERI = {1:'1. Çağ — Sonatas',2:'2. Çağ — Heonteas',3:'3. Çağ — Meridias',4:'4. Çağ — Celestias',5:'5. Çağ — Eternias'};
   bkData.buyuler.forEach(b => {
     const c = b.cag || 1;
     if (!caglar[c]) caglar[c] = [];
@@ -370,7 +370,7 @@ function bkRenderKitap() {
             yapBtn = '<div style="width:100%;margin-top:4px;padding-top:4px;border-top:1px solid rgba(212,162,87,0.1);display:flex;align-items:center;gap:6px;position:relative" onclick="event.stopPropagation()">' +
               (!selectedHedef ?
                 '<input id="bk-hedef-input" type="text" placeholder="Hedef kral adi..." autocomplete="off" style="flex:1;padding:3px 6px;background:#0a0a0a;border:1px solid #333;color:#ddd;border-radius:3px;font-size:10px" oninput="bkHedefAra(this.value)" onclick="event.stopPropagation()">' :
-                '<span style="font-size:11px;color:#2ecc71;flex:1">✅ ' + selectedHedef.kral + ' <a href="#" onclick="event.stopPropagation();event.preventDefault();bkHedefTemizle()" style="color:#888;margin-left:6px;font-size:10px">(değiştir)</a></span>') +
+                '<span style="font-size:11px;color:#2ecc71;flex:1">✅ ' + esc(selectedHedef.kral) + ' <a href="#" onclick="event.stopPropagation();event.preventDefault();bkHedefTemizle()" style="color:#888;margin-left:6px;font-size:10px">(değiştir)</a></span>') +
               '<button class="btn gold" style="font-size:11px;padding:4px 10px;flex-shrink:0" onclick="event.stopPropagation();bkBuyuYap(\'' + b.id + '\')" ' +
                 (!selectedHedef ? 'disabled style="opacity:0.3;font-size:11px;padding:4px 10px;flex-shrink:0"' : '') +
               '>⚡ YAP</button>' +
@@ -393,7 +393,7 @@ function bkRenderKitap() {
                 '<select onchange="bkHedefSecim(this.value)" style="flex:1;padding:3px 6px;background:#0a0a0a;border:1px solid #333;color:#ddd;border-radius:3px;font-size:10px">' +
                   '<option value="kendim"' + (secDeger === 'kendim' ? ' selected' : '') + '>🏠 Kendime</option>' +
                   digerUyeler.map(u =>
-                    '<option value="' + u.id + '"' + (secDeger == u.id ? ' selected' : '') + '>👥 ' + u.kral + ' (' + rutbeLbl(u.rutbe) + ')</option>'
+                    '<option value="' + u.id + '"' + (secDeger == u.id ? ' selected' : '') + '>👥 ' + esc(u.kral) + ' (' + rutbeLbl(u.rutbe) + ')</option>'
                   ).join('') +
                 '</select>' +
                 '<button class="btn gold" style="font-size:11px;padding:4px 10px;flex-shrink:0" onclick="event.stopPropagation();bkBuyuYap(\'' + b.id + '\')" ' +
@@ -447,7 +447,7 @@ function bkRenderKitap() {
               ${kd ? '<div style="font-size:11px;color:#555;margin-top:1px">' +
                 '<span style="color:' + (yeterliMana ? '#aaa' : '#e74c3c') + '">' + (kd.mana||0) + ' ' + MANA_RENK_ISIM[b.mana_renk] + '</span> · ' +
                 '<span style="color:' + (yeterliMalzeme ? '#aaa' : '#e74c3c') + '">' + (kd.malzeme||0) + ' ' + (MALZEME_ISIM[b.malzeme]||b.malzeme) + '</span>' +
-                ' · <span style="color:' + (yeterliKule ? '#2ecc71' : '#e74c3c') + ';font-weight:bold" title="' + b.cag + ' Buyucu Kulesi gerekli (mevcut: ' + kuleAdet + ')">🗼 ' + (yeterliKule ? b.cag + '/' + kuleAdet : b.cag + '≠' + kuleAdet) + '</span>' +
+                ' · <span style="color:' + (yeterliKule ? '#2ecc71' : '#e74c3c') + ';font-weight:bold" title="' + b.cag + ' Büyücü Kulesi gerekli (mevcut: ' + kuleAdet + ')">🗼 ' + (yeterliKule ? b.cag + '/' + kuleAdet : b.cag + '≠' + kuleAdet) + '</span>' +
                 (kd.sure > 0 ? ' · ' + kd.sure + 'PG' : '') +
                 ' · CD:' + (b.cooldown||0) + 'PG · %' + (kd.basari||0) +
               '</div>' : ''}
@@ -524,7 +524,7 @@ function bkRenderBuyuYap() {
         <label style="font-size:11px;color:#888">Hedef Oyuncu:</label>
         <input class="hedef-input" id="bk-hedef-input" type="text" placeholder="Kral adi ara..." oninput="bkHedefAra(this.value)">
         <ul class="hedef-list" id="bk-hedef-list"></ul>
-        ${selectedHedef ? `<div style="font-size:11px;color:#2ecc71;margin-top:4px">Secili: ${selectedHedef.kral} (${selectedHedef.taraf})</div>` : ''}
+        ${selectedHedef ? `<div style="font-size:11px;color:#2ecc71;margin-top:4px">Secili: ${esc(selectedHedef.kral)} (${esc(selectedHedef.taraf)})</div>` : ''}
       </div>`;
   }
 
@@ -534,7 +534,7 @@ function bkRenderBuyuYap() {
     <p style="color:#888;font-size:11px;margin-bottom:10px">${buyu.aciklama}</p>
     <div class="buyu-detail-row"><span class="lbl">Mana Maliyeti</span><span class="val" style="color:${yeterliMana ? MANA_RENK_RENK[buyu.mana_renk] : '#e74c3c'}">${kd.mana} ${MANA_RENK_ISIM[buyu.mana_renk]} (mevcut: ${mevcutMana})</span></div>
     <div class="buyu-detail-row"><span class="lbl">Malzeme</span><span class="val" style="color:${yeterliMalzeme ? '#e8dcc8' : '#e74c3c'}">${kd.malzeme} ${MALZEME_ISIM[buyu.malzeme]||buyu.malzeme} (mevcut: ${mevcutMalzeme})</span></div>
-    <div class="buyu-detail-row"><span class="lbl">🗼 Buyucu Kulesi</span><span class="val" style="color:${yeterliKule ? '#2ecc71' : '#e74c3c'}">${buyu.cag} gerekli (mevcut: ${kuleAdet})</span></div>
+    <div class="buyu-detail-row"><span class="lbl">🗼 Büyücü Kulesi</span><span class="val" style="color:${yeterliKule ? '#2ecc71' : '#e74c3c'}">${buyu.cag} gerekli (mevcut: ${kuleAdet})</span></div>
     <div class="buyu-detail-row"><span class="lbl">Basari Sansi</span><span class="val">%${kd.basari}</span></div>
     ${kd.sure > 0 ? `<div class="buyu-detail-row"><span class="lbl">Sure</span><span class="val">${kd.sure} PG</span></div>` : ''}
     <div class="buyu-detail-row"><span class="lbl">Cooldown</span><span class="val">${buyu.cooldown} PG</span></div>
@@ -570,7 +570,7 @@ async function bkHedefAra(q) {
       const el = document.getElementById('bk-hedef-list');
       if (!el) return;
       el.innerHTML = data.oyuncular.map(o =>
-        `<li onclick="bkSelectHedef(${o.id},'${o.kral.replace(/'/g,"\\'")}','${o.taraf}')">${o.kral} (${o.taraf} ${o.irk} C${o.cag}) <span style="background:rgba(212,162,87,0.15);color:#d4a257;padding:1px 5px;border-radius:3px;font-size:10px;margin-left:4px">⚡ ${(o.sehir_degeri||0).toLocaleString()}</span></li>`
+        `<li data-id="${o.id}" data-kral="${esc(o.kral)}" data-taraf="${esc(o.taraf)}" onclick="bkSelectHedef(Number(this.dataset.id),this.dataset.kral,this.dataset.taraf)">${esc(o.kral)} (${esc(o.taraf)} ${esc(o.irk)} C${o.cag}) <span style="background:rgba(212,162,87,0.15);color:#d4a257;padding:1px 5px;border-radius:3px;font-size:10px;margin-left:4px">⚡ ${(o.sehir_degeri||0).toLocaleString()}</span></li>`
       ).join('');
       // Fokusu koru (re-render sonrasi)
       const inp = document.getElementById('bk-hedef-input');
@@ -743,7 +743,7 @@ async function bkLoadLog() {
     const data = await r.json();
     if (!data.ok) return;
     const list = document.getElementById('bk-log-list');
-    if (!data.loglar?.length) { list.innerHTML = '<p style="color:#666;font-size:12px;text-align:center;padding:30px">Henuz buyu yapmamissiniz.</p>'; return; }
+    if (!data.loglar?.length) { list.innerHTML = '<p style="color:#666;font-size:12px;text-align:center;padding:30px">Henuz büyü yapmamissiniz.</p>'; return; }
     list.innerHTML = data.loglar.map(l => {
       const tarih = new Date(l.created_at).toLocaleString('tr-TR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
       return `<div class="log-row ${l.basarili ? '' : 'basarisiz'}">

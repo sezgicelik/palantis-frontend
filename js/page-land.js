@@ -165,11 +165,11 @@ async function buyOffer(id){
   }
 
   if(RES.altin < offer.price){
-    toast("Yetersiz altin (gereken: " + offer.price.toLocaleString('tr-TR') + ", mevcut: " + (RES.altin||0).toLocaleString('tr-TR') + ")");
+    toast("Yetersiz Altın (gereken: " + offer.price.toLocaleString('tr-TR') + ", mevcut: " + (RES.altin||0).toLocaleString('tr-TR') + ")");
     return;
   }
   if(landState.land + offer.amount > landState.landLimit){
-    toast("Cag limitini asiyorsun (" + landState.landLimit + ")");
+    toast("Çağ limitini asiyorsun (" + landState.landLimit + ")");
     return;
   }
 

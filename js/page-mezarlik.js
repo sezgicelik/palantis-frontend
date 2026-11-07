@@ -44,7 +44,7 @@ async function loadMezarlik() {
         '<div style="font-family:\'Cinzel\',serif;font-size:14px;color:var(--gold);font-weight:bold">💀 Toplu Diriltme</div>' +
         '<div style="font-size:11px;color:var(--text-dim);margin-top:2px">' +
           '<b style="color:var(--gold)">' + toplamBirim.toLocaleString('tr-TR') + '</b> birim · ' +
-          'Toplam maliyet: <b style="color:var(--gold)">' + toplamMaliyet.toLocaleString('tr-TR') + ' altın</b> · ' +
+          'Toplam maliyet: <b style="color:var(--gold)">' + toplamMaliyet.toLocaleString('tr-TR') + ' Altın</b> · ' +
           '<span style="color:#f39c12">⏱ 4 PG sonra orduna katılır</span>' +
         '</div>' +
       '</div>' +
@@ -181,7 +181,7 @@ async function diriltTumu() {
   var token = getToken();
   if (!token) return;
 
-  if (!await noxConfirm('Tum mezarlik kayitlarin diriltilecek (ejderhalar haric). Yetecek altin varsa tumu, yoksa kismi dirilir. Birimler 4 PG sonra orduna katilacak. Onayliyor musun?')) return;
+  if (!await noxConfirm('Tum mezarlik kayitlarin diriltilecek (ejderhalar haric). Yetecek Altın varsa tumu, yoksa kismi dirilir. Birimler 4 PG sonra orduna katilacak. Onayliyor musun?')) return;
 
   try {
     var resp = await fetch(API_BASE + '/api/mezarlik/tumu/dirilt', {

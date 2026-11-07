@@ -71,9 +71,9 @@
 <script src="js/theme.js"></script>
 <script src="js/cache-fetch.js"></script>
 <script src="js/game-data.js?v=14133"></script>
-<script src="js/hud.js?v=13500"></script>
+<script src="js/hud.js?v=13501"></script>
 <script src="js/nufus-render.js"></script>
-<script src="js/layout.js?v=14380"></script>
+<script src="js/layout.js?v=14381"></script>
 <script src="js/rehber.js"></script>
 <script>
 const MK_IKONLAR = {
@@ -242,7 +242,7 @@ function renderMarket() {
       <div style="min-width:120px">
         <span style="color:#666;font-size:10px">Kur: </span>
         <span style="color:${kurRenk};font-weight:bold;font-size:11px">${kurOk} %${kur}</span>
-        <span style="color:#f1c40f;font-size:12px;font-weight:bold;margin-left:6px">${f.satis_fiyat.toFixed(1)} altın/adet</span>
+        <span style="color:#f1c40f;font-size:12px;font-weight:bold;margin-left:6px">${f.satis_fiyat.toFixed(1)} Altın/adet</span>
       </div>
       <div style="flex:1;display:flex;align-items:center;gap:4px;justify-content:flex-end;min-width:200px">
         ${kilitli ? `<span style="color:#e67e22;font-size:11px;font-style:italic">Bu hammadde ${f.cag_min}. Çağ'da açılır</span>` : `
@@ -317,7 +317,7 @@ async function mkSat(key) {
     }
     const data = await resp.json();
     if (sonuc) {
-      sonuc.textContent = `✅ ${miktar} ${MK_DATA.fiyatlar[key]?.isim} satıldı → ${data.kazanc.toLocaleString()} altın kazanıldı!`;
+      sonuc.textContent = `✅ ${miktar} ${MK_DATA.fiyatlar[key]?.isim} satıldı → ${data.kazanc.toLocaleString()} Altın kazanıldı!`;
       sonuc.style.color = '#2ecc71';
     }
     MK_SATIS_MIKTAR[key] = 0;

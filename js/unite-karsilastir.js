@@ -124,7 +124,7 @@
       ['Savaş Turları', (a.savasTurlari || []).join(', ') || '—', (b.savasTurlari || []).join(', ') || '—', null, null, null],
       ['Etkin ATK / Maaş', fmtOran(sa.atkPerMaas), fmtOran(sb.atkPerMaas), sa.atkPerMaas, sb.atkPerMaas, true],
       ['DEF / Maaş', fmtOran(sa.defPerMaas), fmtOran(sb.defPerMaas), sa.defPerMaas, sb.defPerMaas, true],
-      ['Etkin ATK / 1000 altın', fmtOran(sa.atkPer1kAltin), fmtOran(sb.atkPer1kAltin), sa.atkPer1kAltin, sb.atkPer1kAltin, true],
+      ['Etkin ATK / 1000 Altın', fmtOran(sa.atkPer1kAltin), fmtOran(sb.atkPer1kAltin), sa.atkPer1kAltin, sb.atkPer1kAltin, true],
       ['Maliyet', _costHtml(sa.cost, a.extraCost), _costHtml(sb.cost, b.extraCost), null, null, null]
     ];
 

@@ -100,9 +100,9 @@ function renderFestival(data) {
         </div>
 
         <div style="font-size:12px;color:#888;margin-bottom:12px;line-height:1.8">
-          <div>💰 <b>${f.altin.toLocaleString('tr-TR')}</b> altın
+          <div>💰 <b>${f.altin.toLocaleString('tr-TR')}</b> Altın
             ${yetersizAltin ? '<span style="color:#e74c3c;font-size:10px"> (yetersiz)</span>' : ''}</div>
-          <div>🍞 <b>${f.ekmek.toLocaleString('tr-TR')}</b> ekmek
+          <div>🍞 <b>${f.ekmek.toLocaleString('tr-TR')}</b> Ekmek
             ${yetersizEkmek ? '<span style="color:#e74c3c;font-size:10px"> (yetersiz)</span>' : ''}</div>
           <div style="color:${renk};margin-top:4px">😊 +${f.moral_bonus} anlık moral</div>
           ${f.saatlik_bonus ? `<div style="color:#2ecc71;font-size:11px">⏱️ +${f.saatlik_bonus}/saat × ${f.sure_pg} PG = +${f.saatlik_bonus * f.sure_pg} toplam</div>` : ''}

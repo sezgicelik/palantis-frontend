@@ -163,7 +163,7 @@ async function loadGonderilenler() {
       var tarih = new Date(m.created_at).toLocaleString('tr-TR');
       return '<div class="card" style="padding:8px 10px;margin-bottom:4px">' +
         '<div style="display:flex;justify-content:space-between;font-size:10px">' +
-          '<span>📤 Kime: <b>' + (m.alan_adi||'?') + '</b>' + (m.baslik ? ' — ' + m.baslik : '') + '</span>' +
+          '<span>📤 Kime: <b>' + esc(m.alan_adi||'?') + '</b>' + (m.baslik ? ' — ' + esc(m.baslik) : '') + '</span>' +
           '<span style="color:#555">' + tarih + '</span>' +
         '</div>' +
         '<div style="font-size:10px;color:#ccc;margin-top:3px">' + escapeHtml(m.mesaj).substring(0, 200) + '</div>' +
@@ -303,8 +303,8 @@ async function ozelHedefAra() {
     var data = await resp.json();
     if (!data.length) { sonuc.innerHTML = '<span style="color:#e74c3c">Oyuncu bulunamadi</span>'; return; }
     sonuc.innerHTML = data.map(function(p) {
-      return '<div style="cursor:pointer;padding:2px 4px;border-radius:3px;margin:1px 0" onmouseover="this.style.background=\'#222\'" onmouseout="this.style.background=\'none\'" onclick="document.getElementById(\'ozel-hedef\').value=\'' + p.id + '\';document.getElementById(\'ozel-hedef-sonuc\').innerHTML=\'<span style=color:#2ecc71>Secildi: ' + p.kullanici_adi + '</span>\'">' +
-        '<span style="color:var(--race-color)">' + p.kullanici_adi + '</span> <span style="color:#555;font-size:11px">(' + p.koord_x + ':' + p.koord_y + ')</span>' +
+      return '<div style="cursor:pointer;padding:2px 4px;border-radius:3px;margin:1px 0" data-id="' + p.id + '" data-ad="' + esc(p.kullanici_adi) + '" onmouseover="this.style.background=\'#222\'" onmouseout="this.style.background=\'none\'" onclick="document.getElementById(\'ozel-hedef\').value=this.dataset.id;document.getElementById(\'ozel-hedef-sonuc\').innerHTML=\'<span style=color:#2ecc71>Secildi: \'+esc(this.dataset.ad)+\'</span>\'">' +
+        '<span style="color:var(--race-color)">' + esc(p.kullanici_adi) + '</span> <span style="color:#555;font-size:11px">(' + p.koord_x + ':' + p.koord_y + ')</span>' +
       '</div>';
     }).join('');
   } catch(e) { sonuc.innerHTML = '<span style="color:#e74c3c">Hata</span>'; }

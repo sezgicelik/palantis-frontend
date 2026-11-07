@@ -24,12 +24,12 @@ function renderAyarlar(el, data) {
     { key:'gorev_tamam', label:'Gorev tamamlandiginda', icon:'📜' },
     { key:'casus_rapor', label:'Casus raporu geldiginde', icon:'🕵️' },
     { key:'casus_operasyon', label:'Sehrine casus operasyonu duzenlendiginde', icon:'🕵️‍♂️' },
-    { key:'buyu_saldiri', label:'Sehrine ofansif buyu atildiginda', icon:'🔮' },
+    { key:'buyu_saldiri', label:'Sehrine ofansif büyü atildiginda', icon:'🔮' },
     { key:'ozel_mesaj', label:'Ozel mesaj aldiginda', icon:'✉️' },
     { key:'maas_eksik', label:'Ordu maasi odenemediginde', icon:'💸' },
     { key:'guild_duyuru', label:'Guild duyurusu yapildiginda', icon:'🏰' },
     { key:'bina_tamam', label:'Bina insaati tamamlandiginda', icon:'🏗️' },
-    { key:'egitim_tamam', label:'Unite egitimi tamamlandiginda', icon:'⚔️' },
+    { key:'egitim_tamam', label:'Ünite egitimi tamamlandiginda', icon:'⚔️' },
     { key:'pazar_satis', label:'Pazardaki ilanlarim satildiginda', icon:'🏪' },
   ];
 
@@ -139,7 +139,7 @@ async function loadTatilDurum() {
       var cooldownMsg = data.cooldown_kalan > 0 ?
         '<div style="color:#e74c3c;margin-bottom:6px">Cooldown: ' + Math.round(data.cooldown_kalan) + ' PG beklemeniz gerekiyor</div>' : '';
       el.innerHTML = cooldownMsg +
-        '<div style="color:#888;margin-bottom:6px">Tatil modunda sehriniz korunur: saldiri/buyu/casus engellenir, uretim durur.</div>' +
+        '<div style="color:#888;margin-bottom:6px">Tatil modunda sehriniz korunur: saldırı/büyü/casus engellenir, uretim durur.</div>' +
         '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">' +
           '<label style="font-size:10px;color:#888">Sure (PG):</label>' +
           '<input id="tatil-sure" type="number" value="' + (data.config?.tatil_min_sure||24) + '" min="' + (data.config?.tatil_min_sure||24) + '" max="' + (data.config?.tatil_max_sure||336) + '" style="width:60px;padding:3px;background:#111;border:1px solid #333;color:#ddd;border-radius:3px;font-size:11px">' +
@@ -212,12 +212,12 @@ async function loadBakicilikDurum() {
       var izinListesi = [
         { key:'bina_insaat', label:'Bina insaati baslatma', varsayilan:true },
         { key:'isci_atama', label:'İşçi atama/degistirme', varsayilan:true },
-        { key:'unite_egitim', label:'Unite egitimi', varsayilan:true },
+        { key:'unite_egitim', label:'Ünite egitimi', varsayilan:true },
         { key:'festival', label:'Festival duzenleme', varsayilan:true },
-        { key:'savunma_buyu', label:'Kendine buyu yapma', varsayilan:true },
+        { key:'savunma_buyu', label:'Kendine büyü yapma', varsayilan:true },
         { key:'saldiri', label:'Ordu saldiri gonderme', varsayilan:false },
         { key:'koloni_fetih', label:'Koloni fethi', varsayilan:false },
-        { key:'ofansif_buyu', label:'Ofansif buyu yapma', varsayilan:false },
+        { key:'ofansif_buyu', label:'Ofansif büyü yapma', varsayilan:false },
         { key:'ozel_mesaj', label:'Ozel mesaj okuma', varsayilan:false },
         { key:'guild_kasa', label:'Guild kasa erisimi', varsayilan:false },
         { key:'pazar_ticaret', label:'Pazar ticareti', varsayilan:false },
@@ -262,7 +262,7 @@ async function bakiciAra() {
     var data = await resp.json();
     if (!data.length) { sonuc.innerHTML = '<span style="color:#e74c3c">Oyuncu bulunamadi</span>'; return; }
     sonuc.innerHTML = data.map(function(p) {
-      return '<span style="cursor:pointer;padding:2px 6px;border:1px solid #333;border-radius:3px;margin:1px;display:inline-block" onclick="document.getElementById(\'bakici-hedef-id\').value=\'' + p.id + '\';document.getElementById(\'bakici-sonuc\').innerHTML=\'<span style=color:#2ecc71>Secildi: ' + p.kullanici_adi + '</span>\'">' + p.kullanici_adi + ' <span style="color:#555;font-size:11px">(C' + (p.cag||1) + ')</span></span>';
+      return '<span style="cursor:pointer;padding:2px 6px;border:1px solid #333;border-radius:3px;margin:1px;display:inline-block" data-id="' + p.id + '" data-ad="' + esc(p.kullanici_adi) + '" onclick="document.getElementById(\'bakici-hedef-id\').value=this.dataset.id;document.getElementById(\'bakici-sonuc\').innerHTML=\'<span style=color:#2ecc71>Secildi: \'+esc(this.dataset.ad)+\'</span>\'">' + esc(p.kullanici_adi) + ' <span style="color:#555;font-size:11px">(C' + (p.cag||1) + ')</span></span>';
     }).join(' ');
   } catch(e) { sonuc.innerHTML = '<span style="color:#e74c3c">Arama hatasi</span>'; }
 }

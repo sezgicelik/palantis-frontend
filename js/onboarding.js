@@ -116,7 +116,7 @@ function landingGeri() {
         const irkData = findIrk(p.irk);
         document.getElementById('ob-welcome-irk').textContent =
           (irkData ? irkData.icon + ' ' + irkData.name : p.irk) +
-          ' \u00b7 ' + (p.taraf === 'iyi' ? '\u2600\ufe0f Aydinlik' : '\ud83c\udf11 Karanlik');
+          ' \u00b7 ' + (p.taraf === 'iyi' ? '\u2600\ufe0f Aydınlık' : '\ud83c\udf11 Karanlık');
         const badge = document.getElementById('ob-server-badge');
         if (badge && prevSrv) badge.textContent = prevSrv.ikon + ' ' + prevSrv.isim;
         showObStep('welcome');

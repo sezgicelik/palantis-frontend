@@ -84,7 +84,7 @@
           <button class="btn-action" onclick="loadOzetTablo()" style="padding:4px 12px;font-size:11px;width:auto">↻ Yenile</button>
         </div>
       </div>
-      <p style="font-size:11px;color:#888;margin-bottom:10px">Son N Palantis gunundeki kaynak hareketleri. Gelir (+) yesil, Gider (-) kirmizi.</p>
+      <p style="font-size:11px;color:#888;margin-bottom:10px">Son N Palantis gunundeki kaynak hareketleri. Gelir (+) yeşil, Gider (-) kırmızı.</p>
       <style>
         .btn-ozet-saat { padding:4px 10px;font-size:10px;background:#1a1a1a;border:1px solid #333;color:#888;border-radius:4px;cursor:pointer }
         .btn-ozet-saat.on { background:#c8a96e;color:#000;border-color:#c8a96e;font-weight:bold }
@@ -214,7 +214,7 @@
     var OZET_SAAT = 24;
     var KAYNAK_LABEL = {
       altin:'💰 Altın', metal:'⛏️ Metal', odun:'🌳 Odun', kereste:'🪵 Kereste', islenmis:'⚙️ İşlenmiş',
-      bugday:'🌾 Buğday', balik:'🎣 Balık', cig_et:'🥩 Çiğ Et', ekmek:'🍞 Ekmek', pismis:'🍳 Pis.Balık', pismis_et:'🍖 Pis.Et',
+      bugday:'🌾 Buğday', balik:'🎣 Balık', cig_et:'🥩 Çiğ Et', ekmek:'🍞 Ekmek', pismis:'🍳 Piş.Balık', pismis_et:'🍖 Piş.Et',
       mana_beyaz:'🤍 B.Mana', mana_kirmizi:'❤️ K.Mana', mana_mavi:'💙 M.Mana', mana_yesil:'💚 Y.Mana'
     };
 
@@ -387,7 +387,7 @@
                       const mesaj = l.mesaj.replace(/\s*\[#\d+\]\s*$/, '');
                       return `<div class="savas-click-row" data-savas-id="${sid}" onclick="openSavasRaporFromLog(${sid})" style="display:flex;gap:6px;padding:3px 0 3px 20px;border-bottom:1px solid #0d0d0d;font-size:10px;color:#e0c080;cursor:pointer;transition:background .1s" onmouseover="this.style.background='rgba(201,168,76,0.08)'" onmouseout="this.style.background='none'"><span>🔍 ${mesaj}</span><span style="font-size:11px;color:#888">raporu gör ›</span></div>`;
                     }
-                    return `<div style="display:flex;gap:6px;padding:2px 0 2px 20px;border-bottom:1px solid #0d0d0d;font-size:10px;color:#999"><span>${l.mesaj}</span></div>`;
+                    return `<div style="display:flex;gap:6px;padding:2px 0 2px 20px;border-bottom:1px solid #0d0d0d;font-size:10px;color:#999"><span>${esc(l.mesaj)}</span></div>`;
                   }).join('')}
                 </div>
               `).join('')}
@@ -494,14 +494,14 @@
 <script src="js/theme.js"></script>
 <script src="js/cache-fetch.js"></script>
 <script src="js/game-data.js?v=14133"></script>
-<script src="js/hud.js?v=13500"></script>
+<script src="js/hud.js?v=13501"></script>
 <script src="js/nufus-render.js"></script>
-<script src="js/layout.js?v=14380"></script>
+<script src="js/layout.js?v=14381"></script>
 <script src="js/rehber.js"></script>
-<script src="js/page-activity.js"></script>
-<script src="js/savas-rapor.js?v=14119"></script>
+<script src="js/page-activity.js?v=1"></script>
+<script src="js/savas-rapor.js?v=14120"></script>
 <script src="js/epik-olay.js"></script>
-<script src="js/bildirim-popup.js"></script>
+<script src="js/bildirim-popup.js?v=1"></script>
 <script>
 // v1.13.50: Activity log'daki savas satirina tiklayinca rapor modal ac
 // v1.14.3.22: alert -> noxAlert + opts.id ekle (data is not defined fix)

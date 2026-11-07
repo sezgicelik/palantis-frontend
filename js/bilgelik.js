@@ -146,9 +146,9 @@
   var ONBOARDING = [
     { id:'oduncu', baslik:'Oduncu kampi yap', aciklama:'Odun uretimi temel — en az 1 oduncu kur.',
       bitti: s => s.binaAdet('oduncu') >= 1, link:'city.html?tab=binalar&filter=uretim' },
-    { id:'tarla', baslik:'Tarla yap', aciklama:'Tarla olmadan ciftci calistiramaz, bugday uretemezsin.',
+    { id:'tarla', baslik:'Tarla yap', aciklama:'Tarla olmadan çiftçi calistiramaz, Buğday uretemezsin.',
       bitti: s => s.binaAdet('tarla') >= 1, link:'city.html?tab=binalar&filter=uretim' },
-    { id:'isci_ata', baslik:'Isci ata', aciklama:'Koyluleri oduncu/madenci/ciftci yap.',
+    { id:'isci_ata', baslik:'İşçi ata', aciklama:'Köylüleri oduncu/madenci/çiftçi yap.',
       bitti: s => (s.W.oduncu||0) + (s.W.madenci||0) + (s.W.ciftci||0) >= 5,
       link:'population.html' },
     { id:'sehir_meydani', baslik:'Şehir Meydanı kur', aciklama:'Diğer oyuncularla chatleşmek için gerekli.',
@@ -175,10 +175,10 @@
         try { if ((window.armies||[]).length >= 1) return true; } catch(e){}
         return false;
       }, link:'army.html?tab=armies' },
-    { id:'tapinak', baslik:'Tapinak yap', aciklama:'Worshipperlara mana uretmesi icin.',
+    { id:'tapinak', baslik:'Tapınak yap', aciklama:'Worshipperlara mana uretmesi icin.',
       bitti: s => s.binaAdet('rathe_tapinagi') + s.binaAdet('xegony_tapinagi') + s.binaAdet('fennin_tapinagi') + s.binaAdet('tunare_tapinagi') >= 1,
       link:'city.html?tab=binalar&filter=askeri' },
-    { id:'pazar', baslik:'Pazar kur', aciklama:'Kervan + buyu dukkani + oyuncu pazarina giris.',
+    { id:'pazar', baslik:'Pazar kur', aciklama:'Kervan + büyü dukkani + oyuncu pazarina giris.',
       bitti: s => s.binaAdet('pazar') >= 1, link:'city.html?tab=binalar' },
     { id:'koloni', baslik:'Ilk kolonini fethet', aciklama:'Haritada bos koloni bul, ordu ile fethet.',
       bitti: s => {
@@ -188,7 +188,7 @@
         if ((s.O.koloni_sayisi || 0) >= 1) return true;
         return false;
       }, link:'map.html' },
-    { id:'cag2', baslik:'2. Caga gec', aciklama:'Daha fazla bina/unite acilir.',
+    { id:'cag2', baslik:'2. Caga gec', aciklama:'Daha fazla bina/ünite açılır.',
       bitti: s => s.cag >= 2, link:'cag.html' },
   ];
 
@@ -199,8 +199,8 @@
     // ═══ ACIL — kritik durumlar ═══
     { id:'aclik_kritik', tier:'acil', tip:'warning',
       kosul: s => (s.O.aclik || 0) > 70,
-      mesaj: () => '🔥 ACIL — Aclik %' + (getState().O.aclik || 0) + '! Koyluler suan kaciyor.',
-      cozum:['Pisirme oranini hemen artir','Ciftlik/balikci kontrolu (population.html)','Pazardan bugday/balik al'] },
+      mesaj: () => '🔥 ACIL — Aclik %' + (getState().O.aclik || 0) + '! Köylüler suan kaciyor.',
+      cozum:['Pisirme oranini hemen artir','Çiftlik/Balıkçı kontrolü (population.html)','Pazardan Buğday/Balık al'] },
 
     { id:'savunmasiz', tier:'acil', tip:'warning',
       kosul: s => {
@@ -213,7 +213,7 @@
         try { unite = (window.NUFUS_DATA && window.NUFUS_DATA.unite && window.NUFUS_DATA.unite.toplam) || 0; } catch(e) {}
         return (asker + armiesTotal + unite) === 0;
       },
-      mesaj:'⚔️ ACIL — Hic askerin/uniten yok! Cag 2+ olarak saldiri yiyebilirsin.',
+      mesaj:'⚔️ ACIL — Hic askerin/üniten yok! Çağ 2+ olarak saldiri yiyebilirsin.',
       cozum:['army.html → Asker Egitimi','En az 100-200 piyade bas','Surlar yapildi mi kontrol et'] },
 
     { id:'moral_kritik', tier:'acil', tip:'warning',
@@ -223,19 +223,19 @@
 
     { id:'kasa_negatif', tier:'acil', tip:'warning',
       kosul: s => (s.R.altin || 0) < 0,
-      mesaj:'💸 ACIL — Altin negatif! Maas odenemiyor, ordu morali dusuyor.',
+      mesaj:'💸 ACIL — Altın negatif! Maas odenemiyor, ordu morali dusuyor.',
       cozum:['Pazardan kaynak sat','Vergi orani kontrol','Atil orduyu temizle'] },
 
     { id:'kale_yok_ileri_cag', tier:'acil', tip:'warning',
       kosul: s => s.cag >= 3 && s.binaAdet('surlar') === 0,
-      mesaj:'🏰 Cag 3+ ama surlar yok! Savunmada %30 kale bonusu kacar.',
-      cozum:['Sehir → Binalar → Surlar','Tum savunmaya +%30 carpan'] },
+      mesaj:'🏰 Çağ 3+ ama surlar yok! Savunmada %30 kale bonusu kacar.',
+      cozum:['Şehir → Binalar → Surlar','Tum savunmaya +%30 carpan'] },
 
     // ═══ ORTA — strateji uyarilari ═══
     { id:'aclik_yuksek', tier:'orta', tip:'warning',
       kosul: s => (s.O.aclik || 0) > 50 && (s.O.aclik || 0) <= 70,
       mesaj: () => '🍞 Aclik %' + (getState().O.aclik || 0) + ' — kacis baslamak uzere.',
-      cozum:['Tarla seviyesini artir','Ciftci atamasini kontrol et','Pisirme oranini ayarla'] },
+      cozum:['Tarla seviyesini artir','Çiftçi atamasini kontrol et','Pisirme oranini ayarla'] },
 
     { id:'moral_dusuk', tier:'orta', tip:'warning',
       kosul: s => {
@@ -248,17 +248,17 @@
     { id:'no_oduncu', tier:'orta', tip:'warning',
       kosul: s => s.binaAdet('oduncu') === 0,
       mesaj:'🪓 Hic oduncu binasi yok. Odun uretemezsin.',
-      cozum:['Sehir → Binalar → Uretim → Oduncu Kampi','Maliyet az: 200 odun, 50 altin'] },
+      cozum:['Şehir → Binalar → Uretim → Oduncu Kampı','Maliyet az: 200 Odun, 50 Altın'] },
 
     { id:'no_tarla', tier:'orta', tip:'warning',
       kosul: s => s.binaAdet('tarla') === 0,
-      mesaj:'🌾 Tarla yok — ciftci calistiramaz, bugday uretemezsin.',
-      cozum:['Tarla yap (her tarla 50 ciftci kapasitesi)','Yeni oyuncu icin sart'] },
+      mesaj:'🌾 Tarla yok — çiftçi calistiramaz, Buğday uretemezsin.',
+      cozum:['Tarla yap (her tarla 50 çiftçi kapasitesi)','Yeni oyuncu icin sart'] },
 
     { id:'no_meydan', tier:'orta', tip:'warning',
       kosul: s => s.binaAdet('sehir_meydani') === 0,
       mesaj:'💬 Şehir Meydanı yok — chat yapamaz, özel mesaj atamaz.',
-      cozum:['Çağ 1 oyuncularda zorunlu','Çok ucuz: 200 odun, 250 altın'] },
+      cozum:['Çağ 1 oyuncularda zorunlu','Çok ucuz: 200 Odun, 250 Altın'] },
 
     { id:'tarla_dolu', tier:'orta', tip:'warning',
       kosul: s => {
@@ -271,23 +271,23 @@
 
     { id:'pazar_yok_cag2', tier:'orta', tip:'warning',
       kosul: s => s.cag >= 2 && s.binaAdet('pazar') === 0,
-      mesaj:'🏪 Pazar yok — kervan/buyu dukkani/PvP ticareti kullanamazsin.',
-      cozum:['Sehir → Binalar → Pazar','Cag 1\'de kurulabilir'] },
+      mesaj:'🏪 Pazar yok — kervan/büyü dükkanı/PvP ticareti kullanamazsin.',
+      cozum:['Şehir → Binalar → Pazar','Çağ 1\'de kurulabilir'] },
 
     { id:'lonca_eksik', tier:'orta', tip:'warning',
       kosul: s => s.cag >= 2 && s.binaAdet('lonca') === 0,
       mesaj:'🎭 Lonca yok — gizlilik uretimi/casus egitimi sinirli.',
-      cozum:['Sehir → Binalar → Lonca','+50 sehir morali pasif bonus'] },
+      cozum:['Şehir → Binalar → Lonca','+50 şehir morali pasif bonus'] },
 
     { id:'isleme_yok', tier:'orta', tip:'warning',
       kosul: s => s.binaAdet('oduncu') >= 2 && s.binaAdet('isleme') === 0,
-      mesaj:'🪵 Oduncuya yatirim yaptin ama isleme yok — odun→kereste cevirilmiyor.',
-      cozum:['Sehir → Binalar → Isleme atolyesi','Kereste savas/bina maliyetinde kritik'] },
+      mesaj:'🪵 Oduncuya yatirim yaptin ama isleme yok — Odun→Kereste cevirilmiyor.',
+      cozum:['Şehir → Binalar → İşleme Atölyesi','Kereste savas/bina maliyetinde kritik'] },
 
     { id:'ocak_firin_yok', tier:'orta', tip:'warning',
       kosul: s => (s.binaAdet('ciftlik') >= 1 || (s.W.balikci||0) >= 5) && s.binaAdet('ocak') === 0 && s.binaAdet('firin') === 0,
-      mesaj:'🍳 Ocak/Firin yok — yemekleri pisiremiyorsun (pismis 2x daha etkili).',
-      cozum:['Ocak (et pisirme) veya Firin (ekmek)','Pismis = ham × 2 doyma'] },
+      mesaj:'🍳 Ocak/Fırın yok — yemekleri pisiremiyorsun (pişmiş 2x daha etkili).',
+      cozum:['Ocak (et pisirme) veya Fırın (Ekmek)','Pişmiş = ham × 2 doyma'] },
 
     // v1.14.2.8: Yemek kapsama uyarisi — popilasyona gore ocak/firin yetersizligi
     { id:'yemek_kapsama_yetersiz', tier:'orta', tip:'warning',
@@ -312,7 +312,7 @@
         var eksikFirin = Math.ceil((hedef - kap) / 200);
         return `🍞 Yetersiz pişirme — ${total.toLocaleString('tr-TR')} nüfus için ${kap}/${hedef} kapasite. ~${eksikFirin} fırın daha gerek (veya ${eksikFirin*2} ocak).`;
       },
-      cozum:['Sehir → Binalar → Firin (200 kap) veya Ocak (100 kap)','Pisirme orani: population.html → Ocak/Firin Pisirme Orani','Pismis 2x etkili: 100 ekmek = 200 kişi doyurur'] },
+      cozum:['Şehir → Binalar → Fırın (200 kap) veya Ocak (100 kap)','Pisirme orani: population.html → Ocak/Fırın Pisirme Orani','Pişmiş 2x etkili: 100 Ekmek = 200 kişi doyurur'] },
 
     // v1.14.3.0: Hasarlı bina uyarısı (Sezgi: dayaniklilik takip)
     { id:'hasarli_binalar', tier:'orta', tip:'warning',
@@ -341,7 +341,7 @@
           return '🛡️ Hasarlı bina: ' + hasarli.slice(0, 5).join(', ') + (hasarli.length > 5 ? ` +${hasarli.length-5}` : '');
         } catch(e) { return '🛡️ Bazı binaların dayanıklılığı düşük'; }
       },
-      cozum: ['Sehir → Binalar → Tamir butonu (yeşil 🔧)','Toplu tamir: tamir-toplu admin endpoint','Dayanıklılık <%20 olunca yıkım şansı','Yeni inşa = ortalamayı yukarı çeker (saldırı sonrası bunu kullan)'] },
+      cozum: ['Şehir → Binalar → Tamir butonu (yeşil 🔧)','Toplu tamir: tamir-toplu admin endpoint','Dayanıklılık <%20 olunca yıkım şansı','Yeni inşa = ortalamayı yukarı çeker (saldırı sonrası bunu kullan)'] },
 
     // v1.14.2.9: GPS / Gelişim binalari kapsama (5 alan: egitim/bilgi/kultur/eglence/sehir)
     // Sezgi'nin yemek kapsama paterni — gelisim icin de aynisi
@@ -379,7 +379,7 @@
         return '🏛️ GPS yetersiz alanlar (KP/GP icin gerekli): ' + eksikler.join(' · ');
       },
       cozum: () => {
-        if (!teshisCache || !teshisCache.gps) return ['Sehir → Binalar → GPS bina yap'];
+        if (!teshisCache || !teshisCache.gps) return ['Şehir → Binalar → GPS bina yap'];
         var alanlar = teshisCache.gps.alan_kapsama || {};
         var toplam = (teshisCache.isciler && teshisCache.isciler.toplam) || 1;
         var BINALAR = {
@@ -401,7 +401,7 @@
           detaylar.push(alan.toUpperCase() + ': ' + secenekler);
         }
         if (detaylar.length === 0) detaylar.push('Tüm alanlar yeterli');
-        detaylar.push('GPS %100 → +6 sehir morali/saat + KP üretimi');
+        detaylar.push('GPS %100 → +6 şehir morali/saat + KP üretimi');
         return detaylar;
       } },
 
@@ -426,7 +426,7 @@
         var eksik = Math.max(0, hedef - ciftlik);
         return `🐄 Az ciftlik — ${total.toLocaleString('tr-TR')} nüfus için ${ciftlik}/${hedef} ciftlik. ~${eksik} ciftlik daha gerek (et üretimi).`;
       },
-      cozum:['Sehir → Binalar → Ciftlik (10 besi/saat × 20 et = 200 doyma/bina)','Tarla + ciftci kombinasyonu da yemek katar'] },
+      cozum:['Şehir → Binalar → Çiftlik (10 besi/saat × 20 et = 200 doyma/bina)','Tarla + çiftçi kombinasyonu da yemek katar'] },
 
     { id:'ahir_yok_cag2', tier:'orta', tip:'success',
       kosul: s => s.cag >= 2 && s.binaAdet('ahir') === 0,
@@ -448,8 +448,8 @@
 
     { id:'hazir_parsomen', tier:'orta', tip:'success',
       kosul: s => (window.PARSOMEN_SAYI || 0) > 0,
-      mesaj:'✨ Bekleyen parsomenlerin var — buyu ac.',
-      cozum:['Buyuler → Buyucu Kulesi → Parsomenler','Yeni buyu = guc artisi'] },
+      mesaj:'✨ Bekleyen parsomenlerin var — büyü ac.',
+      cozum:['Büyüler → Büyücü Kulesi → Parsomenler','Yeni büyü = guc artisi'] },
 
     { id:'bos_ws_kapasite', tier:'orta', tip:'success',
       kosul: s => {
@@ -463,7 +463,7 @@
     { id:'bos_kuyruk', tier:'orta', tip:'success',
       kosul: s => s.cag >= 1 && ((window.BUILDINGS_DATA && window.BUILDINGS_DATA.queue && window.BUILDINGS_DATA.queue.length === 0) || false),
       mesaj:'🔨 Insaat kuyrugun bos. Bekleyen plan kontrolu.',
-      cozum:['Sehir → Binalar — yeni plana basla','5 simultane insa hakki'] },
+      cozum:['Şehir → Binalar — yeni plana basla','5 simultane insa hakki'] },
 
     { id:'koloni_az', tier:'orta', tip:'success',
       kosul: s => s.cag >= 2 && (s.O.koloni_sayisi || 0) < 2,
@@ -473,12 +473,12 @@
     // ═══ ILERI — optimizasyon / endgame ═══
     { id:'cag3_artifact_yok', tier:'ileri', tip:'success',
       kosul: s => s.cag >= 3 && (window.ARTIFACT_DATA && window.ARTIFACT_DATA.aktif_sayi === 0),
-      mesaj:'💎 Cag 3+ artifact kullanmiyorsun — buyuk bonus kaybi.',
-      cozum:['artifact.html','30+ artifact, cag bazli etki'] },
+      mesaj:'💎 Çağ 3+ artifact kullanmiyorsun — buyuk bonus kaybi.',
+      cozum:['artifact.html','30+ artifact, çağ bazli etki'] },
 
     { id:'guild_yok_cag3', tier:'ileri', tip:'success',
       kosul: s => s.cag >= 3 && !s.O.guild_id,
-      mesaj:'🏛️ Cag 3+ guild yok — guild bonusu, ortak ordu, kadim sehir holding kacar.',
+      mesaj:'🏛️ Çağ 3+ guild yok — guild bonusu, ortak ordu, kadim şehir holding kacar.',
       cozum:['guild.html → Guild bul/kur','Min 5 oyuncu gerekir'] },
 
     { id:'kadim_sayac_uyari', tier:'ileri', tip:'warning',
@@ -490,24 +490,24 @@
       },
       mesaj: () => {
         var k = window.KADIM_SAYAC || {};
-        return '⏳ Kadim sehir saldirisi yaklasiyor (' + (k.kalan_pg || '?') + ' P.G.)!';
+        return '⏳ Kadim şehir saldirisi yaklasiyor (' + (k.kalan_pg || '?') + ' P.G.)!';
       },
       cozum:['Ordu hazirla — kadim NPC ordusu agir','Surlar/kuleler kontrol','Takviye iste guild\'den'] },
 
     { id:'premium_upsell', tier:'ileri', tip:'success',
       kosul: s => s.cag >= 3 && !s.premium,
       mesaj:'⚜ Premium ile +%30 uretim, +1 ordu, ekstra kervan.',
-      cozum:['premium.html → bronz/gumus/altin paket','Cag 3 = 1.0x, cag 5 = 1.5x carpan'] },
+      cozum:['premium.html → bronz/gümüş/altın paket','Çağ 3 = 1.0x, çağ 5 = 1.5x carpan'] },
 
     { id:'gpsile_moral_kazani', tier:'ileri', tip:'success',
       kosul: s => s.cag >= 3 && mutlulukYuzde(s) < 70,
       mesaj:'😊 Mutluluğu hızla yükseltebilirsin — GPS binalari pasif +1 ila +6/saat.',
-      cozum:['Asma Bahceler (cag 4): +100 bonus','Muze (cag 3): +80 bonus','GPS≥%100 → +6/saat recovery'] },
+      cozum:['Asma Bahçeler (çağ 4): +100 bonus','Müze (çağ 3): +80 bonus','GPS≥%100 → +6/saat recovery'] },
 
     { id:'serap_buyu', tier:'ileri', tip:'success',
       kosul: s => s.cag >= 3 && (window.AKTIF_BUYULER && !window.AKTIF_BUYULER.find(b => b.buyu_id === 'serap')),
       mesaj:'🌫️ Serap buyusu aktif degil — saldirida alan kaybi azalir.',
-      cozum:['Buyucu Kulesi → Serap','Kademe x %3 alan koruma'] },
+      cozum:['Büyücü Kulesi → Serap','Kademe x %3 alan koruma'] },
 
     { id:'ordu_morali_dusuk', tier:'ileri', tip:'warning',
       kosul: s => (s.O.ordu_morali || 100) < 50,
@@ -522,7 +522,7 @@
     { id:'kubbe_buyu', tier:'ileri', tip:'success',
       kosul: s => s.cag >= 4 && !(window.AKTIF_BUYULER && window.AKTIF_BUYULER.find(b => b.buyu_id === 'gorunmez_kubbe')),
       mesaj:'🛡️ Gorunmez Kubbe yok — artifact koruma kacirilan saldiri ihtimali.',
-      cozum:['Buyucu Kulesi → Gorunmez Kubbe','Saldirida artifact bonus aktif'] },
+      cozum:['Büyücü Kulesi → Gorunmez Kubbe','Saldirida artifact bonus aktif'] },
 
     { id:'savas_simulator_dene', tier:'ileri', tip:'success',
       kosul: s => s.cag >= 3 && s.premium && (s.O.simulasyon_kullandi || 0) < 3,
@@ -548,8 +548,8 @@
         // Cag atlama icin kabac criteria — gercek kontrolu cag.html yapar
         return s.cag < 5 && (s.R.altin || 0) > 100000 * s.cag && (s.O.toplam_alan || 0) > 50 * s.cag;
       },
-      mesaj: () => '⬆️ Cag ' + (getState().cag + 1) + '\'a atlama hazir olabilirsin.',
-      cozum:['cag.html → Cag atlama gereksinimleri','Yeni binalar/uniteler acilir'] },
+      mesaj: () => '⬆️ Çağ ' + (getState().cag + 1) + '\'a atlama hazir olabilirsin.',
+      cozum:['cag.html → Çağ atlama gereksinimleri','Yeni binalar/üniteler açılır'] },
   ];
 
   // ──────────────────────────────────────────────
@@ -560,7 +560,7 @@
       baslik: 'Çağ 1: Temel Altyapı',
       asamalar: [
         '1️⃣ İlk 24 P.G.: Oduncu, Tarla, Şehir Meydanı, Ev',
-        '2️⃣ Köyluleri ata: 5 oduncu + 5 ciftci + 3 madenci',
+        '2️⃣ Köyluleri ata: 5 oduncu + 5 çiftçi + 3 madenci',
         '3️⃣ Asker eğitimi başlat (en az 50 piyade)',
         '4️⃣ Madencisi/balıkçı ile çeşitlilik (yemek bonusu)',
         '5️⃣ İlk koloniye saldır (kaynak akışı)',
@@ -573,7 +573,7 @@
         '1️⃣ Tapınak (1 renk) + Worshipper üret',
         '2️⃣ Lonca + Ahır (suvari/at)',
         '3️⃣ Askeri gelisim (savaşçı, suvari, paladin)',
-        '4️⃣ Pazar + Kervan (5 esek)',
+        '4️⃣ Pazar + Kervan (5 Eşek)',
         '5️⃣ Casus eğitimi (istihbarat binası)',
         '🎯 Hedef: 2 koloni + ilk PvP zafer'
       ]
@@ -605,7 +605,7 @@
       asamalar: [
         '1️⃣ Tüm GPS binaları (5000 max moral!)',
         '2️⃣ Kadim Şehir holding (guild ile)',
-        '3️⃣ Ejderha/elit unite üret',
+        '3️⃣ Ejderha/elit ünite üret',
         '4️⃣ Sezon rozeti hedefle',
         '5️⃣ Artifact tam set (+3 etki)',
         '🎯 Hedef: Top 10 + sezon kazanan'
@@ -620,8 +620,8 @@
     // Oduncu — kademe başına +5 odun/saat
     var odSev = s.binaAdet('oduncu');
     if (odSev < 10) roi.push({
-      bina:'Oduncu Kampı', kademe: odSev+1, etki:'+5 odun/saat',
-      maliyet:'~'+(200*Math.pow(1.5,odSev))+' odun + '+(50*Math.pow(1.5,odSev))+' altın',
+      bina:'Oduncu Kampı', kademe: odSev+1, etki:'+5 Odun/saat',
+      maliyet:'~'+(200*Math.pow(1.5,odSev))+' Odun + '+(50*Math.pow(1.5,odSev))+' Altın',
       oncelik: odSev < 3 ? 'YÜKSEK' : 'ORTA',
     });
 
@@ -629,7 +629,7 @@
     var tSev = s.binaAdet('tarla');
     var ciftciSayisi = s.W.ciftci || 0;
     if (ciftciSayisi >= tSev * 50 - 10) roi.push({
-      bina:'Tarla', kademe: tSev+1, etki:'+50 ciftci kapasitesi',
+      bina:'Tarla', kademe: tSev+1, etki:'+50 çiftçi kapasitesi',
       maliyet:'~'+(150*Math.pow(1.4,tSev))+' odun',
       oncelik:'YÜKSEK',
     });
@@ -648,7 +648,7 @@
     // Asker
     if (s.cag >= 2 && (s.W.asker || 0) < 200) roi.push({
       bina:'Asker Eğitimi', kademe:'army.html', etki:'Savunma + saldırı',
-      maliyet:'1 köylü + altın/saat',
+      maliyet:'1 köylü + Altın/saat',
       oncelik:'YÜKSEK',
     });
 
@@ -677,11 +677,11 @@
   // CODEX — 25 giriş (eski 10'a + 15 yeni)
   // ──────────────────────────────────────────────
   var CODEX = [
-    { baslik:'Kaynaklar', icerik:'Odun, metal, altin, bugday, balik temel. Kereste/islenmis isleme ile. Cig et/pismis et ciftlik+ocak ile.' },
+    { baslik:'Kaynaklar', icerik:'Odun, Metal, Altın, Buğday, Balık temel. Kereste/İşlenmiş Metal işleme ile. Çiğ Et/Pişmiş Et çiftlik+ocak ile.' },
     { baslik:'Nüfus', icerik:'Köylü = işçi/asker/worshipper kaynağı. Ev=10, Köy=100, Kasaba=250 kapasite. Açlık %50+ → kaçış.' },
     { baslik:'Şehir Morali', icerik:'Çağ bazlı max 1500-5000. Festival, GPS binaları (kademeli), Ejderha Sevinci, savaş zaferi (+10), yemek çeşitliliği (3+ tip) artırır. Vergi/açlık/yenilgi (-15) düşürür.' },
     { baslik:'Ordu Morali', icerik:'0-100. Maaş ödenir +5/saat, ödenmez -10. ATK çarpanı moral/100 (min 0.2).' },
-    { baslik:'GPS (Populasyon Seviyesi)', icerik:'5 ilgi alanı (egitim/bilgi/kultur/eglence/sehir) ortalaması. ≥%50 → +1 moral/saat, %100 → +6.' },
+    { baslik:'GPS (Populasyon Seviyesi)', icerik:'5 ilgi alanı (eğitim/bilgi/kültür/eğlence/şehir) ortalaması. ≥%50 → +1 moral/saat, %100 → +6.' },
     { baslik:'Yemek Çeşitliliği', icerik:'3+ tip (bugday/balik/cig_et/ekmek/pismis/pismis_et) → +1 moral/saat, 5+ tip → +2. Doyma ≥%50 ise.' },
     { baslik:'Vergi Sistemleri', icerik:'5 sistem: Klasik/GPS Kilitli/Progressive/Dinamik/Premium. Moral %20 altı → vergi sıfırlanır (tüm sistemlerde).' },
     { baslik:'Savaş Sistemi', icerik:'6 turlu, 4 saf (3-3-5-3 slot). Zırh birim-bazlı (Albion: 1/(1+zirh/50)). İska yüzdesel deterministik.' },
@@ -693,17 +693,17 @@
     { baslik:'Bilge Sistemi', icerik:'4 Bilge — 168 P.G. cooldown, 2x mana etki. 336 P.G.\'de küresel bilge döngüsü.' },
     { baslik:'Kadim Şehirler', icerik:'Aurium (Işık) + Gorathul (Karanlık). Ticaret yap → 240 P.G. sonra çapraz NPC saldırı (3 P.G. yolculuk). Holding muafiyet.' },
     { baslik:'Artifact Sistemi', icerik:'30+ artifact, çağ bazlı etki. Ganimet/esir bonus saldırana, alan koruma savunana.' },
-    { baslik:'Kervan Sistemi', icerik:'Max 5 (premium +1), 1-500 eşek, 5000 birim/eşek. Yolculuk sonraki gün varış.' },
+    { baslik:'Kervan Sistemi', icerik:'Max 5 (premium +1), 1-500 Eşek, 5000 birim/Eşek. Yolculuk sonraki gün varış.' },
     { baslik:'Premium Sistemi', icerik:'3 paket: bronz/gümüş/altın. Vergi limit, kervan +1, ekstra kaynak, simulasyon hakkı.' },
     { baslik:'Festival', icerik:'+15 / +40 / +100 saatlik moral bonus. Aktif festival kullanılan kaynak limit.' },
     { baslik:'Mezarlık', icerik:'Olen unitelerin %30\'u 24 saat içinde diriltilebilir (ücretli/ücretsiz).' },
     { baslik:'Sezon & Rozet', icerik:'Sezon başı/sonu rozet. Profilde gösterilir. Yeni sezon = oyun sıfırlama.' },
     { baslik:'Diplomasi', icerik:'Guild antlaşma/ittifak/savaş. İhanet → -%6 ATK/DEF debuff, 24h.' },
-    { baslik:'Bina Dayanıklılık', icerik:'%0-100, doğal yıpranma 4 P.G./%0.5. %20 altı yıkım şansı. Hızlı tamir = altın x2 (anında).' },
-    { baslik:'Tarla & Çiftçi', icerik:'1 tarla = 50 çiftçi kapasitesi. Tarla yoksa çiftçi atanamaz, buğday üretimi 0.' },
+    { baslik:'Bina Dayanıklılık', icerik:'%0-100, doğal yıpranma 4 P.G./%0.5. %20 altı yıkım şansı. Hızlı tamir = Altın x2 (anında).' },
+    { baslik:'Tarla & Çiftçi', icerik:'1 tarla = 50 çiftçi kapasitesi. Tarla yoksa çiftçi atanamaz, Buğday üretimi 0.' },
     { baslik:'Köprü/Yol', icerik:'Harita 200x50 grid, 9 bölge. Her bölgenin farklı kaynak bonusu.' },
-    { baslik:'İşçi Maaşları', icerik:'Saatlik (XX:00 cron): Tüccar 300 · Oduncu/Madenci 5 · Çiftçi/Balıkçı 3 · Esir 0. Hipnoz İŞÇİLERİ ETKİLEMEZ (sadece asker maaşı muaf). Ödenemezse altın 0\'a clamp, moral etkisi yok.' },
-    { baslik:'Asker Maaşı vs İşçi Maaşı', icerik:'Asker maaşı ordu_morali etkiler (+5 ödenir, -10 ödenemez). İşçi maaşı sadece altın gideri — moral değişmez. Hipnoz yalnız ASKER maaşını muaf eder.' },
+    { baslik:'İşçi Maaşları', icerik:'Saatlik (XX:00 cron): Tüccar 300 · Oduncu/Madenci 5 · Çiftçi/Balıkçı 3 · Esir 0. Hipnoz İŞÇİLERİ ETKİLEMEZ (sadece asker maaşı muaf). Ödenemezse Altın 0\'a clamp, moral etkisi yok.' },
+    { baslik:'Asker Maaşı vs İşçi Maaşı', icerik:'Asker maaşı ordu_morali etkiler (+5 ödenir, -10 ödenemez). İşçi maaşı sadece Altın gideri — moral değişmez. Hipnoz yalnız ASKER maaşını muaf eder.' },
     { baslik:'İnşaat İptali', icerik:'Toplu inşa kuyruğu iptal edilirse %80 iade + %20 vazgeçme cezası. Mevcut in_queue inşaat devam eder. Bina kart ve kuyruk widget\'ında ✕ butonu ile.' },
     { baslik:'Telegram Hashtag Filtresi', icerik:'Bot her bildirimin altına #saldiri #pazar #savas #gorev #bina #unite #kervan gibi hashtag ekler. Telegram\'da hashtag\'e UZUN BAS → "Tüm #saldiri mesajları" filtresi otomatik açılır. Saldırılarını, satışlarını veya görevlerini tek tıkla görebilirsin.' },
   ];

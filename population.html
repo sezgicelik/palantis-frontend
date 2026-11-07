@@ -153,10 +153,10 @@
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
         <div>
           <h3 style="margin:0;color:#d4af37;font-size:15px">💰 Saatlik İşçi Maaş Gideri</h3>
-          <div style="font-size:11px;color:#888;margin-top:3px">Cron her saat başı (XX:00) altın kasandan keser. Hipnoz işçileri etkilemez.</div>
+          <div style="font-size:11px;color:#888;margin-top:3px">Cron her saat başı (XX:00) Altın kasandan keser. Hipnoz işçileri etkilemez.</div>
         </div>
         <div style="text-align:right">
-          <div style="font-size:22px;font-weight:bold;color:#d4af37" id="isci-maas-toplam">— altın</div>
+          <div style="font-size:22px;font-weight:bold;color:#d4af37" id="isci-maas-toplam">— Altın</div>
           <div style="font-size:11px;color:#666">Günlük: <span id="isci-maas-gunluk">—</span></div>
         </div>
       </div>
@@ -168,7 +168,7 @@
           🛒 Tüccar: <b style="color:#d4af37">300</b> · 🪓 Oduncu: <b style="color:#d4af37">5</b> ·
           ⛏ Madenci: <b style="color:#d4af37">5</b> · 🌾 Çiftçi: <b style="color:#d4af37">3</b> ·
           🎣 Balıkçı: <b style="color:#d4af37">3</b> ·
-          📚 Katip: <b style="color:#d4af37">1.000</b> · 🏞 İzci: <b style="color:#d4af37">500</b> ·
+          📚 Kâtip: <b style="color:#d4af37">1.000</b> · 🏞 İzci: <b style="color:#d4af37">500</b> ·
           ⛓ Esir: <b style="color:#888">0</b>
         </div>
       </details>
@@ -233,14 +233,14 @@
         </div>
         <!-- v1.14.2.0 (FAZ X.4): Katip — Akademide calisir, GP uretir -->
         <div class="worker-row" style="border-top:1px dashed #2a2a2a;margin-top:6px;padding-top:8px">
-          <span class="wr-lbl">📚 Katip</span>
+          <span class="wr-lbl">📚 Kâtip</span>
           <button type="button" onclick="assignWorker('katip',-10)">−10</button>
           <button type="button" onclick="assignWorker('katip',-1)">−</button>
           <input type="number" min="0" id="w-katip" value="0" oninput="assignWorkerSet('katip',this.value)" class="w-num" />
           <button type="button" onclick="assignWorker('katip',1)">+</button>
           <button type="button" onclick="assignWorker('katip',10)">+10</button>
           <button type="button" onclick="assignWorkerMax('katip')" title="Boş köylülerin tamamını ata">MAX</button>
-          <span class="info" style="font-size:11px;color:#3498db">(0.05 GP/sa, 1000 altın maaş)</span>
+          <span class="info" style="font-size:11px;color:#3498db">(0.05 GP/sa, 1000 Altın maaş)</span>
         </div>
         <!-- v1.14.2.1: Izci — Alan kesfi, max 50, Cag 2+, bina-bagli degil -->
         <div class="worker-row">
@@ -251,7 +251,7 @@
           <button type="button" onclick="assignWorker('izci',1)">+</button>
           <button type="button" onclick="assignWorker('izci',10)">+10</button>
           <button type="button" onclick="assignWorkerMax('izci')" title="Boş köylülerin tamamını ata (max 50)">MAX</button>
-          <span class="info" style="font-size:11px;color:#2ecc71">(0.05 alan/sa, 500 altın maaş, max 50, Çağ 2+)</span>
+          <span class="info" style="font-size:11px;color:#2ecc71">(0.05 alan/sa, 500 Altın maaş, max 50, Çağ 2+)</span>
         </div>
       </div>
       <style>
@@ -274,7 +274,7 @@
       </div>
 
       <p style="color:#888;font-size:13px;margin-bottom:16px">
-        <span id="kesim-taraf-aciklama">Besi hayvanları çiftlikten gelir. Her besi hayvanı = 20 çiğ et.</span>
+        <span id="kesim-taraf-aciklama">Besi hayvanları çiftlikten gelir. Her Besi Hayvanı = 20 Çiğ Et.</span>
         <span style="color:#e74c3c">Geri dönüşü yoktur!</span>
       </p>
 
@@ -300,7 +300,7 @@
       </div>
       <div id="kesim-sonuc" style="margin-top:8px;font-size:13px;color:#888;min-height:20px"></div>
       <div style="margin-top:12px;padding:10px;background:#0d0d0d;border-radius:6px;border:1px solid #1e1e1e;font-size:12px;color:#777">
-        <span id="kesim-miktar-preview">0</span> hayvan kesilirse → <b style="color:#e67e22" id="kesim-et-preview">0</b> çiğ et üretilir
+        <span id="kesim-miktar-preview">0</span> hayvan kesilirse → <b style="color:#e67e22" id="kesim-et-preview">0</b> Çiğ Et üretilir
       </div>
       <div style="margin-top:8px;font-size:11px;color:#555" id="kesim-oto-bilgi">
         📅 Besi hayvanları her ayın 24. gününde otomatik kesilir. At/Kurt otomatik kesilmez.
@@ -323,7 +323,7 @@
       <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px">
         <div style="background:#0d0d0d;padding:10px 14px;border-radius:6px;border:1px solid #1e1e1e;flex:1">
           <div style="color:#666;font-size:11px">Tahmini Gelir / Gün</div>
-          <div style="color:#f1c40f;font-size:16px;font-weight:bold" id="vergi-gelir">0 altın</div>
+          <div style="color:#f1c40f;font-size:16px;font-weight:bold" id="vergi-gelir">0 Altın</div>
         </div>
         <div style="background:#0d0d0d;padding:10px 14px;border-radius:6px;border:1px solid #1e1e1e;flex:1">
           <div style="color:#666;font-size:11px">Moral Etkisi / Gün</div>
@@ -379,7 +379,7 @@
     <div class="card" style="margin-top:18px">
       <h2 style="color:#9b59b6;font-family:'Cinzel',serif;margin:0 0 8px;font-size:clamp(14px,3vw,18px)">🔒 Esirler</h2>
       <div style="font-size:11px;color:#888;margin-bottom:10px">
-        Savaş zaferinde düşman halkından esir alırsın. Esir Kampı binası gerekli (kapasite: seviye × 150). Esir'leri %50 altın maliyetiyle üniteye çevirebilirsin.
+        Savaş zaferinde düşman halkından esir alırsın. Esir Kampı binası gerekli (kapasite: seviye × 150). Esir'leri %50 Altın maliyetiyle üniteye çevirebilirsin.
       </div>
       <div id="esir-icerik" style="color:#666;font-size:12px">Yükleniyor...</div>
     </div>
@@ -399,11 +399,11 @@
 <script src="js/theme.js"></script>
 <script src="js/cache-fetch.js"></script>
 <script src="js/game-data.js?v=14133"></script>
-<script src="js/hud.js?v=13500"></script>
+<script src="js/hud.js?v=13501"></script>
 <script src="js/nufus-render.js"></script>
-<script src="js/layout.js?v=14420"></script>
+<script src="js/layout.js?v=14421"></script>
 <script src="js/rehber.js"></script>
-<script src="js/page-population.js?v=14385"></script>
+<script src="js/page-population.js?v=14386"></script>
 <script src="js/sw-register.js?v=13467"></script>
 </body>
 </html>

@@ -40,7 +40,7 @@ async function loadTakvimHome() {
       return;
     }
     actEl.innerHTML = bugun.loglar.slice(0,6).map(l =>
-      `<div>${ACTIVITY_ICONS[l.event_type]||'\u2022'} ${l.mesaj}</div>`
+      `<div>${ACTIVITY_ICONS[l.event_type]||'\u2022'} ${esc(l.mesaj)}</div>`
     ).join('') +
     (bugun.loglar.length > 6
       ? `<div style="color:#444;margin-top:4px">+${bugun.loglar.length-6} daha... <a href="activity.html" style="color:#c8a96e">Tumunu gor</a></div>`
@@ -67,8 +67,8 @@ async function loadDuyurular() {
     el.style.display = 'block';
     el.innerHTML = data.map(d =>
       `<div style="background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-left:3px solid #c9a84c;border-radius:4px;padding:8px 12px;margin-bottom:6px">
-        <div style="font-family:Cinzel,serif;font-size:11px;color:#c9a84c;font-weight:bold">📢 ${d.baslik}</div>
-        <div style="font-size:10px;color:#999;margin-top:3px">${d.mesaj}</div>
+        <div style="font-family:Cinzel,serif;font-size:11px;color:#c9a84c;font-weight:bold">📢 ${esc(d.baslik)}</div>
+        <div style="font-size:10px;color:#999;margin-top:3px">${esc(d.mesaj)}</div>
         <div style="font-size:11px;color:#555;margin-top:2px">${new Date(d.created_at).toLocaleString('tr-TR')}</div>
       </div>`
     ).join('');

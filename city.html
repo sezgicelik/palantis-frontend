@@ -291,7 +291,7 @@
 
         // Aciklama
         const aciklamaEl = document.getElementById('mt-aciklama');
-        let acklm = `<b>Cag:</b> ${d.cag} · <b>Mutluluk yuzde:</b> %${d.mutluluk_yuzde} · <b>Moral aralık:</b> ${fmt(d.moral_min)} ile ${fmt(d.moral_max)}`;
+        let acklm = `<b>Çağ:</b> ${d.cag} · <b>Mutluluk yuzde:</b> %${d.mutluluk_yuzde} · <b>Moral aralık:</b> ${fmt(d.moral_min)} ile ${fmt(d.moral_max)}`;
         if (d.gps >= 100) acklm += ` · <span style="color:#2ecc71">✓ GPS %100 — saatlik +6 pasif moral kazaniyorsun</span>`;
         else if (d.gps >= 90) acklm += ` · <span style="color:#27ae60">✓ GPS %90+ — saatlik +4 pasif moral kazaniyorsun</span>`;
         else if (d.gps >= 30) acklm += ` · <span style="color:#f39c12">⚠ GPS %90 altında — pasif moral recovery yok</span>`;
@@ -324,7 +324,7 @@
         // Bina Moral Listesi
         const binaListEl = document.getElementById('mt-bina-list');
         if ((d.bina_moral_detay || []).length === 0) {
-          binaListEl.innerHTML = '<div style="color:#666;text-align:center;padding:14px">Moral veren bina henuz yok.<br><small>Lonca, Taverna, Tapinak (4 tip), Sehir Meydani, Noxara Hani, Muze, Asma Bahceler, Katedral</small></div>';
+          binaListEl.innerHTML = '<div style="color:#666;text-align:center;padding:14px">Moral veren bina henuz yok.<br><small>Lonca, Taverna, Tapınak (4 tip), Şehir Meydanı, Noxara Hanı, Müze, Asma Bahçeler, Katedral</small></div>';
         } else {
           binaListEl.innerHTML = d.bina_moral_detay.map(b =>
             `<div style="display:flex;justify-content:space-between;padding:6px 10px;background:rgba(155,89,182,0.06);border-left:2px solid #9b59b6;border-radius:3px">
@@ -559,13 +559,13 @@
 <script src="js/theme.js"></script>
 <script src="js/cache-fetch.js"></script>
 <script src="js/game-data.js?v=14310"></script>
-<script src="js/hud.js?v=14310"></script>
+<script src="js/hud.js?v=14311"></script>
 <script src="js/nufus-render.js"></script>
-<script src="js/layout.js?v=14420"></script>
+<script src="js/layout.js?v=14421"></script>
 <script src="js/rehber.js"></script>
-<script src="js/page-city.js?v=14421"></script>
+<script src="js/page-city.js?v=14422"></script>
 <script src="js/epik-olay.js"></script>
-<script src="js/bildirim-popup.js"></script>
+<script src="js/bildirim-popup.js?v=1"></script>
 <script src="js/sw-register.js?v=13467"></script>
 </body>
 </html>

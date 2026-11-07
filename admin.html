@@ -252,9 +252,9 @@
       <h3>Canli Durum</h3>
       <div style="overflow-x:auto">
       <table><thead><tr>
-        <th>Kullanici</th><th>Kral</th><th>Irk</th><th>Taraf</th><th>Cag</th>
+        <th>Kullanici</th><th>Kral</th><th>Irk</th><th>Taraf</th><th>Çağ</th>
         <th>Nufus</th><th>Köylü</th><th>Asker</th><th>Alan</th>
-        <th>ATK</th><th>DEF</th><th>Unite</th>
+        <th>ATK</th><th>DEF</th><th>Ünite</th>
         <th>Altın</th><th>Odun</th><th>Metal</th><th>Buğday</th><th>Balık</th>
         <th>Kereste</th><th>İşlenmiş</th><th>Ekmek</th><th>Ş.Moral</th><th>O.Moral</th>
         <th>Premium</th><th>Paket</th><th>Bitis</th><th>Aksiyon</th>
@@ -282,7 +282,7 @@
     </div>
     <div class="card">
       <h3>Son Girisler</h3>
-      <table><thead><tr><th>Kullanici</th><th>Tarih</th><th>IP</th><th>Ulke</th><th>Sehir</th><th>Cihaz</th><th>Model</th><th>OS</th><th>Tarayici</th><th>Ekran</th><th>Durum</th></tr></thead>
+      <table><thead><tr><th>Kullanici</th><th>Tarih</th><th>IP</th><th>Ulke</th><th>Şehir</th><th>Cihaz</th><th>Model</th><th>OS</th><th>Tarayici</th><th>Ekran</th><th>Durum</th></tr></thead>
       <tbody id="login-list"></tbody></table>
     </div>
 
@@ -399,15 +399,15 @@
         <input id="bld-user" placeholder="Kullanici adi" style="padding:6px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;width:130px">
         <select id="bld-id" style="padding:6px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:11px">
           <option value="ev">Ev</option><option value="koy">Koy</option><option value="kasaba">Kasaba</option>
-          <option value="tarla">Tarla</option><option value="balikci">Balikci</option><option value="ocak">Ocak</option><option value="firin">Firin</option>
-          <option value="oduncu">Oduncu (Kereste)</option><option value="isleme">Isleme (Metal)</option>
-          <option value="ahir">Ahir</option><option value="lonca">Lonca</option><option value="buyulu_tarla">Buyulu Tarla</option>
+          <option value="tarla">Tarla</option><option value="balikci">Balıkçı</option><option value="ocak">Ocak</option><option value="firin">Fırın</option>
+          <option value="oduncu">Oduncu (Kereste)</option><option value="isleme">İşleme (Metal)</option>
+          <option value="ahir">Ahır</option><option value="lonca">Lonca</option><option value="buyulu_tarla">Büyülü Tarla</option>
           <option value="pazar">Pazar</option><option value="akademi">Akademi</option><option value="surlar">Surlar</option>
           <option value="arena">Arena</option><option value="taverna">Taverna</option>
-          <option value="rathe_tapinagi">Rathe Tapinagi (Beyaz WS)</option>
-          <option value="xegony_tapinagi">Xegony Tapinagi (Mavi WS)</option>
-          <option value="fennin_tapinagi">Fennin Tapinagi (Kirmizi WS)</option>
-          <option value="tunare_tapinagi">Tunare Tapinagi (Yesil WS)</option>
+          <option value="rathe_tapinagi">Rathe Tapınağı (Beyaz WS)</option>
+          <option value="xegony_tapinagi">Xegony Tapınağı (Mavi WS)</option>
+          <option value="fennin_tapinagi">Fennin Tapınağı (Kırmızı WS)</option>
+          <option value="tunare_tapinagi">Tunare Tapınağı (Yeşil WS)</option>
         </select>
         <input id="bld-sev" type="number" value="1" min="1" style="padding:6px;width:50px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px">
         <button class="btn" onclick="addBuilding()">Bina Ekle</button>
@@ -415,7 +415,7 @@
     </div>
 
     <div class="card">
-      <h3>Oyuncuya Unite Ekle</h3>
+      <h3>Oyuncuya Ünite Ekle</h3>
       <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
         <input id="unit-user" placeholder="Kullanici adi" oninput="unitUserChanged()" style="padding:6px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;width:130px">
         <span id="unit-taraf-badge" style="font-size:10px;color:var(--muted)"></span>
@@ -423,9 +423,9 @@
           <option value="">-- Once kullanici gir --</option>
         </select>
         <input id="unit-adet" type="number" value="10" min="1" style="padding:6px;width:60px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px">
-        <button class="btn" onclick="addUnits()">Unite Ekle</button>
+        <button class="btn" onclick="addUnits()">Ünite Ekle</button>
       </div>
-      <div style="font-size:10px;color:var(--muted);margin-top:6px">Oyuncunun tarafina gore uniteler otomatik filtrelenir.</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:6px">Oyuncunun tarafina gore üniteler otomatik filtrelenir.</div>
     </div>
 
     <!-- v1.14.0.47: Koloni Ayarlari "Harita & Koloni" tabina tasindi -->
@@ -434,21 +434,21 @@
   <!-- UNITE DURUM TAB -->
   <div id="tab-uniteler" class="panel">
     <div class="card">
-      <h3>Oyuncu Unite Durumu</h3>
-      <p style="font-size:10px;color:var(--muted);margin-bottom:10px">Tum oyuncularin unite havuzu ve ordulari. Eslesik uniteler yan yana gosterilir.</p>
+      <h3>Oyuncu Ünite Durumu</h3>
+      <p style="font-size:10px;color:var(--muted);margin-bottom:10px">Tum oyuncularin ünite havuzu ve ordulari. Eslesik üniteler yan yana gosterilir.</p>
       <!-- Eslesik unite basliklari -->
       <div style="display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap;font-size:11px;color:var(--muted)">
-        <span style="padding:2px 6px;background:#1a1a0a;border:1px solid #333;border-radius:3px">Aydinlik ↔ Karanlik</span>
-        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Piyade ↔ Iskelet</span>
-        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Baltaci ↔ Goblin</span>
-        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Okcu ↔ Isk.Okcu</span>
-        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Savasci ↔ Ogre</span>
-        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Sovalye ↔ Troll</span>
-        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Suvari ↔ Ork</span>
+        <span style="padding:2px 6px;background:#1a1a0a;border:1px solid #333;border-radius:3px">Aydınlık ↔ Karanlık</span>
+        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Piyade ↔ İskelet</span>
+        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Baltacı ↔ Goblin</span>
+        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Okçu ↔ İsk.Okçu</span>
+        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Savaşçı ↔ Ogre</span>
+        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Şövalye ↔ Troll</span>
+        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Süvari ↔ Ork</span>
         <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Paladin ↔ Golem</span>
-        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Kolcu ↔ K.Sovalye</span>
-        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Buyucu ↔ K.Elf</span>
-        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Isin S. ↔ Golge S.</span>
+        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Kolcu ↔ K.Şövalye</span>
+        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Büyücü ↔ K.Elf</span>
+        <span style="padding:2px 6px;background:#0a0a1a;border:1px solid #333;border-radius:3px">Işın S. ↔ Gölge S.</span>
       </div>
       <div id="unite-durum-body" style="overflow-x:auto"></div>
     </div>
@@ -458,10 +458,10 @@
   <div id="tab-binalar" class="panel">
     <div class="card">
       <h3>Bina Ayarlari</h3>
-      <p style="font-size:10px;color:var(--muted);margin-bottom:4px">Hammadde maliyeti, yapim suresi, sehir degeri, cag limitleri ve <b>aciklama</b>. Degistirdiginiz degerler DB'ye kaydedilir. Aciklama bos ise frontend constants.js default gosterilir.</p>
+      <p style="font-size:10px;color:var(--muted);margin-bottom:4px">Hammadde maliyeti, yapim suresi, şehir degeri, çağ limitleri ve <b>aciklama</b>. Degistirdiginiz degerler DB'ye kaydedilir. Aciklama bos ise frontend constants.js default gosterilir.</p>
       <p style="font-size:10px;color:#c8a96e;margin-bottom:10px;background:rgba(201,168,76,0.06);border-left:3px solid #c8a96e;padding:4px 8px;border-radius:3px">
-        <b>Cag Limiti (Ç1..Ç5) rehber:</b>
-        <code style="color:#e74c3c">0</code> = o cagda yapilamaz &nbsp;·&nbsp;
+        <b>Çağ Limiti (Ç1..Ç5) rehber:</b>
+        <code style="color:#e74c3c">0</code> = o çağda yapilamaz &nbsp;·&nbsp;
         <code style="color:#d4af37">1-10</code> = kumulatif max adet (orn. magara Ç2:2, Ç3:4, Ç4:6, Ç5:10) &nbsp;·&nbsp;
         <code style="color:#2ecc71">999</code> = sinirsiz/limitsiz &nbsp;·&nbsp;
         Her degisiklikte 💾 tikla, aninda oyunda aktif olur.
@@ -565,7 +565,7 @@
     <div class="card">
       <h3>Sezon Rozetleri</h3>
       <div style="overflow-x:auto">
-        <table><thead><tr><th>Kullanici</th><th>Sezon</th><th>Taraf</th><th>Irk</th><th>Cag</th><th>Kral</th><th>Tarih</th></tr></thead>
+        <table><thead><tr><th>Kullanici</th><th>Sezon</th><th>Taraf</th><th>Irk</th><th>Çağ</th><th>Kral</th><th>Tarih</th></tr></thead>
         <tbody id="sezon-rozetler"></tbody></table>
       </div>
     </div>
@@ -576,7 +576,7 @@
     <div class="card">
       <h3>🏪 NPC Market — Hammadde Config (10 hammadde)</h3>
       <p style="font-size:10px;color:var(--muted);margin-bottom:10px">
-        Tuccarin urettigi ve oyuncunun <b>altina sattigi</b> 10 hammaddenin oraninlari, baz fiyatlari ve cag kilitleri.
+        Tuccarin urettigi ve oyuncunun <b>altina sattigi</b> 10 hammaddenin oraninlari, baz fiyatlari ve çağ kilitleri.
         Tüccar her saat toplam 300-500 birim uretir, bu oranlara gore dagitilir.
       </p>
       <div style="overflow-x:auto">
@@ -585,9 +585,9 @@
             <tr style="color:var(--gold)">
               <th style="text-align:left;padding:4px">Hammadde</th>
               <th>Isim (oyuncuya)</th>
-              <th>Baz Fiyat (altin)</th>
+              <th>Baz Fiyat (Altın)</th>
               <th>Uretim Orani (%)</th>
-              <th>Cag Min</th>
+              <th>Çağ Min</th>
               <th>Aktif</th>
             </tr>
           </thead>
@@ -621,9 +621,9 @@
   <!-- BUYU DUKKANI ADMIN TAB -->
   <div id="tab-buyu" class="panel">
     <div class="card">
-      <h3>Buyu Dukkani Ayarlari</h3>
-      <p style="font-size:10px;color:var(--muted);margin-bottom:10px">Mana tupu ve buyu malzemesi fiyatlari + stok limitleri. Stoklar her 2 saatte bu degerlerle yenilenir.</p>
-      <h4 style="color:var(--gold);font-size:11px;margin:10px 0 6px">Mana Tupu Fiyatlari (altin)</h4>
+      <h3>Büyü Dükkanı Ayarları</h3>
+      <p style="font-size:10px;color:var(--muted);margin-bottom:10px">Mana tupu ve büyü malzemesi fiyatlari + stok limitleri. Stoklar her 2 saatte bu degerlerle yenilenir.</p>
+      <h4 style="color:var(--gold);font-size:11px;margin:10px 0 6px">Mana Tupu Fiyatlari (Altın)</h4>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px">
         <div><label style="font-size:11px;color:var(--muted)">Kucuk</label><input type="number" id="bc-mf-kucuk" style="width:100%;padding:4px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:11px"></div>
         <div><label style="font-size:11px;color:var(--muted)">Orta</label><input type="number" id="bc-mf-orta" style="width:100%;padding:4px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:11px"></div>
@@ -635,20 +635,20 @@
         <div><label style="font-size:11px;color:var(--muted)">Orta</label><input type="number" id="bc-ms-orta" style="width:100%;padding:4px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:11px"></div>
         <div><label style="font-size:11px;color:var(--muted)">Buyuk</label><input type="number" id="bc-ms-buyuk" style="width:100%;padding:4px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:11px"></div>
       </div>
-      <h4 style="color:var(--gold);font-size:11px;margin:10px 0 6px">Buyu Malzeme Fiyatlari + Stok</h4>
+      <h4 style="color:var(--gold);font-size:11px;margin:10px 0 6px">Büyü Malzeme Fiyatlari + Stok</h4>
       <div id="bc-malzeme-fields" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:6px;margin-bottom:10px"></div>
-      <button class="btn" onclick="confirmAction('Buyu dukkani ayarlari kaydedilecek. Emin misiniz?',saveBuyuConfig)">Kaydet</button>
+      <button class="btn" onclick="confirmAction('Büyü Dükkanı ayarları kaydedilecek. Emin misiniz?',saveBuyuConfig)">Kaydet</button>
       <div id="bc-msg" style="color:var(--green);font-size:11px;margin-top:6px"></div>
     </div>
 
     <!-- v1.14.0.47: Oyuncu Buyu Mudahale Araclari -->
     <div class="card" style="margin-top:10px;border-top:2px solid #8e44ad">
-      <h3 style="color:#bb8fce">🧪 Oyuncu Buyu Mudahale (Test/Admin)</h3>
+      <h3 style="color:#bb8fce">🧪 Oyuncu Büyü Mudahale (Test/Admin)</h3>
       <p style="font-size:10px;color:var(--muted);margin-bottom:10px">
-        Oyuncunun buyu kitabina dogrudan buyu ekle, mana+malzeme ekle veya cooldown sil.
+        Oyuncunun büyü kitabina dogrudan büyü ekle, mana+malzeme ekle veya cooldown sil.
       </p>
 
-      <h4 style="color:var(--gold);font-size:11px;margin:10px 0 6px">📚 Buyu Ekle (Kitap)</h4>
+      <h4 style="color:var(--gold);font-size:11px;margin:10px 0 6px">📚 Büyü Ekle (Kitap)</h4>
       <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
         <label style="font-size:10px;color:#aaa">player_id:
           <input id="bm-pid" type="number" placeholder="123" style="padding:4px;width:80px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);font-size:11px;border-radius:3px;margin-left:4px">
@@ -659,7 +659,7 @@
         <label style="font-size:10px;color:#aaa">kademe:
           <input id="bm-kademe" type="number" value="3" min="1" max="10" style="padding:4px;width:50px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);font-size:11px;border-radius:3px;margin-left:4px">
         </label>
-        <button class="act" onclick="adminBuyuEkle()">➕ Buyu Ekle</button>
+        <button class="act" onclick="adminBuyuEkle()">➕ Büyü Ekle</button>
         <span id="bm-msg" style="font-size:10px"></span>
       </div>
 
@@ -711,14 +711,14 @@
         <div style="grid-column:1/-1"><label style="color:#888;font-size:10px">Baslik</label><input id="gv-baslik" maxlength="100" placeholder="orn: Ilk oduncu binani yap" style="width:100%;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px"></div>
         <div style="grid-column:1/-1"><label style="color:#888;font-size:10px">Aciklama</label><input id="gv-aciklama" placeholder="orn: Sehrine bir oduncu binasi insa et" style="width:100%;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px"></div>
         <div><label style="color:#888;font-size:10px">Kosul Tipi</label><select id="gv-kosul-tipi" style="width:100%;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px">
-          <option value="bina_yap">Bina Yap</option><option value="isci_ata">İşçi Ata</option><option value="unite_egit">Unite Egit</option>
-          <option value="ordu_kur">Ordu Kur</option><option value="cag_atla">Cag Atla</option><option value="koloni_fethet">Koloni Fethet</option>
+          <option value="bina_yap">Bina Yap</option><option value="isci_ata">İşçi Ata</option><option value="unite_egit">Ünite Egit</option>
+          <option value="ordu_kur">Ordu Kur</option><option value="cag_atla">Çağ Atla</option><option value="koloni_fethet">Koloni Fethet</option>
           <option value="savas_kazan">Savas Kazan</option><option value="altin_biriktir">Altın Biriktir</option>
           <option value="guild_katil">Guilde Katil</option><option value="nufus_ulas">Nufusa Ulas</option><option value="kaynak_biriktir">Kaynak Biriktir</option>
         </select></div>
         <div><label style="color:#888;font-size:10px">Kosul Deger</label><input id="gv-kosul-deger" placeholder="orn: oduncu:3" style="width:100%;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px"></div>
         <div><label style="color:#888;font-size:10px">Odul (JSON)</label><input id="gv-odul" placeholder='{"altin":5000,"odun":1000}' style="width:100%;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px"></div>
-        <div><label style="color:#888;font-size:10px">Cag Min-Max</label><div style="display:flex;gap:4px"><input id="gv-cag-min" type="number" value="1" min="1" max="5" style="width:40px;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px"><span style="color:#666">—</span><input id="gv-cag-max" type="number" value="5" min="1" max="5" style="width:40px;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px"></div></div>
+        <div><label style="color:#888;font-size:10px">Çağ Min-Max</label><div style="display:flex;gap:4px"><input id="gv-cag-min" type="number" value="1" min="1" max="5" style="width:40px;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px"><span style="color:#666">—</span><input id="gv-cag-max" type="number" value="5" min="1" max="5" style="width:40px;padding:4px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:4px"></div></div>
       </div>
       <button onclick="adminGorevEkle()" style="padding:5px 16px;background:#d4af37;color:#000;border:none;border-radius:4px;cursor:pointer;font-size:11px;font-weight:bold">Gorev Ekle</button>
       <button onclick="adminGorevSeed()" style="padding:5px 16px;background:#27ae60;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:11px;font-weight:bold;margin-left:6px">🔄 Örnek Görevleri Güncelle (v1.13.14)</button>
@@ -755,7 +755,7 @@
       </div>
     </div>
     <div class="card">
-      <h3>Artifact Tanimlari — Cag Bazli Etkiler</h3>
+      <h3>Artifact Tanimlari — Çağ Bazli Etkiler</h3>
       <div id="art-tanimlar" style="font-size:10px">Yukleniyor...</div>
     </div>
     <div class="card">
@@ -821,12 +821,12 @@
             <option value="ekmek">Ekmek</option><option value="pismis">Pişmiş</option>
           </optgroup>
           <optgroup label="Mana">
-            <option value="mana_beyaz">Beyaz Mana</option><option value="mana_kirmizi">Kirmizi Mana</option>
-            <option value="mana_mavi">Mavi Mana</option><option value="mana_yesil">Yesil Mana</option>
+            <option value="mana_beyaz">Beyaz Mana</option><option value="mana_kirmizi">Kırmızı Mana</option>
+            <option value="mana_mavi">Mavi Mana</option><option value="mana_yesil">Yeşil Mana</option>
           </optgroup>
           <optgroup label="Ozel">
             <option value="at">At</option><option value="kurt">Kurt</option>
-            <option value="gizlilik">Gizlilik</option><option value="buyulu_yumurta">Buyulu Yumurta</option>
+            <option value="gizlilik">Gizlilik</option><option value="buyulu_yumurta">Büyülü Yumurta</option>
           </optgroup>
         </select>
         <select id="kol-filtre-durum" onchange="loadKoloniList()" style="padding:4px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:11px">
@@ -951,7 +951,7 @@
   <!-- ═══ SAVAS AYAR ═══ -->
   <div id="tab-savas-cfg" class="panel">
     <h3>Savas Ganimet Ayarlari</h3>
-    <p style="font-size:10px;color:#888;margin-bottom:10px">Olen unite maliyet ganimeti + sehir yagmasi + alan transferi oranlari</p>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">Olen ünite maliyet ganimeti + şehir yagmasi + alan transferi oranlari</p>
     <div id="savas-cfg-content">Yukleniyor...</div>
     <button class="act" onclick="savasCfgKaydet()">Kaydet</button>
 
@@ -959,7 +959,7 @@
     <div style="margin-top:18px">
       <h3 style="color:#e74c3c">⚖️ Deger Araligi Ayarlari (3 tip)</h3>
       <p style="font-size:11px;color:#888;margin-bottom:10px">
-        Oyuncu hedef secerken sehir degerleri oranlar ile karsilastirilir. Her tip bagimsiz.
+        Oyuncu hedef secerken şehir degerleri oranlar ile karsilastirilir. Her tip bagimsiz.
         <br><b>Alt %</b>: hedef, senin degerinin (%100 - alt) kadar dusuk olabilir. Ornek alt=30 → hedef ≥ senin × 0.70. Alt=70 → hedef ≥ senin × 0.30. <b style="color:#d4a257">Alt ≥ 100 → alt sinir yok (hedef ne kadar dusuk olursa olsun kabul).</b>
         <br><b>Ust %</b>: hedef, senin degerinin (%100 + ust) kadar yuksek olabilir. Ornek ust=43 → hedef ≤ senin × 1.43.
       </p>
@@ -992,7 +992,7 @@
 
       <!-- Buyu -->
       <div class="card" style="margin-bottom:10px;border-left:3px solid #2980b9">
-        <h4 style="margin:0 0 8px 0;color:#2980b9">✨ Ofansif Buyu</h4>
+        <h4 style="margin:0 0 8px 0;color:#2980b9">✨ Ofansif Büyü</h4>
         <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
           <label><input type="checkbox" id="da-buyu-disabled" style="margin-right:4px"/>Devre disi</label>
           <label>Alt %: <input type="number" id="da-buyu-alt" min="0" value="30" style="width:80px" title="100+ = alt sinir yok" /></label>
@@ -1026,7 +1026,7 @@
   <!-- ═══ GUILD AYAR ═══ -->
   <div id="tab-guild-cfg" class="panel">
     <h3>Guild Kasa & Bagis Ayarlari</h3>
-    <p style="font-size:10px;color:#888;margin-bottom:10px">Bagis izinli kaynaklar, yuzde/koylu limitleri, cooldown</p>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">Bagis izinli kaynaklar, yüzde/köylü limitleri, cooldown</p>
     <div id="guild-cfg-content">Yukleniyor...</div>
     <button class="act" onclick="guildCfgKaydet()" style="margin-top:8px">Ayarlari Kaydet</button>
 
@@ -1035,11 +1035,11 @@
     <div id="guild-kasa-ekle-content">Yukleniyor...</div>
 
     <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">Guild Sehri Tasi</h3>
-    <p style="font-size:10px;color:#888;margin-bottom:10px">Secilen guildin sehir koordinatini degistir</p>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">Secilen guildin şehir koordinatini degistir</p>
     <div id="guild-tasi-content"></div>
 
     <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">Guild Nufus Duzelt</h3>
-    <p style="font-size:10px;color:#888;margin-bottom:10px">Secilen guildin koylu/asker/worshipper sayisini degistir (mutlak deger)</p>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">Secilen guildin köylü/asker/worshipper sayisini degistir (mutlak deger)</p>
     <div id="guild-nufus-content"></div>
 
     <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">Guild Bina Seviye Set/Reset</h3>
@@ -1047,12 +1047,12 @@
     <div id="guild-bina-content"></div>
 
     <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">Guild Ordu Mudahale</h3>
-    <p style="font-size:10px;color:#888;margin-bottom:10px">Havuza unite ekle (pozitif) veya cikar (negatif)</p>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">Havuza ünite ekle (pozitif) veya cikar (negatif)</p>
     <div id="guild-ordu-content"></div>
 
     <!-- v1.13.x: Guild Dagitim + Ordu Morali + WS Ekle -->
     <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">Guild Kaynak Dagitim Oranlari (v1.12.2)</h3>
-    <p style="font-size:10px;color:#888;margin-bottom:10px">Secilen guildin isci uretiminin % kaci uyelere dagitilir</p>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">Secilen guildin işçi uretiminin % kaci uyelere dagitilir</p>
     <div id="guild-dagitim-content">Yukleniyor...</div>
 
     <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">Guild Ordu Morali Duzelt (v1.12.2)</h3>
@@ -1081,31 +1081,31 @@
     <p style="font-size:11px;color:#888;padding:8px;background:#111;border-left:3px solid #d4af37;margin-bottom:12px">
       <b>🛒 Pazar/Market uclemesi:</b>
       <code>Market Ayar</code> = NPC market 10 hammadde fiyatlari ·
-      <code>Pazar Deger</code> (bu sayfa) = PvP pazari dinamik fiyatlandirma + kadim sehir carpan ·
+      <code>Pazar Deger</code> (bu sayfa) = PvP pazari dinamik fiyatlandirma + kadim şehir carpan ·
       <code>Ekonomi Ayar</code> = uretim/ozel kaynak/festival carpanlari.
     </p>
     <h3>PvP Pazar Deger Formul Ayarlari</h3>
-    <p style="font-size:10px;color:#888;margin-bottom:10px">Uretim maliyeti + arz-talep dinamik fiyatlama + kadim sehir premium</p>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">Uretim maliyeti + arz-talep dinamik fiyatlama + kadim şehir premium</p>
     <div id="pazar-deger-cfg-content">Yukleniyor...</div>
     <button class="act" onclick="pazarDegerCfgKaydet()" style="margin-top:8px">Ayarlari Kaydet</button>
 
     <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">23 Kaynagin Mevcut Degerleri</h3>
     <p style="font-size:10px;color:#888;margin-bottom:10px">Cron her saat guncellenir. Baz=formul sonucu, Mevcut=baz×arz-talep carpani</p>
     <table style="width:100%;font-size:11px">
-      <thead><tr><th>Kaynak</th><th>Baz (altin)</th><th>Mevcut (altin)</th><th>Arz</th><th>Talep 24h</th><th>Carpan</th><th>Son Guncelleme</th></tr></thead>
+      <thead><tr><th>Kaynak</th><th>Baz (Altın)</th><th>Mevcut (Altın)</th><th>Arz</th><th>Talep 24h</th><th>Carpan</th><th>Son Guncelleme</th></tr></thead>
       <tbody id="kaynak-degerleri-body"></tbody>
     </table>
   </div>
 
   <!-- KADIM SEHIR TAB (v1.11.0 + v1.13.1) -->
   <div id="tab-kadim-cfg" class="panel">
-    <h3>Kadim Sehir Config</h3>
+    <h3>Kadim Şehir Config</h3>
     <p style="font-size:10px;color:#888;margin-bottom:10px">Saldiri esigi, stok yenileme, ordu buyume, fiyat carpanı</p>
     <div id="kadim-cfg-content">Yukleniyor...</div>
     <button class="act" onclick="kadimCfgKaydet()" style="margin-top:8px">Config Kaydet</button>
 
     <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">Kadim Sehirler Durumu</h3>
-    <p style="font-size:10px;color:#888;margin-bottom:10px">2 sehir + anlik state + ordu_gucu + saldiri sayaclari. "Kusatma Reset" = state idle + holding temizle + ordu_gucu >= 500 + kusatmadaki ordular donusa gecer.</p>
+    <p style="font-size:10px;color:#888;margin-bottom:10px">2 şehir + anlik state + ordu_gucu + saldiri sayaclari. "Kusatma Reset" = state idle + holding temizle + ordu_gucu >= 500 + kusatmadaki ordular donusa gecer.</p>
     <div id="kadim-sehirler-content">Yukleniyor...</div>
 
     <!-- v1.14.0.47: Kusatma Durum Paneli -->
@@ -1114,7 +1114,7 @@
     <button class="act" onclick="loadKusatmaDurum()" style="margin-bottom:8px">🔄 Durumu Yenile</button>
     <div id="kusatma-durum-content">Yukleniyor...</div>
 
-    <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">Sehir Kasasina Kaynak Ekle/Cikar</h3>
+    <h3 style="margin-top:24px;border-top:1px solid #222;padding-top:16px">Şehir Kasasina Kaynak Ekle/Cikar</h3>
     <p style="font-size:10px;color:#888;margin-bottom:10px">Secilen kadim sehrin stoguna kaynak ekle (pozitif) veya cikar (negatif)</p>
     <div id="kadim-kasa-content">Yukleniyor...</div>
 
@@ -1125,7 +1125,7 @@
       <b style="color:#e67e22">Gecikme 0 ise aninda saldiri.</b> >0 ise once uyari gonderilir, N PG sonra cron saldiriyi gerceklestirir.
     </p>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px;background:#1a0a08;border:1px solid #4a1a15;border-radius:4px">
-      <label style="font-size:11px;color:#aaa">Sehir:
+      <label style="font-size:11px;color:#aaa">Şehir:
         <select id="ks-saldirt-sehir" style="padding:6px;background:#000;border:1px solid var(--border);color:#e0c97f;border-radius:3px;font-size:11px;margin-left:4px">
           <option value="">(Sehirler yukleniyor...)</option>
         </select>
@@ -1136,7 +1136,7 @@
       <label style="font-size:11px;color:#aaa">Gecikme PG (0=aninda):
         <input id="ks-saldirt-gecikme" type="number" value="0" min="0" max="168" style="padding:6px;width:70px;background:#000;border:1px solid var(--border);color:#e0c97f;border-radius:3px;font-size:11px;margin-left:4px">
       </label>
-      <label style="font-size:11px;color:#aaa" title="Ticaret miktari × carpan (default 2.0) = NPC altın bütçesi. Boş birakilirsa fallback: sehir ordu_gucu × 100">Ticaret (altın):
+      <label style="font-size:11px;color:#aaa" title="Ticaret miktari × carpan (default 2.0) = NPC Altın bütçesi. Boş birakilirsa fallback: şehir ordu_gucu × 100">Ticaret (Altın):
         <input id="ks-saldirt-ticaret" type="number" placeholder="210000" min="0" style="padding:6px;width:110px;background:#000;border:1px solid var(--border);color:#e0c97f;border-radius:3px;font-size:11px;margin-left:4px">
       </label>
       <button class="act" onclick="kadimSaldirtTetikle()" style="background:#c0392b;color:#fff">💥 SALDIRT</button>
@@ -1253,8 +1253,8 @@
       <h4 style="margin:0 0 10px;color:#d4af37">Aktif Sistem</h4>
       <select id="vs-aktif" style="width:100%;padding:8px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:13px" onchange="vsUpdateAktifAciklama()">
         <option value="1">1 — Klasik Duz Oran (mevcut davranis)</option>
-        <option value="2">2 — GPS Kilitli (eski Palantis — sehir binasi zorunlu)</option>
-        <option value="3">3 — Progressive (Sinif Bazli: koylu/isci/tuccar ayri carpan)</option>
+        <option value="2">2 — GPS Kilitli (eski Palantis — şehir binasi zorunlu)</option>
+        <option value="3">3 — Progressive (Sinif Bazli: köylü/işçi/tüccar ayri carpan)</option>
         <option value="4">4 — Dinamik Moral-Bazli (yuksek moral az ceza, dusukse katlanir)</option>
         <option value="5">5 — Premium Entegre (premium olmayana kisit)</option>
       </select>
@@ -1276,7 +1276,7 @@
       <p style="font-size:10px;color:#888">Mevcut davranis: vergi_orani × bos_koylu = altin. Ceza tablosu uygulanir.</p>
       <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">vergi_gel azaltma / kademe (0.02 = %2)</label>
       <input type="number" id="vs1-gel" step="0.01" min="0" max="0.1" style="width:120px">
-      <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">Sehir moral min (negatif)</label>
+      <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">Şehir moral min (negatif)</label>
       <input type="number" id="vs1-min" style="width:120px">
       <div style="margin-top:10px">
         <button class="btn-small" onclick="vsCezaDuzenle(1)">Ceza Tablosu Duzenle (0-25)</button>
@@ -1286,7 +1286,7 @@
     <!-- Sistem 2 — GPS Kilitli -->
     <div id="vs-tab-2" class="card" style="margin-top:10px;display:none">
       <h4 style="color:#d4af37">Sistem 2 — GPS Kilitli</h4>
-      <p style="font-size:10px;color:#888">5 alan (Egitim/Bilgi/Kultur/Eglence/Sehir) kapsama % ortalamasi = GPS. GPS &lt; esikse vergi sifirlanir, max vergi merdivenle acilir.</p>
+      <p style="font-size:10px;color:#888">5 alan (Eğitim/Bilgi/Kültür/Eğlence/Şehir) kapsama % ortalamasi = GPS. GPS &lt; esikse vergi sifirlanir, max vergi merdivenle acilir.</p>
       <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">GPS Minimum Esigi (% altinda vergi alinamaz)</label>
       <input type="number" id="vs2-esik" min="0" max="100" style="width:120px">
       <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">Her alan min kapsama % (azsa vergi sifirlanir)</label>
@@ -1295,7 +1295,7 @@
       <textarea id="vs2-merdiven" rows="4" style="width:100%;font-family:monospace;font-size:11px;background:#1a1a1a;color:var(--text);border:1px solid var(--border);padding:6px"></textarea>
       <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">vergi_gel azaltma / kademe</label>
       <input type="number" id="vs2-gel" step="0.01" style="width:120px">
-      <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">Sehir moral min</label>
+      <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">Şehir moral min</label>
       <input type="number" id="vs2-min" style="width:120px">
     </div>
 
@@ -1310,7 +1310,7 @@
       </div>
       <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">vergi_gel azaltma / kademe</label>
       <input type="number" id="vs3-gel" step="0.01" style="width:120px">
-      <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">Sehir moral min</label>
+      <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">Şehir moral min</label>
       <input type="number" id="vs3-min" style="width:120px">
     </div>
 
@@ -1322,7 +1322,7 @@
       <textarea id="vs4-tablo" rows="6" style="width:100%;font-family:monospace;font-size:11px;background:#1a1a1a;color:var(--text);border:1px solid var(--border);padding:6px"></textarea>
       <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">vergi_gel azaltma / kademe</label>
       <input type="number" id="vs4-gel" step="0.01" style="width:120px">
-      <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">Sehir moral min</label>
+      <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">Şehir moral min</label>
       <input type="number" id="vs4-min" style="width:120px">
     </div>
 
@@ -1339,7 +1339,7 @@
       <input type="number" id="vs5-prem-max" step="0.05" style="width:120px">
       <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">vergi_gel azaltma / kademe</label>
       <input type="number" id="vs5-gel" step="0.01" style="width:120px">
-      <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">Sehir moral min</label>
+      <label style="display:block;margin-top:8px;font-size:11px;color:#aaa">Şehir moral min</label>
       <input type="number" id="vs5-min" style="width:120px">
     </div>
 
@@ -1403,7 +1403,7 @@
     <h3 style="color:#16a085;border-top:1px solid #222;padding-top:14px">🕵️ Oyuncu Kaynak İz Sürme (son 48h)</h3>
     <p style="font-size:11px;color:#888;margin-bottom:12px">
       Bir oyuncunun TÜM kaynaklarındaki saatlik değişimleri + activity_log gösterir.
-      "50M altınım bir anda kayboldu", "odun bitti ama nereye gittiği belli değil" gibi vakaları çözmek için.<br>
+      "50M altınım bir anda kayboldu", "Odun bitti ama nereye gittiği belli değil" gibi vakaları çözmek için.<br>
       <b style="color:#e74c3c">Snapshot her saat 00 dakikada alınır</b> — arada olan işlem burada görünmez ama activity_log'dan izlenir.
     </p>
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
@@ -1429,7 +1429,7 @@
       </select>
       <label style="font-size:11px;color:#aaa;margin-left:10px">Log:</label>
       <select id="iz-log-filtre" style="padding:4px;background:#222;color:#fff;border:1px solid #555;border-radius:3px">
-        <option value="ekonomi">Ekonomi (altın/maaş/ticaret/savaş)</option>
+        <option value="ekonomi">Ekonomi (Altın/maaş/ticaret/savaş)</option>
         <option value="hepsi">Tüm event_type</option>
         <option value="maas">Sadece maaş</option>
         <option value="savas">Sadece savaş</option>
@@ -1626,7 +1626,7 @@
       <!-- v1.14.3.24: 12. Eşek Ekle -->
       <div class="card" style="border:1px solid #e67e22">
         <h4 style="color:#e67e22;margin-top:0">🐴 Eşek Ekle</h4>
-        <p style="font-size:11px;color:#888;margin:0 0 6px">resources.essek artırılır. Koloni fetih için 2 eşek gerekli.</p>
+        <p style="font-size:11px;color:#888;margin:0 0 6px">resources.essek artırılır. Koloni fetih için 2 Eşek gerekli.</p>
         <input id="om-essek-adet" type="number" placeholder="Adet (1-1000)" min="1" max="1000" value="5" style="padding:4px;width:100%;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px;margin-bottom:4px;font-size:11px">
         <button class="act" onclick="omEsekEkle()" style="width:100%">🐴 Ekle</button>
       </div>
@@ -1693,11 +1693,24 @@
 <script src="js/servers.js"></script>
 <script>
 const API = typeof getApiBase === 'function' ? getApiBase() : 'https://palantis-backend-production.up.railway.app';
-let SECRET = '';
+
+// GUVENLIK: Admin secret artik sayfa-global degisken degil; closure icinde tutulur.
+// Disaridan yalnizca setSecret / has / hdr ile erisilir (console'dan secret okunamaz).
+const Admin = (() => {
+  let secret = '';
+  return {
+    setSecret(v) { secret = String(v || ''); },
+    has() { return !!secret; },
+    hdr() { return { 'x-admin-secret': secret, 'Content-Type': 'application/json' }; }
+  };
+})();
+
+// XSS: kullanici kaynakli metinler (kral/username/guild/duyuru/ordu adi) innerHTML'e yazilirken esc() ile kacislanir
+function esc(s) { return (s === null || s === undefined) ? '' : String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 function doLogin() {
-  SECRET = document.getElementById('secret-input').value.trim();
-  fetch(API + '/api/admin/cron-status', { headers: { 'x-admin-secret': SECRET } })
+  Admin.setSecret(document.getElementById('secret-input').value.trim());
+  fetch(API + '/api/admin/cron-status', { headers: Admin.hdr() })
     .then(r => r.json())
     .then(d => {
       if (d.ok) {
@@ -1769,15 +1782,15 @@ async function loadTopOrdular() {
       '<th style="padding:6px;text-align:left">Ordu</th>' +
       '<th style="padding:6px;text-align:right">Asker</th>' +
       '<th style="padding:6px;text-align:right">Guc</th>' +
-      '<th style="padding:6px;text-align:left">Ilk 5 Unite</th>' +
+      '<th style="padding:6px;text-align:left">Ilk 5 Ünite</th>' +
       '<th style="padding:6px">Aksiyon</th>' +
       '</tr></thead><tbody>';
     d.top_ordular.forEach((o, i) => {
       const vurgu = i === 0 ? 'background:rgba(231,76,60,0.08);color:#e74c3c;font-weight:bold' : '';
       html += '<tr style="border-bottom:1px solid #222;'+vurgu+'">' +
         '<td style="padding:6px">' + (i+1) + '</td>' +
-        '<td style="padding:6px">' + (o.kral||'?') + ' <span style="color:#666;font-size:11px">(id:'+o.player_id+')</span></td>' +
-        '<td style="padding:6px">' + (o.army_isim||'Ordu '+o.army_id) + '</td>' +
+        '<td style="padding:6px">' + esc(o.kral||'?') + ' <span style="color:#666;font-size:11px">(id:'+o.player_id+')</span></td>' +
+        '<td style="padding:6px">' + esc(o.army_isim||'Ordu '+o.army_id) + '</td>' +
         '<td style="padding:6px;text-align:right">' + fmt(o.toplam_asker) + '</td>' +
         '<td style="padding:6px;text-align:right;font-weight:bold">' + fmt(o.guc) + '</td>' +
         '<td style="padding:6px;font-size:10px;color:#aaa">' + (o.en_cok_unite||'-') + '</td>' +
@@ -1823,8 +1836,8 @@ async function reytingDetayAc(playerId) {
 let VS_CONFIG = null;
 const VS_ACIKLAMA = {
   1: 'Klasik: vergi_orani × bos_koylu = altin. Sabit ceza tablosu. Mevcut davranis.',
-  2: 'GPS Kilitli: Sehir binasi olmayan vergi alamaz. 5 alan kapsamasi %30 alti → vergi sifirlanir. Merdiven ile max vergi acilir.',
-  3: 'Progressive: Köylü/İşçi/Tüccar 3 ayri dilim. Her sinifin carpani farkli (koylu 1.0, isci 0.5, tuccar 0.3 vb.).',
+  2: 'GPS Kilitli: Şehir binasi olmayan vergi alamaz. 5 alan kapsamasi %30 alti → vergi sifirlanir. Merdiven ile max vergi acilir.',
+  3: 'Progressive: Köylü/İşçi/Tüccar 3 ayri dilim. Her sinifin carpani farkli (köylü 1.0, işçi 0.5, tuccar 0.3 vb.).',
   4: 'Dinamik: Moral yuksekse bonus gelir + az ceza, moral dusukse gelir azalir ceza artar. Halk memnuniyetiyle dogrudan bagli.',
   5: 'Premium Entegre: Premium oyunculara yuksek vergi hakki + az ceza. Istege bagli: premium olmayan vergi alamaz.'
 };
@@ -1969,8 +1982,8 @@ async function vsTest() {
     const fmt = n => (n || 0).toLocaleString('tr-TR');
     const p = d.player;
     let html = '<div style="background:#0f0f0f;padding:10px;border-radius:4px;margin-bottom:10px">' +
-      '<b style="color:#d4af37">' + p.kral + '</b> · Cag ' + p.cag + ' · Vergi: %' + p.vergi_orani +
-      ' · Sehir Moral: ' + fmt(p.sehir_morali) +
+      '<b style="color:#d4af37">' + esc(p.kral) + '</b> · Çağ ' + p.cag + ' · Vergi: %' + p.vergi_orani +
+      ' · Şehir Moral: ' + fmt(p.sehir_morali) +
       ' · Bos Köylü: ' + fmt(p.free_koylu) +
       ' · Toplam Nufus: ' + fmt(p.total_nufus) +
       ' · İşçi: ' + fmt(p.isci_top) +
@@ -2123,13 +2136,13 @@ function renderMoralTarihcesi(d) {
   // v1.13.53 A: Mevcut ordu kompozisyonu (tepede sabit kart) — snapshot YOK olanlar icin referans
   const mevcutKompHtml = d.ordular.length ? d.ordular.map(or => {
     const unitPairs = (or.units || []).filter(u => u.adet > 0).map(u => `${u.unite_id}:${u.adet}`).join(', ') || '—';
-    return `<div style="margin-bottom:4px"><b style="color:#d4af37">${or.isim||('#'+or.id)}</b> (${or.toplam_asker} asker · ham guc ${fmtN(or.ham_guc)}): <span style="color:#aaa">${unitPairs}</span></div>`;
+    return `<div style="margin-bottom:4px"><b style="color:#d4af37">${esc(or.isim||('#'+or.id))}</b> (${or.toplam_asker} asker · ham guc ${fmtN(or.ham_guc)}): <span style="color:#aaa">${unitPairs}</span></div>`;
   }).join('') : '<span style="color:#888">Ordu yok</span>';
 
   const orduRows = d.ordular.map(or => {
     const unitList = (or.units||[]).map(u => `${u.unite_id}:${u.adet}`).join(', ') || '—';
     return `<tr>
-      <td>${or.id}</td><td>${or.isim||'?'}</td><td>${or.durum||'—'}</td>
+      <td>${or.id}</td><td>${esc(or.isim||'?')}</td><td>${or.durum||'—'}</td>
       <td style="text-align:right">${fmtN(or.toplam_asker)}</td>
       <td style="text-align:right;color:#e74c3c">${fmtN(or.ham_guc)}</td>
       <td style="color:#aaa;font-size:11px">${unitList}</td>
@@ -2137,7 +2150,7 @@ function renderMoralTarihcesi(d) {
   }).join('');
 
   const top5Rows = (rd.top5_ordu||[]).map((a, i) => `<tr>
-    <td>${i+1}</td><td>${a.kral||'?'}</td><td>${a.isim||'?'}</td>
+    <td>${i+1}</td><td>${esc(a.kral||'?')}</td><td>${esc(a.isim||'?')}</td>
     <td style="text-align:right">${fmtN(a.toplam_asker)}</td>
     <td style="text-align:right;color:#e74c3c;font-weight:600">${fmtN(a.guc)}</td>
   </tr>`).join('');
@@ -2148,7 +2161,7 @@ function renderMoralTarihcesi(d) {
 
   document.getElementById('moral-tar-content').innerHTML = `
     <div class="card" style="margin-bottom:12px">
-      <h4 style="margin:0 0 8px 0">👤 ${o.kral} (ID: ${o.id})</h4>
+      <h4 style="margin:0 0 8px 0">👤 ${esc(o.kral)} (ID: ${o.id})</h4>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
         <div class="stat"><div class="val" style="color:${moralClr}">%${o.ordu_morali_simdi}</div><div class="lbl">Mevcut Moral</div></div>
         <div class="stat"><div class="val" style="color:${simClr}">%${oz.simule_moral_100_den_baslarsa}</div><div class="lbl">100'den Basla Simulasyon</div></div>
@@ -2189,9 +2202,9 @@ function renderMoralTarihcesi(d) {
     <div class="card" style="margin-bottom:12px">
       <h4 style="margin:0 0 8px 0">⚔️ Ordular (${d.ordular.length})</h4>
       <table style="width:100%;font-size:12px"><thead>
-        <tr style="background:#333;color:#fff"><th>ID</th><th>Isim</th><th>Durum</th><th>Toplam Asker</th><th>Ham Guc</th><th>Uniteler</th></tr>
+        <tr style="background:#333;color:#fff"><th>ID</th><th>Isim</th><th>Durum</th><th>Toplam Asker</th><th>Ham Guc</th><th>Üniteler</th></tr>
       </thead><tbody>${orduRows||'<tr><td colspan=6 style="text-align:center;color:#888">Ordu yok</td></tr>'}</tbody></table>
-      <p style="font-size:11px;color:#888;margin-top:8px">Toplam asker 0 veya uniteler bos gorunuyorsa, atk_ham 0 olur ve reyting %0 hesaplanir (ayri bug).</p>
+      <p style="font-size:11px;color:#888;margin-top:8px">Toplam asker 0 veya üniteler bos gorunuyorsa, atk_ham 0 olur ve reyting %0 hesaplanir (ayri bug).</p>
     </div>
 
     <div class="card">
@@ -2223,7 +2236,7 @@ async function moralTarPickPlayer() {
   if (sec) { document.getElementById('moral-tar-pid').value = sec.split(':')[0].trim(); loadMoralTarihcesi(); }
 }
 
-function hdr() { return { 'x-admin-secret': SECRET, 'Content-Type': 'application/json' }; }
+function hdr() { return Admin.hdr(); }
 function fmtDate(d) { if(!d)return'-'; const dt=new Date(d); return dt.toLocaleString('tr-TR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}); }
 
 async function loadCron() {
@@ -2275,7 +2288,7 @@ async function loadPlayers() {
   if (!d.ok) return;
   document.getElementById('players-list').innerHTML = d.oyuncular.map(p => `
     <tr>
-      <td>${p.username||'-'}</td><td>${p.kral||'-'}</td><td>${p.irk||'-'}</td><td>${p.taraf||'-'}</td><td>${p.cag||'-'}</td>
+      <td>${esc(p.username||'-')}</td><td>${esc(p.kral||'-')}</td><td>${p.irk||'-'}</td><td>${p.taraf||'-'}</td><td>${p.cag||'-'}</td>
       <td>${fmt(p.nufus)}</td><td>${fmt(p.toplam_koylu)}</td><td>${fmt(p.asker)}</td>
       <td>${p.kullanilan_alan||0}/${p.toplam_alan||0}</td>
       <td style="color:var(--red)">${fmt(p.toplam_atak)}</td><td style="color:var(--blue)">${fmt(p.toplam_defans)}</td><td>${fmt(p.toplam_unite)}</td>
@@ -2287,7 +2300,7 @@ async function loadPlayers() {
       <td class="${p.prem_aktif&&new Date(p.prem_bitis)>new Date()?'ok':'fail'}">${p.prem_aktif&&new Date(p.prem_bitis)>new Date()?'AKTIF':p.prem_paket?'BITTI':'-'}</td>
       <td>${p.prem_paket||'-'}</td>
       <td>${p.prem_bitis?fmtDate(p.prem_bitis):'-'}</td>
-      <td><button class="act" style="font-size:11px;padding:2px 6px" onclick="setPlayerMoral(${p.player_id||p.id}, '${(p.kral||'').replace(/'/g,'&#39;')}')">M</button></td>
+      <td><button class="act" style="font-size:11px;padding:2px 6px" data-pid="${p.player_id||p.id}" data-kral="${esc(p.kral||'')}" onclick="setPlayerMoral(Number(this.dataset.pid), this.dataset.kral)">M</button></td>
     </tr>
   `).join('') || '<tr><td colspan="27" style="text-align:center;color:var(--muted)">Oyuncu yok</td></tr>';
   loadHistory();
@@ -2357,7 +2370,7 @@ async function loadLogins() {
     <div class="stat"><div class="val">${st.ulke_sayisi}</div><div class="lbl">Ulke</div></div>
   `;
   document.getElementById('login-list').innerHTML = d.loglar.map(l => `
-    <tr><td>${l.kullanici}</td><td>${fmtDate(l.tarih)}</td><td>${l.ip}</td><td>${l.ulke}</td><td>${l.sehir}</td>
+    <tr><td>${esc(l.kullanici)}</td><td>${fmtDate(l.tarih)}</td><td>${esc(l.ip)}</td><td>${esc(l.ulke)}</td><td>${esc(l.sehir)}</td>
     <td>${l.cihaz}</td><td>${l.model||'-'}</td><td>${l.os}</td><td>${l.tarayici}</td><td>${l.ekran}</td>
     <td class="${l.basarili?'ok':'fail'}">${l.basarili?'OK':'FAIL'}</td></tr>
   `).join('');
@@ -2391,7 +2404,7 @@ async function loadAktifOyuncular() {
     // Kullanici bazli
     document.getElementById('aktif-kullanici-list').innerHTML = (d.kullanici_bazli||[]).map(u => `
       <tr ${u.flagged > 0 ? 'style="background:rgba(231,76,60,0.1)"' : ''}>
-        <td><b>${u.username || ('user_'+u.user_id)}</b></td>
+        <td><b>${esc(u.username || ('user_'+u.user_id))}</b></td>
         <td>${u.oturum_sayisi}</td>
         <td>${fmtDate(u.son_aktivite)}</td>
         <td>${(u.toplam_istek||0).toLocaleString('tr-TR')}</td>
@@ -2405,14 +2418,14 @@ async function loadAktifOyuncular() {
     // Aktif oturum listesi
     document.getElementById('aktif-oturum-list').innerHTML = (d.oturumlar||[]).map(s => `
       <tr ${s.flagged ? 'style="background:rgba(231,76,60,0.1)"' : ''}>
-        <td>${s.kullanici}</td>
+        <td>${esc(s.kullanici)}</td>
         <td><code style="font-size:9px">${s.token_jti}</code></td>
         <td>${s.ip}</td>
         <td>${s.cihaz}</td>
         <td>${s.model}</td>
         <td>${s.os}</td>
         <td>${s.tarayici}</td>
-        <td>${s.ulke}/${s.sehir}</td>
+        <td>${esc(s.ulke)}/${esc(s.sehir)}</td>
         <td>${fmtDate(s.ilk_giris)}</td>
         <td>${s.dakika_oncesi < 60 ? s.dakika_oncesi + ' dk' : Math.floor(s.dakika_oncesi/60) + ' saat'} önce</td>
         <td>${(s.istek_sayisi||0).toLocaleString('tr-TR')}</td>
@@ -2470,7 +2483,7 @@ async function binaDebug() {
 
     const o = d.oyuncu;
     let html = '<div style="margin-bottom:10px;padding:8px;background:#0a0a0a;border-radius:4px">'
-      + '<b>' + o.kral + '</b> · Çağ ' + o.cag + ' · Alan: <b style="color:#d4af37">' + o.kullanilan_alan + '/' + o.toplam_alan + '</b> · ' + d.bina_sayisi + ' kayıt';
+      + '<b>' + esc(o.kral) + '</b> · Çağ ' + o.cag + ' · Alan: <b style="color:#d4af37">' + o.kullanilan_alan + '/' + o.toplam_alan + '</b> · ' + d.bina_sayisi + ' kayıt';
     html += '</div>';
 
     // Kategorize
@@ -2581,14 +2594,14 @@ async function banlariYukle() {
     }
     document.getElementById('ban-list').innerHTML = d.banlar.map(b => `
       <tr>
-        <td><b>${b.kullanici}</b></td>
+        <td><b>${esc(b.kullanici)}</b></td>
         <td><span style="color:#e67e22">${b.tip}</span></td>
         <td>${b.scope}</td>
         <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis">${b.sebep || '-'}</td>
         <td>${fmtDate(b.baslangic)}</td>
         <td>${fmtDate(b.bitis)}</td>
         <td style="color:${b.kalan_saat < 24 ? '#f39c12' : '#888'}">${b.kalan_saat}h</td>
-        <td><button class="btn" onclick="banKaldir(${b.id},'${b.kullanici}')" style="padding:2px 8px;font-size:9px;background:#27ae60;color:#fff">↺ Kaldır</button></td>
+        <td><button class="btn" data-id="${b.id}" data-kullanici="${esc(b.kullanici)}" onclick="banKaldir(Number(this.dataset.id),this.dataset.kullanici)" style="padding:2px 8px;font-size:9px;background:#27ae60;color:#fff">↺ Kaldır</button></td>
       </tr>
     `).join('');
   } catch (e) {
@@ -2608,7 +2621,7 @@ async function loadAnomaliler() {
     html += `<h4 style="font-size:12px;color:#e74c3c;margin-top:10px">🤖 BOT ŞÜPHESİ — Yüksek İstek (>500 istek/oturum)</h4>`;
     if ((d.yuksek_istek||[]).length === 0) html += '<div style="color:var(--muted);font-size:11px">Şüpheli durum yok ✓</div>';
     else html += `<table style="font-size:10px"><thead><tr><th>Kullanıcı</th><th>JTI</th><th>IP</th><th>İstek</th><th>Saat Aktif</th><th>İstek/Saat</th></tr></thead><tbody>` +
-      d.yuksek_istek.map(r => { const sa = Number(r.saat_aktif)||0; const rc = Number(r.request_count)||0; return `<tr><td>${r.username || r.user_id}</td><td><code>${(r.token_jti||'').substring(0,8)}...</code></td><td>${r.ip_address}</td><td><b style="color:#e74c3c">${rc}</b></td><td>${sa.toFixed(1)}h</td><td>${Math.floor(rc / Math.max(0.1, sa||1))}/h</td></tr>`; }).join('') + '</tbody></table>';
+      d.yuksek_istek.map(r => { const sa = Number(r.saat_aktif)||0; const rc = Number(r.request_count)||0; return `<tr><td>${esc(r.username || r.user_id)}</td><td><code>${(r.token_jti||'').substring(0,8)}...</code></td><td>${r.ip_address}</td><td><b style="color:#e74c3c">${rc}</b></td><td>${sa.toFixed(1)}h</td><td>${Math.floor(rc / Math.max(0.1, sa||1))}/h</td></tr>`; }).join('') + '</tbody></table>';
 
     // 2. Multi-account
     html += `<h4 style="font-size:12px;color:#e67e22;margin-top:14px">🔁 MULTI-ACCOUNT — Aynı IP'den 3+ Hesap</h4>`;
@@ -2620,7 +2633,7 @@ async function loadAnomaliler() {
     html += `<h4 style="font-size:12px;color:#9b59b6;margin-top:14px">👻 HEADLESS ŞÜPHESİ — Mobile + boş device_model + 200+ istek</h4>`;
     if ((d.headless_sansi||[]).length === 0) html += '<div style="color:var(--muted);font-size:11px">Şüpheli durum yok ✓</div>';
     else html += `<table style="font-size:10px"><thead><tr><th>Kullanıcı</th><th>IP</th><th>Cihaz</th><th>Model</th><th>OS</th><th>Tarayıcı</th><th>İstek</th></tr></thead><tbody>` +
-      d.headless_sansi.map(r => `<tr><td>${r.username || r.user_id}</td><td>${r.ip_address}</td><td>${r.device_type}</td><td>${r.device_model||'-'}</td><td>${r.os}</td><td>${r.browser}</td><td>${Number(r.request_count)||0}</td></tr>`).join('') + '</tbody></table>';
+      d.headless_sansi.map(r => `<tr><td>${esc(r.username || r.user_id)}</td><td>${r.ip_address}</td><td>${r.device_type}</td><td>${r.device_model||'-'}</td><td>${r.os}</td><td>${r.browser}</td><td>${Number(r.request_count)||0}</td></tr>`).join('') + '</tbody></table>';
 
     sonucEl.innerHTML = html;
   } catch(e) {
@@ -2859,7 +2872,7 @@ async function loadPremium() {
       document.getElementById('prem-players').innerHTML = '<table><thead><tr><th>Kullanici</th><th>Kral</th><th>Paket</th><th>Baslangic</th><th>Bitis</th><th>Durum</th></tr></thead><tbody>' +
         pl.oyuncular.map(p => {
           const aktif = p.aktif && new Date(p.bitis) > new Date();
-          return `<tr><td>${p.username}</td><td>${p.kral}</td><td>${p.paket}</td>
+          return `<tr><td>${esc(p.username)}</td><td>${esc(p.kral)}</td><td>${p.paket}</td>
             <td>${fmtDate(p.baslangic)}</td><td>${fmtDate(p.bitis)}</td>
             <td class="${aktif?'ok':'fail'}">${aktif?'AKTIF':'BITTI'}</td></tr>`;
         }).join('') + '</tbody></table>';
@@ -2950,8 +2963,8 @@ async function loadPremiumSiparis() {
       const onaylaBtn = s.status === 'pending' ? `<button class="btn" onclick="premiumOnayla(${s.id})" style="padding:3px 8px;font-size:10px">Onayla</button> <button class="btn btn-danger" onclick="premiumSipIptal(${s.id})" style="padding:3px 8px;font-size:10px">Iptal</button>` : '';
       return `<tr>
         <td>${s.id}</td>
-        <td>${s.username}</td>
-        <td>${s.kral}</td>
+        <td>${esc(s.username)}</td>
+        <td>${esc(s.kral)}</td>
         <td style="color:${PREM_PAKET_RENK[s.paket]||'#888'}">${PREM_PAKET_ISIM[s.paket]||s.paket}</td>
         <td>${fiyat}</td>
         <td>${s.sure_gun} gun</td>
@@ -2999,9 +3012,9 @@ async function loadSezon() {
   `;
   const TARAF_R = {iyi:'#f1c40f',kotu:'#3498db'};
   document.getElementById('sezon-rozetler').innerHTML = d.rozetler.map(r =>
-    `<tr><td>${r.username}</td><td>S${r.sezon_no}</td>
-    <td style="color:${TARAF_R[r.taraf]||'#888'}">${r.taraf==='iyi'?'Aydinlik':'Karanlik'}</td>
-    <td>${r.irk||'-'}</td><td>${r.cag}. Cag</td><td>${r.kral||'-'}</td><td>${fmtDate(r.bitis_tarihi)}</td></tr>`
+    `<tr><td>${esc(r.username)}</td><td>S${r.sezon_no}</td>
+    <td style="color:${TARAF_R[r.taraf]||'#888'}">${r.taraf==='iyi'?'Aydınlık':'Karanlık'}</td>
+    <td>${r.irk||'-'}</td><td>${r.cag}. Çağ</td><td>${esc(r.kral||'-')}</td><td>${fmtDate(r.bitis_tarihi)}</td></tr>`
   ).join('') || '<tr><td colspan="7" style="color:var(--muted);text-align:center">Henuz rozet yok</td></tr>';
 }
 
@@ -3055,7 +3068,7 @@ function renderMarketHammadde() {
       <td><input type="number" id="mh-${i}-oran" value="${h.oran}" min="0" max="100" step="0.5" style="width:60px;padding:3px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px;text-align:center" onchange="updateMhToplam()"></td>
       <td style="text-align:center">
         <select id="mh-${i}-cag" style="padding:3px;background:#1a1a1a;border:1px solid var(--border);color:var(--text);border-radius:3px;font-size:10px">
-          ${[1,2,3,4,5].map(c => `<option value="${c}" ${h.cag_min===c?'selected':''}>${c}. Cag</option>`).join('')}
+          ${[1,2,3,4,5].map(c => `<option value="${c}" ${h.cag_min===c?'selected':''}>${c}. Çağ</option>`).join('')}
         </select>
       </td>
       <td style="text-align:center"><input type="checkbox" id="mh-${i}-aktif" ${h.aktif!==false?'checked':''}></td>
@@ -3161,7 +3174,7 @@ async function savePazarKaynaklari() {
 }
 
 async function pkVarsayilan() {
-  if (!confirm('23 kaynak (temel/islenmis/mana/ozel) aktif olarak ayarlanacak. Market hammaddeleri (gumus, mitril vs) dahil DEGILDIR (NPC market icin). Emin misiniz?')) return;
+  if (!confirm('23 kaynak (temel/islenmis/mana/ozel) aktif olarak ayarlanacak. Market hammaddeleri (Gümüş, mitril vs) dahil DEGILDIR (NPC market icin). Emin misiniz?')) return;
   const varsayilan = [
     'altin','odun','metal','islenmis','kereste',
     'bugday','balik','cig_et','ekmek','pismis','pismis_et',
@@ -3178,15 +3191,15 @@ async function pkVarsayilan() {
 
 // ── Unite Durum ──
 const ESLESIK = [
-  {iyi:'piyade',kotu:'iskelet',isim:'Piyade/Iskelet'},
-  {iyi:'baltaci',kotu:'goblin',isim:'Baltaci/Goblin'},
-  {iyi:'okcu',kotu:'iskelet_okcu',isim:'Okcu/Isk.Okcu'},
-  {iyi:'savasci',kotu:'ogre',isim:'Savasci/Ogre'},
-  {iyi:'sovalye',kotu:'troll',isim:'Sovalye/Troll'},
-  {iyi:'suvari',kotu:'ork',isim:'Suvari/Ork'},
+  {iyi:'piyade',kotu:'iskelet',isim:'Piyade/İskelet'},
+  {iyi:'baltaci',kotu:'goblin',isim:'Baltacı/Goblin'},
+  {iyi:'okcu',kotu:'iskelet_okcu',isim:'Okçu/İsk.Okçu'},
+  {iyi:'savasci',kotu:'ogre',isim:'Savaşçı/Ogre'},
+  {iyi:'sovalye',kotu:'troll',isim:'Şövalye/Troll'},
+  {iyi:'suvari',kotu:'ork',isim:'Süvari/Ork'},
   {iyi:'paladin',kotu:'golem',isim:'Paladin/Golem'},
-  {iyi:'kolcu',kotu:'kara_sovalye',isim:'Kolcu/K.Sovalye'},
-  {iyi:'buyucu',kotu:'kara_elf',isim:'Buyucu/K.Elf'},
+  {iyi:'kolcu',kotu:'kara_sovalye',isim:'Kolcu/K.Şövalye'},
+  {iyi:'buyucu',kotu:'kara_elf',isim:'Büyücü/K.Elf'},
   {iyi:'isin_savasci',kotu:'golge_savasci',isim:'IsinS/GolgeS'},
   {iyi:'mavi_ejderha',kotu:'kirmizi_ejderha',isim:'M.Ejd/K.Ejd'},
   {iyi:'altin_ejderha',kotu:'siyah_ejderha',isim:'A.Ejd/S.Ejd'},
@@ -3212,10 +3225,10 @@ async function loadUniteDurum() {
     const havuzMap = {};
     (oy.havuz||[]).forEach(u => havuzMap[u.unite_id] = u.adet);
     const tarafRenk = oy.taraf === 'iyi' ? '#f1c40f' : '#3498db';
-    const tarafIsim = oy.taraf === 'iyi' ? 'Aydinlik' : 'Karanlik';
+    const tarafIsim = oy.taraf === 'iyi' ? 'Aydınlık' : 'Karanlık';
 
     html += `<tr style="border-bottom:1px solid #111">`;
-    html += `<td style="padding:4px;font-weight:bold;color:var(--gold)">${oy.kral}</td>`;
+    html += `<td style="padding:4px;font-weight:bold;color:var(--gold)">${esc(oy.kral)}</td>`;
     html += `<td style="padding:4px;color:${tarafRenk};text-align:center;font-size:11px">${tarafIsim}</td>`;
 
     // Ordulardaki uniteleri de havuzMap'e ekle (toplam hesap icin)
@@ -3238,7 +3251,7 @@ async function loadUniteDurum() {
     // Ordular
     const orduParts = Object.values(oy.ordular||{}).map(o => {
       const uSay = (o.uniteler||[]).reduce((s,u) => s + u.adet, 0);
-      return `${o.isim}(${uSay})`;
+      return `${esc(o.isim)}(${uSay})`;
     });
     html += `<td style="padding:4px;font-size:11px;color:#888">${orduParts.join(', ') || '-'}</td>`;
     html += '</tr>';
@@ -3294,7 +3307,7 @@ async function saveBinaConfig(binaId) {
 
 // ── Buyu Dukkani Config ──
 const BC_MALZEMELER = ['ates_tozu','ay_cigi','golgeler_otu','ejderha_goz_damla'];
-const BC_MAL_ISIM = {ates_tozu:'Kristal Tozu',ay_cigi:'Ay Tasi',golgeler_otu:'Karanlik Esans',ejderha_goz_damla:'Ejderha Pulu'};
+const BC_MAL_ISIM = {ates_tozu:'Kristal Tozu',ay_cigi:'Ay Taşı',golgeler_otu:'Karanlık Esans',ejderha_goz_damla:'Ejderha Pulu'};
 
 async function loadBuyuConfig() {
   const d = await fetch(API+'/api/admin/buyu-config', {headers:hdr()}).then(r=>r.json());
@@ -3330,7 +3343,7 @@ async function saveBuyuConfig() {
 }
 
 // ── Irk Bonuslari ──
-const IRK_ISIM = { insan:'Insan', elf:'Elf', cuce:'Cuce', bucukluk:'Bucukluk', kara_elf:'Kara Elf', ork:'Ork', ogre_irk:'Ogre', undead:'Undead' };
+const IRK_ISIM = { insan:'İnsan', elf:'Elf', cuce:'Cüce', bucukluk:'Buçukluk', kara_elf:'Kara Elf', ork:'Ork', ogre_irk:'Ogre', undead:'Undead' };
 const BONUS_KAT = {
   'Hammadde': ['odun','metal','altin','bugday','balik'],
   'İşlenmiş': ['kereste','islenmis','ekmek','pismis','pismis_et'],
@@ -3416,11 +3429,11 @@ function unitUserChanged() {
       }
       const taraf = oyuncu.taraf;
       const renk = taraf === 'iyi' ? '#f1c40f' : '#3498db';
-      const isimT = taraf === 'iyi' ? 'Aydinlik' : 'Karanlik';
-      badge.innerHTML = `<span style="color:${renk};font-weight:bold">${isimT} (${oyuncu.kral||oyuncu.username})</span>`;
+      const isimT = taraf === 'iyi' ? 'Aydınlık' : 'Karanlık';
+      badge.innerHTML = `<span style="color:${renk};font-weight:bold">${isimT} (${esc(oyuncu.kral||oyuncu.username)})</span>`;
 
       const uniteler = taraf === 'iyi' ? _unitData.iyi : _unitData.kotu;
-      if (!uniteler || uniteler.length === 0) { sel.innerHTML = '<option value="">Unite yok</option>'; return; }
+      if (!uniteler || uniteler.length === 0) { sel.innerHTML = '<option value="">Ünite yok</option>'; return; }
       sel.innerHTML = uniteler.map(u => `<option value="${u.id}">${u.isim} (T${u.tier}) ATK:${u.atk} DEF:${u.def}</option>`).join('');
     } catch(e) { badge.textContent = 'Baglanti hatasi'; console.error(e); }
   }, 800);
@@ -3475,7 +3488,7 @@ async function loadKoloniList() {
       <td style="color:${renk};font-weight:bold">${k.kaynak_tipi}</td>
       <td>%${k.bonus_oran}</td>
       <td class="${k.durum==='bos'?'ok':''}${k.durum==='sahipli'?'':''}" style="${k.durum==='sahipli'?'color:var(--blue)':''}">${k.durum}</td>
-      <td>${k.sahip_kral||'-'}</td><td>${bitis}</td>
+      <td>${esc(k.sahip_kral||'-')}</td><td>${bitis}</td>
     </tr>`;
   }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--muted)">Koloni yok</td></tr>';
 }
@@ -3516,7 +3529,7 @@ async function loadArtifactAdmin() {
 
     // Cag bazli tablo
     const el = document.getElementById('art-tanimlar');
-    el.innerHTML = '<div style="margin-bottom:8px;color:#888">Cag carpanlari: ' +
+    el.innerHTML = '<div style="margin-bottom:8px;color:#888">Çağ carpanlari: ' +
       Object.entries(carpanlar).map(([c, v]) => 'C' + c + '=x' + v).join(', ') + '</div>' +
       '<table style="width:100%;border-collapse:collapse;font-size:10px">' +
         '<thead><tr style="background:#1a1a1a">' +
@@ -3613,7 +3626,7 @@ async function loadGorevlerAdmin() {
         '<th style="padding:4px 6px;border:1px solid #333;text-align:left">Baslik</th>' +
         '<th style="padding:4px;border:1px solid #333">Kosul</th>' +
         '<th style="padding:4px;border:1px solid #333">Odul</th>' +
-        '<th style="padding:4px;border:1px solid #333">Cag</th>' +
+        '<th style="padding:4px;border:1px solid #333">Çağ</th>' +
         '<th style="padding:4px;border:1px solid #333">Aktif</th>' +
         '<th style="padding:4px;border:1px solid #333">Sil</th>' +
       '</tr></thead><tbody>' +
@@ -3752,7 +3765,7 @@ async function loadDuyuruAdmin() {
     const d = await r.json();
     if (!d.duyurular?.length) { el.innerHTML = '<span style="color:#555">Duyuru yok</span>'; return; }
     el.innerHTML = '<table style="font-size:10px;width:100%"><thead><tr><th>Tarih</th><th>Tip</th><th>Baslik</th><th>Mesaj</th><th></th></tr></thead><tbody>' +
-      d.duyurular.map(dy => '<tr><td>'+fmtDate(dy.created_at)+'</td><td style="color:#c9a84c">'+dy.tip+'</td><td style="font-weight:bold">'+dy.baslik+'</td><td style="color:#888;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+dy.mesaj+'</td><td><button class="act" style="background:#c0392b;font-size:11px;padding:2px 6px" onclick="duyuruSil('+dy.id+')">Sil</button></td></tr>').join('') +
+      d.duyurular.map(dy => '<tr><td>'+fmtDate(dy.created_at)+'</td><td style="color:#c9a84c">'+dy.tip+'</td><td style="font-weight:bold">'+esc(dy.baslik)+'</td><td style="color:#888;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(dy.mesaj)+'</td><td><button class="act" style="background:#c0392b;font-size:11px;padding:2px 6px" onclick="duyuruSil('+dy.id+')">Sil</button></td></tr>').join('') +
       '</tbody></table>';
   } catch(e) { el.innerHTML = '<span style="color:#e74c3c">Hata</span>'; }
 }
@@ -3790,7 +3803,7 @@ async function loadAnomaliAdmin() {
     el.innerHTML = '<table style="font-size:10px;width:100%"><thead><tr><th>Tarih</th><th>Oyuncu</th><th>Tip</th><th>Detay</th></tr></thead><tbody>' +
       d.loglar.map(l => {
         const tipRenk = l.event_type.includes('muhasebe') ? '#f39c12' : l.event_type.includes('hizli') ? '#e74c3c' : l.event_type.includes('uretim') ? '#9b59b6' : '#e67e22';
-        return '<tr><td>'+fmtDate(l.created_at)+'</td><td style="color:var(--gold)">'+(l.kral||l.username||'-')+'</td><td style="color:'+tipRenk+'">'+l.event_type+'</td><td style="color:#888;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+l.detail+'</td></tr>';
+        return '<tr><td>'+fmtDate(l.created_at)+'</td><td style="color:var(--gold)">'+esc(l.kral||l.username||'-')+'</td><td style="color:'+tipRenk+'">'+l.event_type+'</td><td style="color:#888;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+l.detail+'</td></tr>';
       }).join('') +
       '</tbody></table>';
   } catch(e) { el.innerHTML = '<span style="color:#e74c3c">Yukleme hatasi</span>'; }
@@ -3832,7 +3845,7 @@ async function anomaliDetayYukle() {
       const farkR = n => n>0?'#27ae60':(n<0?'#e74c3c':'#888');
       return `<tr>
         <td>${x.player_id}</td>
-        <td style="color:#d4af37">${x.kral}</td>
+        <td style="color:#d4af37">${esc(x.kral)}</td>
         <td>C${x.cag||'?'}</td>
         <td style="text-align:right;color:#f1c40f">${fmtN(x.altin)}</td>
         <td style="text-align:right;color:#888">${fmtN(x.eski_altin)}</td>
@@ -3879,9 +3892,7 @@ async function anomaliDetayYukle() {
 
 async function anomaliCsvIndir() {
   // CSV direkt backend'den download (browser save dialog)
-  const url = API + '/api/admin/anomali-detay?format=csv&secret=' + encodeURIComponent(SECRET);
-  // secret query ile gonderme — simpler. Ama backend checkSecret header bekliyor.
-  // Dogru yol: fetch + blob
+  // (secret'i query-string'e koyan kullanilmayan `url` degiskeni kaldirildi; dogru yol: header + fetch + blob)
   try {
     const r = await fetch(API + '/api/admin/anomali-detay?format=csv', { headers: hdr() });
     if (!r.ok) { alert('CSV alinamadi: ' + r.status); return; }
@@ -3927,7 +3938,7 @@ async function loadTatilAdmin() {
     if (!d2.oyuncular?.length) { to.innerHTML = '<span style="color:#555">Tatilde kimse yok</span>'; }
     else {
       to.innerHTML = '<table style="font-size:10px"><thead><tr><th>Oyuncu</th><th>Irk</th><th>Taraf</th><th>Baslangic</th><th>Bitis</th></tr></thead><tbody>' +
-        d2.oyuncular.map(o => '<tr><td>'+o.kral+'</td><td>'+o.irk+'</td><td>'+o.taraf+'</td><td>'+fmtDate(o.tatil_baslangic)+'</td><td>'+fmtDate(o.tatil_bitis)+'</td></tr>').join('') +
+        d2.oyuncular.map(o => '<tr><td>'+esc(o.kral)+'</td><td>'+o.irk+'</td><td>'+o.taraf+'</td><td>'+fmtDate(o.tatil_baslangic)+'</td><td>'+fmtDate(o.tatil_bitis)+'</td></tr>').join('') +
         '</tbody></table>';
     }
   } catch(e) { to.innerHTML = '<span style="color:#e74c3c">Hata</span>'; }
@@ -4204,7 +4215,7 @@ async function loadGuildCfg() {
         gcInput('gc-savas-kabul', 'Savas Kabul Suresi (PG)', _guildCfg.savas_kabul_suresi || 5, 1, 72) +
         gcInput('gc-ele-gecirme', 'Bina Ele Gecirme (PG)', _guildCfg.bina_ele_gecirme_suresi || 15, 1, 168) +
         gcInput('gc-yagma', 'Kaynak Yagma Orani (%)', _guildCfg.kaynak_yagma_orani || 10, 0, 100) +
-        gcInput('gc-max-tasima', 'Max Sehir Tasima Hakki', _guildCfg.max_tasima_hakki || 5, 0, 100) +
+        gcInput('gc-max-tasima', 'Max Şehir Tasima Hakki', _guildCfg.max_tasima_hakki || 5, 0, 100) +
       '</div>';
 
     // Guild listesi
@@ -4218,7 +4229,7 @@ async function loadGuildCfg() {
     }
 
     const selectHTML = '<select id="gc-guild-sec" onchange="gcGuildDegisti()" style="width:100%;padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;margin-bottom:8px;font-size:11px">' +
-      _guildListe.map(g => '<option value="' + g.id + '">[' + g.tag + '] ' + g.isim + ' (' + (g.uye_sayisi||0) + ' uye)</option>').join('') +
+      _guildListe.map(g => '<option value="' + g.id + '">[' + esc(g.tag) + '] ' + esc(g.isim) + ' (' + (g.uye_sayisi||0) + ' uye)</option>').join('') +
     '</select>';
 
     ekleEl.innerHTML =
@@ -4244,7 +4255,7 @@ async function loadGuildCfg() {
       '<div class="card" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
         '<span style="font-size:10px;color:#888">Guild:</span>' +
         '<select id="gc-tasi-guild" style="padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
-          _guildListe.map(g => '<option value="' + g.id + '">[' + g.tag + '] ' + g.isim + ' (X:' + (g.x||'?') + ' Y:' + (g.y||'?') + ')</option>').join('') +
+          _guildListe.map(g => '<option value="' + g.id + '">[' + esc(g.tag) + '] ' + esc(g.isim) + ' (X:' + (g.x||'?') + ' Y:' + (g.y||'?') + ')</option>').join('') +
         '</select>' +
         '<span style="font-size:10px;color:#888">X:</span><input id="gc-tasi-x" type="number" min="1" max="200" style="width:50px;padding:3px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
         '<span style="font-size:10px;color:#888">Y:</span><input id="gc-tasi-y" type="number" min="1" max="50" style="width:50px;padding:3px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
@@ -4258,7 +4269,7 @@ async function loadGuildCfg() {
     if (nufusEl) nufusEl.innerHTML =
       '<div class="card" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
         '<select id="gc-nufus-guild" style="padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
-          _guildListe.map(g => '<option value="' + g.id + '">[' + g.tag + '] ' + g.isim + ' (K:' + (g.guild_koylu||0) + ' A:' + (g.guild_asker||0) + ' W:' + (g.guild_worshipper||0) + ')</option>').join('') +
+          _guildListe.map(g => '<option value="' + g.id + '">[' + esc(g.tag) + '] ' + esc(g.isim) + ' (K:' + (g.guild_koylu||0) + ' A:' + (g.guild_asker||0) + ' W:' + (g.guild_worshipper||0) + ')</option>').join('') +
         '</select>' +
         '<span style="font-size:10px;color:#888">Köylü:</span><input id="gc-nufus-koylu" type="number" min="0" value="0" style="width:55px;padding:3px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
         '<span style="font-size:10px;color:#888">Asker:</span><input id="gc-nufus-asker" type="number" min="0" value="0" style="width:55px;padding:3px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
@@ -4273,7 +4284,7 @@ async function loadGuildCfg() {
     if (binaEl) binaEl.innerHTML =
       '<div class="card" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
         '<select id="gc-bina-guild" style="padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
-          _guildListe.map(g => '<option value="' + g.id + '">[' + g.tag + '] ' + g.isim + '</option>').join('') +
+          _guildListe.map(g => '<option value="' + g.id + '">[' + esc(g.tag) + '] ' + esc(g.isim) + '</option>').join('') +
         '</select>' +
         '<select id="gc-bina-id" style="padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
           GUILD_BINALARI.map(b => '<option value="' + b + '">' + b + '</option>').join('') +
@@ -4288,7 +4299,7 @@ async function loadGuildCfg() {
     if (orduEl) orduEl.innerHTML =
       '<div class="card" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
         '<select id="gc-ordu-guild" style="padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
-          _guildListe.map(g => '<option value="' + g.id + '">[' + g.tag + '] ' + g.isim + '</option>').join('') +
+          _guildListe.map(g => '<option value="' + g.id + '">[' + esc(g.tag) + '] ' + esc(g.isim) + '</option>').join('') +
         '</select>' +
         '<input id="gc-ordu-unite" placeholder="unite_id (ornegin: piyadeler)" style="padding:4px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px;width:140px">' +
         '<span style="font-size:10px;color:#888">Adet:</span><input id="gc-ordu-adet" type="number" value="10" style="width:60px;padding:3px;background:#111;border:1px solid #333;color:#ddd;border-radius:4px;font-size:11px">' +
@@ -4314,7 +4325,7 @@ function gcGuildDegisti() {
   if (durum) durum.innerHTML = 'Kasa: ' + TUM_KAYNAKLAR.map(k => (KAYNAK_IKON[k]||'') + k + ': ' + ((g[k]||0).toLocaleString('tr-TR'))).join(' | ');
   if (nufus) nufus.innerHTML =
     'Nufus — Köylü: ' + (g.guild_koylu||0) + ' | Asker: ' + (g.guild_asker||0) + ' | Worshipper: ' + (g.guild_worshipper||0) +
-    '<br>İşçiler — Oduncu: ' + (g.guild_oduncu||0) + ' | Madenci: ' + (g.guild_madenci||0) + ' | Ciftci: ' + (g.guild_ciftci||0) + ' | Balikci: ' + (g.guild_balikci||0) +
+    '<br>İşçiler — Oduncu: ' + (g.guild_oduncu||0) + ' | Madenci: ' + (g.guild_madenci||0) + ' | Çiftçi: ' + (g.guild_ciftci||0) + ' | Balıkçı: ' + (g.guild_balikci||0) +
     '<br>Alan: ' + (g.alan||0).toLocaleString('tr-TR');
 }
 
@@ -4451,7 +4462,7 @@ async function loadPazarDegerCfg() {
 
     const numInput = (id, val, step) => `<input type="number" id="pdcfg-${id}" value="${val ?? 0}" step="${step||0.1}" style="width:80px;padding:2px 4px;background:#222;border:1px solid #444;color:#ddd;font-size:11px;border-radius:3px">`;
 
-    let html = '<table style="font-size:11px"><tr><td><b>W (isci-saat altin degeri)</b></td><td>'+numInput('W', c.W, 1)+'</td></tr>';
+    let html = '<table style="font-size:11px"><tr><td><b>W (isci-saat Altın degeri)</b></td><td>'+numInput('W', c.W, 1)+'</td></tr>';
     html += '<tr><td><b>denge_orani (gun)</b></td><td>'+numInput('denge_orani', c.denge_orani, 1)+'</td></tr>';
     html += '<tr><td><b>arz-talep carpan_min</b></td><td>'+numInput('carpan_min', c.carpan_min, 0.1)+'</td></tr>';
     html += '<tr><td><b>arz-talep carpan_max</b></td><td>'+numInput('carpan_max', c.carpan_max, 0.5)+'</td></tr>';
@@ -4585,7 +4596,7 @@ async function kadimSaldirtTetikle() {
   const playerId = parseInt(document.getElementById('ks-saldirt-pid').value);
   const gecikme = parseInt(document.getElementById('ks-saldirt-gecikme')?.value) || 0;
   const msgEl = document.getElementById('ks-saldirt-msg');
-  if (!sehirId || !playerId) { msgEl.innerHTML = '<span style="color:#e74c3c">Sehir ve player_id secilmeli!</span>'; return; }
+  if (!sehirId || !playerId) { msgEl.innerHTML = '<span style="color:#e74c3c">Şehir ve player_id secilmeli!</span>'; return; }
   const sehirIsim = KADIM_SEHIRLER.find(s=>s.id===sehirId)?.isim||'?';
   const gecikmeMsj = gecikme > 0 ? `${gecikme} PG sonra` : 'HEMEN';
   if (!confirm('DIKKAT: ' + sehirIsim + ' sehri player_id=' + playerId + ' uzerine ' + gecikmeMsj + ' saldiracak. Emin misiniz?')) return;
@@ -4655,7 +4666,7 @@ async function loadKadimTicaretTablosu() {
       '<th style="padding:6px;text-align:center">Denge</th>' +
       '<th style="padding:6px;text-align:center">Saldıran</th>' +
       '<th style="padding:6px;text-align:right">Pencere (240PG)</th>' +
-      '<th style="padding:6px;text-align:right">Tahmini İntikam (altın)</th>' +
+      '<th style="padding:6px;text-align:right">Tahmini İntikam (Altın)</th>' +
       '<th style="padding:6px;text-align:center">Faz / Kalan PG</th>' +
       '<th style="padding:6px;text-align:center">Uyarı</th>' +
       '</tr></thead><tbody>';
@@ -4666,7 +4677,7 @@ async function loadKadimTicaretTablosu() {
       html += '<tr style="border-bottom:1px solid #222;' + kurnazStyle + '">';
       html += '<td style="padding:6px;color:#666">' + (i+1) + '</td>';
       html += '<td style="padding:6px;font-weight:bold">' + (o.kral||'?') + ' <span style="color:#555;font-size:11px">(' + o.player_id + ')</span>' +
-        (o.kurnaz_esit ? ' <span style="color:#f1c40f;font-size:11px" title="Ticaretleri iki sehir arasinda esit dagittigi icin saldiri tetiklenmiyor olabilir">🦊 KURNAZ</span>' : '') + '</td>';
+        (o.kurnaz_esit ? ' <span style="color:#f1c40f;font-size:11px" title="Ticaretleri iki şehir arasinda esit dagittigi icin saldiri tetiklenmiyor olabilir">🦊 KURNAZ</span>' : '') + '</td>';
       html += '<td style="padding:6px;text-align:center;color:#888">' + (o.cag||'?') + '</td>';
       html += '<td style="padding:6px;text-align:center;font-size:10px">' + (o.player_taraf||'-') + '</td>';
       for (const s of d.sehirler) {
@@ -4730,17 +4741,17 @@ async function loadKadimTicaretTablosu() {
     html = sehirOzet + html;
     html += '<div style="margin-top:10px;padding:8px;background:#1a0a1a;border-left:3px solid #9b59b6;font-size:10px;color:#aaa">' +
       '<b>Sütunlar:</b><br>' +
-      '• <b>Ticaret</b>: Oyuncunun o kadim şehirden aldığı altın tutarı (kümüle)<br>' +
+      '• <b>Ticaret</b>: Oyuncunun o kadim şehirden aldığı Altın tutarı (kümüle)<br>' +
       '• <b>TOPLAM</b>: İki kadim şehirle yaptığı tüm ticaret (yeşil)<br>' +
       '• <b>Denge</b>: (max-min)/max — %0 tam eşit dağıtmış (kurnaz 🦊), %100 tek taraflı<br>' +
       '• <b>Saldıran</b>: Eğer saldırı tetiklenirse hangi kadim şehir saldırır (çapraz)<br>' +
-      '• <b>Pencere (240PG)</b>: İlk ticaretten beri 240 PG penceresinde biriken altın — saldırı bütçesi bu<br>' +
+      '• <b>Pencere (240PG)</b>: İlk ticaretten beri 240 PG penceresinde biriken Altın — saldırı bütçesi bu<br>' +
       '• <b>Tahmini İntikam</b>: Pencere × çarpan (cron 240 PG sonra ordu yollar, 3 PG sonra varır)<br>' +
       '• <b>Faz</b>: ⏳ Geri sayım (ilk ticaret → 240 PG) / ⚔ Yolda (3 PG) / 🔥 Hareket bekleniyor' +
       '</div>';
     if (kurnazSayi > 0) {
       html += '<div style="margin-top:6px;padding:8px;background:rgba(241,196,15,.08);border-left:3px solid #f1c40f;font-size:10px;color:#f1c40f">' +
-        '🦊 <b>KURNAZ oyuncu tespiti</b>: ' + kurnazSayi + ' oyuncu iki kadim sehir ile neredeyse esit ticaret yapiyor ' +
+        '🦊 <b>KURNAZ oyuncu tespiti</b>: ' + kurnazSayi + ' oyuncu iki kadim şehir ile neredeyse esit ticaret yapiyor ' +
         '(denge <%10). Cron "tA === tB" kuraliyla saldiri tetiklenmeyebilir.<br>' +
         '<b>Onerilen cozum:</b> TOPLAM_ticaret × 0.5 × carpan ile ceza -- ileride eklenebilir.' +
         '</div>';
@@ -4879,7 +4890,7 @@ async function loadKayipTarama() {
     const fmt = n => (n||0).toLocaleString('tr-TR');
     const fmtT = ts => new Date(ts).toLocaleString('tr-TR', { hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit' });
     if (!d.oyuncular || d.oyuncular.length === 0) {
-      el.innerHTML = '<div style="color:#2ecc71;padding:6px">✅ 24 saatte ' + fmt(minDusus) + '+ altın düşüşü yaşayan oyuncu yok.</div>';
+      el.innerHTML = '<div style="color:#2ecc71;padding:6px">✅ 24 saatte ' + fmt(minDusus) + '+ Altın düşüşü yaşayan oyuncu yok.</div>';
       return;
     }
     let html = '<table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:#1a1a1a">' +
@@ -4906,14 +4917,14 @@ async function loadKayipTarama() {
     }
     html += '</tbody></table>';
     html += '<div style="margin-top:8px;padding:8px;background:rgba(46,204,113,0.06);border-left:3px solid #27ae60;font-size:10px;color:#aaa">' +
-      'İade butonu: oyuncunun altınına <b>max düşüş</b> miktarı kadar altın ekler + activity_log\'a "admin_iade" kaydı yazar (oyuncu görür).' +
+      'İade butonu: oyuncunun altınına <b>max düşüş</b> miktarı kadar Altın ekler + activity_log\'a "admin_iade" kaydı yazar (oyuncu görür).' +
       '</div>';
     el.innerHTML = html;
   } catch(e) { el.innerHTML = '<div style="color:#e74c3c">Hata: ' + e.message + '</div>'; }
 }
 
 async function iadeEt(playerId, miktar, kral) {
-  const onay = prompt(`${kral} (ID ${playerId}) oyuncusuna ${miktar.toLocaleString('tr-TR')} altın iade edilecek.\n\nNot (opsiyonel, örn "catch-up maas bug"):`, 'catch-up maas bug iadesi');
+  const onay = prompt(`${kral} (ID ${playerId}) oyuncusuna ${miktar.toLocaleString('tr-TR')} Altın iade edilecek.\n\nNot (opsiyonel, örn "catch-up maas bug"):`, 'catch-up maas bug iadesi');
   if (onay === null) return;
   try {
     const r = await fetch(API + '/api/admin/player/' + playerId + '/kaynak-iade', {
@@ -5073,7 +5084,7 @@ async function kadimOrduAyarla(sehirId) {
   const yeni = parseInt(inp?.value);
   if (!yeni || yeni < 0) { alert('Geçerli yeni_guc girin (>=0)'); return; }
   const sehir = KADIM_SEHIRLER.find(s => s.id === sehirId);
-  if (!confirm(`${sehir?.isim||'Sehir'} ordu gücü ${yeni.toLocaleString('tr-TR')} olarak ayarlansin mı?`)) return;
+  if (!confirm(`${sehir?.isim||'Şehir'} ordu gücü ${yeni.toLocaleString('tr-TR')} olarak ayarlansin mı?`)) return;
   try {
     const r = await fetch(API + '/api/admin/kadim-sehir/' + sehirId + '/ordu-ayarla', {
       method: 'POST', headers: hdr(), body: JSON.stringify({ yeni_guc: yeni })
@@ -5101,7 +5112,7 @@ async function oyuncularHaritadaTopla() {
       let html = '<div style="margin-top:8px;padding:10px;background:#000;border-left:3px solid #2ecc71;font-size:11px">';
       html += '<b style="color:#2ecc71">✓ ' + d.mesaj + '</b><br>';
       html += '<div style="max-height:200px;overflow-y:auto;margin-top:6px">';
-      html += (d.tasinanlar||[]).slice(0, 50).map(t => `${t.kral} (id:${t.id}): ${t.eski} → <b style="color:#3498db">${t.yeni}</b>`).join('<br>');
+      html += (d.tasinanlar||[]).slice(0, 50).map(t => `${esc(t.kral)} (id:${t.id}): ${t.eski} → <b style="color:#3498db">${t.yeni}</b>`).join('<br>');
       if ((d.tasinanlar||[]).length > 50) html += `<br>... ve ${d.tasinanlar.length - 50} daha`;
       html += '</div></div>';
       msgEl.innerHTML = html;
@@ -5150,7 +5161,7 @@ async function loadGuildDagitimCfg() {
     const gs = await fetch(API + '/api/admin/guildler', {headers:hdr()}).then(r=>r.json()).catch(()=>null);
     if (!gs || !gs.ok) { el.innerHTML = '<div style="color:#888">Guild listesi alinamadi (fallback: guild secimi manuel)</div>'; return; }
     const guilds = gs.guildler || [];
-    const opts = guilds.map(g => '<option value="'+g.id+'">['+g.tag+'] '+g.isim+'</option>').join('');
+    const opts = guilds.map(g => '<option value="'+g.id+'">['+esc(g.tag)+'] '+esc(g.isim)+'</option>').join('');
     const KAYNAKLAR = ['odun','metal','altin','bugday','balik','kereste','islenmis'];
     let html = '<div style="display:flex;gap:6px;align-items:center;margin-bottom:8px">' +
       '<select id="gd-guild" onchange="guildDagitimYukle()" style="padding:3px;background:#222;border:1px solid #444;color:#ddd;font-size:11px;border-radius:3px">'+opts+'</select>' +
@@ -5179,7 +5190,7 @@ async function loadGuildMoraliCfg() {
     const gs = await fetch(API + '/api/admin/guildler', {headers:hdr()}).then(r=>r.json()).catch(()=>null);
     if (!gs || !gs.ok) { el.innerHTML = '<div style="color:#888">Guild listesi alinamadi</div>'; return; }
     const guilds = gs.guildler || [];
-    const opts = guilds.map(g => '<option value="'+g.id+'" data-moral="'+(g.ordu_morali||100)+'">['+g.tag+'] '+g.isim+' (moral: '+(g.ordu_morali||100)+')</option>').join('');
+    const opts = guilds.map(g => '<option value="'+g.id+'" data-moral="'+(g.ordu_morali||100)+'">['+esc(g.tag)+'] '+esc(g.isim)+' (moral: '+(g.ordu_morali||100)+')</option>').join('');
     el.innerHTML = '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
       '<select id="gm-guild" style="padding:3px;background:#222;border:1px solid #444;color:#ddd;font-size:11px;border-radius:3px">'+opts+'</select>' +
       '<input id="gm-moral" type="number" min="0" max="100" value="100" style="width:70px;padding:3px;background:#222;border:1px solid #444;color:#ddd;font-size:11px;border-radius:3px">' +
@@ -5207,11 +5218,11 @@ async function loadGuildWsCfg() {
     const gs = await fetch(API + '/api/admin/guildler', {headers:hdr()}).then(r=>r.json()).catch(()=>null);
     if (!gs || !gs.ok) { el.innerHTML = '<div style="color:#888">Guild listesi alinamadi</div>'; return; }
     const guilds = gs.guildler || [];
-    const opts = guilds.map(g => '<option value="'+g.id+'">['+g.tag+'] '+g.isim+'</option>').join('');
+    const opts = guilds.map(g => '<option value="'+g.id+'">['+esc(g.tag)+'] '+esc(g.isim)+'</option>').join('');
     el.innerHTML = '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
       '<select id="gws-guild" style="padding:3px;background:#222;border:1px solid #444;color:#ddd;font-size:11px;border-radius:3px">'+opts+'</select>' +
       '<select id="gws-renk" style="padding:3px;background:#222;border:1px solid #444;color:#ddd;font-size:11px;border-radius:3px">' +
-        '<option value="beyaz">Beyaz</option><option value="kirmizi">Kirmizi</option><option value="mavi">Mavi</option><option value="yesil">Yesil</option>' +
+        '<option value="beyaz">Beyaz</option><option value="kirmizi">Kırmızı</option><option value="mavi">Mavi</option><option value="yesil">Yeşil</option>' +
       '</select>' +
       '<input id="gws-adet" type="number" value="10" style="width:70px;padding:3px;background:#222;border:1px solid #444;color:#ddd;font-size:11px;border-radius:3px">' +
       '<button class="act" onclick="guildWsEkle()">WS Ekle/Cikar (neg=cikar)</button>' +
@@ -5254,10 +5265,10 @@ async function loadEkonomiCfg() {
 <div class="card" style="padding:12px">
   <h4 style="color:#3498db;margin-bottom:8px">📦 İşçi Uretim (saatlik)</h4>
   <table style="width:100%;font-size:11px">
-    ${row('Oduncu → odun', 'isci_uretim.oduncu_odun', I.oduncu_odun, 0.5, 'Her oduncu/saat')}
-    ${row('Madenci → metal', 'isci_uretim.madenci_metal', I.madenci_metal, 0.5)}
-    ${row('Ciftci → bugday', 'isci_uretim.ciftci_bugday', I.ciftci_bugday, 0.5)}
-    ${row('Balikci → balik', 'isci_uretim.balikci_balik', I.balikci_balik, 0.5, 'Sadece 4-8-12-16-20-24. gunler')}
+    ${row('Oduncu → Odun', 'isci_uretim.oduncu_odun', I.oduncu_odun, 0.5, 'Her oduncu/saat')}
+    ${row('Madenci → Metal', 'isci_uretim.madenci_metal', I.madenci_metal, 0.5)}
+    ${row('Çiftçi → Buğday', 'isci_uretim.ciftci_bugday', I.ciftci_bugday, 0.5)}
+    ${row('Balıkçı → Balık', 'isci_uretim.balikci_balik', I.balikci_balik, 0.5, 'Sadece 4-8-12-16-20-24. gunler')}
     ${row('Tüccar min hammadde', 'isci_uretim.tuccar_min', I.tuccar_min, 50)}
     ${row('Tüccar max hammadde', 'isci_uretim.tuccar_max', I.tuccar_max, 50)}
     ${row('Worshipper → mana', 'isci_uretim.worshipper_mana', I.worshipper_mana, 0.01)}
@@ -5267,11 +5278,11 @@ async function loadEkonomiCfg() {
 <div class="card" style="padding:12px">
   <h4 style="color:#9b59b6;margin-bottom:8px">🎲 Ozel Kaynaklar</h4>
   <table style="width:100%;font-size:11px">
-    ${row('Ciftlik besi/saat', 'ozel_kaynak.ciftlik_besi_saatlik', O.ciftlik_besi_saatlik, 1)}
-    ${row('Ahir at/saat', 'ozel_kaynak.ahir_at_saatlik', O.ahir_at_saatlik, 1)}
-    ${row('Ahir kurt/saat', 'ozel_kaynak.ahir_kurt_saatlik', O.ahir_kurt_saatlik, 1)}
+    ${row('Çiftlik besi/saat', 'ozel_kaynak.ciftlik_besi_saatlik', O.ciftlik_besi_saatlik, 1)}
+    ${row('Ahır at/saat', 'ozel_kaynak.ahir_at_saatlik', O.ahir_at_saatlik, 1)}
+    ${row('Ahır kurt/saat', 'ozel_kaynak.ahir_kurt_saatlik', O.ahir_kurt_saatlik, 1)}
     ${row('Lonca gizlilik/saat', 'ozel_kaynak.lonca_gizlilik_saatlik', O.lonca_gizlilik_saatlik, 0.01)}
-    ${row('Buyulu yumurta sans', 'ozel_kaynak.buyulu_tarla_yumurta_sans', O.buyulu_tarla_yumurta_sans, 0.000001, 'Bina basina %0.00001 = 0.00001')}
+    ${row('Büyülü Yumurta sans', 'ozel_kaynak.buyulu_tarla_yumurta_sans', O.buyulu_tarla_yumurta_sans, 0.000001, 'Bina basina %0.00001 = 0.00001')}
     ${row('Mağara ejderha normal', 'ozel_kaynak.magara_ejderha_normal', O.magara_ejderha_normal, 0.00001)}
     ${row('Mağara ejderha nadir', 'ozel_kaynak.magara_ejderha_nadir', O.magara_ejderha_nadir, 0.000001)}
     ${row('Eşek spawn şansı', 'ozel_kaynak.essek_spawn_sans', O.essek_spawn_sans, 0.0001)}
@@ -5294,14 +5305,14 @@ async function loadEkonomiCfg() {
   <h4 style="color:#16a085;margin-bottom:8px">🫏 Kervan</h4>
   <table style="width:100%;font-size:11px">
     ${row('Eşek kapasitesi', 'kervan.esek_kapasite', K.esek_kapasite, 100, 'Birim/esek')}
-    ${row('Max esek/kervan', 'kervan.max_esek_per_kervan', K.max_esek_per_kervan, 10)}
+    ${row('Max Eşek/kervan', 'kervan.max_esek_per_kervan', K.max_esek_per_kervan, 10)}
   </table>
 </div>
 
 <div class="card" style="padding:12px">
   <h4 style="color:#c0392b;margin-bottom:8px">⚔️ Savas</h4>
   <table style="width:100%;font-size:11px">
-    ${row('Min unite (savas icin)', 'savas.min_unite', S.min_unite, 5)}
+    ${row('Min ünite (savas icin)', 'savas.min_unite', S.min_unite, 5)}
   </table>
 </div>
 
@@ -5507,7 +5518,7 @@ async function loadKusatmaDurum() {
     const ordular = d.ordular || [];
     const fmtDate = (x) => x ? new Date(x).toLocaleString('tr-TR') : '-';
 
-    let h = '<div style="margin-bottom:12px"><b>Sehir State:</b></div>';
+    let h = '<div style="margin-bottom:12px"><b>Şehir State:</b></div>';
     h += '<table style="width:100%;font-size:11px;margin-bottom:16px"><thead><tr><th>ID</th><th>Isim</th><th>Durum</th><th>Holding</th><th>Holding Basladi</th><th>Zafer</th><th>Grace Bitis</th><th>Ordu Gucu</th></tr></thead><tbody>';
     for (const s of sehirler) {
       h += `<tr>
@@ -5526,10 +5537,10 @@ async function loadKusatmaDurum() {
     if (ordular.length === 0) {
       h += '<div style="color:#888;font-size:11px">Aktif ordu yok</div>';
     } else {
-      h += '<table style="width:100%;font-size:11px"><thead><tr><th>Ordu ID</th><th>Guild</th><th>Ordu Isim</th><th>Durum</th><th>Toplam Unite</th><th>Hedef Sehir</th><th>Varis</th></tr></thead><tbody>';
+      h += '<table style="width:100%;font-size:11px"><thead><tr><th>Ordu ID</th><th>Guild</th><th>Ordu Isim</th><th>Durum</th><th>Toplam Ünite</th><th>Hedef Şehir</th><th>Varis</th></tr></thead><tbody>';
       for (const o of ordular) {
         h += `<tr>
-          <td>${o.id}</td><td>${o.guild_id || '-'}</td><td>${o.isim || '-'}</td>
+          <td>${o.id}</td><td>${o.guild_id || '-'}</td><td>${esc(o.isim || '-')}</td>
           <td style="color:#e67e22">${o.durum}</td>
           <td>${(o.toplam_unite||0).toLocaleString('tr-TR')}</td>
           <td>${o.hedef_kadim_sehir_id || '-'}</td>
@@ -5604,7 +5615,7 @@ const TEKNOLOJILER = [
   { key:'savunma',  emoji:'🛡️', varsayilan:{ isim:'Savunma Kalkani', max_sev:5, etki_yuzde:2, aciklama:'Her kademe +2% DEF (savasta)' } },
   { key:'atk',      emoji:'⚔️', varsayilan:{ isim:'Ordu Disiplini', max_sev:5, etki_yuzde:2, aciklama:'Her kademe +2% ATK (savasta)' } },
   { key:'insaat',   emoji:'🏗️', varsayilan:{ isim:'Hizli Insaat', max_sev:3, etki_yuzde:5, aciklama:'Her kademe bina insa suresi -5%' } },
-  { key:'ekonomi',  emoji:'💰', varsayilan:{ isim:'Ekonomi', max_sev:5, etki_yuzde:1, aciklama:'Her kademe +1% altin geliri' } }
+  { key:'ekonomi',  emoji:'💰', varsayilan:{ isim:'Ekonomi', max_sev:5, etki_yuzde:1, aciklama:'Her kademe +1% Altın geliri' } }
 ];
 
 async function loadArastirmaCfg() {
@@ -5695,7 +5706,6 @@ async function loadBugList() {
     sayacEl.textContent = `Açık: ${s.acik||0} · Inceleniyor: ${s.inceleniyor||0} · Çözüldü: ${s.cozuldu||0} · Reddedildi: ${s.reddedildi||0}`;
     if (!d.bildirimler.length) { el.innerHTML = '<div style="color:#666;padding:20px;text-align:center">Bu filtreye uyan bildirim yok.</div>'; return; }
     const fmt = (x) => x ? new Date(x).toLocaleString('tr-TR') : '-';
-    const esc = (s) => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     el.innerHTML = d.bildirimler.map(b => `
       <div style="padding:10px 12px;background:#0d0d0d;border:1px solid #1a1a1a;border-left:4px solid ${BUG_DURUM_COLOR[b.durum]||'#555'};border-radius:4px;margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:6px">
@@ -5718,7 +5728,7 @@ async function loadBugList() {
         <div style="font-size:10px;color:#666;margin-bottom:4px">
           👤 ${esc(b.kral || 'silinmis')} · 📅 ${fmt(b.created_at)}
           ${b.sayfa ? '· 📄 ' + esc(b.sayfa) : ''}
-          ${b.ekran_url ? '· <a href="'+esc(b.ekran_url)+'" target="_blank" style="color:#3498db">📷 Ekran</a>' : ''}
+          ${b.ekran_url ? '· <a href="'+esc(/^https?:\/\//i.test(b.ekran_url) ? b.ekran_url : '#')+'" target="_blank" rel="noopener noreferrer" style="color:#3498db">📷 Ekran</a>' : ''}
         </div>
         <div style="font-size:11px;color:#ccc;padding:6px 8px;background:#0a0a0a;border-radius:3px;margin-bottom:6px;white-space:pre-wrap">${esc(b.aciklama)}</div>
         <div style="display:flex;gap:6px;align-items:flex-start">
@@ -5874,7 +5884,7 @@ function omIsimAra() {
         const list2 = (d2.oyuncular || d2 || []).slice(0, 5);
         if (list2.length === 0) { out.innerHTML = '<span style="color:#888">eşleşme yok</span>'; return; }
         out.innerHTML = list2.map(p =>
-          `<a href="#" style="color:#3498db;margin-right:8px" onclick="document.getElementById('om-pid').value='${p.player_id||p.id}';omPlayerLoad();return false">${p.kral||p.kullanici_adi} (${p.player_id||p.id})</a>`
+          `<a href="#" style="color:#3498db;margin-right:8px" onclick="document.getElementById('om-pid').value='${p.player_id||p.id}';omPlayerLoad();return false">${esc(p.kral||p.kullanici_adi)} (${p.player_id||p.id})</a>`
         ).join('');
         return;
       }
@@ -5883,7 +5893,7 @@ function omIsimAra() {
         `<a href="#" style="color:#3498db;margin-right:8px;display:inline-block;padding:2px 6px;background:#0a0a0a;border-radius:3px" ` +
         `onclick="document.getElementById('om-pid').value='${p.player_id}';omPlayerLoad();return false" ` +
         `title="user_id: ${p.user_id} | last_login: ${p.last_login||'?'}">` +
-        `<b>${p.kral||'-'}</b> <span style="color:#888">(${p.username})</span> <span style="color:#666">[${p.player_id}]</span>` +
+        `<b>${esc(p.kral||'-')}</b> <span style="color:#888">(${esc(p.username)})</span> <span style="color:#666">[${p.player_id}]</span>` +
         `</a>`
       ).join('');
     } catch(e) { /* sessiz */ }
@@ -5901,7 +5911,7 @@ async function omPlayerLoad() {
     info.style.display = 'block';
     info.innerHTML = `
       <div style="display:flex;gap:14px;flex-wrap:wrap;color:#ccc">
-        <span>👑 <b>${o.kral || o.kullanici_adi || '?'}</b></span>
+        <span>👑 <b>${esc(o.kral || o.kullanici_adi || '?')}</b></span>
         <span>🏛️ Çağ: <b>${o.cag||'?'}</b></span>
         <span>🛡️ Taraf: <b>${o.taraf||'?'}</b></span>
         <span>🧬 Irk: <b>${o.irk||'?'}</b></span>

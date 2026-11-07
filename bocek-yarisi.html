@@ -169,9 +169,9 @@
 <script src="js/theme.js"></script>
 <script src="js/cache-fetch.js"></script>
 <script src="js/game-data.js?v=14133"></script>
-<script src="js/hud.js?v=13500"></script>
+<script src="js/hud.js?v=13501"></script>
 <script src="js/nufus-render.js"></script>
-<script src="js/layout.js?v=14380"></script>
+<script src="js/layout.js?v=14381"></script>
 <script>
 const API = typeof getApiBase === 'function' ? getApiBase() : (window.API_BASE || 'https://palantis-backend-production.up.railway.app');
 const BUGS = [
@@ -222,7 +222,7 @@ document.getElementById('betInput').addEventListener('input', () => { updatePayo
 
 function updatePayout() {
   const bet = parseInt(document.getElementById('betInput').value) || 0;
-  document.getElementById('payoutAmt').textContent = bet > 0 ? (bet * PAYOUT).toLocaleString() + ' altin' : '--';
+  document.getElementById('payoutAmt').textContent = bet > 0 ? (bet * PAYOUT).toLocaleString() + ' Altın' : '--';
 }
 
 function checkReady() {
@@ -370,7 +370,7 @@ function renderHistory(gecmis) {
   p.innerHTML = gecmis.slice(0, 6).map(h => `
     <div class="hist-item">
       <span class="hist-bug">${h.kazanan_emoji}</span>
-      <span class="hist-name">${h.kazanan_isim}</span>
+      <span class="hist-name">${esc(h.kazanan_isim)}</span>
       <span class="${h.kazandi ? 'hist-win' : 'hist-lose'}">${h.kazandi ? '+' + h.kazanc.toLocaleString() : '-' + h.bahis.toLocaleString()} 🪙</span>
     </div>
   `).join('');

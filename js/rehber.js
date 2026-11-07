@@ -25,7 +25,7 @@ const REHBER_ADIMLARI = [
     hedef: null,
     pozisyon: 'bottom',
     baslik: 'Noxara\'ya Hos Geldin! 👋',
-    aciklama: 'Bu senin kralligin. Sehirlerin kuracak, ordular olusturacak, buyuler yapacaksin. Seni adim adim rehberlik edecegim.',
+    aciklama: 'Bu senin kralligin. Sehirlerin kuracak, ordular olusturacak, büyüler yapacaksin. Seni adim adim rehberlik edecegim.',
     ozelTip: 'merkez'
   },
   {
@@ -34,7 +34,7 @@ const REHBER_ADIMLARI = [
     hedef: '[data-bina="oduncu"],.bina-card[onclick*="oduncu"],.bina-slot[data-id="oduncu"]',
     pozisyon: 'right',
     baslik: 'Ilk Binani Yap: Oduncu 🪓',
-    aciklama: 'Oduncu binasi kereste uretir. Kereste tum binalarin temel malzemesidir. Hemen bir oduncu insa et!',
+    aciklama: 'Oduncu binasi Kereste uretir. Kereste tum binalarin temel malzemesidir. Hemen bir oduncu insa et!',
     kosulTipi: 'bina_yap',
     kosulDeger: 'oduncu:1'
   },
@@ -44,7 +44,7 @@ const REHBER_ADIMLARI = [
     hedef: '#isci-oduncu,.isci-row[data-tip="oduncu"],.worker-card[data-job="oduncu"]',
     pozisyon: 'right',
     baslik: 'İşçi Ata: Oduncu 👷',
-    aciklama: 'Köylülerini işçiye dönüştür. Oduncu işçileri her saat kereste üretir. En az 3 işçi ata!',
+    aciklama: 'Köylülerini işçiye dönüştür. Oduncu işçileri her saat Kereste üretir. En az 3 işçi ata!',
     kosulTipi: 'isci_ata',
     kosulDeger: 'oduncu:3'
   },
@@ -53,8 +53,8 @@ const REHBER_ADIMLARI = [
     sayfa: 'city.html',
     hedef: '[data-bina="isleme"],.bina-card[onclick*="isleme"],.bina-slot[data-id="isleme"]',
     pozisyon: 'right',
-    baslik: 'Metal Isleme Kur ⚙️',
-    aciklama: 'Isleme binasi metali islenmis metale cevirir. Tum gelismis binalar ve uniteler islenmis metal gerektirir.',
+    baslik: 'Metal İşleme Kur ⚙️',
+    aciklama: 'İşleme Atölyesi metali işlenmiş metale çevirir. Tüm gelişmiş binalar ve üniteler İşlenmiş Metal gerektirir.',
     kosulTipi: 'bina_yap',
     kosulDeger: 'isleme:2'
   },
@@ -64,7 +64,7 @@ const REHBER_ADIMLARI = [
     hedef: '#isci-madenci,.isci-row[data-tip="madenci"],.worker-card[data-job="madenci"]',
     pozisyon: 'right',
     baslik: 'Madenci Ata ⛏️',
-    aciklama: 'Madenci iscileri saatte metal uretir. Starter pack 10 madenci atanmis veriyor, sen arttir.',
+    aciklama: 'Madenci iscileri saatte Metal uretir. Starter pack 10 madenci atanmis veriyor, sen arttir.',
     kosulTipi: 'isci_ata',
     kosulDeger: 'madenci:15'
   },
@@ -74,7 +74,7 @@ const REHBER_ADIMLARI = [
     hedef: '.btn-unite-egit,.unite-card:first-child,#egitim-form',
     pozisyon: 'bottom',
     baslik: 'Ilk Uniteni Egit 🗡️',
-    aciklama: 'Askerlerinden unite olustur. Piyade en temel unite — 10 adet egit ve ilk ordunu kur!',
+    aciklama: 'Askerlerinden ünite olustur. Piyade en temel ünite — 10 adet egit ve ilk ordunu kur!',
     kosulTipi: 'unite_egit',
     kosulDeger: 'piyade:10'
   },
@@ -104,7 +104,7 @@ const REHBER_ADIMLARI = [
     hedef: null,
     pozisyon: 'bottom',
     baslik: 'Tebrikler! Rehber Tamamlandi 🎉',
-    aciklama: 'Artik Noxara\'nin temellerini biliyorsun. Sehir gelistirmeler, buyuler, guild sistemi ve daha fazlasi seni bekliyor. Bol sans Kral!',
+    aciklama: 'Artik Noxara\'nin temellerini biliyorsun. Şehir gelistirmeler, büyüler, guild sistemi ve daha fazlasi seni bekliyor. Bol sans Kral!',
     ozelTip: 'merkez'
   }
 ];

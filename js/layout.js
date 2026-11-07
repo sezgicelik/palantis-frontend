@@ -353,7 +353,7 @@ function renderHUD(){
         <div class="hud-row-lbl">GELİŞİM</div>
         <div class="hud-res-row">
           <div class="stat-box" data-tip="GELISIM PUANI (Katiplerden uretir)" style="border-left:2px solid #3498db"><span class="res-icon">📚</span><div class="res-details"><span class="res-label" style="color:#3498db">G.Puani</span><span class="res-amount" id="hud-gp">0</span></div></div>
-          <div class="stat-box" data-tip="KULTUR PUANI (GPS %80+ x 2 PG / Buyu / Casus / Artifact)" style="border-left:2px solid #f1c40f"><span class="res-icon">📜</span><div class="res-details"><span class="res-label" style="color:#f1c40f">K.Puani</span><span class="res-amount" id="hud-kp">0</span></div></div>
+          <div class="stat-box" data-tip="KÜLTÜR PUANI (GPS %80+ x 2 PG / Büyü / Casus / Artifact)" style="border-left:2px solid #f1c40f"><span class="res-icon">📜</span><div class="res-details"><span class="res-label" style="color:#f1c40f">K.Puani</span><span class="res-amount" id="hud-kp">0</span></div></div>
         </div>
       </div>
       <!-- ORDU — Ordularim + tehdit/destek rozetleri + rehber -->
@@ -1106,7 +1106,7 @@ function renderOrdularimPanel() {
 
     return `<div style="padding:8px;margin-bottom:6px;background:rgba(212,175,55,0.04);border-left:2px solid ${renk};border-radius:3px">
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="color:#f0e8d8;font-weight:600">${o.isim || 'Ordu ' + o.id}</span>
+        <span style="color:#f0e8d8;font-weight:600">${esc(o.isim || 'Ordu ' + o.id)}</span>
         <span style="color:#888;font-size:10px">${fmtN(o.total_units)} asker</span>
       </div>
       <div style="color:${renk};font-size:11px;margin-top:3px;display:flex;justify-content:space-between">
@@ -1145,8 +1145,8 @@ function renderGelenOrdularPanel() {
       const isSald = o.tip === 'saldiri';
       const renk = isSald ? '#e74c3c' : '#2ecc71';
       const ikon = isSald ? '⚔️' : '🛡️';
-      const ad = o.saldiran_kral || 'Bilinmeyen';
-      const sehir = o.saldiran_sehir ? ` (${o.saldiran_sehir})` : '';
+      const ad = esc(o.saldiran_kral || 'Bilinmeyen');
+      const sehir = o.saldiran_sehir ? ` (${esc(o.saldiran_sehir)})` : '';
       const koord = o.kaynak ? `📍 ${o.kaynak} →` : '';
       return `<div style="padding:8px 10px;margin-bottom:6px;background:rgba(0,0,0,0.3);border-left:3px solid ${renk};border-radius:4px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
@@ -1154,7 +1154,7 @@ function renderGelenOrdularPanel() {
           <span style="color:#c8a96e;font-size:10px;font-weight:bold">${fmtK(o.kalan_saniye)}</span>
         </div>
         <div style="color:#ccc;font-size:11px">${ad}${sehir}</div>
-        <div style="color:#666;font-size:10px;margin-top:2px">${koord} ${o.ordu_isim || 'Ordu'}</div>
+        <div style="color:#666;font-size:10px;margin-top:2px">${koord} ${esc(o.ordu_isim || 'Ordu')}</div>
       </div>`;
     }).join('');
   }
@@ -1174,7 +1174,7 @@ function renderGelenOrdularPanel() {
           <span style="color:#c8a96e;font-size:10px;font-weight:bold">${k.kalan_pg!=null?k.kalan_pg+' PG':'?'}</span>
         </div>
         <div style="color:#ccc;font-size:11px">${k.saldiran_sehir} → sana saldiriyor</div>
-        <div style="color:#666;font-size:10px;margin-top:2px">Tetikleyici: ${k.ticaret_sehri} ticareti · Butce: ~${altin} altin</div>
+        <div style="color:#666;font-size:10px;margin-top:2px">Tetikleyici: ${k.ticaret_sehri} ticareti · Butce: ~${altin} Altın</div>
       </div>`;
     }).join('');
   }
@@ -1185,7 +1185,7 @@ function renderGelenOrdularPanel() {
       const agr = b.kategori === 'dusmana';
       const renk = agr ? '#c0392b' : '#3498db';
       const ikon = agr ? '🔮⚔️' : '✨';
-      const atan = b.atan_kral ? ` · ${b.atan_kral}` : '';
+      const atan = b.atan_kral ? ` · ${esc(b.atan_kral)}` : '';
       return `<div style="padding:6px 10px;margin-bottom:4px;background:rgba(0,0,0,0.3);border-left:3px solid ${renk};border-radius:4px">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <span style="color:${renk};font-weight:bold;font-size:11px">${ikon} ${b.isim} K${b.kademe}</span>

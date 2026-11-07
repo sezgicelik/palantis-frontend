@@ -23,14 +23,14 @@ const GOREV_RENK = {
 const GOREV_ACIKLAMA = {
   bolge_incele:        'Hedefin bulundugu bolge ID\'sini ve koordinatini ogrenir.',
   koloni_incele:       'Hedefin tum kolonileri + kaynak tipi + bonus oranlarini listeler.',
-  ordu_incele:         'Hedefin tum ordulari, ATK/DEF gucleri ve unite sayilarini gosterir.',
+  ordu_incele:         'Hedefin tum ordulari, ATK/DEF gucleri ve ünite sayilarini gosterir.',
   ordu_saldiri_incele: 'Hedefin yolda olan ordularini (saldiri/donus) tespit eder.',
-  yemek_hirsizligi:    'Hedefin bugday/balik/pismis ekmek stogundan calar (max %15 stok).',
-  kaynak_hirsizligi:   'Hedefin altin/odun/metal/kereste/islenmis stogundan calar (max %10).',
-  kargasa:             'Hedefin SEHIR moralini -100 dusurur (yuksek riskli, koylu kacisi tetikleyebilir).',
+  yemek_hirsizligi:    'Hedefin Buğday/Balık/Pişmiş Ekmek stoğundan çalar (max %15 stok).',
+  kaynak_hirsizligi:   'Hedefin Altın/Odun/Metal/Kereste/İşlenmiş Metal stoğundan çalar (max %10).',
+  kargasa:             'Hedefin SEHIR moralini -100 dusurur (yuksek riskli, köylü kacisi tetikleyebilir).',
   bilim_hirsizligi:    'Hedeften bilim/teknoloji bilgisi sızdırır (gelisim_puani transfer).',
   stratejik_bilgiler:  'Hedefin ORDU moralini ve cesaret puanini ogrenir.',
-  katliam:             'Hedefin koylu nufusunu oldurur (50-200 koylu, agir gizlilik maliyeti).',
+  katliam:             'Hedefin köylü nufusunu oldurur (50-200 köylü, agir gizlilik maliyeti).',
   sabotaj:             'Hedefin 1-3 binasina 20-40 dayaniklilik hasari verir.'
 };
 
@@ -170,8 +170,8 @@ async function casusHedefAra() {
     var data = await resp.json();
     if (data.length === 0) { sonuc.innerHTML = '<span style="color:#e74c3c">Oyuncu bulunamadi</span>'; return; }
     sonuc.innerHTML = data.map(function(p) {
-      return '<div style="cursor:pointer;padding:2px 4px;border-radius:3px;margin:1px 0" onmouseover="this.style.background=\'#222\'" onmouseout="this.style.background=\'none\'" onclick="document.getElementById(\'casus-hedef\').value=\'' + p.id + '\';document.getElementById(\'casus-hedef-sonuc\').innerHTML=\'<span style=color:#2ecc71>Secildi: ' + p.kullanici_adi + ' (' + p.koord_x + ':' + p.koord_y + ')</span>\'">' +
-        '<span style="color:var(--race-color)">' + p.kullanici_adi + '</span> <span style="color:#555;font-size:11px">(' + p.koord_x + ':' + p.koord_y + ') Cag ' + (p.cag||1) + '</span>' +
+      return '<div style="cursor:pointer;padding:2px 4px;border-radius:3px;margin:1px 0" data-id="' + p.id + '" data-ad="' + esc(p.kullanici_adi) + '" data-koord="' + p.koord_x + ':' + p.koord_y + '" onmouseover="this.style.background=\'#222\'" onmouseout="this.style.background=\'none\'" onclick="document.getElementById(\'casus-hedef\').value=this.dataset.id;document.getElementById(\'casus-hedef-sonuc\').innerHTML=\'<span style=color:#2ecc71>Secildi: \'+esc(this.dataset.ad)+\' (\'+this.dataset.koord+\')</span>\'">' +
+        '<span style="color:var(--race-color)">' + esc(p.kullanici_adi) + '</span> <span style="color:#555;font-size:11px">(' + p.koord_x + ':' + p.koord_y + ') Çağ ' + (p.cag||1) + '</span>' +
       '</div>';
     }).join('');
   } catch(e) { sonuc.innerHTML = '<span style="color:#e74c3c">Hata</span>'; }

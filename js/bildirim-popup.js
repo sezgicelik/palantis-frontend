@@ -50,10 +50,18 @@
     var bar = document.createElement('div');
     bar.className = 'nxPopup-bar';
 
+    // XSS: mesaj icindeki kullanici kaynakli adlar (guild adi vb.) kacislanir;
+    // sunucunun kasitli koydugu <b>..</b> vurgusu korunur (backend yalnizca <b> kullaniyor).
+    function _nxBildirimHtml(m) {
+      var e = (typeof esc === 'function') ? esc : function(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); };
+      // utils.escapeHtml '/' karakterini de (&#x2F;) kacislar -> kapanis etiketi iki bicimde gelebilir
+      return e(m || '').replace(/&lt;b&gt;/g, '<b>').replace(/&lt;(?:\/|&#x2F;|&#47;)b&gt;/g, '</b>');
+    }
+
     el.innerHTML =
       '<div class="nxPopup-ikon">' + (b.ikon || '🔔') + '</div>' +
       '<div class="nxPopup-body">' +
-        '<div class="nxPopup-mesaj">' + b.mesaj + '</div>' +
+        '<div class="nxPopup-mesaj">' + _nxBildirimHtml(b.mesaj) + '</div>' +
       '</div>' +
       '<div class="nxPopup-kapat" onclick="this.parentNode.remove()">✕</div>';
 

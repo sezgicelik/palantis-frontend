@@ -414,7 +414,7 @@ async function tamirBina(binaId) {
   if (!b || b._dayaniklilik >= 100) { await A('Bu bina tamir gerektirmiyor.'); return; }
 
   const secim = await C(
-    `${b.name} (%${b._dayaniklilik}) tamiri için yöntem seç:\n\n• Hızlı: anında bitir, 2x altın\n• Normal: kuyruğa al, 1x altın`,
+    `${b.name} (%${b._dayaniklilik}) tamiri için yöntem seç:\n\n• Hızlı: anında bitir, 2x Altın\n• Normal: kuyruğa al, 1x Altın`,
     '⚡ Hızlı', '🔧 Normal',
     '🔧 Tamir Yöntemi'
   );
@@ -431,7 +431,7 @@ async function tamirBina(binaId) {
     });
     const data = await resp.json();
     if (resp.ok) {
-      toast(hizli ? `⚡ Hızlı tamir! ${data.maliyet} altın harcandı.` : `🔧 Tamir kuyruğa alındı (${data.tamir_suresi_pg} PG)`);
+      toast(hizli ? `⚡ Hızlı tamir! ${data.maliyet} Altın harcandı.` : `🔧 Tamir kuyruğa alındı (${data.tamir_suresi_pg} PG)`);
       if (typeof loadGameData === 'function') await loadGameData();
       renderGrid();
     } else {
@@ -543,7 +543,7 @@ async function topluTamir() {
   if (!esik || esik < 1 || esik > 99) { await A('Geçersiz yüzde (1-99).'); return; }
 
   const secim = await C(
-    'Tamir tipini seç:\n\n• Hızlı: anında bitir, 2x altın\n• Normal: kuyruğa al, 1x altın',
+    'Tamir tipini seç:\n\n• Hızlı: anında bitir, 2x Altın\n• Normal: kuyruğa al, 1x Altın',
     '⚡ Hızlı', '🔧 Normal',
     'Tamir Tipi'
   );
@@ -562,7 +562,7 @@ async function topluTamir() {
       if (data.tamir_edilen === 0) {
         toast(`Dayanıklılık %${esik} altında bina yok.`);
       } else {
-        toast(`${data.tamir_edilen} bina tamir edildi, toplam ${data.toplam_maliyet.toLocaleString('tr-TR')} altın harcandı (${tip})`);
+        toast(`${data.tamir_edilen} bina tamir edildi, toplam ${data.toplam_maliyet.toLocaleString('tr-TR')} Altın harcandı (${tip})`);
       }
       if (typeof loadGameData === 'function') await loadGameData();
       if (typeof loadBuildingsFromBackend === 'function') await loadBuildingsFromBackend();

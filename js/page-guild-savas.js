@@ -107,8 +107,8 @@ function renderSavasIstatistik(ist, benimIsim, rakipIsim) {
     '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;font-size:11px">' +
       _istBox('⚔️ Rakip kaybı', fmt(ist.rakip_kayip_unite) + ' ünite', '#2ecc71') +
       _istBox('💀 Benim kaybım', fmt(ist.benim_kayip_unite) + ' ünite', '#e74c3c') +
-      _istBox('💰 Aldığım altın', fmt(ist.benim_ganimet_altin), '#d4af37') +
-      _istBox('💸 Kaybettiğim altın', fmt(ist.rakip_ganimet_altin), '#888') +
+      _istBox('💰 Aldığım Altın', fmt(ist.benim_ganimet_altin), '#d4af37') +
+      _istBox('💸 Kaybettiğim Altın', fmt(ist.rakip_ganimet_altin), '#888') +
       _istBox('🔒 Aldığım esir', fmt(ist.benim_esir), '#9b59b6') +
       _istBox('🔗 Kaybettiğim esir', fmt(ist.rakip_esir), '#666') +
     '</div>' +
@@ -605,7 +605,7 @@ function renderSavasOdasiBuyuler(hedefId, hedefKral) {
     var yapilabilir = yeterliMana && yeterliMalzeme && !cdAktif && yeterliKule;
 
     var hata = '';
-    if (!yeterliKule) hata = '🔒 Kule cag ' + b.cag + ' gerek';
+    if (!yeterliKule) hata = '🔒 Kule çağ ' + b.cag + ' gerek';
     else if (cdAktif) hata = '⏱ Cooldown: ' + Math.ceil((new Date(cdBitis) - Date.now()) / 60000) + ' dk';
     else if (!yeterliMana) hata = '💧 Mana yok (' + mevcutMana + '/' + kd.mana + ')';
     else if (!yeterliMalzeme) hata = '🧪 ' + b.malzeme + ' yok (' + mevcutMalzeme + '/' + kd.malzeme + ')';

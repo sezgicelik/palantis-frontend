@@ -580,12 +580,12 @@ function obApplyPlayer(p) {
   set('home-kral', p.kral);
   set('home-sehir', p.sehir);
   set('home-irk', irkData ? irkData.icon + ' ' + irkData.name : p.irk);
-  set('home-cag', romanCag(p.cag || 1) + '. Cag');
+  set('home-cag', romanCag(p.cag || 1) + '. Çağ');
   set('sidebar-kral', p.kral);
   set('sidebar-irk', irkData ? irkData.icon + ' ' + irkData.name : p.irk);
   set('main-welcome', 'Hos geldin, ' + p.kral + '!');
   // Sidebar Cag gosterimi
-  set('sidebar-cag', romanCag(p.cag || 1) + '. Cag');
+  set('sidebar-cag', romanCag(p.cag || 1) + '. Çağ');
   // Koordinat sidebar'da göster
   if (p.koord_x) set('sidebar-koord', '📍 ' + p.koord_x + ':' + p.koord_y);
 
@@ -739,7 +739,7 @@ function _loadAktifBuyuBonus(bonusEl, baseHtml) {
             if (a.etki.uretim_bonus) etkiStr = 'Uretim +%' + a.etki.uretim_bonus;
             else if (a.etki.moral_bonus) etkiStr = 'Moral +' + a.etki.moral_bonus;
             else if (a.etki.koruma) etkiStr = 'Saldiri engeli';
-            else if (a.etki.buyu_kalkan) etkiStr = 'Tum buyuler etkisiz';
+            else if (a.etki.buyu_kalkan) etkiStr = 'Tum büyüler etkisiz';
             else if (a.etki.maas_muaf) etkiStr = 'Maas muafiyeti';
             else if (a.etki.koloni_bonus) etkiStr = 'Koloni +%' + a.etki.koloni_bonus;
             else if (a.etki.mana_carpan) etkiStr = 'Mana x' + a.etki.mana_carpan;
@@ -753,7 +753,7 @@ function _loadAktifBuyuBonus(bonusEl, baseHtml) {
             '<span style="color:#8e44ad;font-size:10px">' + kalanStr + '</span></div>';
         }).join('');
         const buyuDiv = '<div style="padding:8px;background:#111;border-radius:4px;border-left:2px solid #8e44ad">' +
-          '<div style="font-size:10px;color:#8e44ad;font-weight:bold">\u{1F52E} Aktif Buyuler</div>' +
+          '<div style="font-size:10px;color:#8e44ad;font-weight:bold">\u{1F52E} Aktif Büyüler</div>' +
           aktifHTML + '</div>';
         bonusEl.innerHTML = (baseHtml || '') + buyuDiv;
       }).catch(() => {});

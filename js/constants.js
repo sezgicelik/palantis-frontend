@@ -46,7 +46,7 @@ const LABELS = {
     ev:'Ev', koy:'Köy', kasaba:'Kasaba',
     pazar:'Pazar', surlar:'Surlar', sehir_meydani:'Şehir Meydanı',
     ahir:'Ahır', lonca:'Lonca', buyulu_tarla:'Büyülü Tarla',
-    buyu_kulesi:'Büyü Kulesi', kule:'Savunma Kulesi',
+    buyu_kulesi:'Büyücü Kulesi', kule:'Savunma Kulesi',
     magara:'Mağara', istihbarat:'İstihbarat',
     rathe_tapinagi:'Rathe Tapınağı', xegony_tapinagi:'Xegony Tapınağı',
     fennin_tapinagi:'Fennin Tapınağı', tunare_tapinagi:'Tunare Tapınağı',
@@ -141,7 +141,7 @@ const BLDGS = {
     cost:l=>({odun:200,altin:50}),time:l=>3600},
 
   kereste_atolyesi:{id:'kereste_atolyesi',cat:'uretim',icon:'🪚',name:'Kereste Atölyesi',bg:'#1a1208',
-    desc:"Odunu keresteye dönüştürür. Her atölye saatte 20 odun → kereste.",
+    desc:"Odunu keresteye dönüştürür. Her atölye saatte 20 Odun → Kereste.",
     maxLv:999,lv:0,deger:80,
     cagLimit:{1:999,2:999,3:999,4:999,5:999},
     fx:l=>[{t:'pos',s:`+${l*20} Kereste/gün`}],
@@ -155,10 +155,10 @@ const BLDGS = {
     cost:l=>({odun:100,altin:40}),time:l=>3600},
 
   ciftlik:{id:'ciftlik',cat:'uretim',icon:'🐄',name:'Çiftlik',bg:'#1a1400',
-    desc:"Besi hayvanı yetiştirir. Her çiftlik saatte 10 besi hayvanı üretir.",
+    desc:"Besi hayvanı yetiştirir. Her çiftlik saatte 10 Besi Hayvanı üretir.",
     maxLv:999,lv:0,deger:120,
     cagLimit:{1:999,2:999,3:999,4:999,5:999},
-    fx:l=>[{t:'pos',s:`+${l*10} Besi hayvanı/gün`},{t:'pos',s:`1 besi = 20 çiğ et`}],
+    fx:l=>[{t:'pos',s:`+${l*10} Besi hayvanı/gün`},{t:'pos',s:`1 besi = 20 Çiğ Et`}],
     cost:l=>({odun:300,altin:200}),time:l=>3600},
 
   balikci:{id:'balikci',cat:'uretim',icon:'🎣',name:'Balıkçı Limanı',bg:'#001616',
@@ -169,7 +169,7 @@ const BLDGS = {
     cost:l=>({odun:300,altin:120}),time:l=>7200},
 
   isleme:{id:'isleme',cat:'uretim',icon:'🔩',name:'İşleme Atölyesi',bg:'#141000',
-    desc:"Ham metali işlenmiş metale çevirir. Her atölye seviye×10 metal/gün işler.",
+    desc:"Ham metali işlenmiş metale çevirir. Her atölye seviye×10 Metal/gün işler.",
     maxLv:999,lv:0,deger:115,
     cagLimit:{1:-1,2:-1,3:-1,4:-1,5:-1},
     fx:l=>[{t:'pos',s:`${l*10} Metal→İşl.Metal/gün`}],
@@ -218,7 +218,7 @@ const BLDGS = {
     fx:l=>[{t:'pos',s:`${l} Balista/tur`},{t:'pos',s:`Menzil hasar +${l*80}`}],
     cost:l=>({odun:600,metal:500,altin:400}),time:l=>14400},
 
-  buyu_kulesi:{id:'buyu_kulesi',cat:'askeri',icon:'🔮',name:'Büyü Kulesi',bg:'#0a001a',
+  buyu_kulesi:{id:'buyu_kulesi',cat:'askeri',icon:'🔮',name:'Büyücü Kulesi',bg:'#0a001a',
     desc:"Büyü savunması + büyü çağı açar. Her kule 1 çağ büyüsü açar (max 5).",
     maxLv:5,lv:0,deger:320,
     cagLimit:{1:1,2:2,3:3,4:4,5:5},
@@ -316,7 +316,7 @@ const BLDGS = {
     cost:l=>({odun:250,altin:200}),time:l=>3600},
 
   pazar:{id:'pazar',cat:'sosyal',icon:'💰',name:'Pazar',bg:'#160e00',
-    desc:"Kervan, büyü dükkanı ve oyuncu pazarına erişim. Her saat esek bulma sansi.",
+    desc:"Kervan, büyü dükkanı ve oyuncu pazarına erişim. Her saat Eşek bulma sansi.",
     maxLv:100,lv:0,deger:85,
     cagLimit:{1:10,2:25,3:50,4:75,5:100},
     fx:l=>[{t:'pos',s:`${l*2} ticaret slotu`},{t:'pos',s:`Altın +${l*15}/gün`}],
@@ -396,7 +396,7 @@ const BLDGS = {
 
   // v1.14.1.45: Kultur tier 1 Cag 2'de, tier 2 Cag 4'te
   tiyatro:{id:'tiyatro',cat:'gelisim',gpsAlan:'kultur',icon:'🎭',name:'Tiyatro',bg:'#14000e',
-    desc:"Eğlence ve mutluluk merkezi. Kultur tier 1.",
+    desc:"Eğlence ve mutluluk merkezi. Kültür tier 1.",
     maxLv:999,lv:0,deger:125,
     cagLimit:{1:0,2:-1,3:-1,4:-1,5:-1},
     fx:l=>[{t:'pos',s:`Mutluluk +${l*6}`},{t:'pos',s:`Eğlence +${l*10}%`}],
@@ -420,31 +420,31 @@ const BLDGS = {
   // v1.13.70: 4 YENI SEHIR BINASI — GPS sistemini zenginlestirir
   // v1.14.1.45: Tier 2 binalar Cag 4'te acilsin (tier 1 once)
   buyuk_kutuphane:{id:'buyuk_kutuphane',cat:'gelisim',gpsAlan:'bilgi',icon:'📚',name:'Büyük Kütüphane',bg:'#0a1400',
-    desc:"Kütüphane tier 2. Bilgi alani kapsamasi 2500 kisi. Cag 4+.",
+    desc:"Kütüphane tier 2. Bilgi alani kapsamasi 2500 kisi. Çağ 4+.",
     maxLv:999,lv:0,deger:120,
     cagLimit:{1:0,2:0,3:0,4:-1,5:-1},
     fx:l=>[{t:'pos',s:`Bilgi +${l*2500} kapsama`},{t:'pos',s:`GPS bonus`}],
     cost:l=>({odun:800,altin:1200}),time:l=>43200},
 
   opera_evi:{id:'opera_evi',cat:'gelisim',gpsAlan:'kultur',icon:'🎼',name:'Opera Evi',bg:'#140010',
-    desc:"Tiyatro tier 2. Kultur alani kapsamasi 8000 kisi. Cag 4+.",
+    desc:"Tiyatro tier 2. Kültür alani kapsamasi 8000 kisi. Çağ 4+.",
     maxLv:999,lv:0,deger:180,
     cagLimit:{1:0,2:0,3:0,4:-1,5:-1},
-    fx:l=>[{t:'pos',s:`Kultur +${l*8000} kapsama`},{t:'pos',s:`GPS bonus`}],
+    fx:l=>[{t:'pos',s:`Kültür +${l*8000} kapsama`},{t:'pos',s:`GPS bonus`}],
     cost:l=>({odun:600,metal:200,altin:1500}),time:l=>14400},
 
   koliseum:{id:'koliseum',cat:'gelisim',gpsAlan:'eglence',icon:'🏟️',name:'Koliseum',bg:'#1a0808',
-    desc:"Arena tier 2. Eglence alani kapsamasi 20.000 kisi. Cag 5 endgame.",
+    desc:"Arena tier 2. Eglence alani kapsamasi 20.000 kisi. Çağ 5 endgame.",
     maxLv:999,lv:0,deger:350,
     cagLimit:{1:0,2:0,3:0,4:0,5:-1},
     fx:l=>[{t:'pos',s:`Eglence +${l*20000} kapsama`},{t:'pos',s:`GPS bonus`}],
     cost:l=>({odun:1500,metal:800,altin:3000}),time:l=>21600},
 
   katedral:{id:'katedral',cat:'gelisim',gpsAlan:'sehir',icon:'🌆',name:'Katedral',bg:'#0a1018',
-    desc:"Sehir alani kapsamasi 5000 kisi. Tapinak prestiji. Cag 3+.",
+    desc:"Şehir alani kapsamasi 5000 kisi. Tapınak prestiji. Çağ 3+.",
     maxLv:999,lv:0,deger:150,
     cagLimit:{1:0,2:0,3:-1,4:-1,5:-1},
-    fx:l=>[{t:'pos',s:`Sehir alani +${l*5000} kapsama`},{t:'pos',s:`GPS bonus`}],
+    fx:l=>[{t:'pos',s:`Şehir alani +${l*5000} kapsama`},{t:'pos',s:`GPS bonus`}],
     cost:l=>({odun:700,metal:400,altin:1200}),time:l=>14400},
 };
 
@@ -487,9 +487,9 @@ const UNITS = {
     cost:{altin:50},
     extraCost:{},
     yardimci:true,
-    traits:['Savaşa girmez','Koloni fethi: 2 gerekli','50 altın/adet'],
+    traits:['Savaşa girmez','Koloni fethi: 2 gerekli','50 Altın/adet'],
     trainTime:0,maxCount:99999,count:0,
-    desc:"Yardımcı taşıma birimi. Savaşta yer almaz. Koloni fethetmek için orduda 2 eşek gerekir. Şehir kaynağı tüketmez, sadece altın."},
+    desc:"Yardımcı taşıma birimi. Savaşta yer almaz. Koloni fethetmek için orduda 2 Eşek gerekir. Şehir kaynağı tüketmez, sadece Altın."},
 
   koylu:{id:'koylu',side:'neutral',icon:'👨‍🌾',img:null,name:'Köylü',role:'Yardımcı (Yerleşim)',tier:0,trainDays:0,
     baseAtk:0,baseDef:0,zirh:0,iska:0,maas:0,
@@ -498,9 +498,9 @@ const UNITS = {
     cost:{altin:10},
     extraCost:{},
     yardimci:true,
-    traits:['Savaşa girmez','Koloni fethi: 100 gerekli','10 altın/adet'],
+    traits:['Savaşa girmez','Koloni fethi: 100 gerekli','10 Altın/adet'],
     trainTime:0,maxCount:99999,count:0,
-    desc:"Yardımcı yerleşimci birim. Savaşta yer almaz. Koloni fethetmek için orduda 100 köylü gerekir. Şehirdeki nüfusu etkilemez, sadece altın."},
+    desc:"Yardımcı yerleşimci birim. Savaşta yer almaz. Koloni fethetmek için orduda 100 köylü gerekir. Şehirdeki nüfusu etkilemez, sadece Altın."},
 
   /* ═══════════ AYDINLIK ═══════════ */
   piyade:{id:'piyade',side:'light',icon:'🗡️',img:'img/units/piyade.png',name:'Piyade',role:'Hafif Piyade',tier:1,trainDays:2,

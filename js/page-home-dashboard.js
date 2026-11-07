@@ -127,7 +127,7 @@ async function hpLoadOrdularim() {
       } else {
         durum = '🏠 Şehirde'; renk = '#2ecc71';
       }
-      return '<div class="kv"><span class="lbl">' + (o.isim || 'Ordu') + '</span><span style="color:' + renk + ';font-size:10px">' + durum + '</span></div>';
+      return '<div class="kv"><span class="lbl">' + esc(o.isim || 'Ordu') + '</span><span style="color:' + renk + ';font-size:10px">' + durum + '</span></div>';
     }).join('');
   } catch(e) { el.innerHTML = '<span class="loading">API hata</span>'; }
 }
@@ -455,8 +455,8 @@ async function hpLoadGuild() {
     const d = await r.json();
     if (!d.guild) { el.innerHTML = '<div style="color:#555;text-align:center">Guild yok</div>'; return; }
     el.innerHTML =
-      '<div><b class="val">' + (d.guild.isim || '—') + '</b></div>' +
-      '<div class="kv"><span class="lbl">Unvan</span><span>' + (d.ben?.unvan || d.ben?.rutbe || '—') + '</span></div>' +
+      '<div><b class="val">' + esc(d.guild.isim || '—') + '</b></div>' +
+      '<div class="kv"><span class="lbl">Unvan</span><span>' + esc(d.ben?.unvan || d.ben?.rutbe || '—') + '</span></div>' +
       '<div class="kv"><span class="lbl">Üye</span><span class="val">' + (d.uye_sayisi || '?') + '</span></div>' +
       '<div style="margin-top:4px;text-align:right"><a href="guild.html" class="ilink">Guild →</a></div>';
   } catch(e) { el.innerHTML = '<span class="loading">—</span>'; }
@@ -497,7 +497,7 @@ async function hpLoadIsciTablo() {
       { key: 'ciftci',  ad: '🌾 Çiftçi' },
       { key: 'balikci', ad: '🎣 Balıkçı' },
       { key: 'tuccar',  ad: '💰 Tüccar' },
-      { key: 'katip',   ad: '📚 Katip' },
+      { key: 'katip',   ad: '📚 Kâtip' },
       { key: 'izci',    ad: '🏞 İzci' }
     ];
     let toplam_isci = 0, toplam_esir = 0;

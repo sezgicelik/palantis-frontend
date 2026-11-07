@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Noxara – Buyu Dukkani</title>
+<title>Noxara – Büyü Dükkanı</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
@@ -79,9 +79,9 @@
 <script src="js/theme.js"></script>
 <script src="js/cache-fetch.js"></script>
 <script src="js/game-data.js?v=14133"></script>
-<script src="js/hud.js?v=13500"></script>
+<script src="js/hud.js?v=13501"></script>
 <script src="js/nufus-render.js"></script>
-<script src="js/layout.js?v=14380"></script>
+<script src="js/layout.js?v=14381"></script>
 <script src="js/rehber.js"></script>
 <script>
 const RENK_ISIM = { beyaz:'Beyaz', kirmizi:'Kırmızı', mavi:'Mavi', yesil:'Yeşil' };
@@ -111,8 +111,8 @@ const PARSOMEN_LISTESI = [
   { id:'parsomen_ejderha_korkusu', buyu_id:'ejderha_korkusu', isim:'Ejderha Korkusu', cag:2, mana_renk:'kirmizi', tip:'saldiri', kategori:'dusmana', aciklama:'Düşman moralini düşürür', fiyat:2000 },
   { id:'parsomen_ejderha_sevinci', buyu_id:'ejderha_sevinci', isim:'Ejderha Sevinci', cag:2, mana_renk:'beyaz', tip:'destek', kategori:'kendine', aciklama:'Kendi moralini artırır', fiyat:2000 },
   { id:'parsomen_kesif', buyu_id:'kesif', isim:'Keşif', cag:2, mana_renk:'yesil', tip:'destek', kategori:'kendine', aciklama:'İzcilerin bulduğu alan artar', fiyat:2000 },
-  { id:'parsomen_motivasyon_h', buyu_id:'motivasyon_h', isim:'Motivasyon (Hammadde)', cag:2, mana_renk:'yesil', tip:'ekonomi', kategori:'kendine', aciklama:'Altın, odun, metal üretimi artar', fiyat:2000 },
-  { id:'parsomen_motivasyon_y', buyu_id:'motivasyon_y', isim:'Motivasyon (Yiyecek)', cag:2, mana_renk:'yesil', tip:'ekonomi', kategori:'kendine', aciklama:'Buğday, balık, et üretimi artar', fiyat:2000 },
+  { id:'parsomen_motivasyon_h', buyu_id:'motivasyon_h', isim:'Motivasyon (Hammadde)', cag:2, mana_renk:'yesil', tip:'ekonomi', kategori:'kendine', aciklama:'Altın, Odun, Metal üretimi artar', fiyat:2000 },
+  { id:'parsomen_motivasyon_y', buyu_id:'motivasyon_y', isim:'Motivasyon (Yiyecek)', cag:2, mana_renk:'yesil', tip:'ekonomi', kategori:'kendine', aciklama:'Buğday, Balık, et üretimi artar', fiyat:2000 },
   { id:'parsomen_olum_sisi', buyu_id:'olum_sisi', isim:'Ölüm Sisi', cag:2, mana_renk:'kirmizi', tip:'saldiri', kategori:'dusmana', aciklama:'Düşman köylüleri öldürür', fiyat:2000 },
   { id:'parsomen_sessizlik', buyu_id:'sessizlik', isim:'Sessizlik', cag:2, mana_renk:'mavi', tip:'anti_buyu', kategori:'dusmana', aciklama:'Düşman büyü yapamaz', fiyat:2000 },
   { id:'parsomen_koruma', buyu_id:'koruma', isim:'Koruma', cag:3, mana_renk:'beyaz', tip:'savunma', kategori:'kendine', aciklama:'Şehre saldırı engellenir', fiyat:5000 },
@@ -184,7 +184,7 @@ async function loadBuyuDukkani() {
 
   const sel = document.getElementById('bd-kervan');
   sel.innerHTML = '<option value="">-- Kervan sec --</option>' +
-    buyuKervanlar.map(k => `<option value="${k.id}">${k.isim} (${k.toplam_yuk.toLocaleString()}/${k.kapasite.toLocaleString()})</option>`).join('');
+    buyuKervanlar.map(k => `<option value="${k.id}">${esc(k.isim)} (${k.toplam_yuk.toLocaleString()}/${k.kapasite.toLocaleString()})</option>`).join('');
 
   // Stok
   try {
@@ -226,14 +226,14 @@ function renderBuyuDukkani() {
   // Buyu malzemeleri (uste)
   const malEl = document.getElementById('bd-malzeme-liste');
   const MAL_IKON = { ates_tozu:'💎', ay_cigi:'🌙', golgeler_otu:'⚗️', ejderha_goz_damla:'🐉' };
-  const MAL_ISIM = { ates_tozu:'Kristal Tozu', ay_cigi:'Ay Tasi', golgeler_otu:'Karanlik Esans', ejderha_goz_damla:'Ejderha Pulu' };
+  const MAL_ISIM = { ates_tozu:'Kristal Tozu', ay_cigi:'Ay Taşı', golgeler_otu:'Karanlık Esans', ejderha_goz_damla:'Ejderha Pulu' };
   malEl.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:6px">' +
     BD_STOK.malzemeler.map(m => `
       <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:#111;border:1px solid #222;border-radius:4px">
         <span style="font-size:18px">${MAL_IKON[m.id]||'📦'}</span>
         <div style="flex:1">
           <div style="font-size:11px;font-weight:bold;color:#d4af37">${MAL_ISIM[m.id]||m.isim}</div>
-          <div style="font-size:11px;color:#888">${m.fiyat.toLocaleString()} altin | Stok: <span style="color:${m.stok>0?'#2ecc71':'#e74c3c'}">${m.stok}/${m.max_stok}</span></div>
+          <div style="font-size:11px;color:#888">${m.fiyat.toLocaleString()} Altın | Stok: <span style="color:${m.stok>0?'#2ecc71':'#e74c3c'}">${m.stok}/${m.max_stok}</span></div>
         </div>
         <input type="number" id="bd-mal-${m.id}" value="1" min="1" max="${m.stok}" style="padding:2px;width:35px;background:#1a1a1a;border:1px solid #333;color:#ddd;border-radius:3px;font-size:10px;text-align:center">
         <button class="btn-action" onclick="bdSatinAl('${m.id}',parseInt(document.getElementById('bd-mal-${m.id}').value)||1)" ${m.stok<1||!BD_KERVAN_ID?'disabled':''}
@@ -251,7 +251,7 @@ function renderBuyuDukkani() {
   if (parsomenList && parsomenList.length > 0) {
     const RENK_DOT = { beyaz:'#f0e6d2', kirmizi:'#e74c3c', mavi:'#3498db', yesil:'#2ecc71' };
     const KAT_IKON = { ekonomi:'\u{1F4B0}', destek:'\u{1F6E1}\uFE0F', savunma:'\u{1F3F0}', saldiri:'\u2694\uFE0F', ozel:'\u2728', anti_buyu:'\u{1F52E}' };
-    const MAL_MAP = { ekonomi:'Kristal Tozu', destek:'Kristal Tozu', savunma:'Ay Tasi', saldiri:'Karanlik Esans', ozel:'Ejderha Pulu', anti_buyu:'Ejderha Pulu' };
+    const MAL_MAP = { ekonomi:'Kristal Tozu', destek:'Kristal Tozu', savunma:'Ay Taşı', saldiri:'Karanlık Esans', ozel:'Ejderha Pulu', anti_buyu:'Ejderha Pulu' };
     parEl.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px">' +
       parsomenList.map(p => {
         const kd = p.kademeler || PARSOMEN_KADEME[p.buyu_id];
@@ -261,7 +261,7 @@ function renderBuyuDukkani() {
         return `
         <div style="background:#111;border:1px solid #2d1f4e;border-radius:6px;padding:10px;border-left:3px solid ${RENK_DOT[p.mana_renk]||'#888'}">
           <div style="font-size:12px;font-weight:bold;color:#8e44ad">${KAT_IKON[p.tip]||''} ${p.isim}</div>
-          <div style="font-size:11px;color:#888;margin:2px 0">Cag ${p.cag} | <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${RENK_DOT[p.mana_renk]};vertical-align:middle"></span> ${RENK_ISIM[p.mana_renk]} | ${p.kategori==='dusmana'?'Ofansif':'Kendine'}</div>
+          <div style="font-size:11px;color:#888;margin:2px 0">Çağ ${p.cag} | <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${RENK_DOT[p.mana_renk]};vertical-align:middle"></span> ${RENK_ISIM[p.mana_renk]} | ${p.kategori==='dusmana'?'Ofansif':'Kendine'}</div>
           <div style="font-size:10px;color:#aaa;margin:3px 0">${p.aciklama||''}</div>
           <div style="font-size:11px;color:#666;margin:2px 0">Malzeme: ${MAL_MAP[p.tip]||'?'}</div>
           ${k1 ? `<div style="margin-top:5px;border-top:1px solid #222;padding-top:4px">
@@ -279,7 +279,7 @@ function renderBuyuDukkani() {
             <span style="flex:1"></span>
             <button class="btn-action" onclick="bdSatinAl('${p.id}',1)" ${(!BD_KERVAN_ID || p.full)?'disabled':''}
               style="padding:3px 10px;font-size:11px;width:auto;${(!BD_KERVAN_ID || p.full)?'opacity:0.3;cursor:not-allowed':''}"
-              title="${p.full?'Bu buyu max kademe + envanter + kervan = 10\'a ulasti':''}">${p.full?'MAX':'Al'}</button>
+              title="${p.full?'Bu büyü max kademe + envanter + kervan = 10\'a ulasti':''}">${p.full?'MAX':'Al'}</button>
           </div>
         </div>`;
       }).join('') + '</div>';
@@ -305,7 +305,7 @@ function renderBuyuDukkani() {
       manaHTML += `<div style="background:#111;border:1px solid #222;border-radius:6px;padding:8px;border-top:2px solid ${renkCSS};text-align:center">
         <div style="font-size:11px;font-weight:bold;color:${renkCSS}">${BOYUT_ISIM[m.boyut]}</div>
         <div style="font-size:16px;margin:4px 0">+${m.mana_miktari}</div>
-        <div style="font-size:11px;color:#888">${m.fiyat.toLocaleString()} altin</div>
+        <div style="font-size:11px;color:#888">${m.fiyat.toLocaleString()} Altın</div>
         <div style="font-size:11px;color:${m.stok>0?'#2ecc71':'#e74c3c'};margin:2px 0">Stok: ${m.stok}/${m.max_stok}</div>
         <button class="btn-action" onclick="bdSatinAl('${m.id}',1)" ${m.stok<1||!BD_KERVAN_ID?'disabled':''}
           style="padding:2px 10px;font-size:11px;width:auto;${!BD_KERVAN_ID?'opacity:0.3':''}">Al</button>

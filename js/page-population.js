@@ -25,7 +25,7 @@ async function loadIsciMaasOzet() {
     const detayEl = document.getElementById('isci-maas-detay');
     // v1.14.3.47: katip + izci ikonlari eklendi
     const ICONS = { tuccar:'🛒', oduncu:'🪓', madenci:'⛏', ciftci:'🌾', balikci:'🎣', katip:'📚', izci:'🏞' };
-    const ADLAR = { tuccar:'Tüccar', oduncu:'Oduncu', madenci:'Madenci', ciftci:'Çiftçi', balikci:'Balıkçı', katip:'Katip', izci:'İzci' };
+    const ADLAR = { tuccar:'Tüccar', oduncu:'Oduncu', madenci:'Madenci', ciftci:'Çiftçi', balikci:'Balıkçı', katip:'Kâtip', izci:'İzci' };
     detayEl.innerHTML = Object.entries(m.detay || {}).map(([tip, x]) =>
       `<span style="background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.3);padding:3px 8px;border-radius:12px;color:#c8a96e">${ICONS[tip]||''} ${ADLAR[tip]||tip}: ${x.adet} × ${x.birim} = <b style="color:#d4af37">${x.toplam.toLocaleString('tr-TR')}</b></span>`
     ).join('');
@@ -60,7 +60,7 @@ const ISCI_BINA_MAP = {
   // v1.14.2.0 (FAZ X.4): Katip — Akademi seviye x 50 kapasitesi
   katip:    { binaId: 'akademi',      kapasite: 50, ad: 'Akademi' },
   // v1.14.2.1: Izci — Bina-bagli degil, max 50 (sabit)
-  izci:     { binaId: null,           kapasite: 50, ad: 'Izci', sabitKapasite: true },
+  izci:     { binaId: null,           kapasite: 50, ad: 'İzci', sabitKapasite: true },
 };
 
 function getWorkerCapacity(type) {
@@ -173,7 +173,7 @@ function pisirmeStokDurum() {
   return {
     bugday: { stok: parseInt(R.bugday) || 0, ad: 'Buğday' },
     balik:  { stok: parseInt(R.balik)  || 0, ad: 'Balık' },
-    et:     { stok: (parseInt(R.cig_et) || 0) + (parseInt(E.besi_hayvani) || 0), ad: 'Et (çiğ et + besi)' }
+    et:     { stok: (parseInt(R.cig_et) || 0) + (parseInt(E.besi_hayvani) || 0), ad: 'Et (Çiğ Et + besi)' }
   };
 }
 function pisirmeStokIhlalleri() {
@@ -310,15 +310,15 @@ function kesimInit() {
 
   if (KESIM_TIP === 'besi') {
     if (lbl) lbl.textContent = '🐄 BESİ HAYVANI';
-    if (aciklama) aciklama.textContent = 'Besi hayvanları çiftlikten gelir. Her besi hayvanı = 20 çiğ et.';
+    if (aciklama) aciklama.textContent = 'Besi hayvanları çiftlikten gelir. Her Besi Hayvanı = 20 Çiğ Et.';
     setText('kesim-hayvan', EXTRA_RES.besi_hayvani || 0);
   } else {
     const hayvanAdi = isLight ? 'At' : 'Kurt';
     const hayvanIcon = isLight ? '🐴' : '🐺';
     if (lbl) lbl.textContent = hayvanIcon + ' ' + hayvanAdi.toUpperCase();
     if (aciklama) aciklama.textContent = isLight
-      ? '🐴 Aydınlık taraf at keser. Her at = 50 çiğ et.'
-      : '🐺 Karanlık taraf kurt keser. Her kurt = 50 çiğ et.';
+      ? '🐴 Aydınlık taraf at keser. Her at = 50 Çiğ Et.'
+      : '🐺 Karanlık taraf kurt keser. Her kurt = 50 Çiğ Et.';
     const hayvanSayisi = isLight ? (EXTRA_RES.at || 0) : (EXTRA_RES.kurt || 0);
     setText('kesim-hayvan', hayvanSayisi);
   }
@@ -391,7 +391,7 @@ async function kesimYap() {
     const etCarpan = KESIM_TIP === 'besi' ? 20 : 50;
     const uretilen = KESIM_MIKTAR * etCarpan;
     document.getElementById('kesim-sonuc').textContent =
-      '✅ ' + KESIM_MIKTAR + ' hayvan kesildi → ' + uretilen + ' çiğ et üretildi!';
+      '✅ ' + KESIM_MIKTAR + ' hayvan kesildi → ' + uretilen + ' Çiğ Et üretildi!';
     document.getElementById('kesim-sonuc').style.color = '#2ecc71';
     // Kaynaklari guncelle
     if (data.extra_res) {
@@ -684,14 +684,14 @@ async function loadEsirler() {
       // v1.14.0.82: Esir -> Isci cevirme formu
       html +=
         '<div style="padding:10px;background:#0d0d0d;border:1px solid #2a2a2a;border-radius:6px;margin-bottom:10px">' +
-          '<div style="color:#c8a96e;font-weight:bold;margin-bottom:8px">⚒️ Esir\'i Isci Yap (ucretsiz)</div>' +
-          '<div style="font-size:11px;color:#888;margin-bottom:8px">Bos esiri isci olarak ata: oduncu/madenci/ciftci/balikci/tuccar. Maliyet yok.</div>' +
+          '<div style="color:#c8a96e;font-weight:bold;margin-bottom:8px">⚒️ Esir\'i İşçi Yap (ucretsiz)</div>' +
+          '<div style="font-size:11px;color:#888;margin-bottom:8px">Bos esiri işçi olarak ata: oduncu/madenci/çiftçi/balıkçı/tüccar. Maliyet yok.</div>' +
           '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
             '<select id="esir-isci-tip" style="padding:6px;background:#1a1a1a;border:1px solid #333;color:#fff;border-radius:3px;font-size:12px">' +
               '<option value="oduncu">🪓 Oduncu</option>' +
               '<option value="madenci">⛏️ Madenci</option>' +
-              '<option value="ciftci">🌾 Ciftci (tarla gerekli)</option>' +
-              '<option value="balikci">🎣 Balikci</option>' +
+              '<option value="ciftci">🌾 Çiftçi (tarla gerekli)</option>' +
+              '<option value="balikci">🎣 Balıkçı</option>' +
               '<option value="tuccar">💼 Tuccar</option>' +
             '</select>' +
             '<input id="esir-isci-adet" type="number" min="1" max="' + (e.bos||0) + '" value="1" style="width:80px;padding:6px;background:#1a1a1a;border:1px solid #333;color:#fff;border-radius:3px;font-size:12px">' +
@@ -705,8 +705,8 @@ async function loadEsirler() {
         const opts = izinli.map(u => '<option value="' + u + '">' + u + '</option>').join('');
         html +=
           '<div style="padding:10px;background:#0d0d0d;border:1px solid #2a2a2a;border-radius:6px">' +
-            '<div style="color:#c8a96e;font-weight:bold;margin-bottom:8px">⚔️ Esir\'den Unite Olustur (%50 altin)</div>' +
-            '<div style="font-size:11px;color:#888;margin-bottom:8px">Maliyet: normal unite altin fiyatinin %50\'si. Aninda egitilir, havuza eklenir.</div>' +
+            '<div style="color:#c8a96e;font-weight:bold;margin-bottom:8px">⚔️ Esir\'den Ünite Olustur (%50 Altın)</div>' +
+            '<div style="font-size:11px;color:#888;margin-bottom:8px">Maliyet: normal ünite Altın fiyatinin %50\'si. Aninda egitilir, havuza eklenir.</div>' +
             '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
               '<select id="esir-unite-sec" style="padding:6px;background:#1a1a1a;border:1px solid #333;color:#fff;border-radius:3px;font-size:12px">' + opts + '</select>' +
               '<input id="esir-unite-adet" type="number" min="1" max="' + (e.bos||0) + '" value="1" style="width:80px;padding:6px;background:#1a1a1a;border:1px solid #333;color:#fff;border-radius:3px;font-size:12px">' +
@@ -716,7 +716,7 @@ async function loadEsirler() {
           '</div>';
       }
     } else {
-      html += '<div style="color:#666;font-size:11px;padding:8px;background:#1a1a1a;border-radius:4px">Bosta esir yok (tumu isci/unite atanmis).</div>';
+      html += '<div style="color:#666;font-size:11px;padding:8px;background:#1a1a1a;border-radius:4px">Bosta esir yok (tumu işçi/ünite atanmış).</div>';
     }
 
     wrap.innerHTML = html;
@@ -741,7 +741,7 @@ async function esirIsciyeCevir() {
     const wR = await fetch(API_BASE + '/api/game/workers?_cb=' + Date.now(), {
       headers: { Authorization: 'Bearer ' + token }, cache: 'no-store'
     });
-    if (!wR.ok) { sonuc.textContent = '✗ Isci verisi alinamadi'; sonuc.style.color = '#e74c3c'; return; }
+    if (!wR.ok) { sonuc.textContent = '✗ İşçi verisi alinamadi'; sonuc.style.color = '#e74c3c'; return; }
     const w = await wR.json();
     // Normal isci'ler — mevcut degerleri koru
     const normalIsci = {
@@ -783,7 +783,7 @@ async function esirUniteyeCevir() {
   const unite = document.getElementById('esir-unite-sec').value;
   const adet = parseInt(document.getElementById('esir-unite-adet').value) || 0;
   const sonuc = document.getElementById('esir-sonuc');
-  if (!unite || adet <= 0) { sonuc.textContent = 'Unite ve adet sec'; return; }
+  if (!unite || adet <= 0) { sonuc.textContent = 'Ünite ve adet sec'; return; }
   sonuc.textContent = 'Isleniyor...';
   sonuc.style.color = '#888';
   try {

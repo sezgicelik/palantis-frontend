@@ -79,11 +79,11 @@
             <option value="metal">Metal</option><option value="kereste">Kereste</option><option value="islenmis">İşlenmiş</option>
             <option value="bugday">Buğday</option><option value="balik">Balık</option><option value="ekmek">Ekmek</option>
             <option value="pismis">Pişmiş</option><option value="pismis_et">Pişmiş Et</option><option value="cig_et">Çiğ Et</option>
-            <option value="mana_beyaz">Beyaz Mana</option><option value="mana_kirmizi">Kirmizi Mana</option>
-            <option value="mana_mavi">Mavi Mana</option><option value="mana_yesil">Yesil Mana</option>
+            <option value="mana_beyaz">Beyaz Mana</option><option value="mana_kirmizi">Kırmızı Mana</option>
+            <option value="mana_mavi">Mavi Mana</option><option value="mana_yesil">Yeşil Mana</option>
             <option value="at">At</option><option value="kurt">Kurt</option>
-            <option value="ates_tozu">Kristal Tozu</option><option value="ay_cigi">Ay Tasi</option>
-            <option value="golgeler_otu">Karanlik Esans</option><option value="ejderha_goz_damla">Ejderha Pulu</option>
+            <option value="ates_tozu">Kristal Tozu</option><option value="ay_cigi">Ay Taşı</option>
+            <option value="golgeler_otu">Karanlık Esans</option><option value="ejderha_goz_damla">Ejderha Pulu</option>
           </select>
         </div>
         <!-- v1.13.1: Piyasa ipucu + sinir uyarisi -->
@@ -119,9 +119,9 @@
 <script src="js/theme.js"></script>
 <script src="js/cache-fetch.js"></script>
 <script src="js/game-data.js?v=14133"></script>
-<script src="js/hud.js?v=13500"></script>
+<script src="js/hud.js?v=13501"></script>
 <script src="js/nufus-render.js"></script>
-<script src="js/layout.js?v=14380"></script>
+<script src="js/layout.js?v=14381"></script>
 <script src="js/rehber.js"></script>
 <script>
 const TARAF_RENK = { iyi:'#f1c40f', kotu:'#3498db' };
@@ -157,9 +157,9 @@ async function loadKadimSehirler() {
       return `<div class="card" style="padding:14px;cursor:pointer;border:2px solid ${_kadimSecili===s.id ? renk : 'transparent'};text-align:center;transition:border 0.2s" onclick="kadimSec(${s.id})">
         <div style="font-size:20px;margin-bottom:4px">${ikon}</div>
         <div style="color:${renk};font-weight:bold;font-size:14px;font-family:'Cinzel',serif">${s.isim}</div>
-        <div style="font-size:10px;color:#888;margin-top:4px">${s.taraf === 'isik' ? 'Isik Sehri' : 'Karanlik Sehir'}</div>
+        <div style="font-size:10px;color:#888;margin-top:4px">${s.taraf === 'isik' ? 'Işık Şehri' : 'Karanlık Şehir'}</div>
         <div style="font-size:10px;color:#555;margin-top:6px">Konum: ${s.x}:${s.y} | Ordu: ${s.ordu_gucu}</div>
-        <div style="font-size:10px;color:#d4af37;margin-top:4px">Ticaretiniz: ${s.toplam_ticaret.toLocaleString()} altin</div>
+        <div style="font-size:10px;color:#d4af37;margin-top:4px">Ticaretiniz: ${s.toplam_ticaret.toLocaleString()} Altın</div>
       </div>`;
     }).join('');
 
@@ -235,7 +235,7 @@ async function kadimSatinAl(sehirId, kaynak, birimFiyat) {
   if (miktar <= 0) { toast('Gecerli miktar gir'); return; }
 
   const toplam = miktar * birimFiyat;
-  if (!confirm(miktar + ' adet ' + kaynak + ' satin al?\nToplam: ' + toplam.toLocaleString() + ' altin')) return;
+  if (!confirm(miktar + ' adet ' + kaynak + ' satin al?\nToplam: ' + toplam.toLocaleString() + ' Altın')) return;
 
   try {
     const resp = await fetch(API_BASE + '/api/kadim-sehir/' + sehirId + '/satin-al', {
@@ -271,7 +271,7 @@ async function loadIlanlar() {
     el.innerHTML = data.ilanlar.map(i => `
       <div class="card" style="padding:10px;margin-bottom:4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <div style="min-width:100px">
-          <div style="color:${TARAF_RENK[i.satici_taraf]||'#888'};font-weight:bold;font-size:12px">${i.satici_kral}</div>
+          <div style="color:${TARAF_RENK[i.satici_taraf]||'#888'};font-weight:bold;font-size:12px">${esc(i.satici_kral)}</div>
         </div>
         <div style="flex:1;min-width:200px">
           <span style="color:#2ecc71;font-weight:bold">${i.satis_miktar.toLocaleString()} ${i.satis_kaynak}</span>
@@ -297,7 +297,7 @@ async function loadKervanlarPazar() {
     PZ_KERVANLAR = (data.kervanlar || []).filter(k => k.durum === 'pazarda');
     const sel = document.getElementById('pz-kervan');
     sel.innerHTML = '<option value="">-- Kervan sec --</option>' +
-      PZ_KERVANLAR.map(k => `<option value="${k.id}">${k.isim} (${k.toplam_yuk.toLocaleString()}/${k.kapasite.toLocaleString()})</option>`).join('');
+      PZ_KERVANLAR.map(k => `<option value="${k.id}">${esc(k.isim)} (${k.toplam_yuk.toLocaleString()}/${k.kapasite.toLocaleString()})</option>`).join('');
     if (PZ_KERVANLAR.length === 0) {
       document.getElementById('pz-ilan-msg').innerHTML = '<span style="color:#e74c3c">Pazarda kervan yok! Once kervan sayfasindan bir kervan gonderin.</span>';
     }
@@ -440,7 +440,7 @@ async function loadBenimIlanlar() {
           <span style="color:#f1c40f">${i.istek_miktar} ${i.istek_kaynak}</span>
         </div>
         <span style="color:${durumRenk};font-size:11px;font-weight:bold">${i.durum.toUpperCase()}</span>
-        ${i.alici_kral ? `<span style="color:#888;font-size:10px">Alici: ${i.alici_kral}</span>` : ''}
+        ${i.alici_kral ? `<span style="color:#888;font-size:10px">Alici: ${esc(i.alici_kral)}</span>` : ''}
         ${i.durum==='aktif' ? `<button class="btn-action" onclick="pzIptal(${i.id})" style="padding:3px 10px;font-size:10px;width:auto;border-color:#e74c3c;color:#e74c3c">Iptal</button>` : ''}
       </div>`;
     }).join('');
@@ -467,7 +467,7 @@ function renderKervanOzet() {
     ).join(' ') || '<span style="color:#555;font-size:10px">Bos</span>';
     return `<div style="margin-bottom:6px;padding:8px;background:#0d0d0d;border-radius:4px;border-left:2px solid #c8a96e">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <span style="color:#d4af37;font-weight:bold;font-size:12px">${k.isim}</span>
+        <span style="color:#d4af37;font-weight:bold;font-size:12px">${esc(k.isim)}</span>
         <span style="font-size:10px;color:#888">${k.toplam_yuk.toLocaleString()} / ${k.kapasite.toLocaleString()}</span>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:3px">${yukParts}</div>
@@ -502,7 +502,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 <script src="js/epik-olay.js"></script>
-<script src="js/bildirim-popup.js"></script>
+<script src="js/bildirim-popup.js?v=1"></script>
 <script src="js/sw-register.js?v=13467"></script>
 </body>
 </html>
